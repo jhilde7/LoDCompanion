@@ -91,7 +91,7 @@ namespace LoDCompanion.Models.Dungeon
 
             // Assuming a Shuffle extension method is available for List<T>
             // This would likely come from a shared Utilities or RandomHelper class.
-            _levers.Shuffle();
+            Utilities.IListExtensions.Shuffle(_levers);
         }
 
         // Public method to simulate pulling a lever and get the event description

@@ -5,9 +5,9 @@ namespace LoDCompanion.Services.GameData
 {
     public class AlchemyService
     {
-        private readonly GameDataRegistryService _gameData;
+        private readonly GameDataService _gameData;
 
-        public AlchemyService(GameDataRegistryService gameData)
+        public AlchemyService(GameDataService gameData)
         {
             _gameData = gameData;
         }
@@ -439,13 +439,13 @@ namespace LoDCompanion.Services.GameData
 
     public class AlchemyItem : Equipment
     {
-        public bool IsPotion { get; set; } = false;
-        public bool IsIngredient { get; set; } = false;
-        public bool IsPart { get; set; } = false;
+        public bool IsPotion { get; set; }
+        public bool IsIngredient { get; set; }
+        public bool IsPart { get; set; }
         public PotionStrength Strength { get; set; } = PotionStrength.None;
         public string EffectDescription { get; set; } = string.Empty;
         public string Origin { get; set; } = string.Empty; // For ingredients/parts, their origin (e.g., "Plant", "Fungus", "Animal")
-        public bool CreatePotion { get; set; } = false; //triggers random potion generator
+        public bool CreatePotion { get; set; } //triggers random potion generator
 
         public AlchemyItem()
         {

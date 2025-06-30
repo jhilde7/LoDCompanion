@@ -1,7 +1,27 @@
 ﻿@page "/"
+@inject LoDCompanion.Services.State.PartyManagerService PartyManager
+@inject NavigationManager Navigation
+@inject ILogger<Home> Logger
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<div class="text-center" style="margin-top: 5rem;">
+    <h1 class="display-4">League of Dungeoneers Companion</h1>
+    <p class="lead">Your companion for epic adventures.</p>
+    <hr class="my-4">
+    <p>Ready to assemble your party and delve into the dungeons?</p>
+    <button class="btn btn-primary btn-lg" @onclick="StartNewParty">
+        <i class="fas fa-users"></i> Create a New Party
+    </button>
+</div>
 
-<h1>Hello, world!</h1>
+@code {
+    private void StartNewParty()
+    {
+        Logger.LogInformation("Create a New Party button was clicked!");
+        // Clear any pre-existing party to start fresh
+        PartyManager.ClearParty();
 
-Welcome to your new app.
+        // Navigate to the first step of the character creation flow
+        Navigation.NavigateTo("/character-creator");
+    }
+}

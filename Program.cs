@@ -1,31 +1,29 @@
 using LoDCompanion.Components;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.State;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-// --- Configuration Setup ---
-builder.Configuration.AddJsonFile("game_data.json", optional: false, reloadOnChange: true);
-
-// --- Dependency Injection Setup ---
-builder.Services.AddSingleton(provider => {
-    var config = new GameDataConfiguration();
-    provider.GetRequiredService<IConfiguration>().Bind(config);
-    return config;
+builder.Services.Configure<JsonSerializerOptions>(options =>
+{
+    options.PropertyNameCaseInsensitive = true;
+    options.WriteIndented = true;
 });
 
 //register core services.
-builder.Services.AddSingleton<GameDataRegistryService>();
+builder.Services.AddSingleton<GameDataService>();
 builder.Services.AddSingleton<CharacterCreationService>();
-builder.Services.AddSingleton<TalentLookupService>();
-builder.Services.AddSingleton<SpellLookupService>();
-builder.Services.AddSingleton<PrayerLookupService>();
+builder.Services.AddSingleton<PartyManagerService>();
 
 var app = builder.Build();
+
+app.MapGet("/config", (IConfiguration config) => config.AsEnumerable());
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

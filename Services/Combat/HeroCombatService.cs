@@ -1,4 +1,4 @@
-﻿using LoDCompanion.Models.Characters;
+﻿using LoDCompanion.Services.GameData;
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 

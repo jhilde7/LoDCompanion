@@ -1,7 +1,7 @@
 ﻿using LoDCompanion.Utilities;
 using LoDCompanion.Models;
-using LoDCompanion.Models.Characters;
-using LoDCompanion.Services.GameData; // For Monster, Hero, Weapon, Armour
+using LoDCompanion.Models.Character;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Combat
 {

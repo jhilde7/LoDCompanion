@@ -1,13 +1,200 @@
-﻿using LoDCompanion.Services.GameData;
+﻿
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
+using System.Diagnostics;
+using System.Text;
 
-namespace LoDCompanion.Models.Characters
+namespace LoDCompanion.Models.Character
 {
+    public class Character
+    {
+        public string Name { get; set; } = string.Empty; // Default to empty string for safety
+        public int CurrentHP { get; set; }
+        public int MaxHP { get; set; }
+        public int Strength { get; set; }
+        public int Constitution { get; set; }
+        public int Dexterity { get; set; }
+        public int Wisdom { get; set; }
+        public int Resolve { get; set; }
+        public int CombatSkill { get; set; }
+        public int RangedSkill { get; set; }
+        public int Dodge { get; set; }
+        public int Level { get; set; }
+        public int NaturalArmour { get; set; }
+        public int DamageBonus { get; set; } // Bonus damage from Strength or other sources
+
+        // Constructor (optional, but good practice for initialization)
+        public Character()
+        {
+        }
+
+        // Common methods for all characters
+        public virtual void TakeDamage(int damage)
+        {
+            CurrentHP -= damage;
+            if (CurrentHP < 0)
+            {
+                CurrentHP = 0;
+            }
+        }
+
+        public virtual int CalculateNaturalArmor()
+        {
+            // Example: Base natural armor plus a bonus from Constitution
+            return NaturalArmour + Constitution / 2; // Simple example, adjust as per game rules
+        }
+
+        // Add other common methods here as needed
+    }
+    public class Hero : Character
+    {
+        // Basic Hero Information
+        public string SpeciesName { get; set; } = string.Empty;
+        public string ProfessionName { get; set; } = string.Empty;
+        public int Experience { get; set; }
+        public int Luck { get; set; }
+        public int MaxEnergy { get; set; } = 1;
+        public int CurrentEnergy { get; set; } = 1;
+        public int? MaxMana { get; set; }
+        public int? CurrentMana { get; set; }
+        public int MaxSanity { get; set; } = 10;
+        public int CurrentSanity { get; set; } = 10;
+        public List<string> Status { get; set; } = new List<string>(); // e.g., "Normal", "Poisoned", "Diseased"
+
+        // Skills (could be part of a separate Skill collection if complex, but keeping here for now)
+        public int PickLocksSkill { get; set; }
+        public int BarterSkill { get; set; }
+        public int HealSkill { get; set; }
+        public int AlchemySkill { get; set; }
+        public int PerceptionSkill { get; set; }
+        public int ArcaneArtsSkill { get; set; }
+        public int ForagingSkill { get; set; }
+        public int BattlePrayersSkill { get; set; }
+
+        // Hero-specific States and Flags
+        public int MaxArmour { get; set; }
+        public bool IsThief { get; set; } // Indicates if profession is Thief
+        public bool HasLantern { get; set; }
+        public bool HasTorch { get; set; }
+        public bool IsWeShaltNotFalter { get; set; } // Specific buff/debuff
+
+        // Collections of Hero-specific items/abilities
+        public List<Talent> Talents { get; set; } = new List<Talent>();
+        public List<Perk> Perks { get; set; } = new List<Perk>();
+        public List<Equipment> Weapons { get; set; } = new List<Equipment>();
+        public List<Armour> Armours { get; set; } = new List<Armour>();
+        public Shield? Shield { get; set; }
+        public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
+        public List<Equipment> Backpack { get; set; } = new List<Equipment>();
+
+        public List<Spell> Spells { get; set; } = new List<Spell>();
+        public List<Prayer> Prayers { get; set; } = new List<Prayer>();
+
+        // Constructor
+        public Hero()
+        {
+
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"--- Hero: {Name} (Level {Level} {SpeciesName} {ProfessionName}) ---");
+            sb.AppendLine($"HP: {CurrentHP}/{MaxHP}, Sanity: {CurrentSanity}/{MaxSanity}, Energy: {CurrentEnergy}/{MaxEnergy}, XP: {Experience}");
+            if (MaxMana.HasValue) sb.AppendLine($"Mana: {CurrentMana}/{MaxMana}");
+
+            sb.AppendLine("\n-- Stats --");
+            sb.AppendLine($"STR: {Strength}, CON: {Constitution}, DEX: {Dexterity}, WIS: {Wisdom}, RES: {Resolve}");
+            sb.AppendLine($"CS: {CombatSkill}, RS: {RangedSkill}, Dodge: {Dodge}, NA: {NaturalArmour}, DB: {DamageBonus}, Luck: {Luck}");
+
+            sb.AppendLine("\n-- Skills --");
+            sb.AppendLine($"Pick Locks: {PickLocksSkill}, Barter: {BarterSkill}, Heal: {HealSkill}, Alchemy: {AlchemySkill}");
+            sb.AppendLine($"Perception: {PerceptionSkill}, Arcane Arts: {ArcaneArtsSkill}, Foraging: {ForagingSkill}, Battle Prayers: {BattlePrayersSkill}");
+
+            if (Talents.Any()) sb.AppendLine($"\n-- Talents --\n{string.Join(", ", Talents.Select(t => t.Name))}");
+            if (Perks.Any()) sb.AppendLine($"\n-- Perks --\n{string.Join(", ", Perks.Select(p => p.Name))}");
+            if (Spells.Any()) sb.AppendLine($"\n-- Spells --\n{string.Join(", ", Spells.Select(s => s.Name))}");
+            if (Prayers.Any()) sb.AppendLine($"\n-- Prayers --\n{string.Join(", ", Prayers.Select(p => p.Name))}");
+            if (Backpack.Any()) sb.AppendLine($"\n-- Backpack --\n{string.Join(", ", Backpack.Select(e => e.Name))}");
+
+            return sb.ToString();
+        }
+
+        public bool ResistDisease(int? roll = null)
+        {
+            // This method would use a RandomHelper service or static method now
+            if (roll == null)
+            {
+                roll = RandomHelper.RollDie("D100");
+            }
+            int con = Constitution;
+
+            // Apply talent bonuses
+            foreach (Talent talent in Talents)
+            {
+                if (talent.IsResistDisease)
+                {
+                    con += 10;
+                }
+            }
+
+            return (roll <= con);
+        }
+
+        public bool ResistPoison(int? roll = null)
+        {
+            if (roll == null)
+            {
+                roll = RandomHelper.RollDie("D100");
+            }
+            int con = Constitution;
+
+            foreach (var talent in Talents)
+            {
+                if (talent.IsResistPoison)
+                {
+                    con += 10;
+                }
+            }
+
+            return (roll <= con);
+        }
+
+        /// <summary>
+        /// Gets the current total armour class from equipped armours and shields.
+        /// </summary>
+        /// <returns>The total armour class.</returns>
+        public int GetTotalArmourClass()
+        {
+            int totalAC = 0;
+            foreach (var armour in Armours)
+            {
+                totalAC += armour.ArmourClass;
+            }
+            if (Shield != null)
+            {
+                totalAC += Shield.ArmourClass;
+            }
+            return totalAC;
+        }
+
+        // Method to get current weapon for combat. HeroWeapon.cs had complex logic
+        // This simplified approach assumes the first weapon in the list is the "active" one
+        // or a dedicated 'EquippedWeapon' property would be better
+        public Equipment? GetEquippedWeapon()
+        {
+            if (Weapons.Count > 0)
+            {
+                return Weapons[0]; // Simple, assumes the primary equipped weapon is at index 0
+            }
+            return null; // No weapon equipped
+        }
+    }
     public class Monster : Character // Inherit from the new Character base class
     {
-        private readonly GameDataRegistryService _gameData;
-        public string Type { get; set; } = string.Empty; 
+        private readonly GameDataService _gameData;
+        public string Type { get; set; } = string.Empty;
         public int ArmourValue { get; set; }
         public bool HasShield { get; set; } // Indicates if the monster has a shield
         public int[] DamageArray { get; set; } = new int[2]; // Initialize to avoid null reference
@@ -26,10 +213,35 @@ namespace LoDCompanion.Models.Characters
         public string TreasureType { get; set; } = "-"; // Default value indicating no treasure type assigned
         public List<string> Treasures { get; set; } = new List<string>();
 
-        public Monster(GameDataRegistryService gameData)
+        public Monster(GameDataService gameData)
         {
             _gameData = gameData;
             Body = new Corpse(_gameData, TreasureType); // Initialize the Body with the default TreasureType
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"--- Monster: {Name} [{Type}] ---");
+            sb.AppendLine($"HP: {CurrentHP}/{MaxHP}, Armour: {ArmourValue}, Move: {Move}, XP: {XP}");
+
+            sb.AppendLine("\n-- Combat Stats --");
+            sb.AppendLine($"CS: {CombatSkill}, RS: {RangedSkill}, Dodge: {Dodge}, To Hit: {ToHit}");
+            sb.AppendLine($"Damage: {DamageArray[0]}-{DamageArray[1]}, DB: {DamageBonus}");
+
+            if (Weapons.Any())
+            {
+                sb.AppendLine("\n-- Weapons --");
+                foreach (var weapon in Weapons)
+                {
+                    sb.AppendLine($"- {weapon.Name} (Damage: {weapon.DamageArray[0]} - {weapon.DamageArray[1]})");
+                }
+            }
+
+            if (SpecialRules.Any()) sb.AppendLine($"\n-- Special Rules --\n{string.Join(", ", SpecialRules)}");
+            if (Spells.Any()) sb.AppendLine($"\n-- Spells --\n{string.Join(", ", Spells)}");
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -73,10 +285,9 @@ namespace LoDCompanion.Models.Characters
                 string returnedSpell = "";
                 int attempts = 0; // Prevent infinite loops
                 const int maxAttempts = 10;
-                SpellLookupService Spell = new SpellLookupService(_gameData);
                 do
                 {
-                    returnedSpell = Spell.GetRandomSpellNameByCategory(spellType, IsUndead);
+                    returnedSpell = _gameData.GetRandomSpellNameByCategory(spellType, IsUndead);
                     attempts++;
                 }
                 while (returnedSpells.Contains(returnedSpell) && attempts < maxAttempts);
@@ -177,6 +388,7 @@ namespace LoDCompanion.Models.Characters
 
     public class MonsterWeapon
     {
+        public string? Name { get; set; }
         // Represents the base damage range for the weapon
         public int[] DamageArray { get; set; } = new int[2]; // Initialize to avoid null reference
         public int ArmourPiercing { get; set; }

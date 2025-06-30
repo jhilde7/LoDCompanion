@@ -1,5 +1,5 @@
 ﻿using LoDCompanion.Services.Dungeon;
-using LoDCompanion.Models.Characters;
+using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Models.Dungeon
@@ -20,8 +20,8 @@ namespace LoDCompanion.Models.Dungeon
 
     public class Corpse : Searchable
     {
-        private readonly GameDataRegistryService _gameData;
-        public Corpse(GameDataRegistryService gameData, string treasureType)
+        private readonly GameDataService _gameData;
+        public Corpse(GameDataService gameData, string treasureType)
         {
             _gameData = gameData;
             TreasureType = treasureType;

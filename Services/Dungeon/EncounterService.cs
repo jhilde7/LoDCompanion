@@ -1,6 +1,6 @@
 ﻿
 using LoDCompanion.Utilities;
-using LoDCompanion.Models.Characters; // For Monster
+using LoDCompanion.Models.Character; // For Monster
 using LoDCompanion.Models; // For MonsterWeapon
 
 namespace LoDCompanion.Services.Dungeon

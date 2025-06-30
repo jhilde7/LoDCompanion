@@ -1,5 +1,5 @@
 ﻿using LoDCompanion.Services.GameData;
-using LoDCompanion.Models.Characters;
+using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 
@@ -7,26 +7,26 @@ namespace LoDCompanion.Services.Dungeon
 {
     public class TreasureService
     {
-        private readonly GameDataRegistryService _gameData;
+        private readonly GameDataService _gameData;
         private const int DefaultArmourDurability = 6;
         private const int DefaultWeaponDurability = 6;
 
-        public TreasureService(GameDataRegistryService gameData)
+        public TreasureService(GameDataService gameData)
         {
             _gameData = gameData;
         }
 
-        public List<MeleeWeapon> _wizardStaves = new List<MeleeWeapon>
+        public List<MagicStaff> _wizardStaves = new List<MagicStaff>
             {
-                new MeleeWeapon ("Basic Staff", 5, 30, 2, [1, 8]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability },
-                new MeleeWeapon ("Fire Staff", 5, 150, 2, [2, 10]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals fire damage." },
-                new MeleeWeapon ("Ice Staff", 5, 150, 2, [2, 10]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals ice damage." },
-                new MeleeWeapon ("Lightning Staff", 5, 150, 2, [2, 10]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals lightning damage." },
-                new MeleeWeapon ("Dark Staff", 5, 150, 2, [2, 10]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals dark damage." },
-                new MeleeWeapon ("Holy Staff", 5, 150, 2, [2, 10]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals holy damage." },
-                new MeleeWeapon ("Nature Staff", 5, 150, 2, [2, 10]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals nature damage." },
-                new MeleeWeapon ("Arcane Staff", 5, 200, 2, [3, 12]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals arcane damage." },
-                new MeleeWeapon ("Elder Staff", 5, 250, 2, [4, 14]) {IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "A staff of ancient power." }
+                new MagicStaff() {Name = "Basic Staff", Encumbrance = 5, Value = 30, WeaponClass = 2, DamageRange = [1, 8], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability },
+                new MagicStaff() {Name = "Fire Staff", Encumbrance = 5, Value = 150, WeaponClass = 2, DamageRange = [2, 10], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals fire damage." },
+                new MagicStaff() {Name = "Ice Staff", Encumbrance = 5, Value = 150, WeaponClass = 2, DamageRange = [2, 10], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals ice damage." },
+                new MagicStaff() {Name = "Lightning Staff", Encumbrance = 5, Value = 150, WeaponClass = 2, DamageRange = [2, 10], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals lightning damage." },
+                new MagicStaff() {Name = "Dark Staff", Encumbrance = 5, Value = 150, WeaponClass = 2, DamageRange = [2, 10], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals dark damage." },
+                new MagicStaff() {Name = "Holy Staff", Encumbrance = 5, Value = 150, WeaponClass = 2, DamageRange = [2, 10], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals holy damage." },
+                new MagicStaff() {Name = "Nature Staff", Encumbrance = 5, Value = 150, WeaponClass = 2, DamageRange = [2, 10], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals nature damage." },
+                new MagicStaff() {Name = "Arcane Staff", Encumbrance = 5, Value = 200, WeaponClass = 2, DamageRange = [3, 12], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "Deals arcane damage." },
+                new MagicStaff() {Name = "Elder Staff", Encumbrance = 5, Value = 250, WeaponClass = 2, DamageRange = [4, 14], IsDefensive = true, IsBlunt = true, MaxDurability = DefaultWeaponDurability, Description = "A staff of ancient power." }
             };
 
         public List<string> GetTreasures(List<Equipment> itemsFound)
@@ -668,7 +668,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 15: itemName = "Longbow"; value = 300; break;
                     }
                     treasure = CreateItem(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 3) - 1)), value);
-                    if (treasure is Weapon heroWeaponMagic) { heroWeaponMagic.Name = "Magic " + itemName + " of " + itemArray[0]; }
+                    if (treasure is MagicStaff heroWeaponMagic) { heroWeaponMagic.Name = "Magic " + itemName + " of " + itemArray[0]; }
                     treasure.Description = itemArray[1];
                     if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
                     {
@@ -809,15 +809,15 @@ namespace LoDCompanion.Services.Dungeon
             return string.Join(", ", items);
         }
 
-        public Weapon GetRandomWizardStaff(int durability)
+        public MagicStaff GetRandomWizardStaff(int durability)
         {
             int roll = RandomHelper.GetRandomNumber(0, _wizardStaves.Count - 1); // Adjust for 0-indexed list
-            MeleeWeapon staffTemplate = _wizardStaves[roll];
+            MagicStaff staffTemplate = _wizardStaves[roll];
 
             // Create a new instance based on the template to avoid modifying the shared template object
             // and apply the specific durability.
-            MeleeWeapon newStaff = (MeleeWeapon)CreateItem(staffTemplate.Name, durability, staffTemplate.Value, 1, staffTemplate.Description);
-            if (newStaff is MeleeWeapon meleeStaff)
+            MagicStaff newStaff = (MagicStaff)CreateItem(staffTemplate.Name, durability, staffTemplate.Value, 1, staffTemplate.Description);
+            if (newStaff is MagicStaff meleeStaff)
             {
                 meleeStaff.WeaponClass = staffTemplate.WeaponClass;
                 meleeStaff.DamageRange = staffTemplate.DamageRange;
@@ -1161,14 +1161,14 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
-        /// Factory method to create a specific Equipment item by name.
+        /// Factory method to create a specific _Equipment item by name.
         /// </summary>
         /// <param name="itemName">The name of the item to create.</param>
         /// <param name="durability">The current durability of the item. If 0, MaxDurability will be used.</param>
         /// <param name="value">The value of the item.</param>
         /// <param name="quantity">The quantity of the item.</param>
         /// <param name="itemDescription">An optional description for the item.</param>
-        /// <returns>A newly created Equipment object of the appropriate derived type.</returns>
+        /// <returns>A newly created _Equipment object of the appropriate derived type.</returns>
         public Equipment CreateItem(string itemName, int durability = 0, int value = 0, int quantity = 0, string itemDescription = "")
         {
             Equipment newItem;
@@ -1294,7 +1294,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = "Gemstone", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 }; // Value will be set by the calling method
                     break;
                 case "Grimoire":
-                    newItem = new Equipment { Name = $"Grimoire of {new SpellLookupService(_gameData).GetRandomSpellName()}", Encumbrance = 1, Durability = 0, Value = 0, Description = "This spell can be learned back at the Wizards' Guild as long as you have the proper level", MaxDurability = 0 };
+                    newItem = new Equipment { Name = $"Grimoire of {new GameDataService().GetRandomSpellName()}", Encumbrance = 1, Durability = 0, Value = 0, Description = "This spell can be learned back at the Wizards' Guild as long as you have the proper level", MaxDurability = 0 };
                     break;
                 case "Harp":
                     newItem = new Equipment { Name = "Harp", Encumbrance = 2, Durability = 0, Value = 100, Description = "May be used during a short rest, with a WIS test, all heroes regain an extra 1d3HP.", MaxDurability = 0 };
@@ -1358,7 +1358,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = "Set of Fine Clothes", Encumbrance = 0, Durability = 0, Value = 0, Description = "Increases Barter +5", MaxDurability = 0 };
                     break;
                 case "Scroll":
-                    newItem = new Equipment { Name = $"Scroll of {new SpellLookupService(_gameData).GetRandomSpellName()}", Encumbrance = 0, Durability = 0, Value = 100, MaxDurability = 0 };
+                    newItem = new Equipment { Name = $"Scroll of {new GameDataService().GetRandomSpellName()}", Encumbrance = 0, Durability = 0, Value = 100, MaxDurability = 0 };
                     break;
                 case "Skinning Knife":
                     newItem = new Equipment { Name = "Skinning Knife", Encumbrance = 1, Durability = 0, Value = 100, Description = "Allows hero to skin animals", MaxDurability = DefaultWeaponDurability }; // Assuming it has weapon durability
@@ -1367,7 +1367,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = "Skinning Knife - Elven", Encumbrance = 1, Durability = 0, Value = 250, Description = "Allows hero to skin animals with a Foraging +10 modifier", MaxDurability = DefaultWeaponDurability };
                     break;
                 case "Talent Training Manual":
-                    newItem = new Equipment { Name = $"{new TalentLookupService(_gameData).GetRandomTalent()} Training Manual", Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };
+                    newItem = new Equipment { Name = $"{new GameDataService().GetRandomTalent()} Training Manual", Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };
                     break;
                 case "Tobacco":
                     newItem = new Equipment { Name = "Tobacco", Encumbrance = 0, Durability = 0, Value = 50, Description = "Use to provide RES +15 for 1 dungeon", MaxDurability = 0 };
@@ -1489,19 +1489,19 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Armour { Name = "Leather Bracers", Encumbrance = 3, Value = 120, ArmourClass = 2, DefValue = 3, IsStackable = true, IsArms = true, MaxDurability = DefaultArmourDurability };
                     break;
                 case "Nightstalker Cap":
-                    newItem = new Armour { Name = "Nightstalker Cap", Encumbrance = 1, Value = 230, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsHead = true, IsNightstalker = true };
+                    newItem = new Armour { Name = "Nightstalker Cap", Encumbrance = 1, Value = 230, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsHead = true };
                     break;
                 case "Nightstalker Vest":
-                    newItem = new Armour { Name = "Nightstalker Vest", Encumbrance = 3, Value = 650, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsTorso = true, IsNightstalker = true };
+                    newItem = new Armour { Name = "Nightstalker Vest", Encumbrance = 3, Value = 650, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsTorso = true, IsDarkAsTheNight = true };
                     break;
                 case "Nightstalker Jacket":
-                    newItem = new Armour { Name = "Nightstalker Jacket", Encumbrance = 4, Value = 1000, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsTorso = true, IsArms = true, IsNightstalker = true };
+                    newItem = new Armour { Name = "Nightstalker Jacket", Encumbrance = 4, Value = 1000, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsTorso = true, IsArms = true, IsDarkAsTheNight = true };
                     break;
                 case "Nightstalker Leggings":
-                    newItem = new Armour { Name = "Nightstalker Leggings", Encumbrance = 3, Value = 900, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsLegs = true, IsNightstalker = true };
+                    newItem = new Armour { Name = "Nightstalker Leggings", Encumbrance = 3, Value = 900, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsLegs = true, IsDarkAsTheNight = true };
                     break;
                 case "Nightstalker Bracers":
-                    newItem = new Armour { Name = "Nightstalker Bracers", Encumbrance = 3, Value = 150, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsArms = true, IsNightstalker = true };
+                    newItem = new Armour { Name = "Nightstalker Bracers", Encumbrance = 3, Value = 150, MaxDurability = 8, ArmourClass = 2, DefValue = 4, IsArms = true };
                     break;
                 case "Mail Coif":
                     newItem = new Armour { Name = "Mail Coif", Encumbrance = 4, Value = 200, ArmourClass = 3, DefValue = 4, IsStackable = true, IsHead = true, MaxDurability = DefaultArmourDurability };

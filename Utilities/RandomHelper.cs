@@ -13,7 +13,7 @@ namespace LoDCompanion.Utilities
     public static class RandomHelper
     {
         private static readonly int[] DiceSides = { 4, 6, 8, 10, 12, 20, 100 }; // Common dice sides
-        private static string[] DiceNames = { "d4", "d6", "d8", "d10", "d12", "d20", "d100" };
+        private static string[] DiceNames = { "D4", "D6", "D8", "D10", "D12", "D20", "D100" };
         private static readonly Random _random = new Random();
 
         public static int GetRandomNumber(int min, int max)

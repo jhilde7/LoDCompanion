@@ -1,17 +1,20 @@
 ﻿// File: Services/Dungeon/QuestEncounterService.cs
 
 using System.Collections.Generic;
-using LoDCompanion.Models.Characters; // For Monster
+using LoDCompanion.Models.Character; // For Monster
+using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities; // For RandomHelper
 
 namespace LoDCompanion.Services.Dungeon
 {
     public class QuestEncounterService
     {
+        private readonly GameDataService _gameData;
         private readonly EncounterService _encounterService; // Dependency for generating supporting encounters
 
-        public QuestEncounterService(EncounterService enclunterService)
+        public QuestEncounterService(GameDataService gameData, EncounterService enclunterService)
         {
+            _gameData = gameData;
             _encounterService = enclunterService;
         }
 
@@ -76,10 +79,10 @@ namespace LoDCompanion.Services.Dungeon
             // For simplicity, this is a shallow copy for primitive types and lists of primitives.
             // You might need a more robust cloning mechanism (e.g., ICloneable, a dedicated copier service, or serialization)
             // if Monster has complex object references that need to be unique for each instance.
-            return new Monster
-            {
+            return new Monster(_gameData)
+            {                
                 Name = original.Name,
-                HP = original.HP,
+                CurrentHP = original.CurrentHP,
                 MaxHP = original.MaxHP,
                 Strength = original.Strength,
                 Constitution = original.Constitution,

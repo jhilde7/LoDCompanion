@@ -1,5 +1,5 @@
 ﻿using LoDCompanion.Utilities;
-using LoDCompanion.Models.Characters;
+using LoDCompanion.Models.Character;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -110,7 +110,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < (hero.Resolve * 2)) // Example check for fear/sanity loss
                 {
-                    hero.Sanity -= 1; // Assuming Sanity exists and can be reduced
+                    hero.CurrentSanity -= 1; // Assuming Sanity exists and can be reduced
                     outcome += $"{hero.Name} loses 1 Sanity.\n";
                 }
                 else
@@ -200,8 +200,8 @@ namespace LoDCompanion.Services.Combat
         public string Regenerate(Monster monster, List<Hero> heroes)
         {
             int regenAmount = RandomHelper.GetRandomNumber(1, 6); // Example regeneration amount
-            monster.HP += regenAmount;
-            if (monster.HP > monster.MaxHP) monster.HP = monster.MaxHP;
+            monster.CurrentHP += regenAmount;
+            if (monster.CurrentHP > monster.MaxHP) monster.CurrentHP = monster.MaxHP;
             return $"{monster.Name} regenerates {regenAmount} HP!\n";
         }
 

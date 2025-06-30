@@ -1,10 +1,12 @@
-﻿using LoDCompanion.Models.Characters;
+﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Dungeon
 {
     public class DungeonManagerService
     {
+        private readonly GameDataService _gameData;
         public List<Hero> HeroParty { get; private set; } // Use properties for better encapsulation
         public int RoomsWithoutEncounters { get; set; } = 0;
         public int PartyMorale { get; private set; }
@@ -21,20 +23,23 @@ namespace LoDCompanion.Services.Dungeon
         private readonly RoomFactoryService _roomFactoryService;
 
         // Represents the current active room
-        public RoomCorridor StartingRoom { get; private set; } = new RoomCorridor();
-        public RoomCorridor CurrentRoom { get; private set; } = new RoomCorridor();
+        public RoomCorridor StartingRoom { get; private set; }
+        public RoomCorridor CurrentRoom { get; private set; }
 
-        public DungeonManagerService(
+        public DungeonManagerService( GameDataService gameData,
             WanderingMonsterService wanderingMonsterService,
             EncounterService encounterService,
             QuestEncounterService questEncounterService,
             RoomFactoryService roomFactoryService)
         {
+            _gameData = gameData;
             _wanderingMonsterService = wanderingMonsterService ?? throw new ArgumentNullException(nameof(wanderingMonsterService));
             _encounterService = encounterService ?? throw new ArgumentNullException(nameof(encounterService));
             _questEncounterService = questEncounterService ?? throw new ArgumentNullException(nameof(questEncounterService));
             _roomFactoryService = roomFactoryService ?? throw new ArgumentNullException(nameof(roomFactoryService));
 
+            StartingRoom = new RoomCorridor(_gameData);
+            CurrentRoom = StartingRoom;
             HeroParty = new List<Hero>(); // Initialize the list
         }
 
@@ -64,7 +69,7 @@ namespace LoDCompanion.Services.Dungeon
 
             // Create the first room using the RoomFactoryService
             // Note: CurrentRoom represents the player's current location, not necessarily the 'firstRoom' concept from original
-            CurrentRoom = _roomFactoryService.CreateRoom(startingRoomName) ?? new RoomCorridor();
+            CurrentRoom = _roomFactoryService.CreateRoom(startingRoomName) ?? new RoomCorridor(_gameData);
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
 

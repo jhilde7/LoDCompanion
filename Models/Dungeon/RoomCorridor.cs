@@ -1,12 +1,14 @@
 ﻿using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Utilities;
-using LoDCompanion.Models.Characters;
+using LoDCompanion.Models.Character;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Models.Dungeon
 {
     // Represents a single room or corridor tile in the dungeon.
     public class RoomCorridor
     {
+        private readonly GameDataService _gameData;
         // Public properties to hold the room's data and state.
         // These will be populated by a RoomFactoryService or DungeonManagerService.
         public string RoomName { get; set; } = string.Empty; // Default to empty string for safety
@@ -40,8 +42,9 @@ namespace LoDCompanion.Models.Dungeon
         public int DoorCount { get; set; }
 
         // Constructor for creating a RoomCorridor instance
-        public RoomCorridor()
+        public RoomCorridor(GameDataService gameData)
         {
+            _gameData = gameData;
         }
 
         /// <summary>
@@ -145,7 +148,7 @@ namespace LoDCompanion.Models.Dungeon
             if (SearchRoll <= searchTarget)
             {
                 TreasureRoll = RandomHelper.GetRandomNumber(1, 100);
-
+                TreasureService treasure = new TreasureService(_gameData);
                 // Original logic from SearchRoom(string type, bool isThief, int roll)
                 int count = hero.IsThief ? 2 : 1; // Assuming IsThief is a property on Hero
 
@@ -158,17 +161,17 @@ namespace LoDCompanion.Models.Dungeon
                         // You'd have to signal back to the DungeonManagerService to create this room.
                         break;
                     case int r when r >= 16 && r <= 25:
-                        SearchResults.AddRange(TreasureService.FoundTreasure("Fine", count));
+                        SearchResults.AddRange(treasure.FoundTreasure("Fine", count));
                         break;
                     case int r when r >= 26 && r <= 40:
-                        SearchResults.AddRange(TreasureService.FoundTreasure("Mundane", count));
+                        SearchResults.AddRange(treasure.FoundTreasure("Mundane", count));
                         break;
                     case int r when r >= 41 && r <= 45:
                         SearchResults.Add("You found a set of levers. (Interaction handled by a LeverService)");
                         HasLevers = true; // Update room state
                         break;
                     case int r when r >= 46 && r <= 50:
-                        SearchResults.Add(TreasureService.GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
+                        SearchResults.Add(treasure.GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
                         break;
                     case int r when r >= 91 && r <= 100:
                         SearchResults.Add("You've sprung a trap!");

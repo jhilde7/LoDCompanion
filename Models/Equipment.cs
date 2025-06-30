@@ -1,50 +1,41 @@
 ﻿using System.Reflection.PortableExecutable;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
 
 namespace LoDCompanion.Models
 {
-    // Make this class abstract as it serves as a base for specific equipment types.
-    // Removed MonoBehaviour inheritance.
     public class Equipment
     {
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = string.Empty; // Default to empty string for safety
-        [JsonPropertyName("encumbrance")]
-        public float Encumbrance { get; set; } = 0f; // Default value for encumbrance, can be set in constructor
-        [JsonPropertyName("max_durability")]
-        public int MaxDurability { get; set; } = 6; // Default value from _Equipment.cs
-        [JsonPropertyName("durability")]
-        public int Durability { get; set; } = 6; // Default value from _Equipment.cs, can be set in constructor or modified later
-        [JsonPropertyName("value")]
-        public int Value { get; set; } = 0; // Default value, can be set in constructor or modified later
-        [JsonPropertyName("sell_value")]
-        public int SellValue { get; private set; } // Set internally, cannot be set from outside
-        [JsonPropertyName("repair_cost")]
-        public int RepairCost { get; private set; } // Set internally
-        [JsonPropertyName("availability")]
-        public int availability { get; set; } = 4;
-        [JsonPropertyName("quantity")]
+        public string? Type { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int Encumbrance { get; set; }
+        public int MaxDurability { get; set; } = 6;
+        public int Durability { get; set; } = 1;
+        public int Value { get; set; } = 0; 
+        public int SellValue { get; private set; } 
+        public int RepairCost { get; private set; } 
+        public int Availability { get; set; } = 4;
         public int Quantity { get; set; } = 1;
-        [JsonPropertyName("description")]
         public string Description { get; set; } = string.Empty;
-        [JsonPropertyName("is_magic")]
         public bool IsMagic { get; set; }
-        [JsonPropertyName("magic_effect")]
         public string MagicEffect { get; set; } = string.Empty;
 
-        // Constructor
-
-        public Equipment() { }
-        // Constructor to set initial values and trigger initial calculations
-        public Equipment(string name, float encumbrance, int value, int quantity, string description, bool isMagic)
+        public Equipment() 
         {
-            Name = name;
-            Encumbrance = encumbrance;
-            Value = value;
-            Quantity = quantity;
-            Description = description;
-            IsMagic = isMagic;
+
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append($"[{Type}] {Name} | ");
+            sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
+            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            {
+                sb.Append($" | Effect: {MagicEffect}");
+            }
+            return sb.ToString();
         }
 
         // Method to calculate sale price and repair cost, called when relevant properties change
@@ -128,46 +119,89 @@ namespace LoDCompanion.Models
 
     public class Ammo : Equipment
     {
-        [JsonPropertyName("type")]
-        public AmmoType Type { get; set; } = AmmoType.Arrow; // Default ammo type, can be set in constructor
-        [JsonPropertyName("is_silver")]
+        public AmmoType AmmoType { get; set; } = AmmoType.Arrow; // Default ammo type, can be set in constructor
         public bool IsSilver { get; set; }
-        [JsonPropertyName("is_barbed")]
         public bool IsBarbed { get; set; }
-        [JsonPropertyName("is_sup_slingstone")]
         public bool IsSupSlingstone { get; set; }
+        public bool IsHolyWater { get; set; }
 
         public Ammo() { } // Default constructor
-        public Ammo(string name, float encumbrance, int value, int quantity, string description, AmmoType ammoType, bool isMagic = false,
-                    bool isSilver = false, bool isBarbed = false, bool isSupSlingstone = false)
-            : base(name, encumbrance, value, quantity, description, isMagic)
+
+        public override string ToString()
         {
-            Type = ammoType;
-            IsSilver = isSilver;
-            IsBarbed = isBarbed;
-            IsSupSlingstone = isSupSlingstone;
-            MaxDurability = 1; // Ammo is usually consumed or has very low durability
-            Durability = 1;
+            var sb = new StringBuilder(base.ToString());
+            sb.Append($"[{Type}] {Name} | ");
+            sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
+            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            {
+                sb.Append($" | Effect: {MagicEffect}");
+            }
+            sb.Append($" | Ammo Type: {AmmoType}");
+            if (IsSilver) sb.Append(", Silver");
+            if (IsBarbed) sb.Append(", Barbed");
+            if (IsSupSlingstone) sb.Append(", Superior");
+            if (IsHolyWater) sb.Append(", Holy Water added");
+            return sb.ToString();
         }
     }
 
-    public abstract class Weapon : Equipment
+    public class MeleeWeapon : Equipment
     {
-        [JsonPropertyName("weapon_class")]
         public int WeaponClass { get; set; }
-        [JsonPropertyName("damage_range")]
-        public int[] DamageRange { get; set; } = new int[2]; // e.g., {1, 6} for 1d6
-        [JsonPropertyName("armour_piercing")]
-        public int ArmourPiercing { get; set; } // AP value
+        public int[] DamageRange { get; set; } = new int[2];
+        public int ArmourPiercing { get; set; }
+        public bool IsSilver { get; set; }
+        public bool IsMithril { get; set; }
+        public int? DualWieldBonus { get; set; }
+        public bool IsBFO { get; set; }
+        public bool IsSlow { get; set; }
+        public bool IsStun { get; set; }
+        public bool IsUnwieldly { get; set; }
+        public int UnWieldlyBonus { get; set; }
+        public bool IsFirstHit { get; set; }
+        public bool IsFast { get; set; }
+        public bool IsDefensive { get; set; }
+        public bool IsEnsnare { get; set; }
+        public bool IsReach { get; set; }
+        public bool IsEdged { get; set; }
+        public bool IsSlayerTreated { get; set; }
+        public bool IsAxe { get; set; }
+        public bool IsSword { get; set; }
+        public bool IsBlunt { get; set; }
+        public bool IsMetal { get; set; }
 
-        public Weapon() { } // Default constructor
-        public Weapon(string name, float encumbrance, int value, int weaponClass, int[] damageRange, bool isMagic = false)
-            : base(name, encumbrance, value, 1, "", isMagic)
+        public MeleeWeapon() { } // Default constructor
+
+        public override string ToString()
         {
-            // Initialize Weapon-specific properties
-            WeaponClass = weaponClass;
-            DamageRange = damageRange;
-            ArmourPiercing = 0;
+            var sb = new StringBuilder();
+            sb.Append($"[{Type}] {Name} | ");
+            sb.AppendLine($"Class: {WeaponClass} | Damage: {DamageRange[0]}-{DamageRange[1]} | AP: {ArmourPiercing}");
+            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            {
+                sb.AppendLine($" | Magic Effect: {MagicEffect}");
+            }
+
+            var properties = new List<string>();
+            if (IsSilver) properties.Add("Silver");
+            if (IsMithril) properties.Add("Mithril");
+            if (DualWieldBonus.HasValue) properties.Add($"Dual Wield: +{DualWieldBonus}");
+            if (IsBFO) properties.Add("BFO");
+            if (IsSlow) properties.Add("Slow");
+            if (IsStun) properties.Add("Stun");
+            if (IsUnwieldly) properties.Add($"Unwieldy (+{UnWieldlyBonus})");
+            if (IsFirstHit) properties.Add("First Hit");
+            if (IsFast) properties.Add("Fast");
+            if (IsDefensive) properties.Add("Defensive");
+            if (IsEnsnare) properties.Add("Ensnare");
+            if (IsReach) properties.Add("Reach");
+            if (properties.Any())
+            {
+                sb.AppendLine($"Properties: {string.Join(", ", properties)}");
+            }
+
+            return sb.ToString();
         }
 
         // You can add common weapon methods here, e.g., for calculating damage roll
@@ -190,95 +224,96 @@ namespace LoDCompanion.Models
         }
     }
 
-    public class MeleeWeapon : Weapon
-    {
-        [JsonPropertyName("is_melee_weapon")]
-        public bool IsMeleeWeapon { get; set; } = true;
-        [JsonPropertyName("is_silver")]
-        public bool IsSilver { get; set; }
-        [JsonPropertyName("is_mithril")]
-        public bool IsMithril { get; set; }
-        [JsonPropertyName("dual_wield_bonus")]
-        public int DualWieldBonus { get; set; } = 0;
-        [JsonPropertyName("is_bfo")]
-        public bool IsBFO { get; set; } // Big Freaking Object
-        [JsonPropertyName("is_slow")]
-        public bool IsSlow { get; set; }
-        [JsonPropertyName("is_stun")]
-        public bool IsStun { get; set; }
-        [JsonPropertyName("is_unwieldly")]
-        public bool IsUnwieldly { get; set; }
-        [JsonPropertyName("is_first_hit")]
-        public bool IsFirstHit { get; set; }
-        [JsonPropertyName("is_fast")]
-        public bool IsFast { get; set; }
-        [JsonPropertyName("is_defensive")]
-        public bool IsDefensive { get; set; }
-        [JsonPropertyName("is_ensnare")]
-        public bool IsEnsnare { get; set; }
-        [JsonPropertyName("is_reach")]
-        public bool IsReach { get; set; }
-        [JsonPropertyName("is_edged")]
-        public bool IsEdged { get; set; }
-        [JsonPropertyName("is_slayer_treated")]
-        public bool IsSlayerTreated { get; set; }
-        [JsonPropertyName("is_axe")]
-        public bool IsAxe { get; set; }
-        [JsonPropertyName("is_sword")]
-        public bool IsSword { get; set; }
-        [JsonPropertyName("is_blunt")]
-        public bool IsBlunt { get; set; }
-        [JsonPropertyName("is_metal")]
-        public bool IsMetal { get; set; }
-
-        public MeleeWeapon() { } // Default constructor
-        public MeleeWeapon(string name, float encumbrance, int value, int weaponClass, int[] damageRange, bool isMithril = false, bool isMagic = false)
-            : base(name, encumbrance, value, weaponClass, damageRange, isMagic)
-        {
-            // Default constructor
-            IsMithril = isMithril;
-            if (IsMithril)
-            {
-                Encumbrance -= 1; // Adjust encumbrance if Mithril
-            }
-        }
-    }
-
     public class MagicStaff : MeleeWeapon
     {
-        [JsonPropertyName("staff_type")]
         public string StaffType { get; set; } = string.Empty;
-        [JsonPropertyName("arcane_arts_bonus")]
         public int ArcaneArtsSkillModifier { get; set; }
-        [JsonPropertyName("contained_spell")]
         public string ContainedSpell { get; set; } = string.Empty;
-        [JsonPropertyName("mana_storage")]
         public int ManaStorage { get; set; }
-        [JsonPropertyName("hp_bonus")]
         public int HPBonus { get; set; }
+
+        public MagicStaff() { }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder(base.ToString());
+            sb.Append($"[{Type}] {Name} | ");
+            sb.AppendLine($"Class: {WeaponClass} | Damage: {DamageRange[0]}-{DamageRange[1]} | AP: {ArmourPiercing}");
+            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+
+            var properties = new List<string>();
+            if (IsSilver) properties.Add("Silver");
+            if (IsMithril) properties.Add("Mithril");
+            if (IsBFO) properties.Add("BFO");
+            if (IsSlow) properties.Add("Slow");
+            if (IsStun) properties.Add("Stun");
+            if (IsUnwieldly) properties.Add($"Unwieldy (+{UnWieldlyBonus})");
+            if (IsFirstHit) properties.Add("First Hit");
+            if (IsFast) properties.Add("Fast");
+            if (IsDefensive) properties.Add("Defensive");
+            if (IsEnsnare) properties.Add("Ensnare");
+            if (IsReach) properties.Add("Reach");
+            if (properties.Any())
+            {
+                sb.AppendLine($"Properties: {string.Join(", ", properties)}");
+            }
+            sb.AppendLine($"Staff Type: {StaffType} | Arcane Arts Mod: {ArcaneArtsSkillModifier}");
+            if (!string.IsNullOrEmpty(ContainedSpell)) sb.AppendLine($"Contains: {ContainedSpell}");
+            if (ManaStorage > 0) sb.AppendLine($"Mana Storage: {ManaStorage}");
+            if (HPBonus > 0) sb.AppendLine($"HP Bonus: {HPBonus}");
+            return sb.ToString();
+        }
 
     }
 
-    public class RangedWeapon : Weapon
+    public class RangedWeapon : Equipment
     {
-        public Ammo Ammo { get; set; } = new Ammo(); // Default to an empty Ammo object
-        [JsonPropertyName("elven_bowstring")]
+        public int WeaponClass { get; set; }
+        public int[] DamageRange { get; set; } = new int[2];
+        public int ArmourPiercing { get; set; }
+        public AmmoType AmmoType { get; set; } = AmmoType.Arrow;
+        public Ammo Ammo { get; set; } = new Ammo();
         public bool ElvenBowstring { get; set; }
-        [JsonPropertyName("aim_attachment")]
         public bool AimAttachment { get; set; }
-        [JsonPropertyName("is_secondary_weapon")]
         public bool IsSecondaryWeapon { get; set; }
-        [JsonPropertyName("reload_time")]
         public int ReloadTime { get; set; } = 1;
         public bool IsLoaded { get; set; } = false;
 
         public RangedWeapon() { } // Default constructor
-        public RangedWeapon(string name, float encumbrance, int value, int weaponClass, int[] damageRange, Ammo ammo, bool isMagic = false)
-            : base(name, encumbrance, value, weaponClass, damageRange, isMagic)
+
+        public override string ToString()
         {
-            // Initialize RangedWeapon-specific properties
-            Ammo = ammo;
-            ReloadTime = 1; // Default reload time
+            var sb = new StringBuilder();
+            sb.Append($"[{Type}] {Name} | ");
+            sb.AppendLine($"Class: {WeaponClass} | Damage: {DamageRange[0]}-{DamageRange[1]} | AP: {ArmourPiercing}");
+            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+            sb.AppendLine($"Ammo Type: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
+            if (ElvenBowstring) sb.Append(" | Elven Bowstring");
+            if (AimAttachment) sb.Append(" | Aim Attachment");
+            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            {
+                sb.AppendLine($" | Magic Effect: {MagicEffect}");
+            }
+            return sb.ToString();
+        }
+
+        // You can add common weapon methods here, e.g., for calculating damage roll
+        public virtual int RollDamage()
+        {
+            // This would use your RandomHelper.Roll method
+            // For now, a placeholder using System.Random
+            if (DamageRange[0] > DamageRange[1])
+            {
+                // Swap if min is greater than max
+                int temp = DamageRange[0];
+                DamageRange[0] = DamageRange[1];
+                DamageRange[1] = temp;
+            }
+            if (DamageRange[0] == 0 && DamageRange[1] == 0) return 0;
+
+            // Placeholder for System.Random, would be replaced by RandomHelper
+            Random rand = new Random();
+            return rand.Next(DamageRange[0], DamageRange[1] + 1);
         }
 
         // You might add methods specific to ranged weapons here, e.g., to consume ammo
@@ -302,60 +337,51 @@ namespace LoDCompanion.Models
         }
     }
 
-    public abstract class _EquipmentArmour : Equipment
+    public class Armour : Equipment
     {
-        [JsonPropertyName("armour_class")]
         public int ArmourClass { get; set; }
-        [JsonPropertyName("def_value")]
         public int DefValue { get; set; }
-        [JsonPropertyName("is_mithril")]
         public bool IsMithril { get; set; }
-        [JsonPropertyName("is_metal")]
         public bool IsMetal { get; set; }
-
-        public _EquipmentArmour() { } // Default constructor
-        public _EquipmentArmour(string name, string description, float encumbrance, int value, int durability, int armourClass, int defValue, bool isMithril = false, bool isMetal = false, bool isMagic = false)
-            : base(name, encumbrance, value, 1, description, isMagic)
-        {
-            ArmourClass = armourClass;
-            DefValue = defValue;
-            Durability = durability;
-            IsMithril = isMithril;
-            IsMetal = isMetal;
-            // Calculate initial repair costs
-            CalculateInitialRepairCosts();
-        }
-    }
-
-    public class Armour : _EquipmentArmour
-    {
-        [JsonPropertyName("is_head")]
         public bool IsHead { get; set; }
-        [JsonPropertyName("is_torso")]
         public bool IsTorso { get; set; }
-        [JsonPropertyName("is_arms")]
         public bool IsArms { get; set; }
-        [JsonPropertyName("is_legs")]
         public bool IsLegs { get; set; }
-        [JsonPropertyName("is_cloak")]
         public bool IsCloak { get; set; }
-
-        [JsonPropertyName("is_stackable")]
         public bool IsStackable { get; set; }
-        [JsonPropertyName("is_clunky")]
         public bool IsClunky { get; set; }
-        [JsonPropertyName("is_upgraded")]
         public bool IsUpgraded { get; set; }
-        [JsonPropertyName("is_nightstalker")]
-        public bool IsNightstalker { get; set; }
-        [JsonPropertyName("is_dragon_scale")]
+        public bool IsDarkAsTheNight { get; set; }
         public bool IsDragonScale { get; set; }
+        public bool IsDog { get; set; }
 
-        public Armour() { } // Default constructor
-        public Armour(string name, string description, float encumbrance, int value, bool isMagic, int armourClass, int defValue, bool isMithril = false, bool isMetal = false)
-            : base(name, description, encumbrance, value, 1, armourClass, defValue, isMithril, isMetal, isMagic)
+        public Armour()
         {
             SetMithrilModifier();
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append($"[{Type}] {Name} | ");
+            sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
+            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            {
+                sb.AppendLine($" | Magic Effect: {MagicEffect}");
+            }
+
+            var coveredAreas = new List<string>();
+            if (IsHead) coveredAreas.Add("Head");
+            if (IsTorso) coveredAreas.Add("Torso");
+            if (IsArms) coveredAreas.Add("Arms");
+            if (IsLegs) coveredAreas.Add("Legs");
+            if (IsCloak) coveredAreas.Add("Cloak");
+            if (coveredAreas.Any())
+            {
+                sb.AppendLine($"Covers: {string.Join(", ", coveredAreas)}");
+            }
+            return sb.ToString();
         }
 
         public void SetMithrilModifier()
@@ -368,19 +394,38 @@ namespace LoDCompanion.Models
         }
     }
 
-    public class Shield : _EquipmentArmour
+    public class Shield : Equipment
     {
-        [JsonPropertyName("is_shield")]
-        public bool IsShield { get; set; } = true; // Default to true for Shield class
-        [JsonPropertyName("is_huge")]
+        public int ArmourClass { get; set; }
+        public int DefValue { get; set; }
+        public bool IsMithril { get; set; }
+        public bool IsMetal { get; set; }
+        public bool IsShield { get; set; } = true;
         public bool IsHuge { get; set; }
 
-        public Shield() { } // Default constructor
+        public Shield() { }
 
-        public Shield(string name, string description, float encumbrance, int value, bool isMagic, int armourClass, int defValue, bool isMithril = false, bool isMetal = false)
-            : base(name, description, encumbrance, value, 1, armourClass, defValue, isMithril, isMetal, isMagic)
+        public override string ToString()
         {
+            var sb = new StringBuilder();
+            sb.Append($"[{Type}] {Name} | ");
+            sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
+            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            {
+                sb.AppendLine($" | Magic Effect: {MagicEffect}");
+            }
+            if (IsHuge) sb.AppendLine("Properties: Huge");
+            return sb.ToString();
+        }
 
+        public void SetMithrilModifier()
+        {
+            if (IsMithril)
+            {
+                DefValue += 1; // Increase defense value if Mithril
+                Encumbrance -= 1; // Decrease encumbrance if Mithril
+            }
         }
 
     }

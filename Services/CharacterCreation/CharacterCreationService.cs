@@ -1,87 +1,95 @@
-﻿using LoDCompanion.Models.Characters;
+﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Utilities;
+using System.Reflection;
 
 namespace LoDCompanion.Services.CharacterCreation
 {
     public class CharacterCreationService
     {
-        private readonly GameDataRegistryService _gameData;
+        private readonly GameDataService _gameData = new GameDataService();
         // Internal state of the character being built
-        public string CharacterName { get; private set; } = string.Empty;
-        public Species? SelectedSpecies { get; private set; } = null; // Initially null, set when species is selected
-        public Profession? SelectedProfession { get; private set; } = null; // Initially null, set when profession is selected
+        public string Name { get; set; } = string.Empty;
+        public Species? SelectedSpecies { get; set; } 
+        public Profession? SelectedProfession { get; set; }
+        public Background? SelectedBackground { get; private set; }
+        public int[] BaseStatRolls { get; set; } = new int[6];
+        public int AddedStrength { get; set; } = 0;
+        public int AddedConstitution { get; set; } = 0;
+        public int AddedDexterity { get; set; } = 0;
+        public int AddedWisdom { get; set; } = 0;
+        public int AddedResolve { get; set; } = 0;
+        public int SpecializationBonus { get; set; } = 15; // Total points to spend
+        public int SpecializeAmount { get; set; } = 0; // Points allocated in current specialization turn
 
-        public int[] BaseStatRolls { get; private set; } = new int[6];
-        public int RerollsRemaining { get; private set; } = 2; // Allows 2 rerolls
+        public int Strength { get; set; }
+        public int Constitution { get; set; }
+        public int Dexterity { get; set; }
+        public int Wisdom { get; set; }
+        public int Resolve { get; set; }
+        public int BaseHP { get; set; }
 
-        public int AddedStrength { get; private set; } = 0;
-        public int AddedConstitution { get; private set; } = 0;
-        public int AddedDexterity { get; private set; } = 0;
-        public int AddedWisdom { get; private set; } = 0;
-        public int AddedResolve { get; private set; } = 0;
-        public int SpecializationBonus { get; private set; } = 15; // Total points to spend
-        public int SpecializeAmount { get; private set; } = 0; // Points allocated in current specialization turn
+        public int CombatSkillModifier { get; set; }
+        public int RangedSkillModifier { get; set; }
+        public int DodgeSkillModifier { get; set; }
+        public int PickLocksSkillModifier { get; set; }
+        public int BarterSkillModifier { get; set; }
+        public int HealSkillModifier { get; set; }
+        public int AlchemySkillModifier { get; set; }
+        public int PerceptionSkillModifier { get; set; }
+        public int ArcaneArtsSkillModifier { get; set; }
+        public int ForagingSkillModifier { get; set; }
+        public int BattlePrayersSkillModifier { get; set; }
+        public int HpModifier { get; set; }
 
-        public int Strength { get; private set; }
-        public int Constitution { get; private set; }
-        public int Dexterity { get; private set; }
-        public int Wisdom { get; private set; }
-        public int Resolve { get; private set; }
-        public int BaseHP { get; private set; }
+        public List<string> FreeSkills { get; set; } = new List<string>();
+        public int CombatSkill { get;  set; }
+        public int RangedSkill { get;  set; }
+        public int Dodge { get;  set; }
+        public int PickLocks { get;  set; }
+        public int Barter { get;  set; }
+        public int Heal { get;  set; }
+        public int Alchemy { get;  set; }
+        public int Perception { get;  set; }
+        public int Foraging { get;  set; }
+        public int ArcaneArts { get;  set; } // Specific to Wizard
+        public int BattlePrayers { get;  set; } // Specific to Warrior Priest
 
-        public int CombatSkillModifier { get; private set; }
-        public int RangedSkillModifier { get; private set; }
-        public int DodgeSkillModifier { get; private set; }
-        public int PickLocksSkillModifier { get; private set; }
-        public int BarterSkillModifier { get; private set; }
-        public int HealSkillModifier { get; private set; }
-        public int AlchemySkillModifier { get; private set; }
-        public int PerceptionSkillModifier { get; private set; }
-        public int ArcaneArtsSkillModifier { get; private set; }
-        public int ForagingSkillModifier { get; private set; }
-        public int BattlePrayersSkillModifier { get; private set; }
-        public int HpModifier { get; private set; }
+        public int MaxHP { get; set; }
+        public int MaxArmour { get; set; }
 
-        public List<string> FreeSkills { get; private set; } = new List<string>();
-        public int CombatSkill { get; private set; }
-        public int RangedSkill { get; private set; }
-        public int Dodge { get; private set; }
-        public int PickLocks { get; private set; }
-        public int Barter { get; private set; }
-        public int Heal { get; private set; }
-        public int Alchemy { get; private set; }
-        public int Perception { get; private set; }
-        public int Foraging { get; private set; }
-        public int ArcaneArts { get; private set; } // Specific to Wizard
-        public int BattlePrayers { get; private set; } // Specific to Warrior Priest
+        public List<Equipment>? WeaponChoices { get; private set; }
+        public List<MeleeWeapon>? SpecificWeaponChoices { get; private set; }
+        public List<Equipment>? RelicChoices { get; private set; }
+        public string? SelectedWeapon { get; set; }
+        public string? SelectedRelic { get; set; }
 
-        public int MaxHP { get; private set; }
-        public int MaxArmour { get; private set; }
-
-        public List<Talent> TalentList { get; private set; } = new List<Talent>();
-        public List<Perk> PerkList { get; private set; } = new List<Perk>();
-        public List<Equipment> BackpackList { get; private set; } = new List<Equipment>(); // Changed from string to Equipment objects
-        public List<Spell> SpellList { get; private set; } = new List<Spell>();
-        public List<Prayer> PrayerList { get; private set; } = new List<Prayer>();
+        public List<string>? TalentChoices { get; set; }
+        public List<Talent> TalentList { get; set; } = new List<Talent>();
+        public List<string>? HumanTalentCategoryList { get; set; }
+        public string? HumanTalentCategorySelection { get; set; }
+        public List<Perk> PerkList { get; set; } = new List<Perk>();
+        public List<Equipment> StartingEquipment { get; set; } = new List<Equipment>(); // Changed from string to Equipment objects
+        public List<Spell> SpellList { get; set; } = new List<Spell>();
+        public List<Prayer> PrayerList { get; set; } = new List<Prayer>();
 
 
-        public CharacterCreationService(GameDataRegistryService gameData)
+        public CharacterCreationService(GameDataService gameData)
         {
             _gameData = gameData;
             // _alchemyService = alchemyService; // Initialize if passed
             InitializeCreationState();
         }
 
-        private void InitializeCreationState()
+        public void InitializeCreationState()
         {
             // Reset all state variables for a new character creation session
-            CharacterName = "";
+            Name = "";
             SelectedSpecies = null;
             SelectedProfession = null;
-            RerollsRemaining = 2;
+            SelectedBackground = null;
             ResetSpecialization();
             Strength = 0; Constitution = 0; Dexterity = 0; Wisdom = 0; Resolve = 0; BaseHP = 0;
             CombatSkillModifier = 0; RangedSkillModifier = 0; DodgeSkillModifier = 0;
@@ -89,38 +97,93 @@ namespace LoDCompanion.Services.CharacterCreation
             AlchemySkillModifier = 0; PerceptionSkillModifier = 0; ForagingSkillModifier = 0;
             ArcaneArtsSkillModifier = 0; BattlePrayersSkillModifier = 0; HpModifier = 0;
             FreeSkills.Clear();
-            CombatSkill = 0; RangedSkill = 0; Dodge = 0; PickLocks = 0; Barter = 0;
-            Heal = 0; Alchemy = 0; Perception = 0; Foraging = 0;
+            CombatSkill = 0; 
+            RangedSkill = 0; 
+            Dodge = 0; 
+            PickLocks = 0; 
+            Barter = 0;
+            Heal = 0; 
+            Alchemy = 0; 
+            Perception = 0; 
+            Foraging = 0;
             MaxHP = 0; MaxArmour = 0;
             TalentList.Clear();
             PerkList.Clear();
-            BackpackList.Clear();
+            StartingEquipment.Clear();
             SpellList.Clear();
             PrayerList.Clear();
         }
 
         public void SetCharacterName(string name)
         {
-            CharacterName = name;
+            Name = name;
         }
 
-        public void SetSpecies(Species species, int[]? statRolls = null, string? talentCategory = null)
+        public void SetSpecies(Species species, int[]? statRolls = null)
         {
-            TalentLookupService talent = new TalentLookupService(_gameData);
             SelectedSpecies = species;
-            RerollsRemaining = 2; // Reset rerolls when new species selected
             ResetSpecialization();
-            RollBaseStats(statRolls); // Roll stats immediately after species selection
-            TalentList = species.GetTraits(); // Create a new list to avoid modifying original
-            if (species.Name == "Human")
+            RollBaseStats(statRolls);
+            TalentList = GetTraits(species.Name);
+        }
+
+        public List<Talent> GetTraits(string name)
+        {
+            List<Talent> traits = new List<Talent>();
+            if (name != null)
             {
-                TalentList.Add(talent.GetTalentForHumanByCategory(talentCategory));
+                switch (name)
+                {
+                    case "Dwarf":
+                        traits.Add(_gameData.GetTalentByName("Night Vision") ?? new Talent { Name = "Night Vision", Description = "", IsNightVision = true });
+                        traits.Add(_gameData.GetTalentByName("Hate Goblins") ?? new Talent());
+                        return traits;
+                    case "Elf":
+                        traits.Add(_gameData.GetTalentByName("Night Vision") ?? new Talent { Name = "Night Vision", Description = "", IsNightVision = true });
+                        traits.Add(_gameData.GetTalentByName("Perfect Hearing") ?? new Talent { Name = "Perfect Hearing", Description = "", IsPerfectHearing = true });
+                        return traits;
+                    case "Halfling":
+                        traits.Add(_gameData.GetTalentByName("Lucky") ?? new Talent());
+                        return traits;
+                    case "Human":
+                        HumanTalentCategoryList = new() { "Physical", "Combat", "Faith", "Alchemist", "Common", "Magic", "Sneaky", "Mental" };
+                        return traits;
+                    default: return traits;
+                }
+            }
+            else
+            {
+                return traits;
             }
         }
 
-        private string RollRandomTalent(string? talentCatergory)
+        public void SetHumanRandomTalent(string selection)
         {
-            throw new NotImplementedException();
+            if (SelectedSpecies?.Name != "Human")
+            {
+                return;
+            }
+            HumanTalentCategorySelection = selection;
+
+            TalentList.Clear();
+            List<Talent> list = new List<Talent>();
+            switch (selection)
+            {
+                case "Physical": list = _gameData.PhysicalTalents; break;
+                case "Combat": list = _gameData.CombatTalents; break;
+                case "Faith": list = _gameData.FaithTalents; break;
+                case "Alchemist": list = _gameData.AlchemistTalents; break;
+                case "Common": list = _gameData.CommonTalents; break;
+                case "Magic": list = _gameData.MagicTalents; break;
+                case "Sneaky": list = _gameData.SneakyTalents; break;
+                case "Mental": list = _gameData.MentalTalents; break;
+            }
+
+            if (HumanTalentCategoryList != null && HumanTalentCategoryList.Any())
+            {
+                Talent randomTalent = list[RandomHelper.GetRandomNumber(1, list.Count() - 1)];
+                TalentList.Add(randomTalent);
+            }
         }
 
         public void SetProfession(Profession profession)
@@ -132,19 +195,25 @@ namespace LoDCompanion.Services.CharacterCreation
             // Add starting talents from profession to current talent list
             foreach (string talent in profession.StartingTalentList)
             {
-                if (_gameData.GetTalentByName(talent) != null)
-                { 
-                    if (!TalentList.Contains(_gameData.GetTalentByName(talent) ?? new Talent())) // Avoid duplicates
-                    {
-                        TalentList.Add(_gameData.GetTalentByName(talent) ?? new Talent());
-                    } 
-                }
+                TalentList.Add(_gameData.GetTalentByName(talent));                
             }
-            PerkList = profession.StartingPerkList;
-            FreeSkills = profession.FreeSkills; 
+            PerkList = SetStartingPerks(profession.Name);
+            FreeSkills = profession.FreeSkills;
+            GetTalentChoices();
+            GetEquipmentChoices();
 
             SpellList = new List<Spell>();
             PrayerList = new List<Prayer>();
+        }
+
+        private List<Perk> SetStartingPerks(string name)
+        {
+            List<Perk> startingPerkList = new List<Perk> { };
+            if (name == "Barbarian")
+            {
+                startingPerkList.Add(_gameData.GetPerkByName("Frenzy") ?? new Perk());
+            }
+            return startingPerkList;
         }
 
         public void RollBaseStats(int[]? _baseStatRoll = null)
@@ -196,13 +265,13 @@ namespace LoDCompanion.Services.CharacterCreation
             Dexterity = SelectedSpecies.BaseDexterity + baseStatRolls[2];
             Wisdom = SelectedSpecies.BaseWisdom + baseStatRolls[3];
             Resolve = SelectedSpecies.BaseResolve + baseStatRolls[4];
-            BaseHP = SelectedSpecies.BaseHP + baseStatRolls[5];
+            BaseHP = SelectedSpecies.BaseHitPoints + baseStatRolls[5];
 
             // Re-calculate skills and MaxHP after stat changes
             GetSkillStats();
         }
 
-        private void ResetSpecialization()
+        public int ResetSpecialization()
         {
             AddedStrength = 0;
             AddedConstitution = 0;
@@ -211,39 +280,36 @@ namespace LoDCompanion.Services.CharacterCreation
             AddedResolve = 0;
             SpecializationBonus = 15;
             SpecializeAmount = 0;
+
+            return SpecializationBonus;
         }
 
         public bool ApplySpecialization(string statType, int amount)
         {
-            if (amount <= 0 || SpecializationBonus < amount) return false;
+            if (amount <= 0 || SpecializationBonus <= 0) return false;
 
             int actualAmount = Math.Min(amount, 10); // Cap per stat at 10, as per original logic
 
-            switch (statType.ToUpperInvariant())
+            switch (statType)
             {
                 case "STR":
                     if (AddedStrength + actualAmount > 10) actualAmount = 10 - AddedStrength;
-                    Strength += actualAmount;
                     AddedStrength += actualAmount;
                     break;
                 case "CON":
                     if (AddedConstitution + actualAmount > 10) actualAmount = 10 - AddedConstitution;
-                    Constitution += actualAmount;
                     AddedConstitution += actualAmount;
                     break;
                 case "DEX":
                     if (AddedDexterity + actualAmount > 10) actualAmount = 10 - AddedDexterity;
-                    Dexterity += actualAmount;
                     AddedDexterity += actualAmount;
                     break;
                 case "WIS":
                     if (AddedWisdom + actualAmount > 10) actualAmount = 10 - AddedWisdom;
-                    Wisdom += actualAmount;
                     AddedWisdom += actualAmount;
                     break;
                 case "RES":
                     if (AddedResolve + actualAmount > 10) actualAmount = 10 - AddedResolve;
-                    Resolve += actualAmount;
                     AddedResolve += actualAmount;
                     break;
                 default:
@@ -300,7 +366,63 @@ namespace LoDCompanion.Services.CharacterCreation
             }
         }
 
-        public bool AddFreeSkill(string skillName)
+        public void GetTalentChoices()
+        {
+            TalentChoices = null;
+            if (SelectedProfession != null)
+            {
+                foreach (string talent in SelectedProfession.StartingTalentList)
+                {
+                    if(talent.Contains("/"))
+                    {
+                        TalentChoices = new();
+                        TalentChoices.AddRange(talent.Split('/'));
+                    }
+                }
+            }
+        }
+
+        public void GetEquipmentChoices()
+        {
+            // Clear any previous choices
+            SpecificWeaponChoices = null;
+            WeaponChoices = null;
+            RelicChoices = null;
+            SelectedWeapon = null;
+            SelectedRelic = null;
+
+            if (SelectedProfession == null) return;
+
+            foreach (var item in SelectedProfession.StartingBackpackList)
+            {
+                if (item.Contains("/", StringComparison.OrdinalIgnoreCase))
+                {
+                    SpecificWeaponChoices = new List<MeleeWeapon>();
+                    List<string> list = item.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    foreach (var item2 in list) 
+                    {
+                        SpecificWeaponChoices.Add(_gameData.GetMeleeWeaponByName(item2));
+                    }
+
+                }
+                else if (item.Equals("Weapon", StringComparison.OrdinalIgnoreCase))
+                {
+                    WeaponChoices = _gameData.Weapons;
+                }
+                else if (item.Equals("Religious Relic", StringComparison.OrdinalIgnoreCase))
+                {
+                    RelicChoices = _gameData.Relics;
+                }
+            }
+        }
+
+        public void UpdateTalentsWithSelection(string selection)
+        {
+            TalentList.Add(_gameData.GetTalentByName(selection));
+        }
+
+
+        public bool AddFreeSkill(string? skillName)
         {
             if (string.IsNullOrEmpty(skillName) || !FreeSkills.Contains(skillName)) return false;
 
@@ -309,41 +431,15 @@ namespace LoDCompanion.Services.CharacterCreation
 
             switch (skillName)
             {
-                case "CS":
-                    CombatSkillModifier += 10;
-                    break;
-                case "RS":
-                    RangedSkillModifier += 10;
-                    break;
-                case "Dodge":
-                    DodgeSkillModifier += 10;
-                    break;
-                case "PL":
-                    PickLocksSkillModifier += 10;
-                    break;
-                case "Barter":
-                    BarterSkillModifier += 10;
-                    break;
-                case "Heal":
-                    HealSkillModifier += 10;
-                    break;
-                case "Alchemy":
-                    AlchemySkillModifier += 10;
-                    break;
-                case "Perception":
-                    PerceptionSkillModifier += 10;
-                    break;
-                case "AA":
-                    ArcaneArtsSkillModifier += 10;
-                    break;
-                case "Foraging":
-                    ForagingSkillModifier += 10;
-                    break;
-                case "BP":
-                    BattlePrayersSkillModifier += 10;
-                    break;
-                default:
-                    FreeSkills.Add(skillName); // Add back if not a recognized skill
+                case "combatSkill": CombatSkillModifier += 10; break;
+                case "rangedSkill": RangedSkillModifier += 10; break;
+                case "dodgeSkill": DodgeSkillModifier += 10; break;
+                case "pickLocksSkill": PickLocksSkillModifier += 10; break;
+                case "barterSkill": BarterSkillModifier += 10; break;
+                case "healSkill": HealSkillModifier += 10; break;
+                case "alchemySkill": AlchemySkillModifier += 10; break;
+                case "perceptionSkill": PerceptionSkillModifier += 10; break;
+                default: FreeSkills.Add(skillName); // Add back if not a recognized skill
                     return false;
             }
 
@@ -351,18 +447,35 @@ namespace LoDCompanion.Services.CharacterCreation
             return true;
         }
 
-        public Hero FinalizeCharacter()
+        public void RollBackground()
         {
-            if (string.IsNullOrEmpty(CharacterName) || SelectedSpecies == null || SelectedProfession == null)
+            // Assuming GameDataRegistryService can provide a list of all possible backgrounds
+            SelectedBackground = new Background(_gameData).GetRandomBackground();
+            // You might also want to automatically apply any trait from the background here
+            if (SelectedBackground.Trait != null)
             {
-                throw new InvalidOperationException("Character name, species, and profession must be selected before finalizing character.");
+                TalentList.Add(SelectedBackground.Trait);
+            }
+        }
+        public Hero BuildPreviewHero()
+        {
+            Talent streetWise = new Talent()
+            {
+                Name = "Streetwise",
+                Description = "Your hero knows who to turn to in order to acquire the gear he is searching for. Every roll this hero makes for availability may be modified with -1.",
+                IsStreetwise = true
+            };
+
+            //if Rogue add unique talent
+            if (SelectedProfession.Name == "Rogue" && !TalentList.Contains(streetWise))
+            {
+                TalentList.Add(streetWise);
             }
 
-            // Create the new Hero instance
-            Hero newHero = new Hero
+            var hero = new Hero
             {
-                Name = CharacterName,
-                Race = SelectedSpecies.Name,
+                Name = Name,
+                SpeciesName = SelectedSpecies.Name,
                 ProfessionName = SelectedProfession.Name,
                 Strength = Strength,
                 Constitution = Constitution,
@@ -370,7 +483,67 @@ namespace LoDCompanion.Services.CharacterCreation
                 Wisdom = Wisdom,
                 Resolve = Resolve,
                 MaxHP = MaxHP,
-                HP = MaxHP,
+                CurrentHP = MaxHP,
+                CombatSkill = CombatSkill,
+                RangedSkill = RangedSkill,
+                Dodge = Dodge,
+                PickLocksSkill = PickLocks,
+                BarterSkill = Barter,
+                HealSkill = Heal,
+                AlchemySkill = Alchemy,
+                PerceptionSkill = Perception,
+                ForagingSkill = Foraging,
+                MaxArmour = MaxArmour,
+                Talents = TalentList,
+                Perks = PerkList,
+                Level = 1,
+                Experience = 0,
+                MaxMana = SelectedProfession.Name == "Wizard" ? Wisdom : null,
+                CurrentMana = SelectedProfession.Name == "Wizard" ? Wisdom : null,
+                CurrentEnergy = 1,
+                MaxEnergy = 1,
+                CurrentSanity = 10,
+                MaxSanity = 10,
+            };
+
+            // You can add logic here to calculate final skills, energy, etc. for the preview
+
+            return hero;
+        }
+
+        public Hero FinalizeCharacter()
+        {
+            if (string.IsNullOrEmpty(Name) || SelectedSpecies == null || SelectedProfession == null)
+            {
+                throw new InvalidOperationException("Character name, species, and profession must be selected before finalizing character.");
+            }
+
+            Talent streetWise = new Talent()
+            {
+                Name = "Streetwise",
+                Description = "Your hero knows who to turn to in order to acquire the gear he is searching for. Every roll this hero makes for availability may be modified with -1.",
+                IsStreetwise = true
+            };
+
+            //if Rogue add unique talent
+            if (SelectedProfession.Name == "Rogue" && !TalentList.Contains(streetWise))
+            {
+                TalentList.Add(streetWise);
+            }
+
+            // Create the new Hero instance
+            Hero newHero = new Hero
+            {
+                Name = Name,
+                SpeciesName = SelectedSpecies.Name,
+                ProfessionName = SelectedProfession.Name,
+                Strength = Strength,
+                Constitution = Constitution,
+                Dexterity = Dexterity,
+                Wisdom = Wisdom,
+                Resolve = Resolve,
+                MaxHP = MaxHP,
+                CurrentHP = MaxHP,
                 CombatSkill = CombatSkill,
                 RangedSkill = RangedSkill,
                 Dodge = Dodge,
@@ -394,23 +567,20 @@ namespace LoDCompanion.Services.CharacterCreation
             };
 
             // Populate Hero's Talents and Perks lists with actual Talent/Perk objects if they exist
-            // For now, these are just string names. If Talent/Perk are rich objects, you'd load them here.
-            //newHero.Talents = TalentList.Select(t => new Talent { TalentName = t }).ToList(); // Assuming Talent class has a TalentName property
-            //newHero.Perks = PerkList.Select(p => new Perk { PerkName = p }).ToList(); // Assuming Perk class has a PerkName property
-            SpellLookupService spell = new SpellLookupService(_gameData);
-            PrayerLookupService prayer = new PrayerLookupService(_gameData);
-            // Add starting spells and prayers (assuming these are HeroSpell/Prayer objects)
+            newHero.Talents = TalentList.Select(t => new Talent { Name = t.Name }).ToList();
+            newHero.Perks = PerkList.Select(p => new Perk { Name = p.Name }).ToList(); 
+
+            // Add starting spells and prayers
             if(newHero.ProfessionName == "Wizard")
             { 
-                newHero.Spells = spell.GetStartingSpells(); 
+                newHero.Spells = GetStartingSpells(); 
             }
             else if ( newHero.ProfessionName == "Warrior Priest")
             { 
-                newHero.Prayers = prayer.GetStartingPrayers();
+                newHero.Prayers = GetStartingPrayers();
             }
 
             // Add starting backpack items using TreasureService
-            // The original `backpackList` was List<string>, so we fetch items by name.
             foreach (string itemName in SelectedProfession.StartingBackpackList)
             {
                 int durability = 6 - RandomHelper.GetRandomNumber(1, 4); // Original logic
@@ -427,11 +597,267 @@ namespace LoDCompanion.Services.CharacterCreation
             return newHero;
         }
 
+        private List<Spell> GetStartingSpells()
+        {
+            var spells = new List<Spell>();
+            var possibleSpells = _gameData.GetSpellsByLevel(1);
+            if (possibleSpells == null)
+            {
+                throw new ArgumentException("No spells found for level 1.");
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                Spell spell;
+                do
+                {
+                    spell = possibleSpells[RandomHelper.GetRandomNumber(0, possibleSpells.Count - 1)];
+                } while (spells.Contains(spell));
+                spells.Add(spell);
+            }
+            return spells;
+        }
+
+        private List<Prayer> GetStartingPrayers()
+        {
+            var prayers = new List<Prayer>();
+            var possiblePrayers = _gameData.GetPrayersByLevel(1);
+            if (possiblePrayers == null)
+            {
+                throw new ArgumentException("No spells found for level 1.");
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                Prayer prayer;
+                do
+                {
+                    prayer = possiblePrayers[RandomHelper.GetRandomNumber(0, possiblePrayers.Count - 1)];
+                } while (prayers.Contains(prayer));
+                prayers.Add(prayer);
+            }
+            return prayers;
+        }
+
         // Expose current state for UI binding (read-only properties)
         public bool IsSpeciesPicked => SelectedSpecies != null;
         public bool IsProfessionPicked => SelectedProfession != null;
         public bool IsHuman => SelectedSpecies?.Name == "Human";
+    }
 
-        // You might add methods to get the current skill values to display in UI
+    public class Species
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int BaseStrength { get; set; }
+        public int BaseConstitution { get; set; }
+        public int BaseDexterity { get; set; }
+        public int BaseWisdom { get; set; }
+        public int BaseResolve { get; set; }
+        public int BaseHitPoints { get; set; }
+
+        public Species() { }
+        
+    }
+
+    public class Profession
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int CombatSkillModifier { get; set; }
+        public int RangedSkillModifier { get; set; }
+        public int DodgeSkillModifier { get; set; }
+        public int PickLocksSkillModifier { get; set; }
+        public int BarterSkillModifier { get; set; }
+        public int HealSkillModifier { get; set; }
+        public int AlchemySkillModifier { get; set; }
+        public int PerceptionSkillModifier { get; set; }
+        public int? ArcaneArtsSkillModifier { get; set; }
+        public int ForagingSkillModifier { get; set; }
+        public int? BattlePrayersSkillModifier { get; set; }
+        public int HPModifier { get; set; }
+        public int MaxArmourType { get; set; }
+        public int MaxMeleeWeaponType { get; set; }
+        public List<string> StartingBackpackList { get; set; } = new();
+        public List<string> StartingTalentList { get; set; } = new();
+        public Dictionary<string, int> LevelUpCost { get; set; } = new();
+        public List<string> FreeSkills { get; set; } = new();
+
+        public Profession() { }
+
+    }
+
+    public class Background
+    {
+        private readonly GameDataService _gameData;
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? PersonalQuest { get; set; }
+        public Talent? Trait { get; set; }
+
+        public Background(GameDataService gameData) 
+        { 
+            _gameData = gameData;
+        }
+
+        public Background GetRandomBackground()
+        {
+            List<Background> backgrounds = GetBackgrounds();
+            return backgrounds[RandomHelper.GetRandomNumber(0, backgrounds.Count - 1)];           
+        }
+
+        private List<Background> GetBackgrounds() 
+        {
+           return new List<Background>()
+                {
+                    new Background(_gameData)
+                    {
+                        Id = 1,
+                        Name = "Wanderlust",
+                        Description = "For as long as you can remember, you have felt the urge to see what lies beyond the horizon. Born in a small village far to the north, you helped out on the family farm just like your siblings. As the eldest child, you were expected to take over after your father, just as he had done when your grandfather was too old to work in the fields. The older you got, the stronger the wanderlust grew, until you finally realised that your current world felt too small, and that staying within the confines of the small farm was simply not an option. Afraid to face your father, you sneak out in the middle of the night, bringing only the bare necessities as the family resources are limited. Now, several years later you have managed to make a life for yourself beyond that horizon and you have seen most of the kingdom. The wanderlust is still strong though, and you are determined to visit all of the settlements within the kingdom.",
+                        PersonalQuest = "Visit all settlements on the map (A total of 10). Once done, you gain 1500 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 2,
+                        Name = "The Well",
+                        Description = "As with so many others in the kingdom, you were born in a small village with farmers for parents. During the harvest, all able-bodied people were needed in the fields. When you were young, you had to stay behind with the other children who were not yet strong enough to work, and those who were too old for hard labour. Wanting to help, you decided that you could at least fetch water from the town well to make things easier for your mother on her return. Once at the well, you start mimicking the moves you have seen your mother do countless times. Turning the crank to hoist the bucket is heavy work, but after several minutes the bucket is finally visible. As you lean out to reach the bucket, you suddenly lose grip on the crank and slip, falling into the well. Luckily, the water breaks your fall, and the level is not too high for you to keep your head above water. Once the initial panic settles, you realise that you are stuck deep underground in this cold, dark place. It took several hours before you were finally located and saved, but even now the memory of the cold and darkness won't leave you alone.",
+                        Trait = new Talent() {Name = "Claustrophobia", Description = "The hero is troubled be tight spaces and becomes less effective. All skills and stats are at a -10 in corridors.This is not curable at the asylum. Instead, you must face your fears." },
+                        PersonalQuest = "Once you have fought and survived 5 battles in a corridor, your condition is finally cured. Such is the effect of beating this trauma that you actually turn it into a strength. You gain the Tunnel Fighter Talent."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 3,
+                        Name = "Fables",
+                        Description = "Your uncle had a knack for telling stories, and they were always stories of brave heroes defying the undead creatures of the Ancient Lands. He told his stories with such skill and rich detail that you almost started to believe that you had seen these ancient tombs with your own eyes. Even now as an adult, you still have a clear vision of the tombs. You have sworn to see them with your own eyes to see if your uncle's fables were true.",
+                        PersonalQuest = "Visit 3 Quest Sites in the Ancient Lands. Once you leave the third site, you gain 1500 \u03a7\u03a1."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 4,
+                        Name = "The Heirloom",
+                        Description = "Your great grandmother's sister was not like most other girls in her village. At the age of 17, she left the village in search of adventure, and returned not long after, having cleared her first dungeons. She made several such trips and after one of them, she returned with a wonderful longsword. Perfectly balanced and adorned with jewels, this sword was clearly a unique find. Sadly, she would never return from her next quest. Since then, you have sworn to find and retrieve that sword.",
+                        PersonalQuest = "Find your Great Aunt's sword. At the start of each quest, roll 1d10. On a roll of 1, the dungeon you are heading to is actually the one that holds the sword. Place a secondary Quest Card in the first half of the Exploration Card pile. The room after the secondary Quest Card will contain two enemies. The enemy with the highest XP will carry the sword (although not use it in battle). The fate of your ancestor will never be known, but at least you will now have a chance to get that sword back. The weapon is a silver shortsword that does +1 DMG and has +2 Durability. You may not sell it."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 5,
+                        Name = "Arachnophobia",
+                        Description = "Many people feel uneasy in the presence of spiders. This was the case with you as well as you were growing up, but it has now become something far worse. One late afternoon as you were out picking berries in the forest surrounding your village, you sprained your ankle. Barely able to walk, you fashioned a staff to support your weight using your small knife. You began your trek home, but walking was slow, and the sun began to set. Before long, the forest became steadily darker, until you could barely see your hand in front of you. At that moment you suddenly spotted the gleaming eyes of animals in front of you. You blinked several times to get better focus, as the eyes seemed to be clustered together in a pack. Just as you are wondering what animals would stay so close together, a chill ran down your spine as you counted to eight, and realised that those eyes belonged to one single creature. Then, with a low hissing sound, a spider the size of a wolf slowly advanced towards you. Over what seemed like an eternity you fought off the vile creature using your little knife and the wooden staff. In the end though, the outcome was inevitable. You were trapped in strings of thick cobweb as the spider finally sank its fangs into your flesh. As the venom entered your veins, you slowly lost consciousness. The next thing you remembered was being back in your bed, feverish but alive. Apparently, a local Ranger had spotted you and managed to kill the spider just as you passed out. She brought you back home, and although there were no antidotes available, they managed to nurse you back to health. You made a full physical recovery from the ordeal, but the trauma remains to this day.",
+                        Trait = new Talent() {Name = "Arachnophobia", Description = "The hero finds all kinds of spiders terrifying. Treat all encounters with spiders as Terror. This is not curable at the asylum. Instead, you must face your fears." },
+                        PersonalQuest = "Once you have fought and survived 3 battles with spiders, your condition is finally cured. Such is the effect of beating this trauma that you actually turn it into a strength. You gain +10 CS whenever trying to hit a spider."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 6,
+                        Name = "The Lost Brother",
+                        Description = "Your older brother always spoke about the adventures he would embark upon once he came of age. Sure enough, it did not take long before he set out on his adventures, leaving you behind with your parents. He never returned and as you grew older, your determination to find him increased. Since then, you have searched for him everywhere you have travelled. From time to time, you have managed to pick up some clues from people who seem to have run into him, even though most leads are now very cold.",
+                        PersonalQuest = "Find your lost brother. For this quest, you need to keep track of how many dungeons you have entered. At the start of each quest, roll 1d10. On a roll of 1, the dungeon you are heading to is the one in which you will find your brother. Place a secondary Quest Card in the pile not containing the Quest Room. The tile you enter next will contain your brother. Once you enter the room, roll 1d100, adding the number of dungeons you have entered. If the result is 60 or higher, you are too late and you find the remains of your dear brother on the floor, dead. It seems that he has been dead for some time. Devastated, you must decide if you will leave him where he is, or bring him out of the dungeon and bury him. In both cases you lose 3 Points of Sanity, but gain 250 XP. If you choose to bury him, you must carry him through the dungeon (of course letting go of him when danger approaches). The downside of this is that you cannot carry anything else you find (you may not search for treasures, or carry anything your comrades find). Once outside, you have a short ceremony and lay him to rest in a nearby meadow. You gain +10 RES permanently. If the result is lower than 60, your brother is alive, but badly wounded. Place him on the tile and you may move him just like the other heroes. Use the civilian Monster Card to represent him. If your brother makes it out alive, he will accompany you to the next settlement where you will part ways. You gain 1500 XP once you reach the settlement. If he dies during the dungeon crawl, revert to 'result higher than 60', If he dies in a skirmish, you do not need to carry him further, but the end result is the same."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 7,
+                        Name = "Revenge",
+                        Description = "During the early days of adventuring, you were travelling the roads with one of your childhood friends. Having known each other since you could talk, you had experienced your entire childhood together. Thus, it was quite natural that you would leave your village together in search of fame, gold, and glory. You had been travelling for some weeks, still with no gold or glory in sight, when you were ambushed by two Brigands. Within seconds, your friend caught an arrow through the throat, and collapsed almost instantly. The rest of the fight is blurry, but you managed to overcome and kill both attackers. Although it has been some years since that episode, you sometimes still dream of your friend's last seconds, the shock on his face, and the gurgling sound as the last air passed through his windpipe.",
+                        Trait = _gameData.GetTalentByName("Hate Bandits"),
+                        PersonalQuest = "Furthermore,for every 5 enemies from that section that you deliver the killing blow, you gain an additional 250 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 8,
+                        Name = "Bad Tempered",
+                        Description = "We are all born differently, and we look upon life in different ways. In this case, your character is a tad bit on the negative side and is, quite frankly, really grumpy. Even on a sunny day, with wind in the hair, there is always something that could have been better. Maybe the sun doesn't have to shine straight in the eyes? That sound of creaking branches from the trees due to the wind is really annoying, isn't it?",
+                        Trait = new Talent() {Name = "Bad Tempered", Description = "You will give a permanent -2 modifier to Party Morale. But, on the other hand, always expecting the worst can have its benefits as well. Your maximum Sanity is permanently increased by +2." }
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 9,
+                        Name = "Poverty",
+                        Description = "Life in the kingdom is not easy, and few are those who can spend money on a whim. Your family were, and still are, on the very edge of survival. Growing up, you did what you could to support your family, but decided early on that there was a need for a change. As soon as you were old enough, you left in search of other ways to bring food to the table. Living the life of an adventuring vagabond has sustained you so far, yet you still feel the urge to improve the situation for your family.",
+                        Trait = new Talent() {Name = "Poverty", Description = "You know the value of each coin, and may never make a purchase, or lend out money, that would leave you with less than 10 c." },
+                        PersonalQuest = "Furthermore,you must try to accumulate 1000 c for your family. Randomise which village (not Silver City) in which you were born and raised. If you are a dwarf, randomise between the two Dwarven settlements. Once you feel ready to hand over the money to your family, pay them a visit and hand over the money. This can be done by spending one Point of Movement in that village, and it, will grant you 2000 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 10,
+                        Name = "Proving Your Worth",
+                        Description = "Your father spent most of his career in the Royal Army and has been in retirement for a few years. During his career, he rose from the rank of Soldier to Centurion, a transition that few could make. Somewhere during this time, he was presented with exquisite armour by the Battalion Commander for some obscure reason. Due to the inestimable number of stories he has told you about his army life, you cannot remember the details precisely. Once you grew old enough and decided to take to the road, you were told by your father that if you could prove your worth, you could come back for that piece of armour.",
+                        PersonalQuest = "Kill an enemy that gives you 450 XP or more. You do not need to strike the fatal blow, as long as your party makes the kill. Once that is done, return to your father to claim the armour. Randomise in which village (not Silver City) you were born and raised. If you are a dwarf, randomise between the two Dwarven settlements. This can be done by simply spending one Point of Movement in that village. This is the Armour of the Father as described in the 'Legendary Items' chapter."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 11,
+                        Name = "The Fraud",
+                        Description = "Not applicable for wizards. Reroll if you are a wizard. You have been struggling most of your life. Food and money have always been scarce, and with no education or family business to inherit, the prospects for the future were not looking too bright. With such a life, you never quite got the attention from others that you craved either. All of this changed the day you stumbled across a wounded adventurer lying on the road. Although you did your best, you could not prevent the inevitable, and the adventurer passed away. You can't really explain why, but there and then you decided to change your fate. You quickly changed clothes with the fallen, and for the first time in your life you gripped a sword in your hand. From that day you vowed to never return home, but instead to keep travelling the kingdom. At the taverns and inns along the way you were often the centre of the attention as you told fabricated stories of your exploits and adventures. One such night of drinks and stories has landed you in your current situation. As the sun rises the morning after, you find yourself in the company of your party, apparently having promised them that you will be a great asset. With a feeling of panic, you realise that the time has now come for you to put your money where your mouth is.",
+                        Trait = new Talent() {Name = "The Fraud", Description = "Deduct -10 from CS, RS, and Dodge since you have neither formal training nor experience with this. Your RES is also reduced with -10." },
+                        PersonalQuest = "It is time to go from fraud to the real deal. Once you have improved CS, RS, and Dodge with +10 you can finally believe that you are more than empty words. Once this is achieved, you regain your RES and may increase it with another +10. You also gain an additional 1500 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 12,
+                        Name = "The Noble",
+                        Description = "Belonging to the lucky few privileged people in the kingdom, you have always gone to bed on a full stomach and, whenever needed, there was always a coin toss to solve any predicament in which you found yourself. For your father, this was not always the case. Although not poor, he was not of noble birth, and it was through marriage that he acquired his title. Realising that his child was growing spoiled, he determined you would have to make a living for yourself for at least a year before returning to the noble life. Now this year is well past, but you have grown fond of your new lifestyle, and in no hurry to return to dinner parties and boring meetings.",
+                        Trait = new Talent() {Name = "The Noble", Description = "You were not kicked out without means, and you have managed to retain some of the coins your mother secretly handed you before you parted. You start with 400 c instead of the normal 150 c. However, being accustomed to having money makes it extra hard when you have none. If you ever drop below 150 c, you start questioning if this is really what you should do for a living. Your resolve is reduced with -20 until you have enough money again (150 c)." }
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 13,
+                        Name = "Sworn Enemy",
+                        Description = "You are not the only one in your family who has taken up arms and travelled the world. Your older sister, who left home years ago, has made your family name somewhat famous, at least amongst certain people. To reach this position of fame, she had to put more than one enemy to the blade. Of course, even these rogues have relatives. One such relative has sworn revenge, and vowed to kill all of your bloodline.",
+                        PersonalQuest = "Whenever you end up in battle with bandits, roll 1d10. On a result of 10, add one Bandit Leader to the encounter. This bandit has both the Hate special rule against the entire party, as well as Frenzy. Once the bandit is killed, you have rid your family of this sworn enemy, and you gain an extra 500 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 14,
+                        Name = "The Family Keep",
+                        Description = "Generations ago, your family was considered to be amongst the finer families in the Kingdom. The King granted your great grandfather a Keep as a token of his status. Sadly, his terrible financial sense and his lust for alcohol, gambling, and general decadence slowly reduced the Keep to a shadow of its former glory. Once your great grandfather passed away, the Keep was abandoned, and it has since been occupied by creatures of the night. Randomize one quest location on the map using the white numbers to situate the ruins of your Keep. Although it is far beyond repair, you feel it is your ancestral duty to purge the place of its current occupants.",
+                        PersonalQuest = "Clear out the Keep. Whether you go there as a part of another quest, or if you decide to go there for this sole purpose, you must clear the entire dungeon. Every tile must be placed on the table and all enemies must be killed. If you go there specifically for this purpose, use the generic Dungeon Generator to create the dungeon. Once the dungeon is cleared, you gain 1500 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 15,
+                        Name = "Troll Slayer",
+                        Description = "To kill a troll is a true feat, and brave individuals who accomplish this deed are accorded the title of 'Troll Slayer'. Although it is not in any way a formal title, it is held in high regard amongst commoners and nobles alike. There have been two Troll Slayers in your lineage who preceded you. Since childhood, you have vowed to honour the family tradition by ridding the world of yet another troll.",
+                        PersonalQuest = "You must slay a troll. To rightfully claim the title of Troll Slayer, you must land the killing blow on a troll (of any kind). If you achieve this, you have both honoured your lineage and gained a further +1000 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 16,
+                        Name = "Revenge",
+                        Description = "A little over a decade ago, your village was savagely attacked by a large group of beastmen. Although the villagers bravely tried to counter the attack, many were killed and several houses were lost to fire. Amongst the beastmen was a huge Minotaur, and it was responsible for the worst of the carnage. You hid throughout the fight, but at one point, the beast was close enough for you to make out a strange scar on its chest. The image of that beast has stayed with you ever since, and as you have grown to adulthood your lust for revenge has grown stronger.",
+                        Trait = _gameData.GetTalentByName("Hate Minotaurs"),
+                        PersonalQuest = "Every time you fight a Minotaur, roll 1d6. On a result of 1, you recognize the scar. If you defeat the beast, you gain an additional +1000 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 17,
+                        Name = "A New Home",
+                        Description = "Your parents had you rather late in life; nevertheless, you had a very happy childhood. You received all of the love any child could wish for, and there was always food on the table, even if it was far from fancy. Your parents grew older, and eventually passed away within a few weeks of each other. A few days after your mother's funeral, you are visited by a stranger who claims to own the house. He presents you with a contract which shows that your parents were deeply in debt to him, and that the house was given to him as payment. You are given two days to clear out. With nowhere to go, you don't take much with you other than the thought of finding a new home.",
+                        PersonalQuest = "Even though the adventuring lifestyle suits you much better than you had expected, you still yearn for a place to call your own. Once you have acquired the Bergmeister Estate, you gain 1500 XP."
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 18,
+                        Name = "The Apprentice",
+                        Description = "As with most young ones in the Kingdom, the time for being a carefree child is short. Most start working before their 10 birthday, and for you there was no difference. Although most children would be toiling in the fields, you were given the chance to work for the local blacksmith. He had grown fond of you as a youngster, and with no children of his own, he suggested you could help him out with the more menial tasks. At first, your work was to keep the smithy clean, bring water from the well, and run errands to and from customers. As you grew older, you began to learn some of the trade. In the end though, the blacksmith could not afford to pay you a salary that would sustain you. So you decided to find other means of bringing bread to the table.",
+                        Trait = new Talent() {Name = "The Apprentice", Description = "Your blacksmithing skills are truly useful while adventuring. Whenever using an armour repair kit or a whetstone, you automatically regain 3 Points of Durability on your gear." }
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 19,
+                        Name = "Weak",
+                        Description = "As a child you were prone to catching every cold there was. According to your mother, there isn't a disease around that you haven't suffered from! That's not true of course, but the fact remains that you seem to contract diseases more easily than most. Perhaps your father is right, and you are 'just plain weak', or maybe you are just suffering from an immune system that struggles to keep up. Luckily, this seems to have improved with time. Now when you fall ill, you usually feel better within a few days.",
+                        Trait = new Talent() {Name = "Weak", Description = "Whenever rolling for contracting a disease, you suffer an -10 modifier to your CON. However, once you are cured of your 3rd disease, your immune system kicks into overdrive and you instead get a +10 modifier to your CON when rolling for disease, and you cure yourself on a natural CON roll of 01-10 instead of 01-05." }
+                    },
+                    new Background(_gameData)
+                    {
+                        Id = 20,
+                        Name = "Afraid of Heights",
+                        Description = "There are few things in life you fear, and that is a well-known fact amongst friends and family. You once saved a child in your village who came face to face with a stray wolf. With nothing but a stick in your hand, you charged the beast, screaming and flailing wildly. Though you did get a fair share of cuts, you managed to scare the beast away. Since then, the fearless attribute has stuck with you. However, as with most people, you do have an Achilles heel, and it is a fear that most people don't know that you have. You are deathly scared of heights. Whenever you are only a few feet above the ground your knees begin to shake, and you start to sweat profusely.",
+                        Trait = new Talent() {Name = "Afraid of Heights", Description = "Whenever you take a Fear Test (but not a Terror Test), you gain a +10 modifier on your RES. However, whenever you are on a bridge your resolve is halved (RDD) and your CS and RS suffer a -20 modifier." }
+                    }
+                };
+        }
     }
 }
