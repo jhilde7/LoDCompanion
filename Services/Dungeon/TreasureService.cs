@@ -155,9 +155,9 @@ namespace LoDCompanion.Services.Dungeon
                             rewards.Add(GetTreasure("Scroll"));
                             break;
                         case 4:
-                            foreach (string item in AlchemyService.GetPotionNames(RandomHelper.GetRandomNumber(1, 2), "Any"))
+                            for (int i = 0; i < RandomHelper.GetRandomNumber(1, 2); i++)
                             {
-                                rewards.Add(item);
+                                rewards.Add(_gameData.GetPotions(1, RandomHelper.GetRandomEnumValue<PotionStrength>(1, 3))[0].Name);
                             }
                             break;
                         case 5:
@@ -799,11 +799,17 @@ namespace LoDCompanion.Services.Dungeon
             List<string> items = new List<string>();
             if (type == "Ingredient")
             {
-                items.AddRange(AlchemyService.GetIngredients(amount));
+                foreach (AlchemyItem itemName in AlchemyService.GetIngredients(amount))
+                {
+                    items.Add(itemName.Name);
+                }
             }
             else if (type == "Part")
             {
-                items.AddRange(AlchemyService.GetParts(amount, getOrigin));
+                foreach (AlchemyItem itemName in AlchemyService.GetParts(amount))
+                {
+                    items.Add(itemName.Name);
+                }
             }
 
             return string.Join(", ", items);
@@ -1324,13 +1330,13 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new AlchemyItem { Name = "Empty Bottle", Encumbrance = 0, Value = 15, Description = "These bottles can be used to brew potions", MaxDurability = 0 };
                     break;
                 case "Potion - Weak":
-                    newItem = new AlchemyItem { Name = "Potion - Weak", Encumbrance = 1, Durability = 1, Value = 0, Strength = PotionStrength.Weak, CreatePotion = true, MaxDurability = 1 };
+                    newItem = _gameData.GetPotionByStrength(PotionStrength.Weak); 
                     break;
                 case "Potion - Standard":
-                    newItem = new AlchemyItem { Name = "Potion - Standard", Encumbrance = 1, Durability = 1, Value = 0, Strength = PotionStrength.Standard, CreatePotion = true, MaxDurability = 1 };
+                    newItem = _gameData.GetPotionByStrength(PotionStrength.Standard);
                     break;
                 case "Potion - Supreme":
-                    newItem = new AlchemyItem { Name = "Potion - Supreme", Encumbrance = 1, Durability = 1, Value = 0, Strength = PotionStrength.Supreme, CreatePotion = true, MaxDurability = 1 };
+                    newItem = _gameData.GetPotionByStrength(PotionStrength.Supreme);
                     break;
                 case "Potion of Health":
                     newItem = new AlchemyItem { Name = "Potion of Health", Encumbrance = 1, Durability = 1, Value = 100, Description = "This potion heals 1d6HP upon drinking", MaxDurability = 1 };

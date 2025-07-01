@@ -27,6 +27,7 @@ namespace LoDCompanion.Models.Character
         // Constructor (optional, but good practice for initialization)
         public Character()
         {
+            CurrentHP = MaxHP;
         }
 
         // Common methods for all characters
@@ -38,14 +39,6 @@ namespace LoDCompanion.Models.Character
                 CurrentHP = 0;
             }
         }
-
-        public virtual int CalculateNaturalArmor()
-        {
-            // Example: Base natural armor plus a bonus from Constitution
-            return NaturalArmour + Constitution / 2; // Simple example, adjust as per game rules
-        }
-
-        // Add other common methods here as needed
     }
     public class Hero : Character
     {
@@ -106,9 +99,10 @@ namespace LoDCompanion.Models.Character
 
             sb.AppendLine("\n-- Stats --");
             sb.AppendLine($"STR: {Strength}, CON: {Constitution}, DEX: {Dexterity}, WIS: {Wisdom}, RES: {Resolve}");
-            sb.AppendLine($"CS: {CombatSkill}, RS: {RangedSkill}, Dodge: {Dodge}, NA: {NaturalArmour}, DB: {DamageBonus}, Luck: {Luck}");
+            sb.AppendLine($"NA: {NaturalArmour}, DB: {DamageBonus}, Luck: {Luck}");
 
             sb.AppendLine("\n-- Skills --");
+            sb.AppendLine($"Combat Skill: {CombatSkill}, Ranged Skill: {RangedSkill}, Dodge: {Dodge}");
             sb.AppendLine($"Pick Locks: {PickLocksSkill}, Barter: {BarterSkill}, Heal: {HealSkill}, Alchemy: {AlchemySkill}");
             sb.AppendLine($"Perception: {PerceptionSkill}, Arcane Arts: {ArcaneArtsSkill}, Foraging: {ForagingSkill}, Battle Prayers: {BattlePrayersSkill}");
 

@@ -3,6 +3,7 @@ using LoDCompanion.Models;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Utilities;
 using System.Text;
+using System.Xml.Linq;
 
 namespace LoDCompanion.Services.GameData
 {
@@ -36,7 +37,8 @@ namespace LoDCompanion.Services.GameData
         public List<Armour> Armour => GetArmour();
         public List<Shield> Shields => GetShields();
         public List<Equipment> Relics => GetRelics();
-        public List<AlchemyItem> Potions => GetPotions();
+        public List<AlchemyItem> AlchemyItems => GetAlchemyItems();
+        public List<AlchemyItem> StandardPotions => GetStandardPotions();
 
 
         public GameDataService()
@@ -1991,6 +1993,30 @@ namespace LoDCompanion.Services.GameData
                 }
             };
         }
+
+        public int GetDamageBonusFromSTR(int strength)
+        {
+            return strength switch
+            {
+                < 60 => 0,
+                < 70 => 1,
+                < 80 => 2,
+                _ => 3,
+            };
+        }
+
+        public int GetNaturalArmourFromCON(int constitution)
+        {
+            return constitution switch
+            {
+                < 50 => 0,
+                < 55 => 1,
+                < 60 => 2,
+                < 65 => 3,
+                < 70 => 4,
+                _ => 5,
+            };
+        }
         
         public List<Profession> GetProfessions()
         {
@@ -2023,8 +2049,8 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 2,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Staff" ],
-                    StartingTalentList = [ "Wise/Charming" ],
+                    TalentChoices = [GetTalentByName("Wise"), GetTalentByName("Charming")],
+                    StartingBackpackList = new List<Equipment>(){GetMeleeWeaponByName("Staff")},
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4 },
@@ -2066,8 +2092,14 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 1,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Shortsword/Rapier", "Padded Jacket", "Lock Picks x 10", "Medium Backpack" ],
-                    StartingTalentList = [ "Backstabber" ],
+                    EquipmentChoices = ["Shortsword/Rapier"],
+                    StartingBackpackList = [ GetArmourByName("Padded Jacket"), GetEquipmentByNameSetQuantity("Lockpicks", 10), GetEquipmentByName("Backpack - Medium") ],
+                    StartingTalentList = [ GetTalentByName("Backstabber"), 
+                        new Talent() {
+                            Name = "Streetwise",
+                            Description = "Your hero knows who to turn to in order to acquire the gear he is searching for. Every roll this hero makes for availability may be modified with -1.",
+                            IsStreetwise = true
+                        } ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3},
                       {"DEX", 2},
@@ -2111,8 +2143,8 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Longbow", "Arrow x 10" ],
-                    StartingTalentList = [ "Marksman/Hunter" ],
+                    TalentChoices = [GetTalentByName("Marksman"), GetTalentByName("Hunter")],
+                    StartingBackpackList = [GetRangedWeaponByName("Longbow"), GetAmmoByNameSetQuantity("Arrow", 10) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
                       {"DEX", 2},
@@ -2156,8 +2188,8 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 2,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Weapon" ],
-                    StartingTalentList = [],
+                    EquipmentChoices = [ "Weapon" ],
+                    StartingPerkList = [GetPerkByName("Frenzy")],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
                       {"DEX", 2},
@@ -2202,8 +2234,8 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 1,
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Weapon", "Religious Relic" ],
-                    StartingTalentList = [ "Braveheart/Confident" ],
+                    EquipmentChoices = [ "Weapon", "Religious Relic" ],
+                    TalentChoices = [ GetTalentByName("Braveheart"), GetTalentByName("Confident") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
                       {"DEX", 3},
@@ -2248,8 +2280,10 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 3,
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Weapon", "Leather Jacket" ],
-                    StartingTalentList = [ "Might Blows/Braveheart", "Disciplined" ],
+                    EquipmentChoices = ["Weapon"],
+                    TalentChoices = [ GetTalentByName("Mighty Blows"), GetTalentByName("Braveheart")],
+                    StartingBackpackList = [ GetArmourByName("Leather Jacket") ],
+                    StartingTalentList = [GetTalentByName("Disciplined") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
                       {"DEX", 2},
@@ -2293,8 +2327,16 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    StartingBackpackList = [ "Alchemist Tools", "Alchemist Belt", "Shortsword", "Potions", "Ingredients", "Parts", "Recipe" ],
-                    StartingTalentList = [ "Resistance To Poison" ],
+                    EquipmentChoices = ["Potions x 3", "Parts x 3", "Recipe"],
+                    StartingBackpackList = [ 
+                        GetEquipmentByName("Alchemist Tool"), 
+                        GetEquipmentByName("Alchemist Belt"), 
+                        GetMeleeWeaponByName("Shortsword"),
+                        AlchemyService.GetIngredients(3)[0],
+                        AlchemyService.GetIngredients(3)[0],
+                        AlchemyService.GetIngredients(3)[0]
+                        ],
+                    StartingTalentList = [ GetTalentByName("Resistance To Poison") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4},
@@ -2336,8 +2378,8 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 2,
-                    StartingBackpackList = [ "Dagger", "Rope", "Lock Picks x 10" ],
-                    StartingTalentList = [ "Evaluate" ],
+                    StartingBackpackList = [ GetMeleeWeaponByName("Dagger"), GetEquipmentByName("Rope"), GetEquipmentByNameSetQuantity("Lockpicks", 10) ],
+                    StartingTalentList = [ GetTalentByName("Evaluate") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5},
                       {"DEX", 2},
@@ -2854,6 +2896,26 @@ namespace LoDCompanion.Services.GameData
 
         }
 
+        public Equipment? GetEquipmentByName(string name)
+        {
+            return Equipment.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public Equipment GetEquipmentByNameSetQuantity(string name, int qty)
+        {
+            Equipment? item = GetEquipmentByName(name);
+            if (item == null) throw new NullReferenceException();
+            item.Quantity = qty;
+            return item;
+        }
+
+        public List<Equipment> GetStartingEquipment()
+        {
+            List<Equipment?> list = new List<Equipment?>();
+            list.AddRange(Equipment.Where(x => x.Availability > 3));
+            return list;
+        }
+
         public List<Ammo> GetAmmo()
         {
             return new List<Ammo>()
@@ -2861,6 +2923,7 @@ namespace LoDCompanion.Services.GameData
                 new Ammo(){
                     Type = "Common",
                     Name = "Arrow",
+                    MaxDurability = 1,
                     Quantity = 5,
                     Value = 5,
                     Availability = 4,
@@ -2869,6 +2932,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Type = "Common",
                     Name = "Bolt",
+                    MaxDurability = 1,
                     Quantity = 5,
                     Value = 5,
                     Availability = 4,
@@ -2877,6 +2941,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Type = "Common",
                     Name = "Sling Stone",
+                    MaxDurability = 1,
                     Quantity = 5,
                     Availability = 4,
                     AmmoType = AmmoType.SlingStone
@@ -2884,6 +2949,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Type = "Common",
                     Name = "Barbed Arrows",
+                    MaxDurability = 1,
                     Quantity = 5,
                     Description = "Increased DMG+1",
                     Value = 25,
@@ -2894,6 +2960,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Type = "Common",
                     Name = "Barbed Bolts",
+                    MaxDurability = 1,
                     Quantity = 5,
                     Description = "Increased DMG+1",
                     Value = 25,
@@ -2904,6 +2971,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Type = "Dark Guild",
                     Name = "Superior Sling Stones",
+                    MaxDurability = 1,
                     Quantity = 10,
                     Description = "This ammo is cast metal bullets rather than the normal stones. Gives +5 RS with slings and +1 DMG.",
                     Value = 25,
@@ -2911,6 +2979,26 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.SlingStone
                   }
             };
+        }
+
+        public Ammo? GetAmmoByName( string name )
+        {
+            return Ammo.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public Ammo GetAmmoByNameSetQuantity(string name, int qty)
+        {
+            Ammo? item = GetAmmoByName(name);
+            if (item == null) throw new NullReferenceException();
+            item.Quantity = qty;
+            return item;
+        }
+
+        public List<Ammo> GetStartingAmmo()
+        {
+            List<Ammo?> list = new List<Ammo>();
+            list.AddRange(Ammo.Where(x => x.Availability > 3));
+            return list;
         }
 
         public List<MeleeWeapon> GetMeleeWeapons() 
@@ -3236,6 +3324,19 @@ namespace LoDCompanion.Services.GameData
             return RangedWeapons.FirstOrDefault(x => x.Name == name) ?? null;
         }
 
+        internal Equipment? GetWeaponByName(string name)
+        {
+            return (Equipment)GetMeleeWeaponByName(name) ?? (Equipment)GetRangedWeaponByName(name) ?? null;
+        }
+
+        public List<Equipment> GetStartingWeapons()
+        {
+            List<Equipment> list = new List<Equipment>();
+            list.AddRange(MeleeWeapons.Where(x => x.Availability > 3));
+            list.AddRange(RangedWeapons.Where(x => x.Availability > 3));
+            return list;
+        }
+
         public List<MagicStaff> GetMagicStaves()
         { 
             return new List<MagicStaff>()
@@ -3375,6 +3476,11 @@ namespace LoDCompanion.Services.GameData
                     IsBlunt = true
                   }
             }; 
+        }
+
+        public MagicStaff? GetMagicStaffByName(string name )
+        {
+            return MagicStaves.FirstOrDefault(x => x.Name == name) ?? null;
         }
 
         public List<Armour> GetArmour()
@@ -3783,6 +3889,18 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
+        public Armour? GetArmourByName(string name)
+        {
+            return Armour.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public List<Armour> GetStartingArmour()
+        {
+            List<Armour?> list = new List<Armour>();
+            list.AddRange(Armour.Where(x => x.Availability > 3));
+            return list;
+        }
+
         public List<Shield> GetShields()
         {
             return new List<Shield>()
@@ -3825,6 +3943,18 @@ namespace LoDCompanion.Services.GameData
                     IsShield = true
                   }
             };
+        }
+
+        public Shield? GetShieldByName(string name)
+        {
+            return Shields.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public List<Shield> GetStartingShields()
+        {
+            List<Shield?> list = new List<Shield>();
+            list.AddRange(Shields.Where(x => x.Availability > 3));
+            return list;
         }
 
         public List<Equipment> GetRelics()
@@ -3900,7 +4030,12 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public List<AlchemyItem> GetPotions()
+        public Equipment? GetRelicByName(string name)
+        {
+            return Relics.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public List<AlchemyItem> GetAlchemyItems()
         {
             return new List<AlchemyItem>()
             {
@@ -4061,6 +4196,49 @@ namespace LoDCompanion.Services.GameData
                 new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight." },
                 new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon." },
             };
+        }
+
+        public List<AlchemyItem> GetStandardPotions()
+        {
+            List<AlchemyItem> list = new List<AlchemyItem>();
+            list.AddRange(AlchemyItems.Where(x => x.Strength == PotionStrength.Standard));
+            return list;
+        }
+
+        public AlchemyItem? GetAlchemyItemByName(string name)
+        {
+            return AlchemyItems.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public AlchemyItem GetAlchemyItemByNameStrength(string name, PotionStrength strength)
+        {
+            List<AlchemyItem> list = new List<AlchemyItem>();
+            list.AddRange(AlchemyItems.Where(x => x.Name == name));
+            return list.FirstOrDefault(x => x.Strength == strength);
+        }
+
+        public List<AlchemyItem> GetPotions(int count, PotionStrength quality)
+        {
+            List<AlchemyItem> potions = new List<AlchemyItem>();
+            for (int i = 0; i < count; i++)
+            {
+                switch (quality)
+                {
+                    case PotionStrength.Weak:
+                    case PotionStrength.Supreme:
+                        potions.Add(GetAlchemyItemByNameStrength(AlchemyService.GetNonStandardPotion(), quality));
+                        break;
+                    case PotionStrength.Standard:
+                        potions.Add(GetAlchemyItemByNameStrength(AlchemyService.GetStandardPotion(), quality));
+                        break;
+                }
+            }
+            return potions;
+        }
+
+        public AlchemyItem GetPotionByStrength(PotionStrength strength)
+        {
+            return GetPotions(1, strength)[0];
         }
     }
 

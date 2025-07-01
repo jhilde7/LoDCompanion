@@ -1,0 +1,50 @@
+﻿@page "/character-creation/sheet"
+@using LoDCompanion.Models.Character
+@inject LoDCompanion.Services.State.PartyManagerService PartyManager
+@rendermode InteractiveServer
+
+@if (IsVisible)
+{
+    <div class="modal fade show" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Character Sheet: @(hero?.Name ?? "Unknown")</h5>
+                    <button type="button" class="btn-close" @onclick="Hide"></button>
+                </div>
+                <div class="modal-body">
+                    @if (hero != null)
+                    {
+                        @* The <pre> tag respects the newlines and spacing from your ToString() method *@
+                        <pre style="white-space: pre-wrap; font-family: inherit;">@hero.ToString()</pre>
+                    }
+                    else
+                    {
+                        <p>No character data to display.</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Hide">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [Parameter]
+    public Hero? hero { get; set; }
+
+    public bool IsVisible { get; private set; }
+
+    public void Show()
+    {
+        IsVisible = true;
+        StateHasChanged();
+    }
+
+    public void Hide()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+}

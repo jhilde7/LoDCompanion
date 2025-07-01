@@ -1,321 +1,184 @@
 ﻿using LoDCompanion.Utilities;
 using LoDCompanion.Models;
+using LoDCompanion.Models.Character;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.Xml.Linq;
+using System.Text;
 
 namespace LoDCompanion.Services.GameData
 {
     public class AlchemyService
     {
-        private readonly GameDataService _gameData;
+        public static List<AlchemyItem> Parts => GetPartsList();
+        public static List<AlchemyItem> Ingredients => GetIngredientsList();
 
-        public AlchemyService(GameDataService gameData)
+        public AlchemyService()
         {
-            _gameData = gameData;
-        }
 
-        public static string[] GetPotionNames(int count, string quality)
-        {
-            string[] potions = new string[count];
-            for (int i = 0; i < count; i++)
-            {
-                switch (quality)
-                {
-                    case "Weak":
-                    case "Supreme":
-                        potions[i] = GetNonStandardPotion();
-                        break;
-                    case "Standard":
-                        potions[i] = GetStandardPotion();
-                        break;
-                    case "Any":
-                        int roll = RandomHelper.GetRandomNumber(1, 3); // Using RandomHelper from Utilities
-                        switch (roll)
-                        {
-                            case 1:
-                            case 2:
-                                potions[i] = GetNonStandardPotion();
-                                break;
-                            case 3:
-                                potions[i] = GetStandardPotion();
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            return potions;
         }
 
         public static string GetStandardPotion()
         {
-            string retPotion = "";
             int roll = RandomHelper.GetRandomNumber(1, 3);
             switch (roll)
             {
                 case 1:
-                    roll = RandomHelper.GetRandomNumber(1, 10);
+                    roll = RandomHelper.RollDie("D10");
                     switch (roll)
                     {
                         case 1:
-                            retPotion = "Bottle of Experience";
-                            break;
+                             return "Bottle of Experience";
                         case 2:
-                            retPotion = "Potion of Constitution";
-                            break;
+                             return "Potion of Constitution";
                         case 3:
-                            retPotion = "Potion of Courage";
-                            break;
+                             return "Potion of Courage";
                         case 4:
-                            retPotion = "Potion of Dexterity";
-                            break;
+                             return "Potion of Dexterity";
                         case 5:
-                            retPotion = "Potion of Energy";
-                            break;
+                             return "Potion of Energy";
                         case 6:
-                            retPotion = "Potion of Health";
-                            break;
+                             return "Potion of Health";
                         case 7:
-                            retPotion = "Potion of Mana";
-                            break;
+                             return "Potion of Mana";
                         case 8:
-                            retPotion = "Potion of Strength";
-                            break;
+                             return "Potion of Strength";
                         case 9:
-                            retPotion = "Potion of Wisdom";
-                            break;
+                             return "Potion of Wisdom";
                         case 10:
-                            retPotion = "Acidic Bomb";
-                            break;
+                             return "Acidic Bomb";
                         default:
-                            break;
+                            return "Acidic Bomb";
                     }
-                    break;
                 case 2:
-                    roll = RandomHelper.GetRandomNumber(1, 10);
+                    roll = RandomHelper.RollDie("D10");
                     switch (roll)
                     {
                         case 1:
-                            retPotion = "Potion of Distortion";
-                            break;
+                             return "Potion of Distortion";
                         case 2:
-                            retPotion = "Firebomb";
-                            break;
+                             return "Firebomb";
                         case 3:
-                            retPotion = "Potion of Invisibility";
-                            break;
+                             return "Potion of Invisibility";
                         case 4:
-                            retPotion = "Vial of Corrosion";
-                            break;
+                             return "Vial of Corrosion";
                         case 5:
-                            retPotion = "Potion of Cure Disease";
-                            break;
+                             return "Potion of Cure Disease";
                         case 6:
-                            retPotion = "Potion of Cure Poison";
-                            break;
+                             return "Potion of Cure Poison";
                         case 7:
-                            retPotion = "Poison";
-                            break;
+                             return "Poison";
                         case 8:
-                            retPotion = "Liquid Fire";
-                            break;
+                             return "Liquid Fire";
                         case 9:
-                            retPotion = "Bottle of the Void";
-                            break;
+                             return "Bottle of the Void";
                         case 10:
-                            retPotion = "Weapons Oil";
-                            break;
+                             return "Weapons Oil";
                         default:
-                            break;
+                            return "Weapons Oil";
                     }
-                    break;
                 case 3:
-                    roll = RandomHelper.GetRandomNumber(1, 8);
+                    roll = RandomHelper.RollDie("D8");
                     switch (roll)
                     {
                         case 1:
-                            retPotion = "Elixir of Speed";
-                            break;
+                             return "Elixir of Speed";
                         case 2:
-                            retPotion = "Alchemical Dust";
-                            break;
+                             return "Alchemical Dust";
                         case 3:
-                            retPotion = "Elixir of the Archer";
-                            break;
+                             return "Elixir of the Archer";
                         case 4:
-                            retPotion = "Potion of Rage";
-                            break;
+                             return "Potion of Rage";
                         case 5:
-                            retPotion = "Potion of Fire Protection";
-                            break;
+                             return "Potion of Fire Protection";
                         case 6:
-                            retPotion = "Potion of Dragon Skin";
-                            break;
+                             return "Potion of Dragon Skin";
                         case 7:
-                            retPotion = "Potion of Restoration";
-                            break;
+                             return "Potion of Restoration";
                         case 8:
-                            retPotion = "Potion of Dragon Breath";
-                            break;
+                             return "Potion of Dragon Breath";
                         default:
-                            break;
+                            return "Potion of Dragon Breath";
                     }
-                    break;
+                default: return "";
             }
-            return retPotion;
         }
 
         public static string GetNonStandardPotion()
         {
-            string retPotion = "";
-            int roll = RandomHelper.GetRandomNumber(1, 12);
+            int roll = RandomHelper.RollDie("D12");
             switch (roll)
             {
                 case 1:
-                    retPotion = "Bottle of Experience";
-                    break;
+                     return "Bottle of Experience";
                 case 2:
-                    retPotion = "Potion of Constitution";
-                    break;
+                     return "Potion of Constitution";
                 case 3:
-                    retPotion = "Potion of Courage";
-                    break;
+                     return "Potion of Courage";
                 case 4:
-                    retPotion = "Potion of Dexterity";
-                    break;
+                     return "Potion of Dexterity";
                 case 5:
-                    retPotion = "Potion of Energy";
-                    break;
+                     return "Potion of Energy";
                 case 6:
-                    retPotion = "Potion of Health";
-                    break;
+                     return "Potion of Health";
                 case 7:
-                    retPotion = "Potion of Mana";
-                    break;
+                     return "Potion of Mana";
                 case 8:
-                    retPotion = "Potion of Strength";
-                    break;
+                     return "Potion of Strength";
                 case 9:
-                    retPotion = "Potion of Wisdom";
-                    break;
+                     return "Potion of Wisdom";
                 case 10:
-                    retPotion = "Acidic Bomb";
-                    break;
+                     return "Acidic Bomb";
                 case 11:
-                    retPotion = "Potion of Cure Disease";
-                    break;
+                     return "Potion of Cure Disease";
                 case 12:
-                    retPotion = "Potion of Cure Poison";
-                    break;
+                     return "Potion of Cure Poison";
                 default:
-                    break;
+                     return "Potion of Cure Poison";
             }
-            return retPotion;
         }
 
-        public static string[] GetIngredients(int count)
+        public static AlchemyItem[] GetIngredients(int count)
         {
-            string[] ingredients = new string[count];
+            AlchemyItem[] ingredients = new AlchemyItem[count];
             for (int i = 0; i < count; i++)
             {
-                ingredients[i] = GetIngredient();
+                ingredients[i] = new AlchemyItem() { Name = GetIngredient(), IsIngredient = true };
             }
             return ingredients;
         }
 
         public static string GetIngredient()
         {
-            string retIngredient = "";
-            int roll = RandomHelper.GetRandomNumber(1, 20);
-            switch (roll)
-            {
-                case 1:
-                    retIngredient = "Lunarberry";
-                    break;
-                case 2:
-                    retIngredient = "Dragon Stalk";
-                    break;
-                case 3:
-                    retIngredient = "Ember Bark";
-                    break;
-                case 4:
-                    retIngredient = "Mountain Barberry";
-                    break;
-                case 5:
-                    retIngredient = "Salty Wyrmwood";
-                    break;
-                case 6:
-                    retIngredient = "Ashen Ginger";
-                    break;
-                case 7:
-                    retIngredient = "Spicy Windroot";
-                    break;
-                case 8:
-                    retIngredient = "Wintercress";
-                    break;
-                case 9:
-                    retIngredient = "Sweet Ivy";
-                    break;
-                case 10:
-                    retIngredient = "Monk's Laurel";
-                    break;
-                case 11:
-                    retIngredient = "Nightshade";
-                    break;
-                case 12:
-                    retIngredient = "Weeping Clover";
-                    break;
-                case 13:
-                    retIngredient = "Snakeberry";
-                    break;
-                case 14:
-                    retIngredient = "Bitterweed";
-                    break;
-                case 15:
-                    retIngredient = "Arching Pokeroot";
-                    break;
-                case 16:
-                    retIngredient = "Toxic Hogweed";
-                    break;
-                case 17:
-                    retIngredient = "Blue Coneflower";
-                    break;
-                case 18:
-                    retIngredient = "Giant Raspberry";
-                    break;
-                case 19:
-                    retIngredient = "Bright Gallberry";
-                    break;
-                case 20:
-                    retIngredient = "Barbed Wormwood";
-                    break;
-                default:
-                    break;
-            }
-            return retIngredient;
+            int roll = RandomHelper.GetRandomNumber(0, Ingredients.Count - 1);
+            return Ingredients[roll].Name;
         }
 
-        public static string[] GetParts(int count, bool useOrigin = false)
+        public static AlchemyItem[] GetParts(int count, string? origin = null)
         {
-            string[] parts = new string[count];
+            AlchemyItem[] parts = new AlchemyItem[count];
             for (int i = 0; i < count; i++)
             {
-                if (useOrigin)
+                if (origin != null)
                 {
-                    parts[i] = GetOrigin() + " " + GetPart();
+                    parts[i] = new AlchemyItem() { Origin = origin, Name = GetPart(), IsPart = true };
                 }
                 else
                 {
-                    parts[i] = GetPart();
+                    parts[i] = new AlchemyItem() { Origin = GetOrigin(), Name = GetPart(), IsPart = true };
                 }
             }
             return parts;
         }
 
+        public static string GetPart()
+        {
+            int roll = RandomHelper.GetRandomNumber(0, Parts.Count - 1);
+            return Parts[roll].Name;
+        }
+
         public static string GetOrigin()
         {
-            int roll = RandomHelper.GetRandomNumber(1, 100);
+            int roll = RandomHelper.RollDie("D100");
             return roll switch
             {
                 1 => "Banshee",
@@ -385,46 +248,47 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public static string GetPart()
+        public static List<AlchemyItem> GetPartsList()
         {
-            string retPart = "";
-            int roll = RandomHelper.GetRandomNumber(1, 10);
-            switch (roll)
+            return new List<AlchemyItem>()
             {
-                case 1:
-                    retPart = "Brain";
-                    break;
-                case 2:
-                    retPart = "Kidney";
-                    break;
-                case 3:
-                    retPart = "Saliva";
-                    break;
-                case 4:
-                    retPart = "Blood";
-                    break;
-                case 5:
-                    retPart = "Skin";
-                    break;
-                case 6:
-                    retPart = "Nails";
-                    break;
-                case 7:
-                    retPart = "Hair";
-                    break;
-                case 8:
-                    retPart = "Eye";
-                    break;
-                case 9:
-                    retPart = "Tongue";
-                    break;
-                case 10:
-                    retPart = "Heart";
-                    break;
-                default:
-                    break;
-            }
-            return retPart;
+                new AlchemyItem() { Name = "Brain", IsPart = true },
+                new AlchemyItem() { Name = "Kidney", IsPart = true },
+                new AlchemyItem() { Name = "Saliva", IsPart = true },
+                new AlchemyItem() { Name = "Blood", IsPart = true },
+                new AlchemyItem() { Name = "Skin", IsPart = true },
+                new AlchemyItem() { Name = "Nails", IsPart = true },
+                new AlchemyItem() { Name = "Hair", IsPart = true },
+                new AlchemyItem() { Name = "Eye", IsPart = true },
+                new AlchemyItem() { Name = "Tongue", IsPart = true },
+                new AlchemyItem() { Name = "Heart", IsPart = true }
+            };
+        }
+
+        public static List<AlchemyItem> GetIngredientsList()
+        {
+            return new List<AlchemyItem> {
+                new AlchemyItem() { IsIngredient = true, Name = "Lunarberry" },
+                new AlchemyItem() { IsIngredient = true, Name = "Dragon Stalk" },
+                new AlchemyItem() { IsIngredient = true, Name = "Ember Bark" },
+                new AlchemyItem() { IsIngredient = true, Name = "Mountain Barberry" },
+                new AlchemyItem() { IsIngredient = true, Name = "Salty Wyrmwood" },
+                new AlchemyItem() { IsIngredient = true, Name = "Ashen Ginger" },
+                new AlchemyItem() { IsIngredient = true, Name = "Spicy Windroot" },
+                new AlchemyItem() { IsIngredient = true, Name = "Wintercress" },
+                new AlchemyItem() { IsIngredient = true, Name = "Sweet Ivy" },
+                new AlchemyItem() { IsIngredient = true, Name = "Monk's Laurel" },
+                new AlchemyItem() { IsIngredient = true, Name = "Nightshade" },
+                new AlchemyItem() { IsIngredient = true, Name = "Weeping Clover" },
+                new AlchemyItem() { IsIngredient = true, Name = "Snakeberry" },
+                new AlchemyItem() { IsIngredient = true, Name = "Bitterweed" },
+                new AlchemyItem() { IsIngredient = true, Name = "Arching Pokeroot" },
+                new AlchemyItem() { IsIngredient = true, Name = "Toxic Hogweed" },
+                new AlchemyItem() { IsIngredient = true, Name = "Blue Coneflower" },
+                new AlchemyItem() { IsIngredient = true, Name = "Giant Raspberry" },
+                new AlchemyItem() { IsIngredient = true, Name = "Bright Gallberry" },
+                new AlchemyItem() { IsIngredient = true, Name = "Barbed Wormwood" },
+            };
         }
     }
 
@@ -442,17 +306,14 @@ namespace LoDCompanion.Services.GameData
         public bool IsPotion { get; set; }
         public bool IsIngredient { get; set; }
         public bool IsPart { get; set; }
+        public bool IsRecipe { get; set; }
         public PotionStrength Strength { get; set; } = PotionStrength.None;
-        public string EffectDescription { get; set; } = string.Empty;
-        public string Origin { get; set; } = string.Empty; // For ingredients/parts, their origin (e.g., "Plant", "Fungus", "Animal")
-        public bool CreatePotion { get; set; } //triggers random potion generator
+        public string? EffectDescription { get; set; }
+        public string? Origin { get; set; }
 
         public AlchemyItem()
         {
-            if (CreatePotion)
-            {
-                AlchemyService.GetPotionNames(1, Strength.ToString());
-            }
+            
         }
         // Additional constructor for ingredients/parts
         public AlchemyItem(string name, string origin, bool isIngredient = true, bool isPart = false)
@@ -469,13 +330,85 @@ namespace LoDCompanion.Services.GameData
         {
             if (IsPotion)
             {
-                return $"{Strength} {Name}: {EffectDescription}";
+                return $"{Strength} {Name}: {EffectDescription ?? "Unknown effect"}";
             }
             else if (IsIngredient || IsPart)
             {
-                return $"{Name} (Origin: {Origin})";
+                return $"{Name} (Origin: {Origin ?? "Unknown"})";
             }
             return Description;
+        }
+
+        public static AlchemicalRecipe DeserializeRecipe(AlchemyItem recipeItem, GameDataService gameData)
+        {
+            List<AlchemyItem> components = new List<AlchemyItem>();
+            
+            recipeItem.Description.Replace("Recipe Components: ", "");
+            string[] componentPairs = recipeItem.Description.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string pair in componentPairs)
+            {
+                string[] itemArray = pair.Split(':', 2);
+                if (itemArray.Length != 2) continue; // Skip malformed entries
+
+                string itemType = itemArray[0];
+                string itemName = itemArray[1].Trim();
+
+                AlchemyItem? fullItem = gameData.GetAlchemyItemByName(itemName);
+
+                if (fullItem != null)
+                {
+                    components.Add(fullItem);
+                }
+            }
+
+            return new AlchemicalRecipe()
+            {
+                // Remove " Recipe" from the end of the name
+                Name = recipeItem.Name.Replace(" Recipe", ""),
+                Strength = recipeItem.Strength,
+                Components = components
+            };
+        }
+
+    }
+
+    public class  AlchemicalRecipe
+    {
+        public string Name { get; set; } = string.Empty;
+        public PotionStrength Strength { get; set; }
+        public List<AlchemyItem> Components { get; set; } = new List<AlchemyItem>();
+
+
+        public AlchemyItem SerializeRecipe()
+        {
+            var descriptionBuilder = new StringBuilder();
+            descriptionBuilder.Append("Recipe Components: ");
+            foreach (var item in Components)
+            {
+                if (item.IsIngredient)
+                {
+                    descriptionBuilder.Append($"Ingredient:{item.Name},");
+                }
+                else if (item.IsPart)
+                {
+                    descriptionBuilder.Append($"Part:{item.Name},");
+                }
+            }
+
+            // Remove the final trailing comma.
+            if (descriptionBuilder.Length > 0)
+            {
+                descriptionBuilder.Length--;
+            }
+
+            return new AlchemyItem()
+            {
+                Name = this.Name + " Recipe",
+                Description = descriptionBuilder.ToString(),
+                Strength = this.Strength,
+                IsRecipe = true,
+            };
         }
     }
 }

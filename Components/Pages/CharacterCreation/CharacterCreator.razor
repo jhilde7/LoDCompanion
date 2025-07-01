@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
+@using LoDCompanion.Components.Shared
+@using LoDCompanion.Models.Character
 @using LoDCompanion.Services.CharacterCreation
 @using LoDCompanion.Services.GameData
 @using LoDCompanion.Services.State
@@ -82,6 +84,9 @@
                             @CharacterReview
                             ;
                             break;
+                        case Step.AlchemistRecipe:
+                            @AlchemistRecipeSelection
+                            ; break;
                         case Step.Summary:
                             @CharacterSummary
                             ;
@@ -115,7 +120,9 @@
                 {
                     @foreach (var hero in PartyManager.PartyMembers)
                     {
-                        <li class="list-group-item">@hero.Name <br /><small>@hero.SpeciesName @hero.ProfessionName</small></li>
+                        <button type="button" class="list-group-item list-group-item-action text-start" @onclick="() => ShowCharacterSheet(hero)">
+                            @hero.Name <br /><small class="text-muted">@hero.SpeciesName @hero.ProfessionName</small>
+                        </button>
                     }
                 }
                 else
@@ -127,8 +134,10 @@
     </div>
 </div>
 
+<CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
+
 @code {
-    private enum Step { Species, HumanTalent, Specialization, Profession, TalentChoice, Equipment, FreeSkill, Background, Name, Review, Summary }
+    private enum Step { Species, HumanTalent, Specialization, Profession, TalentChoice, Equipment, FreeSkill, Background, Name, Review, AlchemistRecipe, Summary }
     private Step currentStep = Step.Species;
     private EditContext editContext = default!;
     private bool isLoading = true; // Start in loading state
@@ -139,6 +148,9 @@
     private string? selectedSkill;
     private bool isSkillConfirmed = false;
     private string? selectedTalentChoice;
+
+    private CharacterSheet characterSheetModal = default!;
+    private Hero? selectedHeroForSheet;
 
     protected override async Task OnInitializedAsync()
     {
@@ -331,54 +343,70 @@
         <h3 class="text-center my-4">Choose Your Profession</h3>
         <div class="row">
             @if (GameData.Professions == null)
-        {
-            <p><em>Loading professions...</em></p>
-        }
-        else
-        {
-            @foreach (var profession in GameData.Professions)
             {
-                <div class="col-md-6 mb-6">
-                    <div class="card h-100 selectable-card @(selectedProfession == profession ? "selected" : "")" @onclick="() => SelectProfession(profession)">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">@profession.Name</h5>
-                            <p class="card-text"><small>@profession.Description</small></p>
+                <p><em>Loading professions...</em></p>
+            }
+            else
+            {
+                @foreach (var profession in GameData.Professions)
+                {
+                    <div class="col-md-6 mb-6">
+                        <div class="card h-100 selectable-card @(selectedProfession == profession ? "selected" : "")" @onclick="() => SelectProfession(profession)">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">@profession.Name</h5>
+                                <p class="card-text"><small>@profession.Description</small></p>
 
-                            <div class="mt-auto">
-                                <p class="card-text mb-1 mt-2"><strong>Skill Modifiers:</strong></p>
-                                <div class="row g-2">
-                                    <div class="col-6"><small>Combat Skill: @profession.CombatSkillModifier.ToString("+#;-#;0")</small></div>
-                                    <div class="col-6"><small>Ranged Skill: @profession.RangedSkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Dodge: @profession.DodgeSkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Pick Locks: @profession.PickLocksSkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Barter: @profession.BarterSkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Heal: @profession.HealSkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Alchemy: @profession.AlchemySkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Perception: @profession.PerceptionSkillModifier.ToString("+#;-#;0")</small></div>
-                                <div class="col-6"><small>Foraging: @profession.ForagingSkillModifier.ToString("+#;-#;0")</small></div>
-                                @if (@profession.ArcaneArtsSkillModifier.HasValue)
-                                {
-                                    <div class="col-6"><small>Arcane Arts: @profession.ArcaneArtsSkillModifier.ToString()</small></div>
-                                }
-                                @if (@profession.BattlePrayersSkillModifier.HasValue)
-                                {
-                                    <div class="col-6"><small>Battle Prayer: @profession.BattlePrayersSkillModifier.ToString()</small></div>
-                                }
-                                    <div class="col-6"><small>Hit Points: @profession.HPModifier.ToString("+#;-#;0")</small></div>
+                                    <div class="mt-auto">
+                                        <p class="card-text mb-1 mt-2"><strong>Skill Modifiers:</strong></p>
+                                        <div class="row g-2">
+                                        <div class="col-6"><small>Combat Skill: @profession.CombatSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Ranged Skill: @profession.RangedSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Dodge: @profession.DodgeSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Pick Locks: @profession.PickLocksSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Barter: @profession.BarterSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Heal: @profession.HealSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Alchemy: @profession.AlchemySkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Perception: @profession.PerceptionSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small>Foraging: @profession.ForagingSkillModifier.ToString("+#;-#;0")</small></div>
+                                        @if (@profession.ArcaneArtsSkillModifier.HasValue)
+                                        {
+                                            <div class="col-6"><small>Arcane Arts: @profession.ArcaneArtsSkillModifier.ToString()</small></div>
+                                        }
+                                        @if (@profession.BattlePrayersSkillModifier.HasValue)
+                                        {
+                                            <div class="col-6"><small>Battle Prayer: @profession.BattlePrayersSkillModifier.ToString()</small></div>
+                                        }
+                                        <div class="col-6"><small>Hit Points: @profession.HPModifier.ToString("+#;-#;0")</small></div>
+                                    </div>
+
+                                    @if (@profession.StartingTalentList != null)
+                                    {
+                                        <p class="card-text mb-1 mt-2">
+                                            <strong>Starting Talents:</strong> <small>@string.Join(", ", profession.StartingTalentList)</small>
+                                        </p>
+                                    }
+
+                                    @if (@profession.StartingPerkList != null)
+                                    {
+                                        <p class="card-text mb-1 mt-2">
+                                        <strong>Starting Perks:</strong> <small>@string.Join(", ", profession.StartingPerkList)</small>
+                                        </p>
+                                    }   
+                                    
+                                    <p class="card-text">
+                                        <strong>Starting Items:</strong> <small>@string.Join(", ", profession.StartingBackpackList)</small>
+                                    </p>
                                 </div>
-
-                                <p class="card-text mb-1 mt-2">
-                                    <strong>Starting Talents:</strong> <small>@string.Join(", ", profession.StartingTalentList)</small>
-                                </p>
-                                <p class="card-text">
-                                    <strong>Starting Items:</strong> <small>@string.Join(", ", profession.StartingBackpackList)</small>
-                                </p>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             }
-        }
+
+            @if (selectedProfession != null)
+            {
+            GoToNextStep();
+            }
         </div>
     </section>;
 
@@ -389,7 +417,7 @@
             @foreach(var talent in CreationService.TalentChoices)
             {
                 <label class="list-group-item list-group-item-action">
-                    <input class="form-check-input me-2" type="radio" name="talentChoice" value="@talent.ToString()" @onchange="() => OnTalentSelected(talent)" />
+                    <input class="form-check-input me-2" type="radio" name="talentChoice" value="@talent.ToString()" @onchange="() => OnTalentSelected(talent.Name)" />
                     @talent
                 </label>
             }
@@ -434,7 +462,7 @@
                             <option value="">-- Select a Weapon --</option>
                             @foreach(var weapon in CreationService.WeaponChoices)
                             {
-                                <option value="@weapon.Name">@weapon.Name (GetWeaponString))</option>
+                                <option value="@weapon.Name">@weapon.Name (@weapon.ToString()))</option>
                             }
                         </InputSelect>
                     </div>
@@ -543,6 +571,17 @@
                 <pre class="card-text">@previewHero.ToString()</pre>
             </div>
         </div>
+
+        <div class="text-center">
+            <button class="btn btn-info" @onclick="CreateNextHero">Start Over</button>
+        </div>
+    </section>;
+
+    private RenderFragment AlchemistRecipeSelection =>@<section>
+
+        <h3 class="text-center my-4">Create Starting Recipe</h3>
+        <p>As an Alchemist, you start with one freely chosen recipe for a Weak Potion. Use the creator below to design it.</p>
+        <RecipeCreator OnRecipeCreated="HandleRecipeCreated" />
     </section>;
 
     private RenderFragment CharacterSummary =>@<section>
@@ -566,6 +605,11 @@
     #endregion
 
     #region Code-behind Logic
+    private void ShowCharacterSheet(Hero hero)
+    {
+        selectedHeroForSheet = hero;
+        characterSheetModal.Show();
+    }
 
     private void SelectSpecies(Species species)
     {
@@ -621,6 +665,14 @@
         return "no data";
     }
 
+    private void HandleRecipeCreated(AlchemicalRecipe recipe)
+    {
+        // Add the created recipe to the character creation service
+        CreationService.AddStartingRecipe(recipe);
+        // We can also automatically move to the next step
+        GoToNextStep();
+    }
+
     private bool IsCurrentStepValid() => currentStep switch
     {
         Step.Species => CreationService.SelectedSpecies != null,
@@ -660,6 +712,7 @@
         Step.TalentChoice => CreationService.TalentChoices == null,
         Step.Equipment => CreationService.SpecificWeaponChoices == null && CreationService.WeaponChoices == null && CreationService.RelicChoices == null,
         Step.FreeSkill => CreationService.FreeSkills == null,
+        Step.AlchemistRecipe => CreationService.SelectedProfession?.Name != "Alchemist",
         _ => false
     };
 

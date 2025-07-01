@@ -30,6 +30,8 @@ namespace LoDCompanion.Services.CharacterCreation
         public int Wisdom { get; set; }
         public int Resolve { get; set; }
         public int BaseHP { get; set; }
+        public int DamageBonus { get; set; }
+        public int NatrualArmour { get; set; }
 
         public int CombatSkillModifier { get; set; }
         public int RangedSkillModifier { get; set; }
@@ -39,9 +41,9 @@ namespace LoDCompanion.Services.CharacterCreation
         public int HealSkillModifier { get; set; }
         public int AlchemySkillModifier { get; set; }
         public int PerceptionSkillModifier { get; set; }
-        public int ArcaneArtsSkillModifier { get; set; }
+        public int? ArcaneArtsSkillModifier { get; set; }
         public int ForagingSkillModifier { get; set; }
-        public int BattlePrayersSkillModifier { get; set; }
+        public int? BattlePrayersSkillModifier { get; set; }
         public int HpModifier { get; set; }
 
         public List<string> FreeSkills { get; set; } = new List<string>();
@@ -61,12 +63,15 @@ namespace LoDCompanion.Services.CharacterCreation
         public int MaxArmour { get; set; }
 
         public List<Equipment>? WeaponChoices { get; private set; }
-        public List<MeleeWeapon>? SpecificWeaponChoices { get; private set; }
+        public List<Equipment>? SpecificWeaponChoices { get; private set; }
         public List<Equipment>? RelicChoices { get; private set; }
+        public List<AlchemyItem>? PotionChoices { get; private set; }
+        public List<AlchemyItem>? PartChoices { get; private set; }
+        public bool HasRecipe { get; set; }
         public string? SelectedWeapon { get; set; }
         public string? SelectedRelic { get; set; }
 
-        public List<string>? TalentChoices { get; set; }
+        public List<Talent>? TalentChoices { get; set; }
         public List<Talent> TalentList { get; set; } = new List<Talent>();
         public List<string>? HumanTalentCategoryList { get; set; }
         public string? HumanTalentCategorySelection { get; set; }
@@ -74,6 +79,8 @@ namespace LoDCompanion.Services.CharacterCreation
         public List<Equipment> StartingEquipment { get; set; } = new List<Equipment>(); // Changed from string to Equipment objects
         public List<Spell> SpellList { get; set; } = new List<Spell>();
         public List<Prayer> PrayerList { get; set; } = new List<Prayer>();
+
+        public Hero? Hero { get; set; }
 
 
         public CharacterCreationService(GameDataService gameData)
@@ -192,14 +199,14 @@ namespace LoDCompanion.Services.CharacterCreation
             GetSkillModifiers();
             GetSkillStats(); // Update skills based on new profession
 
-            // Add starting talents from profession to current talent list
-            foreach (string talent in profession.StartingTalentList)
+            GetTalentChoices();
+            if(profession.StartingTalentList != null)
             {
-                TalentList.Add(_gameData.GetTalentByName(talent));                
+                TalentList.AddRange(profession.StartingTalentList);
             }
+
             PerkList = SetStartingPerks(profession.Name);
             FreeSkills = profession.FreeSkills;
-            GetTalentChoices();
             GetEquipmentChoices();
 
             SpellList = new List<Spell>();
@@ -266,9 +273,6 @@ namespace LoDCompanion.Services.CharacterCreation
             Wisdom = SelectedSpecies.BaseWisdom + baseStatRolls[3];
             Resolve = SelectedSpecies.BaseResolve + baseStatRolls[4];
             BaseHP = SelectedSpecies.BaseHitPoints + baseStatRolls[5];
-
-            // Re-calculate skills and MaxHP after stat changes
-            GetSkillStats();
         }
 
         public int ResetSpecialization()
@@ -293,23 +297,18 @@ namespace LoDCompanion.Services.CharacterCreation
             switch (statType)
             {
                 case "STR":
-                    if (AddedStrength + actualAmount > 10) actualAmount = 10 - AddedStrength;
                     AddedStrength += actualAmount;
                     break;
                 case "CON":
-                    if (AddedConstitution + actualAmount > 10) actualAmount = 10 - AddedConstitution;
                     AddedConstitution += actualAmount;
                     break;
                 case "DEX":
-                    if (AddedDexterity + actualAmount > 10) actualAmount = 10 - AddedDexterity;
                     AddedDexterity += actualAmount;
                     break;
                 case "WIS":
-                    if (AddedWisdom + actualAmount > 10) actualAmount = 10 - AddedWisdom;
                     AddedWisdom += actualAmount;
                     break;
                 case "RES":
-                    if (AddedResolve + actualAmount > 10) actualAmount = 10 - AddedResolve;
                     AddedResolve += actualAmount;
                     break;
                 default:
@@ -317,7 +316,6 @@ namespace LoDCompanion.Services.CharacterCreation
             }
 
             SpecializationBonus -= actualAmount;
-            GetSkillStats(); // Recalculate skills after stat specialization
             return true;
         }
 
@@ -343,6 +341,18 @@ namespace LoDCompanion.Services.CharacterCreation
         {
             if (SelectedSpecies == null || SelectedProfession == null) return; // Ensure both are selected
 
+            Strength += AddedStrength;
+            Dexterity += AddedDexterity;
+            Constitution += AddedConstitution;
+            Wisdom += AddedWisdom;
+            Resolve += AddedResolve;
+
+            AddedResolve = 0;
+            AddedConstitution = 0;
+            AddedDexterity = 0;
+            AddedStrength = 0;
+            AddedWisdom = 0;
+
             CombatSkill = Dexterity + CombatSkillModifier;
             RangedSkill = Dexterity + RangedSkillModifier;
             Dodge = Dexterity + DodgeSkillModifier;
@@ -356,29 +366,22 @@ namespace LoDCompanion.Services.CharacterCreation
             MaxHP = BaseHP + HpModifier;
             MaxArmour = SelectedProfession.MaxArmourType;
 
-            if (SelectedProfession.Name == "Wizard")
+            if (SelectedProfession.Name == "Wizard" && ArcaneArtsSkillModifier.HasValue)
             {
-                ArcaneArts = Wisdom + ArcaneArtsSkillModifier;
+                ArcaneArts = Wisdom + (int)ArcaneArtsSkillModifier;
             }
-            else if (SelectedProfession.Name == "Warrior Priest")
+            else if (SelectedProfession.Name == "Warrior Priest" && BattlePrayersSkillModifier.HasValue)
             {
-                BattlePrayers = Wisdom + BattlePrayersSkillModifier;
+                BattlePrayers = Wisdom + (int)BattlePrayersSkillModifier;
             }
         }
 
         public void GetTalentChoices()
         {
-            TalentChoices = null;
-            if (SelectedProfession != null)
+            TalentChoices = new();
+            if (SelectedProfession != null && SelectedProfession.TalentChoices != null)
             {
-                foreach (string talent in SelectedProfession.StartingTalentList)
-                {
-                    if(talent.Contains("/"))
-                    {
-                        TalentChoices = new();
-                        TalentChoices.AddRange(talent.Split('/'));
-                    }
-                }
+                TalentChoices.AddRange(SelectedProfession.TalentChoices);
             }
         }
 
@@ -388,31 +391,47 @@ namespace LoDCompanion.Services.CharacterCreation
             SpecificWeaponChoices = null;
             WeaponChoices = null;
             RelicChoices = null;
+            PotionChoices = null;
+            PartChoices = null;
             SelectedWeapon = null;
             SelectedRelic = null;
 
             if (SelectedProfession == null) return;
 
-            foreach (var item in SelectedProfession.StartingBackpackList)
+            if (SelectedProfession.EquipmentChoices != null)
             {
-                if (item.Contains("/", StringComparison.OrdinalIgnoreCase))
+                foreach (var item in SelectedProfession.EquipmentChoices)
                 {
-                    SpecificWeaponChoices = new List<MeleeWeapon>();
-                    List<string> list = item.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    foreach (var item2 in list) 
+                    if (item.Contains("/", StringComparison.OrdinalIgnoreCase))
                     {
-                        SpecificWeaponChoices.Add(_gameData.GetMeleeWeaponByName(item2));
+                        SpecificWeaponChoices = new List<Equipment>();
+                        List<string> list = item.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        foreach (var item2 in list)
+                        {
+                            SpecificWeaponChoices.Add(_gameData.GetMeleeWeaponByName(item2));
+                        }
                     }
-
-                }
-                else if (item.Equals("Weapon", StringComparison.OrdinalIgnoreCase))
-                {
-                    WeaponChoices = _gameData.Weapons;
-                }
-                else if (item.Equals("Religious Relic", StringComparison.OrdinalIgnoreCase))
-                {
-                    RelicChoices = _gameData.Relics;
-                }
+                    else if (item.Equals("Weapon", StringComparison.OrdinalIgnoreCase))
+                    {
+                        WeaponChoices = _gameData.GetStartingWeapons();
+                    }
+                    else if (item.Equals("Religious Relic", StringComparison.OrdinalIgnoreCase))
+                    {
+                        RelicChoices = _gameData.Relics;
+                    }
+                    else if(item.Contains("Potion"))
+                    {
+                        PotionChoices = _gameData.StandardPotions;
+                    }
+                    else if(item.Contains("Part"))
+                    {
+                        PartChoices = AlchemyService.Parts;
+                    }
+                    else if (item.Contains("Recipe"))
+                    {
+                        HasRecipe = true;
+                    }
+                } 
             }
         }
 
@@ -431,14 +450,14 @@ namespace LoDCompanion.Services.CharacterCreation
 
             switch (skillName)
             {
-                case "combatSkill": CombatSkillModifier += 10; break;
-                case "rangedSkill": RangedSkillModifier += 10; break;
-                case "dodgeSkill": DodgeSkillModifier += 10; break;
-                case "pickLocksSkill": PickLocksSkillModifier += 10; break;
-                case "barterSkill": BarterSkillModifier += 10; break;
-                case "healSkill": HealSkillModifier += 10; break;
-                case "alchemySkill": AlchemySkillModifier += 10; break;
-                case "perceptionSkill": PerceptionSkillModifier += 10; break;
+                case "CombatSkill": CombatSkillModifier += 10; break;
+                case "RangedSkill": RangedSkillModifier += 10; break;
+                case "DodgeSkill": DodgeSkillModifier += 10; break;
+                case "PickLocksSkill": PickLocksSkillModifier += 10; break;
+                case "BarterSkill": BarterSkillModifier += 10; break;
+                case "HealSkill": HealSkillModifier += 10; break;
+                case "AlchemySkill": AlchemySkillModifier += 10; break;
+                case "PerceptionSkill": PerceptionSkillModifier += 10; break;
                 default: FreeSkills.Add(skillName); // Add back if not a recognized skill
                     return false;
             }
@@ -457,22 +476,27 @@ namespace LoDCompanion.Services.CharacterCreation
                 TalentList.Add(SelectedBackground.Trait);
             }
         }
+
+        public void AddStartingRecipe(AlchemicalRecipe recipe)
+        {
+            StartingEquipment.Add(recipe.SerializeRecipe());
+        }
+
         public Hero BuildPreviewHero()
         {
-            Talent streetWise = new Talent()
+            if (SelectedWeapon != null)
             {
-                Name = "Streetwise",
-                Description = "Your hero knows who to turn to in order to acquire the gear he is searching for. Every roll this hero makes for availability may be modified with -1.",
-                IsStreetwise = true
-            };
-
-            //if Rogue add unique talent
-            if (SelectedProfession.Name == "Rogue" && !TalentList.Contains(streetWise))
+                StartingEquipment.Add(_gameData.GetWeaponByName(SelectedWeapon));
+            }
+            if(SelectedRelic != null) 
             {
-                TalentList.Add(streetWise);
+                StartingEquipment.Add(_gameData.GetRelicByName(SelectedRelic));
             }
 
-            var hero = new Hero
+            TalentList.RemoveAll(item => item.Name == "");
+            StartingEquipment.RemoveAll(item => item.Name == "");
+
+            Hero = new Hero
             {
                 Name = Name,
                 SpeciesName = SelectedSpecies.Name,
@@ -493,6 +517,10 @@ namespace LoDCompanion.Services.CharacterCreation
                 AlchemySkill = Alchemy,
                 PerceptionSkill = Perception,
                 ForagingSkill = Foraging,
+                ArcaneArtsSkill = ArcaneArts,
+                BattlePrayersSkill = BattlePrayers,
+                DamageBonus = _gameData.GetDamageBonusFromSTR(Strength),
+                NaturalArmour = _gameData.GetNaturalArmourFromCON(Constitution),
                 MaxArmour = MaxArmour,
                 Talents = TalentList,
                 Perks = PerkList,
@@ -506,95 +534,52 @@ namespace LoDCompanion.Services.CharacterCreation
                 MaxSanity = 10,
             };
 
-            // You can add logic here to calculate final skills, energy, etc. for the preview
-
-            return hero;
-        }
-
-        public Hero FinalizeCharacter()
-        {
-            if (string.IsNullOrEmpty(Name) || SelectedSpecies == null || SelectedProfession == null)
-            {
-                throw new InvalidOperationException("Character name, species, and profession must be selected before finalizing character.");
-            }
-
-            Talent streetWise = new Talent()
-            {
-                Name = "Streetwise",
-                Description = "Your hero knows who to turn to in order to acquire the gear he is searching for. Every roll this hero makes for availability may be modified with -1.",
-                IsStreetwise = true
-            };
-
-            //if Rogue add unique talent
-            if (SelectedProfession.Name == "Rogue" && !TalentList.Contains(streetWise))
-            {
-                TalentList.Add(streetWise);
-            }
-
-            // Create the new Hero instance
-            Hero newHero = new Hero
-            {
-                Name = Name,
-                SpeciesName = SelectedSpecies.Name,
-                ProfessionName = SelectedProfession.Name,
-                Strength = Strength,
-                Constitution = Constitution,
-                Dexterity = Dexterity,
-                Wisdom = Wisdom,
-                Resolve = Resolve,
-                MaxHP = MaxHP,
-                CurrentHP = MaxHP,
-                CombatSkill = CombatSkill,
-                RangedSkill = RangedSkill,
-                Dodge = Dodge,
-                PickLocksSkill = PickLocks,
-                BarterSkill = Barter,
-                HealSkill = Heal,
-                AlchemySkill = Alchemy,
-                PerceptionSkill = Perception,
-                ForagingSkill = Foraging,
-                MaxArmour = MaxArmour,
-                Talents = TalentList,
-                Perks = PerkList, 
-                Level = 1,
-                Experience = 0,
-                MaxMana = SelectedProfession.Name == "Wizard" ? Wisdom : null,
-                CurrentMana = SelectedProfession.Name == "Wizard" ? Wisdom : null,
-                CurrentEnergy = 1, 
-                MaxEnergy = 1, 
-                CurrentSanity = 10, 
-                MaxSanity = 10,
-            };
-
             // Populate Hero's Talents and Perks lists with actual Talent/Perk objects if they exist
-            newHero.Talents = TalentList.Select(t => new Talent { Name = t.Name }).ToList();
-            newHero.Perks = PerkList.Select(p => new Perk { Name = p.Name }).ToList(); 
+            Hero.Talents = TalentList;
+            Hero.Perks = PerkList;
 
             // Add starting spells and prayers
-            if(newHero.ProfessionName == "Wizard")
-            { 
-                newHero.Spells = GetStartingSpells(); 
+            if (Hero.ProfessionName == "Wizard")
+            {
+                Hero.Spells = GetStartingSpells();
             }
-            else if ( newHero.ProfessionName == "Warrior Priest")
-            { 
-                newHero.Prayers = GetStartingPrayers();
+            else if (Hero.ProfessionName == "Warrior Priest")
+            {
+                Hero.Prayers = GetStartingPrayers();
             }
 
-            // Add starting backpack items using TreasureService
-            foreach (string itemName in SelectedProfession.StartingBackpackList)
+            // Add starting backpack items
+            foreach (Equipment item in StartingEquipment)
             {
-                int durability = 6 - RandomHelper.GetRandomNumber(1, 4); // Original logic
-                Equipment newItem = new TreasureService(_gameData).CreateItem(itemName, durability);
-                if (newItem != null)
+                Hero.Backpack.Add(item);
+            }
+
+            foreach (Equipment item in SelectedProfession.StartingBackpackList)
+            {
+                Hero.Backpack.Add(item);
+            }
+
+            foreach(Equipment equipment in Hero.Backpack)
+            {
+                if (equipment is MeleeWeapon || equipment is RangedWeapon || equipment is Armour)
                 {
-                    newHero.Backpack.Add(newItem);
+                    equipment.Durability = RandomHelper.RollDie("D4"); 
+                }
+                else
+                {
+                    equipment.Durability = 1;
                 }
             }
 
+            return Hero;
+        }
+
+        public Hero FinalizeCharacter()
+        {           
             // Re-initialize service state for next creation process
             InitializeCreationState();
 
-            return newHero;
+            return Hero;
         }
 
         private List<Spell> GetStartingSpells()
@@ -672,14 +657,17 @@ namespace LoDCompanion.Services.CharacterCreation
         public int HealSkillModifier { get; set; }
         public int AlchemySkillModifier { get; set; }
         public int PerceptionSkillModifier { get; set; }
-        public int? ArcaneArtsSkillModifier { get; set; }
+        public int? ArcaneArtsSkillModifier { get; set; } = null;
         public int ForagingSkillModifier { get; set; }
-        public int? BattlePrayersSkillModifier { get; set; }
+        public int? BattlePrayersSkillModifier { get; set; } = null;
         public int HPModifier { get; set; }
         public int MaxArmourType { get; set; }
         public int MaxMeleeWeaponType { get; set; }
-        public List<string> StartingBackpackList { get; set; } = new();
-        public List<string> StartingTalentList { get; set; } = new();
+        public List<string>? EquipmentChoices { get; set; }
+        public List<Talent>? TalentChoices { get; set; }
+        public List<Equipment> StartingBackpackList { get; set; } = new();
+        public List<Talent>? StartingTalentList { get; set; }
+        public List<Perk>? StartingPerkList { get; set; }
         public Dictionary<string, int> LevelUpCost { get; set; } = new();
         public List<string> FreeSkills { get; set; } = new();
 

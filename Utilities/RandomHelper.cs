@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq; // Required for LINQ methods like ToList() in Shuffle
 
 namespace LoDCompanion.Utilities
@@ -37,6 +38,16 @@ namespace LoDCompanion.Utilities
         public static int RollDie(string die)
         {
             return GetRandomNumber(1, GetDiceSides(die));
+        }
+
+        public static T GetRandomEnumValue<T>(int min = 0, int max = 0)
+        {
+            var v = Enum.GetValues(typeof(T));
+            if (max > 0 && max <= v.Length)
+            {
+                return (T)v.GetValue(GetRandomNumber(min, max));
+            }
+            return (T)v.GetValue(_random.Next(v.Length));
         }
     }
 

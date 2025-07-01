@@ -147,6 +147,7 @@ namespace LoDCompanion.Models
 
     public class MeleeWeapon : Equipment
     {
+        new int Durability { get; set; } = 6;
         public int WeaponClass { get; set; }
         public int[] DamageRange { get; set; } = new int[2];
         public int ArmourPiercing { get; set; }
@@ -170,7 +171,10 @@ namespace LoDCompanion.Models
         public bool IsBlunt { get; set; }
         public bool IsMetal { get; set; }
 
-        public MeleeWeapon() { } // Default constructor
+        public MeleeWeapon() 
+        {
+            SetMithrilModifier();
+        } 
 
         public override string ToString()
         {
@@ -203,6 +207,17 @@ namespace LoDCompanion.Models
 
             return sb.ToString();
         }
+
+        public void SetMithrilModifier()
+        {
+            if(IsMithril)
+            {
+                DamageRange[0] += 1;
+                DamageRange[1] += 1;
+                Encumbrance -= 2;
+            }
+        }
+
 
         // You can add common weapon methods here, e.g., for calculating damage roll
         public virtual int RollDamage()
@@ -268,6 +283,7 @@ namespace LoDCompanion.Models
 
     public class RangedWeapon : Equipment
     {
+        new int Durability { get; set; } = 6;
         public int WeaponClass { get; set; }
         public int[] DamageRange { get; set; } = new int[2];
         public int ArmourPiercing { get; set; }
@@ -339,6 +355,7 @@ namespace LoDCompanion.Models
 
     public class Armour : Equipment
     {
+        new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
         public bool IsMithril { get; set; }
@@ -396,6 +413,7 @@ namespace LoDCompanion.Models
 
     public class Shield : Equipment
     {
+        new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
         public bool IsMithril { get; set; }
