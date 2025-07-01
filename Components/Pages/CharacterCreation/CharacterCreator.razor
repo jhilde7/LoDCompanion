@@ -196,12 +196,12 @@
                             <h5 class="card-title">@species.Name</h5>
                             <p class="card-text">@species.Description</p>
                             <div>
-                                <strong>STR:</strong> @species.BaseStrength,
-                                <strong>CON:</strong> @species.BaseConstitution,
-                                <strong>DEX:</strong> @species.BaseDexterity,
-                                <strong>WIS:</strong> @species.BaseWisdom,
-                                <strong>RES:</strong> @species.BaseResolve,
-                                <strong>HP:</strong> @species.BaseHitPoints
+                                <strong title=@TooltipHelper.GetTooltip("STR")>STR:</strong> @species.BaseStrength,
+                                <strong title=@TooltipHelper.GetTooltip("CON")>CON:</strong> @species.BaseConstitution,
+                                <strong title=@TooltipHelper.GetTooltip("DEX")>DEX:</strong> @species.BaseDexterity,
+                                <strong title=@TooltipHelper.GetTooltip("WIS")>WIS:</strong> @species.BaseWisdom,
+                                <strong title=@TooltipHelper.GetTooltip("RES")>RES:</strong> @species.BaseResolve,
+                                <strong title=@TooltipHelper.GetTooltip("HP")>HP:</strong> @species.BaseHitPoints
                             </div>
                         </div>
                     </div>
@@ -359,53 +359,170 @@
                                     <div class="mt-auto">
                                         <p class="card-text mb-1 mt-2"><strong>Skill Modifiers:</strong></p>
                                         <div class="row g-2">
-                                        <div class="col-6"><small>Combat Skill: @profession.CombatSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Ranged Skill: @profession.RangedSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Dodge: @profession.DodgeSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Pick Locks: @profession.PickLocksSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Barter: @profession.BarterSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Heal: @profession.HealSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Alchemy: @profession.AlchemySkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Perception: @profession.PerceptionSkillModifier.ToString("+#;-#;0")</small></div>
-                                        <div class="col-6"><small>Foraging: @profession.ForagingSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Combat Skill")>Combat Skill: @profession.CombatSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Ranged Skill")>Ranged Skill: @profession.RangedSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Dodge")>Dodge: @profession.DodgeSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Pick Locks")>Pick Locks: @profession.PickLocksSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Barter")>Barter: @profession.BarterSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Heal")>Heal: @profession.HealSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Alchemy")>Alchemy: @profession.AlchemySkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Perception")>Perception: @profession.PerceptionSkillModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("Foraging")>Foraging: @profession.ForagingSkillModifier.ToString("+#;-#;0")</small></div>
                                         @if (@profession.ArcaneArtsSkillModifier.HasValue)
                                         {
-                                            <div class="col-6"><small>Arcane Arts: @profession.ArcaneArtsSkillModifier.ToString()</small></div>
+                                            <div class="col-6"><small title=@TooltipHelper.GetTooltip("Arcane Arts")>Arcane Arts: @profession.ArcaneArtsSkillModifier.ToString()</small></div>
                                         }
                                         @if (@profession.BattlePrayersSkillModifier.HasValue)
                                         {
-                                            <div class="col-6"><small>Battle Prayer: @profession.BattlePrayersSkillModifier.ToString()</small></div>
+                                            <div class="col-6"><small title=@TooltipHelper.GetTooltip("Battle Prayer")>Battle Prayer: @profession.BattlePrayersSkillModifier.ToString()</small></div>
                                         }
-                                        <div class="col-6"><small>Hit Points: @profession.HPModifier.ToString("+#;-#;0")</small></div>
+                                        <div class="col-6"><small title=@TooltipHelper.GetTooltip("HP")>Hit Points: @profession.HPModifier.ToString("+#;-#;0")</small></div>
                                     </div>
 
                                     @if (@profession.StartingTalentList != null)
                                     {
                                         <p class="card-text mb-1 mt-2">
-                                            <strong>Starting Talents:</strong> <small>@string.Join(", ", profession.StartingTalentList)</small>
+                                            <strong>Starting Talents:</strong> 
+                                            <small>
+                                                @for (int i = 0; i < profession.StartingTalentList.Count; i++)
+                                                {
+                                                    var item = profession.StartingTalentList[i];
+
+                                                    if (item != null)
+                                                    {
+                                                    // If the item is found, render it with a tooltip
+                                                        <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                    }
+                                                    else
+                                                    {
+                                                    // If it's a placeholder like "Weapon of choice", just display the text
+                                                        <span>@item.Name</span>
+                                                    }
+
+                                                    // Add a comma and space if it's not the last item in the list
+                                                    if (i < profession.StartingTalentList.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            </small>
+                                        </p>
+                                    }
+
+                                    @if (@profession.TalentChoices != null)
+                                    {
+                                        <p class="card-text mb-1 mt-2">
+                                            <strong>Starting Talent Choices:</strong> 
+                                            <small>
+                                                @for (int i = 0; i < profession.TalentChoices.Count; i++)
+                                                {
+                                                    var item = profession.TalentChoices[i];
+
+                                                    if (item != null)
+                                                    {
+                                                    // If the item is found, render it with a tooltip
+                                                        <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                    }
+                                                    else
+                                                    {
+                                                    // If it's a placeholder like "Weapon of choice", just display the text
+                                                        <span>@item.Name</span>
+                                                    }
+
+                                                    // Add a comma and space if it's not the last item in the list
+                                                    if (i < profession.TalentChoices.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            </small>
                                         </p>
                                     }
 
                                     @if (@profession.StartingPerkList != null)
                                     {
                                         <p class="card-text mb-1 mt-2">
-                                        <strong>Starting Perks:</strong> <small>@string.Join(", ", profession.StartingPerkList)</small>
+                                        <strong>Starting Perks:</strong> 
+                                        <small>
+                                            @for (int i = 0; i < profession.StartingPerkList.Count; i++)
+                                            {
+                                                var item = profession.StartingPerkList[i];
+
+                                                if (item != null)
+                                                {
+                                                // If the item is found, render it with a tooltip
+                                                    <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                }
+                                                else
+                                                {
+                                                // If it's a placeholder like "Weapon of choice", just display the text
+                                                    <span>@item.Name</span>
+                                                }
+
+                                                // Add a comma and space if it's not the last item in the list
+                                                if (i < profession.StartingBackpackList.Count - 1)
+                                                {
+                                                    <span>, </span>
+                                                }
+                                            }
+                                        </small>
                                         </p>
-                                    }   
-                                    
-                                    <p class="card-text">
-                                        <strong>Starting Items:</strong> <small>@string.Join(", ", profession.StartingBackpackList)</small>
-                                    </p>
+                                    }
+
+                                    @if (profession.StartingBackpackList != null)
+                                    {
+                                        <p class="card-text">
+                                            <strong>Starting Items:</strong>
+                                            <small>
+                                                @for (int i = 0; i < profession.StartingBackpackList.Count; i++)
+                                                {
+                                                    var item = profession.StartingBackpackList[i];
+
+                                                    if (item != null)
+                                                    {
+                                                    // If the item is found, render it with a tooltip
+                                                        <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                    }
+                                                    else
+                                                    {
+                                                    // If it's a placeholder like "Weapon of choice", just display the text
+                                                        <span>@item.Name</span>
+                                                    }
+
+                                                    // Add a comma and space if it's not the last item in the list
+                                                    if (i < profession.StartingBackpackList.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            </small>                                        
+                                        </p>
+                                    }
+                                    @if (profession.EquipmentChoices != null)
+                                    {
+                                        <p>
+                                            <strong>Starting Item Choices: </strong>
+                                            <small>                                            
+                                                @for (int i = 0; i < profession.EquipmentChoices.Count; i++)
+                                                {
+                                                    var item = profession.EquipmentChoices[i];
+
+                                                    <span>@item</span>
+
+                                                    // Add a comma and space if it's not the last item in the list
+                                                    if (i < profession.EquipmentChoices.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }                                            
+                                            </small>
+							            </p>
+                                    } 
                                 </div>
                             </div>
                         </div>
                     </div>
                 }
-            }
-
-            @if (selectedProfession != null)
-            {
-            GoToNextStep();
             }
         </div>
     </section>;
@@ -417,7 +534,7 @@
             @foreach(var talent in CreationService.TalentChoices)
             {
                 <label class="list-group-item list-group-item-action">
-                    <input class="form-check-input me-2" type="radio" name="talentChoice" value="@talent.ToString()" @onchange="() => OnTalentSelected(talent.Name)" />
+                <input class="form-check-input me-2" type="radio" name="talentChoice" title="@talent.ToString()" value="@talent.Name" @onchange="() => OnTalentSelected(talent.Name)" />
                     @talent
                 </label>
             }
@@ -446,8 +563,8 @@
                             @foreach(var weaponName in CreationService.SpecificWeaponChoices)
                             {
                                 <label class="list-group-item list-group-item-action">
-                                    <input class="form-check-input me-2" type="radio" name="weaponChoice"
-                                           value="@weaponName.ToString()" @onchange="() => CreationService.SelectedWeapon = weaponName.Name" />
+                                    <input class="form-check-input me-2" type="radio" name="weaponChoice" title="@weaponName.ToString()"
+                                           value="@weaponName.Name" @onchange="() => CreationService.SelectedWeapon = weaponName.Name" />
                                     @weaponName
                                 </label>
                             }
@@ -462,7 +579,7 @@
                             <option value="">-- Select a Weapon --</option>
                             @foreach(var weapon in CreationService.WeaponChoices)
                             {
-                                <option value="@weapon.Name">@weapon.Name (@weapon.ToString()))</option>
+                                <option title="@weapon.ToString() value="@weapon.Name">@weapon.Name)</option>
                             }
                         </InputSelect>
                     </div>
@@ -475,7 +592,7 @@
                             <option value="">-- Select a Relic --</option>
                             @foreach(var relic in CreationService.RelicChoices)
                         {
-                            <option value="@relic.Name">@relic.Name (@relic.MagicEffect)</option>
+                        <option value="@relic.Name">@relic.Name (@relic.MagicEffect)</option>
                         }
                         </InputSelect>
                     </div>
@@ -565,10 +682,47 @@
             var previewHero = CreationService.BuildPreviewHero();
         }
 
-        <div class="card bg-light">
+        <div class="card">
+            <div class="card-header">
+                <h4>
+                    <Tooltip TooltipText="@previewHero.ToString()">
+                        @previewHero.Name
+                    </Tooltip>
+                </h4>
+            </div>
             <div class="card-body">
-                <h4 class="card-title">@previewHero.Name</h4>
-                <pre class="card-text">@previewHero.ToString()</pre>
+                <p><strong>Species:</strong> @previewHero.SpeciesName</p>
+                <p><strong>Profession:</strong> @previewHero.ProfessionName</p>
+
+                @if (previewHero.Talents.Any())
+            {
+                <p><strong>Talents:</strong></p>
+                <p>
+                    @foreach(var talent in previewHero.Talents)
+                {
+                    <span class="badge bg-secondary me-1">
+                        <Tooltip TooltipText="@talent.ToString()">
+                            @talent.Name
+                        </Tooltip>
+                    </span>
+                }
+                </p>
+            }
+
+                @if (previewHero.Backpack.Any())
+            {
+                <p><strong>Equipment:</strong></p>
+                <p>
+                    @foreach(var item in previewHero.Backpack)
+                {
+                    <span class="badge bg-info text-dark me-1">
+                        <Tooltip TooltipText="@item.ToString()">
+                            @item.Name
+                        </Tooltip>
+                    </span>
+                }
+                </p>
+            }
             </div>
         </div>
 
@@ -634,10 +788,12 @@
         CreationService.ResetSpecialization();
     }
 
-    private void SelectProfession(Profession profession)
+    private async Task SelectProfession(Profession profession)
     {
         selectedProfession = profession;
+        await Task.Delay(10);
         CreationService.SetProfession(profession);
+        GoToNextStep();
     }
 
     private void OnTalentSelected(string selection)

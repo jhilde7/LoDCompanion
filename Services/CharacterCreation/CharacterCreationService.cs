@@ -377,10 +377,10 @@ namespace LoDCompanion.Services.CharacterCreation
         }
 
         public void GetTalentChoices()
-        {
-            TalentChoices = new();
+        {            
             if (SelectedProfession != null && SelectedProfession.TalentChoices != null)
             {
+                TalentChoices = new();
                 TalentChoices.AddRange(SelectedProfession.TalentChoices);
             }
         }
@@ -411,11 +411,11 @@ namespace LoDCompanion.Services.CharacterCreation
                             SpecificWeaponChoices.Add(_gameData.GetMeleeWeaponByName(item2));
                         }
                     }
-                    else if (item.Equals("Weapon", StringComparison.OrdinalIgnoreCase))
+                    else if (item.Contains("Weapon", StringComparison.OrdinalIgnoreCase))
                     {
                         WeaponChoices = _gameData.GetStartingWeapons();
                     }
-                    else if (item.Equals("Religious Relic", StringComparison.OrdinalIgnoreCase))
+                    else if (item.Contains("Relic", StringComparison.OrdinalIgnoreCase))
                     {
                         RelicChoices = _gameData.Relics;
                     }
