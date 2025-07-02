@@ -1,5 +1,7 @@
 ﻿
 
+using LoDCompanion.Utilities;
+
 namespace LoDCompanion.Models.Dungeon
 {
     public class Trap
@@ -28,34 +30,17 @@ namespace LoDCompanion.Models.Dungeon
         // Static factory method to create common trap types
         public static Trap GetRandomTrap()
         {
-            // In a web project, this might load from JSON data or a configuration.
-            // For now, we simulate the original Unity Random.Range logic using System.Random.
-            // A dedicated RandomHelper (Utilities/RandomHelper.cs) will be used later.
-            // For this specific method, we'll use a local instance for simplicity.
-            Random random = new Random(); // Consider using a single, shared RandomHelper instance for better distribution.
-
-            int roll = random.Next(0, 100); // 0 to 99
-
-            if (roll <= 20)
+            
+            int roll = RandomHelper.RollDie("D100");
+            return roll switch
             {
-                return new Trap("Pit Trap", 0, 10, "A deep pit trap.", "Causes fall damage.");
-            }
-            else if (roll <= 40)
-            {
-                return new Trap("Poison Dart Trap", 20, 15, "A trap that shoots poisoned darts.", "Causes poison damage.");
-            }
-            else if (roll <= 60)
-            {
-                return new Trap("Spear Trap", 10, 10, "Hidden spears spring out from the walls.", "Causes piercing damage.");
-            }
-            else if (roll <= 80)
-            {
-                return new Trap("Tripping Wire", 5, 5, "A nearly invisible wire across the floor.", "Causes hero to fall, potentially losing turn or taking minor damage.");
-            }
-            else // 81-99
-            {
-                return new Trap("Magic Rune Trap", 25, 20, "A glowing rune on the floor.", "Triggers a magical effect, e.g., a spell.");
-            }
+                <= 20 => new Trap("Pit Trap", 0, 10, "A deep pit trap.", "Causes fall damage."),
+                <= 40 => new Trap("Poison Dart Trap", 20, 15, "A trap that shoots poisoned darts.", "Causes poison damage."),
+                <= 60 => new Trap("Spear Trap", 10, 10, "Hidden spears spring out from the walls.", "Causes piercing damage."),
+                <= 80 => new Trap("Tripping Wire", 5, 5, "A nearly invisible wire across the floor.", "Causes hero to fall, potentially losing turn or taking minor damage."),
+                _ => new Trap("Magic Rune Trap", 25, 20, "A glowing rune on the floor.", "Triggers a magical effect, e.g., a spell."),
+            };
+            
         }
     }
 

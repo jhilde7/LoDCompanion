@@ -1,4 +1,5 @@
-﻿using System.Reflection.PortableExecutable;
+﻿using LoDCompanion.Utilities;
+using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -205,8 +206,6 @@ namespace LoDCompanion.Models
         // You can add common weapon methods here, e.g., for calculating damage roll
         public virtual int RollDamage()
         {
-            // This would use your RandomHelper.Roll method
-            // For now, a placeholder using System.Random
             if (MinDamage > MaxDamage)
             {
                 // Swap if min is greater than max
@@ -216,9 +215,7 @@ namespace LoDCompanion.Models
             }
             if (MinDamage == 0 && MaxDamage == 0) return 0;
 
-            // Placeholder for System.Random, would be replaced by RandomHelper
-            Random rand = new Random();
-            return rand.Next(MinDamage, MaxDamage + 1);
+            return RandomHelper.GetRandomNumber(MinDamage, MaxDamage);
         }
 
     }
