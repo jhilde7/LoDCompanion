@@ -294,7 +294,7 @@ namespace LoDCompanion.Services.GameData
             return new List<Potion>()
             {
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Health",
                     Durability = 1,
                     Value = 75,
@@ -304,7 +304,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Heals 1d4 Hit Points."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Health",
                     Durability = 1,
                     Value = 100,
@@ -314,7 +314,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Heals 1d6 Hit Points."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Health",
                     Durability = 1,
                     Value = 200,
@@ -324,7 +324,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Heals 1d10 Hit Points."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Restoration",
                     Durability = 1,
                     Value = 200,
@@ -334,7 +334,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Restores a hero to full health and removes any disease or poison."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Cure Disease",
                     Durability = 1,
                     Value = 75,
@@ -344,7 +344,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "75% chance to remove all effects of disease."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Cure Disease",
                     Durability = 1,
                     Value = 100,
@@ -354,7 +354,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Removes all effects of disease."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Cure Disease",
                     Durability = 1,
                     Value = 200,
@@ -364,7 +364,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Removes all effects of disease and heals 1d3 HP."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Cure Poison",
                     Durability = 1,
                     Value = 75,
@@ -374,7 +374,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "75% chance to remove all effects of poison."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Cure Poison",
                     Durability = 1,
                     Value = 100,
@@ -384,7 +384,7 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Removes all effects of poison."
                 },
                 new Potion(){
-                    Type = "Restorative Potions",
+                    Category = "Restorative Potions",
                     Name = "Potion of Cure Poison",
                     Durability = 1,
                     Value = 200,
@@ -394,54 +394,54 @@ namespace LoDCompanion.Services.GameData
                     EffectDescription = "Removes all effects of poison and heals 1d3 HP."
                 },
 
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Strength until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Strength until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Strength until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Constitution until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Constitution until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Constitution until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +5 Dexterity until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +10 Dexterity until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +15 Dexterity until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Wisdom until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Wisdom until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Wisdom until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle." },
-                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Strength until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Strength until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Strength until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Constitution until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Constitution until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Constitution until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +5 Dexterity until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +10 Dexterity until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +15 Dexterity until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Wisdom until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Wisdom until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Wisdom until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle." },
+                new Potion(){ Category = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle." },
 
-                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon." },
-                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon." },
-                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon." },
-                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana." },
-                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana." },
-                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana." },
+                new Potion(){ Category = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon." },
+                new Potion(){ Category = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon." },
+                new Potion(){ Category = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon." },
+                new Potion(){ Category = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana." },
+                new Potion(){ Category = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana." },
+                new Potion(){ Category = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana." },
 
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Acidic damage in the target square and half to adjacent squares." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Fire damage in the target square and half to adjacent squares." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Fire damage in the target square and half to adjacent squares." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns." },
-                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Acidic damage in the target square and half to adjacent squares." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Fire damage in the target square and half to adjacent squares." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Fire damage in the target square and half to adjacent squares." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns." },
+                new Potion(){ Category = "Thrown Potions (Bombs)", IsPotion = true, Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES." },
 
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Supreme, Value = 500, EffectDescription = "Instantly grants +300 XP. Can only be used once between dungeons." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of the Void", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Any spell cast during the battle suffers a -20 modifier." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Elixir of Speed", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 Movement for the rest of the dungeon." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Elixir of the Archer", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 DMG to one ranged weapon until you leave the dungeon." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage)." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Fire Protection", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Ignores the secondary damage effect from being on fire for one battle." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Rage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants the Frenzy Perk for one battle without spending energy." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Vial of Corrosion", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Automatically opens one lock." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight." },
-                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Supreme, Value = 500, EffectDescription = "Instantly grants +300 XP. Can only be used once between dungeons." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Bottle of the Void", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Any spell cast during the battle suffers a -20 modifier." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Elixir of Speed", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 Movement for the rest of the dungeon." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Elixir of the Archer", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 DMG to one ranged weapon until you leave the dungeon." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage)." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Potion of Fire Protection", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Ignores the secondary damage effect from being on fire for one battle." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Potion of Rage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants the Frenzy Perk for one battle without spending energy." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Vial of Corrosion", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Automatically opens one lock." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight." },
+                new Potion(){ Category = "Utility & Special Potions", IsPotion = true, Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon." },
             };
         }
 

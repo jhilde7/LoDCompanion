@@ -18,6 +18,7 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 
 //register core services.
 builder.Services.AddSingleton<GameDataService>();
+builder.Services.AddScoped<EquipmentService>();
 builder.Services.AddSingleton<CharacterCreationService>();
 builder.Services.AddSingleton<PartyManagerService>();
 

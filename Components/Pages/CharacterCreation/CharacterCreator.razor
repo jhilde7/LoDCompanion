@@ -623,7 +623,7 @@
                     @if (State.SelectedWeapon != null)
                 {
                     <div class="alert alert-info mt-2 p-2">
-                        <strong>Stats:</strong> @GameData.GetWeaponByName(State.SelectedWeapon).ToString()
+                        <strong>Stats:</strong> @EquipmentService.GetWeaponByName(GameData, State.SelectedWeapon).ToString()
                     </div>
                 }
                 </div>
