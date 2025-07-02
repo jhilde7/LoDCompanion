@@ -458,16 +458,16 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static Potion? GetPotionByName(string name)
+        public static Potion GetPotionByName(string name)
         {
-            return Potions.FirstOrDefault(x => x.Name == name) ?? null;
+            return Potions.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
         public static Potion GetPotionByNameStrength(string name, PotionStrength strength)
         {
             List<Potion> list = new List<Potion>();
             list.AddRange(Potions.Where(x => x.Name == name));
-            return list.FirstOrDefault(x => x.Strength == strength);
+            return list.FirstOrDefault(x => x.Strength == strength) ?? throw new NullReferenceException();
         }
 
         public static List<Potion> GetRandomPotions(int count, PotionStrength quality)

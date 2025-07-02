@@ -1,11 +1,8 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
-using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Utilities;
-using System.Reflection;
 using LoDCompanion.Services.State;
-using System.Security.Cryptography.X509Certificates;
 
 namespace LoDCompanion.Services.CharacterCreation
 {
@@ -13,7 +10,7 @@ namespace LoDCompanion.Services.CharacterCreation
     {
         private readonly GameDataService _gameData = new GameDataService();
         // Internal state of the character being built
-        public CharacterCreationState State { get; private set; }
+        public CharacterCreationState State { get; private set; } = new CharacterCreationState();
 
 
 
@@ -421,6 +418,15 @@ namespace LoDCompanion.Services.CharacterCreation
                 State.StartingEquipment.Add(_gameData.GetRelicByName(State.SelectedRelic));
             }
 
+            if (State.SelectedSpecies == null)
+            {
+                throw new InvalidOperationException("SelectedSpecies must be set before building the preview hero.");
+            }
+            if (State.SelectedProfession == null)
+            {
+                throw new InvalidOperationException("SelectedProfession must be set before building the preview hero.");
+            }
+
             State.TalentList.RemoveAll(item => item.Name == "");
             State.StartingEquipment.RemoveAll(item => item.Name == "");
 
@@ -510,7 +516,7 @@ namespace LoDCompanion.Services.CharacterCreation
             // Re-initialize service state for next creation process
             InitializeCreationState();
 
-            return State.Hero;
+            return State.Hero ?? throw new NullReferenceException();
         }
 
         private List<Spell> GetStartingSpells()

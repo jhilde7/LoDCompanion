@@ -10,7 +10,7 @@ namespace LoDCompanion.Services.State
         public string Name { get; set; } = string.Empty;
         public Species? SelectedSpecies { get; set; }
         public Profession? SelectedProfession { get; set; }
-        public Background? SelectedBackground { get;  set; }
+        public Background? SelectedBackground { get; set; }
         public int[] BaseStatRolls { get; set; } = new int[6];
         public int AddedStrength { get; set; } = 0;
         public int AddedConstitution { get; set; } = 0;

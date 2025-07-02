@@ -3089,9 +3089,9 @@ namespace LoDCompanion.Services.GameData
 
         }
 
-        public Equipment? GetEquipmentByName(string name)
+        public Equipment GetEquipmentByName(string name)
         {
-            return Equipment.FirstOrDefault(x => x.Name == name);
+            return Equipment.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
         public Equipment GetEquipmentByNameSetQuantity(string name, int qty)
@@ -3104,7 +3104,7 @@ namespace LoDCompanion.Services.GameData
 
         public Equipment GetEquipmentByNameSetDurabilitySetQuantity(string name, int durability, int qty = 1)
         {
-            Equipment? item = GetEquipmentByName(name);
+            Equipment item = GetEquipmentByName(name);
             if (item == null) throw new NullReferenceException();
             item.Quantity = qty;
             item.Durability = durability;
@@ -3113,7 +3113,7 @@ namespace LoDCompanion.Services.GameData
 
         public List<Equipment> GetStartingEquipment()
         {
-            List<Equipment?> list = new List<Equipment?>();
+            List<Equipment> list = new List<Equipment>();
             list.AddRange(Equipment.Where(x => x.Availability > 3));
             return list;
         }
@@ -3209,9 +3209,9 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public Ammo? GetAmmoByName( string name )
+        public Ammo GetAmmoByName( string name )
         {
-            return Ammo.FirstOrDefault(x => x.Name == name);
+            return Ammo.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
         public Ammo GetAmmoByNameSetQuantity(string name, int qty)
@@ -3902,9 +3902,9 @@ namespace LoDCompanion.Services.GameData
             ;
         }
 
-        public MeleeWeapon? GetMeleeWeaponByName(string name)
+        public MeleeWeapon GetMeleeWeaponByName(string name)
         {
-            return MeleeWeapons.FirstOrDefault(x => x.Name == name);
+            return MeleeWeapons.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
         public List<RangedWeapon> GetRangedWeapons()
@@ -4011,14 +4011,14 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public RangedWeapon? GetRangedWeaponByName(string name)
+        public RangedWeapon GetRangedWeaponByName(string name)
         {
-            return RangedWeapons.FirstOrDefault(x => x.Name == name);
+            return RangedWeapons.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
-        internal Weapon? GetWeaponByName(string name)
+        internal Weapon GetWeaponByName(string name)
         {
-            return (Weapon)GetMeleeWeaponByName(name) ?? (Weapon)GetRangedWeaponByName(name);
+            return (Weapon)GetMeleeWeaponByName(name) ?? (Weapon)GetRangedWeaponByName(name) ?? throw new NullReferenceException();
         }
 
         public Weapon GetWeaponByNameSetDurability(string name, int durability)
@@ -4232,9 +4232,9 @@ namespace LoDCompanion.Services.GameData
             }; 
         }
 
-        public MagicStaff? GetMagicStaffByName(string name )
+        public MagicStaff GetMagicStaffByName(string name )
         {
-            return MagicStaves.FirstOrDefault(x => x.Name == name) ?? null;
+            return MagicStaves.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
         public List<Armour> GetArmour()
@@ -4503,23 +4503,20 @@ namespace LoDCompanion.Services.GameData
             ;
         }
 
-        public Armour? GetArmourByName(string name)
+        public Armour GetArmourByName(string name)
         {
-            return Armour.FirstOrDefault(x => x.Name == name) ?? null;
+            return Armour.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
-        public Armour? GetArmourByNameSetDurability(string name, int durability)
+        public Armour GetArmourByNameSetDurability(string name, int durability)
         {
-            Armour? armour =  Armour.FirstOrDefault(x => x.Name == name) ?? null;
-            if (armour != null)
-            {
-                armour.Durability = durability; 
-            }
+            Armour armour =  Armour.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();            
+            armour.Durability = durability;
             return armour;
         }
 
         public List<Armour> GetStartingArmour()
         {
-            List<Armour?> list = new List<Armour>();
+            List<Armour> list = new List<Armour>();
             list.AddRange(Armour.Where(x => x.Availability > 3));
             return list;
         }
@@ -4597,22 +4594,21 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public Shield? GetShieldByName(string name)
+        public Shield GetShieldByName(string name)
         {
-            return Shields.FirstOrDefault(x => x.Name == name) ?? null;
+            return Shields.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
-        public Shield? GetShieldByNameSetDurability(string name, int durability)
+        public Shield GetShieldByNameSetDurability(string name, int durability)
         {
-            Shield? shield = Shields.FirstOrDefault(x => x.Name == name) ?? null;
-            if(shield != null)
-                shield.Durability = durability;
+            Shield shield = Shields.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            shield.Durability = durability;
             return shield;
         }
 
         public List<Shield> GetStartingShields()
         {
-            List<Shield?> list = new List<Shield>();
+            List<Shield> list = new List<Shield>();
             list.AddRange(Shields.Where(x => x.Availability > 3));
             return list;
         }
@@ -4684,9 +4680,9 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public Equipment? GetRelicByName(string name)
+        public Equipment GetRelicByName(string name)
         {
-            return Relics.FirstOrDefault(x => x.Name == name) ?? null;
+            return Relics.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
     }
 

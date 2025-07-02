@@ -507,7 +507,6 @@ namespace LoDCompanion.Services.Dungeon
         public Equipment GetWonderfulTreasure()
         {
             string itemName = "";
-            int value = 0;
             int roll = RandomHelper.GetRandomNumber(1, 54);
             int defaultDurabilityDamageRoll = RandomHelper.GetRandomNumber(1, 3) - 1;
             int armourDurability = DefaultArmourDurability - defaultDurabilityDamageRoll;
@@ -579,6 +578,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 28:
                     itemArray = GetMagicItem("Armour");
                     roll = RandomHelper.GetRandomNumber(1, 25);
+                    int value = 0;
                     switch (roll)
                     {
                         case 1: itemName = "Leather Cap"; value = 150; break;
@@ -609,6 +609,7 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = _gameData.GetArmourByNameSetDurability(itemName, armourDurability);
                     treasure.Name = "Magic " + itemName + " of " + itemArray[0];
+                    treasure.Value = value;
                     treasure.MagicEffect = itemArray[1];
                     ((Armour)treasure).Properties.Add(ArmourProperty.Magic, 0); ;
                     if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
@@ -633,6 +634,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 33:
                     itemArray = GetMagicItem("Weapon");
                     roll = RandomHelper.GetRandomNumber(1, 15);
+                    value = 0;
                     switch (roll)
                     {
                         case 1: itemName = "Staff"; value = 120; break;
@@ -654,6 +656,7 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = _gameData.GetWeaponByNameSetDurability(itemName, armourDurability);
                     treasure.Name = "Magic " + itemName + " of " + itemArray[0];
                     treasure.MagicEffect = itemArray[1];
+                    treasure.Value = value;
                     ((Weapon)treasure).Properties.Add(WeaponProperty.Magic, 0); ;
                     if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
                     {

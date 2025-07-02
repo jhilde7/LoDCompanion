@@ -43,11 +43,28 @@ namespace LoDCompanion.Utilities
         public static T GetRandomEnumValue<T>(int min = 0, int max = 0)
         {
             var v = Enum.GetValues(typeof(T));
+            if (v == null || v.Length == 0)
+            {
+                throw new InvalidOperationException($"Enum type {typeof(T)} has no values.");
+            }
+
             if (max > 0 && max <= v.Length)
             {
-                return (T)v.GetValue(GetRandomNumber(min, max));
+                int index = GetRandomNumber(min, max);
+                object? value = v.GetValue(index);
+                if (value == null)
+                {
+                    throw new InvalidOperationException($"Enum value at index {index} is null.");
+                }
+                return (T)value;
             }
-            return (T)v.GetValue(_random.Next(v.Length));
+
+            object? randomValue = v.GetValue(_random.Next(v.Length));
+            if (randomValue == null)
+            {
+                throw new InvalidOperationException("Randomly selected enum value is null.");
+            }
+            return (T)randomValue;
         }
     }
 

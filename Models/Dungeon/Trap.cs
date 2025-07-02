@@ -61,9 +61,9 @@ namespace LoDCompanion.Models.Dungeon
 
     public class Lever
     {
-        private List<string> _levers; // Internal list for lever types
+        private List<string> _levers = new List<string>(); // Internal list for lever types
         public bool HaveClue { get; set; } = false; // Public property for clue status
-        public string EventDescription { get; private set; } // Read-only property for the event description
+        public string EventDescription { get; private set; } = string.Empty; // Read-only property for the event description
 
         public Lever()
         {

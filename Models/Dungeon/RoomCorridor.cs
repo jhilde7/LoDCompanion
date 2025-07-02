@@ -205,30 +205,27 @@ namespace LoDCompanion.Models.Dungeon
                 return;
             }
 
-            // Copy to mutable lists for manipulation
+            // Copy to mutable lists for manipulation  
             List<RoomCorridor> workingDungeonCards = new List<RoomCorridor>(availableDungeonCards);
-            List<DoorChest> workingDoors = new List<DoorChest>(Doors); // Assuming 'Doors' is already populated
+            List<DoorChest> workingDoors = new List<DoorChest>(Doors); // Assuming 'Doors' is already populated  
 
-            // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards
-            // This part is quite complex and involves modifying the structure of doors and dungeons.
-            // For a web context, this implies logical manipulation of the 'Doors' and 'ConnectedRooms' lists.
-            // The `CreateSecretDoor` helper logic is integrated/adapted here.
+            // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards  
             while (workingDoors.Any(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd))
             {
-                // Find the dead-end door and its remaining cards
+                // Find the dead-end door and its remaining cards  
                 DoorChest deadEndDoor = workingDoors.First(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd);
-                List<RoomCorridor> remainingCards = new List<RoomCorridor>(deadEndDoor.ConnectedRooms);
+                List<RoomCorridor> remainingCards = new List<RoomCorridor>(deadEndDoor.ConnectedRooms ?? throw new NullReferenceException());
 
-                // Clear the dead-end door's cards (making it inaccessible for its original purpose)
+                // Clear the dead-end door's cards (making it inaccessible for its original purpose)  
                 deadEndDoor.ConnectedRooms.Clear();
 
-                // Distribute remaining cards to other doors or create a new secret door
+                // Distribute remaining cards to other doors or create a new secret door  
                 int doorIndex = 0;
                 while (remainingCards.Count > 0)
                 {
-                    // Find the next available door to add cards to.
-                    // This loop cycles through existing doors, skipping the 'deadEndDoor' and any others that are themselves dead ends or already full.
-                    int initialDoorIndex = doorIndex; // To prevent infinite loop if no suitable door is found
+                    // Find the next available door to add cards to.  
+                    // This loop cycles through existing doors, skipping the 'deadEndDoor' and any others that are themselves dead ends or already full.  
+                    int initialDoorIndex = doorIndex; // To prevent infinite loop if no suitable door is found  
                     bool suitableDoorFound = false;
                     for (int i = 0; i < workingDoors.Count; i++)
                     {
@@ -239,36 +236,36 @@ namespace LoDCompanion.Models.Dungeon
                             suitableDoorFound = true;
                             break;
                         }
-                        doorIndex = (doorIndex + 1) % workingDoors.Count; // Cycle through doors
-                        if (doorIndex == initialDoorIndex) // Checked all doors, no suitable found
+                        doorIndex = (doorIndex + 1) % workingDoors.Count; // Cycle through doors  
+                        if (doorIndex == initialDoorIndex) // Checked all doors, no suitable found  
                             break;
                     }
 
                     if (!suitableDoorFound)
                     {
-                        // If no suitable door is found among existing ones, create a new "secret" door.
-                        // This new door needs to be instantiated by an external factory and added to the list.
-                        DoorChest newSecretDoor = doorFactory(); // Use the injected factory
+                        // If no suitable door is found among existing ones, create a new "secret" door.  
+                        // This new door needs to be instantiated by an external factory and added to the list.  
+                        DoorChest newSecretDoor = doorFactory(); // Use the injected factory  
                         workingDoors.Add(newSecretDoor);
-                        newSecretDoor.ConnectedRooms = new List<RoomCorridor>(); // Initialize its dungeon
-                        doorIndex = workingDoors.Count - 1; // Point to the newly added door
+                        newSecretDoor.ConnectedRooms = new List<RoomCorridor>(); // Initialize its dungeon  
+                        doorIndex = workingDoors.Count - 1; // Point to the newly added door  
                     }
 
-                    // Add a card to the chosen door (or the new secret door)
+                    // Add a card to the chosen door (or the new secret door)  
                     if (workingDoors[doorIndex].ConnectedRooms == null)
                     {
                         workingDoors[doorIndex].ConnectedRooms = new List<RoomCorridor>();
                     }
-                    workingDoors[doorIndex].ConnectedRooms.Insert(0, remainingCards[0]); // Insert at the bottom (0 index)
+                    workingDoors[doorIndex].ConnectedRooms.Insert(0, remainingCards[0]);
                     remainingCards.RemoveAt(0);
-                    doorIndex = (doorIndex + 1) % workingDoors.Count; // Move to the next door for fair distribution
+                    doorIndex = (doorIndex + 1) % workingDoors.Count; // Move to the next door for fair distribution  
                 }
             }
 
-            // After handling dead ends, proceed with distributing remaining dungeon cards
+            // After handling dead ends, proceed with distributing remaining dungeon cards  
             if (workingDoors.Count > 1)
             {
-                // 2. Distribute cards to multiple doors (near equal amounts)
+                // 2. Distribute cards to multiple doors (near equal amounts)  
                 List<RoomCorridor>[] roomSplits = new List<RoomCorridor>[workingDoors.Count];
                 for (int i = 0; i < roomSplits.Length; i++)
                 {
@@ -283,28 +280,28 @@ namespace LoDCompanion.Models.Dungeon
                     index = (index + 1) % roomSplits.Length;
                 }
 
-                // 3. Assign room splits to doors
+                // 3. Assign room splits to doors  
                 for (int i = 0; i < workingDoors.Count; i++)
                 {
                     workingDoors[i].ConnectedRooms = roomSplits[i];
-                    // Note: No Instantiate calls here. The DoorChest objects are already in the list.
+                    // Note: No Instantiate calls here. The DoorChest objects are already in the list.  
                 }
             }
             else if (workingDoors.Count == 1)
             {
-                // 4. Handle single-door case
+                // 4. Handle single-door case  
                 workingDoors[0].ConnectedRooms = workingDungeonCards;
-                // Note: No Instantiate calls here.
+                // Note: No Instantiate calls here.  
             }
             else
             {
-                // No doors, or no cards to distribute
-                // This scenario might need specific handling depending on game rules.
+                // No doors, or no cards to distribute  
+                // This scenario might need specific handling depending on game rules.  
             }
 
-            // Update the actual Doors list of this RoomCorridor instance
+            // Update the actual Doors list of this RoomCorridor instance  
             Doors = workingDoors;
-            ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors
+            ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors  
         }
     }
 }

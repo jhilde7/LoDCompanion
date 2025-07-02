@@ -268,15 +268,18 @@
         <p>As a Human, you are a "Jack of all trades". This allows you to gain one random talent from a category of your choice. Please select a category.</p>
 
         <div class="list-group w-50 mx-auto">
-            @foreach(var category in State.HumanTalentCategoryList)
+            @if (State.HumanTalentCategoryList != null)
             {
-                <label class="list-group-item list-group-item-action">
-                    <input class="form-check-input me-2" type="radio" name="talentCategory"
-                           value="@category"
-                            @onchange="() => CreationService.SetHumanRandomTalent(category)"
-                           checked="@(State.HumanTalentCategorySelection == category)" />
-                    @category
-                </label>
+                @foreach(var category in State.HumanTalentCategoryList)
+                {
+                    <label class="list-group-item list-group-item-action">
+                        <input class="form-check-input me-2" type="radio" name="talentCategory"
+                               value="@category"
+                               @onchange="() => CreationService.SetHumanRandomTalent(category)"
+                               checked="@(State.HumanTalentCategorySelection == category)" />
+                        @category
+                    </label>
+                }
             }
         </div>
 
@@ -416,7 +419,10 @@
                                                     else
                                                     {
                                                     // If it's a placeholder like "Weapon of choice", just display the text
-                                                        <span>@item.Name</span>
+                                                        if(item != null)
+                                                        {
+                                                            <span>@item.Name</span>
+                                                        }
                                                     }
 
                                                     // Add a comma and space if it's not the last item in the list
@@ -446,7 +452,10 @@
                                                     else
                                                     {
                                                     // If it's a placeholder like "Weapon of choice", just display the text
-                                                        <span>@item.Name</span>
+                                                        if(item != null)
+                                                        {
+                                                            <span>@item.Name</span>
+                                                        }
                                                     }
 
                                                     // Add a comma and space if it's not the last item in the list
@@ -476,7 +485,10 @@
                                                 else
                                                 {
                                                 // If it's a placeholder like "Weapon of choice", just display the text
-                                                    <span>@item.Name</span>
+                                                    if(item != null)
+                                                    {
+                                                        <span>@item.Name</span>
+                                                    }
                                                 }
 
                                                 // Add a comma and space if it's not the last item in the list
@@ -506,7 +518,10 @@
                                                     else
                                                     {
                                                     // If it's a placeholder like "Weapon of choice", just display the text
-                                                        <span>@item.Name</span>
+                                                        if(item != null)
+                                                        {
+                                                            <span>@item.Name</span>
+                                                        }
                                                     }
 
                                                     // Add a comma and space if it's not the last item in the list
@@ -551,12 +566,15 @@
         <h3 class="text-center my-4">Choose a Starting Talent</h3>
         <p>Your chosen profession offers a choice of starting talents. Please select one.</p>
         <div class="list-group w-50 mx-auto">
-            @foreach(var talent in State.TalentChoices)
+            @if(State.TalentChoices != null)
             {
-                <label class="list-group-item list-group-item-action">
-                <input class="form-check-input me-2" type="radio" name="talentChoice" title="@talent.ToString()" value="@talent.Name" @onchange="() => OnTalentSelected(talent.Name)" />
-                    @talent
-                </label>
+                @foreach(var talent in State.TalentChoices)
+                {
+                    <label class="list-group-item list-group-item-action">
+                    <input class="form-check-input me-2" type="radio" name="talentChoice" title="@talent.ToString()" value="@talent.Name" @onchange="() => OnTalentSelected(talent.Name)" />
+                        @talent
+                    </label>
+                }
             }
         </div>
         @if (!string.IsNullOrEmpty(selectedTalentChoice))
@@ -697,7 +715,7 @@
         <h3>Add a Free Skill</h3>
         @if (State.FreeSkills != null && State.FreeSkills.Any()) {
 
-    @if (!isSkillConfirmed)
+        @if (!isSkillConfirmed && State.SelectedProfession != null)
     {
         <p>Your profession, <strong>@State.SelectedProfession.Name</strong>, grants one free skill.</p>
             <InputSelect class="form-select w-50" @bind-Value="selectedSkill">
@@ -1020,7 +1038,7 @@
         {
             for (int i = 0; i < selection.Value; i++)
             {
-                State.StartingEquipment.Add(AlchemyService.StandardPotions.FirstOrDefault(x => x.Name == selection.Key));
+                State.StartingEquipment.Add(AlchemyService.StandardPotions.FirstOrDefault(x => x.Name == selection.Key) ?? throw new NullReferenceException());
             }
         }
 
@@ -1029,7 +1047,7 @@
         {
             for (int i = 0; i < selection.Value; i++)
             {
-                State.StartingEquipment.Add(AlchemyService.Parts.FirstOrDefault(x => x.Name == selection.Key));
+                State.StartingEquipment.Add(AlchemyService.Parts.FirstOrDefault(x => x.Name == selection.Key) ?? throw new NullReferenceException());
             }
         }
     }

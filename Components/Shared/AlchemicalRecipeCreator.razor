@@ -116,12 +116,9 @@
     private List<AlchemyItem> recipeIngredients => currentRecipeComponents.Where(c => c.IsIngredient).ToList();
     private List<AlchemyItem> recipeParts => currentRecipeComponents.Where(c => c.IsPart).ToList();
 
-    private int requiredIngredients = 1;
-    private int requiredParts = 1;
-
     protected override void OnInitialized()
     {
-        
+
     }
 
     private void OnPotionSelected(ChangeEventArgs e)
@@ -233,6 +230,7 @@
     private void SaveRecipe()
     {
         if (!IsRecipeValid()) return;
+        if (_selectedPotion == null) return;
 
         var newRecipe = new AlchemicalRecipe
             {
