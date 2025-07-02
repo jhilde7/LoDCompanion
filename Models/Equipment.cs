@@ -1,4 +1,5 @@
 ﻿using System.Reflection.PortableExecutable;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
@@ -36,6 +37,15 @@ namespace LoDCompanion.Models
                 sb.Append($" | Effect: {MagicEffect}");
             }
             return sb.ToString();
+        }
+        public string GetDisplayName()
+        {
+            if (Quantity > 1)
+            {
+                return $"{Name} (x{Quantity})";
+            }
+
+            return Name;
         }
 
         // Method to calculate sale price and repair cost, called when relevant properties change
@@ -117,13 +127,18 @@ namespace LoDCompanion.Models
         Bolt
     }
 
+    public enum AmmoProperty
+    {
+        Silver,
+        Barbed,
+        SupuriorSlingStone,
+        HolyWater
+    }
+
     public class Ammo : Equipment
     {
         public AmmoType AmmoType { get; set; } = AmmoType.Arrow; // Default ammo type, can be set in constructor
-        public bool IsSilver { get; set; }
-        public bool IsBarbed { get; set; }
-        public bool IsSupSlingstone { get; set; }
-        public bool IsHolyWater { get; set; }
+        public Dictionary<AmmoProperty, int> Properties { get; set; } = new Dictionary<AmmoProperty, int>();
 
         public Ammo() { } // Default constructor
 
@@ -137,39 +152,78 @@ namespace LoDCompanion.Models
                 sb.Append($" | Effect: {MagicEffect}");
             }
             sb.Append($" | Ammo Type: {AmmoType}");
-            if (IsSilver) sb.Append(", Silver");
-            if (IsBarbed) sb.Append(", Barbed");
-            if (IsSupSlingstone) sb.Append(", Superior");
-            if (IsHolyWater) sb.Append(", Holy Water added");
+            if (HasProperty(AmmoProperty.Silver)) sb.Append(", Silver");
+            if (HasProperty(AmmoProperty.Barbed)) sb.Append(", Barbed");
+            if (HasProperty(AmmoProperty.SupuriorSlingStone)) sb.Append(", Superior");
+            if (HasProperty(AmmoProperty.HolyWater)) sb.Append(", Holy Water added");
             return sb.ToString();
+        }
+
+        public bool HasProperty(AmmoProperty property)
+        {
+            return Properties.ContainsKey(property);
+        }
+
+        public int GetPropertyValue(AmmoProperty property)
+        {
+            return Properties.GetValueOrDefault(property, 0);
         }
     }
 
-    public class MeleeWeapon : Equipment
+    public enum MeleeWeaponProperty
     {
-        new int Durability { get; set; } = 6;
-        public int WeaponClass { get; set; }
-        public int[] DamageRange { get; set; } = new int[2];
+        Silver,
+        Mithril,
+        DualWield,
+        BFO,
+        Slow,
+        Stun,
+        Unwieldly,
+        FirstHit,
+        Fast,
+        Defensive,
+        Ensnare,
+        Reach,
+        Edged,
+        SlayerTreated,
+        Axe,
+        Sword,
+        Blunt,
+        Metal
+    }
+
+    public class Weapon : Equipment
+    {
+        public new int Durability { get; set; } = 6;
+        public int Class { get; set; }
+        public int MinDamage { get; set; }
+        public int MaxDamage { get; set; }
         public int ArmourPiercing { get; set; }
-        public bool IsSilver { get; set; }
-        public bool IsMithril { get; set; }
-        public int? DualWieldBonus { get; set; }
-        public bool IsBFO { get; set; }
-        public bool IsSlow { get; set; }
-        public bool IsStun { get; set; }
-        public bool IsUnwieldly { get; set; }
-        public int UnWieldlyBonus { get; set; }
-        public bool IsFirstHit { get; set; }
-        public bool IsFast { get; set; }
-        public bool IsDefensive { get; set; }
-        public bool IsEnsnare { get; set; }
-        public bool IsReach { get; set; }
-        public bool IsEdged { get; set; }
-        public bool IsSlayerTreated { get; set; }
-        public bool IsAxe { get; set; }
-        public bool IsSword { get; set; }
-        public bool IsBlunt { get; set; }
-        public bool IsMetal { get; set; }
+
+        // You can add common weapon methods here, e.g., for calculating damage roll
+        public virtual int RollDamage()
+        {
+            // This would use your RandomHelper.Roll method
+            // For now, a placeholder using System.Random
+            if (MinDamage > MaxDamage)
+            {
+                // Swap if min is greater than max
+                int temp = MinDamage;
+                MinDamage = MaxDamage;
+                MaxDamage = temp;
+            }
+            if (MinDamage == 0 && MaxDamage == 0) return 0;
+
+            // Placeholder for System.Random, would be replaced by RandomHelper
+            Random rand = new Random();
+            return rand.Next(MinDamage, MaxDamage + 1);
+        }
+
+    }
+
+    public class MeleeWeapon : Weapon
+    {
+        public Dictionary<MeleeWeaponProperty, int> Properties { get; set; } = new Dictionary<MeleeWeaponProperty, int>();
 
         public MeleeWeapon() 
         {
@@ -179,30 +233,26 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Type}] {Name} | ");
-            sb.AppendLine($"Class: {WeaponClass} | Damage: {DamageRange[0]}-{DamageRange[1]} | AP: {ArmourPiercing}");
-            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
-            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
-            {
-                sb.AppendLine($" | Magic Effect: {MagicEffect}");
-            }
+            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
+            sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
 
-            var properties = new List<string>();
-            if (IsSilver) properties.Add("Silver");
-            if (IsMithril) properties.Add("Mithril");
-            if (DualWieldBonus.HasValue) properties.Add($"Dual Wield: +{DualWieldBonus}");
-            if (IsBFO) properties.Add("BFO");
-            if (IsSlow) properties.Add("Slow");
-            if (IsStun) properties.Add("Stun");
-            if (IsUnwieldly) properties.Add($"Unwieldy (+{UnWieldlyBonus})");
-            if (IsFirstHit) properties.Add("First Hit");
-            if (IsFast) properties.Add("Fast");
-            if (IsDefensive) properties.Add("Defensive");
-            if (IsEnsnare) properties.Add("Ensnare");
-            if (IsReach) properties.Add("Reach");
-            if (properties.Any())
+            if (Properties.Any())
             {
-                sb.AppendLine($"Properties: {string.Join(", ", properties)}");
+                var propsAsStrings = new List<string>();
+                foreach (var prop in Properties)
+                {
+                    if (prop.Key == MeleeWeaponProperty.DualWield)
+                    {
+                        // Special formatting for properties with a value
+                        propsAsStrings.Add($"Dual Wield: +{prop.Value}");
+                    }
+                    else
+                    {
+                        // Simple properties
+                        propsAsStrings.Add(prop.Key.ToString());
+                    }
+                }
+                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
             }
 
             return sb.ToString();
@@ -210,83 +260,79 @@ namespace LoDCompanion.Models
 
         public void SetMithrilModifier()
         {
-            if(IsMithril)
+            if(HasProperty(MeleeWeaponProperty.Mithril))
             {
-                DamageRange[0] += 1;
-                DamageRange[1] += 1;
+                MinDamage += 1;
+                MaxDamage += 1;
                 Encumbrance -= 2;
             }
         }
 
-
-        // You can add common weapon methods here, e.g., for calculating damage roll
-        public virtual int RollDamage()
+        public bool HasProperty(MeleeWeaponProperty property)
         {
-            // This would use your RandomHelper.Roll method
-            // For now, a placeholder using System.Random
-            if (DamageRange[0] > DamageRange[1])
-            {
-                // Swap if min is greater than max
-                int temp = DamageRange[0];
-                DamageRange[0] = DamageRange[1];
-                DamageRange[1] = temp;
-            }
-            if (DamageRange[0] == 0 && DamageRange[1] == 0) return 0;
-
-            // Placeholder for System.Random, would be replaced by RandomHelper
-            Random rand = new Random();
-            return rand.Next(DamageRange[0], DamageRange[1] + 1);
+            return Properties.ContainsKey(property);
         }
+
+        public int GetPropertyValue(MeleeWeaponProperty property)
+        {
+            return Properties.GetValueOrDefault(property, 0);
+        }
+    }
+
+    public enum MagicStaffProperty
+    {
+        ArcaneArts,
+        ManaStorage,
+        HitPointsBonus,
+        Illumination,
+        FireDamage,
+        IceDamage,
+        LightningDamage,
+        DarkDamage,
+        HolyDamage,
+        NatureDamage,
+        ArcaneDamage
     }
 
     public class MagicStaff : MeleeWeapon
     {
         public string StaffType { get; set; } = string.Empty;
-        public int ArcaneArtsSkillModifier { get; set; }
         public string ContainedSpell { get; set; } = string.Empty;
-        public int ManaStorage { get; set; }
-        public int HPBonus { get; set; }
+        public Dictionary<MagicStaffProperty, int> MagicStaffProperties { get; set; } = new Dictionary<MagicStaffProperty, int>();
 
         public MagicStaff() { }
 
         public override string ToString()
         {
             var sb = new StringBuilder(base.ToString());
-            sb.Append($"[{Type}] {Name} | ");
-            sb.AppendLine($"Class: {WeaponClass} | Damage: {DamageRange[0]}-{DamageRange[1]} | AP: {ArmourPiercing}");
-            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
+            sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
 
-            var properties = new List<string>();
-            if (IsSilver) properties.Add("Silver");
-            if (IsMithril) properties.Add("Mithril");
-            if (IsBFO) properties.Add("BFO");
-            if (IsSlow) properties.Add("Slow");
-            if (IsStun) properties.Add("Stun");
-            if (IsUnwieldly) properties.Add($"Unwieldy (+{UnWieldlyBonus})");
-            if (IsFirstHit) properties.Add("First Hit");
-            if (IsFast) properties.Add("Fast");
-            if (IsDefensive) properties.Add("Defensive");
-            if (IsEnsnare) properties.Add("Ensnare");
-            if (IsReach) properties.Add("Reach");
-            if (properties.Any())
+            if (Properties.Any())
             {
-                sb.AppendLine($"Properties: {string.Join(", ", properties)}");
+                var propsAsStrings = new List<string>();
+                foreach (var prop in Properties)
+                {
+                    if (prop.Key == MeleeWeaponProperty.DualWield)
+                    {
+                        // Special formatting for properties with a value
+                        propsAsStrings.Add($"Dual Wield: +{prop.Value}");
+                    }
+                    else
+                    {
+                        // Simple properties
+                        propsAsStrings.Add(prop.Key.ToString());
+                    }
+                }
+                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
             }
-            sb.AppendLine($"Staff Type: {StaffType} | Arcane Arts Mod: {ArcaneArtsSkillModifier}");
-            if (!string.IsNullOrEmpty(ContainedSpell)) sb.AppendLine($"Contains: {ContainedSpell}");
-            if (ManaStorage > 0) sb.AppendLine($"Mana Storage: {ManaStorage}");
-            if (HPBonus > 0) sb.AppendLine($"HP Bonus: {HPBonus}");
             return sb.ToString();
         }
 
     }
 
-    public class RangedWeapon : Equipment
+    public class RangedWeapon : Weapon
     {
-        new int Durability { get; set; } = 6;
-        public int WeaponClass { get; set; }
-        public int[] DamageRange { get; set; } = new int[2];
-        public int ArmourPiercing { get; set; }
         public AmmoType AmmoType { get; set; } = AmmoType.Arrow;
         public Ammo Ammo { get; set; } = new Ammo();
         public bool ElvenBowstring { get; set; }
@@ -300,9 +346,8 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Type}] {Name} | ");
-            sb.AppendLine($"Class: {WeaponClass} | Damage: {DamageRange[0]}-{DamageRange[1]} | AP: {ArmourPiercing}");
-            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
+            sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
             sb.AppendLine($"Ammo Type: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
             if (ElvenBowstring) sb.Append(" | Elven Bowstring");
             if (AimAttachment) sb.Append(" | Aim Attachment");
@@ -311,25 +356,6 @@ namespace LoDCompanion.Models
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
             }
             return sb.ToString();
-        }
-
-        // You can add common weapon methods here, e.g., for calculating damage roll
-        public virtual int RollDamage()
-        {
-            // This would use your RandomHelper.Roll method
-            // For now, a placeholder using System.Random
-            if (DamageRange[0] > DamageRange[1])
-            {
-                // Swap if min is greater than max
-                int temp = DamageRange[0];
-                DamageRange[0] = DamageRange[1];
-                DamageRange[1] = temp;
-            }
-            if (DamageRange[0] == 0 && DamageRange[1] == 0) return 0;
-
-            // Placeholder for System.Random, would be replaced by RandomHelper
-            Random rand = new Random();
-            return rand.Next(DamageRange[0], DamageRange[1] + 1);
         }
 
         // You might add methods specific to ranged weapons here, e.g., to consume ammo
@@ -353,24 +379,29 @@ namespace LoDCompanion.Models
         }
     }
 
+    public enum ArmourProperty
+    {
+        Mithril,
+        Metal,
+        Head,
+        Torso,
+        Arms,
+        Legs,
+        Cloak,
+        Stackable,
+        Clunky,
+        Upgraded,
+        DarkAsTheNight,
+        DragonScale,
+        Dog,
+    }
+
     public class Armour : Equipment
     {
         new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
-        public bool IsMithril { get; set; }
-        public bool IsMetal { get; set; }
-        public bool IsHead { get; set; }
-        public bool IsTorso { get; set; }
-        public bool IsArms { get; set; }
-        public bool IsLegs { get; set; }
-        public bool IsCloak { get; set; }
-        public bool IsStackable { get; set; }
-        public bool IsClunky { get; set; }
-        public bool IsUpgraded { get; set; }
-        public bool IsDarkAsTheNight { get; set; }
-        public bool IsDragonScale { get; set; }
-        public bool IsDog { get; set; }
+        public Dictionary<ArmourProperty, int> Properties { get; set; } = new Dictionary<ArmourProperty, int>();
 
         public Armour()
         {
@@ -389,11 +420,11 @@ namespace LoDCompanion.Models
             }
 
             var coveredAreas = new List<string>();
-            if (IsHead) coveredAreas.Add("Head");
-            if (IsTorso) coveredAreas.Add("Torso");
-            if (IsArms) coveredAreas.Add("Arms");
-            if (IsLegs) coveredAreas.Add("Legs");
-            if (IsCloak) coveredAreas.Add("Cloak");
+            if (HasProperty(ArmourProperty.Head)) coveredAreas.Add("Head");
+            if (HasProperty(ArmourProperty.Torso)) coveredAreas.Add("Torso");
+            if (HasProperty(ArmourProperty.Arms)) coveredAreas.Add("Arms");
+            if (HasProperty(ArmourProperty.Legs)) coveredAreas.Add("Legs");
+            if (HasProperty(ArmourProperty.Cloak)) coveredAreas.Add("Back");
             if (coveredAreas.Any())
             {
                 sb.AppendLine($"Covers: {string.Join(", ", coveredAreas)}");
@@ -403,12 +434,29 @@ namespace LoDCompanion.Models
 
         public void SetMithrilModifier()
         {
-            if (IsMithril)
+            if (HasProperty(ArmourProperty.Mithril))
             {
                 DefValue += 1; // Increase defense value if Mithril
                 Encumbrance -= 1; // Decrease encumbrance if Mithril
             }
         }
+
+        public bool HasProperty(ArmourProperty property)
+        {
+            return Properties.ContainsKey(property);
+        }
+
+        public int GetPropertyValue(ArmourProperty property)
+        {
+            return Properties.GetValueOrDefault(property, 0);
+        }
+    }
+
+    public enum ShieldProperty
+    {
+        Mithril,
+        Metal,
+        Huge
     }
 
     public class Shield : Equipment
@@ -416,12 +464,12 @@ namespace LoDCompanion.Models
         new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
-        public bool IsMithril { get; set; }
-        public bool IsMetal { get; set; }
-        public bool IsShield { get; set; } = true;
-        public bool IsHuge { get; set; }
+        public Dictionary<ShieldProperty, int> Properties { get; set; } = new Dictionary<ShieldProperty, int>();
 
-        public Shield() { }
+        public Shield() 
+        { 
+        
+        }
 
         public override string ToString()
         {
@@ -433,17 +481,27 @@ namespace LoDCompanion.Models
             {
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
             }
-            if (IsHuge) sb.AppendLine("Properties: Huge");
+            if (HasProperty(ShieldProperty.Huge)) sb.AppendLine("Properties: Huge");
             return sb.ToString();
         }
 
         public void SetMithrilModifier()
         {
-            if (IsMithril)
+            if (HasProperty(ShieldProperty.Mithril))
             {
                 DefValue += 1; // Increase defense value if Mithril
                 Encumbrance -= 1; // Decrease encumbrance if Mithril
             }
+        }
+
+        public bool HasProperty(ShieldProperty property)
+        {
+            return Properties.ContainsKey(property);
+        }
+
+        public int GetPropertyValue(ShieldProperty property)
+        {
+            return Properties.GetValueOrDefault(property, 0);
         }
 
     }
