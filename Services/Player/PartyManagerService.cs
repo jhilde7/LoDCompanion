@@ -1,6 +1,6 @@
 ﻿using LoDCompanion.Models.Character;
 
-namespace LoDCompanion.Services.State
+namespace LoDCompanion.Services.Player
 {
     public class PartyManagerService
     {

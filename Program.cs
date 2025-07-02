@@ -1,7 +1,7 @@
 using LoDCompanion.Components;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Services.GameData;
-using LoDCompanion.Services.State;
+using LoDCompanion.Services.Player;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

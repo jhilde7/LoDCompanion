@@ -1,6 +1,7 @@
 ﻿@page "/character-creation/sheet"
 @using LoDCompanion.Models.Character
-@inject LoDCompanion.Services.State.PartyManagerService PartyManager
+@using LoDCompanion.Services.Player
+@inject PartyManagerService PartyManager
 @rendermode InteractiveServer
 
 @if (IsVisible)
