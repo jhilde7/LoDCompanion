@@ -306,10 +306,17 @@ namespace LoDCompanion.Models.Dungeon
         }
     }
 
+    public enum RoomCategory
+    {
+        None,
+        Room,
+        Corridor
+    }
+
     public class RoomInfo
     {
         public string? Name { get; set; }
-        public string? Type { get; set; }
+        public RoomCategory Category { get; set; } = RoomCategory.None;
         public string? Description { get; set; }
         public string? SpecialRules { get; set; }
         public int? ThreatLevelModifier { get; set; }
@@ -318,6 +325,7 @@ namespace LoDCompanion.Models.Dungeon
         public int? DoorCount { get; set; }
         public List<string>? FurnitureList { get; set; }
         public int? EncounterModifier { get; set; }
+        public string? EncounterType { get; set; }
         public bool HasLevers { get; set; }
         public bool RandomEncounter { get; set; }
         public bool HasSpecial { get; set; }
