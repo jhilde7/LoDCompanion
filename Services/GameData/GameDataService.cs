@@ -1,169 +1,169 @@
 ﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Models;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Utilities;
 using System.Text;
-using System.Xml.Linq;
-using System.ComponentModel;
 
 namespace LoDCompanion.Services.GameData
 {
-    public class GameDataService
+  public class GameDataService
+  {
+    public List<Spell> Spells => GetSpells();
+    public List<Prayer> Prayers => GetPrayers();
+    public List<Species> Species => GetSpecies();
+    public List<Profession> Professions => GetProfessions();
+    public List<Talent> Talents => GetTalents();
+    public List<Talent> PhysicalTalents => GetTalentsByCategory(TalentCategory.Physical);
+    public List<Talent> CombatTalents => GetTalentsByCategory(TalentCategory.Combat);
+    public List<Talent> FaithTalents => GetTalentsByCategory(TalentCategory.Faith);
+    public List<Talent> AlchemistTalents => GetTalentsByCategory(TalentCategory.Alchemist);
+    public List<Talent> CommonTalents => GetTalentsByCategory(TalentCategory.Common);
+    public List<Talent> MagicTalents => GetTalentsByCategory(TalentCategory.Magic);
+    public List<Talent> SneakyTalents => GetTalentsByCategory(TalentCategory.Sneaky);
+    public List<Talent> MentalTalents => GetTalentsByCategory(TalentCategory.Mental);
+    public List<Perk> Perks => GetPerks();
+    public List<Perk> LeaderPerks => GetPerksByCategory(PerkCategory.Leader);
+    public List<Perk> CommonPerks => GetPerksByCategory(PerkCategory.Common);
+    public List<Perk> CombatPerks => GetPerksByCategory(PerkCategory.Combat);
+    public List<Perk> SneakyPerks => GetPerksByCategory(PerkCategory.Sneaky);
+    public List<Perk> FaithPerks => GetPerksByCategory(PerkCategory.Faith);
+    public List<Perk> ArcanePerks => GetPerksByCategory(PerkCategory.Arcane);
+    public List<Perk> AlchemistPerks => GetPerksByCategory(PerkCategory.Alchemist);
+    public List<Equipment> Equipment => GetEquipment();
+    public List<MeleeWeapon> MeleeWeapons => GetMeleeWeapons();
+    public List<RangedWeapon> RangedWeapons => GetRangedWeapons();
+    public List<Equipment> Weapons => [.. MeleeWeapons, .. RangedWeapons];
+    public List<MagicStaff> MagicStaves => GetMagicStaves();
+    public List<Ammo> Ammo => GetAmmo();
+    public List<Armour> Armour => GetArmour();
+    public List<Shield> Shields => GetShields();
+    public List<Equipment> Relics => GetRelics();
+    public List<RoomInfo> RoomInfo => GetRooms();
+    public string SilverWeaponDescription { get; set; } = "Can hurt ethereal, and does Increased DMG+1 to Undead";
+
+
+    public GameDataService()
     {
-        public List<Spell> Spells => GetSpells();
-        public List<Prayer> Prayers => GetPrayers();
-        public List<Species> Species => GetSpecies();
-        public List<Profession> Professions => GetProfessions();
-        public List<Talent> Talents => GetTalents();
-        public List<Talent> PhysicalTalents => GetTalentsByCategory(TalentCategory.Physical);
-        public List<Talent> CombatTalents => GetTalentsByCategory(TalentCategory.Combat);
-        public List<Talent> FaithTalents => GetTalentsByCategory(TalentCategory.Faith);
-        public List<Talent> AlchemistTalents => GetTalentsByCategory(TalentCategory.Alchemist);
-        public List<Talent> CommonTalents => GetTalentsByCategory(TalentCategory.Common);
-        public List<Talent> MagicTalents => GetTalentsByCategory(TalentCategory.Magic);
-        public List<Talent> SneakyTalents => GetTalentsByCategory(TalentCategory.Sneaky);
-        public List<Talent> MentalTalents => GetTalentsByCategory(TalentCategory.Mental);
-        public List<Perk> Perks => GetPerks();
-        public List<Perk> LeaderPerks => GetPerksByCategory(PerkCategory.Leader);
-        public List<Perk> CommonPerks => GetPerksByCategory(PerkCategory.Common);
-        public List<Perk> CombatPerks => GetPerksByCategory(PerkCategory.Combat);
-        public List<Perk> SneakyPerks => GetPerksByCategory(PerkCategory.Sneaky);
-        public List<Perk> FaithPerks => GetPerksByCategory(PerkCategory.Faith);
-        public List<Perk> ArcanePerks => GetPerksByCategory(PerkCategory.Arcane);
-        public List<Perk> AlchemistPerks => GetPerksByCategory(PerkCategory.Alchemist);
-        public List<Equipment> Equipment => GetEquipment();
-        public List<MeleeWeapon> MeleeWeapons => GetMeleeWeapons();
-        public List<RangedWeapon> RangedWeapons => GetRangedWeapons();
-        public List<Equipment> Weapons => [.. MeleeWeapons, .. RangedWeapons];
-        public List<MagicStaff> MagicStaves => GetMagicStaves();
-        public List<Ammo> Ammo => GetAmmo();
-        public List<Armour> Armour => GetArmour();
-        public List<Shield> Shields => GetShields();
-        public List<Equipment> Relics => GetRelics();
-        public string SilverWeaponDescription { get; set; } = "Can hurt ethereal, and does Increased DMG+1 to Undead";
 
+    }
 
-        public GameDataService()
-        {
-            
-        }
+    public string GetRandomSpellNameByCategory(string category = "All", bool isUndead = false)
+    {
+      string spell = "";
+      // Using the new Utilities.RandomHelper.RandomNumber method
+      int roll = RandomHelper.GetRandomNumber(1, 100);
 
-        public string GetRandomSpellNameByCategory(string category = "All", bool isUndead = false)
-        {
-            string spell = "";
-            // Using the new Utilities.RandomHelper.RandomNumber method
-            int roll = RandomHelper.GetRandomNumber(1, 100);
+      switch (category)
+      {
+        case "All":
+          return roll switch
+          {
+            <= 4 => "Fake Death",
+            <= 8 => "Flare",
+            <= 12 => "Gust of Wind",
+            <= 16 => "Hand of Death",
+            <= 22 => "Light Healing",
+            <= 29 => "Protective Shield",
+            <= 33 => "Slip",
+            <= 35 => "Blur",
+            <= 37 => "Fist of Iron",
+            <= 39 => "Magic Scribbles",
+            <= 41 => "Open Lock",
+            <= 43 => "Seal Door",
+            <= 45 => "Silence",
+            <= 47 => "Strengthen Body",
+            <= 49 => "Summon Lesser Demon",
+            <= 51 => "Confuse",
+            <= 53 => "Control Undead",
+            <= 55 => "Corruption",
+            <= 57 => "Enchant Item",
+            <= 59 => "Healing",
+            <= 61 => "Ice Pikes",
+            <= 63 => "Lightning Bolt",
+            <= 65 => "Magic Armour",
+            <= 67 => "Magic Bolt",
+            <= 69 => "Slow",
+            <= 71 => "Summon Water Elemental",
+            <= 73 => "Summon Wind Elemental",
+            <= 75 => "Vampiric Touch",
+            76 => "Banish Undead",
+            77 => "Bolster Mind",
+            78 => "Frost Beam",
+            79 => "Hold Creature",
+            80 => "Ice Tomb",
+            81 => "Transpose",
+            82 => "Second Sight",
+            83 => "Summon Demon",
+            84 => "Summon Earth Elemental",
+            85 => "Summon Fire Elemental",
+            86 => "Summon Souls",
+            87 => "Weakness",
+            88 => "Cause Animosity",
+            89 => "Fire Rain",
+            90 => "Fire Wall",
+            91 => "Levitate",
+            92 => "Mirrored Self",
+            93 => "Speed",
+            94 => "Time Freeze",
+            95 => "Fireball",
+            96 => "Into the Void",
+            97 => "Life Force",
+            98 => "Raise Dead",
+            99 => "Summon Greater Demon",
+            100 => "Teleportation",
+            _ => "Invalid"
+          };
+        case "Ranged spell":
+          roll = RandomHelper.GetRandomNumber(1, 12);
+          return roll switch
+          {
+            <= 2 => "Blind",
+            <= 4 => "Flare",
+            <= 6 => "Fireball",
+            <= 8 => "Frost Ray",
+            <= 10 => "Gust of Wind",
+            <= 12 => "Slow",
+            _ => "Invalid"
+          };
+        case "Touch spell":
+          roll = RandomHelper.GetRandomNumber(1, 12);
+          return roll switch
+          {
+            <= 2 => "Mind Blast",
+            <= 4 => "Mirrored Self",
+            <= 6 => "Seduce",
+            <= 8 => "Stun",
+            <= 10 => "Teleportation",
+            <= 12 => "Vampiric Touch",
+            _ => "Invalid"
+          };
+        case "Support spell":
+          roll = RandomHelper.GetRandomNumber(1, 16);
+          return roll switch
+          {
+            <= 2 => "Frenzy",
+            <= 4 => "Healing",
+            <= 6 => "Healing Hand",
+            <= 8 => "Mute",
+            <= 10 => isUndead ? "Raise Dead" : GetRandomSpellNameByCategory("Support spell"),
+            <= 12 => "Shield",
+            <= 14 => "Summon Demon",
+            <= 16 => "Summon Greater Demon",
+            _ => "Invalid"
+          };
+      }
+      return spell;
+    }
 
-            switch (category)
-            {
-                case "All":
-                    return roll switch
-                    {
-                        <= 4 => "Fake Death",
-                        <= 8 => "Flare",
-                        <= 12 => "Gust of Wind",
-                        <= 16 => "Hand of Death",
-                        <= 22 => "Light Healing",
-                        <= 29 => "Protective Shield",
-                        <= 33 => "Slip",
-                        <= 35 => "Blur",
-                        <= 37 => "Fist of Iron",
-                        <= 39 => "Magic Scribbles",
-                        <= 41 => "Open Lock",
-                        <= 43 => "Seal Door",
-                        <= 45 => "Silence",
-                        <= 47 => "Strengthen Body",
-                        <= 49 => "Summon Lesser Demon",
-                        <= 51 => "Confuse",
-                        <= 53 => "Control Undead",
-                        <= 55 => "Corruption",
-                        <= 57 => "Enchant Item",
-                        <= 59 => "Healing",
-                        <= 61 => "Ice Pikes",
-                        <= 63 => "Lightning Bolt",
-                        <= 65 => "Magic Armour",
-                        <= 67 => "Magic Bolt",
-                        <= 69 => "Slow",
-                        <= 71 => "Summon Water Elemental",
-                        <= 73 => "Summon Wind Elemental",
-                        <= 75 => "Vampiric Touch",
-                        76 => "Banish Undead",
-                        77 => "Bolster Mind",
-                        78 => "Frost Beam",
-                        79 => "Hold Creature",
-                        80 => "Ice Tomb",
-                        81 => "Transpose",
-                        82 => "Second Sight",
-                        83 => "Summon Demon",
-                        84 => "Summon Earth Elemental",
-                        85 => "Summon Fire Elemental",
-                        86 => "Summon Souls",
-                        87 => "Weakness",
-                        88 => "Cause Animosity",
-                        89 => "Fire Rain",
-                        90 => "Fire Wall",
-                        91 => "Levitate",
-                        92 => "Mirrored Self",
-                        93 => "Speed",
-                        94 => "Time Freeze",
-                        95 => "Fireball",
-                        96 => "Into the Void",
-                        97 => "Life Force",
-                        98 => "Raise Dead",
-                        99 => "Summon Greater Demon",
-                        100 => "Teleportation",
-                        _ => "Invalid"
-                    };
-                case "Ranged spell":
-                    roll = RandomHelper.GetRandomNumber(1, 12);
-                    return roll switch
-                    {
-                        <= 2 => "Blind",
-                        <= 4 => "Flare",
-                        <= 6 => "Fireball",
-                        <= 8 => "Frost Ray",
-                        <= 10 => "Gust of Wind",
-                        <= 12 => "Slow",
-                        _ => "Invalid"
-                    };
-                case "Touch spell":
-                    roll = RandomHelper.GetRandomNumber(1, 12);
-                    return roll switch
-                    {
-                        <= 2 => "Mind Blast",
-                        <= 4 => "Mirrored Self",
-                        <= 6 => "Seduce",
-                        <= 8 => "Stun",
-                        <= 10 => "Teleportation",
-                        <= 12 => "Vampiric Touch",
-                        _ => "Invalid"
-                    };
-                case "Support spell":
-                    roll = RandomHelper.GetRandomNumber(1, 16);
-                    return roll switch
-                    {
-                        <= 2 => "Frenzy",
-                        <= 4 => "Healing",
-                        <= 6 => "Healing Hand",
-                        <= 8 => "Mute",
-                        <= 10 => isUndead ? "Raise Dead" : GetRandomSpellNameByCategory("Support spell"),
-                        <= 12 => "Shield",
-                        <= 14 => "Summon Demon",
-                        <= 16 => "Summon Greater Demon",
-                        _ => "Invalid"
-                    };
-            }
-            return spell;
-        }
+    public string GetRandomSpellName()
+    {
+      return GetRandomSpellNameByCategory();
+    }
 
-        public string GetRandomSpellName()
-        {
-            return GetRandomSpellNameByCategory();
-        }
-
-        public List<Spell> GetSpells()
-        {
-            return new List<Spell>()
+    public List<Spell> GetSpells()
+    {
+      return new List<Spell>()
             {
                 new Spell(){
                   Name = "Fake Death",
@@ -738,24 +738,24 @@ namespace LoDCompanion.Services.GameData
                   PrayerEffect = "The wizard may teleport one of his companions within LOS or himself up to 4 squares. This is risky business though, and a failed spell will cost the target one Sanity Point as he is partly in the void before coming back."
                 }
             };
-        }
+    }
 
-        internal List<Spell> GetSpellsByLevel(int level)
+    internal List<Spell> GetSpellsByLevel(int level)
+    {
+      List<Spell> list = new List<Spell>();
+      foreach (Spell spell in Spells)
+      {
+        if (spell.Level == level)
         {
-            List<Spell> list = new List<Spell>();
-            foreach (Spell spell in Spells)
-            {
-                if (spell.Level == level)
-                {
-                    list.Add(spell);
-                }
-            }
-            return list;
+          list.Add(spell);
         }
+      }
+      return list;
+    }
 
-        public List<Prayer> GetPrayers()
-        {
-            return new List<Prayer>()
+    public List<Prayer> GetPrayers()
+    {
+      return new List<Prayer>()
                 {
                 new Prayer(){
                   Name = "Bringer of Light",
@@ -860,24 +860,24 @@ namespace LoDCompanion.Services.GameData
                   Duration = "Until end of battle (effect on energy/constitution is after battle)."
                 }
             };
-        }
+    }
 
-        internal List<Prayer> GetPrayersByLevel(int level)
+    internal List<Prayer> GetPrayersByLevel(int level)
+    {
+      List<Prayer> list = new List<Prayer>();
+      foreach (Prayer prayer in Prayers)
+      {
+        if (prayer.Level == level)
         {
-            List<Prayer> list = new List<Prayer>();
-            foreach (Prayer prayer in Prayers)
-            {
-                if (prayer.Level == level)
-                {
-                    list.Add(prayer);
-                }
-            }
-            return list;
+          list.Add(prayer);
         }
+      }
+      return list;
+    }
 
-        public List<Talent> GetTalents()
-        {
-            return new List<Talent>()
+    public List<Talent> GetTalents()
+    {
+      return new List<Talent>()
                     {
                         new Talent(){
                             Category = TalentCategory.Physical,
@@ -1331,432 +1331,432 @@ namespace LoDCompanion.Services.GameData
                             IsWise = true
                         }
             };
-        }
+    }
 
-        public List<Talent> GetTalentCategoryAtLevelup(Profession profession, int level)
+    public List<Talent> GetTalentCategoryAtLevelup(Profession profession, int level)
+    {
+
+      switch (profession.Name)
+      {
+        case "Alchemist":
+          return level switch
+          {
+            3 => MentalTalents,
+            4 => CommonTalents,
+            6 => CombatTalents,
+            7 => MentalTalents,
+            8 => CommonTalents,
+            _ => AlchemistTalents
+          };
+        case "Barbarian":
+          return level switch
+          {
+            2 => PhysicalTalents,
+            4 => MentalTalents,
+            5 => CommonTalents,
+            7 => PhysicalTalents,
+            9 => CommonTalents,
+            _ => CombatTalents
+          };
+        case "Ranger":
+          return level switch
+          {
+            2 => PhysicalTalents,
+            4 => CommonTalents,
+            5 => MentalTalents,
+            7 => PhysicalTalents,
+            8 => CommonTalents,
+            9 => MentalTalents,
+            _ => CombatTalents
+          };
+        case "Rogue":
+          return level switch
+          {
+            2 => PhysicalTalents,
+            3 => SneakyTalents,
+            5 => MentalTalents,
+            6 => PhysicalTalents,
+            8 => SneakyTalents,
+            9 => CommonTalents,
+            _ => CombatTalents
+          };
+        case "Thief":
+          return level switch
+          {
+            3 => CommonTalents,
+            5 => CombatTalents,
+            6 => MentalTalents,
+            7 => PhysicalTalents,
+            8 => CommonTalents,
+            9 => CombatTalents,
+            _ => SneakyTalents
+          };
+        case "Warrior":
+          return level switch
+          {
+            2 => MentalTalents,
+            4 => PhysicalTalents,
+            6 => CommonTalents,
+            7 => MentalTalents,
+            9 => CommonTalents,
+            _ => CombatTalents
+          };
+        case "Warrior Priest":
+          return level switch
+          {
+            2 => MentalTalents,
+            4 => CombatTalents,
+            5 => PhysicalTalents,
+            7 => CombatTalents,
+            8 => MentalTalents,
+            10 => CombatTalents,
+            _ => FaithTalents
+          };
+        case "Wizard":
+          return level switch
+          {
+            3 => CommonTalents,
+            4 => MentalTalents,
+            6 => MentalTalents,
+            7 => PhysicalTalents,
+            9 => CommonTalents,
+            10 => MentalTalents,
+            _ => MagicTalents
+          };
+        default: return CommonTalents;
+      }
+    }
+
+    public Talent GetRandomTalent()
+    {
+      return GetRandomTalentByCategory();
+    }
+
+    public Talent GetRandomTalentByCategory(TalentCategory? category = null)
+    {
+      switch (category)
+      {
+        case TalentCategory.Physical:
+          return PhysicalTalents[RandomHelper.GetRandomNumber(0, PhysicalTalents.Count - 1)];
+        case TalentCategory.Combat:
+          return CombatTalents[RandomHelper.GetRandomNumber(0, CombatTalents.Count - 1)];
+        case TalentCategory.Faith:
+          return FaithTalents[RandomHelper.GetRandomNumber(0, FaithTalents.Count - 1)];
+        case TalentCategory.Alchemist:
+          return AlchemistTalents[RandomHelper.GetRandomNumber(0, AlchemistTalents.Count - 1)];
+        case TalentCategory.Common:
+          return CommonTalents[RandomHelper.GetRandomNumber(0, CommonTalents.Count - 1)];
+        case TalentCategory.Magic:
+          return MagicTalents[RandomHelper.GetRandomNumber(0, MagicTalents.Count - 1)];
+        case TalentCategory.Sneaky:
+          return SneakyTalents[RandomHelper.GetRandomNumber(0, SneakyTalents.Count - 1)];
+        case TalentCategory.Mental:
+          return MentalTalents[RandomHelper.GetRandomNumber(0, MentalTalents.Count - 1)];
+        default:
+          return Talents[RandomHelper.GetRandomNumber(0, Talents.Count - 1)];
+      }
+    }
+
+    private List<Talent> GetTalentsByCategory(TalentCategory category)
+    {
+      return Talents.Where(t => t.Category == category).ToList();
+    }
+
+    public Talent GetTalentByName(string name)
+    {
+      return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
+    }
+
+    public enum HateCategory
+    {
+      Bandits,
+      Bats,
+      Beastmen,
+      Centipedes,
+      DarkElves,
+      Demons,
+      Dragons,
+      Elementals,
+      Froglings,
+      Geckos,
+      Ghosts,
+      Ghouls,
+      Giants,
+      Gnolls,
+      Goblins,
+      Golems,
+      Minotaurs,
+      Mummies,
+      Ogres,
+      Orcs,
+      Rats,
+      Saurians,
+      Scorpions,
+      Skeletons,
+      Snakes,
+      Spiders,
+      Toads,
+      Trolls,
+      Vampires,
+      Werewolves,
+      Wights,
+      Wolves,
+      Zombies
+    }
+
+    public Talent GetHateByName(HateCategory? hateCategory)
+    {
+      string baseDescription = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.";
+      int roll = 0;
+      if (!hateCategory.HasValue)
+      {
+        roll = RandomHelper.GetRandomNumber(1, 33);
+      }
+      else
+      {
+        roll = (int)hateCategory;
+      }
+
+      return roll switch
+      {
+        1 => new Talent()
         {
-
-            switch (profession.Name)
-            {
-                case "Alchemist":
-                    return level switch
-                    {
-                        3 => MentalTalents,
-                        4 => CommonTalents,
-                        6 => CombatTalents,
-                        7 => MentalTalents,
-                        8 => CommonTalents,
-                        _ => AlchemistTalents
-                    };
-                case "Barbarian":
-                    return level switch
-                    {
-                        2 => PhysicalTalents,
-                        4 => MentalTalents,
-                        5 => CommonTalents,
-                        7 => PhysicalTalents,
-                        9 => CommonTalents,
-                        _ => CombatTalents
-                    };
-                case "Ranger":
-                    return level switch
-                    {
-                        2 => PhysicalTalents,
-                        4 => CommonTalents,
-                        5 => MentalTalents,
-                        7 => PhysicalTalents,
-                        8 => CommonTalents,
-                        9 => MentalTalents,
-                        _ => CombatTalents
-                    };
-                case "Rogue":
-                    return level switch
-                    {
-                        2 => PhysicalTalents,
-                        3 => SneakyTalents,
-                        5 => MentalTalents,
-                        6 => PhysicalTalents,
-                        8 => SneakyTalents,
-                        9 => CommonTalents,
-                        _ => CombatTalents
-                    };
-                case "Thief":
-                    return level switch
-                    {
-                        3 => CommonTalents,
-                        5 => CombatTalents,
-                        6 => MentalTalents,
-                        7 => PhysicalTalents,
-                        8 => CommonTalents,
-                        9 => CombatTalents,
-                        _ => SneakyTalents
-                    };
-                case "Warrior":
-                    return level switch
-                    {
-                        2 => MentalTalents,
-                        4 => PhysicalTalents,
-                        6 => CommonTalents,
-                        7 => MentalTalents,
-                        9 => CommonTalents,
-                        _ => CombatTalents
-                    };
-                case "Warrior Priest":
-                    return level switch
-                    {
-                        2 => MentalTalents,
-                        4 => CombatTalents,
-                        5 => PhysicalTalents,
-                        7 => CombatTalents,
-                        8 => MentalTalents,
-                        10 => CombatTalents,
-                        _ => FaithTalents
-                    };
-                case "Wizard":
-                    return level switch
-                    {
-                        3 => CommonTalents,
-                        4 => MentalTalents,
-                        6 => MentalTalents,
-                        7 => PhysicalTalents,
-                        9 => CommonTalents,
-                        10 => MentalTalents,
-                        _ => MagicTalents
-                    };
-                default: return CommonTalents;
-            }
-        }
-
-        public Talent GetRandomTalent()
+          Category = TalentCategory.Mental,
+          Name = "Hate Bandits",
+          Description = $"This talent applies to any enemy with 'Bandit' in its name. {baseDescription}",
+          IsHate = true
+        },
+        2 => new Talent()
         {
-            return GetRandomTalentByCategory();
-        }
-
-        public Talent GetRandomTalentByCategory(TalentCategory? category = null)
+          Category = TalentCategory.Mental,
+          Name = "Hate Bats",
+          Description = $"This talent applies to any enemy with 'Bat' in its name. {baseDescription}",
+          IsHate = true
+        },
+        3 => new Talent()
         {
-            switch (category)
-            {
-                case TalentCategory.Physical:
-                    return PhysicalTalents[RandomHelper.GetRandomNumber(0, PhysicalTalents.Count - 1)];
-                case TalentCategory.Combat:
-                    return CombatTalents[RandomHelper.GetRandomNumber(0, CombatTalents.Count - 1)];
-                case TalentCategory.Faith:
-                    return FaithTalents[RandomHelper.GetRandomNumber(0, FaithTalents.Count - 1)];
-                case TalentCategory.Alchemist:
-                    return AlchemistTalents[RandomHelper.GetRandomNumber(0, AlchemistTalents.Count - 1)];
-                case TalentCategory.Common:
-                    return CommonTalents[RandomHelper.GetRandomNumber(0, CommonTalents.Count - 1)];
-                case TalentCategory.Magic:
-                    return MagicTalents[RandomHelper.GetRandomNumber(0, MagicTalents.Count - 1)];
-                case TalentCategory.Sneaky:
-                    return SneakyTalents[RandomHelper.GetRandomNumber(0, SneakyTalents.Count - 1)];
-                case TalentCategory.Mental:
-                    return MentalTalents[RandomHelper.GetRandomNumber(0, MentalTalents.Count - 1)];
-                default:
-                    return Talents[RandomHelper.GetRandomNumber(0, Talents.Count - 1)];
-            }
-        }
-
-        private List<Talent> GetTalentsByCategory(TalentCategory category)
+          Category = TalentCategory.Mental,
+          Name = "Hate Beastmen",
+          Description = $"This talent applies to any enemy with 'Beastman' in its name. {baseDescription}",
+          IsHate = true
+        },
+        4 => new Talent()
         {
-            return Talents.Where(t => t.Category == category).ToList();
-        }
-
-        public Talent GetTalentByName(string name)
+          Category = TalentCategory.Mental,
+          Name = "Hate Centipedes",
+          Description = $"This talent applies to any enemy with 'Centipede' in its name. {baseDescription}",
+          IsHate = true
+        },
+        5 => new Talent()
         {
-            return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
-        }
-
-        public enum HateCategory
+          Category = TalentCategory.Mental,
+          Name = "Hate Dark Elves",
+          Description = $"This talent applies to any enemy with 'Dark Elf' in its name. {baseDescription}",
+          IsHate = true
+        },
+        6 => new Talent()
         {
-            Bandits,
-            Bats,
-            Beastmen,
-            Centipedes,
-            DarkElves,
-            Demons,
-            Dragons,
-            Elementals,
-            Froglings,
-            Geckos,
-            Ghosts,
-            Ghouls,
-            Giants,
-            Gnolls,
-            Goblins,
-            Golems,
-            Minotaurs,
-            Mummies,
-            Ogres,
-            Orcs,
-            Rats,
-            Saurians,
-            Scorpions,
-            Skeletons,
-            Snakes,
-            Spiders,
-            Toads,
-            Trolls,
-            Vampires,
-            Werewolves,
-            Wights,
-            Wolves,
-            Zombies
-        }
-
-        public Talent GetHateByName(HateCategory? hateCategory)
+          Category = TalentCategory.Mental,
+          Name = "Hate Demons",
+          Description = $"This talent applies to any enemy with 'Demon' in its name. {baseDescription}",
+          IsHate = true
+        },
+        7 => new Talent()
         {
-            string baseDescription = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.";
-            int roll = 0;
-            if (!hateCategory.HasValue)
-            {
-                roll = RandomHelper.GetRandomNumber(1, 33);
-            }
-            else
-            {
-                roll = (int)hateCategory;
-            }
-
-            return roll switch
-            {
-                1 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Bandits",
-                    Description = $"This talent applies to any enemy with 'Bandit' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                2 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Bats",
-                    Description = $"This talent applies to any enemy with 'Bat' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                3 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Beastmen",
-                    Description = $"This talent applies to any enemy with 'Beastman' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                4 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Centipedes",
-                    Description = $"This talent applies to any enemy with 'Centipede' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                5 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Dark Elves",
-                    Description = $"This talent applies to any enemy with 'Dark Elf' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                6 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Demons",
-                    Description = $"This talent applies to any enemy with 'Demon' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                7 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Dragons",
-                    Description = $"This talent applies to any enemy with 'Dragon' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                8 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Elementals",
-                    Description = $"This talent applies to any enemy with 'Elemental' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                9 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Froglings",
-                    Description = $"This talent applies to any enemy with 'Frogling' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                10 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Geckos",
-                    Description = $"This talent applies to any enemy with 'Gecko' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                11 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Ghosts",
-                    Description = $"This talent applies to ethereal undead like Ghosts, Banshees, and Wraiths. {baseDescription}",
-                    IsHate = true
-                },
-                12 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Ghouls",
-                    Description = $"This talent applies to any enemy with 'Ghoul' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                13 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Giants",
-                    Description = $"This talent applies to any enemy with 'Giant' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                14 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Gnolls",
-                    Description = $"This talent applies to any enemy with 'Gnoll' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                15 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Goblins",
-                    Description = $"This talent applies to any enemy with 'Goblin' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                16 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Golems",
-                    Description = $"This talent applies to any enemy with 'Golem' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                17 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Minotaurs",
-                    Description = $"This talent applies to any enemy with 'Minotaur' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                18 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Mummies",
-                    Description = $"This talent applies to any enemy with 'Mummy' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                19 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Ogres",
-                    Description = $"This talent applies to any enemy with 'Ogre' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                20 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Orcs",
-                    Description = $"This talent applies to any enemy with 'Orc' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                21 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Rats",
-                    Description = $"This talent applies to any enemy with 'Rat' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                22 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Saurians",
-                    Description = $"This talent applies to any enemy with 'Saurian' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                23 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Scorpions",
-                    Description = $"This talent applies to any enemy with 'Scorpion' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                24 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Skeletons",
-                    Description = $"This talent applies to any enemy with 'Skeleton' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                25 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Snakes",
-                    Description = $"This talent applies to any enemy with 'Snake' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                26 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Spiders",
-                    Description = $"This talent applies to any enemy with 'Spider' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                27 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Toads",
-                    Description = $"This talent applies to any enemy with 'Toad' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                28 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Trolls",
-                    Description = $"This talent applies to any enemy with 'Troll' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                29 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Vampires",
-                    Description = $"This talent applies to any enemy with 'Vampire' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                30 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Werewolves",
-                    Description = $"This talent applies to any enemy with 'Werewolf' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                31 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Wights",
-                    Description = $"This talent applies to any enemy with 'Wight' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                32 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Wolves",
-                    Description = $"This talent applies to any enemy with 'Wolf' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                33 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Zombies",
-                    Description = $"This talent applies to any enemy with 'Zombie' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                _ => new Talent()
-            };
-        }
-
-        public List<Perk> GetPerks()
+          Category = TalentCategory.Mental,
+          Name = "Hate Dragons",
+          Description = $"This talent applies to any enemy with 'Dragon' in its name. {baseDescription}",
+          IsHate = true
+        },
+        8 => new Talent()
         {
-            return new List<Perk>()
+          Category = TalentCategory.Mental,
+          Name = "Hate Elementals",
+          Description = $"This talent applies to any enemy with 'Elemental' in its name. {baseDescription}",
+          IsHate = true
+        },
+        9 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Froglings",
+          Description = $"This talent applies to any enemy with 'Frogling' in its name. {baseDescription}",
+          IsHate = true
+        },
+        10 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Geckos",
+          Description = $"This talent applies to any enemy with 'Gecko' in its name. {baseDescription}",
+          IsHate = true
+        },
+        11 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Ghosts",
+          Description = $"This talent applies to ethereal undead like Ghosts, Banshees, and Wraiths. {baseDescription}",
+          IsHate = true
+        },
+        12 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Ghouls",
+          Description = $"This talent applies to any enemy with 'Ghoul' in its name. {baseDescription}",
+          IsHate = true
+        },
+        13 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Giants",
+          Description = $"This talent applies to any enemy with 'Giant' in its name. {baseDescription}",
+          IsHate = true
+        },
+        14 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Gnolls",
+          Description = $"This talent applies to any enemy with 'Gnoll' in its name. {baseDescription}",
+          IsHate = true
+        },
+        15 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Goblins",
+          Description = $"This talent applies to any enemy with 'Goblin' in its name. {baseDescription}",
+          IsHate = true
+        },
+        16 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Golems",
+          Description = $"This talent applies to any enemy with 'Golem' in its name. {baseDescription}",
+          IsHate = true
+        },
+        17 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Minotaurs",
+          Description = $"This talent applies to any enemy with 'Minotaur' in its name. {baseDescription}",
+          IsHate = true
+        },
+        18 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Mummies",
+          Description = $"This talent applies to any enemy with 'Mummy' in its name. {baseDescription}",
+          IsHate = true
+        },
+        19 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Ogres",
+          Description = $"This talent applies to any enemy with 'Ogre' in its name. {baseDescription}",
+          IsHate = true
+        },
+        20 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Orcs",
+          Description = $"This talent applies to any enemy with 'Orc' in its name. {baseDescription}",
+          IsHate = true
+        },
+        21 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Rats",
+          Description = $"This talent applies to any enemy with 'Rat' in its name. {baseDescription}",
+          IsHate = true
+        },
+        22 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Saurians",
+          Description = $"This talent applies to any enemy with 'Saurian' in its name. {baseDescription}",
+          IsHate = true
+        },
+        23 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Scorpions",
+          Description = $"This talent applies to any enemy with 'Scorpion' in its name. {baseDescription}",
+          IsHate = true
+        },
+        24 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Skeletons",
+          Description = $"This talent applies to any enemy with 'Skeleton' in its name. {baseDescription}",
+          IsHate = true
+        },
+        25 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Snakes",
+          Description = $"This talent applies to any enemy with 'Snake' in its name. {baseDescription}",
+          IsHate = true
+        },
+        26 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Spiders",
+          Description = $"This talent applies to any enemy with 'Spider' in its name. {baseDescription}",
+          IsHate = true
+        },
+        27 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Toads",
+          Description = $"This talent applies to any enemy with 'Toad' in its name. {baseDescription}",
+          IsHate = true
+        },
+        28 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Trolls",
+          Description = $"This talent applies to any enemy with 'Troll' in its name. {baseDescription}",
+          IsHate = true
+        },
+        29 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Vampires",
+          Description = $"This talent applies to any enemy with 'Vampire' in its name. {baseDescription}",
+          IsHate = true
+        },
+        30 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Werewolves",
+          Description = $"This talent applies to any enemy with 'Werewolf' in its name. {baseDescription}",
+          IsHate = true
+        },
+        31 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Wights",
+          Description = $"This talent applies to any enemy with 'Wight' in its name. {baseDescription}",
+          IsHate = true
+        },
+        32 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Wolves",
+          Description = $"This talent applies to any enemy with 'Wolf' in its name. {baseDescription}",
+          IsHate = true
+        },
+        33 => new Talent()
+        {
+          Category = TalentCategory.Mental,
+          Name = "Hate Zombies",
+          Description = $"This talent applies to any enemy with 'Zombie' in its name. {baseDescription}",
+          IsHate = true
+        },
+        _ => new Talent()
+      };
+    }
+
+    public List<Perk> GetPerks()
+    {
+      return new List<Perk>()
                        {
                             new Perk(){
                                 Category = PerkCategory.Leader,
@@ -1999,109 +1999,109 @@ namespace LoDCompanion.Services.GameData
                             Comment = "Only works on one enemy per Energy Point spent."
                           }
             };
-        }
-        
-        public List<Perk>? GetPerkCategoryAtLevelup(Profession profession, int level)
-        {
-            switch (profession.Name)
-            {
-                case "Alchemist":
-                    return level switch
-                    {
-                        2 => AlchemistPerks,
-                        4 => LeaderPerks,
-                        6 => CombatPerks,
-                        8 => AlchemistPerks,
-                        10 => CommonPerks,
-                        _ => null,
-                    };
-                case "Barbarian":
-                    return level switch
-                    {
-                        2 => CombatPerks,
-                        4 => CommonPerks,
-                        6 => CombatPerks,
-                        8 => CommonPerks,
-                        10 => CombatPerks,
-                        _ => null,
-                    };
-                case "Ranger":
-                    return level switch
-                    {
-                        2 => CombatPerks,
-                        4 => CommonPerks,
-                        6 => CombatPerks,
-                        8 => CommonPerks,
-                        10 => CommonPerks,
-                        _ => null,
-                    };
-                case "Rogue":
-                    return level switch
-                    {
-                        2 => CombatPerks,
-                        4 => SneakyPerks,
-                        6 => CommonPerks,
-                        8 => CombatPerks,
-                        10 => SneakyPerks,
-                        _ => null,
-                    };
-                case "Thief":
-                    return level switch
-                    {
-                        2 => SneakyPerks,
-                        4 => CommonPerks,
-                        6 => SneakyPerks,
-                        8 => CombatPerks,
-                        10 => SneakyPerks,
-                        _ => null,
-                    };
-                case "Warrior":
-                    return level switch
-                    {
-                        2 => LeaderPerks,
-                        4 => CombatPerks,
-                        6 => CombatPerks,
-                        8 => CommonPerks,
-                        10 => CombatPerks,
-                        _ => null,
-                    };
-                case "Warrior Priest":
-                    return level switch
-                    {
-                        2 => FaithPerks,
-                        4 => LeaderPerks,
-                        6 => CombatPerks,
-                        8 => FaithPerks,
-                        10 => CommonPerks,
-                        _ => null,
-                    };
-                case "Wizard":
-                    return level switch
-                    {
-                        2 => ArcanePerks,
-                        4 => LeaderPerks,
-                        6 => ArcanePerks,
-                        8 => CommonPerks,
-                        10 => ArcanePerks,
-                        _ => null,
-                    };
-                default: return CommonPerks;
-            }
-        }
+    }
 
-        public List<Perk> GetPerksByCategory(PerkCategory category) 
-        {
-            return Perks.Where(p => p.Category == category).ToList();
-        }
+    public List<Perk>? GetPerkCategoryAtLevelup(Profession profession, int level)
+    {
+      switch (profession.Name)
+      {
+        case "Alchemist":
+          return level switch
+          {
+            2 => AlchemistPerks,
+            4 => LeaderPerks,
+            6 => CombatPerks,
+            8 => AlchemistPerks,
+            10 => CommonPerks,
+            _ => null,
+          };
+        case "Barbarian":
+          return level switch
+          {
+            2 => CombatPerks,
+            4 => CommonPerks,
+            6 => CombatPerks,
+            8 => CommonPerks,
+            10 => CombatPerks,
+            _ => null,
+          };
+        case "Ranger":
+          return level switch
+          {
+            2 => CombatPerks,
+            4 => CommonPerks,
+            6 => CombatPerks,
+            8 => CommonPerks,
+            10 => CommonPerks,
+            _ => null,
+          };
+        case "Rogue":
+          return level switch
+          {
+            2 => CombatPerks,
+            4 => SneakyPerks,
+            6 => CommonPerks,
+            8 => CombatPerks,
+            10 => SneakyPerks,
+            _ => null,
+          };
+        case "Thief":
+          return level switch
+          {
+            2 => SneakyPerks,
+            4 => CommonPerks,
+            6 => SneakyPerks,
+            8 => CombatPerks,
+            10 => SneakyPerks,
+            _ => null,
+          };
+        case "Warrior":
+          return level switch
+          {
+            2 => LeaderPerks,
+            4 => CombatPerks,
+            6 => CombatPerks,
+            8 => CommonPerks,
+            10 => CombatPerks,
+            _ => null,
+          };
+        case "Warrior Priest":
+          return level switch
+          {
+            2 => FaithPerks,
+            4 => LeaderPerks,
+            6 => CombatPerks,
+            8 => FaithPerks,
+            10 => CommonPerks,
+            _ => null,
+          };
+        case "Wizard":
+          return level switch
+          {
+            2 => ArcanePerks,
+            4 => LeaderPerks,
+            6 => ArcanePerks,
+            8 => CommonPerks,
+            10 => ArcanePerks,
+            _ => null,
+          };
+        default: return CommonPerks;
+      }
+    }
 
-        public Perk GetPerkByName(string name)
-        {
-            return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
-        }
+    public List<Perk> GetPerksByCategory(PerkCategory category)
+    {
+      return Perks.Where(p => p.Category == category).ToList();
+    }
 
-        public List<Species> GetSpecies()
-        {
-            return new List<Species>()
+    public Perk GetPerkByName(string name)
+    {
+      return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
+    }
+
+    public List<Species> GetSpecies()
+    {
+      return new List<Species>()
             {
                 new Species() {
                     Name = "Dwarf",
@@ -2144,35 +2144,35 @@ namespace LoDCompanion.Services.GameData
                     BaseHitPoints =  5
                 }
             };
-        }
+    }
 
-        public int GetDamageBonusFromSTR(int strength)
-        {
-            return strength switch
-            {
-                < 60 => 0,
-                < 70 => 1,
-                < 80 => 2,
-                _ => 3,
-            };
-        }
+    public int GetDamageBonusFromSTR(int strength)
+    {
+      return strength switch
+      {
+        < 60 => 0,
+        < 70 => 1,
+        < 80 => 2,
+        _ => 3,
+      };
+    }
 
-        public int GetNaturalArmourFromCON(int constitution)
-        {
-            return constitution switch
-            {
-                < 50 => 0,
-                < 55 => 1,
-                < 60 => 2,
-                < 65 => 3,
-                < 70 => 4,
-                _ => 5,
-            };
-        }
-        
-        public List<Profession> GetProfessions()
-        {
-            return new List<Profession>()
+    public int GetNaturalArmourFromCON(int constitution)
+    {
+      return constitution switch
+      {
+        < 50 => 0,
+        < 55 => 1,
+        < 60 => 2,
+        < 65 => 3,
+        < 70 => 4,
+        _ => 5,
+      };
+    }
+
+    public List<Profession> GetProfessions()
+    {
+      return new List<Profession>()
             {
                 new Profession {
                     Name = "Wizard",
@@ -2246,10 +2246,10 @@ namespace LoDCompanion.Services.GameData
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Shortsword/Rapier"],
                     StartingBackpackList = [
-                        EquipmentService.GetArmourByName(this, "Padded Jacket"), 
+                        EquipmentService.GetArmourByName(this, "Padded Jacket"),
                         EquipmentService.GetEquipmentByNameSetQuantity(this, "Lockpicks", 10),
                         EquipmentService.GetEquipmentByName(this, "Backpack - Medium") ],
-                    StartingTalentList = [ GetTalentByName("Backstabber"), 
+                    StartingTalentList = [ GetTalentByName("Backstabber"),
                         new Talent() {
                             Category = TalentCategory.Sneaky,
                             Name = "Streetwise",
@@ -2301,7 +2301,7 @@ namespace LoDCompanion.Services.GameData
                     MaxMeleeWeaponType = 5,
                     TalentChoices = [GetTalentByName("Marksman"), GetTalentByName("Hunter")],
                     StartingBackpackList = [
-                        EquipmentService.GetRangedWeaponByName(this, "Longbow"), 
+                        EquipmentService.GetRangedWeaponByName(this, "Longbow"),
                         EquipmentService.GetAmmoByNameSetQuantity(this, "Arrow", 10) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
@@ -2488,7 +2488,7 @@ namespace LoDCompanion.Services.GameData
                     EquipmentChoices = ["Potions x 3 of choice", "Parts x 3 of choice", "Recipe of choice"],
                     StartingBackpackList = [
                         EquipmentService.GetEquipmentByName(this, "Alchemist Tool"),
-                        EquipmentService.GetEquipmentByName(this, "Alchemist Belt"), 
+                        EquipmentService.GetEquipmentByName(this, "Alchemist Belt"),
                         EquipmentService.GetMeleeWeaponByName(this, "Shortsword"),
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0],
@@ -2536,8 +2536,8 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 2,
-                    StartingBackpackList = [ 
-                        EquipmentService.GetMeleeWeaponByName(this, "Dagger"), 
+                    StartingBackpackList = [
+                        EquipmentService.GetMeleeWeaponByName(this, "Dagger"),
                         EquipmentService.GetEquipmentByName(this, "Rope"),
                         EquipmentService.GetEquipmentByNameSetQuantity(this, "Lockpicks", 10) ],
                     StartingTalentList = [ GetTalentByName("Evaluate") ],
@@ -2560,14 +2560,14 @@ namespace LoDCompanion.Services.GameData
                     }
                 }
             };
-        }
+    }
 
-        public List<Equipment> GetEquipment()
-        {
-            return new List<Equipment>
+    public List<Equipment> GetEquipment()
+    {
+      return new List<Equipment>
             {
                 new Equipment(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Alchemist Belt",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2576,7 +2576,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Alchemist Tool",
                     Encumbrance = 5,
                     Durability = 6,
@@ -2585,7 +2585,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Armour Repair Kit",
                     Encumbrance = 5,
                     Durability = 1,
@@ -2594,7 +2594,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Backpack - Medium",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2603,7 +2603,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Backpack - Large",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2612,7 +2612,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Bandage (old rags)",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2622,7 +2622,7 @@ namespace LoDCompanion.Services.GameData
                     Quantity = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Bandage (linen)",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2631,7 +2631,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Bandage (Herbal wrap)",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2640,7 +2640,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Bed Roll",
                     Encumbrance = 5,
                     Durability = 6,
@@ -2649,7 +2649,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Beef Jerky",
                     Encumbrance = 0,
                     Durability = 1,
@@ -2658,7 +2658,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Cooking Gear",
                     Encumbrance = 3,
                     Durability = 6,
@@ -2667,7 +2667,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Crowbar",
                     Encumbrance = 10,
                     Durability = 6,
@@ -2676,7 +2676,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Combat Harness",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2685,7 +2685,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 2
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Dwarven Ale",
                     Encumbrance = 2,
                     Durability = 1,
@@ -2694,7 +2694,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 2
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Dwarven Pickaxe",
                     Encumbrance = 8,
                     Durability = 6,
@@ -2703,7 +2703,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 2
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Empty Bottle",
                     Encumbrance = 0,
                     Durability = 1,
@@ -2712,7 +2712,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Extended Battle Belt",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2721,7 +2721,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Fishing Gear",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2730,7 +2730,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Iron Wedge",
                     Encumbrance = 4,
                     Durability = 6,
@@ -2739,7 +2739,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Lamp Oil",
                     Encumbrance = 0,
                     Durability = 1,
@@ -2748,7 +2748,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Lantern",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2757,7 +2757,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Lock Picks",
                     Quantity = 5,
                     Encumbrance = 0,
@@ -2767,7 +2767,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Necklace",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2776,7 +2776,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Parchment",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2785,7 +2785,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Partial Map",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2794,7 +2794,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Pickaxe",
                     Encumbrance = 10,
                     Durability = 6,
@@ -2803,7 +2803,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Ration",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2812,7 +2812,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Ring",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2821,7 +2821,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Rope (old)",
                     Encumbrance = 2,
                     Durability = 1,
@@ -2830,7 +2830,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Rope",
                     Encumbrance = 2,
                     Durability = 1,
@@ -2839,7 +2839,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Tobacco",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2848,7 +2848,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Torch",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2857,7 +2857,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Trap Disarming Kit",
                     Encumbrance = 5,
                     Durability = 6,
@@ -2866,7 +2866,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Whetstone",
                     Encumbrance = 1,
                     Durability = 1,
@@ -2876,7 +2876,7 @@ namespace LoDCompanion.Services.GameData
                     Quantity = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Horse",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2885,7 +2885,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Camel",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2894,7 +2894,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Saddlebags",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2903,7 +2903,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Mule",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2912,7 +2912,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                     Name = "Wagon",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2921,7 +2921,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Common",
+                        Category = "Common",
                         Name = "Holy Water",
                         Encumbrance = 0,
                         Durability = 1,
@@ -2930,7 +2930,7 @@ namespace LoDCompanion.Services.GameData
                         Availability = 3
                     },
                     new Equipment(){
-                        Type = "Dark Guild",
+                        Category = "Dark Guild",
                     Name = "Bear Trap",
                     Encumbrance = 5,
                     Durability = 2,
@@ -2939,7 +2939,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = -1
                     },
                     new Equipment(){
-                        Type = "Dark Guild",
+                        Category = "Dark Guild",
                     Name = "Caltrops Trap",
                     Encumbrance = 0,
                     Durability = 1,
@@ -2948,7 +2948,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = -1
                     },
                     new Equipment(){
-                        Type = "Dark Guild",
+                        Category = "Dark Guild",
                     Name = "Door Mirror",
                     Encumbrance = 0,
                     Durability = 1,
@@ -2957,7 +2957,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = -1
                     },
                     new Equipment(){
-                        Type = "Dark Guild",
+                        Category = "Dark Guild",
                     Name = "Superior Lock Picks",
                     Quantity = 5,
                     Encumbrance = 0,
@@ -2967,7 +2967,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = -1
                     },
                     new Equipment(){
-                        Type = "Dark Guild",
+                        Category = "Dark Guild",
                     Name = "Superior Trap Disarming Kit",
                     Encumbrance = 4,
                     Durability = 6,
@@ -2976,7 +2976,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = -1
                     },
                     new Equipment(){
-                        Type = "Dark Guild",
+                        Category = "Dark Guild",
                     Name = "Tripwire with Darts Trap",
                     Encumbrance = 2,
                     Durability = 1,
@@ -2985,7 +2985,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = -1
                     },
                     new Equipment(){
-                        Type = "Rangers Guild",
+                        Category = "Rangers Guild",
                     Name = "Aim Attachment",
                     Encumbrance = 0,
                     Durability = 6,
@@ -2994,7 +2994,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Rangers Guild",
+                        Category = "Rangers Guild",
                     Name = "Compass",
                     Encumbrance = 0,
                     Durability = 1,
@@ -3003,7 +3003,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Rangers Guild",
+                        Category = "Rangers Guild",
                     Name = "Elven Skinning Knife",
                     Encumbrance = 1,
                     Durability = 6,
@@ -3012,7 +3012,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3
                     },
                     new Equipment(){
-                        Type = "Rangers Guild",
+                        Category = "Rangers Guild",
                     Name = "Skinning Knife",
                     Encumbrance = 1,
                     Durability = 6,
@@ -3021,7 +3021,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "Rangers Guild",
+                        Category = "Rangers Guild",
                     Name = "Wild game traps",
                     Encumbrance = 3,
                     Durability = 6,
@@ -3030,7 +3030,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 5
                     },
                     new Equipment(){
-                        Type = "The Inner Sanctum",
+                        Category = "The Inner Sanctum",
                     Name = "Incense",
                     Encumbrance = 1,
                     Durability = 1,
@@ -3040,7 +3040,7 @@ namespace LoDCompanion.Services.GameData
                     },
                     new Equipment()
                     {
-                        Type = "Fighters Guild",
+                        Category = "Fighters Guild",
                         Name = "Pain Killer",
                         Durability=1,
                         Value = 50,
@@ -3048,21 +3048,21 @@ namespace LoDCompanion.Services.GameData
                     },
                     new Equipment()
                     {
-                        Type = "Fighters Guild",
+                        Category = "Fighters Guild",
                         Name = "Slayer Weapon Treatment",
                         Value = 100,
                         Description = "The weapon smith at the guild has a special way of heat-treating weapons, giving them a razor-sharp edge which is able to cut through even the thickest armour. The weapon gets +1 DMG that is cumulative with any other modifier. The wepon must be at full durability, and the treatment lasts until the weapon breaks."
                     }
             };
 
-        }
+    }
 
-        public List<Ammo> GetAmmo()
-        {
-            return new List<Ammo>()
+    public List<Ammo> GetAmmo()
+    {
+      return new List<Ammo>()
             {
                 new Ammo(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Arrow",
                     MaxDurability = 1,
                     Quantity = 5,
@@ -3071,7 +3071,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Arrow
                   },
                   new Ammo(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Bolt",
                     MaxDurability = 1,
                     Quantity = 5,
@@ -3080,7 +3080,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Bolt
                   },
                   new Ammo(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Barbed Arrow",
                     MaxDurability = 1,
                     Quantity = 5,
@@ -3094,7 +3094,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Arrow
                   },
                   new Ammo(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Barbed Bolt",
                     MaxDurability = 1,
                     Quantity = 5,
@@ -3108,7 +3108,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Bolt
                   },
                   new Ammo(){
-                    Type = "Dark Guild",
+                    Category = "Dark Guild",
                     Name = "Superior Sling Stone",
                     MaxDurability = 1,
                     Quantity = 10,
@@ -3119,7 +3119,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Ammo()
                   {
-                      Type = "Treasure",
+                      Category = "Treasure",
                       Name = "Silver Arrow",
                       MaxDurability = 1,
                       Description = SilverWeaponDescription,
@@ -3133,7 +3133,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Ammo()
                   {
-                      Type = "Treasure",
+                      Category = "Treasure",
                       Name = "Silver Bolt",
                       MaxDurability = 1,
                       Description = SilverWeaponDescription,
@@ -3146,14 +3146,14 @@ namespace LoDCompanion.Services.GameData
                       AmmoType = AmmoType.Bolt
                   }
             };
-        }
+    }
 
-        public List<MeleeWeapon> GetMeleeWeapons() 
-        {
-            return new List<MeleeWeapon> {
+    public List<MeleeWeapon> GetMeleeWeapons()
+    {
+      return new List<MeleeWeapon> {
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Dagger",
                     MinDamage = 1,
                     MaxDamage = 6,
@@ -3170,7 +3170,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Shortsword",
                     MinDamage = 3,
                     MaxDamage = 8,
@@ -3188,7 +3188,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Rapier",
                     MinDamage = 2,
                     MaxDamage = 7,
@@ -3207,7 +3207,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Broadsword",
                     MinDamage = 3,
                     MaxDamage = 10,
@@ -3224,7 +3224,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Longsword",
                     MinDamage = 1,
                     MaxDamage = 12,
@@ -3241,7 +3241,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Battleaxe",
                     MinDamage = 2,
                     MaxDamage = 11,
@@ -3260,7 +3260,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Battle Hammer",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3278,7 +3278,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Morning Star",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3297,7 +3297,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Flail",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3316,7 +3316,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Staff",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3332,7 +3332,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Javelin",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3350,7 +3350,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Greatsword",
                     MinDamage = 2,
                     MaxDamage = 12,
@@ -3368,7 +3368,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Greataxe",
                     MinDamage = 3,
                     MaxDamage = 14,
@@ -3388,7 +3388,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Warhammer",
                     MinDamage = 2,
                     MaxDamage = 6,
@@ -3407,7 +3407,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Halberd",
                     MinDamage = 1,
                     MaxDamage = 12,
@@ -3424,7 +3424,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Net",
                     MinDamage = 0,
                     MaxDamage = 0,
@@ -3439,7 +3439,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Dagger",
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
@@ -3458,7 +3458,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Shortsword",
                     Description = SilverWeaponDescription,
                     MinDamage = 3,
@@ -3477,7 +3477,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Rapier",
                     Description = SilverWeaponDescription,
                     MinDamage = 2,
@@ -3497,7 +3497,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Longsword",
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
@@ -3515,7 +3515,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Flail",
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
@@ -3535,7 +3535,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Greatsword",
                     MinDamage = 2,
                     MaxDamage = 12,
@@ -3554,7 +3554,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Greataxe",
                     Description = SilverWeaponDescription,
                     MinDamage = 3,
@@ -3575,7 +3575,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Silver Halberd",
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
@@ -3593,7 +3593,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Dagger",
                     MinDamage = 1,
                     MaxDamage = 6,
@@ -3611,7 +3611,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Shortsword",
                     MinDamage = 3,
                     MaxDamage = 8,
@@ -3629,7 +3629,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Rapier",
                     MinDamage = 2,
                     MaxDamage = 7,
@@ -3648,7 +3648,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Longsword",
                     MinDamage = 1,
                     MaxDamage = 12,
@@ -3665,7 +3665,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Flail",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3684,7 +3684,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Greatsword",
                     MinDamage = 2,
                     MaxDamage = 12,
@@ -3702,7 +3702,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Greataxe",
                     MinDamage = 3,
                     MaxDamage = 14,
@@ -3722,7 +3722,7 @@ namespace LoDCompanion.Services.GameData
                     }
                 },
                 new MeleeWeapon(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Halberd",
                     MinDamage = 1,
                     MaxDamage = 12,
@@ -3740,7 +3740,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Warhammer",
                     MinDamage = 2,
                     MaxDamage = 6,
@@ -3760,7 +3760,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Battleaxe",
                     MinDamage = 2,
                     MaxDamage = 11,
@@ -3780,7 +3780,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Battle Hammer",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3799,7 +3799,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Morning Star",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3818,17 +3818,17 @@ namespace LoDCompanion.Services.GameData
                     }
                 }
             }
-            ;
-        }
+      ;
+    }
 
-        public List<RangedWeapon> GetRangedWeapons()
-        {
-            return new List<RangedWeapon>
+    public List<RangedWeapon> GetRangedWeapons()
+    {
+      return new List<RangedWeapon>
             {
                 new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Shortbow",
-                    MinDamage = 1, 
+                    MinDamage = 1,
                     MaxDamage = 8,
                     Encumbrance = 5,
                     Class = 6,
@@ -3839,7 +3839,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Arrow
                   },
                   new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Longbow",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3853,7 +3853,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Arrow
                   },
                   new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Elven bow",
                     MinDamage = 3,
                     MaxDamage = 12,
@@ -3868,7 +3868,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Arrow
                   },
                   new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Crossbow Pistol",
                     MinDamage = 2,
                     MaxDamage = 9,
@@ -3882,7 +3882,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Bolt
                   },
                   new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Crossbow",
                     MinDamage = 4,
                     MaxDamage = 13,
@@ -3896,7 +3896,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Bolt
                   },
                   new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Arbalest",
                     MinDamage = 3,
                     MaxDamage = 6,
@@ -3910,7 +3910,7 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.Bolt
                   },
                   new RangedWeapon(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Sling",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3923,15 +3923,15 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.SlingStone
                   }
             };
-        }
+    }
 
-        public List<MagicStaff> GetMagicStaves()
-        { 
-            return new List<MagicStaff>()
+    public List<MagicStaff> GetMagicStaves()
+    {
+      return new List<MagicStaff>()
             {
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Arcane Staff",
                     Description = "This staff will lend some of its power to the wizard. It will give a +5 modifier to the Arcane Arts Skill. When leaving a dungeon, roll 1d10. On a result of 9-10, the magic has dissipated and must be recharged. Until recharged, it is considered a normal staff.",
                     Value = 400,
@@ -3953,7 +3953,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Major Mana Staff",
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 30 points of Mana.",
                     Value = 800,
@@ -3975,7 +3975,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Mana Staff",
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 20 points of Mana.",
                     Value = 500,
@@ -3997,7 +3997,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Minor Mana Staff",
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 10 points of Mana.",
                     Value = 300,
@@ -4019,7 +4019,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Staff of the Heart",
                     Description = "This staff strengthens the body of the wizard, giving +3 HP while the staff is carried. Between each quest, roll 1d10. On a result of 10, the magic has dissipated and must be recharged. Until recharged, it is considered a normal staff.",
                     Value = 350,
@@ -4041,7 +4041,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Staff of Illumination",
                     Description = "This staff works just like a lantern. If the wizard makes a miscast, the flame goes out. It will not go out due to any other reason. To rekindle the flame, the wizard must simply spend one Action.",
                     Value = 300,
@@ -4063,7 +4063,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Fire Staff",
                     Description = "This staff contains the Magic Flare spell.",
                     Value = 400,
@@ -4082,7 +4082,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Staff of Slow",
                     Description = "This staff contains the magic spell: Slow.",
                     Value = 400,
@@ -4101,7 +4101,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MagicStaff()
                 {
-                    Type = "Wizards Guild",
+                    Category = "Wizards Guild",
                     Name = "Staff of the Bolt",
                     Description = "This staff contains the spell: Magic Bolt.",
                     Value = 500,
@@ -4118,18 +4118,18 @@ namespace LoDCompanion.Services.GameData
                         { WeaponProperty.Blunt, 0 }
                     }
                 }
-            }; 
-        }
+            };
+    }
 
-        public List<Armour> GetArmour()
-        {
-            string upgradesText = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanent bonus and cannot be separated from the armour. If the attached armour is destroyed, so is this item.";
-            return new List<Armour>()
+    public List<Armour> GetArmour()
+    {
+      string upgradesText = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanent bonus and cannot be separated from the armour. If the attached armour is destroyed, so is this item.";
+      return new List<Armour>()
             {
                 // --- FIGHTERS GUILD UPGRADES ---
                 new Armour()
                 {
-                    Type = "Fighters Guild",
+                    Category = "Fighters Guild",
                     Name = "Gauntlets",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4138,7 +4138,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new Armour()
                 {
-                    Type = "Fighters Guild",
+                    Category = "Fighters Guild",
                     Name = "Gorget",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4147,7 +4147,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new Armour()
                 {
-                    Type = "Fighters Guild",
+                    Category = "Fighters Guild",
                     Name = "Poleyns",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4156,7 +4156,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new Armour()
                 {
-                    Type = "Fighters Guild",
+                    Category = "Fighters Guild",
                     Name = "Shoulder Pads",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4166,233 +4166,233 @@ namespace LoDCompanion.Services.GameData
                 // --- PADDED ARMOUR ---
                 new Armour()
                 {
-                    Type = "Common", Name = "Padded Cap", DefValue = 2, Encumbrance = 1, Value = 30, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common", Name = "Padded Cap", DefValue = 2, Encumbrance = 1, Value = 30, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Padded Vest", DefValue = 2, Encumbrance = 3, Value = 60, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common", Name = "Padded Vest", DefValue = 2, Encumbrance = 3, Value = 60, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Padded Jacket", DefValue = 2, Encumbrance = 5, Value = 120, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common", Name = "Padded Jacket", DefValue = 2, Encumbrance = 5, Value = 120, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Padded Pants", DefValue = 2, Encumbrance = 4, Value = 100, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common", Name = "Padded Pants", DefValue = 2, Encumbrance = 4, Value = 100, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Padded Coat", DefValue = 2, Encumbrance = 6, Value = 200, Availability = 3, ArmourClass = 1, Durability = 6,
+                    Category = "Common", Name = "Padded Coat", DefValue = 2, Encumbrance = 6, Value = 200, Availability = 3, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Cloak", DefValue = 1, Encumbrance = 1, Value = 50, Availability = 4, Durability = 6,
+                    Category = "Common", Name = "Cloak", DefValue = 1, Encumbrance = 1, Value = 50, Availability = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Cloak, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Padded Dog Armour", DefValue = 2, Encumbrance = 1, Value = 60, Availability = 3, Durability = 6,
+                    Category = "Common", Name = "Padded Dog Armour", DefValue = 2, Encumbrance = 1, Value = 60, Availability = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Dog, 0 } }
                 },
                 // --- LEATHER ARMOUR ---
                 new Armour()
                 {
-                    Type = "Common", Name = "Leather Cap", DefValue = 3, Encumbrance = 1, Value = 50, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common", Name = "Leather Cap", DefValue = 3, Encumbrance = 1, Value = 50, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Leather Vest", DefValue = 3, Encumbrance = 3, Value = 80, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common", Name = "Leather Vest", DefValue = 3, Encumbrance = 3, Value = 80, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Leather Jacket", DefValue = 3, Encumbrance = 4, Value = 140, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common", Name = "Leather Jacket", DefValue = 3, Encumbrance = 4, Value = 140, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Arms, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Leather Leggings", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common", Name = "Leather Leggings", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Leather Bracers", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, ArmourClass = 2, Durability = 6,
+                    Category = "Common", Name = "Leather Bracers", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Leather Dog Armour", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, Durability = 6,
+                    Category = "Common", Name = "Leather Dog Armour", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Dog, 0 } }
                 },
                 // --- MAIL ARMOUR ---
                 new Armour()
                 {
-                    Type = "Common", Name = "Mail Coif", DefValue = 4, Encumbrance = 4, Value = 200, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common", Name = "Mail Coif", DefValue = 4, Encumbrance = 4, Value = 200, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 600, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common", Name = "Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 600, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 950, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common", Name = "Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 950, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Mail Coat", DefValue = 4, Encumbrance = 8, Value = 750, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common", Name = "Mail Coat", DefValue = 4, Encumbrance = 8, Value = 750, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 1300, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common", Name = "Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 1300, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 200, Availability = 2, ArmourClass = 3, Durability = 6,
+                    Category = "Common", Name = "Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 200, Availability = 2, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 // --- PLATE ARMOUR ---
                 new Armour()
                 {
-                    Type = "Common", Name = "Helmet", DefValue = 5, Encumbrance = 5, Value = 300, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common", Name = "Helmet", DefValue = 5, Encumbrance = 5, Value = 300, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Breastplate", DefValue = 5, Encumbrance = 7, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common", Name = "Breastplate", DefValue = 5, Encumbrance = 7, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common", Name = "Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Common", Name = "Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common", Name = "Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Mail Coif", DefValue = 4, Encumbrance = 4, Value = 400, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Mail Coif", DefValue = 4, Encumbrance = 4, Value = 400, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 1200, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 1200, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 1900, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 1900, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Mail Coat", DefValue = 4, Encumbrance = 8, Value = 1500, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Mail Coat", DefValue = 4, Encumbrance = 8, Value = 1500, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 2600, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 2600, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 400, Availability = 2, ArmourClass = 3, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 400, Availability = 2, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Helmet", DefValue = 5, Encumbrance = 5, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Helmet", DefValue = 5, Encumbrance = 5, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Breastplate", DefValue = 5, Encumbrance = 7, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Breastplate", DefValue = 5, Encumbrance = 7, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 1200, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 1200, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 new Armour()
                 {
-                    Type = "Treasure", Name = "Mithril Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Treasure", Name = "Mithril Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
                 },
                 // --- DARK GUILD ARMOUR ---
                 new Armour()
                 {
-                    Type = "Dark Guild", Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild", Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Dark Guild", Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild", Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Dark Guild", Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild", Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Dark Guild", Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild", Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Dark Guild", Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild", Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 } }
                 },
-                new Armour 
+                new Armour
                 {
-                    Type = "Treasure", Name = "Dragon Scale Cap", Encumbrance = 4, Value = 1000, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                    Category = "Treasure", Name = "Dragon Scale Cap", Encumbrance = 4, Value = 1000, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10
                 },
-                new Armour 
+                new Armour
                 {
-                    Type = "Treasure", Name = "Dragon Scale Breastplate", Encumbrance = 6, Value = 2300, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                    Category = "Treasure", Name = "Dragon Scale Breastplate", Encumbrance = 6, Value = 2300, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10
                 },
-                new Armour 
+                new Armour
                 {
-                    Type = "Treasure", Name = "Dragon Scale Pants", Encumbrance = 5, Value = 1900, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                    Category = "Treasure", Name = "Dragon Scale Pants", Encumbrance = 5, Value = 1900, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10
                 },
-                new Armour 
+                new Armour
                 {
-                    Type = "Treasure", Name = "Dragon Scale Bracers", Encumbrance = 3, Value = 2000, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                    Category = "Treasure", Name = "Dragon Scale Bracers", Encumbrance = 3, Value = 2000, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10
                 },
-                new Armour 
-                { 
-                    Type = "Treasure", Name = "Wyvern Cloak", Encumbrance = 2, Value = 1200, Description = "Def:3 against attacks from behind", Availability = 0, ArmourClass = 1, DefValue = 3, MaxDurability = 6,
+                new Armour
+                {
+                    Category = "Treasure", Name = "Wyvern Cloak", Encumbrance = 2, Value = 1200, Description = "Def:3 against attacks from behind", Availability = 0, ArmourClass = 1, DefValue = 3, MaxDurability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Cloak, 0 } }
-                }               
+                }
             }
-            ;
-        }
+      ;
+    }
 
-        public List<Shield> GetShields()
-        {
-            return new List<Shield>()
+    public List<Shield> GetShields()
+    {
+      return new List<Shield>()
             {
                   new Shield(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Buckler",
                     DefValue = 4,
                     Encumbrance = 4,
@@ -4403,7 +4403,7 @@ namespace LoDCompanion.Services.GameData
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 } }
                   },
                   new Shield(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Heater Shield",
                     DefValue = 6,
                     Encumbrance = 10,
@@ -4414,7 +4414,7 @@ namespace LoDCompanion.Services.GameData
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 } }
                   },
                   new Shield(){
-                    Type = "Common",
+                    Category = "Common",
                     Name = "Tower Shield",
                     DefValue = 8,
                     Encumbrance = 15,
@@ -4425,7 +4425,7 @@ namespace LoDCompanion.Services.GameData
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Huge, 0 } }
                   },
                   new Shield(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Buckler",
                     DefValue = 4,
                     Encumbrance = 4,
@@ -4436,7 +4436,7 @@ namespace LoDCompanion.Services.GameData
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Mithril, 1 } }
                   },
                   new Shield(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Heater Shield",
                     DefValue = 6,
                     Encumbrance = 10,
@@ -4447,7 +4447,7 @@ namespace LoDCompanion.Services.GameData
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Mithril, 1 } }
                   },
                   new Shield(){
-                    Type = "Treasure",
+                    Category = "Treasure",
                     Name = "Mithril Tower Shield",
                     DefValue = 8,
                     Encumbrance = 15,
@@ -4458,14 +4458,14 @@ namespace LoDCompanion.Services.GameData
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Huge, 0 }, { ShieldProperty.Mithril, 1 } }
                   }
             };
-        }
+    }
 
-        public List<Equipment> GetRelics()
-        {
-            return new List<Equipment>()
+    public List<Equipment> GetRelics()
+    {
+      return new List<Equipment>()
             {
                 new Equipment(){
-                    Type = "The Inner Sanctum",
+                    Category = "The Inner Sanctum",
                     Name = "Relic of Charus",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4475,7 +4475,7 @@ namespace LoDCompanion.Services.GameData
                     MagicEffect = "Gain 1 max energy point"
                   },
                   new Equipment(){
-                    Type = "The Inner Sanctum",
+                    Category = "The Inner Sanctum",
                     Name = "Relic of Metheia",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4485,7 +4485,7 @@ namespace LoDCompanion.Services.GameData
                     MagicEffect = "Healing bonus 1d3 done by the Warrior Priest"
                   },
                   new Equipment(){
-                    Type = "The Inner Sanctum",
+                    Category = "The Inner Sanctum",
                     Name = "Relic of Iphy",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4495,7 +4495,7 @@ namespace LoDCompanion.Services.GameData
                     MagicEffect = "Adds 5 to RES"
                   },
                   new Equipment(){
-                    Type = "The Inner Sanctum",
+                    Category = "The Inner Sanctum",
                     Name = "Relic of Rhidnir",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4505,7 +4505,7 @@ namespace LoDCompanion.Services.GameData
                     MagicEffect = "Luck +1"
                   },
                   new Equipment(){
-                    Type = "The Inner Sanctum",
+                    Category = "The Inner Sanctum",
                     Name = "Relic of Ohinir",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4515,7 +4515,7 @@ namespace LoDCompanion.Services.GameData
                     MagicEffect = "Adds 5 to STR"
                   },
                   new Equipment(){
-                    Type = "The Inner Sanctum",
+                    Category = "The Inner Sanctum",
                     Name = "Relic of Ramos",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4525,404 +4525,1732 @@ namespace LoDCompanion.Services.GameData
                     MagicEffect = "Adds 5 to CS"
                   }
             };
-        }
-    }
-    public class Spell
-    {
-        public string Name { get; set; } = string.Empty;
-        public int Level { get; set; }
-        public string PrayerEffect { get; set; } = string.Empty;
-        public int CastingValue { get; set; } // The base difficulty or power of the spell
-        public int ManaCost { get; set; }
-        public int UpkeepCost { get; set; } // Per turn cost for sustained spells
-        public int TurnDuration { get; set; } // Duration in turns
-        public bool AddCasterLvlToDuration { get; set; }
-
-        // Damage properties for direct damage spells
-        public bool IsDamageSpell { get; set; }
-        public int MinDamage { get; set; }
-        public int MaxDamage { get; set; }
-        public bool IncludeCasterLevelInDamage { get; set; }
-        public bool IsArmourPiercing { get; set; }
-        public bool IsWaterDmg { get; set; }
-        public bool IsFireDmg { get; set; }
-        public bool IsLightning { get; set; }
-
-        // Spell Type Flags (can be used for filtering or specific effects)
-        public bool IsQuickSpell { get; set; }
-        public bool IsIncantation { get; set; }
-        public bool IsMagicMissile { get; set; }
-        public bool IsTouch { get; set; }
-        public bool IsNecromancy { get; set; }
-        public bool IsDestruction { get; set; }
-        public bool IsAlteration { get; set; }
-        public bool IsRestoration { get; set; }
-        public bool IsMysticism { get; set; }
-        public bool IsHex { get; set; }
-        public bool IsIllusion { get; set; }
-        public bool IsEnchantment { get; set; }
-        public bool IsConjuration { get; set; }
-        public bool IsDivination { get; set; }
-
-        // AOE properties
-        public bool IsAOESpell { get; set; }
-        public int AOEMinDamage { get; set; }
-        public int AOEMaxDamage { get; set; }
-        public int AOERadius { get; set; } // Or target count for EnemiesAOE
-        public bool AOEIncludesCasterLevel { get; set; }
-
-        public Spell()
-        {
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"--- Spell: {Name} (Lvl {Level}) ---");
-            sb.AppendLine($"Cost: {ManaCost} Mana | Upkeep: {UpkeepCost} | CV: {CastingValue}");
-            if (TurnDuration > 0)
-            {
-                sb.Append($"Duration: {TurnDuration}" + (AddCasterLvlToDuration ? " + Caster Lvl" : "") + " turns. ");
-            }
-            sb.AppendLine($"Effect: {PrayerEffect}");
-
-            if (IsDamageSpell)
-            {
-                sb.Append($"Damage: {MinDamage}-{MaxDamage}" + (IncludeCasterLevelInDamage ? " + Caster Lvl" : ""));
-                if (IsArmourPiercing) sb.Append(" (AP)");
-                sb.AppendLine();
-            }
-            if (IsAOESpell)
-            {
-                sb.Append($"AOE Damage: {AOEMinDamage}-{AOEMaxDamage}" + (AOEIncludesCasterLevel ? " + Caster Lvl" : ""));
-                sb.AppendLine($" | Radius: {AOERadius}");
-            }
-
-            var types = new List<string>();
-            if (IsQuickSpell) types.Add("Quick");
-            if (IsIncantation) types.Add("Incantation");
-            if (IsTouch) types.Add("Touch");
-            if (IsNecromancy) types.Add("Necromancy");
-            if (IsDestruction) types.Add("Destruction");
-            if (types.Any())
-            {
-                sb.AppendLine($"Type: {string.Join(", ", types)}");
-            }
-
-            return sb.ToString();
-        }
-
-        public int GetSpellDamage(int casterLevel)
-        {
-            if (!IsDamageSpell) return 0;
-
-            int calculatedDamage = RandomHelper.GetRandomNumber(MinDamage, MaxDamage);
-            if (IncludeCasterLevelInDamage)
-            {
-                calculatedDamage += casterLevel;
-            }
-            return calculatedDamage;
-        }
-
-        public int GetSpellDamageAOE(int casterLevel)
-        {
-            if (!IsAOESpell) return 0;
-
-            int calculatedDamage = RandomHelper.GetRandomNumber(AOEMinDamage, AOEMaxDamage);
-            if (AOEIncludesCasterLevel)
-            {
-                calculatedDamage += casterLevel;
-            }
-            return calculatedDamage;
-        }
-
-        /// <summary>
-        /// Represents the casting attempt for the spell.
-        /// Actual mana deduction, success/failure handling, and effects on game state
-        /// would be managed by a higher-level SpellCastingService or Hero class.
-        /// </summary>
-        /// <param name="hero">The hero attempting to cast the spell.</param>
-        /// <param name="skillRoll">The result of the hero's ArcaneArts skill roll.</param>
-        /// <returns>True if the spell was successfully cast, false otherwise.</returns>
-        public bool CastSpell(Hero hero, int skillRoll)
-        {
-            // Simplified logic: Check if hero has enough mana
-            if (hero.CurrentEnergy < ManaCost)
-            {
-                // Optionally log: Console.WriteLine($"{hero.Name} does not have enough mana to cast {SpellName}.");
-                return false;
-            }
-
-            // Check if skill roll meets or exceeds casting value
-            if (skillRoll >= CastingValue)
-            {
-                hero.CurrentEnergy -= ManaCost; // Deduct mana
-                // Spell effect would be handled by a SpellCastingService
-                // Console.WriteLine($"{hero.Name} successfully cast {SpellName}!");
-                return true;
-            }
-            else
-            {
-                // Optionally log: Console.WriteLine($"{hero.Name} failed to cast {SpellName}.");
-                return false;
-            }
-        }
     }
 
-    public class Prayer
+    public List<RoomInfo> GetRooms()
     {
-        public string Name { get; set; } = string.Empty;
-        public int Level { get; set; }
-        public int EnergyCost { get; set; } = 1;
-        public bool IsActive { get; set; }
-        public string Duration { get; set; } = string.Empty;
-        public string PrayerEffect { get; set; } = string.Empty;// This could be an enum or a more complex object if effects become varied.
+      return new List<RoomInfo> {
+                new RoomInfo(){
+                    Name = "Start Tile",
+                    Category = RoomCategory.Corridor,
+                    Description = "This is the standard tile when entering a dungeon.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1
+                  },
+                  new RoomInfo(){
+                    Name = "C1",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party enters a long corridor with a door at the other end.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                  },
+                  new RoomInfo(){
+                    Name = "C2",
+                    Category = RoomCategory.Corridor,
+                    Description = "In the middle of the corridor lies an old backpack. Maybe there is something useful inside?",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Backpack" ],
+                  },
+                  new RoomInfo(){
+                    Name = "C3",
+                    Category = RoomCategory.Corridor,
+                    Description = "The walls in this corridor are engraved with large skulls. They give an eerie feeling of vigilance, as if they are watching every step the adventurers take.",
+                    ThreatLevelModifier = 1,
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = []
+                  },
+                  new RoomInfo(){
+                    Name = "C4",
+                    Category = RoomCategory.Corridor,
+                    Description = "Just another long-stretched corridor. Better hurry on forward!",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1
+                  },
+                  new RoomInfo(){
+                    Name = "C5",
+                    Category = RoomCategory.Corridor,
+                    Description = "The floor in this corridor is made of metal grates. By the look of it, the metal has seen better days and it's very rusty. The first step makes the metal creak and the tormented sound echoes through the corridor. Moving through this corridor is bound to attract some attention.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C6",
+                    Category = RoomCategory.Corridor,
+                    Description = "This dank corridor seems to end with two doorways, each lit by a torch on the wall.",
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C7",
+                    Category = RoomCategory.Corridor,
+                    Description = "The blood spilt in this corridor has dried, but appears to only be one or two days old at most.",
+                    ThreatLevelModifier = 1,
+                    Size = [ 2, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C8",
+                    Category = RoomCategory.Corridor,
+                    Description = "A long corridor with three more doors to explore. It's completely empty apart from cobweb's covering the floor.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C9",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party suddenly halts as they discover that the floor has given way in the middle of this corridor. Where the floor should be, there is now a large gaping hole with unknown depth.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C10",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor splits in two at a crossway, leaving three possible ways to go. There is nothing special to observe here.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true,
+                  },
+                  new RoomInfo(){
+                    Name = "C11",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor splits in two.From the left there is a foul smell, and there seems to be far away noises coming from the right.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C12",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor makes a sharp turn. In the corner, up against the wall sits a dead adventurer. By the look of it, they must have been there for a while since most of the flesh has been eaten away.",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C13",
+                    Category = RoomCategory.Corridor,
+                    Description = "A short distance ahead is a bend in the corridor. Everything seems quiet, apart from the sound of water droplets hitting the floor.",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C14",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor makes a sharp turn. As the party enters the corridor there is a sudden sound of something dragging across the floor and shadows dancing on the wall before everything goes silent.",
+                    ThreatLevelModifier = 1,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C15",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor in front of you has collapsed and there is no way you can get through without moving the debris blocking the path.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C16",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party comes across some stairs that lead upwards into darkness. The steps are slippery and worn. This must be a widely used passage.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C17",
+                    Category = RoomCategory.Corridor,
+                    Description = "There are four different openings in this corridor, each covered by a heavy wooden door.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C18",
+                    Category = RoomCategory.Corridor,
+                    Description = "There are two different openings in this corridor, each covered by a heavy wooden door.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C19",
+                    Category = RoomCategory.Corridor,
+                    Description = "",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C20",
+                    Category = RoomCategory.Corridor,
+                    Description = "A long corridor with nothing but sand and stone. A closed door can be seen in the darkness ahead.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C21",
+                    Category = RoomCategory.Corridor,
+                    Description = "An old wooden bridge spans the canal passing through this corridor.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C22",
+                    Category = RoomCategory.Corridor,
+                    Description = "Two more doors can be seen further down this corridor. Even though they appear closed, there is a draft causing the sand on the floor to shift.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C23",
+                    Category = RoomCategory.Corridor,
+                    Description = "There is a dead adventurer in exotic clothing lying on the floor in a pool of blood. Their demise appears to have happened in the past few hours.",
+                    ThreatLevelModifier = 2,
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C24",
+                    Category = RoomCategory.Corridor,
+                    Description = "The wall on one side of this corridor has collapsed, making the passageway even narrower",
+                    SpecialRules = "The 2 center squares with stones cannot be entered.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C25",
+                    Category = RoomCategory.Corridor,
+                    Description = "In the darkness ahead, you see that this corridor makes a sharp turn.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Pottery" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C26",
+                    Category = RoomCategory.Corridor,
+                    Description = "In the center of this corridor is a huge plant, with brown green vines. The vines seem to sway slowly even though there is no wind.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C27",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party enters an empty crossway with a foul smell. It's hard to tell from which passageway the smell is coming from.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C28",
+                    Category = RoomCategory.Corridor,
+                    Description = "A pole with a large number of blades is spinning around it's own axle as it moves back and forth across the hallway. Judging by the remains around the trap, this will require skill and timing to bypass.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C29",
+                    Category = RoomCategory.Corridor,
+                    Description = "A large swarm of bats is disturbed as the adventurers enter this corridor. The air is filled with flapping black wings.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    EncounterModifier = 100,
+                    EncounterType = "C29",
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R1",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R2",
+                    Category = RoomCategory.Room,
+                    ThreatLevelModifier = 1,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Bed", "Bed", "Weapon Rack" ],
+                    EncounterModifier = 15,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R3",
+                    Category = RoomCategory.Room,
+                    PartyMoraleModifier = -4,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R4",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Barrels", "Barrels", "Boxes", "Boxes" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R5",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Statue", "Armour Rack", "Statue", "Armour Rack", "Water Basin" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R6",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Statue", "Alter" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R7",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bookshelf", "Bookshelf", "Bookshelf", "Study Table" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R8",
+                    Category = RoomCategory.Room,
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer", "Grate (over a hole)" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R9",
+                    Category = RoomCategory.Room,
+                    ThreatLevelModifier = -2,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Fountain", "Drink from Fountain" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R10",
+                    Category = RoomCategory.Room,
+                    Description = "Finally, a room worthy of your presence. Even though the stones are as dark and dank as the rest of the dungeon, there is a silver lining here. Alongside one wall there are three chests to be plundered.",
+                    Size = [ 6, 6 ],
+                    FurnitureList = [ "Chest", "Chest", "Objective Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R11",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "Levers can be pulled, check card of instructions.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    HasLevers = true,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R12",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 4 ],
+                    FurnitureList = [ "Bookshelf", "Chest", "Study Table" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R13",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Boxes" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R14",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer", "Well" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R15",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Drawer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R16",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Alchemist Table", "Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R17",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Treasure Pile" ],
+                    EncounterModifier = 10,
+                    EncounterType = "R17",
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R18",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dining Table", "Dining Table", "Dining Table", "Armour Rack", "Armour Rack" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R19",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bookshelf", "Chest" ],
+                    EncounterType = "R19",
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R20",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Boxes" ],
+                    EncounterType = "R20",
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R21",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "Walls cannot be passed through and block LOS.",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Weapon Rack", "Chest", "Dead Adventurer", "Throne" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R22",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Chest", "Chest", "Sarcophagus" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R23",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    HasSpecial = true,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Chest", "Chest", "Throne", "Throne", "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R24",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R25",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Pottery", "Chest", "Dead Adventurer", "Treasure Pile" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R26",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer", "Treasure Pile" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R27",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R28",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Barrels", "Chest" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R29",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R30",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Pottery" ],
+                    EncounterModifier = 100,
+                    EncounterType = "R30",
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R31",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R32",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 0,
+                    FurnitureList = [ "Boxes", "Pottery" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R33",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Statue", "Statue", "Bookshelf", "Chest", "Alchemist Table" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R1B",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    ThreatLevelModifier = 2,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Sarcophagus", "Dead Adventurer" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R2B",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "Threat level decreased by 2.",
+                    ThreatLevelModifier = -2,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Fountain", "Drink from Fountain" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R3B",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Bed", "Dead Adventurer", "Chest" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R4B",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bookshelf", "Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R5B",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Barrels", "Boxes", "Barrels", "Boxes", "Barrels", "Boxes" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R6B",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "Levers can be pulled, check card of instructions.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    HasLevers = true,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R7B",
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Coffin", "Coffin", "Coffin", "Coffin", "Coffin", "Dead Adventurer" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R8B",
+                    Category = RoomCategory.Room,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Coffin", "Coffin" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "The Great Crypt",
+                    Category = RoomCategory.Room,
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Sarcophagus", "Sarcophagus", "Sarcophagus", "Sarcophagus", "Sarcophagus", "Sarcophagus" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "Start Tile",
+                    Category = RoomCategory.Corridor,
+                    Description = "This is the standard tile when entering a dungeon.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C1",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party enters a long corridor with a door at the other end.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C2",
+                    Category = RoomCategory.Corridor,
+                    Description = "In the middle of the corridor lies an old backpack. Maybe there is something useful inside?",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Backpack" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C3",
+                    Category = RoomCategory.Corridor,
+                    Description = "The walls in this corridor are engraved with large skulls. They give an eerie feeling of vigilance, as if they are watching every step the adventurers take.",
+                    ThreatLevelModifier = 1,
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C4",
+                    Category = RoomCategory.Corridor,
+                    Description = "Just another long-stretched corridor. Better hurry on forward!",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C5",
+                    Category = RoomCategory.Corridor,
+                    Description = "The floor in this corridor is made of metal grates. By the look of it, the metal has seen better days and it's very rusty. The first step makes the metal creak and the tormented sound echoes through the corridor. Moving through this corridor is bound to attract some attention.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C6",
+                    Category = RoomCategory.Corridor,
+                    Description = "This dank corridor seems to end with two doorways, each lit by a torch on the wall.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C7",
+                    Category = RoomCategory.Corridor,
+                    Description = "The blood spilt in this corridor has dried, but appears to only be one or two days old at most.",
+                    ThreatLevelModifier = 1,
+                    Size = [ 2, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C8",
+                    Category = RoomCategory.Corridor,
+                    Description = "A long corridor with three more doors to explore. It's completely empty apart from cobweb's covering the floor.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C9",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party suddenly halts as they discover that the floor has given way in the middle of this corridor. Where the floor should be, there is now a large gaping hole with unknown depth.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C10",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor splits in two at a crossway, leaving three possible ways to go. There is nothing special to observe here.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C11",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor splits in two.From the left there is a foul smell, and there seems to be far away noises coming from the right.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C12",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor makes a sharp turn. In the corner, up against the wall sits a dead adventurer. By the look of it, they must have been there for a while since most of the flesh has been eaten away.",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C13",
+                    Category = RoomCategory.Corridor,
+                    Description = "A short distance ahead is a bend in the corridor. Everything seems quiet, apart from the sound of water droplets hitting the floor.",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C14",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor makes a sharp turn. As the party enters the corridor there is a sudden sound of something dragging across the floor and shadows dancing on the wall before everything goes silent.",
+                    ThreatLevelModifier = 1,
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C15",
+                    Category = RoomCategory.Corridor,
+                    Description = "The corridor in front of you has collapsed and there is no way you can get through without moving the debris blocking the path.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C16",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party comes across some stairs that lead upwards into darkness. The steps are slippery and worn. This must be a widely used passage.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 2, 4 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C17",
+                    Category = RoomCategory.Corridor,
+                    Description = "There are four different openings in this corridor, each covered by a heavy wooden door.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C18",
+                    Category = RoomCategory.Corridor,
+                    Description = "There are two different openings in this corridor, each covered by a heavy wooden door.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C19",
+                    Category = RoomCategory.Corridor,
+                    Description = "",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C20",
+                    Category = RoomCategory.Corridor,
+                    Description = "A long corridor with nothing but sand and stone. A closed door can be seen in the darkness ahead.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C21",
+                    Category = RoomCategory.Corridor,
+                    Description = "An old wooden bridge spans the canal passing through this corridor.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C22",
+                    Category = RoomCategory.Corridor,
+                    Description = "Two more doors can be seen further down this corridor. Even though they appear closed, there is a draft causing the sand on the floor to shift.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 2,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C23",
+                    Category = RoomCategory.Corridor,
+                    Description = "There is a dead adventurer in exotic clothing lying on the floor in a pool of blood. Their demise appears to have happened in the past few hours.",
+                    ThreatLevelModifier = 2,
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C24",
+                    Category = RoomCategory.Corridor,
+                    Description = "The wall on one side of this corridor has collapsed, making the passageway even narrower",
+                    SpecialRules = "The 2 center squares with stones cannot be entered.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C25",
+                    Category = RoomCategory.Corridor,
+                    Description = "In the darkness ahead, you see that this corridor makes a sharp turn.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Pottery" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C26",
+                    Category = RoomCategory.Corridor,
+                    Description = "In the center of this corridor is a huge plant, with brown green vines. The vines seem to sway slowly even though there is no wind.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "C27",
+                    Category = RoomCategory.Corridor,
+                    Description = "The party enters an empty crossway with a foul smell. It's hard to tell from which passageway the smell is coming from.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 3,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C28",
+                    Category = RoomCategory.Corridor,
+                    Description = "A pole with a large number of blades is spinning around it's own axle as it moves back and forth across the hallway. Judging by the remains around the trap, this will require skill and timing to bypass.",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "C29",
+                    Category = RoomCategory.Corridor,
+                    Description = "A large swarm of bats is disturbed as the adventurers enter this corridor. The air is filled with flapping black wings.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [],
+                    EncounterModifier = 100,
+                    EncounterType = "C29",
+                    HasLevers = false,
+                    RandomEncounter = false,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R1",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R2",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    ThreatLevelModifier = 1,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Bed", "Bed", "Weapon Rack" ],
+                    EncounterModifier = 15,
+                    HasLevers = false,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R3",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    ThreatLevelModifier = 0,
+                    PartyMoraleModifier = -4,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R4",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Barrels", "Barrels", "Boxes", "Boxes" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R5",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Statue", "Armour Rack", "Statue", "Armour Rack", "Water Basin" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R6",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Statue", "Alter" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R7",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bookshelf", "Bookshelf", "Bookshelf", "Study Table" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R8",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 2, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer", "Grate (over a hole)" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R9",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    ThreatLevelModifier = -2,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Fountain", "Drink from Fountain" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R10",
+                    Category = RoomCategory.Room,
+                    Description = "Finally, a room worthy of your presence. Even though the stones are as dark and dank as the rest of the dungeon, there is a silver lining here. Alongside one wall there are three chests to be plundered.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 0,
+                    FurnitureList = [ "Chest", "Chest", "Objective Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R11",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "Levers can be pulled, check card of instructions.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [],
+                    EncounterModifier = 0,
+                    HasLevers = true,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R12",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 4 ],
+                    DoorCount = 0,
+                    FurnitureList = [ "Bookshelf", "Chest", "Study Table" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R13",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Boxes" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R14",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer", "Well" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R15",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Drawer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R16",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Alchemist Table", "Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R17",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Treasure Pile" ],
+                    EncounterModifier = 10,
+                    EncounterType = "R17",
+                    HasLevers = false,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R18",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dining Table", "Dining Table", "Dining Table", "Armour Rack", "Armour Rack" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R19",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bookshelf", "Chest" ],
+                    EncounterModifier = 0,
+                    EncounterType = "R19",
+                    HasLevers = false,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R20",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Boxes" ],
+                    EncounterModifier = 0,
+                    EncounterType = "R20",
+                    HasLevers = false,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R21",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "Walls cannot be passed through and block LOS.",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Weapon Rack", "Chest", "Dead Adventurer", "Throne" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R22",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Chest", "Chest", "Sarcophagus" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R23",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    HasSpecial = true,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Chest", "Chest", "Throne", "Throne", "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R24",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R25",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Pottery", "Chest", "Dead Adventurer", "Treasure Pile" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R26",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Dead Adventurer", "Treasure Pile" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R27",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R28",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Barrels", "Chest" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R29",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R30",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Pottery" ],
+                    EncounterModifier = 100,
+                    EncounterType = "R30",
+                    HasLevers = false,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R31",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Dead Adventurer" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R32",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 0,
+                    FurnitureList = [ "Boxes", "Pottery" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R33",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Statue", "Statue", "Bookshelf", "Chest", "Alchemist Table" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R1B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    ThreatLevelModifier = 2,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Sarcophagus", "Dead Adventurer" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R2B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "Threat level decreased by 2.",
+                    ThreatLevelModifier = -2,
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Fountain", "Drink from Fountain" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R3B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bed", "Bed", "Dead Adventurer", "Chest" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R4B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Bookshelf", "Chest" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R5B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Boxes", "Barrels", "Boxes", "Barrels", "Boxes", "Barrels", "Boxes" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "R6B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "Levers can be pulled, check card of instructions.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [],
+                    EncounterModifier = 0,
+                    HasLevers = true,
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R7B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Coffin", "Coffin", "Coffin", "Coffin", "Coffin", "Dead Adventurer" ],
+                    RandomEncounter = true,
+                    HasSpecial = true
+                  },
+                  new RoomInfo(){
+                    Name = "R8B",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 4, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Coffin", "Coffin" ],
+                    RandomEncounter = true
+                  },
+                  new RoomInfo(){
+                    Name = "The Great Crypt",
+                    Category = RoomCategory.Room,
+                    Description = "",
+                    Size = [ 6, 12 ],
+                    DoorCount = 1,
+                    FurnitureList = [ "Sarcophagus", "Sarcophagus", "Sarcophagus", "Sarcophagus", "Sarcophagus", "Sarcophagus" ],
+                    RandomEncounter = true
+                  }
+            };
+    }
+  }
+  public class Spell
+  {
+    public string Name { get; set; } = string.Empty;
+    public int Level { get; set; }
+    public string PrayerEffect { get; set; } = string.Empty;
+    public int CastingValue { get; set; } // The base difficulty or power of the spell
+    public int ManaCost { get; set; }
+    public int UpkeepCost { get; set; } // Per turn cost for sustained spells
+    public int TurnDuration { get; set; } // Duration in turns
+    public bool AddCasterLvlToDuration { get; set; }
 
-        // Constructor
-        public Prayer()
-        {
+    // Damage properties for direct damage spells
+    public bool IsDamageSpell { get; set; }
+    public int MinDamage { get; set; }
+    public int MaxDamage { get; set; }
+    public bool IncludeCasterLevelInDamage { get; set; }
+    public bool IsArmourPiercing { get; set; }
+    public bool IsWaterDmg { get; set; }
+    public bool IsFireDmg { get; set; }
+    public bool IsLightning { get; set; }
 
-        }
+    // Spell Category Flags (can be used for filtering or specific effects)
+    public bool IsQuickSpell { get; set; }
+    public bool IsIncantation { get; set; }
+    public bool IsMagicMissile { get; set; }
+    public bool IsTouch { get; set; }
+    public bool IsNecromancy { get; set; }
+    public bool IsDestruction { get; set; }
+    public bool IsAlteration { get; set; }
+    public bool IsRestoration { get; set; }
+    public bool IsMysticism { get; set; }
+    public bool IsHex { get; set; }
+    public bool IsIllusion { get; set; }
+    public bool IsEnchantment { get; set; }
+    public bool IsConjuration { get; set; }
+    public bool IsDivination { get; set; }
 
-        public override string ToString()
-        {
-            return $"[{Name} (Lvl {Level})] Cost: {EnergyCost} Energy | Duration: {Duration} | Effect: {PrayerEffect}";
-        }
+    // AOE properties
+    public bool IsAOESpell { get; set; }
+    public int AOEMinDamage { get; set; }
+    public int AOEMaxDamage { get; set; }
+    public int AOERadius { get; set; } // Or target count for EnemiesAOE
+    public bool AOEIncludesCasterLevel { get; set; }
 
-        // Method to get the prayer effect description
-        // This method can be expanded to apply the effect in a game logic service.
-        public string GetPrayerEffectDescription()
-        {
-            return PrayerEffect;
-        }
-
-        // Example method for applying the prayer effect (logic would typically be in a service)
-        public void ApplyEffect(Hero hero)
-        {
-            // This is a placeholder. Real logic would depend on the 'PrayerEffect' string
-            // or if 'PrayerEffect' was an enum/interface.
-            Console.WriteLine($"{hero.Name} is affected by {Name}: {PrayerEffect}");
-            // Example: if PrayerName == "Heal" -> hero.HP += amount;
-        }
+    public Spell()
+    {
     }
 
-    public enum TalentCategory
+    public override string ToString()
     {
-        Magic, 
-        Physical, 
-        Combat, 
-        Faith,
-        Alchemist,
-        Common,
-        Sneaky,
-        Mental
+      var sb = new StringBuilder();
+      sb.AppendLine($"--- Spell: {Name} (Lvl {Level}) ---");
+      sb.AppendLine($"Cost: {ManaCost} Mana | Upkeep: {UpkeepCost} | CV: {CastingValue}");
+      if (TurnDuration > 0)
+      {
+        sb.Append($"Duration: {TurnDuration}" + (AddCasterLvlToDuration ? " + Caster Lvl" : "") + " turns. ");
+      }
+      sb.AppendLine($"Effect: {PrayerEffect}");
+
+      if (IsDamageSpell)
+      {
+        sb.Append($"Damage: {MinDamage}-{MaxDamage}" + (IncludeCasterLevelInDamage ? " + Caster Lvl" : ""));
+        if (IsArmourPiercing) sb.Append(" (AP)");
+        sb.AppendLine();
+      }
+      if (IsAOESpell)
+      {
+        sb.Append($"AOE Damage: {AOEMinDamage}-{AOEMaxDamage}" + (AOEIncludesCasterLevel ? " + Caster Lvl" : ""));
+        sb.AppendLine($" | Radius: {AOERadius}");
+      }
+
+      var types = new List<string>();
+      if (IsQuickSpell) types.Add("Quick");
+      if (IsIncantation) types.Add("Incantation");
+      if (IsTouch) types.Add("Touch");
+      if (IsNecromancy) types.Add("Necromancy");
+      if (IsDestruction) types.Add("Destruction");
+      if (types.Any())
+      {
+        sb.AppendLine($"Category: {string.Join(", ", types)}");
+      }
+
+      return sb.ToString();
     }
 
-    public class Talent
+    public int GetSpellDamage(int casterLevel)
     {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public TalentCategory Category { get; set; }
-        // Physical Talents
-        public bool IsCatLike { get; set; }
-        public bool IsFast { get; set; }
-        public bool IsNightVision { get; set; }
-        public bool IsPerfectHearing { get; set; }
-        public bool IsResilient { get; set; }
-        public bool IsResistDisease { get; set; }
-        public bool IsResistPoison { get; set; }
-        public bool IsStrong { get; set; }
-        public bool IsStrongBuild { get; set; }
-        public bool IsTank { get; set; }
+      if (!IsDamageSpell) return 0;
 
-        // Combat Talents
-        public bool IsAxeman { get; set; }
-        public bool IsBruiser { get; set; }
-        public bool IsDeathLament { get; set; }
-        public bool IsDisarm { get; set; }
-        public bool IsDualWield { get; set; }
-        public bool IsFastReload { get; set; }
-        public bool IsMarksman { get; set; }
-        public bool IsMightyBlow { get; set; }
-        public bool IsParryMaster { get; set; }
-        public bool IsPerfectShot { get; set; }
-        public bool IsRiposteMaster { get; set; }
-        public bool IsSniper { get; set; }
-        public bool IsSwordsman { get; set; }
-        public bool IsTightGrip { get; set; }
-        public bool IsTunnelFighter { get; set; }
+      int calculatedDamage = RandomHelper.GetRandomNumber(MinDamage, MaxDamage);
+      if (IncludeCasterLevelInDamage)
+      {
+        calculatedDamage += casterLevel;
+      }
+      return calculatedDamage;
+    }
 
-        // Faith Talents
-        public bool IsDevoted { get; set; }
-        public bool IsGodsChosen { get; set; }
-        public bool IsHealer { get; set; }
-        public bool IsMessiah { get; set; }
-        public bool IsPure { get; set; }
-        public bool IsReliquary { get; set; }
+    public int GetSpellDamageAOE(int casterLevel)
+    {
+      if (!IsAOESpell) return 0;
 
-        // Alchemist Talents
-        public bool IsGatherer { get; set; }
-        public bool IsHarvester { get; set; }
-        public bool IsKeenEye { get; set; }
-        public bool IsMasterHealer { get; set; }
-        public bool IsPerfectToss { get; set; }
-        public bool IsPoisoner { get; set; }
-        public bool IsPowerfulPotions { get; set; }
+      int calculatedDamage = RandomHelper.GetRandomNumber(AOEMinDamage, AOEMaxDamage);
+      if (AOEIncludesCasterLevel)
+      {
+        calculatedDamage += casterLevel;
+      }
+      return calculatedDamage;
+    }
 
-        // Common Talents
-        public bool IsCharming { get; set; }
-        public bool IsDisciplined { get; set; }
-        public bool IsHunter { get; set; }
-        public bool IsLucky { get; set; }
-        public bool IsMasterCook { get; set; }
-        public bool IsNaturalLeader { get; set; }
-        public bool IsRingBearer { get; set; }
-        public bool IsSurvivalist { get; set; }
-        public bool IsSwiftLeader { get; set; }
-        public bool IsVeteran { get; set; }
+    /// <summary>
+    /// Represents the casting attempt for the spell.
+    /// Actual mana deduction, success/failure handling, and effects on game state
+    /// would be managed by a higher-level SpellCastingService or Hero class.
+    /// </summary>
+    /// <param name="hero">The hero attempting to cast the spell.</param>
+    /// <param name="skillRoll">The result of the hero's ArcaneArts skill roll.</param>
+    /// <returns>True if the spell was successfully cast, false otherwise.</returns>
+    public bool CastSpell(Hero hero, int skillRoll)
+    {
+      // Simplified logic: Check if hero has enough mana
+      if (hero.CurrentEnergy < ManaCost)
+      {
+        // Optionally log: Console.WriteLine($"{hero.Name} does not have enough mana to cast {SpellName}.");
+        return false;
+      }
 
-        // Magic Talents
-        public bool IsBloodMagic { get; set; }
-        public bool IsConjurer { get; set; }
-        public bool IsDivinator { get; set; }
-        public bool IsFastReflexes { get; set; }
-        public bool IsFocused { get; set; }
-        public bool IsRestorer { get; set; }
-        public bool IsMystic { get; set; }
-        public bool IsNecromancer { get; set; }
-        public bool IsPowerfulMissiles { get; set; }
-        public bool IsSummoner { get; set; }
-        public bool IsSustainer { get; set; }
-        public bool IsThrifty { get; set; }
+      // Check if skill roll meets or exceeds casting value
+      if (skillRoll >= CastingValue)
+      {
+        hero.CurrentEnergy -= ManaCost; // Deduct mana
+                                        // Spell effect would be handled by a SpellCastingService
+                                        // Console.WriteLine($"{hero.Name} successfully cast {SpellName}!");
+        return true;
+      }
+      else
+      {
+        // Optionally log: Console.WriteLine($"{hero.Name} failed to cast {SpellName}.");
+        return false;
+      }
+    }
+  }
 
-        // Sneaky Talents
-        public bool IsAssassin { get; set; }
-        public bool IsBackstabber { get; set; }
-        public bool IsCutpurse { get; set; }
-        public bool IsEvaluate { get; set; }
-        public bool IsLockPicker { get; set; }
-        public bool IsMechanicalGenius { get; set; }
-        public bool IsNimble { get; set; }
-        public bool IsQuickFingers { get; set; }
-        public bool IsSharpEyed { get; set; }
-        public bool IsSenseForGold { get; set; }
-        public bool IsStreetwise { get; set; }
-        public bool IsTrapFinder { get; set; }
+  public class Prayer
+  {
+    public string Name { get; set; } = string.Empty;
+    public int Level { get; set; }
+    public int EnergyCost { get; set; } = 1;
+    public bool IsActive { get; set; }
+    public string Duration { get; set; } = string.Empty;
+    public string PrayerEffect { get; set; } = string.Empty;// This could be an enum or a more complex object if effects become varied.
 
-        // Mental Talents
-        public bool IsBraveheart { get; set; }
-        public bool IsConfident { get; set; }
-        public bool IsFearless { get; set; }
-        public bool IsHate { get; set; }
-        public bool IsStrongMinded { get; set; }
-        public bool IsWise { get; set; }
-
-        public Dictionary<string, int> GetInitialTalentBonus()
-        {
-            Dictionary<string, int> bonus = new Dictionary<string, int>();
-            if (IsCatLike)
-            {
-                bonus.Add("DEX", 5);
-            }
-            if (IsResilient)
-            {
-                bonus.Add("CON", 5);
-            }
-            if (IsNightVision)
-            {
-                bonus.Add("PS", 10);
-            }
-            if (IsStrong)
-            {
-                bonus.Add("STR", 5);
-            }
-            if (IsStrongBuild)
-            {
-                bonus.Add("HP", 2);
-            }
-            if (IsMarksman)
-            {
-                bonus.Add("RS", 5);
-            }
-            if (IsSniper)
-            {
-                bonus.Add("RS", 10);
-            }
-            if (IsGodsChosen || IsLucky)
-            {
-                bonus.Add("Luck", 1);
-            }
-            if (IsHunter)
-            {
-                bonus.Add("FS", 10);
-            }
-            if (IsLockPicker)
-            {
-                bonus.Add("PLS", 5);
-            }
-            if (IsConfident)
-            {
-                bonus.Add("RES", 5);
-            }
-            if (IsStrongMinded)
-            {
-                bonus.Add("Sanity", 1);
-            }
-            if (IsWise)
-            {
-                bonus.Add("WIS", 5);
-            }
-            if(IsHate)
-            {
-                new GameDataService().GetHateByName(null);
-            }
-
-            return bonus;
-        }
-
-        public override string ToString()
-        {
-            return $"{Name}: {Description}";
-        }
+    // Constructor
+    public Prayer()
+    {
 
     }
 
-    public enum PerkCategory
+    public override string ToString()
     {
-        Leader,
-        Common,
-        Combat,
-        Sneaky,
-        Faith,
-        Arcane,
-        Alchemist
+      return $"[{Name} (Lvl {Level})] Cost: {EnergyCost} Energy | Duration: {Duration} | Effect: {PrayerEffect}";
     }
 
-    public class Perk
+    // Method to get the prayer effect description
+    // This method can be expanded to apply the effect in a game logic service.
+    public string GetPrayerEffectDescription()
     {
-        public string Name { get; set; } = string.Empty;
-        public PerkCategory Category { get; set; }
-        public string Effect { get; set; } = string.Empty;
-        public string? Comment { get; set; }
-
-        public Perk() { }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append($"{Name}: {Effect}");
-            if (!string.IsNullOrEmpty(Comment))
-            {
-                sb.Append($" ({Comment})");
-            }
-            return sb.ToString();
-        }
-
+      return PrayerEffect;
     }
 
-    public static class TooltipHelper
+    // Example method for applying the prayer effect (logic would typically be in a service)
+    public void ApplyEffect(Hero hero)
     {
-        private static readonly Dictionary<string, string> TooltipDictionary = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
+      // This is a placeholder. Real logic would depend on the 'PrayerEffect' string
+      // or if 'PrayerEffect' was an enum/interface.
+      Console.WriteLine($"{hero.Name} is affected by {Name}: {PrayerEffect}");
+      // Example: if PrayerName == "Heal" -> hero.HP += amount;
+    }
+  }
+
+  public enum TalentCategory
+  {
+    Magic,
+    Physical,
+    Combat,
+    Faith,
+    Alchemist,
+    Common,
+    Sneaky,
+    Mental
+  }
+
+  public class Talent
+  {
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public TalentCategory Category { get; set; }
+    // Physical Talents
+    public bool IsCatLike { get; set; }
+    public bool IsFast { get; set; }
+    public bool IsNightVision { get; set; }
+    public bool IsPerfectHearing { get; set; }
+    public bool IsResilient { get; set; }
+    public bool IsResistDisease { get; set; }
+    public bool IsResistPoison { get; set; }
+    public bool IsStrong { get; set; }
+    public bool IsStrongBuild { get; set; }
+    public bool IsTank { get; set; }
+
+    // Combat Talents
+    public bool IsAxeman { get; set; }
+    public bool IsBruiser { get; set; }
+    public bool IsDeathLament { get; set; }
+    public bool IsDisarm { get; set; }
+    public bool IsDualWield { get; set; }
+    public bool IsFastReload { get; set; }
+    public bool IsMarksman { get; set; }
+    public bool IsMightyBlow { get; set; }
+    public bool IsParryMaster { get; set; }
+    public bool IsPerfectShot { get; set; }
+    public bool IsRiposteMaster { get; set; }
+    public bool IsSniper { get; set; }
+    public bool IsSwordsman { get; set; }
+    public bool IsTightGrip { get; set; }
+    public bool IsTunnelFighter { get; set; }
+
+    // Faith Talents
+    public bool IsDevoted { get; set; }
+    public bool IsGodsChosen { get; set; }
+    public bool IsHealer { get; set; }
+    public bool IsMessiah { get; set; }
+    public bool IsPure { get; set; }
+    public bool IsReliquary { get; set; }
+
+    // Alchemist Talents
+    public bool IsGatherer { get; set; }
+    public bool IsHarvester { get; set; }
+    public bool IsKeenEye { get; set; }
+    public bool IsMasterHealer { get; set; }
+    public bool IsPerfectToss { get; set; }
+    public bool IsPoisoner { get; set; }
+    public bool IsPowerfulPotions { get; set; }
+
+    // Common Talents
+    public bool IsCharming { get; set; }
+    public bool IsDisciplined { get; set; }
+    public bool IsHunter { get; set; }
+    public bool IsLucky { get; set; }
+    public bool IsMasterCook { get; set; }
+    public bool IsNaturalLeader { get; set; }
+    public bool IsRingBearer { get; set; }
+    public bool IsSurvivalist { get; set; }
+    public bool IsSwiftLeader { get; set; }
+    public bool IsVeteran { get; set; }
+
+    // Magic Talents
+    public bool IsBloodMagic { get; set; }
+    public bool IsConjurer { get; set; }
+    public bool IsDivinator { get; set; }
+    public bool IsFastReflexes { get; set; }
+    public bool IsFocused { get; set; }
+    public bool IsRestorer { get; set; }
+    public bool IsMystic { get; set; }
+    public bool IsNecromancer { get; set; }
+    public bool IsPowerfulMissiles { get; set; }
+    public bool IsSummoner { get; set; }
+    public bool IsSustainer { get; set; }
+    public bool IsThrifty { get; set; }
+
+    // Sneaky Talents
+    public bool IsAssassin { get; set; }
+    public bool IsBackstabber { get; set; }
+    public bool IsCutpurse { get; set; }
+    public bool IsEvaluate { get; set; }
+    public bool IsLockPicker { get; set; }
+    public bool IsMechanicalGenius { get; set; }
+    public bool IsNimble { get; set; }
+    public bool IsQuickFingers { get; set; }
+    public bool IsSharpEyed { get; set; }
+    public bool IsSenseForGold { get; set; }
+    public bool IsStreetwise { get; set; }
+    public bool IsTrapFinder { get; set; }
+
+    // Mental Talents
+    public bool IsBraveheart { get; set; }
+    public bool IsConfident { get; set; }
+    public bool IsFearless { get; set; }
+    public bool IsHate { get; set; }
+    public bool IsStrongMinded { get; set; }
+    public bool IsWise { get; set; }
+
+    public Dictionary<string, int> GetInitialTalentBonus()
+    {
+      Dictionary<string, int> bonus = new Dictionary<string, int>();
+      if (IsCatLike)
+      {
+        bonus.Add("DEX", 5);
+      }
+      if (IsResilient)
+      {
+        bonus.Add("CON", 5);
+      }
+      if (IsNightVision)
+      {
+        bonus.Add("PS", 10);
+      }
+      if (IsStrong)
+      {
+        bonus.Add("STR", 5);
+      }
+      if (IsStrongBuild)
+      {
+        bonus.Add("HP", 2);
+      }
+      if (IsMarksman)
+      {
+        bonus.Add("RS", 5);
+      }
+      if (IsSniper)
+      {
+        bonus.Add("RS", 10);
+      }
+      if (IsGodsChosen || IsLucky)
+      {
+        bonus.Add("Luck", 1);
+      }
+      if (IsHunter)
+      {
+        bonus.Add("FS", 10);
+      }
+      if (IsLockPicker)
+      {
+        bonus.Add("PLS", 5);
+      }
+      if (IsConfident)
+      {
+        bonus.Add("RES", 5);
+      }
+      if (IsStrongMinded)
+      {
+        bonus.Add("Sanity", 1);
+      }
+      if (IsWise)
+      {
+        bonus.Add("WIS", 5);
+      }
+      if (IsHate)
+      {
+        new GameDataService().GetHateByName(null);
+      }
+
+      return bonus;
+    }
+
+    public override string ToString()
+    {
+      return $"{Name}: {Description}";
+    }
+
+  }
+
+  public enum PerkCategory
+  {
+    Leader,
+    Common,
+    Combat,
+    Sneaky,
+    Faith,
+    Arcane,
+    Alchemist
+  }
+
+  public class Perk
+  {
+    public string Name { get; set; } = string.Empty;
+    public PerkCategory Category { get; set; }
+    public string Effect { get; set; } = string.Empty;
+    public string? Comment { get; set; }
+
+    public Perk() { }
+
+    public override string ToString()
+    {
+      var sb = new StringBuilder();
+      sb.Append($"{Name}: {Effect}");
+      if (!string.IsNullOrEmpty(Comment))
+      {
+        sb.Append($" ({Comment})");
+      }
+      return sb.ToString();
+    }
+
+  }
+
+  public static class TooltipHelper
+  {
+    private static readonly Dictionary<string, string> TooltipDictionary = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
     {
         // Basic Stats
         { "STR", "Strength (STR): This is your hero's physical strength. This affects how much your character can carry, the damage they deal, and the weapons they can wield." },
@@ -4954,9 +6282,9 @@ namespace LoDCompanion.Services.GameData
         { "Battle Prayers", "Battle Prayers: A special knowledge perfected by Warrior Priests who call upon the gods to help them in battle. Only a Warrior Priest may learn this skill. Based on Resolve." }
     };
 
-        public static string GetTooltip(string key)
-        {
-            return TooltipDictionary.TryGetValue(key, out var description) ? description : "No description available.";
-        }
+    public static string GetTooltip(string key)
+    {
+      return TooltipDictionary.TryGetValue(key, out var description) ? description : "No description available.";
     }
+  }
 }
