@@ -9,6 +9,7 @@ namespace LoDCompanion.Models.Character
 {
     public class Character
     {
+        internal readonly string Id;
         public string Name { get; set; } = string.Empty; // Default to empty string for safety
         public int CurrentHP { get; set; }
         public int MaxHP { get; set; }
@@ -27,6 +28,7 @@ namespace LoDCompanion.Models.Character
         // Constructor (optional, but good practice for initialization)
         public Character()
         {
+            Id = Guid.NewGuid().ToString();
             CurrentHP = MaxHP;
         }
 
@@ -42,6 +44,7 @@ namespace LoDCompanion.Models.Character
     }
     public class Hero : Character
     {
+
         // Basic Hero Information
         public string SpeciesName { get; set; } = string.Empty;
         public string ProfessionName { get; set; } = string.Empty;
@@ -85,7 +88,7 @@ namespace LoDCompanion.Models.Character
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
 
         // Constructor
-        public Hero()
+        public Hero() : base()
         {
 
         }
@@ -207,7 +210,7 @@ namespace LoDCompanion.Models.Character
         public string TreasureType { get; set; } = "-"; // Default value indicating no treasure type assigned
         public List<string> Treasures { get; set; } = new List<string>();
 
-        public Monster(GameDataService gameData)
+        public Monster(GameDataService gameData) : base()
         {
             _gameData = gameData;
             Body = new Corpse(_gameData, TreasureType); // Initialize the Body with the default TreasureType
