@@ -7,9 +7,19 @@ using System.Xml.Linq;
 
 namespace LoDCompanion.Models
 {
+    public enum ShopCategory
+    {
+        General,
+        Weapons,
+        Armour,
+        Shields,
+        Potions,
+    }
+
     public class Equipment
     {
-        public string? Category { get; set; }
+        public string Category { get; set; } = "Common";
+        public ShopCategory Shop { get; set; } = ShopCategory.General;
         public string Name { get; set; } = string.Empty;
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;

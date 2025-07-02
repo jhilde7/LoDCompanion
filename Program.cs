@@ -2,6 +2,7 @@ using LoDCompanion.Components;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
+using LoDCompanion.Services.State;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -20,7 +21,9 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 builder.Services.AddSingleton<GameDataService>();
 builder.Services.AddScoped<EquipmentService>();
 builder.Services.AddSingleton<CharacterCreationService>();
+builder.Services.AddSingleton<CharacterCreationState>();
 builder.Services.AddSingleton<PartyManagerService>();
+builder.Services.AddSingleton<PartyState>();
 
 var app = builder.Build();
 

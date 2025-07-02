@@ -130,5 +130,24 @@ namespace LoDCompanion.Services.GameData
         {
             return _gameData.Relics.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
+
+        public static List<Equipment> GetShopInventory(GameDataService _gameData, bool useAvailability = false)
+        {
+            if (useAvailability) 
+            { 
+                throw new NotImplementedException();
+            }
+            else
+            {
+                List<Equipment> list = [
+                    .. _gameData.Equipment.Where(x => x.Category == "Common"),
+                    .. _gameData.Weapons.Where(x => x.Category == "Common"),
+                    .. _gameData.Ammo.Where(x => x.Category == "Common"),
+                    .. _gameData.Armour.Where(x => x.Category == "Common"),
+                    .. AlchemyService.Potions.Where(x => x.Category == "Common")
+                ];
+                return list;
+            }
+        }
     }
 }

@@ -2247,7 +2247,7 @@ namespace LoDCompanion.Services.GameData
                     EquipmentChoices = ["Shortsword/Rapier"],
                     StartingBackpackList = [
                         EquipmentService.GetArmourByName(this, "Padded Jacket"),
-                        EquipmentService.GetEquipmentByNameSetQuantity(this, "Lockpicks", 10),
+                        EquipmentService.GetEquipmentByNameSetQuantity(this, "Lock Picks", 10),
                         EquipmentService.GetEquipmentByName(this, "Backpack - Medium") ],
                     StartingTalentList = [ GetTalentByName("Backstabber"),
                         new Talent() {
@@ -2539,7 +2539,7 @@ namespace LoDCompanion.Services.GameData
                     StartingBackpackList = [
                         EquipmentService.GetMeleeWeaponByName(this, "Dagger"),
                         EquipmentService.GetEquipmentByName(this, "Rope"),
-                        EquipmentService.GetEquipmentByNameSetQuantity(this, "Lockpicks", 10) ],
+                        EquipmentService.GetEquipmentByNameSetQuantity(this, "Lock Picks", 10) ],
                     StartingTalentList = [ GetTalentByName("Evaluate") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5},
@@ -3063,6 +3063,7 @@ namespace LoDCompanion.Services.GameData
             {
                 new Ammo(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Arrow",
                     MaxDurability = 1,
                     Quantity = 5,
@@ -3072,6 +3073,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Ammo(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Bolt",
                     MaxDurability = 1,
                     Quantity = 5,
@@ -3082,6 +3084,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Category = "Common",
                     Name = "Barbed Arrow",
+                    Shop = ShopCategory.Weapons,
                     MaxDurability = 1,
                     Quantity = 5,
                     Description = "Increased DMG+1",
@@ -3096,6 +3099,7 @@ namespace LoDCompanion.Services.GameData
                   new Ammo(){
                     Category = "Common",
                     Name = "Barbed Bolt",
+                    Shop = ShopCategory.Weapons,
                     MaxDurability = 1,
                     Quantity = 5,
                     Description = "Increased DMG+1",
@@ -3109,6 +3113,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Ammo(){
                     Category = "Dark Guild",
+                    Shop = ShopCategory.Weapons,
                     Name = "Superior Sling Stone",
                     MaxDurability = 1,
                     Quantity = 10,
@@ -3154,6 +3159,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Dagger",
                     MinDamage = 1,
                     MaxDamage = 6,
@@ -3171,6 +3177,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Shortsword",
                     MinDamage = 3,
                     MaxDamage = 8,
@@ -3189,6 +3196,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Rapier",
                     MinDamage = 2,
                     MaxDamage = 7,
@@ -3208,6 +3216,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Broadsword",
                     MinDamage = 3,
                     MaxDamage = 10,
@@ -3225,6 +3234,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Longsword",
                     MinDamage = 1,
                     MaxDamage = 12,
@@ -3242,6 +3252,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Battleaxe",
                     MinDamage = 2,
                     MaxDamage = 11,
@@ -3261,6 +3272,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Battle Hammer",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3279,6 +3291,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Morning Star",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3298,6 +3311,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Flail",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3317,6 +3331,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Staff",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3333,6 +3348,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Javelin",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3351,6 +3367,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Greatsword",
                     MinDamage = 2,
                     MaxDamage = 12,
@@ -3369,6 +3386,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Greataxe",
                     MinDamage = 3,
                     MaxDamage = 14,
@@ -3389,6 +3407,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Warhammer",
                     MinDamage = 2,
                     MaxDamage = 6,
@@ -3408,6 +3427,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Halberd",
                     MinDamage = 1,
                     MaxDamage = 12,
@@ -3425,6 +3445,7 @@ namespace LoDCompanion.Services.GameData
                 new MeleeWeapon()
                 {
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Net",
                     MinDamage = 0,
                     MaxDamage = 0,
@@ -3827,6 +3848,7 @@ namespace LoDCompanion.Services.GameData
             {
                 new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Shortbow",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -3840,6 +3862,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Longbow",
                     MinDamage = 1,
                     MaxDamage = 10,
@@ -3854,6 +3877,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Elven bow",
                     MinDamage = 3,
                     MaxDamage = 12,
@@ -3869,6 +3893,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Crossbow Pistol",
                     MinDamage = 2,
                     MaxDamage = 9,
@@ -3883,6 +3908,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Crossbow",
                     MinDamage = 4,
                     MaxDamage = 13,
@@ -3897,6 +3923,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Arbalest",
                     MinDamage = 3,
                     MaxDamage = 6,
@@ -3911,6 +3938,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new RangedWeapon(){
                     Category = "Common",
+                    Shop = ShopCategory.Weapons,
                     Name = "Sling",
                     MinDamage = 1,
                     MaxDamage = 8,
@@ -4130,6 +4158,7 @@ namespace LoDCompanion.Services.GameData
                 new Armour()
                 {
                     Category = "Fighters Guild",
+                    Shop = ShopCategory.General,
                     Name = "Gauntlets",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4139,6 +4168,7 @@ namespace LoDCompanion.Services.GameData
                 new Armour()
                 {
                     Category = "Fighters Guild",
+                    Shop = ShopCategory.General,
                     Name = "Gorget",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4148,6 +4178,7 @@ namespace LoDCompanion.Services.GameData
                 new Armour()
                 {
                     Category = "Fighters Guild",
+                    Shop = ShopCategory.General,
                     Name = "Poleyns",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4157,6 +4188,7 @@ namespace LoDCompanion.Services.GameData
                 new Armour()
                 {
                     Category = "Fighters Guild",
+                    Shop = ShopCategory.General,
                     Name = "Shoulder Pads",
                     Encumbrance = 1,
                     DefValue = 1,
@@ -4166,74 +4198,88 @@ namespace LoDCompanion.Services.GameData
                 // --- PADDED ARMOUR ---
                 new Armour()
                 {
-                    Category = "Common", Name = "Padded Cap", DefValue = 2, Encumbrance = 1, Value = 30, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Padded Cap", DefValue = 2, Encumbrance = 1, Value = 30, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Padded Vest", DefValue = 2, Encumbrance = 3, Value = 60, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Padded Vest", DefValue = 2, Encumbrance = 3, Value = 60, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Padded Jacket", DefValue = 2, Encumbrance = 5, Value = 120, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Padded Jacket", DefValue = 2, Encumbrance = 5, Value = 120, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Padded Pants", DefValue = 2, Encumbrance = 4, Value = 100, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Padded Pants", DefValue = 2, Encumbrance = 4, Value = 100, Availability = 4, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Padded Coat", DefValue = 2, Encumbrance = 6, Value = 200, Availability = 3, ArmourClass = 1, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Padded Coat", DefValue = 2, Encumbrance = 6, Value = 200, Availability = 3, ArmourClass = 1, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Cloak", DefValue = 1, Encumbrance = 1, Value = 50, Availability = 4, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Cloak", DefValue = 1, Encumbrance = 1, Value = 50, Availability = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Cloak, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Padded Dog Armour", DefValue = 2, Encumbrance = 1, Value = 60, Availability = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Padded Dog Armour", DefValue = 2, Encumbrance = 1, Value = 60, Availability = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Dog, 0 } }
                 },
                 // --- LEATHER ARMOUR ---
                 new Armour()
                 {
-                    Category = "Common", Name = "Leather Cap", DefValue = 3, Encumbrance = 1, Value = 50, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Leather Cap", DefValue = 3, Encumbrance = 1, Value = 50, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Leather Vest", DefValue = 3, Encumbrance = 3, Value = 80, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Leather Vest", DefValue = 3, Encumbrance = 3, Value = 80, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Leather Jacket", DefValue = 3, Encumbrance = 4, Value = 140, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Leather Jacket", DefValue = 3, Encumbrance = 4, Value = 140, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Arms, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Leather Leggings", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Leather Leggings", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 4, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Leather Bracers", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, ArmourClass = 2, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Leather Bracers", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, ArmourClass = 2, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Leather Dog Armour", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Leather Dog Armour", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Dog, 0 } }
                 },
                 // --- MAIL ARMOUR ---
                 new Armour()
                 {
-                    Category = "Common", Name = "Mail Coif", DefValue = 4, Encumbrance = 4, Value = 200, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Mail Coif", DefValue = 4, Encumbrance = 4, Value = 200, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
@@ -4243,43 +4289,51 @@ namespace LoDCompanion.Services.GameData
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 950, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 950, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Mail Coat", DefValue = 4, Encumbrance = 8, Value = 750, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Mail Coat", DefValue = 4, Encumbrance = 8, Value = 750, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 1300, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 1300, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 200, Availability = 2, ArmourClass = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 200, Availability = 2, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 // --- PLATE ARMOUR ---
                 new Armour()
                 {
-                    Category = "Common", Name = "Helmet", DefValue = 5, Encumbrance = 5, Value = 300, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Helmet", DefValue = 5, Encumbrance = 5, Value = 300, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Breastplate", DefValue = 5, Encumbrance = 7, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Breastplate", DefValue = 5, Encumbrance = 7, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
@@ -4335,27 +4389,32 @@ namespace LoDCompanion.Services.GameData
                 // --- DARK GUILD ARMOUR ---
                 new Armour()
                 {
-                    Category = "Dark Guild", Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild",
+                    Shop = ShopCategory.Armour, Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild", Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild",
+                    Shop = ShopCategory.Armour, Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild", Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild",
+                    Shop = ShopCategory.Armour, Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild", Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild",
+                    Shop = ShopCategory.Armour, Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild", Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Category = "Dark Guild",
+                    Shop = ShopCategory.Armour, Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 } }
                 },
                 new Armour
@@ -4393,6 +4452,7 @@ namespace LoDCompanion.Services.GameData
             {
                   new Shield(){
                     Category = "Common",
+                    Shop = ShopCategory.Shields,
                     Name = "Buckler",
                     DefValue = 4,
                     Encumbrance = 4,
@@ -4404,6 +4464,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Shield(){
                     Category = "Common",
+                    Shop = ShopCategory.Shields,
                     Name = "Heater Shield",
                     DefValue = 6,
                     Encumbrance = 10,
@@ -4415,6 +4476,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Shield(){
                     Category = "Common",
+                    Shop = ShopCategory.Shields,
                     Name = "Tower Shield",
                     DefValue = 8,
                     Encumbrance = 15,
@@ -4466,6 +4528,7 @@ namespace LoDCompanion.Services.GameData
             {
                 new Equipment(){
                     Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
                     Name = "Relic of Charus",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4476,6 +4539,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
                     Name = "Relic of Metheia",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4486,6 +4550,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
                     Name = "Relic of Iphy",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4496,6 +4561,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
                     Name = "Relic of Rhidnir",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4506,6 +4572,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
                     Name = "Relic of Ohinir",
                     Encumbrance = 1,
                     Durability = 1,
@@ -4516,6 +4583,7 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
                     Name = "Relic of Ramos",
                     Encumbrance = 1,
                     Durability = 1,

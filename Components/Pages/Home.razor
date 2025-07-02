@@ -20,7 +20,7 @@
     {
         Logger.LogInformation("Create a New Party button was clicked!");
         // Clear any pre-existing party to start fresh
-        PartyManager.ClearParty();
+        PartyManager.CreateParty();
 
         // Navigate to the first step of the character creation flow
         Navigation.NavigateTo("/character-creator");

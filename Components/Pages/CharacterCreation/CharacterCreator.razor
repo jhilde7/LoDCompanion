@@ -18,7 +18,7 @@
 <div class="row">
     <!-- Main Creation Area -->
     <div class="col-md-9">
-        <h1>Create Your Hero (@(PartyManager.PartyMembers.Count + 1) of 4)</h1>
+        <h1>Create Your Hero (@(PartyManager.Party.Heroes.Count + 1) of 4)</h1>
         @if (isLoading)
         {
             <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
@@ -114,12 +114,12 @@
     <div class="col-md-3">
         <div class="card sticky-top" style="top: 1rem;">
             <div class="card-header">
-                <h5>Current Party (@PartyManager.PartyMembers.Count / 4)</h5>
+                <h5>Current Party (@PartyManager.Party.Heroes.Count / 4)</h5>
             </div>
             <ul class="list-group list-group-flush">
-                @if (PartyManager.PartyMembers.Any())
+                @if (PartyManager.Party.Heroes.Any())
                 {
-                    @foreach (var hero in PartyManager.PartyMembers)
+                    @foreach (var hero in PartyManager.Party.Heroes)
                     {
                         <button type="button" class="list-group-item list-group-item-action text-start" @onclick="() => ShowCharacterSheet(hero)">
                             @hero.Name <br /><small class="text-muted">@hero.SpeciesName @hero.ProfessionName</small>
@@ -153,6 +153,7 @@
 
     private CharacterSheet characterSheetModal = default!;
     private Hero? selectedHeroForSheet;
+    private Hero currentHero;
 
     private List<Potion> AvailablePotions { get; set; } = new();
     private List<Part> AvailableParts { get; set; } = new();
@@ -784,26 +785,26 @@
         <h3 class="text-center my-4">Review Your Character</h3>
 
         @{
-            var previewHero = CreationService.BuildPreviewHero();
+            currentHero = CreationService.BuildPreviewHero();
         }
 
         <div class="card">
             <div class="card-header">
                 <h4>
-                    <span TooltipText="@previewHero.ToString()">
-                        @previewHero.Name
+                    <span TooltipText="@currentHero.ToString()">
+                        @currentHero.Name
                     </span>
                 </h4>
             </div>
             <div class="card-body">
-                <p><strong>Species:</strong> @previewHero.SpeciesName</p>
-                <p><strong>Profession:</strong> @previewHero.ProfessionName</p>
+                <p><strong>Species:</strong> @currentHero.SpeciesName</p>
+                <p><strong>Profession:</strong> @currentHero.ProfessionName</p>
 
-                @if (previewHero.Talents.Any())
+                @if (currentHero.Talents.Any())
                 {
                     <p><strong>Talents:</strong></p>
                     <p>
-                        @foreach(var talent in previewHero.Talents)
+                    @foreach(var talent in currentHero.Talents)
                         {
                             <span class="badge badge-pill badge-secondary">
                                 <span title="@talent.ToString()">
@@ -813,11 +814,11 @@
                         }
                     </p>
                 }
-                @if (previewHero.Perks.Any())
+                @if (currentHero.Perks.Any())
                 {
                     <p><strong>Perks:</strong></p>
                     <p>
-                        @foreach(var perk in previewHero.Perks)
+                        @foreach(var perk in currentHero.Perks)
                         {
                             <span class="badge badge-pill badge-secondary">
                                 <span title="@perk.ToString()">
@@ -828,11 +829,11 @@
                     </p>
                 }
 
-                @if (previewHero.Backpack.Any())
+                @if (currentHero.Backpack.Any())
                 {
                     <p><strong>Equipment:</strong></p>
                     <p>
-                        @foreach(var item in previewHero.Backpack)
+                    @foreach(var item in currentHero.Backpack)
                         {
                             <span class="badge badge-pill badge-primary">
                                 <span title="@item.ToString()">
@@ -843,11 +844,11 @@
                     </p>
                 }
 
-                @if(previewHero.Spells.Any())
+                @if(currentHero.Spells.Any())
                 {
                     <p><strong>Spells:</strong></p>
                     <p>
-                        @foreach(var spell in previewHero.Spells)
+                    @foreach(var spell in currentHero.Spells)
                         {
                             <span class="badge badge-pill badge-dark">
                                 <span title="@spell">
@@ -858,11 +859,11 @@
                     </p>
                 }
 
-                @if(previewHero.Prayers.Any())
+                @if(currentHero.Prayers.Any())
                 {
                     <p><strong>Prayers:</strong></p>
                     <p>
-                        @foreach(var prayer in previewHero.Prayers)
+                    @foreach(var prayer in currentHero.Prayers)
                         {
                             <span class="badge badge-pill badge-dark">
                                 <span title="@prayer">
@@ -883,9 +884,9 @@
     private RenderFragment CharacterSummary =>@<section>
         <div class="text-center">
             <h2 class="text-success">@State.Name has been added to the party!</h2>
-            <p>You now have @PartyManager.PartyMembers.Count hero(es) in your party.</p>
+            <p>You now have @PartyManager.Party.Heroes.Count hero(es) in your party.</p>
             <hr />
-            @if (PartyManager.PartyMembers.Count < 4)
+            @if (PartyManager.Party.Heroes.Count < 4)
         {
             <p>Time to create your next hero.</p>
             <button class="btn btn-lg btn-primary" @onclick="CreateNextHero">Create Another Hero</button>
@@ -1110,8 +1111,8 @@
         if (IsCurrentStepValid())
         {
             // Finalize and add the hero to the party
-            var newHero = CreationService.FinalizeCharacter();
-            PartyManager.AddHeroToParty(newHero);
+            PartyManager.AddHeroToParty(currentHero);
+            CreationService.FinalizeCharacter();
 
             // Move to the summary step to show the result
             currentStep = Step.Summary;

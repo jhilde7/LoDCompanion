@@ -1,57 +1,59 @@
-﻿using LoDCompanion.Models.Character;
+﻿using LoDCompanion.Models;
+using LoDCompanion.Models.Character;
+using LoDCompanion.Services.State;
 
 namespace LoDCompanion.Services.Player
 {
     public class PartyManagerService
     {
-        public List<Hero> PartyMembers { get; private set; } = new List<Hero>();
+        private readonly PartyState _partyState;
+        public Party Party => GetCurrentParty();
 
-        public int PartyMorale { get; private set; }
-        public int MaxPartyMorale { get; private set; }
-
-        public void AddHeroToParty(Hero hero)
+        // Inject the state into the service's constructor
+        public PartyManagerService(PartyState partyState)
         {
-            if (hero != null && !PartyMembers.Any(p => p.Name == hero.Name)) // Basic check to prevent duplicates
+            _partyState = partyState;
+        }
+
+        public void CreateParty()
+        {
+            _partyState.CreateParty();
+        }
+
+        public Party GetCurrentParty()
+        {
+            if (_partyState.CurrentParty != null)
             {
-                PartyMembers.Add(hero);
-                RecalculatePartyMorale();
+                return _partyState.CurrentParty!;
+            }
+            else
+            {
+                CreateParty();
+                // Ensure that CreateParty actually sets CurrentParty, otherwise throw
+                if (_partyState.CurrentParty == null)
+                {
+                    throw new InvalidOperationException("Failed to create a new party.");
+                }
+                return _partyState.CurrentParty;
             }
         }
 
-        public void RemoveHeroFromParty(Hero hero)
+        public void AddHeroToParty(Hero newHero)
         {
-            PartyMembers.Remove(hero);
-            RecalculatePartyMorale();
+            // Ensure the party exists before adding a hero
+            var party = GetCurrentParty();
+            party.Heroes ??= new List<Hero>();
+            party.Heroes.Add(newHero);
         }
 
-        public void ClearParty()
+        // Other methods will now modify the _partyState.CurrentParty
+        public void AddCoins(Hero hero)
         {
-            PartyMembers.Clear();
-            RecalculatePartyMorale();
-        }
-
-        public List<Hero> GetParty()
-        {
-            return PartyMembers;
-        }
-
-        private void RecalculatePartyMorale()
-        {
-            if (PartyMembers == null || !PartyMembers.Any())
+            if (_partyState.CurrentParty != null)
             {
-                PartyMorale = 0;
-                MaxPartyMorale = 0;
-                return;
+                _partyState.CurrentParty.Coins += hero.Coins;
+                hero.Coins = 0;
             }
-
-            int totalResolve = 0;
-            foreach (var hero in PartyMembers)
-            {
-                // Each hero contributes morale equal to their Resolve divided by 10, rounded up.
-                totalResolve += (int)Math.Ceiling((double)hero.Resolve / 10);
-            }
-            MaxPartyMorale = totalResolve;
-            PartyMorale = MaxPartyMorale; // Morale starts at max
         }
     }
 }

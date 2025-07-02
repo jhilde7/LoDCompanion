@@ -511,12 +511,10 @@ namespace LoDCompanion.Services.CharacterCreation
             return State.Hero;
         }
 
-        public Hero FinalizeCharacter()
+        public void FinalizeCharacter()
         {           
             // Re-initialize service state for next creation process
             InitializeCreationState();
-
-            return State.Hero ?? throw new NullReferenceException();
         }
 
         private List<Spell> GetStartingSpells()
