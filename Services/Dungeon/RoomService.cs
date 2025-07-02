@@ -338,7 +338,7 @@ namespace LoDCompanion.Services.Dungeon
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"--- Room: {Name} [{Type}] ---");
+            sb.AppendLine($"--- Room: {Name} [{Category}] ---");
             if (Size != null && Size.Length == 2)
             {
                 sb.Append($"Size: {Size[0]}x{Size[1]} | ");

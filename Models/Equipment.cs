@@ -29,7 +29,7 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Type}] {Name} | ");
+            sb.Append($"[{Category}] {Name} | ");
             sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
             if (!string.IsNullOrEmpty(MagicEffect))
             {
@@ -144,13 +144,13 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder(base.ToString());
-            sb.Append($"[{Type}] {Name} | ");
+            sb.Append($"[{Category}] {Name} | ");
             sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
             if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.Append($" | Effect: {MagicEffect}");
             }
-            sb.Append($" | Ammo Type: {AmmoType}");
+            sb.Append($" | Ammo Category: {AmmoType}");
             if (HasProperty(AmmoProperty.Silver)) sb.Append(", Silver");
             if (HasProperty(AmmoProperty.Barbed)) sb.Append(", Barbed");
             if (HasProperty(AmmoProperty.SupuriorSlingStone)) sb.Append(", Superior");
@@ -353,7 +353,7 @@ namespace LoDCompanion.Models
             var sb = new StringBuilder();
             sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
             sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
-            sb.AppendLine($"Ammo Type: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
+            sb.AppendLine($"Ammo Category: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
             if (ElvenBowstring) sb.Append(" | Elven Bowstring");
             if (AimAttachment) sb.Append(" | Aim Attachment");
             if (!string.IsNullOrEmpty(MagicEffect))
@@ -431,7 +431,7 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Type}] {Name} | ");
+            sb.Append($"[{Category}] {Name} | ");
             sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
             sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
             if (!string.IsNullOrEmpty(MagicEffect))
@@ -494,7 +494,7 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Type}] {Name} | ");
+            sb.Append($"[{Category}] {Name} | ");
             sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
             sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
             if (!string.IsNullOrEmpty(MagicEffect))
