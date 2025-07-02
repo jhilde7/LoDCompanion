@@ -1,5 +1,7 @@
 ﻿
 
+using LoDCompanion.Services.Dungeon;
+
 namespace LoDCompanion.Models.Dungeon
 {
     public class DoorChest
@@ -15,7 +17,7 @@ namespace LoDCompanion.Models.Dungeon
 
         // List of rooms that this door/chest could lead to (for doors)
         // In a web project, this would represent the connections in your dungeon graph.
-        public List<RoomCorridor> ConnectedRooms { get; set; } = new List<RoomCorridor>();
+        public List<RoomService> ConnectedRooms { get; set; } = new List<RoomService>();
 
         // Constructor
         public DoorChest(string type)
@@ -35,7 +37,7 @@ namespace LoDCompanion.Models.Dungeon
 
         // Provides the next connected room (for doors). The actual logic for selecting
         // the room and updating dungeon state will be in a service.
-        public RoomCorridor? GetNextConnectedRoom()
+        public RoomService? GetNextConnectedRoom()
         {
             if (ConnectedRooms != null && ConnectedRooms.Count > 0)
             {

@@ -1,5 +1,4 @@
 ﻿using LoDCompanion.Models.Character;
-using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Dungeon
@@ -23,8 +22,8 @@ namespace LoDCompanion.Services.Dungeon
         private readonly RoomFactoryService _roomFactoryService;
 
         // Represents the current active room
-        public RoomCorridor StartingRoom { get; private set; }
-        public RoomCorridor CurrentRoom { get; private set; }
+        public RoomService StartingRoom { get; private set; }
+        public RoomService CurrentRoom { get; private set; }
 
         public DungeonManagerService( GameDataService gameData,
             WanderingMonsterService wanderingMonsterService,
@@ -38,7 +37,7 @@ namespace LoDCompanion.Services.Dungeon
             _questEncounterService = questEncounterService ?? throw new ArgumentNullException(nameof(questEncounterService));
             _roomFactoryService = roomFactoryService ?? throw new ArgumentNullException(nameof(roomFactoryService));
 
-            StartingRoom = new RoomCorridor(_gameData);
+            StartingRoom = new RoomService(_gameData);
             CurrentRoom = StartingRoom;
             HeroParty = new List<Hero>(); // Initialize the list
         }
@@ -69,7 +68,7 @@ namespace LoDCompanion.Services.Dungeon
 
             // Create the first room using the RoomFactoryService
             // Note: CurrentRoom represents the player's current location, not necessarily the 'firstRoom' concept from original
-            CurrentRoom = _roomFactoryService.CreateRoom(startingRoomName) ?? new RoomCorridor(_gameData);
+            CurrentRoom = _roomFactoryService.CreateRoom(startingRoomName) ?? new RoomService(_gameData);
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
 
@@ -94,7 +93,7 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         // Example method for moving between rooms
-        public bool MoveToRoom(RoomCorridor nextRoom)
+        public bool MoveToRoom(RoomService nextRoom)
         {
             if (nextRoom != null)
             {

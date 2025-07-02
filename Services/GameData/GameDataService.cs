@@ -1,9 +1,9 @@
 ﻿using LoDCompanion.Models.Character;
-using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Models;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Utilities;
 using System.Text;
+using LoDCompanion.Services.Dungeon;
 
 namespace LoDCompanion.Services.GameData
 {

@@ -1,5 +1,4 @@
-﻿using LoDCompanion.Models.Dungeon;
-using LoDCompanion.Services.GameData;
+﻿using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -8,11 +7,11 @@ namespace LoDCompanion.Services.Dungeon
         private readonly GameDataService _gameData;
         // This dictionary will hold the definitions for various rooms.
         // It will be populated from a data source (e.g., JSON file) at application startup.
-        private readonly Dictionary<string, RoomCorridor> _roomDefinitions;
+        private readonly Dictionary<string, RoomService> _roomDefinitions;
 
         // Constructor: Inject room definitions.
         // These definitions would typically be loaded by a data loading service at application startup.
-        public RoomFactoryService(GameDataService gameData, IEnumerable<RoomCorridor> roomDefinitions)
+        public RoomFactoryService(GameDataService gameData, IEnumerable<RoomService> roomDefinitions)
         {
             _gameData = gameData;
 
@@ -35,13 +34,13 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         /// <param name="roomName">The name of the room to create.</param>
         /// <returns>A new RoomCorridor object, or null if the room data is not found.</returns>
-        public RoomCorridor? CreateRoom(string roomName)
+        public RoomService? CreateRoom(string roomName)
         {
             // Check if room data exists
-            if (_roomDefinitions.TryGetValue(roomName, out RoomCorridor? roomDefinition))
+            if (_roomDefinitions.TryGetValue(roomName, out RoomService? roomDefinition))
             {
                 // Create a new instance of RoomCorridor (no prefabs or Unity Transforms needed)
-                RoomCorridor room = new RoomCorridor(_gameData);
+                RoomService room = new RoomService(_gameData);
 
                 // Initialize room properties using the RoomInfo
                 // The InitializeRoomData method should exist on your RoomCorridor class.

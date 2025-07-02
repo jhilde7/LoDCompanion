@@ -1,6 +1,4 @@
-﻿using LoDCompanion.Models.Dungeon; // Assuming RoomCorridor is defined here
-
-namespace LoDCompanion.Services.Dungeon
+﻿namespace LoDCompanion.Services.Dungeon
 {
     public class WanderingMonsterService
     {
@@ -18,7 +16,7 @@ namespace LoDCompanion.Services.Dungeon
         /// Triggers a wandering monster encounter in the specified room.
         /// </summary>
         /// <param name="currentRoom">The current room where the wandering monster should appear.</param>
-        public void TriggerWanderingMonster(RoomCorridor currentRoom)
+        public void TriggerWanderingMonster(RoomService currentRoom)
         {
             if (currentRoom == null)
             {

@@ -1,13 +1,13 @@
-﻿using LoDCompanion.Services.Dungeon;
-using LoDCompanion.Utilities;
+﻿using LoDCompanion.Utilities;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
 using System.Text;
+using LoDCompanion.Models.Dungeon;
 
-namespace LoDCompanion.Models.Dungeon
+namespace LoDCompanion.Services.Dungeon
 {
     // Represents a single room or corridor tile in the dungeon.
-    public class RoomCorridor
+    public class RoomService
     {
         private readonly GameDataService _gameData;
         // Public properties to hold the room's data and state.
@@ -39,11 +39,11 @@ namespace LoDCompanion.Models.Dungeon
         public int TreasureRoll { get; set; } = 0;
         public Trap CurrentTrap { get; set; } = new Trap("No Trap", 0, 0, ""); // Default trap, no trap present initially
         public List<string> SearchResults { get; set; } = new List<string>();
-        public List<RoomCorridor> ConnectedRooms { get; set; } = new List<RoomCorridor>(); // Represents connected dungeon segments
+        public List<RoomService> ConnectedRooms { get; set; } = new List<RoomService>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
 
         // Constructor for creating a RoomCorridor instance
-        public RoomCorridor(GameDataService gameData)
+        public RoomService(GameDataService gameData)
         {
             _gameData = gameData;
         }
@@ -53,7 +53,7 @@ namespace LoDCompanion.Models.Dungeon
         /// This method would be called by a RoomFactoryService.
         /// </summary>
         /// <param name="roomInfo">The data object containing room definitions.</param>
-        public void InitializeRoomData(RoomCorridor roomInfo)
+        public void InitializeRoomData(RoomService roomInfo)
         {
             // Basic Information
             RoomName = roomInfo.RoomName;
@@ -199,7 +199,7 @@ namespace LoDCompanion.Models.Dungeon
         /// The actual creation of new `DoorChest` instances (which were `Instantiate` calls)
         /// will be handled by the calling service (e.g., `DungeonManagerService` or `RoomFactoryService`).
         /// </summary>
-        public void SplitDungeonBetweenDoors(List<RoomCorridor> availableDungeonCards, Func<DoorChest> doorFactory, Func<string, RoomCorridor> roomFactory)
+        public void SplitDungeonBetweenDoors(List<RoomService> availableDungeonCards, Func<DoorChest> doorFactory, Func<string, RoomService> roomFactory)
         {
             if (IsObjectiveRoom || availableDungeonCards.Count == 0)
             {
@@ -207,7 +207,7 @@ namespace LoDCompanion.Models.Dungeon
             }
 
             // Copy to mutable lists for manipulation  
-            List<RoomCorridor> workingDungeonCards = new List<RoomCorridor>(availableDungeonCards);
+            List<RoomService> workingDungeonCards = new List<RoomService>(availableDungeonCards);
             List<DoorChest> workingDoors = new List<DoorChest>(Doors); // Assuming 'Doors' is already populated  
 
             // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards  
@@ -215,7 +215,7 @@ namespace LoDCompanion.Models.Dungeon
             {
                 // Find the dead-end door and its remaining cards  
                 DoorChest deadEndDoor = workingDoors.First(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd);
-                List<RoomCorridor> remainingCards = new List<RoomCorridor>(deadEndDoor.ConnectedRooms ?? throw new NullReferenceException());
+                List<RoomService> remainingCards = new List<RoomService>(deadEndDoor.ConnectedRooms ?? throw new NullReferenceException());
 
                 // Clear the dead-end door's cards (making it inaccessible for its original purpose)  
                 deadEndDoor.ConnectedRooms.Clear();
@@ -232,7 +232,7 @@ namespace LoDCompanion.Models.Dungeon
                     {
                         var connectedRooms = workingDoors[doorIndex].ConnectedRooms;
                         bool isDeadEnd = connectedRooms != null && connectedRooms.Count > 0 && connectedRooms[0].IsDeadEnd;
-                        if (workingDoors[doorIndex] != deadEndDoor && (!isDeadEnd))
+                        if (workingDoors[doorIndex] != deadEndDoor && !isDeadEnd)
                         {
                             suitableDoorFound = true;
                             break;
@@ -248,14 +248,14 @@ namespace LoDCompanion.Models.Dungeon
                         // This new door needs to be instantiated by an external factory and added to the list.  
                         DoorChest newSecretDoor = doorFactory(); // Use the injected factory  
                         workingDoors.Add(newSecretDoor);
-                        newSecretDoor.ConnectedRooms = new List<RoomCorridor>(); // Initialize its dungeon  
+                        newSecretDoor.ConnectedRooms = new List<RoomService>(); // Initialize its dungeon  
                         doorIndex = workingDoors.Count - 1; // Point to the newly added door  
                     }
 
                     // Add a card to the chosen door (or the new secret door)  
                     if (workingDoors[doorIndex].ConnectedRooms == null)
                     {
-                        workingDoors[doorIndex].ConnectedRooms = new List<RoomCorridor>();
+                        workingDoors[doorIndex].ConnectedRooms = new List<RoomService>();
                     }
                     workingDoors[doorIndex].ConnectedRooms.Insert(0, remainingCards[0]);
                     remainingCards.RemoveAt(0);
@@ -267,10 +267,10 @@ namespace LoDCompanion.Models.Dungeon
             if (workingDoors.Count > 1)
             {
                 // 2. Distribute cards to multiple doors (near equal amounts)  
-                List<RoomCorridor>[] roomSplits = new List<RoomCorridor>[workingDoors.Count];
+                List<RoomService>[] roomSplits = new List<RoomService>[workingDoors.Count];
                 for (int i = 0; i < roomSplits.Length; i++)
                 {
-                    roomSplits[i] = new List<RoomCorridor>();
+                    roomSplits[i] = new List<RoomService>();
                 }
 
                 int index = 0;
