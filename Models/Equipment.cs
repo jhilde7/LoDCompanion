@@ -19,7 +19,6 @@ namespace LoDCompanion.Models
         public int Availability { get; set; } = 4;
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
-        public bool IsMagic { get; set; }
         public string MagicEffect { get; set; } = string.Empty;
 
         public Equipment() 
@@ -32,7 +31,7 @@ namespace LoDCompanion.Models
             var sb = new StringBuilder();
             sb.Append($"[{Type}] {Name} | ");
             sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
-            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.Append($" | Effect: {MagicEffect}");
             }
@@ -147,7 +146,7 @@ namespace LoDCompanion.Models
             var sb = new StringBuilder(base.ToString());
             sb.Append($"[{Type}] {Name} | ");
             sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
-            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.Append($" | Effect: {MagicEffect}");
             }
@@ -357,7 +356,7 @@ namespace LoDCompanion.Models
             sb.AppendLine($"Ammo Type: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
             if (ElvenBowstring) sb.Append(" | Elven Bowstring");
             if (AimAttachment) sb.Append(" | Aim Attachment");
-            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
             }
@@ -435,7 +434,7 @@ namespace LoDCompanion.Models
             sb.Append($"[{Type}] {Name} | ");
             sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
             sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
-            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
             }
@@ -498,7 +497,7 @@ namespace LoDCompanion.Models
             sb.Append($"[{Type}] {Name} | ");
             sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
             sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
-            if (IsMagic && !string.IsNullOrEmpty(MagicEffect))
+            if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
             }

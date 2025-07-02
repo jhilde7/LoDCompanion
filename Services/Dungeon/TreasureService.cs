@@ -64,7 +64,7 @@ namespace LoDCompanion.Services.Dungeon
                             rewards.Add(GetTreasure("Coin", 0, 1, 10));
                             break;
                         case 4:
-                            rewards.Add(GetTreasure("Bandage (Old Rag)", 1));
+                            rewards.Add(GetTreasure("Bandage (old rags)", 1));
                             break;
                         default:
                             rewards.Add("You found nothing.");
@@ -234,8 +234,7 @@ namespace LoDCompanion.Services.Dungeon
                         rewards.Add(item.Name);
                         break;
                     default:
-                        // TODO: Log or throw an error for unsupported treasure type
-                        break;
+                        throw new ArgumentOutOfRangeException("type");
                 }
             }
             return rewards;
@@ -255,17 +254,17 @@ namespace LoDCompanion.Services.Dungeon
             switch (roll)
             {
                 case 1: treasure = CreateItem("Amulet"); break;
-                case 2: treasure = CreateItem("Arrow", 0, 0, 5); break;
-                case 3: treasure = CreateItem("Arrow", 0, 0, 10); break;
+                case 2: treasure = _gameData.GetAmmoByNameSetQuantity("Arrow", 5); break;
+                case 3: treasure = _gameData.GetAmmoByNameSetQuantity("Arrow", 10); break;
                 case 4:
-                case 5: treasure = CreateItem("Bandage (Old Rag)", 0, 0, RandomHelper.GetRandomNumber(1, 3)); break;
-                case 6: treasure = CreateItem("Bandage (Linen)", 0, 0, RandomHelper.GetRandomNumber(1, 2)); break;
-                case 7: treasure = CreateItem("Bear Trap", (2 - (RandomHelper.GetRandomNumber(1, 2) - 1)), 200, RandomHelper.GetRandomNumber(1, 3)); break;
+                case 5: treasure = _gameData.GetEquipmentByNameSetQuantity("Bandage (old rags)", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 6: treasure = _gameData.GetEquipmentByNameSetQuantity("Bandage (linen)", RandomHelper.GetRandomNumber(1, 2)); break;
+                case 7: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Bear Trap", (2 - (RandomHelper.GetRandomNumber(1, 2) - 1)), RandomHelper.GetRandomNumber(1, 3)); break;
                 case 8:
-                case 9: treasure = CreateItem("Bedroll", 0, 140, RandomHelper.GetRandomNumber(1, 3)); break;
-                case 10: treasure = CreateItem("Beef Jerky", 0, 0, RandomHelper.GetRandomNumber(1, 4)); break;
-                case 11: treasure = CreateItem("Bolt", 0, 0, 5); break;
-                case 12: treasure = CreateItem("Buckler", armourDurability); break;
+                case 9: treasure = _gameData.GetEquipmentByNameSetQuantity("Bedroll", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 10: treasure = _gameData.GetEquipmentByNameSetQuantity("Beef Jerky", RandomHelper.GetRandomNumber(1, 4)); break;
+                case 11: treasure = _gameData.GetAmmoByNameSetQuantity("Bolt", 5); break;
+                case 12: treasure = _gameData.GetShieldByNameSetDurability("Buckler", armourDurability); break;
                 case 13:
                 case 14: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 20)); break;
                 case 15: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 40)); break;
@@ -273,14 +272,14 @@ namespace LoDCompanion.Services.Dungeon
                 case 17: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(3, 60)); break;
                 case 18: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 80)); break;
                 case 19: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 100)); break;
-                case 20: treasure = CreateItem("Cloak", armourDurability); break;
-                case 21: treasure = CreateItem("Crowbar", (6 - defaultDurabilityDamageRoll), 55, RandomHelper.GetRandomNumber(1, 6)); break;
-                case 22: treasure = CreateItem("Dagger", weaponDurability); break;
-                case 23: treasure = CreateItem("Empty Bottle", 0, 15, RandomHelper.GetRandomNumber(1, 6)); break;
+                case 20: treasure = _gameData.GetArmourByNameSetDurability("Cloak", armourDurability); break;
+                case 21: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Crowbar", (6 - defaultDurabilityDamageRoll), RandomHelper.GetRandomNumber(1, 6)); break;
+                case 22: treasure = _gameData.GetWeaponByNameSetDurability("Dagger", weaponDurability); break;
+                case 23: treasure = _gameData.GetEquipmentByNameSetQuantity("Empty Bottle", RandomHelper.GetRandomNumber(1, 6)); break;
                 case 24: treasure = GetFineTreasure(); break;
                 case 25: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
-                case 26: treasure = CreateItem("Javelin", weaponDurability); break;
-                case 27: treasure = CreateItem("Lantern", 0, 100, RandomHelper.GetRandomNumber(1, 3)); break;
+                case 26: treasure = _gameData.GetWeaponByNameSetDurability("Javelin", weaponDurability); break;
+                case 27: treasure = _gameData.GetEquipmentByNameSetQuantity("Lantern", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 28:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
@@ -292,11 +291,11 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Leather Leggings"; break;
                         case 6: itemName = "Leather Bracers"; break;
                     }
-                    treasure = CreateItem(itemName, armourDurability);
+                    treasure = _gameData.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
-                case 29: treasure = CreateItem("Lock Pick", 1, 0, RandomHelper.GetRandomNumber(1, 4)); break;
-                case 30: treasure = CreateItem("Backpack - Medium"); break;
-                case 31: treasure = CreateItem("Rope (Old)"); break;
+                case 29: treasure = _gameData.GetEquipmentByNameSetQuantity("Lock Picks", RandomHelper.GetRandomNumber(1, 4)); break;
+                case 30: treasure = _gameData.GetEquipmentByName("Backpack - Medium"); break;
+                case 31: treasure = _gameData.GetEquipmentByName("Rope (old)"); break;
                 case 32:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
@@ -308,27 +307,27 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Padded Pants"; break;
                         case 6: itemName = "Padded Coat"; break;
                     }
-                    treasure = CreateItem(itemName, armourDurability);
+                    treasure = _gameData.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
                 case 33: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
                 case 34: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure("Part", 1)); break;
-                case 35: treasure = CreateItem("Rapier", weaponDurability); break;
-                case 36: treasure = CreateItem("Ration", 1, 5, RandomHelper.GetRandomNumber(1, 4)); break;
-                case 37: treasure = CreateItem("Ration", 1, 5, RandomHelper.GetRandomNumber(1, 6)); break;
+                case 35: treasure = _gameData.GetWeaponByNameSetDurability("Rapier", weaponDurability); break;
+                case 36: treasure = _gameData.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 4)); break;
+                case 37: treasure = _gameData.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 6)); break;
                 case 38: treasure = CreateItem("Potion Recipe - Weak"); break;
                 case 39:
-                case 40: treasure = CreateItem("Ring"); break;
-                case 41: treasure = CreateItem("Rope"); break;
-                case 42: treasure = CreateItem("Shortbow", weaponDurability); break;
-                case 43: treasure = CreateItem("Shortsword", weaponDurability); break;
-                case 44: treasure = CreateItem("Skinning Knife", 0, 100, RandomHelper.GetRandomNumber(1, 3)); break;
-                case 45: treasure = CreateItem("Sling", weaponDurability); break;
-                case 46: treasure = CreateItem("Staff", weaponDurability); break;
+                case 40: treasure = _gameData.GetEquipmentByName("Ring"); break;
+                case 41: treasure = _gameData.GetEquipmentByName("Rope"); break;
+                case 42: treasure = _gameData.GetWeaponByNameSetDurability("Shortbow", weaponDurability); break;
+                case 43: treasure = _gameData.GetWeaponByNameSetDurability("Shortsword", weaponDurability); break;
+                case 44: treasure = _gameData.GetEquipmentByNameSetQuantity("Skinning Knife", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 45: treasure = _gameData.GetWeaponByNameSetDurability("Sling", weaponDurability); break;
+                case 46: treasure = _gameData.GetWeaponByNameSetDurability("Staff", weaponDurability); break;
                 case 47:
                 case 48:
-                case 49: treasure = CreateItem("Torch"); break;
-                case 50: treasure = CreateItem("Whetstone"); break;
-                case 51: treasure = CreateItem("Wild Game Traps"); break;
+                case 49: treasure = _gameData.GetEquipmentByName("Torch"); break;
+                case 50: treasure = _gameData.GetEquipmentByName("Whetstone"); break;
+                case 51: treasure = _gameData.GetEquipmentByName("Wild game traps"); break;
                 case 52: treasure = CreateItem("Wolf Pelt", 0, 50, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 53: treasure = GetWonderfulTreasure(); break;
                 case 54: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
@@ -350,9 +349,9 @@ namespace LoDCompanion.Services.Dungeon
 
             switch (roll)
             {
-                case 1: treasure = CreateItem("Alchemist Tools", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
-                case 2: treasure = CreateItem("Alchemist Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
-                case 3: treasure = CreateItem("Armour Repair Kit"); break;
+                case 1: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Alchemist Tool", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
+                case 2: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Alchemist Belt", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
+                case 3: treasure = _gameData.GetEquipmentByName("Armour Repair Kit"); break;
                 case 4:
                     roll = RandomHelper.GetRandomNumber(1, 3);
                     switch (roll)
@@ -371,7 +370,7 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = _gameData.GetAmmoByName("Barbed Bolt");
                     treasure.Quantity = 5;
                     break;
-                case 7: treasure = CreateItem("Bedroll"); break;
+                case 7: treasure = _gameData.GetEquipmentByName("Bedroll"); break;
                 case 8:
                     roll = RandomHelper.GetRandomNumber(1, 2);
                     switch (roll)
@@ -384,13 +383,13 @@ namespace LoDCompanion.Services.Dungeon
                 case 9: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 100) + 40); break;
                 case 10: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 200) + 20); break;
                 case 11: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(3, 300)); break;
-                case 12: treasure = CreateItem("Door Mirror"); break;
+                case 12: treasure = _gameData.GetEquipmentByName("Door Mirror"); break;
                 case 13: treasure = CreateItem("Lock Picks - Dwarven", 1, 0, RandomHelper.GetRandomNumber(1, 6)); break;
-                case 14: treasure = CreateItem("Elven Bow", (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 2)))); break;
-                case 15: treasure = CreateItem("Skinning Knife - Elven"); break;
+                case 14: treasure = _gameData.GetWeaponByNameSetDurability("Elven Bow", (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 2)))); break;
+                case 15: treasure = _gameData.GetEquipmentByName("Elven Skinning Knife"); break;
                 case 16: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Ingredient", 1)); break;
-                case 17: treasure = CreateItem("Extended Battle Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
-                case 18: treasure = CreateItem("Fishing Gear"); break;
+                case 17: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
+                case 18: treasure = _gameData.GetEquipmentByName("Fishing Gear"); break;
                 case 19: treasure = CreateItem("Gemstone", 0, RandomHelper.GetRandomNumber(3, 300)); break;
                 case 20: treasure = CreateItem("Gemstone", 0, 100, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 21:
@@ -403,8 +402,8 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = _gameData.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
                     break;
                 case 22: treasure = _gameData.GetShieldByNameSetDurability("Heater Shield", (DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)))); break;
-                case 23: treasure = CreateItem("Iron Wedge", 6, 50, (RandomHelper.GetRandomNumber(1, 3))); break;
-                case 24: treasure = CreateItem("Backpack - Large"); break;
+                case 23: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Iron Wedge", 6, (RandomHelper.GetRandomNumber(1, 3))); break;
+                case 24: treasure = _gameData.GetEquipmentByName("Backpack - Large"); break;
                 case 25:
                 case 26:
                     roll = RandomHelper.GetRandomNumber(1, 6);
@@ -434,12 +433,12 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = _gameData.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
-                case 30: treasure = CreateItem("Necklace", 0, RandomHelper.GetRandomNumber(3, 300)); break;
+                case 30: treasure = _gameData.GetEquipmentByName("Necklace"); treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
                 case 31: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Part", 1)); break;
-                case 32: treasure = CreateItem("Partial Map"); break;
+                case 32: treasure = _gameData.GetEquipmentByName("Partial Map"); break;
                 case 33:
-                case 34: treasure = CreateItem("Potion - Standard"); break;
-                case 35: treasure = CreateItem("Potion of Health"); break;
+                case 34: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Standard); break;
+                case 35: treasure = AlchemyService.GetPotionByName("Potion of Health"); break;
                 case 36:
                     roll = RandomHelper.GetRandomNumber(1, 4);
                     switch (roll)
@@ -452,7 +451,7 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = _gameData.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
                     break;
                 case 37: treasure = CreateItem("Relic"); break;
-                case 38: treasure = CreateItem("Ring"); break;
+                case 38: treasure = _gameData.GetEquipmentByName("Ring"); break;
                 case 39: treasure = CreateItem("Scroll"); break;
                 case 40: treasure = CreateItem("Scroll", 0, 100, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 41:
@@ -479,7 +478,7 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = _gameData.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - durabilityDamageRoll);
                     break;
                 case 45: treasure = _gameData.GetAmmoByNameSetQuantity("Superior Sling Stone", RandomHelper.GetRandomNumber(1, 10)); break;
-                case 46: treasure = CreateItem("Potion - Supreme"); break;
+                case 46: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Supreme); break;
                 case 47:
                     roll = RandomHelper.GetRandomNumber(1, 4);
                     switch (roll)
@@ -491,13 +490,13 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = _gameData.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
                     break;
-                case 48: treasure = CreateItem("Tobacco"); break;
-                case 49: treasure = CreateItem("Trap Disarming Kit"); break;
+                case 48: treasure = _gameData.GetEquipmentByName("Tobacco"); break;
+                case 49: treasure = _gameData.GetEquipmentByName("Trap Disarming Kit"); break;
                 case 50:
                 case 51:
                 case 52: treasure = GetWonderfulTreasure(); break;
                 case 53: treasure = GetRandomWizardStaff(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)); break;
-                case 54: treasure = CreateItem("Dwarven Ale"); break;
+                case 54: treasure = _gameData.GetEquipmentByName("Dwarven Ale"); break;
                 default:
                     treasure = CreateItem("Unknown Fine Item");
                     break;
@@ -519,9 +518,9 @@ namespace LoDCompanion.Services.Dungeon
 
             switch (roll)
             {
-                case 1: treasure = CreateItem("Aim Attachment", 0, 200, RandomHelper.GetRandomNumber(1, 3)); break;
+                case 1: treasure = _gameData.GetEquipmentByNameSetQuantity("Aim Attachment", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 2: treasure = CreateItem("Talent Training Manual"); break;
-                case 3: treasure = CreateItem("Combat Harness", 6 - defaultDurabilityDamageRoll); break;
+                case 3: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Combat Harness", 6 - defaultDurabilityDamageRoll); break;
                 case 4:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
@@ -535,13 +534,13 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = _gameData.GetArmourByNameSetDurability(itemName, (10 - defaultDurabilityDamageRoll));
                     break;
-                case 5: treasure = CreateItem("Lock Pick - Dwarven", 0, 0, RandomHelper.GetRandomNumber(1, 6)); break;
-                case 6: treasure = CreateItem("Dwarven Pickaxe", (6 - defaultDurabilityDamageRoll)); break;
-                case 7: treasure = CreateItem("Elven Bow", DefaultWeaponDurability); break;
+                case 5: treasure = _gameData.GetEquipmentByNameSetQuantity("Superior Lock Picks", RandomHelper.GetRandomNumber(1, 6)); break;
+                case 6: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Dwarven Pickaxe", (6 - defaultDurabilityDamageRoll)); break;
+                case 7: treasure = _gameData.GetWeaponByNameSetDurability("Elven Bow", DefaultWeaponDurability); break;
                 case 8: treasure = CreateItem("Elven Bowstring"); break;
-                case 9: treasure = CreateItem("Potion of Restoration"); break;
+                case 9: treasure = AlchemyService.GetPotionByName("Potion of Restoration"); break;
                 case 10: treasure = CreateItem("Relic - Epic"); break;
-                case 11: treasure = CreateItem("Extended Battle Belt", 6); break;
+                case 11: treasure = _gameData.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", 6); break;
                 case 12: treasure = CreateItem("Set of Fine Clothes"); break;
                 case 13: treasure = CreateItem("Flute"); break;
                 case 14:
@@ -563,9 +562,11 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 23:
                     itemArray = GetMagicItem("Armour");
-                    treasure = CreateItem("Cloak", armourDurability, 300);
-                    if (treasure is Armour magicCloak) { magicCloak.Name = "Magic Cloak of " + itemArray[0]; }
-                    treasure.Description += itemArray[1];
+                    treasure = _gameData.GetArmourByNameSetDurability("Cloak", armourDurability);
+                    treasure.Name = "Magic Cloak of " + itemArray[0];
+                    treasure.Value = 300;
+                    treasure.MagicEffect += itemArray[1];
+                    ((Armour)treasure).Properties.Add(ArmourProperty.Magic, 0);
                     if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
                     {
                         treasure.Description += " Cursed: " + itemArray[2];
@@ -617,7 +618,8 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 29:
                     itemArray = GetMagicItem("Item");
-                    treasure = CreateItem("Ring", 0, 700);
+                    treasure = _gameData.GetEquipmentByName("Ring");
+                    treasure.Value = 700;
                     treasure.Name = "Magic ring of " + itemArray[0];
                     treasure.Description = itemArray[1];
                     if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
@@ -743,7 +745,7 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = _gameData.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
                 case 46:
-                case 47: treasure = CreateItem("Potion - Supreme"); break;
+                case 47: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Supreme); break;
                 case 48:
                 case 49:
                 case 50: treasure = CreateItem("Power Stone", 0, 1000, RandomHelper.GetRandomNumber(1, 3)); break;
@@ -1068,26 +1070,26 @@ namespace LoDCompanion.Services.Dungeon
             int roll = RandomHelper.GetRandomNumber(1, 20);
             switch (roll)
             {
-                case 1: armour = CreateItem("Padded Cap", durability); break;
-                case 2: armour = CreateItem("Padded Vest", durability); break;
-                case 3: armour = CreateItem("Padded Jacket", durability); break;
-                case 4: armour = CreateItem("Padded Pants", durability); break;
-                case 5: armour = CreateItem("Padded Coat", durability); break;
-                case 6: armour = CreateItem("Leather Cap", durability); break;
-                case 7: armour = CreateItem("Leather Vest", durability); break;
-                case 8: armour = CreateItem("Leather Jacket", durability); break;
-                case 9: armour = CreateItem("Leather Leggings", durability); break;
-                case 10: armour = CreateItem("Leather Bracers", durability); break;
-                case 11: armour = CreateItem("Mail Coif", durability); break;
-                case 12: armour = CreateItem("Mail Shirt", durability); break;
-                case 13: armour = CreateItem("Sleeved Mail Shirt", durability); break;
-                case 14: armour = CreateItem("Mail Coat", durability); break;
-                case 15: armour = CreateItem("Sleeved Mail Coat", durability); break;
-                case 16: armour = CreateItem("Mail Leggings", durability); break;
-                case 17: armour = CreateItem("Plate Helmet", durability); break;
-                case 18: armour = CreateItem("Breastplate", durability); break;
-                case 19: armour = CreateItem("Plate Bracers", durability); break;
-                case 20: armour = CreateItem("Plate Leggings", durability); break;
+                case 1: armour = _gameData.GetArmourByNameSetDurability("Padded Cap", durability); break;
+                case 2: armour = _gameData.GetArmourByNameSetDurability("Padded Vest", durability); break;
+                case 3: armour = _gameData.GetArmourByNameSetDurability("Padded Jacket", durability); break;
+                case 4: armour = _gameData.GetArmourByNameSetDurability("Padded Pants", durability); break;
+                case 5: armour = _gameData.GetArmourByNameSetDurability("Padded Coat", durability); break;
+                case 6: armour = _gameData.GetArmourByNameSetDurability("Leather Cap", durability); break;
+                case 7: armour = _gameData.GetArmourByNameSetDurability("Leather Vest", durability); break;
+                case 8: armour = _gameData.GetArmourByNameSetDurability("Leather Jacket", durability); break;
+                case 9: armour = _gameData.GetArmourByNameSetDurability("Leather Leggings", durability); break;
+                case 10: armour = _gameData.GetArmourByNameSetDurability("Leather Bracers", durability); break;
+                case 11: armour = _gameData.GetArmourByNameSetDurability("Mail Coif", durability); break;
+                case 12: armour = _gameData.GetArmourByNameSetDurability("Mail Shirt", durability); break;
+                case 13: armour = _gameData.GetArmourByNameSetDurability("Sleeved Mail Shirt", durability); break;
+                case 14: armour = _gameData.GetArmourByNameSetDurability("Mail Coat", durability); break;
+                case 15: armour = _gameData.GetArmourByNameSetDurability("Sleeved Mail Coat", durability); break;
+                case 16: armour = _gameData.GetArmourByNameSetDurability("Mail Leggings", durability); break;
+                case 17: armour = _gameData.GetArmourByNameSetDurability("Plate Helmet", durability); break;
+                case 18: armour = _gameData.GetArmourByNameSetDurability("Breastplate", durability); break;
+                case 19: armour = _gameData.GetArmourByNameSetDurability("Plate Bracers", durability); break;
+                case 20: armour = _gameData.GetArmourByNameSetDurability("Plate Leggings", durability); break;
                 default:
                     armour = CreateItem("Unknown Random Armour", durability); // Should not happen
                     break;
@@ -1101,28 +1103,28 @@ namespace LoDCompanion.Services.Dungeon
             int roll = RandomHelper.GetRandomNumber(1, 22);
             switch (roll)
             {
-                case 1: weapon = CreateItem("Dagger", durability); break;
-                case 2: weapon = CreateItem("Shortsword", durability); break;
-                case 3: weapon = CreateItem("Rapier", durability); break;
-                case 4: weapon = CreateItem("Broadsword", durability); break;
-                case 5: weapon = CreateItem("Longsword", durability); break;
-                case 6: weapon = CreateItem("Battleaxe", durability); break;
-                case 7: weapon = CreateItem("Battle Hammer", durability); break;
-                case 8: weapon = CreateItem("Morning Star", durability); break;
-                case 9: weapon = CreateItem("Flail", durability); break;
-                case 10: weapon = CreateItem("Staff", durability); break;
-                case 11: weapon = CreateItem("Javelin", durability); break;
-                case 12: weapon = CreateItem("Greatsword", durability); break;
-                case 13: weapon = CreateItem("Greataxe", durability); break;
-                case 14: weapon = CreateItem("Warhammer", durability); break;
-                case 15: weapon = CreateItem("Halberd", durability); break;
-                case 16: weapon = CreateItem("Shortbow", durability); break;
-                case 17: weapon = CreateItem("Longbow", durability); break;
-                case 18: weapon = CreateItem("Elven Bow", durability); break;
-                case 19: weapon = CreateItem("Crossbow Pistol", durability); break;
-                case 20: weapon = CreateItem("Crossbow", durability); break;
-                case 21: weapon = CreateItem("Arbalest", durability); break;
-                case 22: weapon = CreateItem("Sling", durability); break;
+                case 1: weapon = _gameData.GetWeaponByNameSetDurability("Dagger", durability); break;
+                case 2: weapon = _gameData.GetWeaponByNameSetDurability("Shortsword", durability); break;
+                case 3: weapon = _gameData.GetWeaponByNameSetDurability("Rapier", durability); break;
+                case 4: weapon = _gameData.GetWeaponByNameSetDurability("Broadsword", durability); break;
+                case 5: weapon = _gameData.GetWeaponByNameSetDurability("Longsword", durability); break;
+                case 6: weapon = _gameData.GetWeaponByNameSetDurability("Battleaxe", durability); break;
+                case 7: weapon = _gameData.GetWeaponByNameSetDurability("Battle Hammer", durability); break;
+                case 8: weapon = _gameData.GetWeaponByNameSetDurability("Morning Star", durability); break;
+                case 9: weapon = _gameData.GetWeaponByNameSetDurability("Flail", durability); break;
+                case 10: weapon = _gameData.GetWeaponByNameSetDurability("Staff", durability); break;
+                case 11: weapon = _gameData.GetWeaponByNameSetDurability("Javelin", durability); break;
+                case 12: weapon = _gameData.GetWeaponByNameSetDurability("Greatsword", durability); break;
+                case 13: weapon = _gameData.GetWeaponByNameSetDurability("Greataxe", durability); break;
+                case 14: weapon = _gameData.GetWeaponByNameSetDurability("Warhammer", durability); break;
+                case 15: weapon = _gameData.GetWeaponByNameSetDurability("Halberd", durability); break;
+                case 16: weapon = _gameData.GetWeaponByNameSetDurability("Shortbow", durability); break;
+                case 17: weapon = _gameData.GetWeaponByNameSetDurability("Longbow", durability); break;
+                case 18: weapon = _gameData.GetWeaponByNameSetDurability("Elven Bow", durability); break;
+                case 19: weapon = _gameData.GetWeaponByNameSetDurability("Crossbow Pistol", durability); break;
+                case 20: weapon = _gameData.GetWeaponByNameSetDurability("Crossbow", durability); break;
+                case 21: weapon = _gameData.GetWeaponByNameSetDurability("Arbalest", durability); break;
+                case 22: weapon = _gameData.GetWeaponByNameSetDurability("Sling", durability); break;
                 default:
                     weapon = CreateItem("Unknown Random Weapon", durability); // Should not happen
                     break;
@@ -1170,21 +1172,6 @@ namespace LoDCompanion.Services.Dungeon
                 case "Coin":
                     newItem = new Equipment { Name = "Coin", Encumbrance = 0, Durability = 0, Value = 1 };
                     break;
-                case "Arrow":
-                    newItem = new Ammo { Name = "Arrow", Encumbrance = 0, Durability = 0, Value = 1, Quantity = 5, MaxDurability = 0 }; // Ammo typically has no durability
-                    break;
-                case "Bolt":
-                    newItem = new Ammo { Name = "Bolt", Encumbrance = 0, Durability = 0, Value = 1, Quantity = 5, MaxDurability = 0 };
-                    break;
-                case "Aim Attachment":
-                    newItem = new Equipment { Name = "Aim Attachment", Encumbrance = 0, Durability = 0, Value = 200, Description = "Attached to a class 6 ranged weapon, providing RS +15 instead of the normal +10 when aiming", MaxDurability = 0 };
-                    break;
-                case "Alchemist Tools":
-                    newItem = new Equipment { Name = "Alchemist Tools", Encumbrance = 5, Value = 200, Description = "used to harvest parts and ingredients", MaxDurability = 6 };
-                    break;
-                case "Alchemist Belt":
-                    newItem = new Equipment { Name = "Alchemist Belt", Encumbrance = 0, Value = 300, Description = "grants 6 quick slots for use with potions only", MaxDurability = 6 };
-                    break;
                 case "Potion Recipe - Weak":
                     newItem = new Equipment { Name = $"Weak Potion Recipe: {AlchemyService.GetNonStandardPotion()}", Encumbrance = 0, Durability = 0, Value = 0, Description = "The actual components involved shall be chosen by the player", MaxDurability = 0 };
                     break;
@@ -1200,59 +1187,14 @@ namespace LoDCompanion.Services.Dungeon
                 case "Part - Exquisite":
                     newItem = new AlchemyItem { Name = "Part - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
                     break;
-                case "Armour Repair Kit":
-                    newItem = new Equipment { Name = "Armour Repair Kit", Encumbrance = 5, Durability = 0, Value = 200, Description = "Used to repair 1 piece of armour while resting for 1d3 durability", MaxDurability = 0 }; // Durability here for 'uses' rather than item itself
-                    break;
                 case "Amulet":
                     newItem = new Equipment { Name = "Amulet", Encumbrance = 0, Durability = 0, Value = 100, Description = "Can be enchanted", MaxDurability = 0 };
-                    break;
-                case "Backpack - Medium":
-                    newItem = new Equipment { Name = "Backpack - Medium", Encumbrance = 0, Durability = 0, Value = 350, Description = "Increases Enc +10, but lowers Dex -5", MaxDurability = 0 };
-                    break;
-                case "Backpack - Large":
-                    newItem = new Equipment { Name = "Backpack - Large", Encumbrance = 1, Durability = 0, Value = 600, Description = "Increase ENC +25, lowering DEX -15", MaxDurability = 0 };
                     break;
                 case "Backpack - Huge":
                     newItem = new Equipment { Name = "Backpack - Huge", Encumbrance = 1, Durability = 0, Value = 850, Description = "Increase ENC +35, while decreasing DEX -20", MaxDurability = 0 };
                     break;
-                case "Bandage (Old Rag)":
-                    newItem = new Equipment { Name = "Bandage (Old Rag)", Encumbrance = 1, Durability = 1, Value = 15, Description = "Heals 1d4 wounds when using the heal skill", MaxDurability = 1 }; // Disposable
-                    break;
-                case "Bandage (Linen)":
-                    newItem = new Equipment { Name = "Bandage (Linen)", Encumbrance = 1, Durability = 1, Value = 25, Description = "Heals 1d8 wounds when using the heal skill", MaxDurability = 1 }; // Disposable
-                    break;
-                case "Bear Trap":
-                    newItem = new Equipment { Name = "Bear Trap", Encumbrance = 5, Durability = 2, Value = 200, Description = "See rules on pg 133 of rule book", MaxDurability = 2 };
-                    break;
-                case "Bedroll":
-                    newItem = new Equipment { Name = "Bedroll", Encumbrance = 5, Durability = 0, Value = 200, Description = "Regain all energy when used while resting", MaxDurability = 0 };
-                    break;
-                case "Beef Jerky":
-                    newItem = new Equipment { Name = "Beef Jerky", Encumbrance = 0, Durability = 0, Description = "Eat to restore 1hp", MaxDurability = 0 };
-                    break;
-                case "Combat Harness":
-                    newItem = new Equipment { Name = "Combat Harness", Encumbrance = 0, Durability = 6, Value = 500, Description = "Increases quick slots from 3 to 5", MaxDurability = 6 };
-                    break;
-                case "Crowbar":
-                    newItem = new Equipment { Name = "Crowbar", Encumbrance = 10, Value = 55, Description = "inflict 1d8+8 dmg to doors and chests with a threat lvl +1", MaxDurability = 6 };
-                    break;
-                case "Door Mirror":
-                    newItem = new Equipment { Name = "Door Mirror", Encumbrance = 0, Durability = 0, Value = 300, Description = "See item special rules on pg 133 in rule book", MaxDurability = 0 };
-                    break;
-                case "Dwarven Ale":
-                    newItem = new Equipment { Name = "Dwarven Ale", Encumbrance = 2, Durability = 1, Value = 100, Description = "Enough for a single serving (1-4 heros). RES +20, but all other skills -10 for the dungeon/skirmish", MaxDurability = 1 };
-                    break;
-                case "Dwarven Pickaxe":
-                    newItem = new Equipment { Name = "Dwarven Pickaxe", Encumbrance = 8, Durability = 6, Value = 225, Description = "", MaxDurability = 6 };
-                    break;
                 case "Elven Bowstring":
                     newItem = new Equipment { Name = "Elven Bowstring", Encumbrance = 0, Durability = 0, Value = 0, Description = "After adding to any bow during a rest, it adds RS +5 to the weapon", MaxDurability = 0 };
-                    break;
-                case "Extended Battle Belt":
-                    newItem = new Equipment { Name = "Extended Battle Belt", Encumbrance = 0, Durability = 6, Value = 300, Description = "Increases quick access slots from 3 to 4", MaxDurability = 6 };
-                    break;
-                case "Fishing Gear":
-                    newItem = new Equipment { Name = "Fishing Gear", Encumbrance = 3, Durability = 0, Value = 40, Description = "Grants a Foraging +10 modifier", MaxDurability = 0 };
                     break;
                 case "Flute":
                     newItem = new Equipment { Name = "Flute", Encumbrance = 1, Durability = 0, Value = 100, Description = "May be used during a short rest, with a WIS test, to lower the threat level by 1d3.", MaxDurability = 0 };
@@ -1266,60 +1208,12 @@ namespace LoDCompanion.Services.Dungeon
                 case "Harp":
                     newItem = new Equipment { Name = "Harp", Encumbrance = 2, Durability = 0, Value = 100, Description = "May be used during a short rest, with a WIS test, all heroes regain an extra 1d3HP.", MaxDurability = 0 };
                     break;
-                case "Iron Wedge":
-                    newItem = new Equipment { Name = "Iron Wedge", Encumbrance = 4, Durability = 6, Value = 50, Description = "Takes 1AP to use and an additional 1AP if door is open. Wandering monsters will take 3 turns to open door", MaxDurability = 6 };
-                    break;
-                case "Lantern":
-                    newItem = new Equipment { Name = "Lantern", Encumbrance = 1, Durability = 0, Value = 100, Description = "See Lantern description and special rules on pg 168 of the rule book", MaxDurability = 0 };
-                    break;
-                case "Lock Pick":
-                    newItem = new Equipment { Name = "Lock Pick", Encumbrance = 0, Durability = 1, Value = 6, Quantity = 5, Description = "Necessary for picking locks. If attempt fails the pick is broken", MaxDurability = 1 };
-                    break;
-                case "Lock Picks - Dwarven":
-                    newItem = new Equipment { Name = "Lock Picks - Dwarven", Encumbrance = 0, Durability = 1, Value = 0, Description = "Lock picks that add +10 to the lock picking attempt", MaxDurability = 1 };
-                    break;
                 case "Lute":
                     newItem = new Equipment { Name = "Lute", Encumbrance = 5, Durability = 0, Value = 100, Description = "May be used during a short rest, with a WIS test, to recover 1 sanity for all heroes.", MaxDurability = 0 };
-                    break;
-                case "Necklace":
-                    newItem = new Equipment { Name = "Necklace", Encumbrance = 0, Durability = 0, Value = 150, Description = "Can be enchanted", MaxDurability = 0 };
-                    break;
-                case "Partial Map":
-                    newItem = new Equipment { Name = "Partial Map", Encumbrance = 0, Durability = 1, Value = 0, Description = "This map lets the player look at 2 unused encounter cards, afterwards placed back where they were.", MaxDurability = 1 };
-                    break;
-                case "Empty Bottle":
-                    newItem = new AlchemyItem { Name = "Empty Bottle", Encumbrance = 0, Value = 15, Description = "These bottles can be used to brew potions", MaxDurability = 0 };
-                    break;
-                case "Potion - Weak":
-                    newItem = AlchemyService.GetPotionByStrength(PotionStrength.Weak);
-                    break;
-                case "Potion - Standard":
-                    newItem = AlchemyService.GetPotionByStrength(PotionStrength.Standard);
-                    break;
-                case "Potion - Supreme":
-                    newItem = AlchemyService.GetPotionByStrength(PotionStrength.Supreme);
-                    break;
-                case "Potion of Health":
-                    newItem = new AlchemyItem { Name = "Potion of Health", Encumbrance = 1, Durability = 1, Value = 100, Description = "This potion heals 1d6HP upon drinking", MaxDurability = 1 };
-                    break;
-                case "Potion of Restoration":
-                    newItem = new AlchemyItem { Name = "Potion of Restoration", Encumbrance = 1, Durability = 1, Value = 200, Description = "Brings a hero to full health even when dead or knocked out. Additionally cures any disease and poison", MaxDurability = 1 };
                     break;
                 case "Power Stone":
                     string[] stoneData = GetPowerStone();
                     newItem = new Equipment { Name = stoneData[0], Encumbrance = 0, Durability = 0, Value = 1000, Description = stoneData[1], MaxDurability = 0 };
-                    break;
-                case "Ration":
-                    newItem = new Equipment { Name = "Ration", Encumbrance = 1, Durability = 1, Value = 5, Description = "If eaten while resting heal 1d6HP and 50% chance of regaining 1d6 energy. Also used to avoid hunger while traveling", MaxDurability = 1 };
-                    break;
-                case "Ring":
-                    newItem = new Equipment { Name = "Ring", Encumbrance = 0, Durability = 0, Value = 150, Description = "can be enchanted", MaxDurability = 0 };
-                    break;
-                case "Rope (Old)":
-                    newItem = new Equipment { Name = "Rope (Old)", Encumbrance = 2, Durability = 1, Value = 20, Description = "See special rules on pg 167 of the rule book", MaxDurability = 1 };
-                    break;
-                case "Rope":
-                    newItem = new Equipment { Name = "Rope", Encumbrance = 2, Durability = 1, Value = 50, Description = "See special rules on pg 167 of the rule book", MaxDurability = 1 };
                     break;
                 case "Set of Fine Clothes":
                     newItem = new Equipment { Name = "Set of Fine Clothes", Encumbrance = 0, Durability = 0, Value = 0, Description = "Increases Barter +5", MaxDurability = 0 };
@@ -1327,32 +1221,8 @@ namespace LoDCompanion.Services.Dungeon
                 case "Scroll":
                     newItem = new Equipment { Name = $"Scroll of {new GameDataService().GetRandomSpellName()}", Encumbrance = 0, Durability = 0, Value = 100, MaxDurability = 0 };
                     break;
-                case "Skinning Knife":
-                    newItem = new Equipment { Name = "Skinning Knife", Encumbrance = 1, Durability = 0, Value = 100, Description = "Allows hero to skin animals", MaxDurability = DefaultWeaponDurability }; // Assuming it has weapon durability
-                    break;
-                case "Skinning Knife - Elven":
-                    newItem = new Equipment { Name = "Skinning Knife - Elven", Encumbrance = 1, Durability = 0, Value = 250, Description = "Allows hero to skin animals with a Foraging +10 modifier", MaxDurability = DefaultWeaponDurability };
-                    break;
                 case "Talent Training Manual":
                     newItem = new Equipment { Name = $"{new GameDataService().GetRandomTalent()} Training Manual", Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };
-                    break;
-                case "Tobacco":
-                    newItem = new Equipment { Name = "Tobacco", Encumbrance = 0, Durability = 0, Value = 50, Description = "Use to provide RES +15 for 1 dungeon", MaxDurability = 0 };
-                    break;
-                case "Trap Disarming Kit":
-                    newItem = new Equipment { Name = "Trap Disarming Kit", Encumbrance = 5, Durability = 6, Value = 200, Description = "Pick lock +10 when disarming traps", MaxDurability = 6 };
-                    break;
-                case "Trap Disarming Kit - Superior":
-                    newItem = new Equipment { Name = "Trap Disarming Kit - Superior", Encumbrance = 4, Value = 250, Description = "Gives Pick lock +15 when disarming traps", MaxDurability = 6 };
-                    break;
-                case "Torch":
-                    newItem = new Equipment { Name = "Torch", Encumbrance = 1, Durability = 1, Value = 15, Description = "See Torch description and special rules on pg 168 of the rule book", MaxDurability = 1 };
-                    break;
-                case "Whetstone":
-                    newItem = new Equipment { Name = "Whetstone", Encumbrance = 5, Durability = 0, Value = 200, Description = "Use to repair CC weapons for 1d3 durability. Can be used 3 times during resting", MaxDurability = 0 }; // Durability here refers to charges/uses
-                    break;
-                case "Wild Game Traps":
-                    newItem = new Equipment { Name = "Wild Game Traps", Encumbrance = 3, Durability = 0, Value = 150, Description = "Foraging +10 when rolling to catch an animal", MaxDurability = 0 };
                     break;
                 case "Wolf Pelt":
                     newItem = new Equipment { Name = "Wolf Pelt", Encumbrance = 2, Durability = 0, Value = 50, MaxDurability = 0 };

@@ -2569,7 +2569,7 @@ namespace LoDCompanion.Services.GameData
                     },
                     new Equipment(){
                         Type = "Common",
-                    Name = "Iron Wedges",
+                    Name = "Iron Wedge",
                     Encumbrance = 4,
                     Durability = 6,
                     Description = "These can be used to block a door and takes 1 AP, plus the action to close the door. A Wandering Monster (or a monster already revealed) will stop at this door and have to roll 1d6: 4-6 next turn to pass through. Enough for 2 doors.",
@@ -2587,7 +2587,7 @@ namespace LoDCompanion.Services.GameData
                     },
                     new Equipment(){
                         Type = "Common",
-                    Name = "Lantern (filled with oil)",
+                    Name = "Lantern",
                     Encumbrance = 1,
                     Durability = 1,
                     Description = "The light projected by the lantern helps strengthen the resolve of your party. See separate note on lantern.",
@@ -2596,7 +2596,7 @@ namespace LoDCompanion.Services.GameData
                     },
                     new Equipment(){
                         Type = "Common",
-                    Name = "Lockpicks",
+                    Name = "Lock Picks",
                     Quantity = 5,
                     Encumbrance = 0,
                     Durability = 1,
@@ -2905,6 +2905,15 @@ namespace LoDCompanion.Services.GameData
             Equipment? item = GetEquipmentByName(name);
             if (item == null) throw new NullReferenceException();
             item.Quantity = qty;
+            return item;
+        }
+
+        public Equipment GetEquipmentByNameSetDurabilitySetQuantity(string name, int durability, int qty = 1)
+        {
+            Equipment? item = GetEquipmentByName(name);
+            if (item == null) throw new NullReferenceException();
+            item.Quantity = qty;
+            item.Durability = durability;
             return item;
         }
 
@@ -4426,7 +4435,6 @@ namespace LoDCompanion.Services.GameData
                     Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
                     Value = 500,
                     Availability = 4,
-                    IsMagic = true,
                     MagicEffect = "Gain 1 max energy point"
                   },
                   new Equipment(){
@@ -4437,7 +4445,6 @@ namespace LoDCompanion.Services.GameData
                     Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
                     Value = 500,
                     Availability = 4,
-                    IsMagic = true,
                     MagicEffect = "Healing bonus 1d3 done by the Warrior Priest"
                   },
                   new Equipment(){
@@ -4448,7 +4455,6 @@ namespace LoDCompanion.Services.GameData
                     Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
                     Value = 500,
                     Availability = 4,
-                    IsMagic = true,
                     MagicEffect = "Adds 5 to RES"
                   },
                   new Equipment(){
@@ -4459,7 +4465,6 @@ namespace LoDCompanion.Services.GameData
                     Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
                     Value = 500,
                     Availability = 4,
-                    IsMagic = true,
                     MagicEffect = "Luck +1"
                   },
                   new Equipment(){
@@ -4470,7 +4475,6 @@ namespace LoDCompanion.Services.GameData
                     Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
                     Value = 500,
                     Availability = 4,
-                    IsMagic = true,
                     MagicEffect = "Adds 5 to STR"
                   },
                   new Equipment(){
@@ -4481,7 +4485,6 @@ namespace LoDCompanion.Services.GameData
                     Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
                     Value = 500,
                     Availability = 4,
-                    IsMagic = true,
                     MagicEffect = "Adds 5 to CS"
                   }
             };
