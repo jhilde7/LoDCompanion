@@ -81,7 +81,7 @@ namespace LoDCompanion.Services.Dungeon
                 // Assuming weapon.GetDamage() returns an int array like {min, max}
                 // We'll just take the min for simplicity or roll dice if needed.
                 // For a more robust combat system, this would involve a proper damage roll
-                damageToLock = RandomHelper.GetRandomNumber(weapon.DamageRange[0], weapon.DamageRange[1]) + baseDamage;
+                damageToLock = RandomHelper.GetRandomNumber(weapon.MinDamage, weapon.MaxDamage) + baseDamage;
                 Console.WriteLine($"{hero.Name} bashes the lock with {weapon.Name} for {damageToLock} damage!");
             }
             else

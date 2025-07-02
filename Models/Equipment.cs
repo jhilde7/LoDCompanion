@@ -13,7 +13,7 @@ namespace LoDCompanion.Models
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
         public int Durability { get; set; } = 1;
-        public int Value { get; set; } = 0; 
+        public double Value { get; set; } = 0; 
         public int SellValue { get; private set; } 
         public int RepairCost { get; private set; } 
         public int Availability { get; set; } = 4;
@@ -170,7 +170,7 @@ namespace LoDCompanion.Models
         }
     }
 
-    public enum MeleeWeaponProperty
+    public enum WeaponProperty
     {
         Silver,
         Mithril,
@@ -189,7 +189,8 @@ namespace LoDCompanion.Models
         Axe,
         Sword,
         Blunt,
-        Metal
+        Metal,
+        Magic
     }
 
     public class Weapon : Equipment
@@ -199,6 +200,8 @@ namespace LoDCompanion.Models
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public int ArmourPiercing { get; set; }
+        public Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
+
 
         // You can add common weapon methods here, e.g., for calculating damage roll
         public virtual int RollDamage()
@@ -223,8 +226,8 @@ namespace LoDCompanion.Models
 
     public class MeleeWeapon : Weapon
     {
-        public Dictionary<MeleeWeaponProperty, int> Properties { get; set; } = new Dictionary<MeleeWeaponProperty, int>();
-
+        private bool HasAppliedSlayerModifier { get; set; }
+        
         public MeleeWeapon() 
         {
             SetMithrilModifier();
@@ -241,7 +244,7 @@ namespace LoDCompanion.Models
                 var propsAsStrings = new List<string>();
                 foreach (var prop in Properties)
                 {
-                    if (prop.Key == MeleeWeaponProperty.DualWield)
+                    if (prop.Key == WeaponProperty.DualWield)
                     {
                         // Special formatting for properties with a value
                         propsAsStrings.Add($"Dual Wield: +{prop.Value}");
@@ -260,7 +263,7 @@ namespace LoDCompanion.Models
 
         public void SetMithrilModifier()
         {
-            if(HasProperty(MeleeWeaponProperty.Mithril))
+            if(HasProperty(WeaponProperty.Mithril))
             {
                 MinDamage += 1;
                 MaxDamage += 1;
@@ -268,12 +271,22 @@ namespace LoDCompanion.Models
             }
         }
 
-        public bool HasProperty(MeleeWeaponProperty property)
+        public void SetSlayerTreatedModifier()
+        {
+            if(HasProperty(WeaponProperty.SlayerTreated))
+            {
+                MinDamage += 1;
+                MaxDamage += 1;
+                HasAppliedSlayerModifier = true;
+            }
+        }
+
+        public bool HasProperty(WeaponProperty property)
         {
             return Properties.ContainsKey(property);
         }
 
-        public int GetPropertyValue(MeleeWeaponProperty property)
+        public int GetPropertyValue(WeaponProperty property)
         {
             return Properties.GetValueOrDefault(property, 0);
         }
@@ -284,14 +297,7 @@ namespace LoDCompanion.Models
         ArcaneArts,
         ManaStorage,
         HitPointsBonus,
-        Illumination,
-        FireDamage,
-        IceDamage,
-        LightningDamage,
-        DarkDamage,
-        HolyDamage,
-        NatureDamage,
-        ArcaneDamage
+        Illumination
     }
 
     public class MagicStaff : MeleeWeapon
@@ -313,7 +319,7 @@ namespace LoDCompanion.Models
                 var propsAsStrings = new List<string>();
                 foreach (var prop in Properties)
                 {
-                    if (prop.Key == MeleeWeaponProperty.DualWield)
+                    if (prop.Key == WeaponProperty.DualWield)
                     {
                         // Special formatting for properties with a value
                         propsAsStrings.Add($"Dual Wield: +{prop.Value}");
@@ -358,9 +364,23 @@ namespace LoDCompanion.Models
             return sb.ToString();
         }
 
+        public bool IsSlingUsingNormalAmmo()
+        {
+            if (AmmoType == AmmoType.SlingStone && Ammo != null && !Ammo.HasProperty(AmmoProperty.SupuriorSlingStone))
+            {
+                return true;
+            }
+            return false;
+        }
+
         // You might add methods specific to ranged weapons here, e.g., to consume ammo
         public bool ConsumeAmmo(int quantity = 1)
         {
+            if (IsSlingUsingNormalAmmo())
+            {
+                return false;
+            }
+
             if (Ammo != null && Ammo.Quantity >= quantity)
             {
                 Ammo.Quantity -= quantity;
@@ -372,7 +392,7 @@ namespace LoDCompanion.Models
 
         public void reloadAmmo()
         {
-            if (Ammo != null && Ammo.Quantity > 0)
+            if (Ammo != null && Ammo.Quantity > 0 || IsSlingUsingNormalAmmo())
             {
                 IsLoaded = true;
             }
@@ -394,6 +414,7 @@ namespace LoDCompanion.Models
         DarkAsTheNight,
         DragonScale,
         Dog,
+        Magic
     }
 
     public class Armour : Equipment

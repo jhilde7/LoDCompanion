@@ -37,8 +37,7 @@ namespace LoDCompanion.Services.GameData
         public List<Armour> Armour => GetArmour();
         public List<Shield> Shields => GetShields();
         public List<Equipment> Relics => GetRelics();
-        public List<AlchemyItem> AlchemyItems => GetAlchemyItems();
-        public List<AlchemyItem> StandardPotions => GetStandardPotions();
+        public string SilverWeaponDescription { get; set; } = "Can hurt ethereal, and does Increased DMG+1 to Undead";
 
 
         public GameDataService()
@@ -2281,7 +2280,7 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of Choice"],
-                    TalentChoices = [ GetTalentByName("Mighty Blows"), GetTalentByName("Braveheart")],
+                    TalentChoices = [ GetTalentByName("Mighty Blow"), GetTalentByName("Braveheart")],
                     StartingBackpackList = [ GetArmourByName("Leather Jacket") ],
                     StartingTalentList = [GetTalentByName("Disciplined") ],
                     LevelUpCost = new Dictionary<string, int>(){
@@ -2898,7 +2897,7 @@ namespace LoDCompanion.Services.GameData
 
         public Equipment? GetEquipmentByName(string name)
         {
-            return Equipment.FirstOrDefault(x => x.Name == name) ?? null;
+            return Equipment.FirstOrDefault(x => x.Name == name);
         }
 
         public Equipment GetEquipmentByNameSetQuantity(string name, int qty)
@@ -2940,50 +2939,76 @@ namespace LoDCompanion.Services.GameData
                   },
                   new Ammo(){
                     Type = "Common",
-                    Name = "Sling Stone",
-                    MaxDurability = 1,
-                    Quantity = 5,
-                    Availability = 4,
-                    AmmoType = AmmoType.SlingStone
-                  },
-                  new Ammo(){
-                    Type = "Common",
-                    Name = "Barbed Arrows",
+                    Name = "Barbed Arrow",
                     MaxDurability = 1,
                     Quantity = 5,
                     Description = "Increased DMG+1",
                     Value = 25,
                     Availability = 4,
-                    IsBarbed = true,
+                    Properties = new Dictionary<AmmoProperty, int>
+                    {
+                        { AmmoProperty.Barbed, 1 }
+                    },
                     AmmoType = AmmoType.Arrow
                   },
                   new Ammo(){
                     Type = "Common",
-                    Name = "Barbed Bolts",
+                    Name = "Barbed Bolt",
                     MaxDurability = 1,
                     Quantity = 5,
                     Description = "Increased DMG+1",
                     Value = 25,
                     Availability = 4,
-                    IsBarbed = true,
+                    Properties = new Dictionary<AmmoProperty, int>
+                    {
+                        { AmmoProperty.Barbed, 1 }
+                    },
                     AmmoType = AmmoType.Bolt
                   },
                   new Ammo(){
                     Type = "Dark Guild",
-                    Name = "Superior Sling Stones",
+                    Name = "Superior Sling Stone",
                     MaxDurability = 1,
                     Quantity = 10,
                     Description = "This ammo is cast metal bullets rather than the normal stones. Gives +5 RS with slings and +1 DMG.",
                     Value = 25,
                     Availability = -1,
                     AmmoType = AmmoType.SlingStone
+                  },
+                  new Ammo()
+                  {
+                      Type = "Treasure",
+                      Name = "Silver Arrow",
+                      MaxDurability = 1,
+                      Description = SilverWeaponDescription,
+                      Value = 0,
+                      Availability = 0,
+                      Properties = new Dictionary<AmmoProperty, int>
+                      {
+                          { AmmoProperty.Silver, 1 }
+                      },
+                      AmmoType = AmmoType.Arrow
+                  },
+                  new Ammo()
+                  {
+                      Type = "Treasure",
+                      Name = "Silver Bolt",
+                      MaxDurability = 1,
+                      Description = SilverWeaponDescription,
+                      Value = 0,
+                      Availability = 0,
+                      Properties = new Dictionary<AmmoProperty, int>
+                      {
+                          { AmmoProperty.Silver, 1 }
+                      },
+                      AmmoType = AmmoType.Bolt
                   }
             };
         }
 
         public Ammo? GetAmmoByName( string name )
         {
-            return Ammo.FirstOrDefault(x => x.Name == name) ?? null;
+            return Ammo.FirstOrDefault(x => x.Name == name);
         }
 
         public Ammo GetAmmoByNameSetQuantity(string name, int qty)
@@ -2996,230 +3021,687 @@ namespace LoDCompanion.Services.GameData
 
         public List<Ammo> GetStartingAmmo()
         {
-            List<Ammo?> list = new List<Ammo>();
+            List<Ammo> list = new List<Ammo>();
             list.AddRange(Ammo.Where(x => x.Availability > 3));
             return list;
         }
 
         public List<MeleeWeapon> GetMeleeWeapons() 
         {
-            return new List<MeleeWeapon>()
-            {
+            return new List<MeleeWeapon> {
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Dagger",
+                    MinDamage = 1,
+                    MaxDamage = 6,
+                    Encumbrance = 5,
+                    Class = 1,
+                    Value = 10,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.DualWield, 1 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Shortsword",
+                    MinDamage = 3,
+                    MaxDamage = 8,
+                    Encumbrance = 7,
+                    Class = 2,
+                    Value = 70,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.DualWield, 2 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Rapier",
+                    MinDamage = 2,
+                    MaxDamage = 7,
+                    Encumbrance = 5,
+                    Class = 1,
+                    Value = 130,
+                    Availability = 3,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Fast, 0 },
+                        { WeaponProperty.DualWield, 2 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Broadsword",
+                    MinDamage = 3,
+                    MaxDamage = 10,
+                    Encumbrance = 8,
+                    Class = 3,
+                    Value = 90,
+                    Availability = 5,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Longsword",
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Encumbrance = 10,
+                    Class = 4,
+                    Value = 100,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Battleaxe",
+                    MinDamage = 2,
+                    MaxDamage = 11,
+                    Encumbrance = 10,
+                    Class = 4,
+                    ArmourPiercing = 1,
+                    Value = 100,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Axe, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Battle Hammer",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Encumbrance = 10,
+                    Class = 3,
+                    Value = 100,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Morning Star",
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    Encumbrance = 10,
+                    Class = 4,
+                    Value = 150,
+                    Availability = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Unwieldly, 4 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Flail",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 150,
+                    Availability = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Unwieldly, 4 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Staff",
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    Encumbrance = 5,
+                    Class = 2,
+                    Value = 5,
+                    Availability = 5,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Javelin",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Encumbrance = 10,
+                    Class = 2,
+                    ArmourPiercing = 1,
+                    Value = 100,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Reach, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Greatsword",
+                    MinDamage = 2,
+                    MaxDamage = 12,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 200,
+                    Availability = 3,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Greataxe",
+                    MinDamage = 3,
+                    MaxDamage = 14,
+                    Encumbrance = 20,
+                    Class = 5,
+                    ArmourPiercing = 2,
+                    Value = 200,
+                    Availability = 3,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Axe, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Warhammer",
+                    MinDamage = 2,
+                    MaxDamage = 6,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 200,
+                    Availability = 3,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Halberd",
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Encumbrance = 20,
+                    Class = 5,
+                    ArmourPiercing = 1,
+                    Value = 150,
+                    Availability = 4,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Reach, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Common",
+                    Name = "Net",
+                    MinDamage = 0,
+                    MaxDamage = 0,
+                    Encumbrance = 2,
+                    Class = 2,
+                    Value = 100,
+                    Availability = 3,
+                    Description = "If this weapon hits, the target is trapped in the net and must spend 1 action to get free with a successful STR Test. Until freed, this is the only action it can do. A net can be used once per battle and is retrieved automatically after the battle",
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Ensnare, 0 }
+                    }
+                },
                 new MeleeWeapon(){
-                Type = "Common",
-                Name = "Dagger",
-                DamageRange = [1, 6],
-                Encumbrance = 5,
-                WeaponClass = 1,
-                DualWieldBonus = 1,
-                Value = 10,
-                Availability = 4,
-                IsEdged = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Shortsword",
-                DamageRange = [3, 8],
-                Encumbrance = 7,
-                WeaponClass = 2,
-                DualWieldBonus = 2,
-                Value = 70,
-                Availability = 4,
-                IsEdged = true,
-                IsSword = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Rapier",
-                DamageRange = [2, 7],
-                Encumbrance = 5,
-                WeaponClass = 1,
-                IsFast = true,
-                DualWieldBonus = 2,
-                Value = 130,
-                Availability = 3,
-                IsEdged = true,
-                IsSword = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Broadsword",
-                DamageRange = [3, 10],
-                Encumbrance = 8,
-                WeaponClass = 3,
-                Value = 90,
-                Availability = 5,
-                IsEdged = true,
-                IsSword = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Longsword",
-                DamageRange = [1, 12],
-                Encumbrance = 10,
-                WeaponClass = 4,
-                Value = 100,
-                Availability = 4,
-                IsEdged = true,
-                IsSword = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Battleaxe",
-                DamageRange = [2, 11],
-                Encumbrance = 10,
-                WeaponClass = 4,
-                IsBFO = true,
-                ArmourPiercing = 1,
-                Value = 100,
-                Availability = 4,
-                IsEdged = true,
-                IsAxe = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Battle Hammer",
-                DamageRange = [1, 10],
-                Encumbrance = 10,
-                WeaponClass = 3,
-                IsStun = true,
-                IsBFO = true,
-                Value = 100,
-                Availability = 4,
-                IsBlunt = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Morning Star",
-                DamageRange = [1, 8],
-                Encumbrance = 10,
-                WeaponClass = 4,
-                IsUnwieldly = true,
-                UnWieldlyBonus = 4,
-                IsBFO = true,
-                IsStun = true,
-                Value = 150,
-                Availability = 2,
-                IsBlunt = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Flail",
-                DamageRange = [1, 10],
-                Encumbrance = 20,
-                WeaponClass = 5,
-                IsUnwieldly = true,
-                UnWieldlyBonus = 4,
-                IsBFO = true,
-                IsStun = true,
-                Value = 150,
-                Availability = 2,
-                IsBlunt = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Staff",
-                DamageRange = [1, 8],
-                Encumbrance = 5,
-                WeaponClass = 2,
-                IsDefensive = true,
-                Value = 5,
-                Availability = 5,
-                IsBlunt = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Javelin",
-                DamageRange = [1, 10],
-                Encumbrance = 10,
-                WeaponClass = 2,
-                IsReach = true,
-                IsBFO = true,
-                ArmourPiercing = 1,
-                Value = 100,
-                Availability = 4,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Greatsword",
-                DamageRange = [2, 6],
-                Encumbrance = 20,
-                WeaponClass = 5,
-                IsSlow = true,
-                Value = 200,
-                Availability = 3,
-                IsEdged = true,
-                IsSword = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Greataxe",
-                DamageRange = [3, 14],
-                Encumbrance = 20,
-                WeaponClass = 5,
-                IsSlow = true,
-                IsBFO = true,
-                ArmourPiercing = 2,
-                Value = 200,
-                Availability = 3,
-                IsEdged = true,
-                IsAxe = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Warhammer",
-                DamageRange = [2, 6],
-                Encumbrance = 20,
-                WeaponClass = 5,
-                IsSlow = true,
-                IsBFO = true,
-                IsStun = true,
-                Value = 200,
-                Availability = 3,
-                IsBlunt = true,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Halberd",
-                DamageRange = [1, 12],
-                Encumbrance = 20,
-                WeaponClass = 5,
-                IsReach = true,
-                ArmourPiercing = 1,
-                Value = 150,
-                Availability = 4,
-                IsMetal = true
-              },
-              new MeleeWeapon(){
-                        Type = "Common",
-                Name = "Net",
-                DamageRange = [0, 0],
-                Encumbrance = 2,
-                WeaponClass = 2,
-                IsEnsnare = true,
-                Value = 100,
-                Availability = 3,
-                Description = "If this weapon hits, the target is trapped in the net and must spend 1 action to get free with a successful STR Test. Until freed, this is the only action it can do. A net can be used once per battle and is retrieved automatically after the battle"
-              }
-            };
+                    Type = "Treasure",
+                    Name = "Silver Dagger",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 1,
+                    MaxDamage = 6,
+                    Encumbrance = 5,
+                    Class = 1,
+                    Value = 75 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+
+                        { WeaponProperty.DualWield, 1 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Shortsword",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 3,
+                    MaxDamage = 8,
+                    Encumbrance = 7,
+                    Value = 105 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+
+                        { WeaponProperty.DualWield, 2 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Rapier",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 2,
+                    MaxDamage = 7,
+                    Encumbrance = 5,
+                    Class = 1,
+                    Value = 270,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Fast, 0 },
+                        { WeaponProperty.DualWield, 2 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Longsword",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Encumbrance = 10,
+                    Class = 4,
+                    Value = 150,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Flail",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 225 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Unwieldly, 4 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Greatsword",
+                    MinDamage = 2,
+                    MaxDamage = 12,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Description = SilverWeaponDescription,
+                    Value = 300,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Greataxe",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 3,
+                    MaxDamage = 14,
+                    Encumbrance = 20,
+                    Class = 5,
+                    ArmourPiercing = 2,
+                    Value = 300 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Axe, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Silver Halberd",
+                    Description = SilverWeaponDescription,
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Encumbrance = 20,
+                    Class = 5,
+                    ArmourPiercing = 1,
+                    Value = 225 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Reach, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Silver, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Dagger",
+                    MinDamage = 1,
+                    MaxDamage = 6,
+                    Encumbrance = 5,
+                    Class = 1,
+                    Value = 50 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+
+                        { WeaponProperty.DualWield, 1 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Shortsword",
+                    MinDamage = 3,
+                    MaxDamage = 8,
+                    Encumbrance = 7,
+                    Value = 140 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+
+                        { WeaponProperty.DualWield, 2 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Rapier",
+                    MinDamage = 2,
+                    MaxDamage = 7,
+                    Encumbrance = 5,
+                    Class = 1,
+                    Value = 260,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Fast, 0 },
+                        { WeaponProperty.DualWield, 2 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Longsword",
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Encumbrance = 10,
+                    Class = 4,
+                    Value = 200,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Flail",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 300 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Unwieldly, 4 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Greatsword",
+                    MinDamage = 2,
+                    MaxDamage = 12,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 400,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Greataxe",
+                    MinDamage = 3,
+                    MaxDamage = 14,
+                    Encumbrance = 20,
+                    Class = 5,
+                    ArmourPiercing = 2,
+                    Value = 400 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Axe, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon(){
+                    Type = "Treasure",
+                    Name = "Mithril Halberd",
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Encumbrance = 20,
+                    Class = 5,
+                    ArmourPiercing = 1,
+                    Value = 300 ,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Reach, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Treasure",
+                    Name = "Mithril Warhammer",
+                    MinDamage = 2,
+                    MaxDamage = 6,
+                    Encumbrance = 20,
+                    Class = 5,
+                    Value = 400,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Slow, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Treasure",
+                    Name = "Mithril Battleaxe",
+                    MinDamage = 2,
+                    MaxDamage = 11,
+                    Encumbrance = 10,
+                    Class = 4,
+                    ArmourPiercing = 1,
+                    Value = 200,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Axe, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Treasure",
+                    Name = "Mithril Battle Hammer",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Encumbrance = 10,
+                    Class = 3,
+                    Value = 300,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Type = "Treasure",
+                    Name = "Mithril Morning Star",
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    Encumbrance = 10,
+                    Class = 4,
+                    Value = 300,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Unwieldly, 4 },
+                        { WeaponProperty.BFO, 0 },
+                        { WeaponProperty.Stun, 0 },
+                        { WeaponProperty.Blunt, 0 },
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.Mithril, 1 }
+                    }
+                }
+            }
+            ;
         }
 
         public MeleeWeapon? GetMeleeWeaponByName(string name)
         {
-            return MeleeWeapons.FirstOrDefault(x => x.Name == name) ?? null;
+            return MeleeWeapons.FirstOrDefault(x => x.Name == name);
         }
 
         public List<RangedWeapon> GetRangedWeapons()
@@ -3229,9 +3711,10 @@ namespace LoDCompanion.Services.GameData
                 new RangedWeapon(){
                     Type = "Common",
                     Name = "Shortbow",
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1, 
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 6,
+                    Class = 6,
                     Value = 100,
                     Availability = 4,
                     ReloadTime = 1,
@@ -3241,9 +3724,10 @@ namespace LoDCompanion.Services.GameData
                   new RangedWeapon(){
                     Type = "Common",
                     Name = "Longbow",
-                    DamageRange = [ 1, 10 ],
+                    MinDamage = 1,
+                    MaxDamage = 10,
                     Encumbrance = 10,
-                    WeaponClass = 6,
+                    Class = 6,
                     ArmourPiercing = 1,
                     Value = 100,
                     Availability = 4,
@@ -3254,9 +3738,10 @@ namespace LoDCompanion.Services.GameData
                   new RangedWeapon(){
                     Type = "Common",
                     Name = "Elven bow",
-                    DamageRange = [ 3, 12 ],
+                    MinDamage = 3,
+                    MaxDamage = 12,
                     Encumbrance = 7,
-                    WeaponClass = 6,
+                    Class = 6,
                     ArmourPiercing = 1,
                     Value = 700,
                     Availability = 2,
@@ -3268,9 +3753,10 @@ namespace LoDCompanion.Services.GameData
                   new RangedWeapon(){
                     Type = "Common",
                     Name = "Crossbow Pistol",
-                    DamageRange = [ 2, 9 ],
+                    MinDamage = 2,
+                    MaxDamage = 9,
                     Encumbrance = 5,
-                    WeaponClass = 2,
+                    Class = 2,
                     IsSecondaryWeapon = true,
                     Value = 350,
                     Availability = 2,
@@ -3281,9 +3767,10 @@ namespace LoDCompanion.Services.GameData
                   new RangedWeapon(){
                     Type = "Common",
                     Name = "Crossbow",
-                    DamageRange = [ 4, 13 ],
+                    MinDamage = 4,
+                    MaxDamage = 13,
                     Encumbrance = 15,
-                    WeaponClass = 6,
+                    Class = 6,
                     ArmourPiercing = 1,
                     Value = 250,
                     Availability = 3,
@@ -3294,9 +3781,10 @@ namespace LoDCompanion.Services.GameData
                   new RangedWeapon(){
                     Type = "Common",
                     Name = "Arbalest",
-                    DamageRange = [ 3, 6 ],
+                    MinDamage = 3,
+                    MaxDamage = 6,
                     Encumbrance = 20,
-                    WeaponClass = 6,
+                    Class = 6,
                     ArmourPiercing = 2,
                     Value = 400,
                     Availability = 2,
@@ -3307,9 +3795,10 @@ namespace LoDCompanion.Services.GameData
                   new RangedWeapon(){
                     Type = "Common",
                     Name = "Sling",
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 1,
-                    WeaponClass = 6,
+                    Class = 6,
                     Value = 40,
                     Availability = 4,
                     ReloadTime = 1,
@@ -3321,12 +3810,19 @@ namespace LoDCompanion.Services.GameData
 
         public RangedWeapon? GetRangedWeaponByName(string name)
         {
-            return RangedWeapons.FirstOrDefault(x => x.Name == name) ?? null;
+            return RangedWeapons.FirstOrDefault(x => x.Name == name);
         }
 
-        internal Equipment? GetWeaponByName(string name)
+        internal Weapon? GetWeaponByName(string name)
         {
-            return (Equipment)GetMeleeWeaponByName(name) ?? (Equipment)GetRangedWeaponByName(name) ?? null;
+            return (Weapon)GetMeleeWeaponByName(name) ?? (Weapon)GetRangedWeaponByName(name);
+        }
+
+        public Weapon GetWeaponByNameSetDurability(string name, int durability)
+        {
+            Weapon weapon = GetWeaponByName(name);
+            weapon.Durability = durability;
+            return weapon;
         }
 
         public List<Equipment> GetStartingWeapons()
@@ -3341,140 +3837,195 @@ namespace LoDCompanion.Services.GameData
         { 
             return new List<MagicStaff>()
             {
-                new MagicStaff(){
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Arcane Staff",
                     Description = "This staff will lend some of its power to the wizard. It will give a +5 modifier to the Arcane Arts Skill. When leaving a dungeon, roll 1d10. On a result of 9-10, the magic has dissipated and must be recharged. Until recharged, it is considered a normal staff.",
                     Value = 400,
                     Availability = 4,
-                    IsMagic = true,
                     StaffType = "StatBonus",
-                    ArcaneArtsSkillModifier = 5,
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    },
+                    MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
+                    {
+                        { MagicStaffProperty.ArcaneArts, 5 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Major Mana Staff",
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 30 points of Mana.",
                     Value = 800,
                     Availability = 2,
-                    IsMagic = true,
                     StaffType = "StatBonus",
-                    ManaStorage = 30,
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    },
+                    MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
+                    {
+                        { MagicStaffProperty.ManaStorage, 30 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Mana Staff",
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 20 points of Mana.",
                     Value = 500,
                     Availability = 3,
-                    IsMagic = true,
                     StaffType = "StatBonus",
-                    ManaStorage = 20,
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    },
+                    MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
+                    {
+                        { MagicStaffProperty.ManaStorage, 20 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Minor Mana Staff",
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 10 points of Mana.",
                     Value = 300,
                     Availability = 4,
-                    IsMagic = true,
                     StaffType = "StatBonus",
-                    ManaStorage = 10,
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    },
+                    MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
+                    {
+                        { MagicStaffProperty.ManaStorage, 10 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Staff of the Heart",
                     Description = "This staff strengthens the body of the wizard, giving +3 HP while the staff is carried. Between each quest, roll 1d10. On a result of 10, the magic has dissipated and must be recharged. Until recharged, it is considered a normal staff.",
                     Value = 350,
                     Availability = 4,
-                    IsMagic = true,
                     StaffType = "StatBonus",
-                    HPBonus = 3,
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    },
+                    MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
+                    {
+                        { MagicStaffProperty.HitPointsBonus, 3 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Staff of Illumination",
                     Description = "This staff works just like a lantern. If the wizard makes a miscast, the flame goes out. It will not go out due to any other reason. To rekindle the flame, the wizard must simply spend one Action.",
                     Value = 300,
                     Availability = 4,
-                    IsMagic = true,
                     StaffType = "Illumination",
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    },
+                    MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
+                    {
+                        { MagicStaffProperty.Illumination, 1 } // Using 1 to signify 'on'
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Fire Staff",
                     Description = "This staff contains the Magic Flare spell.",
                     Value = 400,
                     Availability = 3,
-                    IsMagic = true,
                     StaffType = "Spell",
                     ContainedSpell = "Flare",
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Staff of Slow",
                     Description = "This staff contains the magic spell: Slow.",
                     Value = 400,
                     Availability = 3,
-                    IsMagic = true,
                     StaffType = "Spell",
                     ContainedSpell = "Slow",
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  },
-                  new MagicStaff(){
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    }
+                },
+                new MagicStaff()
+                {
                     Type = "Wizards Guild",
                     Name = "Staff of the Bolt",
                     Description = "This staff contains the spell: Magic Bolt.",
                     Value = 500,
                     Availability = 3,
-                    IsMagic = true,
                     StaffType = "Spell",
                     ContainedSpell = "Magic Bolt",
-                    DamageRange = [ 1, 8 ],
+                    MinDamage = 1,
+                    MaxDamage = 8,
                     Encumbrance = 5,
-                    WeaponClass = 2,
-                    IsDefensive = true,
-                    IsBlunt = true
-                  }
+                    Class = 2,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Defensive, 0 },
+                        { WeaponProperty.Blunt, 0 }
+                    }
+                }
             }; 
         }
 
@@ -3485,9 +4036,10 @@ namespace LoDCompanion.Services.GameData
 
         public List<Armour> GetArmour()
         {
+            string upgradesText = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanent bonus and cannot be separated from the armour. If the attached armour is destroyed, so is this item.";
             return new List<Armour>()
             {
-
+                // --- FIGHTERS GUILD UPGRADES ---
                 new Armour()
                 {
                     Type = "Fighters Guild",
@@ -3495,7 +4047,7 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 1,
                     DefValue = 1,
                     Value = 50,
-                    Description = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanant bonus and cannot be separated from the aromour. If teh attached armour is destroyed, so is this item."
+                    Description = upgradesText,
                 },
                 new Armour()
                 {
@@ -3504,7 +4056,7 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 1,
                     DefValue = 1,
                     Value = 50,
-                    Description = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanant bonus and cannot be separated from the aromour. If teh attached armour is destroyed, so is this item."
+                    Description = upgradesText,
                 },
                 new Armour()
                 {
@@ -3513,7 +4065,7 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 1,
                     DefValue = 1,
                     Value = 50,
-                    Description = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanant bonus and cannot be separated from the aromour. If teh attached armour is destroyed, so is this item."
+                    Description = upgradesText,
                 },
                 new Armour()
                 {
@@ -3522,376 +4074,244 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 1,
                     DefValue = 1,
                     Value = 50,
-                    Description = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanant bonus and cannot be separated from the aromour. If teh attached armour is destroyed, so is this item."
+                    Description = upgradesText,
+                },
+                // --- PADDED ARMOUR ---
+                new Armour()
+                {
+                    Type = "Common", Name = "Padded Cap", DefValue = 2, Encumbrance = 1, Value = 30, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Type = "Fighters Guild",
-                    Name = "Shield Padding",
-                    DefValue = 1,
-                    Encumbrance = 1,
-                    Value = 15,
-                    Description = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanant bonus and cannot be separated from the aromour. If teh attached armour is destroyed, so is this item."
+                    Type = "Common", Name = "Padded Vest", DefValue = 2, Encumbrance = 3, Value = 60, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
-                new Armour(){
-                    Type = "Common",
-                    Name = "Padded Cap",
-                    DefValue = 2,
-                    Encumbrance = 1,
-                    IsHead = true,
-                    Value = 30,
-                    Availability = 4,
-                    ArmourClass = 1,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Padded Vest",
-                    DefValue = 2,
-                    Encumbrance = 3,
-                    IsTorso = true,
-                    IsStackable = true,
-                    Value = 60,
-                    Availability = 4,
-                    ArmourClass = 1,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Padded Jacket",
-                    DefValue = 2,
-                    Encumbrance = 5,
-                    IsArms = true,
-                    IsTorso = true,
-                    IsStackable = true,
-                    Value = 120,
-                    Availability = 4,
-                    ArmourClass = 1,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Padded Pants",
-                    DefValue = 2,
-                    Encumbrance = 4,
-                    IsLegs = true,
-                    IsStackable = true,
-                    Value = 100,
-                    Availability = 4,
-                    ArmourClass = 1,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Padded Coat",
-                    DefValue = 2,
-                    Encumbrance = 6,
-                    IsArms = true,
-                    IsTorso = true,
-                    IsLegs = true,
-                    Value = 200,
-                    Availability = 3,
-                    ArmourClass = 1,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Cloak",
-                    DefValue = 1,
-                    Encumbrance = 1,
-                    IsTorso = true,
-                    IsCloak = true,
-                    IsStackable = true,
-                    Value = 50,
-                    Availability = 4,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Padded Dog Armour",
-                    DefValue = 2,
-                    Encumbrance = 1,
-                    IsDog = true,
-                    Value = 60,
-                    Availability = 3,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Leather Cap",
-                    DefValue = 3,
-                    Encumbrance = 1,
-                    IsHead = true,
-                    Value = 50,
-                    Availability = 4,
-                    ArmourClass = 2,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Leather Vest",
-                    DefValue = 3,
-                    Encumbrance = 3,
-                    IsTorso = true,
-                    Value = 80,
-                    Availability = 4,
-                    ArmourClass = 2,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Leather Jacket",
-                    DefValue = 3,
-                    Encumbrance = 4,
-                    IsTorso = true,
-                    IsArms = true,
-                    Value = 140,
-                    Availability = 4,
-                    ArmourClass = 2,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Leather Leggings",
-                    DefValue = 3,
-                    Encumbrance = 3,
-                    IsLegs = true,
-                    Value = 120,
-                    Availability = 4,
-                    ArmourClass = 2,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Leather Bracers",
-                    DefValue = 3,
-                    Encumbrance = 3,
-                    IsArms = true,
-                    IsStackable = true,
-                    Value = 120,
-                    Availability = 3,
-                    ArmourClass = 2,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Leather Dog Armour",
-                    DefValue = 3,
-                    Encumbrance = 3,
-                    IsDog = true,
-                    Value = 120,
-                    Availability = 3,
-                    Durability = 6
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Mail Coif",
-                    DefValue = 4,
-                    Encumbrance = 4,
-                    IsHead = true,
-                    IsStackable = true,
-                    Value = 200,
-                    Availability = 3,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Mail Shirt",
-                    DefValue = 4,
-                    Encumbrance = 6,
-                    IsTorso = true,
-                    IsStackable = true,
-                    Value = 600,
-                    Availability = 3,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Sleeved Mail Shirt",
-                    DefValue = 4,
-                    Encumbrance = 7,
-                    IsArms = true,
-                    IsTorso = true,
-                    IsStackable = true,
-                    Value = 950,
-                    Availability = 3,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Mail Coat",
-                    DefValue = 4,
-                    Encumbrance = 8,
-                    IsTorso = true,
-                    IsLegs = true,
-                    IsStackable = true,
-                    Value = 750,
-                    Availability = 3,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Sleeved Mail Coat",
-                    DefValue = 4,
-                    Encumbrance = 10,
-                    IsArms = true,
-                    IsTorso = true,
-                    IsLegs = true,
-                    IsStackable = true,
-                    Value = 1300,
-                    Availability = 3,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Mail Leggings",
-                    DefValue = 4,
-                    Encumbrance = 5,
-                    IsLegs = true,
-                    IsStackable = true,
-                    Value = 200,
-                    Availability = 2,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Helmet",
-                    DefValue = 5,
-                    Encumbrance = 5,
-                    IsHead = true,
-                    IsClunky = true,
-                    IsStackable = true,
-                    Value = 300,
-                    Availability = 3,
-                    IsMagic = false,
-                    ArmourClass = 4,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Breastplate",
-                    DefValue = 5,
-                    Encumbrance = 7,
-                    IsTorso = true,
-                    IsClunky = true,
-                    IsStackable = true,
-                    Value = 700,
-                    Availability = 3,
-                    ArmourClass = 4,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Plate Bracers",
-                    DefValue = 5,
-                    Encumbrance = 4,
-                    IsArms = true,
-                    IsStackable = true,
-                    Value = 600,
-                    Availability = 3,
-                    ArmourClass = 4,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Common",
-                    Name = "Plate Leggings",
-                    DefValue = 5,
-                    Encumbrance = 6,
-                    IsLegs = true,
-                    IsClunky = true,
-                    IsStackable = true,
-                    Value = 700,
-                    Availability = 3,
-                    ArmourClass = 4,
-                    Durability = 6,
-                    IsMetal = true
-                  },
-                  new Armour(){
-                    Type = "Dark Guild",
-                    Name = "Nightstalker Cap",
-                    DefValue = 4,
-                    Encumbrance = 1,
-                    IsHead = true,
-                    Value = 230,
-                    Availability = 3,
-                    ArmourClass = 2,
-                    Durability = 8,
-                    MaxDurability = 8
-                  },
-                  new Armour(){
-                    Type = "Dark Guild",
-                    Name = "Nightstalker Vest",
-                    DefValue = 4,
-                    Encumbrance = 3,
-                    IsTorso = true,
-                    IsDarkAsTheNight = true,
-                    Value = 650,
-                    Availability = 3,
-                    IsMagic = false,
-                    ArmourClass = 2,
-                    Durability = 8,
-                    MaxDurability = 8
-                  },
-                  new Armour(){
-                    Type = "Dark Guild",
-                    Name = "Nightstalker Jacket",
-                    DefValue = 4,
-                    Encumbrance = 4,
-                    IsArms = true,
-                    IsTorso = true,
-                    IsDarkAsTheNight = true,
-                    Value = 1000,
-                    Availability = 3,
-                    ArmourClass = 2,
-                    Durability = 8,
-                    MaxDurability = 8
-                  },
-                  new Armour(){
-                    Type = "Dark Guild",
-                    Name = "Nightstalker Pants",
-                    DefValue = 4,
-                    Encumbrance = 3,
-                    IsLegs = true,
-                    IsDarkAsTheNight = true,
-                    Value = 900,
-                    Availability = 3,
-                    ArmourClass = 2,
-                    Durability = 8,
-                    MaxDurability = 8
-                  },
-                  new Armour(){
-                    Type = "Dark Guild",
-                    Name = "Nightstalker Bracers",
-                    DefValue = 4,
-                    Encumbrance = 3,
-                    IsArms = true,
-                    Value = 150,
-                    Availability = 3,
-                    ArmourClass = 2,
-                    Durability = 8,
-                    MaxDurability = 8
-                  }
-            };
+                new Armour()
+                {
+                    Type = "Common", Name = "Padded Jacket", DefValue = 2, Encumbrance = 5, Value = 120, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Padded Pants", DefValue = 2, Encumbrance = 4, Value = 100, Availability = 4, ArmourClass = 1, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Padded Coat", DefValue = 2, Encumbrance = 6, Value = 200, Availability = 3, ArmourClass = 1, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Cloak", DefValue = 1, Encumbrance = 1, Value = 50, Availability = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Cloak, 0 }, { ArmourProperty.Stackable, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Padded Dog Armour", DefValue = 2, Encumbrance = 1, Value = 60, Availability = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Dog, 0 } }
+                },
+                // --- LEATHER ARMOUR ---
+                new Armour()
+                {
+                    Type = "Common", Name = "Leather Cap", DefValue = 3, Encumbrance = 1, Value = 50, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Leather Vest", DefValue = 3, Encumbrance = 3, Value = 80, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Leather Jacket", DefValue = 3, Encumbrance = 4, Value = 140, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Arms, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Leather Leggings", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 4, ArmourClass = 2, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Leather Bracers", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, ArmourClass = 2, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Leather Dog Armour", DefValue = 3, Encumbrance = 3, Value = 120, Availability = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Dog, 0 } }
+                },
+                // --- MAIL ARMOUR ---
+                new Armour()
+                {
+                    Type = "Common", Name = "Mail Coif", DefValue = 4, Encumbrance = 4, Value = 200, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 600, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 950, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Mail Coat", DefValue = 4, Encumbrance = 8, Value = 750, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 1300, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 200, Availability = 2, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                // --- PLATE ARMOUR ---
+                new Armour()
+                {
+                    Type = "Common", Name = "Helmet", DefValue = 5, Encumbrance = 5, Value = 300, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Breastplate", DefValue = 5, Encumbrance = 7, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Common", Name = "Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Mail Coif", DefValue = 4, Encumbrance = 4, Value = 400, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 1200, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 1900, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Mail Coat", DefValue = 4, Encumbrance = 8, Value = 1500, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 2600, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 400, Availability = 2, ArmourClass = 3, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Helmet", DefValue = 5, Encumbrance = 5, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Breastplate", DefValue = 5, Encumbrance = 7, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 1200, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                new Armour()
+                {
+                    Type = "Treasure", Name = "Mithril Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
+                },
+                // --- DARK GUILD ARMOUR ---
+                new Armour()
+                {
+                    Type = "Dark Guild", Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Dark Guild", Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Dark Guild", Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Dark Guild", Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
+                },
+                new Armour()
+                {
+                    Type = "Dark Guild", Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 } }
+                },
+                new Armour 
+                {
+                    Type = "Treasure", Name = "Dragon Scale Cap", Encumbrance = 4, Value = 1000, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                },
+                new Armour 
+                {
+                    Type = "Treasure", Name = "Dragon Scale Breastplate", Encumbrance = 6, Value = 2300, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                },
+                new Armour 
+                {
+                    Type = "Treasure", Name = "Dragon Scale Pants", Encumbrance = 5, Value = 1900, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                },
+                new Armour 
+                {
+                    Type = "Treasure", Name = "Dragon Scale Bracers", Encumbrance = 3, Value = 2000, Description = "Treat fire DMG as ordinary DMG", Availability = 0, ArmourClass = 3, DefValue = 7,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.DragonScale, 0 } }, MaxDurability = 10 
+                },
+                new Armour 
+                { 
+                    Type = "Treasure", Name = "Wyvern Cloak", Encumbrance = 2, Value = 1200, Description = "Def:3 against attacks from behind", Availability = 0, ArmourClass = 1, DefValue = 3, MaxDurability = 6,
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Cloak, 0 } }
+                }               
+            }
+            ;
         }
 
         public Armour? GetArmourByName(string name)
         {
             return Armour.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+        public Armour? GetArmourByNameSetDurability(string name, int durability)
+        {
+            Armour? armour =  Armour.FirstOrDefault(x => x.Name == name) ?? null;
+            if (armour != null)
+            {
+                armour.Durability = durability; 
+            }
+            return armour;
         }
 
         public List<Armour> GetStartingArmour()
@@ -3914,8 +4334,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 4,
                     ArmourClass = 2,
                     Durability = 6,
-                    IsMetal = true,
-                    IsShield = true
+                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 } }
                   },
                   new Shield(){
                     Type = "Common",
@@ -3926,21 +4345,51 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3,
                     ArmourClass = 3,
                     Durability = 6,
-                    IsMetal = true,
-                    IsShield = true
+                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 } }
                   },
                   new Shield(){
                     Type = "Common",
                     Name = "Tower Shield",
                     DefValue = 8,
                     Encumbrance = 15,
-                    IsHuge = true,
                     Value = 200,
                     Availability = 2,
                     ArmourClass = 4,
                     Durability = 6,
-                    IsMetal = true,
-                    IsShield = true
+                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Huge, 0 } }
+                  },
+                  new Shield(){
+                    Type = "Treasure",
+                    Name = "Mithril Buckler",
+                    DefValue = 4,
+                    Encumbrance = 4,
+                    Value = 40,
+                    Availability = 4,
+                    ArmourClass = 2,
+                    Durability = 6,
+                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Mithril, 1 } }
+                  },
+                  new Shield(){
+                    Type = "Treasure",
+                    Name = "Mithril Heater Shield",
+                    DefValue = 6,
+                    Encumbrance = 10,
+                    Value = 200,
+                    Availability = 3,
+                    ArmourClass = 3,
+                    Durability = 6,
+                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Mithril, 1 } }
+                  },
+                  new Shield(){
+                    Type = "Treasure",
+                    Name = "Mithril Tower Shield",
+                    DefValue = 8,
+                    Encumbrance = 15,
+                    Value = 400,
+                    Availability = 2,
+                    ArmourClass = 4,
+                    Durability = 6,
+                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Huge, 0 }, { ShieldProperty.Mithril, 1 } }
                   }
             };
         }
@@ -3948,6 +4397,14 @@ namespace LoDCompanion.Services.GameData
         public Shield? GetShieldByName(string name)
         {
             return Shields.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public Shield? GetShieldByNameSetDurability(string name, int durability)
+        {
+            Shield? shield = Shields.FirstOrDefault(x => x.Name == name) ?? null;
+            if(shield != null)
+                shield.Durability = durability;
+            return shield;
         }
 
         public List<Shield> GetStartingShields()
@@ -4033,212 +4490,6 @@ namespace LoDCompanion.Services.GameData
         public Equipment? GetRelicByName(string name)
         {
             return Relics.FirstOrDefault(x => x.Name == name) ?? null;
-        }
-
-        public List<AlchemyItem> GetAlchemyItems()
-        {
-            return new List<AlchemyItem>()
-            {
-                // --- Healing Potions (Potion of Health) ---
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Health",
-                    Durability = 1,
-                    Value = 75,
-                    Availability = 4,
-                    IsPotion = true,
-                    Strength = PotionStrength.Weak,
-                    EffectDescription = "Heals 1d4 Hit Points."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Health",
-                    Durability = 1,
-                    Value = 100,
-                    Availability = 4,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Heals 1d6 Hit Points."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Health",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Supreme,
-                    EffectDescription = "Heals 1d10 Hit Points."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Restoration",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 1,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Restores a hero to full health and removes any disease or poison."
-                },
-
-                // --- Cure Potions ---
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Cure Disease",
-                    Durability = 1,
-                    Value = 75,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Weak,
-                    EffectDescription = "75% chance to remove all effects of disease."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Cure Disease",
-                    Durability = 1,
-                    Value = 100,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Removes all effects of disease."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Cure Disease",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 2,
-                    IsPotion = true,
-                    Strength = PotionStrength.Supreme,
-                    EffectDescription = "Removes all effects of disease and heals 1d3 HP."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Cure Poison",
-                    Durability = 1,
-                    Value = 75,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Weak,
-                    EffectDescription = "75% chance to remove all effects of poison."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Cure Poison",
-                    Durability = 1,
-                    Value = 100,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Removes all effects of poison."
-                },
-                new AlchemyItem(){
-                    Type = "Potion",
-                    Name = "Potion of Cure Poison",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 2,
-                    IsPotion = true,
-                    Strength = PotionStrength.Supreme,
-                    EffectDescription = "Removes all effects of poison and heals 1d3 HP."
-                },
-
-                // --- Stat Buff Potions ---
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Strength until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Strength until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Strength until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Constitution until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Constitution until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Constitution until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +5 Dexterity until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +10 Dexterity until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +15 Dexterity until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Wisdom until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Wisdom until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Wisdom until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle." },
-
-                // --- Resource Potions ---
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana." },
-
-                // --- Thrown Potions (Bombs) ---
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Acidic damage in the target square and half to adjacent squares." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Fire damage in the target square and half to adjacent squares." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Fire damage in the target square and half to adjacent squares." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES." },
-
-                // --- Utility & Special Potions ---
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Supreme, Value = 500, EffectDescription = "Instantly grants +300 XP. Can only be used once between dungeons." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Bottle of the Void", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Any spell cast during the battle suffers a -20 modifier." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Elixir of Speed", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 Movement for the rest of the dungeon." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Elixir of the Archer", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 DMG to one ranged weapon until you leave the dungeon." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage)." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Fire Protection", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Ignores the secondary damage effect from being on fire for one battle." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Potion of Rage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants the Frenzy Perk for one battle without spending energy." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Vial of Corrosion", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Automatically opens one lock." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight." },
-                new AlchemyItem(){ Type = "Potion", IsPotion = true, Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon." },
-            };
-        }
-
-        public List<AlchemyItem> GetStandardPotions()
-        {
-            List<AlchemyItem> list = new List<AlchemyItem>();
-            list.AddRange(AlchemyItems.Where(x => x.Strength == PotionStrength.Standard));
-            return list;
-        }
-
-        public AlchemyItem? GetAlchemyItemByName(string name)
-        {
-            return AlchemyItems.FirstOrDefault(x => x.Name == name) ?? null;
-        }
-
-        public AlchemyItem GetAlchemyItemByNameStrength(string name, PotionStrength strength)
-        {
-            List<AlchemyItem> list = new List<AlchemyItem>();
-            list.AddRange(AlchemyItems.Where(x => x.Name == name));
-            return list.FirstOrDefault(x => x.Strength == strength);
-        }
-
-        public List<AlchemyItem> GetPotions(int count, PotionStrength quality)
-        {
-            List<AlchemyItem> potions = new List<AlchemyItem>();
-            for (int i = 0; i < count; i++)
-            {
-                switch (quality)
-                {
-                    case PotionStrength.Weak:
-                    case PotionStrength.Supreme:
-                        potions.Add(GetAlchemyItemByNameStrength(AlchemyService.GetNonStandardPotion(), quality));
-                        break;
-                    case PotionStrength.Standard:
-                        potions.Add(GetAlchemyItemByNameStrength(AlchemyService.GetStandardPotion(), quality));
-                        break;
-                }
-            }
-            return potions;
-        }
-
-        public AlchemyItem GetPotionByStrength(PotionStrength strength)
-        {
-            return GetPotions(1, strength)[0];
         }
     }
 

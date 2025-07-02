@@ -19,21 +19,9 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         /// <param name="heroWeapon">The weapon being used by the hero (MeleeWeapon or RangedWeapon).</param>
         /// <returns>The calculated raw damage roll.</returns>
-        public int CalculateDamageRoll(object heroWeapon) // Using 'object' to allow either MeleeWeapon or RangedWeapon
+        public int CalculateDamageRoll(Weapon heroWeapon) 
         {
-            int damageRoll = 0;
-
-            if (heroWeapon is MeleeWeapon meleeWeapon)
-            {
-                damageRoll = RandomHelper.GetRandomNumber(meleeWeapon.DamageRange[0], meleeWeapon.DamageRange[1]);
-            }
-            else if (heroWeapon is RangedWeapon rangedWeapon)
-            {
-                damageRoll = RandomHelper.GetRandomNumber(rangedWeapon.DamageRange[0], rangedWeapon.DamageRange[1]);
-            }
-            // If neither, damageRoll remains 0
-
-            return damageRoll;
+            return RandomHelper.GetRandomNumber(heroWeapon.MinDamage, heroWeapon.MaxDamage); ;
         }
 
         /// <summary>
@@ -51,15 +39,6 @@ namespace LoDCompanion.Services.Combat
                 return weaponBonus;
             }
 
-            if (meleeWeapon.IsMithril)
-            {
-                weaponBonus += 1;
-            }
-            if (meleeWeapon.IsSlayerTreated && meleeWeapon.IsEdged)
-            {
-                weaponBonus += 1;
-            }
-
             // Check if hero has the "Mighty Blow" talent
             if (heroTalents != null && heroTalents.Exists(t => t.IsMightyBlow))
             {
@@ -69,7 +48,7 @@ namespace LoDCompanion.Services.Combat
             // Note: The original code had `!meleeWeapon.isFirstHit` which seems like a combat state.
             // This logic should perhaps be moved to the actual attack calculation method.
             // For now, including as is, assuming 'isFirstHit' is a property of the weapon itself.
-            if (meleeWeapon.IsUnwieldly && !meleeWeapon.IsFirstHit)
+            if (meleeWeapon.HasProperty(WeaponProperty.Unwieldly) /*&& !meleeWeapon.IsFirstHit*/) //move this to Combat state manager
             {
                 weaponBonus -= 4;
             }
@@ -91,7 +70,7 @@ namespace LoDCompanion.Services.Combat
                 return weaponBonus;
             }
 
-            if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.IsBarbed || rangedWeapon.Ammo.IsSupSlingstone))
+            if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SupuriorSlingStone)))
             {
                 weaponBonus = 1;
             }
