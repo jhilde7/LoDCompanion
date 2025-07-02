@@ -4,18 +4,16 @@ using LoDCompanion.Models.Character;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Xml.Linq;
 using System.Text;
+using System.IO;
 
 namespace LoDCompanion.Services.GameData
 {
     public class AlchemyService
     {
-        public static List<AlchemyItem> Parts => GetPartsList();
-        public static List<AlchemyItem> Ingredients => GetIngredientsList();
-
-        public AlchemyService()
-        {
-
-        }
+        public static List<Part> Parts => GetPartsList();
+        public static List<Ingredient> Ingredients => GetIngredientsList();
+        public static List<Potion> Potions => GetAllPotions();
+        public static List<Potion> StandardPotions => GetStandardPotions();
 
         public static string GetStandardPotion()
         {
@@ -137,46 +135,46 @@ namespace LoDCompanion.Services.GameData
             }
         }
 
-        public static AlchemyItem[] GetIngredients(int count)
+        public static Ingredient[] GetIngredients(int count)
         {
-            AlchemyItem[] ingredients = new AlchemyItem[count];
+            Ingredient[] ingredients = new Ingredient[count];
             for (int i = 0; i < count; i++)
             {
-                ingredients[i] = new AlchemyItem() { Name = GetIngredient(), IsIngredient = true };
+                ingredients[i] = new Ingredient() { Name = GetIngredient(), IsIngredient = true };
             }
             return ingredients;
         }
 
-        public static string GetIngredient()
+        private static string GetIngredient()
         {
             int roll = RandomHelper.GetRandomNumber(0, Ingredients.Count - 1);
             return Ingredients[roll].Name;
         }
 
-        public static AlchemyItem[] GetParts(int count, string? origin = null)
+        public static Part[] GetParts(int count, string? origin = null)
         {
-            AlchemyItem[] parts = new AlchemyItem[count];
+            Part[] parts = new Part[count];
             for (int i = 0; i < count; i++)
             {
                 if (origin != null)
                 {
-                    parts[i] = new AlchemyItem() { Origin = origin, Name = GetPart(), IsPart = true };
+                    parts[i] = new Part() { Origin = origin, Name = GetPart(), IsPart = true };
                 }
                 else
                 {
-                    parts[i] = new AlchemyItem() { Origin = GetOrigin(), Name = GetPart(), IsPart = true };
+                    parts[i] = new Part() { Origin = GetOrigin(), Name = GetPart(), IsPart = true };
                 }
             }
             return parts;
         }
 
-        public static string GetPart()
+        private static string GetPart()
         {
             int roll = RandomHelper.GetRandomNumber(0, Parts.Count - 1);
             return Parts[roll].Name;
         }
 
-        public static string GetOrigin()
+        private static string GetOrigin()
         {
             int roll = RandomHelper.RollDie("D100");
             return roll switch
@@ -248,47 +246,294 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public static List<AlchemyItem> GetPartsList()
+        private static List<Part> GetPartsList()
         {
-            return new List<AlchemyItem>()
+            return new List<Part>()
             {
-                new AlchemyItem() { Name = "Brain", IsPart = true },
-                new AlchemyItem() { Name = "Kidney", IsPart = true },
-                new AlchemyItem() { Name = "Saliva", IsPart = true },
-                new AlchemyItem() { Name = "Blood", IsPart = true },
-                new AlchemyItem() { Name = "Skin", IsPart = true },
-                new AlchemyItem() { Name = "Nails", IsPart = true },
-                new AlchemyItem() { Name = "Hair", IsPart = true },
-                new AlchemyItem() { Name = "Eye", IsPart = true },
-                new AlchemyItem() { Name = "Tongue", IsPart = true },
-                new AlchemyItem() { Name = "Heart", IsPart = true }
+                new Part() { Name = "Brain" },
+                new Part() { Name = "Kidney" },
+                new Part() { Name = "Saliva" },
+                new Part() { Name = "Blood" },
+                new Part() { Name = "Skin" },
+                new Part() { Name = "Nails" },
+                new Part() { Name = "Hair" },
+                new Part() { Name = "Eye" },
+                new Part() { Name = "Tongue" },
+                new Part() { Name = "Heart" }
             };
         }
 
-        public static List<AlchemyItem> GetIngredientsList()
+        private static List<Ingredient> GetIngredientsList()
         {
-            return new List<AlchemyItem> {
-                new AlchemyItem() { IsIngredient = true, Name = "Lunarberry" },
-                new AlchemyItem() { IsIngredient = true, Name = "Dragon Stalk" },
-                new AlchemyItem() { IsIngredient = true, Name = "Ember Bark" },
-                new AlchemyItem() { IsIngredient = true, Name = "Mountain Barberry" },
-                new AlchemyItem() { IsIngredient = true, Name = "Salty Wyrmwood" },
-                new AlchemyItem() { IsIngredient = true, Name = "Ashen Ginger" },
-                new AlchemyItem() { IsIngredient = true, Name = "Spicy Windroot" },
-                new AlchemyItem() { IsIngredient = true, Name = "Wintercress" },
-                new AlchemyItem() { IsIngredient = true, Name = "Sweet Ivy" },
-                new AlchemyItem() { IsIngredient = true, Name = "Monk's Laurel" },
-                new AlchemyItem() { IsIngredient = true, Name = "Nightshade" },
-                new AlchemyItem() { IsIngredient = true, Name = "Weeping Clover" },
-                new AlchemyItem() { IsIngredient = true, Name = "Snakeberry" },
-                new AlchemyItem() { IsIngredient = true, Name = "Bitterweed" },
-                new AlchemyItem() { IsIngredient = true, Name = "Arching Pokeroot" },
-                new AlchemyItem() { IsIngredient = true, Name = "Toxic Hogweed" },
-                new AlchemyItem() { IsIngredient = true, Name = "Blue Coneflower" },
-                new AlchemyItem() { IsIngredient = true, Name = "Giant Raspberry" },
-                new AlchemyItem() { IsIngredient = true, Name = "Bright Gallberry" },
-                new AlchemyItem() { IsIngredient = true, Name = "Barbed Wormwood" },
+            return new List<Ingredient> {
+                new Ingredient() { Name = "Lunarberry" },
+                new Ingredient() { Name = "Dragon Stalk" },
+                new Ingredient() { Name = "Ember Bark" },
+                new Ingredient() { Name = "Mountain Barberry" },
+                new Ingredient() { Name = "Salty Wyrmwood" },
+                new Ingredient() { Name = "Ashen Ginger" },
+                new Ingredient() { Name = "Spicy Windroot" },
+                new Ingredient() { Name = "Wintercress" },
+                new Ingredient() { Name = "Sweet Ivy" },
+                new Ingredient() { Name = "Monk's Laurel" },
+                new Ingredient() { Name = "Nightshade" },
+                new Ingredient() { Name = "Weeping Clover" },
+                new Ingredient() { Name = "Snakeberry" },
+                new Ingredient() { Name = "Bitterweed" },
+                new Ingredient() { Name = "Arching Pokeroot" },
+                new Ingredient() { Name = "Toxic Hogweed" },
+                new Ingredient() { Name = "Blue Coneflower" },
+                new Ingredient() { Name = "Giant Raspberry" },
+                new Ingredient() { Name = "Bright Gallberry" },
+                new Ingredient() { Name = "Barbed Wormwood" },
             };
+        }
+
+        private static List<Potion> GetAllPotions()
+        {
+            return new List<Potion>()
+            {
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Health",
+                    Durability = 1,
+                    Value = 75,
+                    Availability = 4,
+                    IsPotion = true,
+                    Strength = PotionStrength.Weak,
+                    EffectDescription = "Heals 1d4 Hit Points."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Health",
+                    Durability = 1,
+                    Value = 100,
+                    Availability = 4,
+                    IsPotion = true,
+                    Strength = PotionStrength.Standard,
+                    EffectDescription = "Heals 1d6 Hit Points."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Health",
+                    Durability = 1,
+                    Value = 200,
+                    Availability = 3,
+                    IsPotion = true,
+                    Strength = PotionStrength.Supreme,
+                    EffectDescription = "Heals 1d10 Hit Points."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Restoration",
+                    Durability = 1,
+                    Value = 200,
+                    Availability = 1,
+                    IsPotion = true,
+                    Strength = PotionStrength.Standard,
+                    EffectDescription = "Restores a hero to full health and removes any disease or poison."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Cure Disease",
+                    Durability = 1,
+                    Value = 75,
+                    Availability = 3,
+                    IsPotion = true,
+                    Strength = PotionStrength.Weak,
+                    EffectDescription = "75% chance to remove all effects of disease."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Cure Disease",
+                    Durability = 1,
+                    Value = 100,
+                    Availability = 3,
+                    IsPotion = true,
+                    Strength = PotionStrength.Standard,
+                    EffectDescription = "Removes all effects of disease."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Cure Disease",
+                    Durability = 1,
+                    Value = 200,
+                    Availability = 2,
+                    IsPotion = true,
+                    Strength = PotionStrength.Supreme,
+                    EffectDescription = "Removes all effects of disease and heals 1d3 HP."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Cure Poison",
+                    Durability = 1,
+                    Value = 75,
+                    Availability = 3,
+                    IsPotion = true,
+                    Strength = PotionStrength.Weak,
+                    EffectDescription = "75% chance to remove all effects of poison."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Cure Poison",
+                    Durability = 1,
+                    Value = 100,
+                    Availability = 3,
+                    IsPotion = true,
+                    Strength = PotionStrength.Standard,
+                    EffectDescription = "Removes all effects of poison."
+                },
+                new Potion(){
+                    Type = "Restorative Potions",
+                    Name = "Potion of Cure Poison",
+                    Durability = 1,
+                    Value = 200,
+                    Availability = 2,
+                    IsPotion = true,
+                    Strength = PotionStrength.Supreme,
+                    EffectDescription = "Removes all effects of poison and heals 1d3 HP."
+                },
+
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Strength until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Strength until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Strength until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Constitution until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Constitution until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Constitution until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +5 Dexterity until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +10 Dexterity until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +15 Dexterity until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Wisdom until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Wisdom until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Wisdom until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle." },
+                new Potion(){ Type = "Stat Buff Potions", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle." },
+
+                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon." },
+                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon." },
+                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon." },
+                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana." },
+                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana." },
+                new Potion(){ Type = "Resource Potions", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana." },
+
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Acidic damage in the target square and half to adjacent squares." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Fire damage in the target square and half to adjacent squares." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Fire damage in the target square and half to adjacent squares." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns." },
+                new Potion(){ Type = "Thrown Potions (Bombs)", IsPotion = true, Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES." },
+
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Supreme, Value = 500, EffectDescription = "Instantly grants +300 XP. Can only be used once between dungeons." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Bottle of the Void", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Any spell cast during the battle suffers a -20 modifier." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Elixir of Speed", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 Movement for the rest of the dungeon." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Elixir of the Archer", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 DMG to one ranged weapon until you leave the dungeon." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage)." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Fire Protection", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Ignores the secondary damage effect from being on fire for one battle." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Potion of Rage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants the Frenzy Perk for one battle without spending energy." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Vial of Corrosion", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Automatically opens one lock." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight." },
+                new Potion(){ Type = "Utility & Special Potions", IsPotion = true, Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon." },
+            };
+        }
+
+        public static List<Potion> GetAllDistinctPotions()
+        {
+            // Uses LINQ's DistinctBy to get only the first entry for each unique potion name.
+            return GetAllPotions().DistinctBy(p => p.Name).ToList();
+        }
+
+        public static List<Potion> GetStandardPotions()
+        {
+            List<Potion> list = new List<Potion>();
+            list.AddRange(Potions.Where(x => x.Strength == PotionStrength.Standard));
+            return list;
+        }
+
+        public static Potion? GetPotionByName(string name)
+        {
+            return Potions.FirstOrDefault(x => x.Name == name) ?? null;
+        }
+
+        public static Potion GetPotionByNameStrength(string name, PotionStrength strength)
+        {
+            List<Potion> list = new List<Potion>();
+            list.AddRange(Potions.Where(x => x.Name == name));
+            return list.FirstOrDefault(x => x.Strength == strength);
+        }
+
+        public static List<Potion> GetRandomPotions(int count, PotionStrength quality)
+        {
+            List<Potion> potions = new List<Potion>();
+            for (int i = 0; i < count; i++)
+            {
+                switch (quality)
+                {
+                    case PotionStrength.Weak:
+                    case PotionStrength.Supreme:
+                        potions.Add(GetPotionByNameStrength(AlchemyService.GetNonStandardPotion(), quality));
+                        break;
+                    case PotionStrength.Standard:
+                        potions.Add(GetPotionByNameStrength(AlchemyService.GetStandardPotion(), quality));
+                        break;
+                }
+            }
+            return potions;
+        }
+
+        public static Potion GetPotionByStrength(PotionStrength strength)
+        {
+            return GetRandomPotions(1, strength)[0];
+        }
+
+        public static List<PotionStrength> GetPotionStrengths(Potion potion)
+        {
+            List<Potion> potions = (List<Potion>)Potions.Where(x => x.Name == potion.Name);
+            List<PotionStrength> strengths = new List<PotionStrength>();
+            foreach(Potion p in  potions)
+            {
+                strengths.Add(p.Strength);
+            }
+            return strengths;
+        }
+    }
+
+    public class AlchemyItem : Equipment
+    {
+        public bool IsPotion { get; set; }
+        public bool IsIngredient { get; set; }
+        public bool IsPart { get; set; }
+        public bool IsRecipe { get; set; }
+
+        public AlchemyItem()
+        {
+            
+        }
+    }
+
+    public class Ingredient : AlchemyItem
+    {
+        public Ingredient()
+        {
+            IsIngredient = true;
+        }
+    }
+
+    public class Part : AlchemyItem
+    {
+        public string Origin { get; set; } = "Unknown";
+
+        public Part()
+        {
+            IsPart = true;
         }
     }
 
@@ -301,114 +546,34 @@ namespace LoDCompanion.Services.GameData
         Supreme
     }
 
-    public class AlchemyItem : Equipment
+    public class Potion : AlchemyItem
     {
-        public bool IsPotion { get; set; }
-        public bool IsIngredient { get; set; }
-        public bool IsPart { get; set; }
-        public bool IsRecipe { get; set; }
         public PotionStrength Strength { get; set; } = PotionStrength.None;
-        public string? EffectDescription { get; set; }
-        public string? Origin { get; set; }
+        public string EffectDescription { get; set; } = string.Empty;
 
-        public AlchemyItem()
+        public Potion()
         {
-            
-        }
-        // Additional constructor for ingredients/parts
-        public AlchemyItem(string name, string origin, bool isIngredient = true, bool isPart = false)
-        {
-            Name = name;
-            Origin = origin;
-            IsIngredient = isIngredient;
-            IsPart = isPart;
-            Description = GetItemDescription();
+            IsPotion = true;
         }
 
-        // Method to describe the item (can be overridden if needed)
-        public string GetItemDescription()
+        public override string ToString()
         {
-            if (IsPotion)
-            {
-                return $"{Strength} {Name}: {EffectDescription ?? "Unknown effect"}";
-            }
-            else if (IsIngredient || IsPart)
-            {
-                return $"{Name} (Origin: {Origin ?? "Unknown"})";
-            }
-            return Description;
+            return $"{Strength} {Name}: {EffectDescription}";
         }
-
-        public static AlchemicalRecipe DeserializeRecipe(AlchemyItem recipeItem, GameDataService gameData)
-        {
-            List<AlchemyItem> components = new List<AlchemyItem>();
-            
-            recipeItem.Description.Replace("Recipe Components: ", "");
-            string[] componentPairs = recipeItem.Description.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string pair in componentPairs)
-            {
-                string[] itemArray = pair.Split(':', 2);
-                if (itemArray.Length != 2) continue; // Skip malformed entries
-
-                string itemType = itemArray[0];
-                string itemName = itemArray[1].Trim();
-
-                AlchemyItem? fullItem = gameData.GetAlchemyItemByName(itemName);
-
-                if (fullItem != null)
-                {
-                    components.Add(fullItem);
-                }
-            }
-
-            return new AlchemicalRecipe()
-            {
-                // Remove " Recipe" from the end of the name
-                Name = recipeItem.Name.Replace(" Recipe", ""),
-                Strength = recipeItem.Strength,
-                Components = components
-            };
-        }
-
     }
 
-    public class  AlchemicalRecipe
+    public class  AlchemicalRecipe : Potion
     {
-        public string Name { get; set; } = string.Empty;
-        public PotionStrength Strength { get; set; }
         public List<AlchemyItem> Components { get; set; } = new List<AlchemyItem>();
 
-
-        public AlchemyItem SerializeRecipe()
+        public override string ToString()
         {
-            var descriptionBuilder = new StringBuilder();
-            descriptionBuilder.Append("Recipe Components: ");
-            foreach (var item in Components)
+            List<string> components = new List<string>();
+            foreach (var component in Components)
             {
-                if (item.IsIngredient)
-                {
-                    descriptionBuilder.Append($"Ingredient:{item.Name},");
-                }
-                else if (item.IsPart)
-                {
-                    descriptionBuilder.Append($"Part:{item.Name},");
-                }
+                components.Add(component.Name);
             }
-
-            // Remove the final trailing comma.
-            if (descriptionBuilder.Length > 0)
-            {
-                descriptionBuilder.Length--;
-            }
-
-            return new AlchemyItem()
-            {
-                Name = this.Name + " Recipe",
-                Description = descriptionBuilder.ToString(),
-                Strength = this.Strength,
-                IsRecipe = true,
-            };
+            return $"Recipe: {Strength} {Name} (Requires: {string.Join(", ", components.ToArray())})";
         }
     }
 }
