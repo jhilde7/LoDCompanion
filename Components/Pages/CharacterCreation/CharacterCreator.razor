@@ -7,8 +7,8 @@
 @using LoDCompanion.Services.CharacterCreation
 @using LoDCompanion.Services.GameData
 @using LoDCompanion.Services.State
-@inject CharacterCreationService CreationService
 @inject NavigationManager NavigationManager
+@inject CharacterCreationService CreationService
 @inject GameDataService GameData
 @inject PartyManagerService PartyManager
 
@@ -68,6 +68,9 @@
                             @EquipmentSelection
                             ;
                             break;
+                        case Step.AlchemistRecipe:
+                            @AlchemistRecipeSelection
+                            ; break;
                         case Step.FreeSkill:
                             @FreeSkillSelection
                             ;
@@ -84,9 +87,6 @@
                             @CharacterReview
                             ;
                             break;
-                        case Step.AlchemistRecipe:
-                            @AlchemistRecipeSelection
-                            ; break;
                         case Step.Summary:
                             @CharacterSummary
                             ;
@@ -137,7 +137,7 @@
 <CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
 
 @code {
-    private enum Step { Species, HumanTalent, Specialization, Profession, TalentChoice, Equipment, FreeSkill, Background, Name, Review, AlchemistRecipe, Summary }
+    private enum Step { Species, HumanTalent, Specialization, Profession, TalentChoice, Equipment, AlchemistRecipe, FreeSkill, Background, Name, Review, Summary }
     private Step currentStep = Step.Species;
     private EditContext editContext = default!;
     private bool isLoading = true; // Start in loading state
@@ -148,9 +148,21 @@
     private string? selectedSkill;
     private bool isSkillConfirmed = false;
     private string? selectedTalentChoice;
+    private CharacterCreationState State = new CharacterCreationState();
 
     private CharacterSheet characterSheetModal = default!;
     private Hero? selectedHeroForSheet;
+
+    private List<Potion> AvailablePotions { get; set; } = new();
+    private List<Part> AvailableParts { get; set; } = new();
+
+    private Dictionary<string, int> SelectedPotions { get; set; } = new();
+    private Dictionary<string, int> SelectedParts { get; set; } = new();
+
+    private const int MaxSelections = 3;
+
+    private int TotalPotionsSelected => SelectedPotions.Values.Sum();
+    private int TotalPartsSelected => SelectedParts.Values.Sum();
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,6 +189,13 @@
         }
     }
 
+    protected override void OnInitialized()
+    {
+        AvailablePotions = AlchemyService.StandardPotions;
+        AvailableParts = AlchemyService.Parts;
+        State = CreationService.State;
+    }
+
     private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
     {
         InvokeAsync(StateHasChanged);
@@ -191,7 +210,7 @@
             <div class="row">
                 @foreach (var species in GameData.Species)
                 {
-                    <div class="card mb-4 shadow-sm selectable-card @(CreationService.SelectedSpecies == species ? "selected" : "")" @onclick="() => SelectSpecies(species)">
+                <div class="card mb-4 shadow-sm selectable-card @(State.SelectedSpecies == species ? "selected" : "")" @onclick="() => SelectSpecies(species)">
                         <div class="card-body">
                             <h5 class="card-title">@species.Name</h5>
                             <p class="card-text">@species.Description</p>
@@ -218,12 +237,12 @@
             <div class="card mb-4"><div class="card-header">Current Stats</div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col"><strong>STR:</strong> @CreationService.Strength</div>
-                        <div class="col"><strong>CON:</strong> @CreationService.Constitution</div>
-                        <div class="col"><strong>DEX:</strong> @CreationService.Dexterity</div>
-                        <div class="col"><strong>WIS:</strong> @CreationService.Wisdom</div>
-                        <div class="col"><strong>RES:</strong> @CreationService.Resolve</div>
-                        <div class="col"><strong>HP:</strong> @CreationService.BaseHP</div>
+                        <div class="col"><strong>STR:</strong> @State.Strength</div>
+                        <div class="col"><strong>CON:</strong> @State.Constitution</div>
+                        <div class="col"><strong>DEX:</strong> @State.Dexterity</div>
+                        <div class="col"><strong>WIS:</strong> @State.Wisdom</div>
+                        <div class="col"><strong>RES:</strong> @State.Resolve</div>
+                        <div class="col"><strong>HP:</strong>  @State.BaseHP</div>
                     </div>
                 </div>
             </div>
@@ -248,24 +267,24 @@
         <p>As a Human, you are a "Jack of all trades". This allows you to gain one random talent from a category of your choice. Please select a category.</p>
 
         <div class="list-group w-50 mx-auto">
-            @foreach(var category in CreationService.HumanTalentCategoryList)
+            @foreach(var category in State.HumanTalentCategoryList)
             {
                 <label class="list-group-item list-group-item-action">
                     <input class="form-check-input me-2" type="radio" name="talentCategory"
                            value="@category"
                             @onchange="() => CreationService.SetHumanRandomTalent(category)"
-                           checked="@(CreationService.HumanTalentCategorySelection == category)" />
+                           checked="@(State.HumanTalentCategorySelection == category)" />
                     @category
                 </label>
             }
         </div>
 
-        @if (CreationService.HumanTalentCategorySelection != null)
+        @if (State.HumanTalentCategorySelection != null)
         {
             <div class="alert alert-success mt-3 w-50 mx-auto">
             <h5 class="alert-heading">Random Talent Gained!</h5>
             @{
-            var gainedTalent = CreationService.TalentList.Last();
+            var gainedTalent = State.TalentList.Last();
             }
             <p class="mb-1">You have gained the talent: <strong>@gainedTalent.Name</strong></p>
             <hr>
@@ -277,7 +296,7 @@
     private RenderFragment SpecializationStats =>@<section>
         <h3 class="text-center my-4">Distribute Specialization Points</h3>
 
-        @if (CreationService.SelectedSpecies == null)
+        @if (State.SelectedSpecies == null)
         {
             <p class="alert alert-warning">Please select a species first.</p>
         }
@@ -288,14 +307,14 @@
                     <div class="card text-center bg-light mb-4">
                         <div class="card-body">
                             <h5 class="card-title">Points Remaining</h5>
-                            <p class="display-4">@CreationService.SpecializationBonus</p>
+                            <p class="display-4">@State.SpecializationBonus</p>
                         </div>
                     </div>
 
                     <div class="row align-items-center mb-3">
                         <div class="col-md-4">
                             <label for="specAmount" class="form-label"><strong>Amount to Apply:</strong></label>
-                            <InputNumber id="specAmount" class="form-control" @bind-Value="CreationService.SpecializeAmount" />
+                            <InputNumber id="specAmount" class="form-control" @bind-Value="State.SpecializeAmount" />
                         </div>
                         <div class="col-md-8">
                             <button class="btn btn-warning mt-4 w-100" @onclick="ResetSpecialization">Reset All Points</button>
@@ -313,11 +332,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @CreateStatRow("Strength", "STR", CreationService.Strength, CreationService.AddedStrength, CreationService.SpecializeAmount)
-                        @CreateStatRow("Constitution", "CON", CreationService.Constitution, CreationService.AddedConstitution, CreationService.SpecializeAmount)
-                        @CreateStatRow("Dexterity", "DEX", CreationService.Dexterity, CreationService.AddedDexterity, CreationService.SpecializeAmount)
-                        @CreateStatRow("Wisdom", "WIS", CreationService.Wisdom, CreationService.AddedWisdom, CreationService.SpecializeAmount)
-                        @CreateStatRow("Resolve", "RES", CreationService.Resolve, CreationService.AddedResolve, CreationService.SpecializeAmount)
+                        @CreateStatRow("Strength", "STR",     State.Strength,     State.AddedStrength,     State.SpecializeAmount)
+                        @CreateStatRow("Constitution", "CON", State.Constitution, State.AddedConstitution, State.SpecializeAmount)
+                        @CreateStatRow("Dexterity", "DEX",    State.Dexterity,    State.AddedDexterity,    State.SpecializeAmount)
+                        @CreateStatRow("Wisdom", "WIS",       State.Wisdom,       State.AddedWisdom,       State.SpecializeAmount)
+                        @CreateStatRow("Resolve", "RES",      State.Resolve,      State.AddedResolve,      State.SpecializeAmount)
                         </tbody>
                     </table>
                 </div>
@@ -332,8 +351,8 @@
         <td><strong>@(baseValue + addedValue)</strong></td>
         <td>
             <button class="btn btn-sm btn-success"
-                    @onclick="() => CreationService.ApplySpecialization(statAbbr, CreationService.SpecializeAmount)"
-                disabled="@(CreationService.SpecializeAmount <= 0 || CreationService.SpecializationBonus <= 0 || addedValue >= 10 || addedValue + amountToApply > 10)">
+                    @onclick="() => CreationService.ApplySpecialization(statAbbr, State.SpecializeAmount)"
+                disabled="@(State.SpecializeAmount <= 0 || State.SpecializationBonus <= 0 || addedValue >= 10 || addedValue + amountToApply > 10)">
                 Apply
             </button>
         </td>
@@ -391,7 +410,7 @@
                                                     if (item != null)
                                                     {
                                                     // If the item is found, render it with a tooltip
-                                                        <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                        <span title="@item.ToString()">@item.Name</span>
                                                     }
                                                     else
                                                     {
@@ -421,7 +440,7 @@
                                                     if (item != null)
                                                     {
                                                     // If the item is found, render it with a tooltip
-                                                        <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                        <span title="@item.ToString()">@item.Name</span>
                                                     }
                                                     else
                                                     {
@@ -451,7 +470,7 @@
                                                 if (item != null)
                                                 {
                                                 // If the item is found, render it with a tooltip
-                                                    <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                    <span title="@item.ToString()">@item.Name</span>
                                                 }
                                                 else
                                                 {
@@ -460,7 +479,7 @@
                                                 }
 
                                                 // Add a comma and space if it's not the last item in the list
-                                                if (i < profession.StartingBackpackList.Count - 1)
+                                                if (i < profession.StartingPerkList.Count - 1)
                                                 {
                                                     <span>, </span>
                                                 }
@@ -481,7 +500,7 @@
                                                     if (item != null)
                                                     {
                                                     // If the item is found, render it with a tooltip
-                                                        <Tooltip title="@item.ToString()">@item.Name</Tooltip>
+                                                        <span title="@item.ToString()">@item.GetDisplayName()</span>
                                                     }
                                                     else
                                                     {
@@ -531,7 +550,7 @@
         <h3 class="text-center my-4">Choose a Starting Talent</h3>
         <p>Your chosen profession offers a choice of starting talents. Please select one.</p>
         <div class="list-group w-50 mx-auto">
-            @foreach(var talent in CreationService.TalentChoices)
+            @foreach(var talent in State.TalentChoices)
             {
                 <label class="list-group-item list-group-item-action">
                 <input class="form-check-input me-2" type="radio" name="talentChoice" title="@talent.ToString()" value="@talent.Name" @onchange="() => OnTalentSelected(talent.Name)" />
@@ -551,93 +570,160 @@
 
     private RenderFragment EquipmentSelection =>@<section>
         <h3 class="text-center my-4">Starting Equipment</h3>
-
+        
         <div class="row justify-content-center">
             <div class="col-md-8">
 
-                @if (CreationService.SpecificWeaponChoices != null)
-                {
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Choose your starting weapon:</strong></label>
-                        <div class="list-group">
-                            @foreach(var weaponName in CreationService.SpecificWeaponChoices)
-                            {
-                                <label class="list-group-item list-group-item-action">
-                                    <input class="form-check-input me-2" type="radio" name="weaponChoice" title="@weaponName.ToString()"
-                                           value="@weaponName.Name" @onchange="() => CreationService.SelectedWeapon = weaponName.Name" />
-                                    @weaponName
-                                </label>
-                            }
-                        </div>
-                    </div>
-                }
-                else if (CreationService.WeaponChoices != null)
-                {
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Choose your weapon:</strong></label>
-                        <InputSelect class="form-select" @bind-Value="CreationService.SelectedWeapon">
-                            <option value="">-- Select a Weapon --</option>
-                            @foreach(var weapon in CreationService.WeaponChoices)
-                            {
-                                <option title="@weapon.ToString() value="@weapon.Name">@weapon.Name)</option>
-                            }
-                        </InputSelect>
-                    </div>
-                }
-                @if(CreationService.RelicChoices != null)
-                {
-                    <div class="mb-3">
-                        <label class="form-label"><strong>Choose your Religious Relic:</strong></label>
-                        <InputSelect class="form-select" @bind-Value="CreationService.SelectedRelic">
-                            <option value="">-- Select a Relic --</option>
-                            @foreach(var relic in CreationService.RelicChoices)
+            @if (State.SpecificWeaponChoices != null)
+            {
+                <div class="mb-3">
+                    <label class="form-label"><strong>Choose your starting weapon:</strong></label>
+                    <div class="list-group">
+                        @foreach(var weaponName in State.SpecificWeaponChoices)
                         {
-                        <option value="@relic.Name">@relic.Name (@relic.MagicEffect)</option>
+                            <label class="list-group-item list-group-item-action">
+                                <input class="form-check-input me-2" type="radio" name="weaponChoice" title="@weaponName"
+                                   value="@weaponName.Name" @onchange="() => State.SelectedWeapon = weaponName.Name" />
+                                    @weaponName.Name
+                            </label>
                         }
-                        </InputSelect>
+                    </div>
+                </div>
+            }
+            else if (State.WeaponChoices != null)
+            {
+                <div class="mb-3">
+                    <label class="form-label"><strong>Choose your weapon:</strong></label>
+                    <InputSelect class="form-select" @bind-Value="State.SelectedWeapon">
+                        <option value="">-- Select a Weapon --</option>
+                        @foreach(var weapon in State.WeaponChoices)
+                        {
+                            <option value="@weapon.Name">@weapon.Name</option>
+                        }
+                    </InputSelect>
+                    @if (State.SelectedWeapon != null)
+                {
+                    <div class="alert alert-info mt-2 p-2">
+                        <strong>Stats:</strong> @GameData.GetWeaponByName(State.SelectedWeapon).ToString()
                     </div>
                 }
-
-                @if (CreationService.SpecificWeaponChoices == null && CreationService.WeaponChoices == null && CreationService.RelicChoices == null)
+                </div>
+            }
+                @if (State.RelicChoices != null)
+            {
+                <div class="mb-3">
+                    <label class="form-label"><strong>Choose your Religious Relic:</strong></label>
+                    <InputSelect class="form-select" @bind-Value="State.SelectedRelic">
+                        <option value="">-- Select a Relic --</option>
+                        @foreach(var relic in State.RelicChoices)
+                        {
+                            <option value="@relic.Name">@relic.Name (@relic.MagicEffect)</option>
+                        }
+                    </InputSelect>
+                </div>
+            }
+                @if (State.PotionChoices != null)
+            {
+                <div class="selection-group shadow-sm">
+                    <div class="selection-header">
+                        <h3>Potion Selection</h3>
+                        <span class="badge @(TotalPotionsSelected == MaxSelections ? "badge-success" : "badge-secondary")">
+                            @TotalPotionsSelected / @MaxSelections
+                        </span>
+                    </div>
+                    <div class="selection-body">
+                        <ul class="item-list">
+                            @foreach (var potion in AvailablePotions)
+                        {
+                            <li class="item-row">
+                                <span title="@potion.EffectDescription">@potion.Name</span>
+                                <div class="quantity-selector">
+                                    <button class="btn-quantity" @onclick="() => DecrementPotion(potion.Name)" disabled="@(!SelectedPotions.ContainsKey(potion.Name) || SelectedPotions[potion.Name] == 0)">-</button>
+                                    <span class="quantity-display">@(SelectedPotions.ContainsKey(potion.Name) ? SelectedPotions[potion.Name] : 0)</span>
+                                <button class="btn-quantity" @onclick="() => IncrementPotion(potion.Name)" disabled="@(TotalPotionsSelected >= MaxSelections)">+</button>
+                                </div>
+                            </li>
+                        }
+                        </ul>
+                    </div>
+                </div>
+            }
+                @if (State.PartChoices != null)
+            {
+                <div class="selection-group shadow-sm">
+                    <div class="selection-header">
+                        <h3>Part Selection</h3>
+                        <span class="badge @(TotalPartsSelected == MaxSelections ? "badge-success" : "badge-secondary")">
+                            @TotalPartsSelected / @MaxSelections
+                        </span>
+                    </div>
+                    <div class="selection-body">
+                        <ul class="item-list">
+                            @foreach (var part in AvailableParts)
+                            {
+                                <li class="item-row">
+                                    <span>@part.Name</span>
+                                    <div class="quantity-selector">
+                                        <button class="btn-quantity" @onclick="() => DecrementPart(part.Name)" disabled="@(!SelectedParts.ContainsKey(part.Name) || SelectedParts[part.Name] == 0)">-</button>
+                                        <span class="quantity-display">@(SelectedParts.ContainsKey(part.Name) ? SelectedParts[part.Name] : 0)</span>
+                                <button class="btn-quantity" @onclick="() => IncrementPart(part.Name)" disabled="@(TotalPartsSelected >= MaxSelections)">+</button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+                @if (State.SpecificWeaponChoices == null &&
+                    State.WeaponChoices == null && State.RelicChoices == null &&
+                    State.PotionChoices == null && State.PartChoices == null)
                 {
                     <p class="text-center">Your profession does not have any starting equipment choices.</p>
                 }
+
             </div>
         </div>
     </section>;
 
+    private RenderFragment AlchemistRecipeSelection =>@<section>
+
+        <h3 class="text-center my-4">Create Starting Recipe</h3>
+        <p>As an Alchemist, you start with one freely chosen recipe for a Weak Potion. Use the creator below to design it.</p>
+        <AlchemicalRecipeCreator WeakOnlyMode="true" OnRecipeCreated="HandleRecipeCreated" />
+    </section>;
+
     private RenderFragment FreeSkillSelection =>@<section>
         <h3>Add a Free Skill</h3>
-        @if (CreationService.FreeSkills != null && CreationService.FreeSkills.Any()) {
+        @if (State.FreeSkills != null && State.FreeSkills.Any()) {
 
-        @if (!isSkillConfirmed)
-        {
-            <p>Your profession, <strong>@CreationService.SelectedProfession.Name</strong>, grants one free skill.</p>
+    @if (!isSkillConfirmed)
+    {
+        <p>Your profession, <strong>@State.SelectedProfession.Name</strong>, grants one free skill.</p>
             <InputSelect class="form-select w-50" @bind-Value="selectedSkill">
-                <option value="">-- Select a Skill --</option>
-                @foreach (var skill in CreationService.FreeSkills) {
-                <option value="@skill">@skill</option>
-            }
-            </InputSelect>
-            <button class="btn btn-success mt-2" @onclick="ApplySkill" disabled="@string.IsNullOrEmpty(selectedSkill)">Confirm Skill</button>
+            <option value="">-- Select a Skill --</option>
+            @foreach (var skill in State.FreeSkills) {
+            <option value="@skill">@skill</option>
         }
-        else
-        {
-            <div class="alert alert-success">
-                <h5 class="alert-heading">Skill Confirmed!</h5>
-                <p>You have selected: <strong>@selectedSkill</strong></p>
-            </div>
-        }
-        }
-        else {
-            <p>Your profession does not grant any free skills at creation.</p>
-        }
+        </InputSelect>
+        <button class="btn btn-success mt-2" @onclick="ApplySkill" disabled="@string.IsNullOrEmpty(selectedSkill)">Confirm Skill</button>
+    }
+    else
+    {
+        <div class="alert alert-success">
+            <h5 class="alert-heading">Skill Confirmed!</h5>
+            <p>You have selected: <strong>@selectedSkill</strong></p>
+        </div>
+    }
+    }
+    else {
+        <p>Your profession does not grant any free skills at creation.</p>
+    }
     </section>;
 
     private RenderFragment BackgroundSelection =>@<section>
         <h3 class="text-center my-4">Character Background</h3>
 
-        @if (CreationService.SelectedBackground == null)
+        @if (State.SelectedBackground == null)
         {
             <div class="text-center">
                 <p>Every hero has a past. Click the button to discover your character's background. (This is an optional step.)</p>
@@ -647,19 +733,19 @@
         else
         {
             <div class="alert alert-light border">
-                <h4 class="alert-heading">Background: @CreationService.SelectedBackground.Name</h4>
-                <p>@CreationService.SelectedBackground.Description</p>
+            <h4 class="alert-heading">Background: @State.SelectedBackground.Name</h4>
+            <p>@State.SelectedBackground.Description</p>
 
-                @if(CreationService.SelectedBackground.Trait != null)
-            {
-                <hr>
-                <p class="mb-0"><strong>Trait:</strong> @CreationService.SelectedBackground.Trait</p>
-            }
+        @if(State.SelectedBackground.Trait != null)
+        {
+            <hr>
+            <p class="mb-0"><strong>Trait:</strong> @State.SelectedBackground.Trait</p>
+        }
 
-                @if(!string.IsNullOrEmpty(CreationService.SelectedBackground.PersonalQuest))
-            {
-                <hr>
-                <p class="mb-0"><strong>Personal Quest:</strong> @CreationService.SelectedBackground.PersonalQuest</p>
+        @if(!string.IsNullOrEmpty(State.SelectedBackground.PersonalQuest))
+        {
+            <hr>
+            <p class="mb-0"><strong>Personal Quest:</strong> @State.SelectedBackground.PersonalQuest</p>
             }
             </div>
         }
@@ -670,7 +756,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <label for="characterName" class="form-label">Character Name</label>
-                <InputText id="characterName" class="form-control form-control-lg" @bind-Value="CreationService.Name" placeholder="Enter a name..." />
+                <InputText id="characterName" class="form-control form-control-lg" @bind-Value="State.Name" placeholder="Enter a name..." />
             </div>
         </div>
     </section>;
@@ -685,9 +771,9 @@
         <div class="card">
             <div class="card-header">
                 <h4>
-                    <Tooltip TooltipText="@previewHero.ToString()">
+                    <span TooltipText="@previewHero.ToString()">
                         @previewHero.Name
-                    </Tooltip>
+                    </span>
                 </h4>
             </div>
             <div class="card-body">
@@ -695,34 +781,78 @@
                 <p><strong>Profession:</strong> @previewHero.ProfessionName</p>
 
                 @if (previewHero.Talents.Any())
-            {
-                <p><strong>Talents:</strong></p>
-                <p>
-                    @foreach(var talent in previewHero.Talents)
                 {
-                    <span class="badge bg-secondary me-1">
-                        <Tooltip TooltipText="@talent.ToString()">
-                            @talent.Name
-                        </Tooltip>
-                    </span>
+                    <p><strong>Talents:</strong></p>
+                    <p>
+                        @foreach(var talent in previewHero.Talents)
+                        {
+                            <span class="badge badge-pill badge-secondary">
+                                <span title="@talent.ToString()">
+                                    @talent.Name
+                                </span>
+                            </span>
+                        }
+                    </p>
                 }
-                </p>
-            }
+                @if (previewHero.Perks.Any())
+                {
+                    <p><strong>Perks:</strong></p>
+                    <p>
+                        @foreach(var perk in previewHero.Perks)
+                        {
+                            <span class="badge badge-pill badge-secondary">
+                                <span title="@perk.ToString()">
+                                    @perk.Name
+                                </span>
+                            </span>
+                        }
+                    </p>
+                }
 
                 @if (previewHero.Backpack.Any())
-            {
-                <p><strong>Equipment:</strong></p>
-                <p>
-                    @foreach(var item in previewHero.Backpack)
                 {
-                    <span class="badge bg-info text-dark me-1">
-                        <Tooltip TooltipText="@item.ToString()">
-                            @item.Name
-                        </Tooltip>
-                    </span>
+                    <p><strong>Equipment:</strong></p>
+                    <p>
+                        @foreach(var item in previewHero.Backpack)
+                        {
+                            <span class="badge badge-pill badge-primary">
+                                <span title="@item.ToString()">
+                                    @item.GetDisplayName()
+                                </span>
+                            </span>
+                        }
+                    </p>
                 }
-                </p>
-            }
+
+                @if(previewHero.Spells.Any())
+                {
+                    <p><strong>Spells:</strong></p>
+                    <p>
+                        @foreach(var spell in previewHero.Spells)
+                        {
+                            <span class="badge badge-pill badge-dark">
+                                <span title="@spell">
+                                    @spell.Name
+                                </span>
+                            </span>
+                        }
+                    </p>
+                }
+
+                @if(previewHero.Prayers.Any())
+                {
+                    <p><strong>Prayers:</strong></p>
+                    <p>
+                        @foreach(var prayer in previewHero.Prayers)
+                        {
+                            <span class="badge badge-pill badge-dark">
+                                <span title="@prayer">
+                                    @prayer.Name
+                                </span>
+                            </span>
+                        }
+                    </p>
+                }
             </div>
         </div>
 
@@ -731,16 +861,9 @@
         </div>
     </section>;
 
-    private RenderFragment AlchemistRecipeSelection =>@<section>
-
-        <h3 class="text-center my-4">Create Starting Recipe</h3>
-        <p>As an Alchemist, you start with one freely chosen recipe for a Weak Potion. Use the creator below to design it.</p>
-        <RecipeCreator OnRecipeCreated="HandleRecipeCreated" />
-    </section>;
-
     private RenderFragment CharacterSummary =>@<section>
         <div class="text-center">
-            <h2 class="text-success">@CreationService.Name has been added to the party!</h2>
+            <h2 class="text-success">@State.Name has been added to the party!</h2>
             <p>You now have @PartyManager.PartyMembers.Count hero(es) in your party.</p>
             <hr />
             @if (PartyManager.PartyMembers.Count < 4)
@@ -808,17 +931,106 @@
         GoToNextStep();
     }
 
-    private string GetWeaponString(string name)
+    private void IncrementPotion(string itemName)
     {
-        if(GameData.GetMeleeWeaponByName(name) != null)
+        if (TotalPotionsSelected >= MaxSelections) return;
+
+        if (SelectedPotions.ContainsKey(itemName))
         {
-            return GameData.GetMeleeWeaponByName(name).ToString();
+            SelectedPotions[itemName]++;
         }
-        else if (GameData.GetRangedWeaponByName(name) != null)
+        else
         {
-            return GameData.GetRangedWeaponByName(name).ToString();
+            SelectedPotions[itemName] = 1;
         }
-        return "no data";
+        // Directly invoke the correct callback
+        HandlePotionSelectionChanged(SelectedPotions);
+    }
+
+    private void DecrementPotion(string itemName)
+    {
+        if (SelectedPotions.ContainsKey(itemName) && SelectedPotions[itemName] > 0)
+        {
+            SelectedPotions[itemName]--;
+            if (SelectedPotions[itemName] == 0)
+            {
+                SelectedPotions.Remove(itemName);
+            }
+        }
+        // Directly invoke the correct callback
+        HandlePotionSelectionChanged(SelectedPotions);
+    }
+
+    private void IncrementPart(string itemName)
+    {
+        if (TotalPartsSelected >= MaxSelections) return;
+
+        if (SelectedParts.ContainsKey(itemName))
+        {
+            SelectedParts[itemName]++;
+        }
+        else
+        {
+            SelectedParts[itemName] = 1;
+        }
+        // Directly invoke the correct callback
+        HandlePartSelectionChanged(SelectedParts);
+    }
+
+    private void DecrementPart(string itemName)
+    {
+        if (SelectedParts.ContainsKey(itemName) && SelectedParts[itemName] > 0)
+        {
+            SelectedParts[itemName]--;
+            if (SelectedParts[itemName] == 0)
+            {
+                SelectedParts.Remove(itemName);
+            }
+        }
+        // Directly invoke the correct callback
+        HandlePartSelectionChanged(SelectedParts);
+    }
+
+    // This method is bound to the OnPotionSelectionChanged event from the selector.
+    private void HandlePotionSelectionChanged(Dictionary<string, int> selectedPotions)
+    {
+        SelectedPotions = selectedPotions;
+        UpdateAlchemistEquipment();
+    }
+
+    // This method is bound to the OnPartSelectionChanged event from the selector.
+    private void HandlePartSelectionChanged(Dictionary<string, int> selectedParts)
+    {
+        SelectedParts = selectedParts;
+        UpdateAlchemistEquipment();
+    }
+
+    /// <summary>
+    /// This is the core logic. It clears previous selections and adds the new ones
+    /// to the character's main equipment list.
+    /// </summary>
+    private void UpdateAlchemistEquipment()
+    {
+        // Remove any potions or parts previously added by this process.
+        State.StartingEquipment.RemoveAll(e => e is AlchemyItem item && (item.IsPotion || item.IsPart));
+
+        // Add the newly selected potions to the list.
+        foreach (var selection in SelectedPotions)
+        {
+            for (int i = 0; i < selection.Value; i++)
+            {
+                State.StartingEquipment.Add(AlchemyService.StandardPotions.FirstOrDefault(x => x.Name == selection.Key));
+            }
+        }
+
+        //Add the newly selected parts to the list.
+        foreach (var selection in SelectedParts)
+        {
+            for (int i = 0; i < selection.Value; i++)
+            {
+                State.StartingEquipment.Add(AlchemyService.Parts.FirstOrDefault(x => x.Name == selection.Key));
+            }
+        }
     }
 
     private void HandleRecipeCreated(AlchemicalRecipe recipe)
@@ -831,13 +1043,13 @@
 
     private bool IsCurrentStepValid() => currentStep switch
     {
-        Step.Species => CreationService.SelectedSpecies != null,
-        Step.HumanTalent => CreationService.HumanTalentCategoryList != null,
-        Step.Specialization => CreationService.SpecializationBonus == 0,
-        Step.Profession => CreationService.SelectedProfession != null,
-        Step.TalentChoice => (CreationService.TalentChoices == null || !CreationService.TalentChoices.Any()) || !string.IsNullOrEmpty(selectedTalentChoice),
-        Step.Equipment => CreationService.SelectedWeapon == null || !string.IsNullOrEmpty(CreationService.SelectedWeapon),
-        Step.Name => !string.IsNullOrWhiteSpace(CreationService.Name),
+        Step.Species => State.SelectedSpecies != null,
+        Step.HumanTalent => State.HumanTalentCategoryList != null,
+        Step.Specialization => State.SpecializationBonus == 0,
+        Step.Profession => State.SelectedProfession != null,
+        Step.TalentChoice => (State.TalentChoices == null || !State.TalentChoices.Any()) || !string.IsNullOrEmpty(selectedTalentChoice),
+        Step.Equipment => State.SelectedWeapon == null || !string.IsNullOrEmpty(State.SelectedWeapon),
+        Step.Name => !string.IsNullOrWhiteSpace(State.Name),
         Step.Review => true,
         _ => true
     };
@@ -864,11 +1076,13 @@
 
     private bool ShouldSkipStep(Step step) => step switch
     {
-        Step.HumanTalent => CreationService.SelectedSpecies?.Name != "Human",
-        Step.TalentChoice => CreationService.TalentChoices == null,
-        Step.Equipment => CreationService.SpecificWeaponChoices == null && CreationService.WeaponChoices == null && CreationService.RelicChoices == null,
-        Step.FreeSkill => CreationService.FreeSkills == null,
-        Step.AlchemistRecipe => CreationService.SelectedProfession?.Name != "Alchemist",
+        Step.HumanTalent => State.SelectedSpecies?.Name != "Human",
+        Step.TalentChoice => State.TalentChoices == null,
+        Step.Equipment => State.SpecificWeaponChoices == null && 
+                          State.WeaponChoices == null && State.RelicChoices == null && 
+                          State.PotionChoices == null && State.PartChoices == null,
+        Step.FreeSkill => State.FreeSkills == null,
+        Step.AlchemistRecipe => !State.HasRecipe,
         _ => false
     };
 

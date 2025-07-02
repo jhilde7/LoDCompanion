@@ -4,7 +4,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h5>Alchemy Recipe Creator</h5>
+        <h5>@(WeakOnlyMode ? "Create Weak Recipe (Character Creation)" : "Alchemy Recipe Creator")</h5>
     </div>
     <div class="card-body">
         <div class="row">
@@ -12,16 +12,30 @@
             <div class="col-md-4 border-end">
                 <h6>1. Configure Recipe</h6>
                 <div class="mb-3">
-                    <label for="recipeName" class="form-label">Recipe Name</label>
-                    <InputText id="recipeName" class="form-control" @bind-Value="recipeName" />
+                    <label for="potionName" class="form-label">Potion</label>
+                    <select id="potionName" class="form-select" @onchange="OnPotionSelected">
+                        <option value="">-- Select a Potion --</option>
+                        @foreach (var potion in _availablePotions)
+                        {
+                            <option value="@potion.Name">@potion.Name</option>
+                        }
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="potionStrength" class="form-label">Potion Strength</label>
-                    <InputSelect id="potionStrength" class="form-select" @bind-Value="selectedStrength">
-                        <option value="@PotionStrength.Weak">Weak</option>
-                        <option value="@PotionStrength.Standard">Standard</option>
-                        <option value="@PotionStrength.Supreme">Supreme</option>
-                    </InputSelect>
+                    <select id="potionStrength" class="form-select" @bind="_newRecipe.Strength" disabled="@(_selectedPotion == null || WeakOnlyMode)">
+                        @if (_selectedPotion == null)
+                        {
+                            <option value="">-- Select a Potion First --</option>
+                        }
+                        else
+                        {
+                            @foreach (var strength in _availableStrengths)
+                            {
+                                <option value="@strength">@strength</option>
+                            }
+                        }
+                    </select>
                 </div>
                 <div class="alert alert-info">
                     @GetRecipeRules()
@@ -63,11 +77,8 @@
         <!-- Current Recipe & Finalization -->
         <h6>3. Finalize Recipe</h6>
         <div class="p-3 bg-light rounded">
-            <h5>Current Recipe: @(string.IsNullOrEmpty(recipeName) ? "(Untitled)" : recipeName)</h5>
-            <p>
-                Ingredients: @recipeIngredients.Count / @requiredIngredients |
-                Parts: @recipeParts.Count / @requiredParts
-            </p>
+            <p class="mb-2"><strong>Status:</strong> <span class="@GetStatusClass()">@GetRecipeStatusText()</span></p>
+
             <ul class="list-group">
                 @foreach (var component in currentRecipeComponents)
                 {
@@ -87,13 +98,19 @@
 
 @code {
     [Parameter]
+    public bool WeakOnlyMode { get; set; } = false;
+    [Parameter]
     public EventCallback<AlchemicalRecipe> OnRecipeCreated { get; set; }
 
-    private string recipeName = "";
     private PotionStrength selectedStrength = PotionStrength.Weak;
 
-    private List<AlchemyItem> availableIngredients = AlchemyService.Ingredients;
-    private List<AlchemyItem> availableParts = AlchemyService.Parts;
+    private AlchemicalRecipe _newRecipe = new();
+    private List<Potion> _availablePotions = AlchemyService.GetAllDistinctPotions();
+    private Potion? _selectedPotion;
+    private List<PotionStrength> _availableStrengths = new();
+
+    private List<Ingredient> availableIngredients = AlchemyService.Ingredients;
+    private List<Part> availableParts = AlchemyService.Parts;
     private List<AlchemyItem> currentRecipeComponents = new();
 
     private List<AlchemyItem> recipeIngredients => currentRecipeComponents.Where(c => c.IsIngredient).ToList();
@@ -104,7 +121,36 @@
 
     protected override void OnInitialized()
     {
-        UpdateRecipeRequirements();
+        
+    }
+
+    private void OnPotionSelected(ChangeEventArgs e)
+    {
+        var selectedPotionName = e.Value?.ToString();
+        _selectedPotion = _availablePotions.FirstOrDefault(p => p.Name == selectedPotionName);
+
+        // Reset the recipe when a new potion is chosen
+        _newRecipe = new AlchemicalRecipe();
+
+        if (_selectedPotion != null)
+        {
+            _newRecipe.Name = _selectedPotion.Name;
+
+            if (WeakOnlyMode)
+            {
+                _availableStrengths = new List<PotionStrength> { PotionStrength.Weak };
+                _newRecipe.Strength = PotionStrength.Weak;
+            }
+            else
+            {
+                _availableStrengths = AlchemyService.GetPotionStrengths(_selectedPotion);
+                _newRecipe.Strength = _availableStrengths.FirstOrDefault();
+            }
+        }
+        else
+        {
+            _availableStrengths.Clear();
+        }
     }
 
     private void AddComponent(AlchemyItem component)
@@ -119,7 +165,6 @@
 
     private string GetRecipeRules()
     {
-        UpdateRecipeRequirements();
         return selectedStrength switch
         {
             PotionStrength.Weak => "A Weak Potion requires 1 part and 1 ingredient.",
@@ -129,39 +174,60 @@
         };
     }
 
-    private void UpdateRecipeRequirements()
+    private bool IsRecipeValid()
     {
+        if (_selectedPotion == null) return false;
+        int ingredientCount = recipeIngredients.Count;
+        int partCount = recipeParts.Count;
+
         switch (selectedStrength)
         {
             case PotionStrength.Weak:
-                requiredIngredients = 1;
-                requiredParts = 1;
-                break;
+                // Must have exactly 1 ingredient and 1 part.
+                return ingredientCount == 1 && partCount == 1;
+
             case PotionStrength.Standard:
-                // For simplicity, we'll enforce one common standard rule, e.g., 1 part, 2 ingredients.
-                // A more complex UI could handle the "or" condition.
-                requiredIngredients = 2;
-                requiredParts = 1;
-                break;
+                // Check for either (1 part AND 2 ingredients) OR (2 parts AND 1 ingredient).
+                bool isValidCombination = (partCount == 1 && ingredientCount == 2) || (partCount == 2 && ingredientCount == 1);
+                return isValidCombination;
+
             case PotionStrength.Supreme:
-                // Enforce 2 of each for a total of 4.
-                requiredIngredients = 2;
-                requiredParts = 2;
-                break;
+                // The total number of components must be exactly 4.
+                return (ingredientCount + partCount) == 4;
+
+            default:
+                return false;
         }
     }
 
-    private bool IsRecipeValid()
+    private string GetRecipeStatusText()
     {
-        if (string.IsNullOrWhiteSpace(recipeName)) return false;
+        int ingredientCount = recipeIngredients.Count;
+        int partCount = recipeParts.Count;
 
-        return selectedStrength switch
+        switch (selectedStrength)
         {
-            PotionStrength.Weak => recipeIngredients.Count == 1 && recipeParts.Count == 1,
-            PotionStrength.Standard => (recipeIngredients.Count == 2 && recipeParts.Count == 1) || (recipeIngredients.Count == 1 && recipeParts.Count == 2),
-            PotionStrength.Supreme => recipeIngredients.Count > 0 && recipeParts.Count > 0 && currentRecipeComponents.Count == 4,
-            _ => false
-        };
+            case PotionStrength.Weak:
+                if (ingredientCount == 1 && partCount == 1) return "Ready! (1 ingredient, 1 part)";
+                return $"Need 1 ingredient ({ingredientCount}/1) and 1 part ({partCount}/1).";
+
+            case PotionStrength.Standard:
+                if ((partCount == 1 && ingredientCount == 2) || (partCount == 2 && ingredientCount == 1)) return "Ready! (Valid combination)";
+                return $"Need (1 part & 2 ingredients) or (2 parts & 1 ingredient).";
+
+            case PotionStrength.Supreme:
+                int total = ingredientCount + partCount;
+                if (total == 4) return "Ready! (4 components selected)";
+                return $"Need a total of 4 components ({total}/4).";
+
+            default:
+                return "Select a strength to see requirements.";
+        }
+    }
+
+    private string GetStatusClass()
+    {
+        return IsRecipeValid() ? "text-success" : "text-warning";
     }
 
     private void SaveRecipe()
@@ -170,7 +236,7 @@
 
         var newRecipe = new AlchemicalRecipe
             {
-                Name = this.recipeName,
+                Name = $"{selectedStrength.ToString()} - {_selectedPotion.Name} Recipe",
                 Strength = this.selectedStrength,
                 Components = new List<AlchemyItem>(this.currentRecipeComponents)
             };
