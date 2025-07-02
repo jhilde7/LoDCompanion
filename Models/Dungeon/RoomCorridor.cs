@@ -2,6 +2,7 @@
 using LoDCompanion.Utilities;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
+using System.Text;
 
 namespace LoDCompanion.Models.Dungeon
 {
@@ -302,6 +303,67 @@ namespace LoDCompanion.Models.Dungeon
             // Update the actual Doors list of this RoomCorridor instance  
             Doors = workingDoors;
             ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors  
+        }
+    }
+
+    public class RoomInfo
+    {
+        public string? Name { get; set; }
+        public string? Type { get; set; }
+        public string? Description { get; set; }
+        public string? SpecialRules { get; set; }
+        public int? ThreatLevelModifier { get; set; }
+        public int? PartyMoraleModifier { get; set; }
+        public int[]? Size { get; set; }
+        public int? DoorCount { get; set; }
+        public List<string>? FurnitureList { get; set; }
+        public int? EncounterModifier { get; set; }
+        public bool HasLevers { get; set; }
+        public bool RandomEncounter { get; set; }
+        public bool HasSpecial { get; set; }
+
+        public RoomInfo()
+        {
+
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"--- Room: {Name} [{Type}] ---");
+            if (Size != null && Size.Length == 2)
+            {
+                sb.Append($"Size: {Size[0]}x{Size[1]} | ");
+            }
+            if (DoorCount.HasValue)
+            {
+                sb.Append($"Doors: {DoorCount} | ");
+            }
+            sb.AppendLine($"Random Encounter: {RandomEncounter}");
+
+            if (!string.IsNullOrEmpty(Description))
+            {
+                sb.AppendLine($"Description: {Description}");
+            }
+            if (FurnitureList != null && FurnitureList.Any())
+            {
+                sb.AppendLine($"Furniture: {string.Join(", ", FurnitureList)}");
+            }
+            if (!string.IsNullOrEmpty(SpecialRules))
+            {
+                sb.AppendLine($"Special Rules: {SpecialRules}");
+            }
+
+            var modifiers = new List<string>();
+            if (ThreatLevelModifier.HasValue) modifiers.Add($"Threat: {ThreatLevelModifier.Value:+#;-#;0}");
+            if (PartyMoraleModifier.HasValue) modifiers.Add($"Morale: {PartyMoraleModifier.Value:+#;-#;0}");
+            if (EncounterModifier.HasValue) modifiers.Add($"Encounter: {EncounterModifier.Value:+#;-#;0}");
+            if (modifiers.Any())
+            {
+                sb.AppendLine($"Modifiers: {string.Join(" | ", modifiers)}");
+            }
+
+            return sb.ToString();
         }
     }
 }

@@ -2202,7 +2202,7 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 2,
                     MaxMeleeWeaponType = 5,
                     TalentChoices = [GetTalentByName("Wise"), GetTalentByName("Charming")],
-                    StartingBackpackList = new List<Equipment>(){GetMeleeWeaponByName("Staff")},
+                    StartingBackpackList = new List<Equipment>(){EquipmentService.GetMeleeWeaponByName(this, "Staff")},
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4 },
@@ -2245,7 +2245,10 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Shortsword/Rapier"],
-                    StartingBackpackList = [ GetArmourByName("Padded Jacket"), GetEquipmentByNameSetQuantity("Lockpicks", 10), GetEquipmentByName("Backpack - Medium") ],
+                    StartingBackpackList = [
+                        EquipmentService.GetArmourByName(this, "Padded Jacket"), 
+                        EquipmentService.GetEquipmentByNameSetQuantity(this, "Lockpicks", 10),
+                        EquipmentService.GetEquipmentByName(this, "Backpack - Medium") ],
                     StartingTalentList = [ GetTalentByName("Backstabber"), 
                         new Talent() {
                             Category = TalentCategory.Sneaky,
@@ -2297,7 +2300,9 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
                     TalentChoices = [GetTalentByName("Marksman"), GetTalentByName("Hunter")],
-                    StartingBackpackList = [GetRangedWeaponByName("Longbow"), GetAmmoByNameSetQuantity("Arrow", 10) ],
+                    StartingBackpackList = [
+                        EquipmentService.GetRangedWeaponByName(this, "Longbow"), 
+                        EquipmentService.GetAmmoByNameSetQuantity(this, "Arrow", 10) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
                       {"DEX", 2},
@@ -2435,7 +2440,7 @@ namespace LoDCompanion.Services.GameData
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of Choice"],
                     TalentChoices = [ GetTalentByName("Mighty Blow"), GetTalentByName("Braveheart")],
-                    StartingBackpackList = [ GetArmourByName("Leather Jacket") ],
+                    StartingBackpackList = [EquipmentService.GetArmourByName(this, "Leather Jacket") ],
                     StartingTalentList = [GetTalentByName("Disciplined") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
@@ -2481,10 +2486,10 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Potions x 3 of choice", "Parts x 3 of choice", "Recipe of choice"],
-                    StartingBackpackList = [ 
-                        GetEquipmentByName("Alchemist Tool"), 
-                        GetEquipmentByName("Alchemist Belt"), 
-                        GetMeleeWeaponByName("Shortsword"),
+                    StartingBackpackList = [
+                        EquipmentService.GetEquipmentByName(this, "Alchemist Tool"),
+                        EquipmentService.GetEquipmentByName(this, "Alchemist Belt"), 
+                        EquipmentService.GetMeleeWeaponByName(this, "Shortsword"),
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0]
@@ -2531,7 +2536,10 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 2,
-                    StartingBackpackList = [ GetMeleeWeaponByName("Dagger"), GetEquipmentByName("Rope"), GetEquipmentByNameSetQuantity("Lockpicks", 10) ],
+                    StartingBackpackList = [ 
+                        EquipmentService.GetMeleeWeaponByName(this, "Dagger"), 
+                        EquipmentService.GetEquipmentByName(this, "Rope"),
+                        EquipmentService.GetEquipmentByNameSetQuantity(this, "Lockpicks", 10) ],
                     StartingTalentList = [ GetTalentByName("Evaluate") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5},
@@ -3049,35 +3057,6 @@ namespace LoDCompanion.Services.GameData
 
         }
 
-        public Equipment GetEquipmentByName(string name)
-        {
-            return Equipment.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
-
-        public Equipment GetEquipmentByNameSetQuantity(string name, int qty)
-        {
-            Equipment? item = GetEquipmentByName(name);
-            if (item == null) throw new NullReferenceException();
-            item.Quantity = qty;
-            return item;
-        }
-
-        public Equipment GetEquipmentByNameSetDurabilitySetQuantity(string name, int durability, int qty = 1)
-        {
-            Equipment item = GetEquipmentByName(name);
-            if (item == null) throw new NullReferenceException();
-            item.Quantity = qty;
-            item.Durability = durability;
-            return item;
-        }
-
-        public List<Equipment> GetStartingEquipment()
-        {
-            List<Equipment> list = new List<Equipment>();
-            list.AddRange(Equipment.Where(x => x.Availability > 3));
-            return list;
-        }
-
         public List<Ammo> GetAmmo()
         {
             return new List<Ammo>()
@@ -3167,26 +3146,6 @@ namespace LoDCompanion.Services.GameData
                       AmmoType = AmmoType.Bolt
                   }
             };
-        }
-
-        public Ammo GetAmmoByName( string name )
-        {
-            return Ammo.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
-
-        public Ammo GetAmmoByNameSetQuantity(string name, int qty)
-        {
-            Ammo? item = GetAmmoByName(name);
-            if (item == null) throw new NullReferenceException();
-            item.Quantity = qty;
-            return item;
-        }
-
-        public List<Ammo> GetStartingAmmo()
-        {
-            List<Ammo> list = new List<Ammo>();
-            list.AddRange(Ammo.Where(x => x.Availability > 3));
-            return list;
         }
 
         public List<MeleeWeapon> GetMeleeWeapons() 
@@ -3862,11 +3821,6 @@ namespace LoDCompanion.Services.GameData
             ;
         }
 
-        public MeleeWeapon GetMeleeWeaponByName(string name)
-        {
-            return MeleeWeapons.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
-
         public List<RangedWeapon> GetRangedWeapons()
         {
             return new List<RangedWeapon>
@@ -3969,31 +3923,6 @@ namespace LoDCompanion.Services.GameData
                     AmmoType = AmmoType.SlingStone
                   }
             };
-        }
-
-        public RangedWeapon GetRangedWeaponByName(string name)
-        {
-            return RangedWeapons.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
-
-        internal Weapon GetWeaponByName(string name)
-        {
-            return (Weapon)GetMeleeWeaponByName(name) ?? (Weapon)GetRangedWeaponByName(name) ?? throw new NullReferenceException();
-        }
-
-        public Weapon GetWeaponByNameSetDurability(string name, int durability)
-        {
-            Weapon weapon = GetWeaponByName(name);
-            weapon.Durability = durability;
-            return weapon;
-        }
-
-        public List<Equipment> GetStartingWeapons()
-        {
-            List<Equipment> list = new List<Equipment>();
-            list.AddRange(MeleeWeapons.Where(x => x.Availability > 3));
-            list.AddRange(RangedWeapons.Where(x => x.Availability > 3));
-            return list;
         }
 
         public List<MagicStaff> GetMagicStaves()
@@ -4190,11 +4119,6 @@ namespace LoDCompanion.Services.GameData
                     }
                 }
             }; 
-        }
-
-        public MagicStaff GetMagicStaffByName(string name )
-        {
-            return MagicStaves.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
         }
 
         public List<Armour> GetArmour()
@@ -4463,24 +4387,6 @@ namespace LoDCompanion.Services.GameData
             ;
         }
 
-        public Armour GetArmourByName(string name)
-        {
-            return Armour.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
-        public Armour GetArmourByNameSetDurability(string name, int durability)
-        {
-            Armour armour =  Armour.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();            
-            armour.Durability = durability;
-            return armour;
-        }
-
-        public List<Armour> GetStartingArmour()
-        {
-            List<Armour> list = new List<Armour>();
-            list.AddRange(Armour.Where(x => x.Availability > 3));
-            return list;
-        }
-
         public List<Shield> GetShields()
         {
             return new List<Shield>()
@@ -4554,25 +4460,6 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public Shield GetShieldByName(string name)
-        {
-            return Shields.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
-
-        public Shield GetShieldByNameSetDurability(string name, int durability)
-        {
-            Shield shield = Shields.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-            shield.Durability = durability;
-            return shield;
-        }
-
-        public List<Shield> GetStartingShields()
-        {
-            List<Shield> list = new List<Shield>();
-            list.AddRange(Shields.Where(x => x.Availability > 3));
-            return list;
-        }
-
         public List<Equipment> GetRelics()
         {
             return new List<Equipment>()
@@ -4639,74 +4526,7 @@ namespace LoDCompanion.Services.GameData
                   }
             };
         }
-
-        public Equipment GetRelicByName(string name)
-        {
-            return Relics.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-        }
     }
-
-    public class RoomInfo
-    {
-        public string? Name { get; set; }
-        public string? Type { get; set; }
-        public string? Description { get; set; }
-        public string? SpecialRules { get; set; }
-        public int? ThreatLevelModifier { get; set; }
-        public int? PartyMoraleModifier { get; set; }
-        public int[]? Size { get; set; }
-        public int? DoorCount { get; set; }
-        public List<string>? FurnitureList { get; set; }
-        public int? EncounterModifier { get; set; }
-        public bool HasLevers { get; set; }
-        public bool RandomEncounter { get; set; }
-        public bool HasSpecial { get; set; }
-
-        public RoomInfo()
-        {
-
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"--- Room: {Name} [{Type}] ---");
-            if (Size != null && Size.Length == 2)
-            {
-                sb.Append($"Size: {Size[0]}x{Size[1]} | ");
-            }
-            if (DoorCount.HasValue)
-            {
-                sb.Append($"Doors: {DoorCount} | ");
-            }
-            sb.AppendLine($"Random Encounter: {RandomEncounter}");
-
-            if (!string.IsNullOrEmpty(Description))
-            {
-                sb.AppendLine($"Description: {Description}");
-            }
-            if (FurnitureList != null && FurnitureList.Any())
-            {
-                sb.AppendLine($"Furniture: {string.Join(", ", FurnitureList)}");
-            }
-            if (!string.IsNullOrEmpty(SpecialRules))
-            {
-                sb.AppendLine($"Special Rules: {SpecialRules}");
-            }
-
-            var modifiers = new List<string>();
-            if (ThreatLevelModifier.HasValue) modifiers.Add($"Threat: {ThreatLevelModifier.Value:+#;-#;0}");
-            if (PartyMoraleModifier.HasValue) modifiers.Add($"Morale: {PartyMoraleModifier.Value:+#;-#;0}");
-            if (EncounterModifier.HasValue) modifiers.Add($"Encounter: {EncounterModifier.Value:+#;-#;0}");
-            if (modifiers.Any())
-            {
-                sb.AppendLine($"Modifiers: {string.Join(" | ", modifiers)}");
-            }
-
-            return sb.ToString();
-        }
-    }
-
     public class Spell
     {
         public string Name { get; set; } = string.Empty;
