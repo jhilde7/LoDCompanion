@@ -46,16 +46,34 @@ namespace LoDCompanion.Services.CharacterCreation
         {
             List<Talent> traits = new List<Talent>();
             if (name != null)
-            {
+            {                          
                 switch (name)
                 {
                     case "Dwarf":
-                        traits.Add(_gameData.GetTalentByName("Night Vision") ?? new Talent { Name = "Night Vision", Description = "", IsNightVision = true });
-                        traits.Add(_gameData.GetTalentByName("Hate Goblins") ?? new Talent());
+                        traits.Add(new Talent()
+                        {
+                            Category = TalentCategory.Physical,
+                            Name = "Night Vision",
+                            Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                            IsNightVision = true
+                        });
+                        traits.Add(_gameData.GetHateByName(GameDataService.HateCategory.Goblins));
                         return traits;
                     case "Elf":
-                        traits.Add(_gameData.GetTalentByName("Night Vision") ?? new Talent { Name = "Night Vision", Description = "", IsNightVision = true });
-                        traits.Add(_gameData.GetTalentByName("Perfect Hearing") ?? new Talent { Name = "Perfect Hearing", Description = "", IsPerfectHearing = true });
+                        traits.Add(new Talent()
+                        {
+                            Category = TalentCategory.Physical,
+                            Name = "Night Vision",
+                            Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                            IsNightVision = true
+                        });
+                        traits.Add(new Talent()
+                        {
+                            Category = TalentCategory.Physical,
+                            Name = "Perfect Hearing",
+                            Description = "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened.",
+                            IsPerfectHearing = true
+                        });
                         return traits;
                     case "Halfling":
                         traits.Add(_gameData.GetTalentByName("Lucky") ?? new Talent());
