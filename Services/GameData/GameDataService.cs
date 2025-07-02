@@ -23,13 +23,14 @@ namespace LoDCompanion.Services.GameData
         public List<Talent> MagicTalents => GetTalentsByCategory(TalentCategory.Magic);
         public List<Talent> SneakyTalents => GetTalentsByCategory(TalentCategory.Sneaky);
         public List<Talent> MentalTalents => GetTalentsByCategory(TalentCategory.Mental);
-        public List<Perk> LeaderPerks => GetPerksByCategory("Leader");
-        public List<Perk> CommonPerks => GetPerksByCategory("Common");
-        public List<Perk> CombatPerks => GetPerksByCategory("Combat");
-        public List<Perk> SneakyPerks => GetPerksByCategory("Sneaky");
-        public List<Perk> FaithPerks => GetPerksByCategory("Faith");
-        public List<Perk> ArcanePerks => GetPerksByCategory("Arcane");
-        public List<Perk> AlchemistPerks => GetPerksByCategory("Alchemist");
+        public List<Perk> Perks => GetPerks();
+        public List<Perk> LeaderPerks => GetPerksByCategory(PerkCategory.Leader);
+        public List<Perk> CommonPerks => GetPerksByCategory(PerkCategory.Common);
+        public List<Perk> CombatPerks => GetPerksByCategory(PerkCategory.Combat);
+        public List<Perk> SneakyPerks => GetPerksByCategory(PerkCategory.Sneaky);
+        public List<Perk> FaithPerks => GetPerksByCategory(PerkCategory.Faith);
+        public List<Perk> ArcanePerks => GetPerksByCategory(PerkCategory.Arcane);
+        public List<Perk> AlchemistPerks => GetPerksByCategory(PerkCategory.Alchemist);
         public List<Equipment> Equipment => GetEquipment();
         public List<MeleeWeapon> MeleeWeapons => GetMeleeWeapons();
         public List<RangedWeapon> RangedWeapons => GetRangedWeapons();
@@ -1458,22 +1459,12 @@ namespace LoDCompanion.Services.GameData
 
         private List<Talent> GetTalentsByCategory(TalentCategory category)
         {
-            return GetTalents().Where(t => t.Category == category).ToList();
+            return Talents.Where(t => t.Category == category).ToList();
         }
 
         public Talent GetTalentByName(string name)
         {
-            List<Talent> list = [
-                .. PhysicalTalents,
-                .. CombatTalents,
-                .. FaithTalents,
-                .. AlchemistTalents,
-                .. CommonTalents,
-                .. MagicTalents,
-                .. SneakyTalents,
-                .. MentalTalents];
-
-            return list.FirstOrDefault(t => t.Name == name) ?? new Talent();
+            return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
         }
 
         public enum HateCategory
@@ -1763,6 +1754,253 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
+        public List<Perk> GetPerks()
+        {
+            return new List<Perk>()
+                       {
+                            new Perk(){
+                                Category = PerkCategory.Leader,
+                                Name = "Call to Action",
+                                Effect = "Your hero lets out a battle shout that gives another hero a chance to spring into immediate action. You may use this Perk when activating the hero. Once the 2 AP has been spent, you may take a hero token from the bag and activate another hero within LOS of the hero using this Perk.",
+                                Comment = ""
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Leader,
+                                Name = "Encouragement",
+                                Effect = "Your hero's encouragement strengthens the hearts of his comrades, giving them +10 on an upcoming Fear or Terror Test.",
+                                Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Leader,
+                                Name = "Keep Calm and Carry On!",
+                                Effect = "Your hero's Resolve keeps the party together. You may increase Party Morale with +2.",
+                                Comment = "This may not increase morale above starting morale."
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Leader,
+                                Name = "Rally",
+                                Effect = "The hero tries to encourage a comrade to action! A hero that has failed a Fear or Terror Test may immediately retake that test.",
+                                Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
+                        },
+                               new Perk(){
+                                Category = PerkCategory.Common,
+                                Name = "Ignore Wounds",
+                                Effect = "Hero gains Natural Armour 2",
+                                Comment = "Lasts for one battle."
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Common,
+                                Name = "Sixth Sense",
+                                Effect = "May add +20 to a dodge result when attacked or +20 to a Perception Test when avoiding a triggered trap.",
+                                Comment = ""
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Common,
+                                Name = "Sprint",
+                                Effect = "Your hero may use one Point of Energy to move up to 6 squares with the first movement. A second movement is still allowed but with the standard half movement.",
+                                Comment = ""
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Common,
+                                Name = "Taunt",
+                                Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack him ignoring normal targeting procedure.",
+                                Comment = "Chose which enemy to taunt before rolling."
+                              },
+                              new Perk(){
+                                Category = PerkCategory.Common,
+                                Name = "Taste for Blood",
+                                Effect = "Character evokes blood lust on a To Hit' roll of 01-10 instead of 01-05 for an entire battle.",
+                                Comment = "Must be used before Damage Roll but lasts the entire battle."
+                        },
+                              new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Battle Fury",
+                            Effect = "Using his inner energy, your hero may perform 2 Power Attacks in one turn as if they only cost 1 AP.",
+                            Comment = ""
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Deadly Strike",
+                            Effect = "Adds +25 CS to your next attack.",
+                            Comment = ""
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Frenzy",
+                            Effect = "Working herself into a frenzy, your hero flails wildly at her enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
+                            Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Hunter's Eye",
+                            Effect = "Your hero may shoot two arrows when performing a Ranged Attack with a bow. Both arrows must target the same enemy. Roll for each attack separately.",
+                            Comment = "Can only be activated when using a bow or a sling."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Perfect Aim",
+                            Effect = "Your hero's aim is spot on. Add +25 to RS to your next Ranged Attack.",
+                            Comment = ""
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Powerful Blow",
+                            Effect = "Your hero attacks with all her strength, causing 1d6 extra damage.",
+                            Comment = "Must be decided before the attack is made."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Shield Bash",
+                            Effect = "Pushes one enemy of the same size or smaller one square. Target must make a Dexterity Test or fall over, spending its next action to stand again. Hero may occupy target's square afterwards.",
+                            Comment = "Flyers are immune. Requires a Heater or Tower shield."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Shield Wall",
+                            Effect = "Years of training lets your hero handle that shield like a pro. You may parry twice during one turn while in Parry Stance.",
+                            Comment = "May be used when attacked."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Combat,
+                            Name = "Stunning Strike",
+                            Effect = "Your hero may choose to stun the enemy instead of inflicting wounds. Your hero performs a Standard Attack with a -10 CS penalty and if the attack is successful, the enemy must pass a RES test or it may perform NO actions during its next turn.",
+                            Comment = "Only melee weapons. Does not work on X-Large creatures and Large creatures only lose 1 AP."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Clever Fingers",
+                            Effect = "Relying on her experience, her fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
+                            Comment = "Use before rolling."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Hide in the Shadows",
+                            Effect = "Your hero finds that perfect spot to avoid drawing attention. No enemy will target him if they are more than 2 squares away when they start their turn. If your model is adjacent to an enemy, that enemy will always attack another adjacent model if there is one. If not, the Perk will not work.",
+                            Comment = ""
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Living on Nothing",
+                            Effect = "Accustomed to hardship, your hero can sustain themselves on almost nothing. Spending an Energy Point to activate this Perk is considered the same as consuming a ration.",
+                            Comment = "The Energy Point cannot be regained in the same rest in which it was spent."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Loot Goblin",
+                            Effect = "Whenever told to roll for an amount of gold, your hero may decide to re-roll the result once.",
+                            Comment = "The decision to use this Perk is done after the first dice roll. Second result will stand."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Lucky Git",
+                            Effect = "As always, lady fortune is smiling at your hero. Reduce the Threat Level by 2.",
+                            Comment = ""
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Quick Dodge",
+                            Effect = "Quick reflexes may make all the difference. Hero may dodge, even if the normal dodge is expended.",
+                            Comment = "May be used when attacked."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Sneaky,
+                            Name = "Strike to Injure",
+                            Effect = "Your hero targets the enemy with extreme precision, striking the most vulnerable area. Ignore the enemy's armour for all your attacks this turn.",
+                            Comment = "Must be declared before attacking"
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Faith,
+                            Name = "God's Favorite",
+                            Effect = "Your hero is well attuned to the gods, and they always seem to listen to him. Once again, his prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
+                            Comment = ""
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Faith,
+                            Name = "Fate Forger",
+                            Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
+                            Comment = "Used as soon as the Scenario die has been rolled."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Faith,
+                            Name = "Healer",
+                            Effect = "Putting that extra effort into tending a wound can make such a difference. When applying a bandage, this Perk adds +3 HP to the result.",
+                            Comment = "Used at the same time as the Healing Skill."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Faith,
+                            Name = "My Will Be Done",
+                            Effect = "Using his inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
+                            Comment = "Lasts until end of next battle"
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Arcane,
+                            Name = "Dispel Master",
+                            Effect = "The wizard is very skilled in the art of countering enemy magic.",
+                            Comment = "The wizard gets +10 when rolling to dispel when this Perk is used."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Arcane,
+                            Name = "Energy to Mana",
+                            Effect = "The wizard has the ability to turn energy into Mana. For each Energy Point spent, the wizard gains 5 Mana.",
+                            Comment = "The wizard may spend any number of Energy Points in one go."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Arcane,
+                            Name = "Inner Power",
+                            Effect = "The wizard increases the power of his magic missiles, causing an extra 1d6 Damage.",
+                            Comment = "Must be declared before the spell is cast."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Arcane,
+                            Name = "In Tune with the Magic",
+                            Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk her Sanity.",
+                            Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Arcane,
+                            Name = "Quick Focus",
+                            Effect = "The wizard has the ability of extreme Focus, increasing the chance to succeed with a spell. Add +10 Arcane Arts Skill without spending an action on focus. Risk for miscast is still increased.",
+                            Comment = "Used at the same time as casting a spell. Only lasts for that spell."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Alchemist,
+                            Name = "Careful Touch",
+                            Effect = "By taking a little extra time, that specific specimen can be perfect. Chance of getting an Exquisite Ingredient or Part is increased to 20.",
+                            Comment = "Declare before harvesting or gathering."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Alchemist,
+                            Name = "Connoisseur",
+                            Effect = "The alchemist has a knack for identifying potions brewed by others. Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
+                            Comment = "Energy Point is spent at the same time as you try to identify the potion."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Alchemist,
+                            Name = "Perfect Healer",
+                            Effect = "Your hero's perfect mixing increases the potency of her potions. The Healing Potion heals +3 HP.",
+                            Comment = "Used at the same time as the potion is mixed."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Alchemist,
+                            Name = "Pitcher",
+                            Effect = "With that extra second to aim, your alchemist can throw a bottle with a perfect arc. Grants a +10 RS bonus to your next attempt to throw a potion.",
+                            Comment = "Only lasts for one potion and must be declared before throwing."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Alchemist,
+                            Name = "Precise Mixing",
+                            Effect = "Good mixing skills make all the difference. The alchemist may choose to reroll the result when rolling to see what potions have been created.",
+                            Comment = "Energy may be spent after the first dice roll. The second result stands."
+                          },
+                          new Perk(){
+                                Category = PerkCategory.Alchemist,
+                            Name = "Surgeon",
+                            Effect = "Taking a deep breath to calm the nerves, the alchemist can remove most parts with precision. The alchemist may choose what part to harvest.",
+                            Comment = "Only works on one enemy per Energy Point spent."
+                          }
+            };
+        }
+        
         public List<Perk>? GetPerkCategoryAtLevelup(Profession profession, int level)
         {
             switch (profession.Name)
@@ -1851,294 +2089,14 @@ namespace LoDCompanion.Services.GameData
             }
         }
 
-        public List<Perk> GetPerksByCategory(string categoryName) 
+        public List<Perk> GetPerksByCategory(PerkCategory category) 
         {
-            switch (categoryName)
-            {
-                case "Leader": 
-                    return new List<Perk>()
-                       {
-                            new Perk(){
-                                Category = PerkCategory.Leader,
-                                Name = "Call to Action",
-                                Effect = "Your hero lets out a battle shout that gives another hero a chance to spring into immediate action. You may use this Perk when activating the hero. Once the 2 AP has been spent, you may take a hero token from the bag and activate another hero within LOS of the hero using this Perk.",
-                                Comment = ""
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Leader,
-                                Name = "Encouragement",
-                                Effect = "Your hero's encouragement strengthens the hearts of his comrades, giving them +10 on an upcoming Fear or Terror Test.",
-                                Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Leader,
-                                Name = "Keep Calm and Carry On!",
-                                Effect = "Your hero's Resolve keeps the party together. You may increase Party Morale with +2.",
-                                Comment = "This may not increase morale above starting morale."
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Leader,
-                                Name = "Rally",
-                                Effect = "The hero tries to encourage a comrade to action! A hero that has failed a Fear or Terror Test may immediately retake that test.",
-                                Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
-                        }
-                    };
-                case "Common":
-                    return new List<Perk>()
-                        {
-                            new Perk(){
-                                Category = PerkCategory.Common,
-                                Name = "Ignore Wounds",
-                                Effect = "Hero gains Natural Armour 2",
-                                Comment = "Lasts for one battle."
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Common,
-                                Name = "Sixth Sense",
-                                Effect = "May add +20 to a dodge result when attacked or +20 to a Perception Test when avoiding a triggered trap.",
-                                Comment = ""
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Common,
-                                Name = "Sprint",
-                                Effect = "Your hero may use one Point of Energy to move up to 6 squares with the first movement. A second movement is still allowed but with the standard half movement.",
-                                Comment = ""
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Common,
-                                Name = "Taunt",
-                                Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack him ignoring normal targeting procedure.",
-                                Comment = "Chose which enemy to taunt before rolling."
-                              },
-                              new Perk(){
-                                Category = PerkCategory.Common,
-                                Name = "Taste for Blood",
-                                Effect = "Character evokes blood lust on a To Hit' roll of 01-10 instead of 01-05 for an entire battle.",
-                                Comment = "Must be used before Damage Roll but lasts the entire battle."
-                        }
-                    };
-                case "Combat":
-                    return new List<Perk>()
-                    {
-                        new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Battle Fury",
-                            Effect = "Using his inner energy, your hero may perform 2 Power Attacks in one turn as if they only cost 1 AP.",
-                            Comment = ""
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Deadly Strike",
-                            Effect = "Adds +25 CS to your next attack.",
-                            Comment = ""
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Frenzy",
-                            Effect = "Working herself into a frenzy, your hero flails wildly at her enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
-                            Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Hunter's Eye",
-                            Effect = "Your hero may shoot two arrows when performing a Ranged Attack with a bow. Both arrows must target the same enemy. Roll for each attack separately.",
-                            Comment = "Can only be activated when using a bow or a sling."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Perfect Aim",
-                            Effect = "Your hero's aim is spot on. Add +25 to RS to your next Ranged Attack.",
-                            Comment = ""
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Powerful Blow",
-                            Effect = "Your hero attacks with all her strength, causing 1d6 extra damage.",
-                            Comment = "Must be decided before the attack is made."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Shield Bash",
-                            Effect = "Pushes one enemy of the same size or smaller one square. Target must make a Dexterity Test or fall over, spending its next action to stand again. Hero may occupy target's square afterwards.",
-                            Comment = "Flyers are immune. Requires a Heater or Tower shield."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Shield Wall",
-                            Effect = "Years of training lets your hero handle that shield like a pro. You may parry twice during one turn while in Parry Stance.",
-                            Comment = "May be used when attacked."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Combat,
-                            Name = "Stunning Strike",
-                            Effect = "Your hero may choose to stun the enemy instead of inflicting wounds. Your hero performs a Standard Attack with a -10 CS penalty and if the attack is successful, the enemy must pass a RES test or it may perform NO actions during its next turn.",
-                            Comment = "Only melee weapons. Does not work on X-Large creatures and Large creatures only lose 1 AP."
-                          }
-                    };
-                case "Sneaky":
-                    return new List<Perk>()
-                    {
-                        new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Clever Fingers",
-                            Effect = "Relying on her experience, her fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
-                            Comment = "Use before rolling."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Hide in the Shadows",
-                            Effect = "Your hero finds that perfect spot to avoid drawing attention. No enemy will target him if they are more than 2 squares away when they start their turn. If your model is adjacent to an enemy, that enemy will always attack another adjacent model if there is one. If not, the Perk will not work.",
-                            Comment = ""
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Living on Nothing",
-                            Effect = "Accustomed to hardship, your hero can sustain themselves on almost nothing. Spending an Energy Point to activate this Perk is considered the same as consuming a ration.",
-                            Comment = "The Energy Point cannot be regained in the same rest in which it was spent."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Loot Goblin",
-                            Effect = "Whenever told to roll for an amount of gold, your hero may decide to re-roll the result once.",
-                            Comment = "The decision to use this Perk is done after the first dice roll. Second result will stand."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Lucky Git",
-                            Effect = "As always, lady fortune is smiling at your hero. Reduce the Threat Level by 2.",
-                            Comment = ""
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Quick Dodge",
-                            Effect = "Quick reflexes may make all the difference. Hero may dodge, even if the normal dodge is expended.",
-                            Comment = "May be used when attacked."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Sneaky,
-                            Name = "Strike to Injure",
-                            Effect = "Your hero targets the enemy with extreme precision, striking the most vulnerable area. Ignore the enemy's armour for all your attacks this turn.",
-                            Comment = "Must be declared before attacking"
-                          }
-                    };
-                case "Faith":
-                    return new List<Perk>()
-                    {
-                        new Perk(){
-                                Category = PerkCategory.Faith,
-                            Name = "God's Favorite",
-                            Effect = "Your hero is well attuned to the gods, and they always seem to listen to him. Once again, his prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
-                            Comment = ""
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Faith,
-                            Name = "Fate Forger",
-                            Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
-                            Comment = "Used as soon as the Scenario die has been rolled."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Faith,
-                            Name = "Healer",
-                            Effect = "Putting that extra effort into tending a wound can make such a difference. When applying a bandage, this Perk adds +3 HP to the result.",
-                            Comment = "Used at the same time as the Healing Skill."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Faith,
-                            Name = "My Will Be Done",
-                            Effect = "Using his inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
-                            Comment = "Lasts until end of next battle"
-                          }
-                    };
-                case "Arcane":
-                    return new List<Perk>()
-                    {
-                        new Perk(){
-                                Category = PerkCategory.Arcane,
-                            Name = "Dispel Master",
-                            Effect = "The wizard is very skilled in the art of countering enemy magic.",
-                            Comment = "The wizard gets +10 when rolling to dispel when this Perk is used."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Arcane,
-                            Name = "Energy to Mana",
-                            Effect = "The wizard has the ability to turn energy into Mana. For each Energy Point spent, the wizard gains 5 Mana.",
-                            Comment = "The wizard may spend any number of Energy Points in one go."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Arcane,
-                            Name = "Inner Power",
-                            Effect = "The wizard increases the power of his magic missiles, causing an extra 1d6 Damage.",
-                            Comment = "Must be declared before the spell is cast."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Arcane,
-                            Name = "In Tune with the Magic",
-                            Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk her Sanity.",
-                            Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Arcane,
-                            Name = "Quick Focus",
-                            Effect = "The wizard has the ability of extreme Focus, increasing the chance to succeed with a spell. Add +10 Arcane Arts Skill without spending an action on focus. Risk for miscast is still increased.",
-                            Comment = "Used at the same time as casting a spell. Only lasts for that spell."
-                          }
-                    };
-                case "Alchemist":
-                    return new List<Perk>()
-                    {
-                        new Perk(){
-                                Category = PerkCategory.Alchemist,
-                            Name = "Careful Touch",
-                            Effect = "By taking a little extra time, that specific specimen can be perfect. Chance of getting an Exquisite Ingredient or Part is increased to 20.",
-                            Comment = "Declare before harvesting or gathering."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Alchemist,
-                            Name = "Connoisseur",
-                            Effect = "The alchemist has a knack for identifying potions brewed by others. Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
-                            Comment = "Energy Point is spent at the same time as you try to identify the potion."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Alchemist,
-                            Name = "Perfect Healer",
-                            Effect = "Your hero's perfect mixing increases the potency of her potions. The Healing Potion heals +3 HP.",
-                            Comment = "Used at the same time as the potion is mixed."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Alchemist,
-                            Name = "Pitcher",
-                            Effect = "With that extra second to aim, your alchemist can throw a bottle with a perfect arc. Grants a +10 RS bonus to your next attempt to throw a potion.",
-                            Comment = "Only lasts for one potion and must be declared before throwing."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Alchemist,
-                            Name = "Precise Mixing",
-                            Effect = "Good mixing skills make all the difference. The alchemist may choose to reroll the result when rolling to see what potions have been created.",
-                            Comment = "Energy may be spent after the first dice roll. The second result stands."
-                          },
-                          new Perk(){
-                                Category = PerkCategory.Alchemist,
-                            Name = "Surgeon",
-                            Effect = "Taking a deep breath to calm the nerves, the alchemist can remove most parts with precision. The alchemist may choose what part to harvest.",
-                            Comment = "Only works on one enemy per Energy Point spent."
-                          }
-                    };
-                default: return new List<Perk>();
-            };
+            return Perks.Where(p => p.Category == category).ToList();
         }
 
         public Perk GetPerkByName(string name)
         {
-            List<Perk> list = [
-                .. LeaderPerks,
-                .. CommonPerks,
-                .. CombatPerks,
-                .. SneakyPerks,
-                .. FaithPerks,
-                .. ArcanePerks,
-                .. AlchemistPerks];
-
-            return list.FirstOrDefault(t => t.Name == name) ?? new Perk();
+            return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
         }
 
         public List<Species> GetSpecies()
