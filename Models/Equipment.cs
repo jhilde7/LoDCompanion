@@ -8,7 +8,7 @@ namespace LoDCompanion.Models
 {
     public class Equipment
     {
-        public string? Type { get; set; }
+        public string? Category { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
