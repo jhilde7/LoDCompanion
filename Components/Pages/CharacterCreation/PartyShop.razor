@@ -1,0 +1,70 @@
+﻿@page "/party/shop"
+@rendermode InteractiveServer
+
+@using LoDCompanion.Models
+@using LoDCompanion.Models.Character
+@using LoDCompanion.Services.Player
+@using LoDCompanion.Services.State
+@using LoDCompanion.Services.Dungeon
+@using LoDCompanion.Components
+@using LoDCompanion.Components.Shared
+
+@inject PartyManagerService PartyService
+@inject DungeonManagerService DungeonManager
+@inject NavigationManager NavManager
+
+<PageTitle>The Adventurer's Shop</PageTitle>
+
+@if (currentParty != null)
+{
+    <div class="container">
+        <h1 class="text-center my-4">Adventurer's Guild Shop</h1>
+
+        <Shop Party="currentParty" />
+
+        <div class="text-center mt-5">
+            <hr />
+            <p class="lead">Once you are finished gearing up, your first challenge awaits!</p>
+            <button class="btn btn-lg btn-success" @onclick="EnterDungeon">
+                Enter the First Dungeon!
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <p>No active party found.</p>
+        <button class="btn btn-secondary" @onclick="GoToPartyCreation">Create a Party First</button>
+    </div>
+}
+
+@code {
+    private Party? currentParty;
+
+    protected override void OnInitialized()
+    {
+        currentParty = PartyService.GetCurrentParty();
+        foreach (Hero hero in currentParty.Heroes)
+        {
+            PartyService.AddCoins(hero);
+        }
+    }
+
+    private void EnterDungeon()
+    {
+        if(currentParty != null)
+        {
+            // Generate the dungeon using the service
+            DungeonManager.InitializeDungeon(currentParty);
+
+            // Navigate to the dungeon page
+            NavManager.NavigateTo("/dungeon");
+        }
+    }
+
+    private void GoToPartyCreation()
+    {
+        NavManager.NavigateTo("/character-creator");
+    }
+}

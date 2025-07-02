@@ -1,10 +1,10 @@
 using LoDCompanion.Components;
 using LoDCompanion.Services.CharacterCreation;
+using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Services.State;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +24,12 @@ builder.Services.AddSingleton<CharacterCreationService>();
 builder.Services.AddSingleton<CharacterCreationState>();
 builder.Services.AddSingleton<PartyManagerService>();
 builder.Services.AddSingleton<PartyState>();
+builder.Services.AddSingleton<DungeonManagerService>();
+builder.Services.AddSingleton<RoomFactoryService>();
+builder.Services.AddSingleton<RoomService>();
+builder.Services.AddSingleton<EncounterService>();
+builder.Services.AddSingleton<QuestEncounterService>();
+builder.Services.AddSingleton<WanderingMonsterService>();
 
 var app = builder.Build();
 

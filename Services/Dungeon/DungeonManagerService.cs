@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.State;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -43,16 +44,16 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         // Replaces the Start() method logic for initial setup
-        public void InitializeDungeon(List<Hero> initialHeroes, string startingRoomName = "StartingRoom")
+        public void InitializeDungeon(Party initialHeroes, string startingRoomName = "StartingRoom")
         {
-            if (initialHeroes == null || initialHeroes.Count == 0)
+            if (initialHeroes == null || initialHeroes.Heroes.Count == 0)
             {
                 throw new ArgumentException("Initial hero party cannot be null or empty.", nameof(initialHeroes));
             }
 
             HeroParty.Clear();
             PartyMorale = 0;
-            foreach (Hero hero in initialHeroes)
+            foreach (Hero hero in initialHeroes.Heroes)
             {
                 HeroParty.Add(hero);
                 // Replaced Mathf.Ceil with Math.Ceiling

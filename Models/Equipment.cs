@@ -123,7 +123,7 @@ namespace LoDCompanion.Models
                 case 4:
                     SellValue = (int)Math.Floor(Value * 0.3f);
                     break;
-                default: // For differences > 4 (e.g., 5 or more)
+                default:
                     SellValue = (int)Math.Floor(Value * 0.2f);
                     break;
             }

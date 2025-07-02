@@ -39,7 +39,9 @@
                 <div class="progress-bar @GetProgressClass(Step.Review)" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;" @onclick="() => SetStep(Step.Review)">Review</div>
             </span>
             <!-- Main Content -->
-            <div class="character-creation-content p-3 border rounded">
+            @if (currentStep != Step.Summary)
+            {
+                <div class="character-creation-content p-3 border rounded">
                 <EditForm EditContext="editContext">
                     <DataAnnotationsValidator />
 
@@ -93,8 +95,14 @@
                             ;
                             break;
                     }
-                </EditForm>
-            </div>
+					</EditForm>
+				</div>
+                    }
+                    else
+                    {
+                    @CharacterSummary
+                    }
+            
             <!-- Navigation Buttons -->
             <div class="mt-4 d-flex justify-content-between">
                 <button class="btn btn-secondary" @onclick="GoToPreviousStep" disabled="@(currentStep == Step.Name)">Back</button>
@@ -153,7 +161,7 @@
 
     private CharacterSheet characterSheetModal = default!;
     private Hero? selectedHeroForSheet;
-    private Hero currentHero;
+    private Hero? currentHero;
 
     private List<Potion> AvailablePotions { get; set; } = new();
     private List<Part> AvailableParts { get; set; } = new();
@@ -168,6 +176,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (PartyManager.Party.Heroes.Count >= 4)
+        {
+            // If the party is already full, set the step to the summary view.
+            currentStep = Step.Summary;
+            isLoading = false; // Ensure the loading spinner is turned off.
+            return; // Exit the method early to prevent setting up for a 5th character.
+        }
+
         try
         {
             // A small, non-blocking delay can help ensure injected services are fully ready after navigation.
@@ -590,7 +606,7 @@
 
     private RenderFragment EquipmentSelection =>@<section>
         <h3 class="text-center my-4">Starting Equipment</h3>
-        
+
         <div class="row justify-content-center">
             <div class="col-md-8">
 
@@ -882,22 +898,22 @@
     </section>;
 
     private RenderFragment CharacterSummary =>@<section>
-        <div class="text-center">
-            <h2 class="text-success">@State.Name has been added to the party!</h2>
-            <p>You now have @PartyManager.Party.Heroes.Count hero(es) in your party.</p>
-            <hr />
-            @if (PartyManager.Party.Heroes.Count < 4)
+        <h2 class="text-success">@State.Name has been added to the party!</h2>
+        <p>You now have @PartyManager.Party.Heroes.Count hero(es) in your party.</p>
+        <hr />
+
+        @if (PartyManager.Party.Heroes.Count < 4)
         {
             <p>Time to create your next hero.</p>
             <button class="btn btn-lg btn-primary" @onclick="CreateNextHero">Create Another Hero</button>
         }
         else
         {
-            <p>Your party is full and ready for adventure!</p>
-            <button class="btn btn-lg btn-success" @onclick="StartGame">Embark on Your Journey!</button>
+            <p>Your party is full and ready to get equipped!</p>
+            <button class="btn btn-lg btn-success" @onclick="GoToShop">Head to the Shop!</button>
         }
-        </div>
-    </section>;
+    </section>
+    ;
 
     #endregion
 
@@ -1108,7 +1124,7 @@
 
     private void FinishCreation()
     {
-        if (IsCurrentStepValid())
+        if (IsCurrentStepValid() && currentHero != null)
         {
             // Finalize and add the hero to the party
             PartyManager.AddHeroToParty(currentHero);
@@ -1122,6 +1138,7 @@
     private void CreateNextHero()
     {
         CreationService.InitializeCreationState();
+        State = CreationService.State;
         // Reset all local state variables as well
         selectedProfession = null;
         selectedSkill = null;
@@ -1133,9 +1150,9 @@
         currentStep = Step.Species; // Or Step.Name if you move it back
     }
 
-    private void StartGame()
+    private void GoToShop()
     {
-        NavigationManager.NavigateTo("/game-dashboard");
+        NavigationManager.NavigateTo("/party/shop");
     }
     
     private string GetProgressClass(Step step)

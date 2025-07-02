@@ -98,7 +98,7 @@ namespace LoDCompanion.Models.Character
         {
             var sb = new StringBuilder();
             sb.AppendLine($"--- Hero: {Name} (Level {Level} {SpeciesName} {ProfessionName}) ---");
-            sb.AppendLine($"HP: {CurrentHP}/{MaxHP}, Sanity: {CurrentSanity}/{MaxSanity}, Energy: {CurrentEnergy}/{MaxEnergy}, XP: {Experience}");
+            sb.AppendLine($"HP: {CurrentHP}/{MaxHP}, Sanity: {CurrentSanity}/{MaxSanity}, Energy: {CurrentEnergy}/{MaxEnergy}, XP: {Experience}, Coins: {Coins}");
             if (MaxMana.HasValue) sb.AppendLine($"Mana: {CurrentMana}/{MaxMana}");
 
             sb.AppendLine("\n-- Stats --");

@@ -7,28 +7,31 @@ namespace LoDCompanion.Utilities
     {
         public static void AddItem(List<Equipment> backpack, Equipment itemToAdd)
         {
-            // We only stack Potions and Parts. Other items like weapons or recipes are unique.
-            bool isStackable = itemToAdd is Potion || itemToAdd is Part;
+            var existingItem = backpack.FirstOrDefault(item => item.Name == itemToAdd.Name);
 
-            if (isStackable)
+            if (existingItem != null && existingItem.Durability == itemToAdd.Durability)
             {
-                var existingItem = backpack.FirstOrDefault(item => item.Name == itemToAdd.Name);
-
-                if (existingItem != null)
-                {
-                    // Item exists, so just increase the quantity
-                    existingItem.Quantity += itemToAdd.Quantity;
-                }
-                else
-                {
-                    // Item is new, so add it to the list
-                    backpack.Add(itemToAdd);
-                }
+                // Item exists, so just increase the quantity
+                existingItem.Quantity += itemToAdd.Quantity;
             }
             else
             {
-                // If the item is not stackable (e.g., a weapon, armor, or recipe), add it as a new entry.
+                // Item is new, so add it to the list
                 backpack.Add(itemToAdd);
+            }
+        }
+
+        public static void RemoveItem(List<Equipment> backpack, Equipment itemToRemove)
+        {
+            var existingItem = backpack.FirstOrDefault(item => item == itemToRemove);
+
+            if(existingItem.Quantity > 1)
+            {
+                existingItem.Quantity -= existingItem.Quantity;
+            }
+            else
+            {
+                backpack.Remove(itemToRemove);
             }
         }
     }

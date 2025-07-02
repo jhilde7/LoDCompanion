@@ -3,13 +3,11 @@
     public class WanderingMonsterService
     {
         private readonly EncounterService _encounterService;
-        private readonly DungeonManagerService _dungeonManagerService; // To interact with dungeon state
 
         // Constructor for dependency injection
-        public WanderingMonsterService(EncounterService encounterService, DungeonManagerService dungeonManagerService)
+        public WanderingMonsterService(EncounterService encounterService)
         {
             _encounterService = encounterService;
-            _dungeonManagerService = dungeonManagerService;
         }
 
         /// <summary>

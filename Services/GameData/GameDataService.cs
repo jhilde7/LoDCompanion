@@ -4284,7 +4284,8 @@ namespace LoDCompanion.Services.GameData
                 },
                 new Armour()
                 {
-                    Category = "Common", Name = "Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 600, Availability = 3, ArmourClass = 3, Durability = 6,
+                    Category = "Common",
+                    Shop = ShopCategory.Armour, Name = "Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 600, Availability = 3, ArmourClass = 3, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
                 new Armour()
