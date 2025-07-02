@@ -1176,16 +1176,16 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = $"Weak Potion Recipe: {AlchemyService.GetNonStandardPotion()}", Encumbrance = 0, Durability = 0, Value = 0, Description = "The actual components involved shall be chosen by the player", MaxDurability = 0 };
                     break;
                 case "Ingredient":
-                    newItem = new AlchemyItem { Name = "Ingredient", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = new Ingredient { Name = "Ingredient", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
                     break;
                 case "Part":
-                    newItem = new AlchemyItem { Name = "Part", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = new Part { Name = "Part", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
                     break;
                 case "Ingredient - Exquisite":
-                    newItem = new AlchemyItem { Name = "Ingredient - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = new Ingredient { Name = "Ingredient - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
                     break;
                 case "Part - Exquisite":
-                    newItem = new AlchemyItem { Name = "Part - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = new Part { Name = "Part - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
                     break;
                 case "Amulet":
                     newItem = new Equipment { Name = "Amulet", Encumbrance = 0, Durability = 0, Value = 100, Description = "Can be enchanted", MaxDurability = 0 };
