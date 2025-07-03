@@ -13,6 +13,8 @@ namespace LoDCompanion.Services.Dungeon
         private readonly QuestEncounterService _questEncounter;
         private readonly RoomFactoryService _roomFactory;
         private readonly GameStateManagerService _gameManager;
+        private readonly DungeonBuilderService _dungeonBuilder;
+        private readonly ThreatService _threatService;
 
         private readonly DungeonState DungeonState;
         public Party? HeroParty => DungeonState.HeroParty;
@@ -20,13 +22,16 @@ namespace LoDCompanion.Services.Dungeon
         public RoomService? CurrentRoom => DungeonState.CurrentRoom;
 
 
-        public DungeonManagerService( GameDataService gameData,
+        public DungeonManagerService(
+            GameDataService gameData,
             WanderingMonsterService wanderingMonsterService,
             EncounterService encounterService,
             QuestEncounterService questEncounterService,
             RoomFactoryService roomFactoryService,
             GameStateManagerService gameStateManagerService,
-            DungeonState dungeonState)
+            DungeonState dungeonState,
+            DungeonBuilderService dungeonBuilder,
+            ThreatService threatService) // Add this
         {
             _gameData = gameData;
             _wanderingMonster = wanderingMonsterService;
@@ -34,8 +39,29 @@ namespace LoDCompanion.Services.Dungeon
             _questEncounter = questEncounterService;
             _roomFactory = roomFactoryService;
             _gameManager = gameStateManagerService;
+            _dungeonBuilder = dungeonBuilder;
+            _threatService = threatService;
 
             DungeonState = dungeonState;
+        }
+
+        // Create a new method to start a quest
+        public void StartQuest(Party heroParty, int roomCount, int corridorCount, string objectiveRoom, string startingRoomName = "Start Tile")
+        {
+            // 1. Initialize the basic dungeon state
+            DungeonState.HeroParty = heroParty;
+            DungeonState.MinThreatLevel = 1;
+            DungeonState.MaxThreatLevel = 10; // This can be overridden by quest specifics
+            DungeonState.ThreatLevel = 0;
+            DungeonState.WhenSpawnWanderingMonster = 5; // This can also be overridden
+
+            // 2. Generate the exploration deck using the DungeonBuilderService
+            var explorationDeck = _dungeonBuilder.CreateDungeonDeck(roomCount, corridorCount, objectiveRoom, new List<string>(), new List<string>());
+            DungeonState.ExplorationDeck = new Queue<RoomInfo>(explorationDeck);
+
+            // 3. Create and set the starting room
+            DungeonState.StartingRoom = _roomFactory.CreateRoom(startingRoomName);
+            DungeonState.CurrentRoom = DungeonState.StartingRoom;
         }
 
         public void InitializeDungeon(Party initialHeroes, string startingRoomName = "StartingRoom")
@@ -60,25 +86,32 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         // Replaces the Update() method logic for game progression (e.g., called per turn or timer tick)
-        public void AdvanceTurn()
+        public void ProcessTurn()
         {
-            // Logic for increasing threat level or other time-based events
-            DungeonState.ThreatLevel++;
+            // For now, we'll assume the party is not in battle for the scenario roll.
+            // This would be determined by checking if there are active monsters in the room.
+            bool isInBattle = false;
 
-            // Wandering monster spawn logic
-            if (DungeonState.ThreatLevel >= DungeonState.WhenSpawnWanderingMonster)
+            var threatResult = _threatService.ProcessScenarioRoll(DungeonState, isInBattle);
+
+            if (threatResult != null)
             {
-                // Only trigger if StartingRoom is not null
-                if (StartingRoom != null)
+                // A threat event was triggered. We can now handle the result.
+                Console.WriteLine($"Threat Event: {threatResult.Description}");
+
+                if (threatResult.SpawnWanderingMonster)
                 {
-                    _wanderingMonster.TriggerWanderingMonster(StartingRoom);
+                    // Call your wandering monster logic here
+                    _wanderingMonster.TriggerWanderingMonster(DungeonState.StartingRoom);
                 }
-                DungeonState.ThreatLevel -= 5; // Reset or reduce threat after spawn
+                if (threatResult.SpawnTrap)
+                {
+                    // Call your trap logic here
+                }
+                // Handle other complex events here...
             }
-            // Add other per-turn logic here (e.g., character status effects, resource regeneration)
         }
 
-        // Example method for moving between rooms
         public bool MoveToRoom(RoomService nextRoom)
         {
             if (nextRoom != null)
@@ -87,6 +120,25 @@ namespace LoDCompanion.Services.Dungeon
                 return true;
             }
             return false;
+        }
+
+        public void OpenDoor(DoorChest door)
+        {
+            // ... logic for opening the door ...
+
+            IncreaseThreat(1); // Increase threat when a door is opened
+
+            // ... logic for checking for traps and encounters ...
+        }
+
+        public void IncreaseThreat(int amount)
+        {
+            DungeonState.ThreatLevel += amount;
+            if (DungeonState.ThreatLevel >= DungeonState.WhenSpawnWanderingMonster)
+            {
+                // Trigger wandering monster logic...
+                DungeonState.ThreatLevel -= 5;
+            }
         }
     }
 }

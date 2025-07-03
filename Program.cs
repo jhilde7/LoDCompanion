@@ -29,20 +29,22 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 //register core services.
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddSingleton<GameDataService>();
+builder.Services.AddScoped<GameDataService>();
 builder.Services.AddScoped<EquipmentService>();
-builder.Services.AddSingleton<CharacterCreationService>();
+builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddSingleton<CharacterCreationState>();
 builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<DungeonManagerService>();
 builder.Services.AddSingleton<DungeonState>();
 builder.Services.AddScoped<RoomFactoryService>();
-builder.Services.AddSingleton<RoomService>();
-builder.Services.AddSingleton<EncounterService>();
-builder.Services.AddSingleton<QuestEncounterService>();
-builder.Services.AddSingleton<WanderingMonsterService>();
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddScoped<EncounterService>();
+builder.Services.AddScoped<QuestEncounterService>();
+builder.Services.AddScoped<WanderingMonsterService>();
 builder.Services.AddScoped<GameStateManagerService>();
 builder.Services.AddSingleton<GameState>();
+builder.Services.AddScoped<DungeonBuilderService>();
+builder.Services.AddScoped<ThreatService>();
 
 var app = builder.Build();
 

@@ -14,5 +14,6 @@ namespace LoDCompanion.Models.Dungeon
         public int WhenSpawnWanderingMonster { get; set; }
         public RoomService? StartingRoom { get; set; }
         public RoomService? CurrentRoom { get; set; }
+        public Queue<RoomInfo> ExplorationDeck { get; set; } = new Queue<RoomInfo>();
     }
 }
