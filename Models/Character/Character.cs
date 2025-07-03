@@ -84,6 +84,8 @@ namespace LoDCompanion.Models.Character
         public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
 
+        public int MaxAP { get; set; } = 2;
+        public int CurrentAP { get; set; } = 2;
         public List<Spell> Spells { get; set; } = new List<Spell>();
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
         public int Coins { get; set; } = 150;
