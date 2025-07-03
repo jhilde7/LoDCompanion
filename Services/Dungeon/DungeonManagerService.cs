@@ -1,6 +1,5 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
-using LoDCompanion.Services.State;
 
 namespace LoDCompanion.Services.Dungeon
 {
