@@ -7,6 +7,7 @@ namespace LoDCompanion.Models.Dungeon
     public class DungeonState
     {
         public Party? HeroParty { get; set; }
+        public Quest? Quest { get; set; }
         public int RoomsWithoutEncounters { get; set; } = 0;
         public int MinThreatLevel { get; set; }
         public int MaxThreatLevel { get; set; }
@@ -16,6 +17,6 @@ namespace LoDCompanion.Models.Dungeon
         public RoomService? CurrentRoom { get; set; }
         public Queue<RoomInfo> ExplorationDeck { get; set; } = new Queue<RoomInfo>();
         public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
-        public Quest? Quest { get; set; }
+        public List<WanderingMonsterState> WanderingMonsters { get; set; } = new List<WanderingMonsterState>();
     }
 }
