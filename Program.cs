@@ -9,6 +9,7 @@ using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Game;
 using System.Text.Json;
+using LoDCompanion.Services.Combat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,24 +28,37 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 });
 
 //register core services.
-builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
-builder.Services.AddBlazoredLocalStorage();
+//State
+builder.Services.AddSingleton<CharacterCreationState>();
+builder.Services.AddSingleton<DungeonState>();
+builder.Services.AddSingleton<GameState>();
+//GameData
 builder.Services.AddScoped<GameDataService>();
 builder.Services.AddScoped<EquipmentService>();
-builder.Services.AddScoped<CharacterCreationService>();
-builder.Services.AddSingleton<CharacterCreationState>();
-builder.Services.AddScoped<PartyManagerService>();
+builder.Services.AddScoped<AlchemyService>();
+//Combat
+builder.Services.AddScoped<InitiativeService>();
+builder.Services.AddScoped<CombatManagerService>();
+builder.Services.AddScoped<HeroCombatService>();
+builder.Services.AddScoped<MonsterCombatService>();
+//Dungeon
+builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
-builder.Services.AddSingleton<DungeonState>();
+builder.Services.AddScoped<EncounterService>();
+builder.Services.AddScoped<LockService>();
+builder.Services.AddScoped<QuestEncounterService>();
 builder.Services.AddScoped<RoomFactoryService>();
 builder.Services.AddScoped<RoomService>();
-builder.Services.AddScoped<EncounterService>();
-builder.Services.AddScoped<QuestEncounterService>();
-builder.Services.AddScoped<WanderingMonsterService>();
-builder.Services.AddScoped<GameStateManagerService>();
-builder.Services.AddSingleton<GameState>();
-builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<ThreatService>();
+builder.Services.AddScoped<TreasureService>();
+builder.Services.AddScoped<WanderingMonsterService>();
+//Party
+builder.Services.AddScoped<CharacterCreationService>();
+builder.Services.AddScoped<PartyManagerService>();
+//Game
+builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<GameStateManagerService>();
 
 var app = builder.Build();
 

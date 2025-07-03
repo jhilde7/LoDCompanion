@@ -1,0 +1,95 @@
+﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Utilities;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LoDCompanion.Services.Game
+{
+    /// <summary>
+    /// Represents the type of actor whose turn it is.
+    /// </summary>
+    public enum ActorType
+    {
+        Hero,
+        Monster
+    }
+
+    /// <summary>
+    /// Manages the initiative token "bag" for combat turns.
+    /// </summary>
+    public class InitiativeService
+    {
+        private List<ActorType> _initiativeTokens = new List<ActorType>();
+
+        /// <summary>
+        /// Sets up the initiative tokens for the start of a new combat encounter.
+        /// </summary>
+        /// <param name="heroes">The list of heroes in the combat.</param>
+        /// <param name="monsters">The list of monsters in the combat.</param>
+        /// <param name="didBashDoor">True if the heroes bashed down the door to enter combat.</param>
+        public void SetupInitiative(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
+        {
+            _initiativeTokens.Clear();
+
+            // Add one token per hero
+            for (int i = 0; i < heroes.Count; i++)
+            {
+                _initiativeTokens.Add(ActorType.Hero);
+            }
+
+            // Add one token per monster
+            for (int i = 0; i < monsters.Count; i++)
+            {
+                _initiativeTokens.Add(ActorType.Monster);
+            }
+
+            // Handle "Bashing Down Doors" rule from PDF page 92
+            if (didBashDoor)
+            {
+                _initiativeTokens.Add(ActorType.Monster);
+                _initiativeTokens.Add(ActorType.Monster);
+            }
+
+            // Handle "Perfect Hearing" rule from PDF page 92
+            bool heroHasPerfectHearing = heroes.Any(h => h.Talents.Any(t => t.IsPerfectHearing));
+            bool monsterHasPerfectHearing = monsters.Any(m => m.SpecialRules.Contains("Perfect Hearing"));
+
+            if (heroHasPerfectHearing && !monsterHasPerfectHearing)
+            {
+                _initiativeTokens.Add(ActorType.Hero);
+            }
+            else if (monsterHasPerfectHearing && !heroHasPerfectHearing)
+            {
+                _initiativeTokens.Add(ActorType.Monster);
+            }
+
+            // Shuffle the tokens to randomize the turn order
+            _initiativeTokens.Shuffle();
+        }
+
+        /// <summary>
+        /// Draws the next actor's token from the bag.
+        /// </summary>
+        /// <returns>The ActorType of the next actor to take a turn.</returns>
+        public ActorType DrawNextToken()
+        {
+            if (!_initiativeTokens.Any())
+            {
+                // This should ideally not be reached if IsTurnOver is checked, but it's a safe fallback.
+                throw new InvalidOperationException("Cannot draw a token from an empty initiative bag.");
+            }
+
+            var token = _initiativeTokens[0];
+            _initiativeTokens.RemoveAt(0);
+            return token;
+        }
+
+        /// <summary>
+        /// Checks if the current combat turn is over (i.e., all tokens have been drawn).
+        /// </summary>
+        public bool IsTurnOver()
+        {
+            return !_initiativeTokens.Any();
+        }
+    }
+}
