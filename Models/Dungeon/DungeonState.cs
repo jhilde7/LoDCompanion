@@ -15,6 +15,7 @@ namespace LoDCompanion.Models.Dungeon
         public RoomService? StartingRoom { get; set; }
         public RoomService? CurrentRoom { get; set; }
         public Queue<RoomInfo> ExplorationDeck { get; set; } = new Queue<RoomInfo>();
+        public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
         public Quest? Quest { get; set; }
     }
 }

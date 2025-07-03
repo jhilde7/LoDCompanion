@@ -21,6 +21,7 @@ namespace LoDCompanion.Services.Dungeon
         private readonly TrapService _trapService;
         private readonly CombatManagerService _combatManager;
         private readonly PartyRestingService _partyRestingService;
+        private readonly LeverService _leverService;
 
         private readonly DungeonState DungeonState;
         public Party? HeroParty => DungeonState.HeroParty;
@@ -41,6 +42,7 @@ namespace LoDCompanion.Services.Dungeon
             LockService lockService,
             TrapService trapService,
             PartyRestingService partyRestingService,
+            LeverService leverService,
             CombatManagerService combatManager)
         {
             _gameData = gameData;
@@ -54,6 +56,7 @@ namespace LoDCompanion.Services.Dungeon
             _lockService = lockService;
             _trapService = trapService;
             _partyRestingService = partyRestingService;
+            _leverService = leverService;
             _combatManager = combatManager;
 
             DungeonState = dungeonState;
@@ -332,6 +335,56 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             return restResult.Message;
+        }
+        
+        /// <summary>
+         /// Initiates the lever mini-game for the current room.
+         /// </summary>
+        public void ActivateLevers()
+        {
+            if (CurrentRoom == null || !CurrentRoom.HasLevers)
+            {
+                return;
+            }
+
+            // A "clue" would be an item in the party's inventory.
+            bool partyHasClue = false; // party.Inventory.Any(item => item.Name == "Lever Clue");
+
+            // Store the prepared deck in the DungeonState so the UI can interact with it.
+            DungeonState.AvailableLevers = _leverService.PrepareLeverDeck(partyHasClue);
+
+            Console.WriteLine($"Levers activated! {DungeonState.AvailableLevers.Count} levers are available.");
+        }
+
+        /// <summary>
+        /// Called when a player chooses to pull a specific lever from the available deck.
+        /// </summary>
+        /// <param name="leverIndex">The index of the lever to pull from the AvailableLevers list.</param>
+        public void PullLever(int leverIndex)
+        {
+            if (DungeonState.AvailableLevers == null || leverIndex < 0 || leverIndex >= DungeonState.AvailableLevers.Count)
+            {
+                return;
+            }
+
+            // Get the color and remove it from the deck
+            LeverColor pulledLeverColor = DungeonState.AvailableLevers[leverIndex];
+            DungeonState.AvailableLevers.RemoveAt(leverIndex);
+
+            // Resolve the event
+            var result = _leverService.PullLever(pulledLeverColor);
+            Console.WriteLine($"Pulled a {result.LeverColor} lever! Event: {result.Description}");
+
+            // Process the consequences of the event
+            if (result.ThreatIncrease > 0)
+            {
+                _threatService.IncreaseThreat(DungeonState, result.ThreatIncrease);
+            }
+            if (result.ShouldSpawnWanderingMonster)
+            {
+                if (DungeonState.StartingRoom != null) _wanderingMonsterService.TriggerWanderingMonster(DungeonState.StartingRoom);
+            }
+            // ... handle other results like ShouldLockADoor, ShouldSpawnPortcullis, etc.
         }
     }
 }

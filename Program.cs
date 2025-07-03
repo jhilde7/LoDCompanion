@@ -46,6 +46,7 @@ builder.Services.AddScoped<PlayerActionService>();
 builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
 builder.Services.AddScoped<EncounterService>();
+builder.Services.AddScoped<LeverService>();
 builder.Services.AddScoped<LockService>();
 builder.Services.AddScoped<QuestEncounterService>();
 builder.Services.AddScoped<RoomFactoryService>();
