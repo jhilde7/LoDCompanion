@@ -16,6 +16,8 @@ namespace LoDCompanion.Services.Dungeon
         private readonly GameStateManagerService _gameManager;
         private readonly DungeonBuilderService _dungeonBuilder;
         private readonly ThreatService _threatService;
+        private readonly LockService _lockService;
+        private readonly TrapService _trapService;
         private readonly CombatManagerService _combatManager;
 
         private readonly DungeonState DungeonState;
@@ -34,6 +36,8 @@ namespace LoDCompanion.Services.Dungeon
             DungeonState dungeonState,
             DungeonBuilderService dungeonBuilder,
             ThreatService threatService,
+            LockService lockService,
+            TrapService trapService,
             CombatManagerService combatManager)
         {
             _gameData = gameData;
@@ -44,9 +48,11 @@ namespace LoDCompanion.Services.Dungeon
             _gameManager = gameStateManagerService;
             _dungeonBuilder = dungeonBuilder;
             _threatService = threatService;
+            _lockService = lockService;
+            _trapService = trapService;
+            _combatManager = combatManager;
 
             DungeonState = dungeonState;
-            _combatManager = combatManager;
         }
 
         // Create a new method to start a quest
@@ -116,13 +122,79 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public void OpenDoor(DoorChest door)
+        /// <summary>
+        /// Orchestrates the entire sequence of a hero attempting to open a door or chest.
+        /// This method follows the rules on page 87 of the PDF.
+        /// </summary>
+        /// <param name="door">The door or chest being opened.</param>
+        /// <param name="hero">The hero performing the action.</param>
+        /// <returns>A string describing the result of the attempt.</returns>
+        public string InteractWithDoor(DoorChest door, Hero hero)
         {
-            // ... (logic for checking locks and traps) ...
+            if (door.IsOpen) return "The door is already open.";
 
+            // Step 1: Increase Threat Level
             _threatService.IncreaseThreat(DungeonState, 1);
 
-            // Reveal the next room from the deck
+            // Step 2: Roll for Trap (d6)
+            if (RandomHelper.RollDie("D6") == 6)
+            {
+                door.IsTrapped = true;
+                var trap = Trap.GetRandomTrap(); // A new trap is generated
+                DungeonState.CurrentRoom.CurrentTrap = trap;
+
+                // Step 3: Resolve Trap
+                if (!_trapService.DetectTrap(hero, trap))
+                {
+                    // Failed to detect, trap is sprung!
+                    door.IsTrapped = false;
+                    return _trapService.TriggerTrap(hero, trap);
+                }
+                else
+                {
+                    // Trap detected. The UI would ask the player to disarm or trigger it.
+                    // For now, we assume they attempt to disarm.
+                    if (!_trapService.DisarmTrap(hero, trap))
+                    {
+                        return $"{hero.Name} failed to disarm the {trap.Name} and triggered it!";
+                    }
+                    // On success, the trap is gone, and we proceed.
+                }
+            }
+
+            // Step 4: Roll for Lock (d10)
+            int lockRoll = RandomHelper.RollDie("D10");
+            if (lockRoll > 6)
+            {
+                door.IsLocked = true;
+                switch (lockRoll)
+                {
+                    case 7: door.SetLockAndTrapState(true, 0, 10, door.IsTrapped); break;
+                    case 8: door.SetLockAndTrapState(true, -10, 15, door.IsTrapped); break;
+                    case 9: door.SetLockAndTrapState(true, -15, 20, door.IsTrapped); break;
+                    case 10: door.SetLockAndTrapState(true, -20, 25, door.IsTrapped); break;
+                }
+            }
+
+            // Step 5: Resolve Lock
+            if (door.IsLocked)
+            {
+                // The door is locked. The game must now wait for player input
+                // (e.g., Pick Lock, Bash, Cast Spell). This method's job is done for now.
+                return $"The door is locked (Difficulty: {door.LockModifier}, HP: {door.LockHP}).";
+            }
+
+            // Step 6: Open the door and reveal the next room
+            door.IsOpen = true;
+            RevealNextRoom();
+            return "The door creaks open...";
+        }
+
+        /// <summary>
+        /// Reveals the next room after a door has been successfully opened.
+        /// </summary>
+        private void RevealNextRoom()
+        {
             if (DungeonState.ExplorationDeck.TryDequeue(out RoomInfo nextRoomInfo))
             {
                 var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name);
@@ -134,8 +206,8 @@ namespace LoDCompanion.Services.Dungeon
             }
             else
             {
-                // Handle case where deck is empty
-                DungeonState.CurrentRoom.IsDeadEnd = true;
+                // No more rooms in this path.
+                if (DungeonState.CurrentRoom != null) DungeonState.CurrentRoom.IsDeadEnd = true;
             }
         }
 

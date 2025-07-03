@@ -50,6 +50,7 @@ builder.Services.AddScoped<QuestEncounterService>();
 builder.Services.AddScoped<RoomFactoryService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<ThreatService>();
+builder.Services.AddScoped<TrapService>();
 builder.Services.AddScoped<TreasureService>();
 builder.Services.AddScoped<WanderingMonsterService>();
 //Party
