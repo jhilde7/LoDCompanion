@@ -2,6 +2,7 @@
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Game;
+using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -15,6 +16,7 @@ namespace LoDCompanion.Services.Dungeon
         private readonly GameStateManagerService _gameManager;
         private readonly DungeonBuilderService _dungeonBuilder;
         private readonly ThreatService _threatService;
+        private readonly CombatManagerService _combatManager;
 
         private readonly DungeonState DungeonState;
         public Party? HeroParty => DungeonState.HeroParty;
@@ -31,7 +33,8 @@ namespace LoDCompanion.Services.Dungeon
             GameStateManagerService gameStateManagerService,
             DungeonState dungeonState,
             DungeonBuilderService dungeonBuilder,
-            ThreatService threatService) // Add this
+            ThreatService threatService,
+            CombatManagerService combatManager)
         {
             _gameData = gameData;
             _wanderingMonster = wanderingMonsterService;
@@ -43,6 +46,7 @@ namespace LoDCompanion.Services.Dungeon
             _threatService = threatService;
 
             DungeonState = dungeonState;
+            _combatManager = combatManager;
         }
 
         // Create a new method to start a quest
@@ -112,23 +116,109 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public bool MoveToRoom(RoomService nextRoom)
-        {
-            if (nextRoom != null)
-            {
-                DungeonState.CurrentRoom = nextRoom;
-                return true;
-            }
-            return false;
-        }
-
         public void OpenDoor(DoorChest door)
         {
-            // ... logic for opening the door ...
+            // ... (logic for checking locks and traps) ...
 
-            IncreaseThreat(1); // Increase threat when a door is opened
+            _threatService.IncreaseThreat(DungeonState, 1);
 
-            // ... logic for checking for traps and encounters ...
+            // Reveal the next room from the deck
+            if (DungeonState.ExplorationDeck.TryDequeue(out RoomInfo nextRoomInfo))
+            {
+                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name);
+                if (newRoom != null)
+                {
+                    DungeonState.CurrentRoom = newRoom;
+                    CheckForEncounter(newRoom);
+                }
+            }
+            else
+            {
+                // Handle case where deck is empty
+                DungeonState.CurrentRoom.IsDeadEnd = true;
+            }
+        }
+
+        private void CheckForEncounter(RoomService newRoom)
+        {
+            if (!newRoom.RandomEncounter)
+            {
+                DungeonState.RoomsWithoutEncounters++;
+                return;
+            }
+
+            int encounterChance = (newRoom.Type == "Room") ? 50 : 30;
+
+            if (DungeonState.RoomsWithoutEncounters >= 4)
+            {
+                encounterChance += 10;
+            }
+
+            int roll = RandomHelper.RollDie("D100");
+
+            if (roll <= encounterChance)
+            {
+                // Encounter Triggered!
+                Console.WriteLine("Encounter! Monsters appear!");
+                DungeonState.RoomsWithoutEncounters = 0;
+
+                // TODO: Replace these placeholders with actual monster/weapon data loading
+                var monsterTemplates = new Dictionary<string, Monster>();
+                var weaponTemplates = new Dictionary<string, MonsterWeapon>();
+
+                List<Monster> monsters = new List<Monster>();
+
+                if (DungeonState.Quest != null)
+                {
+                    monsters = _encounter.GetEncounters(DungeonState.Quest.EncounterType, monsterTemplates, weaponTemplates); 
+                }
+                else
+                {
+                    monsters = _encounter.GetEncounters(EncounterType.Beasts, monsterTemplates, weaponTemplates);
+                }
+
+                if (monsters.Any())
+                {
+                    PlaceMonsters(monsters, newRoom);
+                    // Hand off to the CombatManager to start the battle
+                    _combatManager.StartCombat(DungeonState.HeroParty.Heroes, monsters);
+                }
+            }
+            else
+            {
+                // No encounter
+                Console.WriteLine("The room is quiet... for now.");
+                DungeonState.RoomsWithoutEncounters++;
+            }
+        }
+
+        private void PlaceMonsters(List<Monster> monsters, RoomService room)
+        {
+            // This is a simplified representation of monster placement. A real implementation
+            // would require a grid system for the room and hero positions.
+
+            foreach (var monster in monsters)
+            {
+                if (monster.Type.Contains("Archer") || monster.Spells.Any())
+                {
+                    // Ranged/Magic users are placed as far away as possible with LOS.
+                    Console.WriteLine($"Placing ranged monster: {monster.Name} at the back of the room.");
+                    // TODO: Add logic to find the furthest valid grid square.
+                }
+                else
+                {
+                    // Melee monsters are placed randomly, at least 1 square away from heroes.
+                    Console.WriteLine($"Placing melee monster: {monster.Name} randomly.");
+                    // TODO: Add logic to find a random valid grid square away from the party.
+                }
+            }
+            // After placement, the room's state would be updated with monster positions.
+            room.IsEncounter = true;
+        }
+
+        public void WinBattle()
+        {
+            _threatService.IncreaseThreat(DungeonState, 1);
         }
 
         public void IncreaseThreat(int amount)
