@@ -1514,7 +1514,7 @@ namespace LoDCompanion.Services.GameData
       }
       else
       {
-        roll = (int)hateCategory;
+        roll = (int)hateCategory + 1;
       }
 
       return roll switch
@@ -2170,7 +2170,41 @@ namespace LoDCompanion.Services.GameData
       };
     }
 
-    public List<Profession> GetProfessions()
+        public int Get1HWeaponClass(int strength)
+        {
+            return strength switch
+            {
+                < 40 => 2,
+                < 50 => 3,
+                >= 50 => 4
+            };
+        }
+
+        public int Get2HWeaponClass(int strength)
+        {
+            return strength switch
+            {
+                < 30 => 2,
+                < 40 => 3,
+                < 55 => 4,
+                >= 55 => 5
+            };
+        }
+
+        public string GetWieldStatus(int strength, Weapon weapon)
+        {
+            if (weapon.Class != 6 && Get2HWeaponClass(strength) < weapon.Class)
+            {
+                return "(Too weak to wield)";
+            }
+            if (Get1HWeaponClass(strength) >= weapon.Class && !weapon.Properties.ContainsKey(WeaponProperty.BFO))
+            {
+                return "(1-Handed)";
+            }
+            return "(2-Handed)";
+        }
+
+        public List<Profession> GetProfessions()
     {
       return new List<Profession>()
             {

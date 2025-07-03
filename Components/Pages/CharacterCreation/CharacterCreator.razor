@@ -2,13 +2,16 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
+@using Microsoft.JSInterop
 @using LoDCompanion.Components.Shared
 @using LoDCompanion.Utilities
+@using LoDCompanion.Models
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Services.CharacterCreation
 @using LoDCompanion.Services.GameData
 @using LoDCompanion.Services.Player
 @using LoDCompanion.Services.Game
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject CharacterCreationService CreationService
 @inject GameDataService GameData
@@ -119,7 +122,6 @@ else
                     <button class="btn btn-primary" @onclick="GoToNextStep" disabled="@(!IsCurrentStepValid())">Next</button>
                 }
             </div>
-            }
         </div>
         <!-- Party Roster Side Panel -->
         <div class="col-md-3">
@@ -271,12 +273,12 @@ else
             <div class="card"><div class="card-body">
                 <h5 class="card-title">Manual Roll Entry</h5>
                 <div class="row g-2">
-                    <div class="col"><label class="form-label-sm">STR (d10)</label><InputNumber class="form-control form-control-sm" @bind-Value="manualRolls[0]" /></div>
-                    <div class="col"><label class="form-label-sm">CON (d10)</label><InputNumber class="form-control form-control-sm" @bind-Value="manualRolls[1]" /></div>
-                    <div class="col"><label class="form-label-sm">DEX (d10)</label><InputNumber class="form-control form-control-sm" @bind-Value="manualRolls[2]" /></div>
-                    <div class="col"><label class="form-label-sm">WIS (d10)</label><InputNumber class="form-control form-control-sm" @bind-Value="manualRolls[3]" /></div>
-                    <div class="col"><label class="form-label-sm">RES (d10)</label><InputNumber class="form-control form-control-sm" @bind-Value="manualRolls[4]" /></div>
-                    <div class="col"><label class="form-label-sm">HP (d6)</label><InputNumber class="form-control form-control-sm" @bind-Value="manualRolls[5]" /></div>
+                    <div class="col"><label class="form-label-sm">STR (d10)</label><InputNumber id="manual-str" class="form-control form-control-sm" @bind-Value="manualRolls[0]" @onclick='() => SelectAllText("manual-str")' /></div>
+                    <div class="col"><label class="form-label-sm">CON (d10)</label><InputNumber id="manual-con" class="form-control form-control-sm" @bind-Value="manualRolls[1]" @onclick='() => SelectAllText("manual-con")' /></div>
+                    <div class="col"><label class="form-label-sm">DEX (d10)</label><InputNumber id="manual-dex" class="form-control form-control-sm" @bind-Value="manualRolls[2]" @onclick='() => SelectAllText("manual-dex")' /></div>
+                    <div class="col"><label class="form-label-sm">WIS (d10)</label><InputNumber id="manual-wis" class="form-control form-control-sm" @bind-Value="manualRolls[3]" @onclick='() => SelectAllText("manual-wis")' /></div>
+                    <div class="col"><label class="form-label-sm">RES (d10)</label><InputNumber id="manual-res" class="form-control form-control-sm" @bind-Value="manualRolls[4]" @onclick='() => SelectAllText("manual-res")' /></div>
+                    <div class="col"><label class="form-label-sm">HP (d6)</label><InputNumber id="manual-hp" class="form-control form-control-sm" @bind-Value="manualRolls[5]" @onclick='() => SelectAllText("manual-hp")' /></div>
                 </div>
                 <button class="btn btn-info btn-sm mt-2" @onclick="ApplyManualRolls" disabled="@(!IsManualRollValid())">Apply Manual Rolls</button>
             </div></div>
@@ -326,45 +328,99 @@ else
         }
         else
         {
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card text-center bg-light mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Points Remaining</h5>
-                            <p class="display-4">@State.SpecializationBonus</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <div class="card">
+                        <div class="card-header">Damage Bonus (from Strength)</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between"><span>STR 60:</span> <strong>+1</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>STR 70:</span> <strong>+2</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>STR 80:</span> <strong>+3</strong></li>
+                        </ul>
                         </div>
                     </div>
-
-                    <div class="row align-items-center mb-3">
-                        <div class="col-md-4">
-                            <label for="specAmount" class="form-label"><strong>Amount to Apply:</strong></label>
-                            <InputNumber id="specAmount" class="form-control" @bind-Value="State.SpecializeAmount" />
-                        </div>
-                        <div class="col-md-8">
-                            <button class="btn btn-warning mt-4 w-100" @onclick="ResetSpecialization">Reset All Points</button>
-                        </div>
+                <div class="col-sm">
+                    <div class="card">
+                        <div class="card-header">Natural Armour (from Constitution)</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between"><span>CON 50:</span> <strong>+1</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>CON 55:</span> <strong>+2</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>CON 60:</span> <strong>+3</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>CON 65:</span> <strong>+4</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>CON 70:</span> <strong>+5</strong></li>
+                        </ul>
                     </div>
-
-                    <table class="table">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Statistic</th>
-                                <th>Base</th>
-                                <th>Added</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @CreateStatRow("Strength", "STR",     State.Strength,     State.AddedStrength,     State.SpecializeAmount)
-                        @CreateStatRow("Constitution", "CON", State.Constitution, State.AddedConstitution, State.SpecializeAmount)
-                        @CreateStatRow("Dexterity", "DEX",    State.Dexterity,    State.AddedDexterity,    State.SpecializeAmount)
-                        @CreateStatRow("Wisdom", "WIS",       State.Wisdom,       State.AddedWisdom,       State.SpecializeAmount)
-                        @CreateStatRow("Resolve", "RES",      State.Resolve,      State.AddedResolve,      State.SpecializeAmount)
-                        </tbody>
-                    </table>
                 </div>
             </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <div class="card">
+                        <div class="card-header">Strength and Weapon Class</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between"><span>Class 1:</span> <strong>2H: 20</strong> <strong>1H: 20</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>Class 2:</span> <strong>2H: 25</strong> <strong>1H: 30</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>Class 3:</span> <strong>2H: 30</strong> <strong>1H: 40</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <div class="card">
+                        <div class="card-header">Strength and Weapon Class</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between"><span>Class 4:</span> <strong>2H: 40</strong> <strong>1H: 50</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>Class 5:</span> <strong>2H: 55</strong> <strong>1H: N/A</strong></li>
+                            <li class="list-group-item d-flex justify-content-between"><span>Class 6:</span> <strong>2H: 20</strong> <strong>1H: N/A</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card text-center bg-light mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Points Remaining</h5>
+                        <p class="display-4">@State.SpecializationBonus</p>
+                    </div>
+                </div>
+
+            <div class="row align-items-center mb-3">
+                <div class="col-md-4">
+                        <label for="specAmount" class="form-label"><strong>Amount to Apply:</strong></label>
+                        <InputNumber id="specAmount" class="form-control" @bind-Value="State.SpecializeAmount" @onclick='() => SelectAllText("specAmount")' />
+                    @if (State.SpecializeAmount > State.SpecializationBonus)
+                    {
+                    <small class="text-danger">You cannot apply more points than you have remaining.</small>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <button class="btn btn-warning mt-4 w-100" @onclick="ResetSpecialization">Reset All Points</button>
+                </div>
+            </div>
+
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Statistic</th>
+                            <th>Base</th>
+                            <th>Added</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @CreateStatRow("Strength", "STR",     State.Strength,     State.AddedStrength,     State.SpecializeAmount)
+                    @CreateStatRow("Constitution", "CON", State.Constitution, State.AddedConstitution, State.SpecializeAmount)
+                    @CreateStatRow("Dexterity", "DEX",    State.Dexterity,    State.AddedDexterity,    State.SpecializeAmount)
+                    @CreateStatRow("Wisdom", "WIS",       State.Wisdom,       State.AddedWisdom,       State.SpecializeAmount)
+                    @CreateStatRow("Resolve", "RES",      State.Resolve,      State.AddedResolve,      State.SpecializeAmount)
+                    </tbody>
+                </table>
+            </div>
+        </div>
         }
     </section>;
 
@@ -376,7 +432,10 @@ else
         <td>
             <button class="btn btn-sm btn-success"
                     @onclick="() => CreationService.ApplySpecialization(statAbbr, State.SpecializeAmount)"
-                disabled="@(State.SpecializeAmount <= 0 || State.SpecializationBonus <= 0 || addedValue >= 10 || addedValue + amountToApply > 10)">
+                disabled="@(State.SpecializeAmount <= 0 ||
+                            State.SpecializeAmount > State.SpecializationBonus ||
+                            addedValue >= 10 ||
+                            addedValue + amountToApply > 10)">
                 Apply
             </button>
         </td>
@@ -633,22 +692,32 @@ else
             {
                 <div class="mb-3">
                     <label class="form-label"><strong>Choose your weapon:</strong></label>
-                    <InputSelect class="form-select" @bind-Value="State.SelectedWeapon">
-                        <option value="">-- Select a Weapon --</option>
+                    <div class="list-group">
                         @foreach(var weapon in State.WeaponChoices)
-                        {
-                            <option value="@weapon.Name">@weapon.Name</option>
-                        }
-                    </InputSelect>
-                    @if (State.SelectedWeapon != null)
-                {
-                    <div class="alert alert-info mt-2 p-2">
-                        <strong>Stats:</strong> @EquipmentService.GetWeaponByName(GameData, State.SelectedWeapon).ToString()
+                    {
+                        // We only need to check MeleeWeapons for this logic
+                        var meleeWeapon = weapon as MeleeWeapon;
+                        var wieldStatus = meleeWeapon != null ? GameData.GetWieldStatus(State.Strength, meleeWeapon) : "(2-Handed)";
+                        bool canWield = wieldStatus != "(Too weak to wield)";
+
+                        <label class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(State.SelectedWeapon == weapon.Name ? "active" : "")">
+                            <input class="form-check-input me-2" type="radio" name="weaponChoice"
+                                   value="@weapon.Name" title="@weapon.ToString()"
+                                   @onchange="() => State.SelectedWeapon = weapon.Name"
+                                   disabled="@(!canWield)" />
+                            @weapon.Name
+
+                        @* This badge now displays the dynamic text from your new method *@
+                            var wieldStatus = GameData.GetWieldStatus(CurrentHero.Strength, meleeWeapon);
+                            <span class="badge rounded-pill @GetWieldStatusClass(wieldStatus)">
+                                @wieldStatus
+                            </span>
+                        </label>
+                    }
                     </div>
-                }
                 </div>
             }
-                @if (State.RelicChoices != null)
+            @if (State.RelicChoices != null)
             {
                 <div class="mb-3">
                     <label class="form-label"><strong>Choose your Religious Relic:</strong></label>
@@ -661,7 +730,7 @@ else
                     </InputSelect>
                 </div>
             }
-                @if (State.PotionChoices != null)
+            @if (State.PotionChoices != null)
             {
                 <div class="selection-group shadow-sm">
                     <div class="selection-header">
@@ -922,6 +991,11 @@ else
     #endregion
 
     #region Code-behind Logic
+    private async Task SelectAllText(string id)
+    {
+        await JSRuntime.InvokeVoidAsync("selectAllText", id);
+    }
+
     private void ShowCharacterSheet(Hero hero)
     {
         selectedHeroForSheet = hero;
@@ -963,6 +1037,16 @@ else
     {
         selectedTalentChoice = selection;
         CreationService.UpdateTalentsWithSelection(selection);
+    }
+
+    private string GetWieldStatusClass(string status)
+    {
+        return status switch
+        {
+            "(1-Handed)" => "badge-success", // Green
+            "(2-Handed)" => "badge-warning", // Yellow/Orange
+            _ => "badge-danger"             // Red for "Too weak to wield"
+        };
     }
 
     private void ApplySkill()

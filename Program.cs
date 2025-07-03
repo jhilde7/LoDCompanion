@@ -15,6 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        options.MaximumReceiveMessageSize = 102400; // 100 KB
+    });
 builder.Services.Configure<JsonSerializerOptions>(options =>
 {
     options.PropertyNameCaseInsensitive = true;

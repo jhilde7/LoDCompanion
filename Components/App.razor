@@ -12,6 +12,15 @@
 <body>
     <Routes @rendermode="InteractiveServer" />
     <script src="_framework/blazor.web.js"></script>
+    <script>
+        // This function selects all text in an input field
+        function selectAllText(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.select();
+            }
+        }
+    </script>
 </body>
 
 </html>

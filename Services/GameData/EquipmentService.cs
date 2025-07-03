@@ -144,6 +144,7 @@ namespace LoDCompanion.Services.GameData
                     .. _gameData.Weapons.Where(x => x.Category == "Common"),
                     .. _gameData.Ammo.Where(x => x.Category == "Common"),
                     .. _gameData.Armour.Where(x => x.Category == "Common"),
+                    .. _gameData.Shields.Where(x => x.Category == "Common"),
                     .. AlchemyService.Potions.Where(x => x.Category == "Common")
                 ];
                 return list;
