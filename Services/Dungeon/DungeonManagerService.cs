@@ -1,48 +1,43 @@
 ﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Dungeon
 {
     public class DungeonManagerService
     {
         private readonly GameDataService _gameData;
-        public List<Hero> HeroParty { get; private set; } // Use properties for better encapsulation
-        public int RoomsWithoutEncounters { get; set; } = 0;
-        public int PartyMorale { get; private set; }
-        public int MaxPartyMorale { get; private set; }
-        public int MinThreatLevel { get; set; }
-        public int MaxThreatLevel { get; set; }
-        public int ThreatLevel { get; set; }
-        public int WhenSpawnWanderingMonster { get; set; }
+        private readonly WanderingMonsterService _wanderingMonster;
+        private readonly EncounterService _encounter;
+        private readonly QuestEncounterService _questEncounter;
+        private readonly RoomFactoryService _roomFactory;
+        private readonly GameStateManagerService _gameManager;
 
-        // Dependencies, injected via constructor
-        private readonly WanderingMonsterService _wanderingMonsterService;
-        private readonly EncounterService _encounterService;
-        private readonly QuestEncounterService _questEncounterService;
-        private readonly RoomFactoryService _roomFactoryService;
+        private readonly DungeonState DungeonState;
+        public Party? HeroParty => DungeonState.HeroParty;
+        public RoomService? StartingRoom => DungeonState.StartingRoom;
+        public RoomService? CurrentRoom => DungeonState.CurrentRoom;
 
-        // Represents the current active room
-        public RoomService StartingRoom { get; private set; }
-        public RoomService CurrentRoom { get; private set; }
 
         public DungeonManagerService( GameDataService gameData,
             WanderingMonsterService wanderingMonsterService,
             EncounterService encounterService,
             QuestEncounterService questEncounterService,
-            RoomFactoryService roomFactoryService)
+            RoomFactoryService roomFactoryService,
+            GameStateManagerService gameStateManagerService,
+            DungeonState dungeonState)
         {
             _gameData = gameData;
-            _wanderingMonsterService = wanderingMonsterService ?? throw new ArgumentNullException(nameof(wanderingMonsterService));
-            _encounterService = encounterService ?? throw new ArgumentNullException(nameof(encounterService));
-            _questEncounterService = questEncounterService ?? throw new ArgumentNullException(nameof(questEncounterService));
-            _roomFactoryService = roomFactoryService ?? throw new ArgumentNullException(nameof(roomFactoryService));
+            _wanderingMonster = wanderingMonsterService;
+            _encounter = encounterService;
+            _questEncounter = questEncounterService;
+            _roomFactory = roomFactoryService;
+            _gameManager = gameStateManagerService;
 
-            StartingRoom = new RoomService(_gameData);
-            CurrentRoom = StartingRoom;
-            HeroParty = new List<Hero>(); // Initialize the list
+            DungeonState = dungeonState;
         }
 
-        // Replaces the Start() method logic for initial setup
         public void InitializeDungeon(Party initialHeroes, string startingRoomName = "StartingRoom")
         {
             if (initialHeroes == null || initialHeroes.Heroes.Count == 0)
@@ -50,25 +45,17 @@ namespace LoDCompanion.Services.Dungeon
                 throw new ArgumentException("Initial hero party cannot be null or empty.", nameof(initialHeroes));
             }
 
-            HeroParty.Clear();
-            PartyMorale = 0;
-            foreach (Hero hero in initialHeroes.Heroes)
-            {
-                HeroParty.Add(hero);
-                // Replaced Mathf.Ceil with Math.Ceiling
-                PartyMorale += (int)Math.Ceiling((double)hero.Resolve / 10);
-            }
-            MaxPartyMorale = PartyMorale;
-
             // Initialize threat levels and wandering monster trigger
-            MinThreatLevel = 1; // Example default
-            MaxThreatLevel = 10; // Example default
-            ThreatLevel = 0; // Starting low
-            WhenSpawnWanderingMonster = 5; // Example default
+            DungeonState.HeroParty = initialHeroes;
+            DungeonState.MinThreatLevel = 1; // Example default
+            DungeonState.MaxThreatLevel = 10; // Example default
+            DungeonState.ThreatLevel = 0; // Starting low
+            DungeonState.WhenSpawnWanderingMonster = 5; // Example default
 
-            // Create the first room using the RoomFactoryService
-            // Note: CurrentRoom represents the player's current location, not necessarily the 'firstRoom' concept from original
-            CurrentRoom = _roomFactoryService.CreateRoom(startingRoomName) ?? new RoomService(_gameData);
+            if (DungeonState.CurrentRoom != null)
+            {
+                DungeonState.CurrentRoom = _roomFactory.CreateRoom(startingRoomName) ?? new RoomService(_gameData); 
+            }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
 
@@ -76,18 +63,17 @@ namespace LoDCompanion.Services.Dungeon
         public void AdvanceTurn()
         {
             // Logic for increasing threat level or other time-based events
-            ThreatLevel++;
+            DungeonState.ThreatLevel++;
 
             // Wandering monster spawn logic
-            if (ThreatLevel >= WhenSpawnWanderingMonster)
+            if (DungeonState.ThreatLevel >= DungeonState.WhenSpawnWanderingMonster)
             {
-                // The original code passed 'encounter' to 'wanderingMonster'.
-                // In a service structure, WanderingMonsterService would likely directly use EncounterService.
-                // We just tell the WanderingMonsterService to spawn a monster, and it handles the details.
-                // It should return the monster to be added to the current room.
-                _wanderingMonsterService.TriggerWanderingMonster(StartingRoom);
-
-                ThreatLevel -= 5; // Reset or reduce threat after spawn
+                // Only trigger if StartingRoom is not null
+                if (StartingRoom != null)
+                {
+                    _wanderingMonster.TriggerWanderingMonster(StartingRoom);
+                }
+                DungeonState.ThreatLevel -= 5; // Reset or reduce threat after spawn
             }
             // Add other per-turn logic here (e.g., character status effects, resource regeneration)
         }
@@ -97,18 +83,10 @@ namespace LoDCompanion.Services.Dungeon
         {
             if (nextRoom != null)
             {
-                CurrentRoom = nextRoom;
-                Console.WriteLine($"Party moved to {CurrentRoom.RoomName}.");
+                DungeonState.CurrentRoom = nextRoom;
                 return true;
             }
             return false;
-        }
-
-        // Method to change party morale
-        public void AdjustPartyMorale(int adjustment)
-        {
-            PartyMorale = Math.Min(MaxPartyMorale, PartyMorale + adjustment);
-            if (PartyMorale < 0) PartyMorale = 0; // Morale cannot go below zero
         }
     }
 }

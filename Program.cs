@@ -1,9 +1,13 @@
+using Blazored.LocalStorage;
 using LoDCompanion.Components;
+using LoDCompanion.Models;
+using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
-using LoDCompanion.Services.State;
+using LoDCompanion.Services.Game;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,18 +22,22 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 });
 
 //register core services.
+builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddSingleton<GameDataService>();
 builder.Services.AddScoped<EquipmentService>();
 builder.Services.AddSingleton<CharacterCreationService>();
 builder.Services.AddSingleton<CharacterCreationState>();
-builder.Services.AddSingleton<PartyManagerService>();
-builder.Services.AddSingleton<PartyState>();
-builder.Services.AddSingleton<DungeonManagerService>();
-builder.Services.AddSingleton<RoomFactoryService>();
+builder.Services.AddScoped<PartyManagerService>();
+builder.Services.AddScoped<DungeonManagerService>();
+builder.Services.AddSingleton<DungeonState>();
+builder.Services.AddScoped<RoomFactoryService>();
 builder.Services.AddSingleton<RoomService>();
 builder.Services.AddSingleton<EncounterService>();
 builder.Services.AddSingleton<QuestEncounterService>();
 builder.Services.AddSingleton<WanderingMonsterService>();
+builder.Services.AddScoped<GameStateManagerService>();
+builder.Services.AddSingleton<GameState>();
 
 var app = builder.Build();
 

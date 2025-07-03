@@ -1,4 +1,44 @@
 ﻿@inherits LayoutComponentBase
+@using LoDCompanion.Services.Game
+@inject GameStateManagerService GameManager
+@inject NavigationManager NavManager
 
+<div class="page">
+    <div class="sidebar">
+        @* <NavMenu />
+        <div class="p-2 mt-auto">
+            <button class="btn btn-danger w-100" @onclick="StartNewGame">
+                Start New Game
+            </button>
+        </div>*@
+    </div>
 
-@Body
+    <main>
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GameManager.InitializeGameAsync();
+
+            // Notify the rest of the UI that the state has been loaded
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task StartNewGame()
+    {
+        // This button click is guaranteed to be interactive.
+        await GameManager.StartNewGameAsync();
+        NavManager.NavigateTo("/character-creator", forceLoad: true);
+    }
+}

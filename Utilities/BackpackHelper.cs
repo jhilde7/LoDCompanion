@@ -25,7 +25,7 @@ namespace LoDCompanion.Utilities
         {
             var existingItem = backpack.FirstOrDefault(item => item == itemToRemove);
 
-            if(existingItem.Quantity > 1)
+            if(existingItem != null && existingItem.Quantity > 1)
             {
                 existingItem.Quantity -= existingItem.Quantity;
             }

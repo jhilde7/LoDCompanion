@@ -3,33 +3,36 @@
 @implements IDisposable
 
 @using LoDCompanion.Components.Shared
+@using LoDCompanion.Utilities
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Services.CharacterCreation
 @using LoDCompanion.Services.GameData
 @using LoDCompanion.Services.Player
-@using LoDCompanion.Services.State
+@using LoDCompanion.Services.Game
 @inject NavigationManager NavigationManager
 @inject CharacterCreationService CreationService
 @inject GameDataService GameData
 @inject PartyManagerService PartyManager
+@inject GameStateManagerService GameManager
 
 <PageTitle>Create Your Hero</PageTitle>
 
-<div class="row">
-    <!-- Main Creation Area -->
-    <div class="col-md-9">
-        <h1>Create Your Hero (@(PartyManager.Party.Heroes.Count + 1) of 4)</h1>
-        @if (isLoading)
-        {
-            <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="ms-3">Loading Game Data...</p>
-            </div>
-        }
-        else
-        {
+
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="ms-3">Loading Game Data...</p>
+    </div>
+}
+else
+{
+    <div class="row">
+        <!-- Main Creation Area -->
+        <div class="col-md-9">
+            <h1>Create Your Hero (@(PartyManager.Party.Heroes.Count + 1) of 4)</h1>
             <!-- Progress Bar -->
             <span class="progress" style="height: 25px;">
                 <div class="progress-bar @GetProgressClass(Step.Species)" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 22%; cursor: pointer;" @onclick="() => SetStep(Step.Species)">Species</div>
@@ -42,67 +45,67 @@
             @if (currentStep != Step.Summary)
             {
                 <div class="character-creation-content p-3 border rounded">
-                <EditForm EditContext="editContext">
-                    <DataAnnotationsValidator />
+                    <EditForm EditContext="editContext">
+                        <DataAnnotationsValidator />
 
-                    @switch (currentStep)
-                    {
-                        case Step.Species:
-                            @SpeciesSelection
-                            ;
-                            break;
-                        case Step.HumanTalent:
-                            @HumanTalentSelection
-                            ;
-                            break;
-                        case Step.Specialization:
-                            @SpecializationStats
-                            ;
-                            break;
-                        case Step.Profession:
-                            @ProfessionSelection
-                            ;
-                            break;
-                        case Step.TalentChoice:
-                            @TalentChoiceSelection
-                            ;
-                            break;
-                        case Step.Equipment:
-                            @EquipmentSelection
-                            ;
-                            break;
-                        case Step.AlchemistRecipe:
-                            @AlchemistRecipeSelection
-                            ; break;
-                        case Step.FreeSkill:
-                            @FreeSkillSelection
-                            ;
-                            break;
-                        case Step.Background:
-                            @BackgroundSelection
-                            ;
-                            break;
-                        case Step.Name:
-                            @NameSelection
-                            ;
-                            break;
-                        case Step.Review:
-                            @CharacterReview
-                            ;
-                            break;
-                        case Step.Summary:
-                            @CharacterSummary
-                            ;
-                            break;
-                    }
-					</EditForm>
-				</div>
-                    }
-                    else
-                    {
-                    @CharacterSummary
-                    }
-            
+                        @switch (currentStep)
+                        {
+                            case Step.Species:
+                                @SpeciesSelection
+                                ;
+                                break;
+                            case Step.HumanTalent:
+                                @HumanTalentSelection
+                                ;
+                                break;
+                            case Step.Specialization:
+                                @SpecializationStats
+                                ;
+                                break;
+                            case Step.Profession:
+                                @ProfessionSelection
+                                ;
+                                break;
+                            case Step.TalentChoice:
+                                @TalentChoiceSelection
+                                ;
+                                break;
+                            case Step.Equipment:
+                                @EquipmentSelection
+                                ;
+                                break;
+                            case Step.AlchemistRecipe:
+                                @AlchemistRecipeSelection
+                                ; break;
+                            case Step.FreeSkill:
+                                @FreeSkillSelection
+                                ;
+                                break;
+                            case Step.Background:
+                                @BackgroundSelection
+                                ;
+                                break;
+                            case Step.Name:
+                                @NameSelection
+                                ;
+                                break;
+                            case Step.Review:
+                                @CharacterReview
+                                ;
+                                break;
+                            case Step.Summary:
+                                @CharacterSummary
+                                ;
+                                break;
+                        }
+                    </EditForm>
+                </div>
+            }
+            else
+            {
+                @CharacterSummary
+            }
+
             <!-- Navigation Buttons -->
             <div class="mt-4 d-flex justify-content-between">
                 <button class="btn btn-secondary" @onclick="GoToPreviousStep" disabled="@(currentStep == Step.Name)">Back</button>
@@ -116,36 +119,36 @@
                     <button class="btn btn-primary" @onclick="GoToNextStep" disabled="@(!IsCurrentStepValid())">Next</button>
                 }
             </div>
-        }
-    </div>
-    <!-- Party Roster Side Panel -->
-    <div class="col-md-3">
-        <div class="card sticky-top" style="top: 1rem;">
-            <div class="card-header">
-                <h5>Current Party (@PartyManager.Party.Heroes.Count / 4)</h5>
-            </div>
-            <ul class="list-group list-group-flush">
-                @if (PartyManager.Party.Heroes.Any())
-                {
-                    @foreach (var hero in PartyManager.Party.Heroes)
+            }
+        </div>
+        <!-- Party Roster Side Panel -->
+        <div class="col-md-3">
+            <div class="card sticky-top" style="top: 1rem;">
+                <div class="card-header">
+                    <h5>Current Party (@PartyManager.Party.Heroes.Count / 4)</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (PartyManager.Party.Heroes.Any())
                     {
-                        <button type="button" class="list-group-item list-group-item-action text-start" @onclick="() => ShowCharacterSheet(hero)">
-                            @hero.Name <br /><small class="text-muted">@hero.SpeciesName @hero.ProfessionName</small>
-                        </button>
+                        @foreach (var hero in PartyManager.Party.Heroes)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action text-start" @onclick="() => ShowCharacterSheet(hero)">
+                                @hero.Name <br /><small class="text-muted">@hero.SpeciesName @hero.ProfessionName</small>
+                            </button>
+                        }
                     }
-                }
-                else
-                {
-                    <li class="list-group-item">Your party is empty.</li>
-                }
-            </ul>
+                    else
+                    {
+                        <li class="list-group-item">Your party is empty.</li>
+                    }
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
-<CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
-
-@code {
+    <CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
+}
+    @code {
     private enum Step { Species, HumanTalent, Specialization, Profession, TalentChoice, Equipment, AlchemistRecipe, FreeSkill, Background, Name, Review, Summary }
     private Step currentStep = Step.Species;
     private EditContext editContext = default!;
@@ -176,47 +179,33 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (PartyManager.Party.Heroes.Count >= 4)
-        {
-            // If the party is already full, set the step to the summary view.
-            currentStep = Step.Summary;
-            isLoading = false; // Ensure the loading spinner is turned off.
-            return; // Exit the method early to prevent setting up for a 5th character.
-        }
-
-        // The PartyManager is now initialized in MainLayout
         if (PartyManager.Party != null && PartyManager.Party.Heroes.Count >= 4)
         {
-            // If a full party was loaded from storage, go straight to the shop.
-            NavigationManager.NavigateTo("/party/shop");
+            // If the party is full, just show the summary view and stop.
+            // The summary view already has the "Go to Shop" button.
+            currentStep = Step.Summary;
+            isLoading = false;
             return;
         }
 
-        // If the loaded party is not full, continue creating the next character.
         if (PartyManager.Party == null)
         {
-            await PartyManager.CreatePartyAsync();
+            // This method should create a new empty party object.
+            PartyManager.CreateParty();
         }
 
         try
         {
-            // A small, non-blocking delay can help ensure injected services are fully ready after navigation.
             await Task.Delay(1);
-
-            // Initialize the EditContext. This will throw an error if CreationService is null.
             editContext = new(CreationService);
             editContext.OnFieldChanged += HandleFieldChanged;
         }
         catch (Exception ex)
         {
-            // Log the error to the browser's developer console (F12) so you can see what went wrong.
             Console.WriteLine($"Failed to initialize Character Creator: {ex.Message}");
-            // You could also set a separate flag here to show a user-friendly error message.
         }
         finally
         {
-            // This 'finally' block GUARANTEES that isLoading will be set to false,
-            // whether the 'try' block succeeded or failed. This will make the spinner disappear.
             isLoading = false;
         }
     }
@@ -380,7 +369,7 @@
     </section>;
 
     private RenderFragment CreateStatRow(string statName, string statAbbr, int baseValue, int addedValue, int amountToApply) =>@<tr>
-        <td>@statName</td>
+    <td title="@TooltipHelper.GetTooltip(statAbbr)">@statName</td>
         <td>@baseValue</td>
         <td>@addedValue</td>
         <td><strong>@(baseValue + addedValue)</strong></td>
@@ -814,7 +803,8 @@
     private RenderFragment CharacterReview =>@<section>
         <h3 class="text-center my-4">Review Your Character</h3>
 
-        @{
+        @if(currentHero == null)
+        {
             currentHero = CreationService.BuildPreviewHero();
         }
 
@@ -1112,6 +1102,11 @@
         do { nextStep++; } while (ShouldSkipStep(nextStep));
 
         currentStep = nextStep;
+
+        if (currentStep == Step.Review)
+        {
+            currentHero = CreationService.BuildPreviewHero();
+        }
     }
 
     private void GoToPreviousStep()
@@ -1136,20 +1131,22 @@
         _ => false
     };
 
-    private async void FinishCreation()
+    private async Task FinishCreation()
     {
         if (IsCurrentStepValid() && currentHero != null)
         {
             // Finalize and add the hero to the party
-            await PartyManager.AddHeroToPartyAsync(currentHero);
+            PartyManager.AddHeroToParty(currentHero);
             CreationService.FinalizeCharacter();
+            await GameManager.SaveGameAsync(NavigationManager.Uri);
 
             // Move to the summary step to show the result
             currentStep = Step.Summary;
+            
         }
     }
 
-    private void CreateNextHero()
+    private async Task CreateNextHero()
     {
         CreationService.InitializeCreationState();
         State = CreationService.State;
@@ -1159,9 +1156,9 @@
         isSkillConfirmed = false;
         selectedTalentChoice = null;
         manualRolls = new int[6];
+        await GameManager.SaveGameAsync(NavigationManager.Uri);
 
-        // Go back to the first step
-        currentStep = Step.Species; // Or Step.Name if you move it back
+        currentStep = Step.Species;
     }
 
     private void GoToShop()
@@ -1188,8 +1185,5 @@
             editContext.OnFieldChanged -= HandleFieldChanged;
         }
     }
-
-
-
     #endregion
 }

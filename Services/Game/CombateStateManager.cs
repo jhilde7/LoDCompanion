@@ -1,7 +1,7 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 
-namespace LoDCompanion.Services.State
+namespace LoDCompanion.Services.Game
 {
     public class CombateStateManager
     {

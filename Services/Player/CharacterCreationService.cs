@@ -2,7 +2,6 @@
 using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
-using LoDCompanion.Services.State;
 
 namespace LoDCompanion.Services.CharacterCreation
 {
