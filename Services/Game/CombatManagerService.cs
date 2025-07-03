@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Services.Combat;
+using LoDCompanion.Services.Player;
 
 namespace LoDCompanion.Services.Game
 {

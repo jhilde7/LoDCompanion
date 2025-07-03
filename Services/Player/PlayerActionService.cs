@@ -1,8 +1,9 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
 
-namespace LoDCompanion.Services.Combat
+namespace LoDCompanion.Services.Player
 {
     /// <summary>
     /// Defines the types of actions a player can take.

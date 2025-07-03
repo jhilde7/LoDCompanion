@@ -41,7 +41,6 @@ builder.Services.AddScoped<InitiativeService>();
 builder.Services.AddScoped<CombatManagerService>();
 builder.Services.AddScoped<HeroCombatService>();
 builder.Services.AddScoped<MonsterCombatService>();
-builder.Services.AddScoped<PlayerActionService>();
 //Dungeon
 builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
@@ -51,6 +50,7 @@ builder.Services.AddScoped<LockService>();
 builder.Services.AddScoped<QuestEncounterService>();
 builder.Services.AddScoped<RoomFactoryService>();
 builder.Services.AddScoped<RoomService>();
+builder.Services.AddScoped<SearchService>();
 builder.Services.AddScoped<ThreatService>();
 builder.Services.AddScoped<TrapService>();
 builder.Services.AddScoped<TreasureService>();
@@ -59,6 +59,7 @@ builder.Services.AddScoped<WanderingMonsterService>();
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<PartyRestingService>();
+builder.Services.AddScoped<PlayerActionService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddBlazoredLocalStorage();
