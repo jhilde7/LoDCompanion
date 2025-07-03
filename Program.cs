@@ -57,6 +57,7 @@ builder.Services.AddScoped<WanderingMonsterService>();
 //Party
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();
+builder.Services.AddScoped<PartyRestingService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddBlazoredLocalStorage();

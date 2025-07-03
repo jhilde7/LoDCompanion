@@ -3,6 +3,7 @@ using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Utilities;
+using LoDCompanion.Services.Player;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -19,6 +20,7 @@ namespace LoDCompanion.Services.Dungeon
         private readonly LockService _lockService;
         private readonly TrapService _trapService;
         private readonly CombatManagerService _combatManager;
+        private readonly PartyRestingService _partyRestingService;
 
         private readonly DungeonState DungeonState;
         public Party? HeroParty => DungeonState.HeroParty;
@@ -38,6 +40,7 @@ namespace LoDCompanion.Services.Dungeon
             ThreatService threatService,
             LockService lockService,
             TrapService trapService,
+            PartyRestingService partyRestingService,
             CombatManagerService combatManager)
         {
             _gameData = gameData;
@@ -50,6 +53,7 @@ namespace LoDCompanion.Services.Dungeon
             _threatService = threatService;
             _lockService = lockService;
             _trapService = trapService;
+            _partyRestingService = partyRestingService;
             _combatManager = combatManager;
 
             DungeonState = dungeonState;
@@ -301,6 +305,33 @@ namespace LoDCompanion.Services.Dungeon
                 // Trigger wandering monster logic...
                 DungeonState.ThreatLevel -= 5;
             }
+        }
+
+        /// <summary>
+        /// Initiates the resting process for the party within the dungeon.
+        /// </summary>
+        /// <returns>A string summarizing the outcome of the rest attempt.</returns>
+        public string InitiateDungeonRest()
+        {
+            if (CurrentRoom != null && CurrentRoom.IsEncounter)
+            {
+                return "Cannot rest while enemies are present!";
+            }
+
+            if (DungeonState.HeroParty == null)
+            {
+                return "Cannot rest without a party.";
+            }
+
+            // Call the resting service, specifying the Dungeon context
+            var restResult = _partyRestingService.AttemptRest(DungeonState.HeroParty, RestingContext.Dungeon, DungeonState);
+
+            if (restResult.WasInterrupted)
+            {
+                // _combatManager.StartCombat(...);
+            }
+
+            return restResult.Message;
         }
     }
 }
