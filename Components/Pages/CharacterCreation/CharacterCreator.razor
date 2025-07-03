@@ -184,6 +184,20 @@
             return; // Exit the method early to prevent setting up for a 5th character.
         }
 
+        // The PartyManager is now initialized in MainLayout
+        if (PartyManager.Party != null && PartyManager.Party.Heroes.Count >= 4)
+        {
+            // If a full party was loaded from storage, go straight to the shop.
+            NavigationManager.NavigateTo("/party/shop");
+            return;
+        }
+
+        // If the loaded party is not full, continue creating the next character.
+        if (PartyManager.Party == null)
+        {
+            await PartyManager.CreatePartyAsync();
+        }
+
         try
         {
             // A small, non-blocking delay can help ensure injected services are fully ready after navigation.
@@ -1122,12 +1136,12 @@
         _ => false
     };
 
-    private void FinishCreation()
+    private async void FinishCreation()
     {
         if (IsCurrentStepValid() && currentHero != null)
         {
             // Finalize and add the hero to the party
-            PartyManager.AddHeroToParty(currentHero);
+            await PartyManager.AddHeroToPartyAsync(currentHero);
             CreationService.FinalizeCharacter();
 
             // Move to the summary step to show the result
