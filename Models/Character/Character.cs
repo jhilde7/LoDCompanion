@@ -29,6 +29,8 @@ namespace LoDCompanion.Models.Character
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
         public int MaxAP { get; set; } = 2;
         public int CurrentAP { get; set; } = 2;
+        public bool IsLarge { get; set; }
+        public bool IsVulnerableAfterPowerAttack { get; set; }
 
         // Constructor (optional, but good practice for initialization)
         public Character()
@@ -224,10 +226,9 @@ namespace LoDCompanion.Models.Character
         public int[] DamageArray { get; set; } = new int[2]; // Initialize to avoid null reference
         public bool HasSpecialAttack { get; set; }
         public bool IsGhost { get; set; }
-        public int ToHit { get; set; } // Base to hit value
+        public int ToHitPenalty { get; set; } 
         public int Move { get; set; }
         public int XP { get; set; }
-        public bool IsLarge { get; set; }
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
         public bool IsUndead { get; set; }
@@ -251,7 +252,7 @@ namespace LoDCompanion.Models.Character
             sb.AppendLine($"HP: {CurrentHP}/{MaxHP}, Armour: {ArmourValue}, Move: {Move}, XP: {XP}");
 
             sb.AppendLine("\n-- Combat Stats --");
-            sb.AppendLine($"CS: {CombatSkill}, RS: {RangedSkill}, Dodge: {Dodge}, To Hit: {ToHit}");
+            sb.AppendLine($"CS: {CombatSkill}, RS: {RangedSkill}, Dodge: {Dodge}, To Hit Bonus: {ToHitPenalty}");
             sb.AppendLine($"Damage: {DamageArray[0]}-{DamageArray[1]}, DB: {DamageBonus}");
 
             if (Weapons.Any())

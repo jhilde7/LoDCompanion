@@ -1,4 +1,6 @@
-﻿using LoDCompanion.Models.Dungeon;
+﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -79,8 +81,51 @@ namespace LoDCompanion.Services.Dungeon
         public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, RoomService room)
         {
             // TODO: Implement A* or another pathfinding algorithm to navigate the grid,
-            // avoiding squares where IsObstacle == true.
+            // avoiding squares where IsObstacle && !CanBeClimbed or if the shorstest route requires climbing over an object which is twice the movement cost.
             return new List<GridPosition> { end }; // Return a direct path for now
+        }
+
+        /// <summary>
+        /// Attempts to shove a target character one square back.
+        /// </summary>
+        /// <param name="shover">The character performing the shove.</param>
+        /// <param name="target">The character being shoved.</param>
+        /// <param name="room">The current room grid.</param>
+        /// <returns>A string describing the outcome.</returns>
+        public string ShoveCharacter(Character shover, Character target, RoomService room)
+        {
+            if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
+
+            int shoveRoll = RandomHelper.RollDie("D100");
+            int shoveBonus = shover.DamageBonus * 10;
+
+            if (shoveRoll > target.Dexterity + shoveBonus)
+            {
+                return $"{shover.Name}'s shove attempt fails.";
+            }
+
+            // Shove is successful. Calculate pushback direction.
+            if (shover.Position == null || target.Position == null) return "Cannot shove character with no position.";
+
+            int dx = target.Position.X - shover.Position.X;
+            int dy = target.Position.Y - shover.Position.Y;
+
+            var pushbackPosition = new GridPosition(target.Position.X + dx, target.Position.Y + dy);
+
+            // Check if the pushback square is valid and not occupied.
+            var pushbackSquare = room.Grid.FirstOrDefault(s => s.Position.X == pushbackPosition.X && s.Position.Y == pushbackPosition.Y);
+
+            if (pushbackSquare != null && !pushbackSquare.IsOccupied && !pushbackSquare.IsObstacle)
+            {
+                MoveCharacter(target, pushbackPosition, room);
+                return $"{shover.Name} successfully shoves {target.Name} back!";
+            }
+            else
+            {
+                // Pushback is blocked, target falls over.
+                // TODO: Add a "Prone" status effect to the target.
+                return $"{shover.Name} shoves {target.Name}, but they are blocked and fall over!";
+            }
         }
     }
 }

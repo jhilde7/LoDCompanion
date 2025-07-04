@@ -3,6 +3,7 @@ using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
+using LoDCompanion.Services.Dungeon;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -20,6 +21,12 @@ namespace LoDCompanion.Services.Combat
 
     public class HeroCombatService
     {
+        private readonly GridService _grid;
+
+        public HeroCombatService (GridService gridService)
+        {
+            _grid = gridService;
+        }
         /// <summary>
         /// Resolves a hero's attack against a monster, calculating the final to-hit chance and damage.
         /// </summary>
@@ -28,16 +35,11 @@ namespace LoDCompanion.Services.Combat
             var result = new AttackResult();
             bool isRanged = weapon is RangedWeapon;
 
-            // Step 1: Determine the base skill (CS or RS)
             int baseSkill = isRanged ? attacker.RangedSkill : attacker.CombatSkill;
 
-            // Step 2: Calculate the final To-Hit chance using all modifiers
             result.ToHitChance = CalculateToHitChance(baseSkill, target, weapon, context);
-
-            // Step 3: Roll the dice
             result.AttackRoll = RandomHelper.RollDie("D100");
 
-            // Step 4: Determine if the attack hits
             if (result.AttackRoll <= result.ToHitChance)
             {
                 result.IsHit = true;
@@ -45,6 +47,11 @@ namespace LoDCompanion.Services.Combat
                 result.DamageDealt = CalculateFinalDamage(attacker, target, weapon, context);
                 target.TakeDamage(result.DamageDealt);
                 result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {result.DamageDealt} damage!";
+
+                if (context.IsChargeAttack)
+                {
+                    result.OutcomeMessage += "\n" + _grid.ShoveCharacter(attacker, target, new RoomService(new GameDataService())); // Pass current room
+                }
             }
             else
             {
@@ -95,7 +102,7 @@ namespace LoDCompanion.Services.Combat
                 // The PDF refers to "Enemy 'To Hit' value", which is also the monster's Dodge stat.
                 if (!context.DidTargetUsePowerAttackLastTurn)
                 {
-                    finalChance -= target.ToHit;
+                    finalChance -= target.ToHitPenalty;
                 }
             }
 

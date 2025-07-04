@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Game
 {
@@ -24,16 +25,18 @@ namespace LoDCompanion.Services.Game
         public void ExecuteMonsterTurn(Monster monster, List<Hero> heroes, RoomService room)
         {
             // The monster gets 2 Action Points.
-            int ap = 2;
-
-            while (ap > 0)
+            monster.CurrentAP = monster.MaxAP;
+            int ap = monster.CurrentAP;
+            while (monster.CurrentAP > 0)
             {
+                switch (monster.Behavior)
+                {
+                    case MonsterBehaviorType.HumanoidMelee:
+                        ExecuteHumanoidMeleeAction(monster, heroes, room, ref ap);
+                        break;
+                }
                 // Decide on the action based on the monster's behavior type.
                 // For now, we'll use the HumanoidMelee logic from the PDF as a template.
-                if (monster.Behavior == MonsterBehaviorType.HumanoidMelee)
-                {
-                    ExecuteHumanoidMeleeAction(monster, heroes, room, ref ap);
-                }
                 // Add other behaviors (Ranged, MagicUser) here later.
             }
         }
@@ -43,59 +46,78 @@ namespace LoDCompanion.Services.Game
             var target = ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null)
             {
-                ap = 0; // No valid target, end turn.
+                ap = 0;
                 return;
             }
 
             int distance = _gridService.GetDistance(monster.Position, target.Position);
 
-            // Rule 1: If more than M spaces away, move.
-            if (distance > monster.Move)
+            if (distance <= 1)
             {
-                // _gridService.MoveCharacter(...) would go here.
+                // "make room for more enemies if possible. Shove if necessary."
+                // TODO: Add logic to determine if a shove would be tactically advantageous.
+                // For now, we proceed to the attack table.
+
+                // Rule 4: Attack according to the table
+                int actionRoll = RandomHelper.RollDie("D6");
+                if (actionRoll <= 4) // Attack
+                {
+                    int attackTypeRoll = RandomHelper.RollDie("D6");
+                    switch (attackTypeRoll)
+                    {
+                        case 1: // Parry Stance
+                            Console.WriteLine($"{monster.Name} takes a Parry Stance.");
+                            monster.CurrentAP = 0; // Ends turn
+                            break;
+                        case <= 5: // Standard Attack
+                            _monsterCombatService.PerformStandardAttack(monster, target);
+                            monster.CurrentAP--;
+                            break;
+                        case 6: // Power Attack
+                            _monsterCombatService.PerformPowerAttack(monster, target);
+                            monster.IsVulnerableAfterPowerAttack = true;
+                            monster.CurrentAP -= 2; // Power Attack costs 2 AP
+                            break;
+                    }
+                }
+                else // Use Special Skill/Talent
+                {
+                    Console.WriteLine($"{monster.Name} uses a special ability!");
+                    // TODO: Trigger a random special ability from MonsterSpecialService
+                    monster.CurrentAP--;
+                }
+                return;
+            }
+
+            if (distance <= monster.Move)
+            {
+                int roll = RandomHelper.RollDie("D6");
+                if (roll == 1) // Parry Stance
+                {
+                    Console.WriteLine($"{monster.Name} takes a Parry Stance.");
+                    monster.CurrentAP = 0;
+                }
+                else if (roll <= 4) // Move into CC
+                {
+                    Console.WriteLine($"{monster.Name} moves to engage {target.Name}.");
+                    // _gridService.MoveCharacter(...);
+                    monster.CurrentAP--;
+                }
+                else // Charge Attack
+                {
+                    _monsterCombatService.PerformChargeAttack(monster, target);
+                    monster.CurrentAP = 0; // Charge is a 2 AP action
+                }
+                return;
+            }
+            else
+            {
                 Console.WriteLine($"{monster.Name} moves towards {target.Name}.");
                 ap--;
                 return;
             }
-
-            // Rule 2: If within M spaces but not adjacent, roll 1d6.
-            if (distance > 1)
-            {
-                int roll = Utilities.RandomHelper.RollDie("D6");
-                if (roll == 1) // Parry Stance
-                {
-                    Console.WriteLine($"{monster.Name} takes a Parry Stance.");
-                    ap = 0; // Forfeits second action
-                }
-                else if (roll <= 4) // Move into CC
-                {
-                    // _gridService.MoveCharacter(...)
-                    Console.WriteLine($"{monster.Name} moves to engage {target.Name}.");
-                    ap--;
-                }
-                else // Charge Attack
-                {
-                    // _monsterCombatService.PerformChargeAttack(monster, target);
-                    Console.WriteLine($"{monster.Name} charges {target.Name}!");
-                    ap = 0; // Charge is a 2 AP action
-                }
-                return;
-            }
-
-            // Rule 3 & 4: If adjacent, attack.
-            if (distance <= 1)
-            {
-                // For simplicity, we'll just do a standard attack.
-                // A full implementation would use the attack table from the PDF.
-                // _monsterCombatService.PerformStandardAttack(monster, target);
-                Console.WriteLine($"{monster.Name} attacks {target.Name}.");
-                ap--;
-            }
         }
 
-        /// <summary>
-        /// Chooses a target based on the rules on page 103 of the PDF.
-        /// </summary>
         private Hero? ChooseTarget(Monster monster, List<Hero> heroes)
         {
             // "target one that has not been targeted by another enemy."

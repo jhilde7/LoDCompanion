@@ -5,6 +5,7 @@ using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Player
 {
@@ -26,6 +27,9 @@ namespace LoDCompanion.Services.Player
         RearrangeGear,
         IdentifyItem,
         SetOverwatch,
+        PowerAttack,
+        ChargeAttack,
+        Shove
 
     }
 
@@ -36,6 +40,7 @@ namespace LoDCompanion.Services.Player
     {
         private readonly DungeonManagerService _dungeonManager;
         private readonly HeroCombatService _heroCombat;
+        private readonly GridService _grid;
         private readonly SearchService _search;
         private readonly HealingService _healing;
         private readonly InventoryService _inventory;
@@ -47,7 +52,8 @@ namespace LoDCompanion.Services.Player
             SearchService searchService,
             HealingService healingService,
             InventoryService inventoryService,
-            IdentificationService identificationService)
+            IdentificationService identificationService,
+            GridService grid)
         {
             _dungeonManager = dungeonManagerService;
             _heroCombat = heroCombatService;
@@ -55,6 +61,7 @@ namespace LoDCompanion.Services.Player
             _healing = healingService;
             _inventory = inventoryService;
             _identification = identificationService;
+            _grid = grid;
         }
 
         /// <summary>
@@ -128,6 +135,32 @@ namespace LoDCompanion.Services.Player
                     hero.CurrentAP = 0; // End the hero's turn
                     resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
                     break;
+                case PlayerActionType.PowerAttack:
+                    if (primaryTarget is Monster monster1 && hero.Weapons.FirstOrDefault() is Weapon weapon1)
+                    {
+                        var context = new CombatContext { IsPowerAttack = true };
+                        var attackResult = _heroCombat.ResolveAttack(hero, monster1, weapon1, context);
+                        hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
+                        resultMessage = attackResult.OutcomeMessage;
+                    }
+                    break;
+
+                case PlayerActionType.ChargeAttack:
+                    if (primaryTarget is Monster monsterTarget && hero.Weapons.FirstOrDefault() is Weapon chargeWeapon)
+                    {
+                        var context = new CombatContext { IsChargeAttack = true };
+                        // TODO: Add movement logic before the attack
+                        var attackResult = _heroCombat.ResolveAttack(hero, monsterTarget, chargeWeapon, context);
+                        resultMessage = attackResult.OutcomeMessage;
+                    }
+                    break;
+
+                case PlayerActionType.Shove:
+                    if (primaryTarget is Character targetToShove)
+                    {
+                        resultMessage = _grid.ShoveCharacter(hero, targetToShove, new RoomService(new GameDataService())); // Pass current room
+                    }
+                    break;
             }
 
             Console.WriteLine($"{hero.Name} performed {actionType}. {hero.CurrentAP} AP remaining.");
@@ -142,29 +175,20 @@ namespace LoDCompanion.Services.Player
             return actionType switch
             {
                 PlayerActionType.StandardAttack => 1,
+                PlayerActionType.PowerAttack => 2,
+                PlayerActionType.ChargeAttack => 2,
+                PlayerActionType.Shove => 1,
                 PlayerActionType.Move => 1,
                 PlayerActionType.OpenDoor => 1,
-                PlayerActionType.SearchFurniture => 1,
-                PlayerActionType.HealOther => 1,
-                PlayerActionType.SearchRoom => 2,
                 PlayerActionType.PickLock => 2,
                 PlayerActionType.DisarmTrap => 2,
-                PlayerActionType.HealSelf => 2,
-                PlayerActionType.RearrangeGear => 2,
-                PlayerActionType.IdentifyItem => 0,
-                _ => 1,
-            };
-        }
-
-        private int GetDefaultActionCost(PlayerActionType actionType)
-        {
-            return actionType switch
-            {
                 PlayerActionType.SearchRoom => 2,
                 PlayerActionType.SearchFurniture => 1,
                 PlayerActionType.SearchCorpse => 1,
-                PlayerActionType.PickLock => 2,
-                PlayerActionType.DisarmTrap => 2,
+                PlayerActionType.HealOther => 1,
+                PlayerActionType.HealSelf => 2,
+                PlayerActionType.RearrangeGear => 2,
+                PlayerActionType.IdentifyItem => 0,
                 _ => 1,
             };
         }

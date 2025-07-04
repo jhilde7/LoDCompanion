@@ -32,6 +32,11 @@ namespace LoDCompanion.Services.Combat
                 return result;
             }
 
+            if (hero.IsVulnerableAfterPowerAttack)
+            {
+                return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot dodge!" };
+            }
+
             int dodgeSkill = hero.Dodge;
             if (hero.Stance == CombatStance.Parry)
             {
@@ -64,6 +69,11 @@ namespace LoDCompanion.Services.Combat
                 return result;
             }
 
+            if (hero.IsVulnerableAfterPowerAttack)
+            {
+                return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
+            }
+
             int roll = RandomHelper.RollDie("D100");
             if (roll >= 95) // Fumble on 95-100
             {
@@ -88,6 +98,12 @@ namespace LoDCompanion.Services.Combat
         public DefenseResult AttemptShieldParry(Hero hero, Shield shield, int incomingDamage)
         {
             var result = new DefenseResult();
+
+            if (hero.IsVulnerableAfterPowerAttack)
+            {
+                return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
+            }
+
             int parrySkill = hero.CombatSkill;
 
             if (hero.Stance == CombatStance.Parry)

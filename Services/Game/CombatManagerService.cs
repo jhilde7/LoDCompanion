@@ -6,6 +6,7 @@ using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
+using System.Threading;
 
 namespace LoDCompanion.Services.Game
 {
@@ -70,14 +71,20 @@ namespace LoDCompanion.Services.Game
         {
             Console.WriteLine("--- New Turn ---");
             MonstersThatHaveActedThisTurn.Clear();
-            // Reset AP for all heroes not on Overwatch
+
             foreach (var hero in HeroesInCombat)
             {
+                hero.IsVulnerableAfterPowerAttack = false;
                 if (hero.Stance != CombatStance.Overwatch)
                 {
                     hero.CurrentAP = hero.MaxAP;
                 }
             }
+            foreach (var monster in MonstersInCombat)
+            {
+                monster.CurrentAP = monster.MaxAP;
+            }
+
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
             ProcessNextInInitiative();
         }
@@ -105,9 +112,11 @@ namespace LoDCompanion.Services.Game
             {
                 // A hero gets to act. The UI would allow the player to choose an available hero.
                 // For now, we'll assume the player is now in control.
-                ActiveHero = HeroesInCombat.FirstOrDefault(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch);
+                ActiveHero = HeroesInCombat.First(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch);
                 if (ActiveHero != null)
                 {
+                    ActiveHero.IsVulnerableAfterPowerAttack = false;
+
                     // Process status effects at the start of the hero's turn
                     _statusEffect.ProcessStatusEffects(ActiveHero);
                     Console.WriteLine($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
@@ -128,6 +137,8 @@ namespace LoDCompanion.Services.Game
                 var monsterToAct = SelectMonsterToAct();
                 if (monsterToAct != null)
                 {
+                    monsterToAct.IsVulnerableAfterPowerAttack = false;
+
                     Console.WriteLine($"A monster ({monsterToAct.Name}) prepares to act...");
                     _statusEffect.ProcessStatusEffects(monsterToAct);
                     MonstersThatHaveActedThisTurn.Add(monsterToAct.Id);
@@ -160,7 +171,7 @@ namespace LoDCompanion.Services.Game
             // TODO: Implement the full activation order from PDF page 101.
             // (Magic Users -> Ranged -> Adjacent to make room -> etc.)
             // For now, we'll just pick the first available monster.
-            return MonstersInCombat.FirstOrDefault(m => m.CurrentHP > 0);
+            return MonstersInCombat.FirstOrDefault(m => m.CurrentHP > 0 && m.CurrentAP > 0);
         }
 
         public void ResolveMonsterAttack(Monster attacker, Hero target, int incomingDamage)
