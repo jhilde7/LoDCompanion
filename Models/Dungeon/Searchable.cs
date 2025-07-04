@@ -53,37 +53,19 @@ namespace LoDCompanion.Models.Dungeon
 
     public class Furniture : Searchable
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public bool IsObstacle { get; set; }
         public bool IsSearchable { get; set; }
-        public bool ContainsTreasure { get; set; }
+        public string SpecialRules { get; set; } = string.Empty ;
+        public bool CanBeClimbed { get; set; }
+        public bool HeightAdvantage { get; set; }
+        public bool NoEntry { get; set; }
 
         // Constructor for easy initialization
-        public Furniture(string name, string description, bool isObstacle = false, bool isSearchable = false, bool containsTreasure = false)
+        public Furniture()
         {
-            Name = name;
-            Description = description;
-            IsObstacle = isObstacle;
-            IsSearchable = isSearchable;
-            ContainsTreasure = containsTreasure;
-        }
 
-        // You might add methods here for interactions, e.g., Search() if it contains treasure.
-        public string Search()
-        {
-            if (IsSearchable && ContainsTreasure)
-            {
-                return $"You search the {Name} and find something!";
-            }
-            else if (IsSearchable && !ContainsTreasure)
-            {
-                return $"You search the {Name}, but find nothing.";
-            }
-            else
-            {
-                return $"The {Name} cannot be searched.";
-            }
         }
     }
 }
