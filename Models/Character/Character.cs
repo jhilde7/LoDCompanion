@@ -99,6 +99,7 @@ namespace LoDCompanion.Models.Character
         public int MaxAP { get; set; } = 2;
         public int CurrentAP { get; set; } = 2;
         public CombatStance Stance { get; set; } = CombatStance.Normal;
+        public bool HasDodgedThisBattle { get; set; } = false;
         public List<Spell> Spells { get; set; } = new List<Spell>();
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
         public int Coins { get; set; } = 150;

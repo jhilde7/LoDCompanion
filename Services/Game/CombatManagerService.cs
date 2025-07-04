@@ -14,6 +14,7 @@ namespace LoDCompanion.Services.Game
         private readonly MonsterCombatService _monsterCombat;
         private readonly PlayerActionService _playerAction;
         private readonly MonsterAIService _monsterAIService;
+        private readonly DefenseService _defenseService;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
@@ -27,6 +28,7 @@ namespace LoDCompanion.Services.Game
             HeroCombatService heroCombatService,
             MonsterCombatService monsterCombatService,
             PlayerActionService playerActionService,
+            DefenseService defenseService,
             MonsterAIService monsterAIService)
         {
             _initiative = initiativeService;
@@ -34,6 +36,7 @@ namespace LoDCompanion.Services.Game
             _monsterCombat = monsterCombatService;
             _playerAction = playerActionService;
             _monsterAIService = monsterAIService;
+            _defenseService = defenseService;
         }
 
 
@@ -42,6 +45,11 @@ namespace LoDCompanion.Services.Game
             HeroesInCombat = heroes;
             MonstersInCombat = monsters;
             UnwieldlyBonusUsed.Clear();
+
+            foreach (var hero in heroes)
+            {
+                hero.HasDodgedThisBattle = false;
+            }
 
             // Setup the initiative for the first turn.
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
@@ -147,6 +155,50 @@ namespace LoDCompanion.Services.Game
             // (Magic Users -> Ranged -> Adjacent to make room -> etc.)
             // For now, we'll just pick the first available monster.
             return MonstersInCombat.FirstOrDefault(m => m.CurrentHP > 0);
+        }
+
+        public void ResolveMonsterAttack(Monster attacker, Hero target, int incomingDamage)
+        {
+            Console.WriteLine($"{attacker.Name} attacks {target.Name}!");
+
+            // In a real UI, you would now ask the player if they want to Dodge or Parry.
+            // For this example, let's assume they try to dodge if they can.
+
+            DefenseResult defenseResult;
+
+            if (!target.HasDodgedThisBattle)
+            {
+                defenseResult = _defenseService.AttemptDodge(target);
+            }
+            else if (target.Shield != null)
+            {
+                defenseResult = _defenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
+            }
+            else
+            {
+                // No defense options available.
+                target.TakeDamage(incomingDamage);
+                Console.WriteLine($"The attack hits for {incomingDamage} damage!");
+                return;
+            }
+
+            Console.WriteLine(defenseResult.OutcomeMessage);
+
+            if (defenseResult.WasSuccessful)
+            {
+                int remainingDamage = incomingDamage - defenseResult.DamageNegated;
+                if (remainingDamage > 0)
+                {
+                    target.TakeDamage(remainingDamage);
+                    Console.WriteLine($"{target.Name} still takes {remainingDamage} damage!");
+                }
+            }
+            else
+            {
+                // The defense failed, so the hero takes full damage.
+                target.TakeDamage(incomingDamage);
+                Console.WriteLine($"The attack hits for {incomingDamage} damage!");
+            }
         }
 
         /// <summary>
