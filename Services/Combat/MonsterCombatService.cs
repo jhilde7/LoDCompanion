@@ -7,11 +7,128 @@ namespace LoDCompanion.Services.Combat
 {
     public class MonsterCombatService
     {
-        private readonly MonsterSpecialService _monsterSpecialService;
+        private readonly MonsterSpecialService _monsterSpecial;
+        private readonly DefenseService _defense;
 
-        public MonsterCombatService(MonsterSpecialService monsterSpecialService)
+        public MonsterCombatService(MonsterSpecialService monsterSpecialService, DefenseService defenseService)
         {
-            _monsterSpecialService = monsterSpecialService;
+            _monsterSpecial = monsterSpecialService;
+            _defense = defenseService;
+        }
+
+        /// <summary>
+        /// Resolves a monster's physical attack against a hero, including the hero's defense attempt.
+        /// </summary>
+        /// <param name="attacker">The attacking monster.</param>
+        /// <param name="target">The hero being attacked.</param>
+        /// <returns>An AttackResult object detailing the outcome.</returns>
+        public AttackResult ResolveAttack(Monster attacker, Hero target)
+        {
+            var result = new AttackResult();
+            var monsterWeapon = attacker.Weapons.FirstOrDefault(); // Assume the first weapon is used
+
+            // Step 1: Determine the monster's attack skill
+            int monsterAttackSkill = (monsterWeapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
+            result.ToHitChance = monsterAttackSkill;
+
+            // Step 2: Roll the attack
+            result.AttackRoll = RandomHelper.RollDie("D100");
+
+            // Step 3: Check if the monster's attack is successful
+            if (result.AttackRoll <= result.ToHitChance)
+            {
+                // The monster's attack connects! Now, the hero gets a chance to defend.
+                int potentialDamage = CalculatePotentialDamage(attacker, monsterWeapon);
+
+                // Step 4: Resolve Hero's Defense
+                // In a real UI, the player would choose to dodge or parry.
+                // For now, we'll prioritize dodging if available.
+                DefenseResult defenseResult;
+                if (!target.HasDodgedThisBattle)
+                {
+                    defenseResult = _defense.AttemptDodge(target);
+                }
+                else if (target.Shield != null)
+                {
+                    defenseResult = _defense.AttemptShieldParry(target, target.Shield, potentialDamage);
+                }
+                else
+                {
+                    // No defense options left.
+                    defenseResult = new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
+                }
+
+                result.OutcomeMessage = defenseResult.OutcomeMessage;
+
+                // Step 5: Calculate final damage after defense
+                if (defenseResult.WasSuccessful)
+                {
+                    // If a dodge or weapon parry was successful, all damage is negated.
+                    // If a shield parry was successful, some damage might get through.
+                    result.DamageDealt = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
+                }
+                else
+                {
+                    // Defense failed, full damage is applied.
+                    result.DamageDealt = potentialDamage;
+                }
+
+                if (result.DamageDealt > 0)
+                {
+                    // Apply armor reduction for the final damage calculation
+                    int finalDamage = ApplyArmor(target, result.DamageDealt, monsterWeapon);
+                    target.TakeDamage(finalDamage);
+                    result.OutcomeMessage += $"\n{target.Name} takes {finalDamage} damage!";
+                }
+                else
+                {
+                    result.OutcomeMessage += $"\n{target.Name} takes no damage!";
+                }
+            }
+            else
+            {
+                result.IsHit = false;
+                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calculates the raw damage of a monster's attack before armor and defense.
+        /// </summary>
+        private int CalculatePotentialDamage(Monster attacker, MonsterWeapon? weapon)
+        {
+            int damage = 0;
+            if (weapon != null)
+            {
+                damage = weapon.GetDamage(attacker.DamageBonus);
+            }
+            else
+            {
+                // Natural attack damage
+                damage = RandomHelper.GetRandomNumber(attacker.DamageArray[0], attacker.DamageArray[1]) + attacker.DamageBonus;
+            }
+            return damage;
+        }
+
+        /// <summary>
+        /// Applies hero's armor to the incoming damage.
+        /// </summary>
+        private int ApplyArmor(Hero target, int incomingDamage, MonsterWeapon? weapon)
+        {
+            int totalArmorValue = 0;
+            if (target.Armours != null)
+            {
+                // A real implementation would check the hit location from the PDF.
+                // For now, we'll sum all equipped armor.
+                totalArmorValue = target.Armours.Sum(a => a.DefValue);
+            }
+
+            int armourPiercing = weapon?.ArmourPiercing ?? 0;
+            int effectiveArmor = Math.Max(0, totalArmorValue - armourPiercing);
+
+            return Math.Max(0, incomingDamage - effectiveArmor);
         }
 
         /// <summary>
@@ -72,7 +189,7 @@ namespace LoDCompanion.Services.Combat
             {
                 // This would trigger specific monster special abilities
                 // The MonsterSpecialService would handle the effects
-                specialAttackMessage = _monsterSpecialService.TriggerRandomSpecialAttack(attacker, targetHero);
+                specialAttackMessage = _monsterSpecial.TriggerRandomSpecialAttack(attacker, targetHero);
             }
 
             return ($"{attacker.Name} attacks {targetHero.Name}! Roll: {hitRoll} (Needed {toHitValue}, Dodge {heroDodge}) -> {attackResult}. Damage: {damageDealt}. {specialAttackMessage}".Trim(), damageDealt);
@@ -199,8 +316,5 @@ namespace LoDCompanion.Services.Combat
 
             return damageAfterArmor;
         }
-
-        // The original GetHit method from MonsterCombat.cs seems to be integrated into ProcessPhysicalAttack
-        // and GetAction, as it relates to the roll for hitting. It doesn't need to be a separate public method.
     }
 }
