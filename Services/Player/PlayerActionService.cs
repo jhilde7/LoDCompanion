@@ -118,7 +118,7 @@ namespace LoDCompanion.Services.Player
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return false;
                     hero.Stance = CombatStance.Overwatch;
                     hero.CurrentAP = 0; // End the hero's turn
-                    resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.");
+                    resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
                     break;
             }
 

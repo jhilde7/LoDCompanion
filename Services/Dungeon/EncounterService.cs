@@ -25,7 +25,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="weaponTemplates">A dictionary of pre-defined weapon templates keyed by name.</param>
         /// <param name="currentDungeonEncounterType">Optional: The current dungeon's encounter type, used for recursive calls in certain cases (e.g., R20, R30).</param>
         /// <returns>A list of instantiated Monster objects for the encounter.</returns>
-        public List<Monster> GetEncounters(EncounterType type, Dictionary<string, Monster> monsterTemplates, Dictionary<string, MonsterWeapon> weaponTemplates, string? currentDungeonEncounterType = null)
+        public List<Monster> GetEncounters(EncounterType type, Dictionary<string, Monster> monsterTemplates, Dictionary<string, MonsterWeapon> weaponTemplates, EncounterType currentDungeonEncounterType = EncounterType.Beasts)
         {
             List<Monster> encounters = new List<Monster>();
             Monster monster; // Used temporarily for individual monster creation with additional properties

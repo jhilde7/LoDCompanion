@@ -56,6 +56,7 @@ builder.Services.AddScoped<TrapService>();
 builder.Services.AddScoped<TreasureService>();
 builder.Services.AddScoped<WanderingMonsterService>();
 builder.Services.AddScoped<GridService>();
+builder.Services.AddScoped<QuestService>();
 //Party
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();

@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.Services.GameData;
+using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Dungeon

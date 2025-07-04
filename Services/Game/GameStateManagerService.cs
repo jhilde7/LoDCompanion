@@ -58,5 +58,27 @@ namespace LoDCompanion.Services.Game
             GameState.CurrentDungeon = dungeon;
             // The save will be triggered by another action, like moving rooms.
         }
+
+        /// <summary>
+        /// Clears the current dungeon state after a quest is successfully completed.
+        /// </summary>
+        public void CompleteDungeon()
+        {
+            GameState.CurrentDungeon = null;
+            // Optionally, save the game here to persist the rewards and removed dungeon.
+            // await SaveGameAsync("In-Settlement");
+            NotifyStateChanged();
+        }
+
+        /// <summary>
+        /// Temporarily leaves the dungeon, for abandoning a quest.
+        /// </summary>
+        public void LeaveDungeon()
+        {
+            // This method is used when abandoning a quest. The saved state in local storage
+            // will still contain the dungeon progress. This just clears it for the current session.
+            GameState.CurrentDungeon = null;
+            NotifyStateChanged();
+        }
     }
 }

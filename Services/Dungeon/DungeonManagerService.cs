@@ -16,12 +16,14 @@ namespace LoDCompanion.Services.Dungeon
         private readonly RoomFactoryService _roomFactory;
         private readonly GameStateManagerService _gameManager;
         private readonly DungeonBuilderService _dungeonBuilder;
-        private readonly ThreatService _threatService;
-        private readonly LockService _lockService;
-        private readonly TrapService _trapService;
+        private readonly ThreatService _threat;
+        private readonly LockService _lock;
+        private readonly TrapService _trap;
         private readonly CombatManagerService _combatManager;
         private readonly PartyRestingService _partyResting;
-        private readonly LeverService _leverService;
+        private readonly LeverService _lever;
+        private readonly QuestService _quest;
+        private readonly GridService _grid;
         private readonly DungeonState _dungeonState;
         
         public Party? HeroParty => _dungeonState.HeroParty;
@@ -43,6 +45,8 @@ namespace LoDCompanion.Services.Dungeon
             TrapService trapService,
             PartyRestingService partyResting,
             LeverService leverService,
+            QuestService questService,
+            GridService gridService,
             CombatManagerService combatManager)
         {
             _gameData = gameData;
@@ -52,11 +56,13 @@ namespace LoDCompanion.Services.Dungeon
             _roomFactory = roomFactoryService;
             _gameManager = gameStateManager;
             _dungeonBuilder = dungeonBuilder;
-            _threatService = threatService;
-            _lockService = lockService;
-            _trapService = trapService;
+            _threat = threatService;
+            _lock = lockService;
+            _trap = trapService;
             _partyResting = partyResting;
-            _leverService = leverService;
+            _lever = leverService;
+            _quest = questService;
+            _grid = gridService;
             _combatManager = combatManager;
 
             _dungeonState = dungeonState;
@@ -73,8 +79,8 @@ namespace LoDCompanion.Services.Dungeon
             _dungeonState.WhenSpawnWanderingMonster = 5; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
-            var explorationDeck = _dungeonBuilder.CreateDungeonDeck(roomCount, corridorCount, objectiveRoom, new List<string>(), new List<string>());
-            _dungeonState.ExplorationDeck = new Queue<RoomInfo>(explorationDeck);
+            Queue<RoomInfo> explorationDeck = _dungeonBuilder.CreateDungeonDeck(roomCount, corridorCount, objectiveRoom, new List<string>(), new List<string>());
+            _dungeonState.ExplorationDeck = explorationDeck;
 
             // 3. Create and set the starting room
             _dungeonState.StartingRoom = _roomFactory.CreateRoom(startingRoomName);
@@ -108,7 +114,7 @@ namespace LoDCompanion.Services.Dungeon
             // This would be determined by checking if there are active monsters in the room.
             bool isInBattle = false;
 
-            var threatResult = _threatService.ProcessScenarioRoll(_dungeonState, isInBattle);
+            var threatResult = _threat.ProcessScenarioRoll(_dungeonState, isInBattle);
 
             if (threatResult != null)
             {
@@ -141,7 +147,7 @@ namespace LoDCompanion.Services.Dungeon
             if (door.IsOpen) return "The door is already open.";
 
             // Step 1: Increase Threat Level
-            _threatService.IncreaseThreat(_dungeonState, 1);
+            _threat.IncreaseThreat(_dungeonState, 1);
 
             // Step 2: Roll for Trap (d6)
             if (RandomHelper.RollDie("D6") == 6)
@@ -151,17 +157,17 @@ namespace LoDCompanion.Services.Dungeon
                 _dungeonState.CurrentRoom.CurrentTrap = trap;
 
                 // Step 3: Resolve Trap
-                if (!_trapService.DetectTrap(hero, trap))
+                if (!_trap.DetectTrap(hero, trap))
                 {
                     // Failed to detect, trap is sprung!
                     door.IsTrapped = false;
-                    return _trapService.TriggerTrap(hero, trap);
+                    return _trap.TriggerTrap(hero, trap);
                 }
                 else
                 {
                     // Trap detected. The UI would ask the player to disarm or trigger it.
                     // For now, we assume they attempt to disarm.
-                    if (!_trapService.DisarmTrap(hero, trap))
+                    if (!_trap.DisarmTrap(hero, trap))
                     {
                         return $"{hero.Name} failed to disarm the {trap.Name} and triggered it!";
                     }
@@ -226,7 +232,7 @@ namespace LoDCompanion.Services.Dungeon
                 return;
             }
 
-            int encounterChance = (newRoom.Type == "Room") ? 50 : 30;
+            int encounterChance = (newRoom.Category == RoomCategory.Room) ? 50 : 30;
 
             if (_dungeonState.RoomsWithoutEncounters >= 4)
             {
@@ -297,7 +303,7 @@ namespace LoDCompanion.Services.Dungeon
 
         public void WinBattle()
         {
-            _threatService.IncreaseThreat(_dungeonState, 1);
+            _threat.IncreaseThreat(_dungeonState, 1);
         }
 
         public void IncreaseThreat(int amount)
@@ -351,7 +357,7 @@ namespace LoDCompanion.Services.Dungeon
             bool partyHasClue = false; // party.Inventory.Any(item => item.Name == "Lever Clue");
 
             // Store the prepared deck in the DungeonState so the UI can interact with it.
-            _dungeonState.AvailableLevers = _leverService.PrepareLeverDeck(partyHasClue);
+            _dungeonState.AvailableLevers = _lever.PrepareLeverDeck(partyHasClue);
 
             Console.WriteLine($"Levers activated! {_dungeonState.AvailableLevers.Count} levers are available.");
         }
@@ -372,19 +378,52 @@ namespace LoDCompanion.Services.Dungeon
             _dungeonState.AvailableLevers.RemoveAt(leverIndex);
 
             // Resolve the event
-            var result = _leverService.PullLever(pulledLeverColor);
+            var result = _lever.PullLever(pulledLeverColor);
             Console.WriteLine($"Pulled a {result.LeverColor} lever! Event: {result.Description}");
 
             // Process the consequences of the event
             if (result.ThreatIncrease > 0)
             {
-                _threatService.IncreaseThreat(_dungeonState, result.ThreatIncrease);
+                _threat.IncreaseThreat(_dungeonState, result.ThreatIncrease);
             }
             if (result.ShouldSpawnWanderingMonster)
             {
                 if (_dungeonState.StartingRoom != null) _wanderingMonster.SpawnWanderingMonster(_dungeonState);
             }
             // ... handle other results like ShouldLockADoor, ShouldSpawnPortcullis, etc.
+        }
+
+        /// <summary>
+        /// Called when the party decides to leave the dungeon after completing their objective.
+        /// </summary>
+        public string FinishQuest()
+        {
+            if (!_quest.IsObjectiveComplete)
+            {
+                return "The quest objective is not yet complete. You cannot leave yet.";
+            }
+
+            if (_dungeonState.HeroParty == null) return "Error: No active party.";
+
+            // Grant rewards and get the aftermath message.
+            var resultMessage = _quest.GrantRewards(_dungeonState.HeroParty);
+
+            // Tell the GameStateManager to handle the post-quest state transition.
+            _gameManager.CompleteDungeon();
+
+            return resultMessage;
+        }
+
+        /// <summary>
+        /// Called when the party decides to leave the dungeon before completing the objective.
+        /// </summary>
+        public async Task<string> AbandonQuest()
+        {
+            // Per the rules, we simply save the current state to be resumed later.
+            await _gameManager.SaveGameAsync("In-Settlement"); // Or another appropriate location
+            _gameManager.LeaveDungeon(); // Clears the active dungeon from the game state for this session
+
+            return "You have abandoned the quest. Your progress has been saved, but the dungeon will be repopulated with new threats upon your return.";
         }
     }
 }
