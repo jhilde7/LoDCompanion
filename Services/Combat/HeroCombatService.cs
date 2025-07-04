@@ -1,17 +1,104 @@
 ﻿using LoDCompanion.Services.GameData;
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
+using LoDCompanion.Models.Character;
 
 namespace LoDCompanion.Services.Combat
 {
+    /// <summary>
+    /// Represents the result of a single attack action.
+    /// </summary>
+    public class AttackResult
+    {
+        public bool IsHit { get; set; }
+        public int DamageDealt { get; set; }
+        public string OutcomeMessage { get; set; } = string.Empty;
+        public int ToHitChance { get; set; }
+        public int AttackRoll { get; set; }
+    }
+
     public class HeroCombatService
     {
-        // This service should perform calculations, not hold the hero's state.
-        // Hero's state (HP, Energy, Skills, Weapons, etc.) should be passed in from the Hero object.
-
-        public HeroCombatService()
+        /// <summary>
+        /// Resolves a hero's attack against a monster, calculating the final to-hit chance and damage.
+        /// </summary>
+        public AttackResult ResolveAttack(Hero attacker, Monster target, Weapon weapon, CombatContext context)
         {
-            // Constructor for any initial setup, e.g., dependency injection for a random number generator
+            var result = new AttackResult();
+            bool isRanged = weapon is RangedWeapon;
+
+            // Step 1: Determine the base skill (CS or RS)
+            int baseSkill = isRanged ? attacker.RangedSkill : attacker.CombatSkill;
+
+            // Step 2: Calculate the final To-Hit chance using all modifiers
+            result.ToHitChance = CalculateToHitChance(baseSkill, target, weapon, context);
+
+            // Step 3: Roll the dice
+            result.AttackRoll = RandomHelper.RollDie("D100");
+
+            // Step 4: Determine if the attack hits
+            if (result.AttackRoll <= result.ToHitChance)
+            {
+                result.IsHit = true;
+                // Step 5: If it's a hit, calculate damage
+                result.DamageDealt = CalculateFinalDamage(attacker, target, weapon, context);
+                target.TakeDamage(result.DamageDealt);
+                result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {result.DamageDealt} damage!";
+            }
+            else
+            {
+                result.IsHit = false;
+                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calculates the final To-Hit chance based on the tables on page 99 of the combat PDF.
+        /// </summary>
+        private int CalculateToHitChance(int baseSkill, Monster target, Weapon weapon, CombatContext context)
+        {
+            int finalChance = baseSkill;
+            var targetWeapon = target.Weapons.First();
+
+            // --- Apply Modifiers from Tables ---
+            if (context.IsTargetProne) finalChance += 30;
+            if (context.IsAttackingFromBehind) finalChance += 20;
+            if (context.HasHeightAdvantage) finalChance += 10;
+            if (context.IsChargeAttack) finalChance += 10;
+            if (context.IsPowerAttack) finalChance += 20;
+            if (context.HasAimed) finalChance += 10;
+
+            if (target.IsLarge) finalChance += 10;
+            if (target.HasShield && !context.DidTargetUsePowerAttackLastTurn) finalChance -= 5;
+            if (context.IsTargetInParryStance) finalChance -= 10;
+
+            if (targetWeapon != null)
+            {
+                if (targetWeapon.Name == "Rapier") finalChance -= 5;
+                if (targetWeapon.IsSlow) finalChance += 5;
+                if (targetWeapon.IsBFO) finalChance += 5;
+                if (targetWeapon.Name == "Staff") finalChance -= 5;
+            }
+
+            // Ranged-specific modifiers
+            if (weapon is RangedWeapon)
+            {
+                finalChance -= (context.ObstaclesInLineOfSight * 10);
+                // The PDF refers to "Enemy Defence Value", which is the monster's Dodge stat.
+                finalChance -= target.Dodge;
+            }
+            else // Melee-specific modifiers
+            {
+                // The PDF refers to "Enemy 'To Hit' value", which is also the monster's Dodge stat.
+                if (!context.DidTargetUsePowerAttackLastTurn)
+                {
+                    finalChance -= target.ToHit;
+                }
+            }
+
+            return Math.Max(0, finalChance); // Chance cannot be negative
         }
 
         /// <summary>
@@ -23,74 +110,49 @@ namespace LoDCompanion.Services.Combat
         {
             return RandomHelper.GetRandomNumber(heroWeapon.MinDamage, heroWeapon.MaxDamage); ;
         }
-
+        
         /// <summary>
-        /// Calculates the weapon bonus for a melee attack.
-        /// </summary>
-        /// <param name="meleeWeapon">The melee weapon being used.</param>
-        /// <param name="heroTalents">The list of talents the hero possesses.</param>
-        /// <returns>The calculated bonus to the weapon's damage or to-hit.</returns>
-        public int CalculateMeleeWeaponBonus(MeleeWeapon meleeWeapon, List<Talent> heroTalents)
+         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
+         /// This method now incorporates the logic from the previous bonus calculation methods.
+         /// </summary>
+        private int CalculateFinalDamage(Hero attacker, Monster target, Weapon weapon, CombatContext context)
         {
-            int weaponBonus = 0;
+            // 1. Roll base weapon damage
+            int damage = weapon.RollDamage();
 
-            if (meleeWeapon == null)
+            // 2. Add hero's static damage bonus (from STR)
+            damage += attacker.DamageBonus;
+
+            // 3. Add bonuses from talents and equipment
+            if (weapon is MeleeWeapon meleeWeapon)
             {
-                return weaponBonus;
+                // Add +1 for Mighty Blow talent
+                if (attacker.Talents.Any(t => t.IsMightyBlow))
+                {
+                    damage += 1;
+                }
+                // Apply the Unwieldly bonus if the context flag is set.
+                if (context.ApplyUnwieldlyBonus)
+                {
+                    // Get the bonus value from the weapon's properties (e.g., 4 for the Morning Star)
+                    int bonus = meleeWeapon.GetPropertyValue(WeaponProperty.Unwieldly);
+                    damage += bonus;
+                    Console.WriteLine($"Unwieldly bonus applied: +{bonus} damage!");
+                }
+            }
+            else if (weapon is RangedWeapon rangedWeapon)
+            {
+                // Add +1 for Barbed ammo
+                if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SupuriorSlingStone)))
+                {
+                    damage += 1;
+                }
             }
 
-            // Check if hero has the "Mighty Blow" talent
-            if (heroTalents != null && heroTalents.Exists(t => t.IsMightyBlow))
-            {
-                weaponBonus += 1;
-            }
+            // 4. Subtract monster's armor
+            int finalDamage = Math.Max(0, damage - (target.ArmourValue + target.NaturalArmour));
 
-            // Note: The original code had `!meleeWeapon.isFirstHit` which seems like a combat state.
-            // This logic should perhaps be moved to the actual attack calculation method.
-            // For now, including as is, assuming 'isFirstHit' is a property of the weapon itself.
-            if (meleeWeapon.HasProperty(WeaponProperty.Unwieldly) /*&& !meleeWeapon.IsFirstHit*/) //move this to Combat state manager
-            {
-                weaponBonus -= 4;
-            }
-
-            return weaponBonus;
+            return finalDamage;
         }
-
-        /// <summary>
-        /// Calculates the weapon bonus for a ranged attack.
-        /// </summary>
-        /// <param name="rangedWeapon">The ranged weapon being used.</param>
-        /// <returns>The calculated bonus to the weapon's damage or to-hit.</returns>
-        public int CalculateRangedWeaponBonus(RangedWeapon rangedWeapon)
-        {
-            int weaponBonus = 0;
-
-            if (rangedWeapon == null)
-            {
-                return weaponBonus;
-            }
-
-            if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SupuriorSlingStone)))
-            {
-                weaponBonus = 1;
-            }
-
-            return weaponBonus;
-        }
-
-        // Add methods here to calculate total damage (DamageRoll + DamageBonus + WeaponBonus),
-        // to-hit rolls (CombatSkill/RangedSkill, modifiers like isBehindTarget, isCharge, isAiming),
-        // and other combat-related calculations.
-        // These methods would take the Hero object and specific combat context (e.g., target, range, active stance flags) as parameters.
-
-        // Example (conceptual, depends on full combat system):
-        // public int CalculateMeleeToHit(Hero hero, bool isBehindTarget, bool isCharge, bool isPowerAttack, bool isDualWield, bool hasHeightAdvantage, bool isParryStance)
-        // {
-        //     int toHit = hero.CombatSkill;
-        //     // Apply modifiers based on flags
-        //     if (isBehindTarget) toHit += 5; // Example bonus
-        //     // ... other modifiers
-        //     return toHit;
-        // }
     }
 }

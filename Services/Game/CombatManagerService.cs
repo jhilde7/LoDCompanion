@@ -185,6 +185,32 @@ namespace LoDCompanion.Services.Game
             }
         }
 
+        // This would be called by the UI when a hero performs an attack
+        public void HeroPerformsAttack(Hero hero, Monster target, Weapon weapon)
+        {
+            // 1. Create the combat context for this specific attack.
+            var context = new CombatContext();
+
+            // 2. Check if the Unwieldly bonus should be applied for this attack.
+            if (weapon is MeleeWeapon meleeWeapon && meleeWeapon.HasProperty(WeaponProperty.Unwieldly))
+            {
+                if (!UnwieldlyBonusUsed.Contains(hero.Id))
+                {
+                    context.ApplyUnwieldlyBonus = true;
+                }
+            }
+
+            // 3. Resolve the attack using the context.
+            var attackResult = _heroCombat.ResolveAttack(hero, target, weapon, context);
+            Console.WriteLine(attackResult.OutcomeMessage);
+
+            // 4. If the bonus was applied and the attack was a hit, record it.
+            if (context.ApplyUnwieldlyBonus && attackResult.IsHit)
+            {
+                UnwieldlyBonusUsed.Add(hero.Id);
+            }
+        }
+
         public int CalculateDamage(Hero attacker, MeleeWeapon weapon)
         {
             int totalDamage = 0; // Roll your base damage...

@@ -24,7 +24,8 @@ namespace LoDCompanion.Services.Player
         HealOther,
         RearrangeGear,
         IdentifyItem,
-        SetOverwatch
+        SetOverwatch,
+
     }
 
     /// <summary>
@@ -79,10 +80,16 @@ namespace LoDCompanion.Services.Player
             switch (actionType)
             {
                 case PlayerActionType.StandardAttack:
-                    if (primaryTarget is Monster monster)
+                    if (primaryTarget is Monster monster && hero.Weapons.First() is Weapon weapon)
                     {
-                        // _heroCombatService.PerformAttack(hero, monster);
-                        Console.WriteLine($"{hero.Name} attacks {monster.Name}.");
+                        // In a real game, the context would be built from the game state.
+                        var context = new CombatContext();
+                        var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context);
+                        resultMessage = attackResult.OutcomeMessage;
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target or no weapon equipped for attack.";
                     }
                     break;
 
@@ -113,7 +120,7 @@ namespace LoDCompanion.Services.Player
                         resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
                     break;
                 case PlayerActionType.SetOverwatch:
-                    var equippedWeapon = hero.Weapons.FirstOrDefault();
+                    var equippedWeapon = hero.Weapons.First();
                     if (equippedWeapon == null) return false;
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return false;
                     hero.Stance = CombatStance.Overwatch;

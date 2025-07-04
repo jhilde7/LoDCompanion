@@ -141,7 +141,7 @@
             else
             {
                 _availableStrengths = AlchemyService.GetPotionStrengths(_selectedPotion);
-                _newRecipe.Strength = _availableStrengths.FirstOrDefault();
+                _newRecipe.Strength = _availableStrengths.First();
             }
         }
         else

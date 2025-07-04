@@ -106,7 +106,7 @@ namespace LoDCompanion.Services.Game
             return heroes
                 .Where(h => monster.Position != null && h.Position != null)
                 .OrderBy(h => _gridService.GetDistance(monster.Position!, h.Position!))
-                .FirstOrDefault();
+                .First();
         }
     }
 }
