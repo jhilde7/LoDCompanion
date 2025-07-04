@@ -79,8 +79,8 @@ namespace LoDCompanion.Services.Dungeon
             _dungeonState.WhenSpawnWanderingMonster = 5; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
-            Queue<RoomInfo> explorationDeck = _dungeonBuilder.CreateDungeonDeck(roomCount, corridorCount, objectiveRoom, new List<string>(), new List<string>());
-            _dungeonState.ExplorationDeck = explorationDeck;
+            List<RoomInfo> explorationDeck = _dungeonBuilder.CreateDungeonDeck(roomCount, corridorCount, objectiveRoom, new List<string>(), new List<string>());
+            _dungeonState.ExplorationDeck = new Queue<RoomInfo>(explorationDeck);
 
             // 3. Create and set the starting room
             _dungeonState.StartingRoom = _roomFactory.CreateRoom(startingRoomName);
