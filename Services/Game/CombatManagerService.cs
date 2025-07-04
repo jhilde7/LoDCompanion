@@ -1,9 +1,11 @@
-﻿using LoDCompanion.Models.Character;
-using LoDCompanion.Models;
+﻿using LoDCompanion.Models;
+using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Combat;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Game
 {
@@ -13,8 +15,9 @@ namespace LoDCompanion.Services.Game
         private readonly HeroCombatService _heroCombat;
         private readonly MonsterCombatService _monsterCombat;
         private readonly PlayerActionService _playerAction;
-        private readonly MonsterAIService _monsterAIService;
-        private readonly DefenseService _defenseService;
+        private readonly MonsterAIService _monsterAI;
+        private readonly DefenseService _defense;
+        private readonly StatusEffectService _statusEffect;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
@@ -29,14 +32,16 @@ namespace LoDCompanion.Services.Game
             MonsterCombatService monsterCombatService,
             PlayerActionService playerActionService,
             DefenseService defenseService,
-            MonsterAIService monsterAIService)
+            MonsterAIService monsterAIService,
+            StatusEffectService statusEffectService)
         {
             _initiative = initiativeService;
             _heroCombat = heroCombatService;
             _monsterCombat = monsterCombatService;
             _playerAction = playerActionService;
-            _monsterAIService = monsterAIService;
-            _defenseService = defenseService;
+            _monsterAI = monsterAIService;
+            _defense = defenseService;
+            _statusEffect = statusEffectService;
         }
 
 
@@ -103,6 +108,8 @@ namespace LoDCompanion.Services.Game
                 ActiveHero = HeroesInCombat.FirstOrDefault(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch);
                 if (ActiveHero != null)
                 {
+                    // Process status effects at the start of the hero's turn
+                    _statusEffect.ProcessStatusEffects(ActiveHero);
                     Console.WriteLine($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
                     // The game now waits for UI input to call HeroPerformsAction(...).
                 }
@@ -119,29 +126,28 @@ namespace LoDCompanion.Services.Game
 
                 // Determine which monster acts based on activation order rules (PDF pg 101)
                 var monsterToAct = SelectMonsterToAct();
-                if (monsterToAct == null)
+                if (monsterToAct != null)
                 {
+                    Console.WriteLine($"A monster ({monsterToAct.Name}) prepares to act...");
+                    _statusEffect.ProcessStatusEffects(monsterToAct);
+                    MonstersThatHaveActedThisTurn.Add(monsterToAct.Id);
+                    var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
+
+                    if (interruptingHero != null)
+                    {
+                        Console.WriteLine($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
+                        // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterToAct);
+                        interruptingHero.Stance = CombatStance.Normal; // Overwatch is used up
+                    }
+                    else
+                    {
+                        // No interruption, so the monster performs its turn using the AI.
+                        // The 'new RoomService' is a placeholder for the actual current room state.
+                        _monsterAI.ExecuteMonsterTurn(monsterToAct, HeroesInCombat, new RoomService(new GameDataService()));
+                    }
+
                     ProcessNextInInitiative(); // No valid monsters left to act
                     return;
-                }
-                MonstersThatHaveActedThisTurn.Add(monsterToAct.Id);
-
-                Console.WriteLine($"A monster ({monsterToAct.Name}) prepares to act...");
-
-                // Check if a hero on Overwatch can interrupt the monster's action.
-                var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
-
-                if (interruptingHero != null)
-                {
-                    Console.WriteLine($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
-                    // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterToAct);
-                    interruptingHero.Stance = CombatStance.Normal; // Overwatch is used up
-                }
-                else
-                {
-                    // No interruption, so the monster performs its turn using the AI.
-                    // The 'new RoomService' is a placeholder for the actual current room state.
-                    _monsterAIService.ExecuteMonsterTurn(monsterToAct, HeroesInCombat, new RoomService(new GameDataService()));
                 }
 
                 // After the monster's turn is resolved, process the next actor in initiative.
@@ -168,11 +174,11 @@ namespace LoDCompanion.Services.Game
 
             if (!target.HasDodgedThisBattle)
             {
-                defenseResult = _defenseService.AttemptDodge(target);
+                defenseResult = _defense.AttemptDodge(target);
             }
             else if (target.Shield != null)
             {
-                defenseResult = _defenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
+                defenseResult = _defense.AttemptShieldParry(target, target.Shield, incomingDamage);
             }
             else
             {
@@ -240,10 +246,9 @@ namespace LoDCompanion.Services.Game
         // This would be called by the UI when a hero performs an attack
         public void HeroPerformsAttack(Hero hero, Monster target, Weapon weapon)
         {
-            // 1. Create the combat context for this specific attack.
             var context = new CombatContext();
+            context.ArmourPiercingValue = weapon.ArmourPiercing;
 
-            // 2. Check if the Unwieldly bonus should be applied for this attack.
             if (weapon is MeleeWeapon meleeWeapon && meleeWeapon.HasProperty(WeaponProperty.Unwieldly))
             {
                 if (!UnwieldlyBonusUsed.Contains(hero.Id))
@@ -252,9 +257,31 @@ namespace LoDCompanion.Services.Game
                 }
             }
 
-            // 3. Resolve the attack using the context.
             var attackResult = _heroCombat.ResolveAttack(hero, target, weapon, context);
             Console.WriteLine(attackResult.OutcomeMessage);
+
+            // --- Apply secondary status effects based on the context ---
+            if (attackResult.IsHit)
+            {
+                if (context.IsFireDamage)
+                {
+                    // Rule: Fire causes ongoing damage.
+                    _statusEffect.ApplyStatus(target, StatusEffectType.Burning, 1);
+                }
+                if (context.IsFrostDamage && RandomHelper.RollDie("D100") <= 50)
+                {
+                    // Rule: Frost has a 50% chance to stun.
+                    _statusEffect.ApplyStatus(target, StatusEffectType.Stunned, 1);
+                }
+                if (context.IsPoisonousAttack)
+                {
+                    _statusEffect.AttemptToApplyStatus(target, StatusEffectType.Poisoned);
+                }
+                if (context.CausesDisease)
+                {
+                    _statusEffect.AttemptToApplyStatus(target, StatusEffectType.Diseased);
+                }
+            }
 
             // 4. If the bonus was applied and the attack was a hit, record it.
             if (context.ApplyUnwieldlyBonus && attackResult.IsHit)

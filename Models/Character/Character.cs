@@ -1,4 +1,5 @@
 ﻿
+using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
@@ -25,6 +26,7 @@ namespace LoDCompanion.Models.Character
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
         public GridPosition? Position { get; set; }
+        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
 
         // Constructor (optional, but good practice for initialization)
         public Character()
@@ -68,7 +70,6 @@ namespace LoDCompanion.Models.Character
         public int? CurrentMana { get; set; }
         public int MaxSanity { get; set; } = 10;
         public int CurrentSanity { get; set; } = 10;
-        public List<string> Status { get; set; } = new List<string>(); // e.g., "Normal", "Poisoned", "Diseased"
 
         // Skills (could be part of a separate Skill collection if complex, but keeping here for now)
         public int PickLocksSkill { get; set; }

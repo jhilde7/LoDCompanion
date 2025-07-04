@@ -2,6 +2,7 @@
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Combat;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -117,16 +118,11 @@ namespace LoDCompanion.Services.Combat
          /// </summary>
         private int CalculateFinalDamage(Hero attacker, Monster target, Weapon weapon, CombatContext context)
         {
-            // 1. Roll base weapon damage
             int damage = weapon.RollDamage();
-
-            // 2. Add hero's static damage bonus (from STR)
             damage += attacker.DamageBonus;
-
-            // 3. Add bonuses from talents and equipment
+            
             if (weapon is MeleeWeapon meleeWeapon)
             {
-                // Add +1 for Mighty Blow talent
                 if (attacker.Talents.Any(t => t.IsMightyBlow))
                 {
                     damage += 1;
@@ -142,15 +138,34 @@ namespace LoDCompanion.Services.Combat
             }
             else if (weapon is RangedWeapon rangedWeapon)
             {
-                // Add +1 for Barbed ammo
                 if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SupuriorSlingStone)))
                 {
                     damage += 1;
                 }
             }
 
-            // 4. Subtract monster's armor
-            int finalDamage = Math.Max(0, damage - (target.ArmourValue + target.NaturalArmour));
+            int finalDamage;
+            int targetArmor = target.ArmourValue;
+            int targetNaturalArmor = target.NaturalArmour;
+
+            // Apply Armour Piercing from the context
+            targetArmor = Math.Max(0, targetArmor - context.ArmourPiercingValue);
+
+            if (context.IsFireDamage)
+            {
+                // Rule: "Fire Damage will ignore both NA and armour."
+                finalDamage = damage;
+            }
+            else if (context.IsAcidicDamage)
+            {
+                // Rule: "Acidic Damage... will ignore NA."
+                finalDamage = Math.Max(0, damage - targetArmor);
+            }
+            else // This includes Frost and standard Physical damage
+            {
+                // Rule: Standard damage calculation.
+                finalDamage = Math.Max(0, damage - (targetArmor + targetNaturalArmor));
+            }
 
             return finalDamage;
         }

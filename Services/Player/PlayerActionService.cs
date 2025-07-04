@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.Models;
+using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;

@@ -1,4 +1,4 @@
-﻿namespace LoDCompanion.Models
+﻿namespace LoDCompanion.Models.Combat
 {
     public class CombatContext
     {
@@ -6,6 +6,12 @@
         public bool IsAttackingFromBehind { get; set; }
         public bool HasHeightAdvantage { get; set; }
         public bool IsTargetProne { get; set; }
+        public bool IsFireDamage { get; set; } = false;
+        public bool IsAcidicDamage { get; set; } = false;
+        public bool IsFrostDamage { get; set; } = false;
+        public bool IsPoisonousAttack { get; set; } = false;
+        public bool CausesDisease { get; set; } = false;
+        public int ArmourPiercingValue { get; set; } = 0;
 
         // Melee Specific Modifiers
         public bool IsChargeAttack { get; set; }
