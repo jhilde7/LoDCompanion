@@ -12,6 +12,7 @@ namespace LoDCompanion.Services.Player
     {
         Dungeon,
         Wilderness
+
     }
 
     /// <summary>
