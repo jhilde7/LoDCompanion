@@ -1,0 +1,50 @@
+﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Models;
+using LoDCompanion.Services.GameData;
+using LoDCompanion.Utilities;
+
+namespace LoDCompanion.Services.Game
+{
+    public class IdentificationService
+    {
+        public IdentificationService() { }
+
+        /// <summary>
+        /// Attempts to identify an item using the hero's relevant skill.
+        /// </summary>
+        public string IdentifyItem(Hero hero, Equipment item)
+        {
+            int skillValue;
+            string skillUsed;
+
+            if (item is Potion)
+            {
+                skillValue = hero.AlchemySkill;
+                skillUsed = "Alchemy";
+            }
+            else if (!string.IsNullOrEmpty(item.MagicEffect))
+            {
+                skillValue = hero.ArcaneArtsSkill;
+                skillUsed = "Arcane Arts";
+            }
+            else
+            {
+                return $"{item.Name} does not appear to be magical and does not need to be identified.";
+            }
+
+            // Example difficulty - this could be based on the item's level or rarity.
+            int difficulty = 50;
+            int roll = RandomHelper.RollDie("D100");
+
+            if (roll <= skillValue - difficulty)
+            {
+                // In a real implementation, you would set an "IsIdentified = true" flag on the item.
+                return $"{hero.Name} successfully identified the {item.Name} using {skillUsed}!";
+            }
+            else
+            {
+                return $"{hero.Name} failed to discern the properties of the {item.Name}.";
+            }
+        }
+    }
+}

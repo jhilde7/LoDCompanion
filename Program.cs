@@ -60,6 +60,9 @@ builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<PartyRestingService>();
 builder.Services.AddScoped<PlayerActionService>();
+builder.Services.AddScoped<HealingService>();
+builder.Services.AddScoped<InventoryService>();
+builder.Services.AddScoped<IdentificationService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddBlazoredLocalStorage();

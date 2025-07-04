@@ -1,7 +1,9 @@
-﻿using LoDCompanion.Models.Character;
+﻿using LoDCompanion.Models;
+using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Player
 {
@@ -14,11 +16,14 @@ namespace LoDCompanion.Services.Player
         Move,
         SearchRoom,
         SearchFurniture,
+        SearchCorpse,
         OpenDoor,
         PickLock,
         DisarmTrap,
         HealSelf,
-        HealOther
+        HealOther,
+        RearrangeGear,
+        IdentifyItem
     }
 
     /// <summary>
@@ -27,13 +32,26 @@ namespace LoDCompanion.Services.Player
     public class PlayerActionService
     {
         private readonly DungeonManagerService _dungeonManager;
-        private readonly HeroCombatService _heroCombatService;
-        // Inject other services as needed
+        private readonly HeroCombatService _heroCombat;
+        private readonly SearchService _search;
+        private readonly HealingService _healing;
+        private readonly InventoryService _inventory;
+        private readonly IdentificationService _identification;
 
-        public PlayerActionService(DungeonManagerService dungeonManager, HeroCombatService heroCombatService)
+        public PlayerActionService(
+            DungeonManagerService dungeonManagerService, 
+            HeroCombatService heroCombatService,
+            SearchService searchService,
+            HealingService healingService,
+            InventoryService inventoryService,
+            IdentificationService identificationService)
         {
-            _dungeonManager = dungeonManager;
-            _heroCombatService = heroCombatService;
+            _dungeonManager = dungeonManagerService;
+            _heroCombat = heroCombatService;
+            _search = searchService;
+            _healing = healingService;
+            _inventory = inventoryService;
+            _identification = identificationService;
         }
 
         /// <summary>
@@ -43,7 +61,7 @@ namespace LoDCompanion.Services.Player
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public bool PerformAction(Hero hero, PlayerActionType actionType, object? target = null)
+        public bool PerformAction(Hero hero, PlayerActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
             int apCost = GetActionCost(actionType);
             if (hero.CurrentAP < apCost)
@@ -55,11 +73,12 @@ namespace LoDCompanion.Services.Player
             // Deduct AP before performing the action
             hero.CurrentAP -= apCost;
 
+            string resultMessage = $"{hero.Name} performed {actionType}.";
             // Execute the action logic
             switch (actionType)
             {
                 case PlayerActionType.StandardAttack:
-                    if (target is Monster monster)
+                    if (primaryTarget is Monster monster)
                     {
                         // _heroCombatService.PerformAttack(hero, monster);
                         Console.WriteLine($"{hero.Name} attacks {monster.Name}.");
@@ -72,16 +91,26 @@ namespace LoDCompanion.Services.Player
                     break;
 
                 case PlayerActionType.OpenDoor:
-                    if (target is DoorChest door)
+                    if (primaryTarget is DoorChest door)
                     {
                         _dungeonManager.InteractWithDoor(door, hero);
                     }
                     break;
-
-                    // Add cases for other actions here...
-                    // case PlayerActionType.SearchRoom:
-                    //     _dungeonManager.SearchCurrentRoom(hero);
-                    //     break;
+                case PlayerActionType.HealSelf:
+                    resultMessage = _healing.ApplyBandage(hero, hero);
+                    break;
+                case PlayerActionType.HealOther:
+                    if (primaryTarget is Hero targetHero)
+                        resultMessage = _healing.ApplyBandage(hero, targetHero);
+                    break;
+                case PlayerActionType.RearrangeGear:
+                    if (primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
+                        resultMessage = _inventory.RearrangeItem(hero, item, slots.Item1, slots.Item2);
+                    break;
+                case PlayerActionType.IdentifyItem:
+                    if (primaryTarget is Equipment itemToIdentify)
+                        resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
+                    break;
             }
 
             Console.WriteLine($"{hero.Name} performed {actionType}. {hero.CurrentAP} AP remaining.");
@@ -104,6 +133,21 @@ namespace LoDCompanion.Services.Player
                 PlayerActionType.PickLock => 2,
                 PlayerActionType.DisarmTrap => 2,
                 PlayerActionType.HealSelf => 2,
+                PlayerActionType.RearrangeGear => 2,
+                PlayerActionType.IdentifyItem => 0,
+                _ => 1,
+            };
+        }
+
+        private int GetDefaultActionCost(PlayerActionType actionType)
+        {
+            return actionType switch
+            {
+                PlayerActionType.SearchRoom => 2,
+                PlayerActionType.SearchFurniture => 1,
+                PlayerActionType.SearchCorpse => 1,
+                PlayerActionType.PickLock => 2,
+                PlayerActionType.DisarmTrap => 2,
                 _ => 1,
             };
         }
