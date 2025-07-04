@@ -2,6 +2,8 @@
 using LoDCompanion.Models;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Player;
+using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Game
 {
@@ -11,9 +13,11 @@ namespace LoDCompanion.Services.Game
         private readonly HeroCombatService _heroCombat;
         private readonly MonsterCombatService _monsterCombat;
         private readonly PlayerActionService _playerAction;
+        private readonly MonsterAIService _monsterAIService;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
+        private List<string> MonstersThatHaveActedThisTurn = new List<string>();
         private Hero? ActiveHero;
         // This set will store the unique ID of each character who has used their Unwieldly bonus in this combat.
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();        
@@ -22,12 +26,14 @@ namespace LoDCompanion.Services.Game
             InitiativeService initiativeService,
             HeroCombatService heroCombatService,
             MonsterCombatService monsterCombatService,
-            PlayerActionService playerActionService)
+            PlayerActionService playerActionService,
+            MonsterAIService monsterAIService)
         {
             _initiative = initiativeService;
             _heroCombat = heroCombatService;
             _monsterCombat = monsterCombatService;
             _playerAction = playerActionService;
+            _monsterAIService = monsterAIService;
         }
 
 
@@ -45,6 +51,25 @@ namespace LoDCompanion.Services.Game
         }
 
         /// <summary>
+        /// Sets up a new turn by resetting AP and preparing the initiative bag.
+        /// </summary>
+        private void StartNewTurn()
+        {
+            Console.WriteLine("--- New Turn ---");
+            MonstersThatHaveActedThisTurn.Clear();
+            // Reset AP for all heroes not on Overwatch
+            foreach (var hero in HeroesInCombat)
+            {
+                if (hero.Stance != CombatStance.Overwatch)
+                {
+                    hero.CurrentAP = hero.MaxAP;
+                }
+            }
+            _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
+            ProcessNextInInitiative();
+        }
+
+        /// <summary>
         /// Processes the next actor in the initiative order.
         /// </summary>
         public void ProcessNextInInitiative()
@@ -57,50 +82,71 @@ namespace LoDCompanion.Services.Game
 
             if (_initiative.IsTurnOver())
             {
-                Console.WriteLine("--- New Turn ---");
-                _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
+                StartNewTurn();
+                return;
             }
 
             var nextActorType = _initiative.DrawNextToken();
 
             if (nextActorType == ActorType.Hero)
             {
-                // In a real UI, you would prompt the player to choose which hero acts.
-                // For now, we'll pick the first available hero who hasn't acted this turn.
-                ActiveHero = HeroesInCombat.FirstOrDefault(h => h.CurrentAP > 0); // Simplified logic
+                // A hero gets to act. The UI would allow the player to choose an available hero.
+                // For now, we'll assume the player is now in control.
+                ActiveHero = HeroesInCombat.FirstOrDefault(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch);
                 if (ActiveHero != null)
                 {
-                    ActiveHero.CurrentAP = ActiveHero.MaxAP; // Reset AP at the start of their turn
                     Console.WriteLine($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
-                    // The game would now wait for player input to call _playerActionService.PerformAction(...)
+                    // The game now waits for UI input to call HeroPerformsAction(...).
+                }
+                else
+                {
+                    // This can happen if all non-Overwatch heroes have used their AP.
+                    ProcessNextInInitiative();
                 }
             }
             else // It's a Monster's turn
             {
                 ActiveHero = null; // No hero is active
                 Console.WriteLine("A monster acts!");
-                // Before the monster acts, check if any hero on Overwatch can interrupt.
-                // This is a simplified check. A full implementation would need monster and hero positions.
-                var monsterTarget = MonstersInCombat.First(m => m.CurrentHP > 0); // Simplified: first monster acts
-                var interruptingHero = CheckForOverwatchInterrupt(monsterTarget);
+
+                // Determine which monster acts based on activation order rules (PDF pg 101)
+                var monsterToAct = SelectMonsterToAct();
+                if (monsterToAct == null)
+                {
+                    ProcessNextInInitiative(); // No valid monsters left to act
+                    return;
+                }
+                MonstersThatHaveActedThisTurn.Add(monsterToAct.Id);
+
+                Console.WriteLine($"A monster ({monsterToAct.Name}) prepares to act...");
+
+                // Check if a hero on Overwatch can interrupt the monster's action.
+                var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
 
                 if (interruptingHero != null)
                 {
-                    Console.WriteLine($"{interruptingHero.Name} on Overwatch interrupts {monsterTarget.Name}'s action!");
-                    // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterTarget);
-
-                    // After the interrupt, the monster might be dead or its action cancelled.
-                    // For now, we'll assume the monster's turn is consumed by the interruption.
+                    Console.WriteLine($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
+                    // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterToAct);
+                    interruptingHero.Stance = CombatStance.Normal; // Overwatch is used up
                 }
                 else
                 {
-                    // No interruption, the monster performs its action as normal.
-                    // Monster AI logic would go here.
+                    // No interruption, so the monster performs its turn using the AI.
+                    // The 'new RoomService' is a placeholder for the actual current room state.
+                    _monsterAIService.ExecuteMonsterTurn(monsterToAct, HeroesInCombat, new RoomService(new GameDataService()));
                 }
 
-                // After the monster acts (or is interrupted), process the next actor.
+                // After the monster's turn is resolved, process the next actor in initiative.
                 ProcessNextInInitiative();
             }
+        }
+
+        private Monster? SelectMonsterToAct()
+        {
+            // TODO: Implement the full activation order from PDF page 101.
+            // (Magic Users -> Ranged -> Adjacent to make room -> etc.)
+            // For now, we'll just pick the first available monster.
+            return MonstersInCombat.FirstOrDefault(m => m.CurrentHP > 0);
         }
 
         /// <summary>

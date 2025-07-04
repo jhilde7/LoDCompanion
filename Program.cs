@@ -69,6 +69,7 @@ builder.Services.AddScoped<IdentificationService>();
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<GameStateManagerService>();
+builder.Services.AddScoped<MonsterAIService>();
 
 var app = builder.Build();
 

@@ -204,6 +204,15 @@ namespace LoDCompanion.Models.Character
             return null; // No weapon equipped
         }
     }
+
+    public enum MonsterBehaviorType
+    {
+        HumanoidMelee,
+        Ranged,
+        MagicUser,
+        Beast
+    }
+
     public class Monster : Character // Inherit from the new Character base class
     {
         private readonly GameDataService _gameData;
@@ -225,6 +234,7 @@ namespace LoDCompanion.Models.Character
         public Corpse Body { get; set; }
         public string TreasureType { get; set; } = "-"; // Default value indicating no treasure type assigned
         public List<string> Treasures { get; set; } = new List<string>();
+        public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
 
         public Monster(GameDataService gameData) : base()
         {
