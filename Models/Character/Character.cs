@@ -23,7 +23,8 @@ namespace LoDCompanion.Models.Character
         public int Dodge { get; set; }
         public int Level { get; set; }
         public int NaturalArmour { get; set; }
-        public int DamageBonus { get; set; } // Bonus damage from Strength or other sources
+        public int DamageBonus { get; set; }
+        public GridPosition? Position { get; set; }
 
         // Constructor (optional, but good practice for initialization)
         public Character()

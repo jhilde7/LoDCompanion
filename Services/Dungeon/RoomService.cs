@@ -16,14 +16,14 @@ namespace LoDCompanion.Services.Dungeon
         public bool IsStartingTile { get; set; }
         public bool IsObjectiveRoom { get; set; }
         public bool HasLevers { get; set; } // Flag, actual lever logic in a service
-        public string Type { get; set; } = "Room"; // Default type, can be "Room" or "Corridor"
+        public RoomCategory Category { get; set; } = RoomCategory.Room; // Default type, can be "Room" or "Corridor"
         public string Description { get; set; } = string.Empty;
-        public string? Special { get; set; }
+        public string SpecialRules { get; set; } = string.Empty;
         public bool HasSpecial { get; set; }
         public bool ActivateSpecial { get; set; } // Trigger for special room effects, handled by a service
-        public int ThreatLevelModifier { get; set; } = 0;
-        public int PartyMoraleModifier { get; set; } = 0;
-        public int[][] Size { get; set; } = new int[2][]; // Represents width/length or dimensions
+        public int ThreatLevelModifier { get; set; }
+        public int PartyMoraleModifier { get; set; }
+        public int[] Size { get; set; } = new int[2]; // Represents width/length or dimensions
         public List<DoorChest> Doors { get; set; } = new List<DoorChest>();
         public bool IsDeadEnd { get; set; }
         public List<Furniture> FurnitureList { get; set; } = new List<Furniture>(); // List of furniture types in the room
@@ -37,10 +37,13 @@ namespace LoDCompanion.Services.Dungeon
         public bool SearchRoomTrigger { get; set; } // Trigger for room search, handled by a service
         public int SearchRoll { get; set; } = 0;
         public int TreasureRoll { get; set; } = 0;
-        public Trap CurrentTrap { get; set; } = new Trap("No Trap", 0, 0, ""); // Default trap, no trap present initially
+        public Trap CurrentTrap { get; set; } = new Trap("No Trap", 0, 0, string.Empty); // Default trap, no trap present initially
         public List<string> SearchResults { get; set; } = new List<string>();
         public List<RoomService> ConnectedRooms { get; set; } = new List<RoomService>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
+        public List<GridSquare> Grid { get; set; } = new List<GridSquare>();
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         // Constructor for creating a RoomCorridor instance
         public RoomService(GameDataService gameData)
@@ -53,19 +56,19 @@ namespace LoDCompanion.Services.Dungeon
         /// This method would be called by a RoomFactoryService.
         /// </summary>
         /// <param name="roomInfo">The data object containing room definitions.</param>
-        public void InitializeRoomData(RoomService roomInfo)
+        public void InitializeRoomData(RoomInfo roomInfo)
         {
             // Basic Information
-            RoomName = roomInfo.RoomName;
-            Type = roomInfo.Type;
-            Description = roomInfo.Description;
-            Special = roomInfo.Special;
-            HasSpecial = roomInfo.HasSpecial; // Assuming RoomInfo also has this flag
+            RoomName = roomInfo.Name ?? string.Empty;
+            Category = roomInfo.Category;
+            Description = roomInfo.Description ?? string.Empty;
+            SpecialRules = roomInfo.SpecialRules ?? string.Empty;
+            HasSpecial = roomInfo.HasSpecial;
 
             // Stats
             ThreatLevelModifier = roomInfo.ThreatLevelModifier;
             PartyMoraleModifier = roomInfo.PartyMoraleModifier;
-            Size = roomInfo.Size ?? new int[2][];
+            Size = roomInfo.Size ?? new int[] { 1, 1 };
 
             // Furniture
             FurnitureList = roomInfo.FurnitureList ?? new List<Furniture>();
@@ -139,7 +142,7 @@ namespace LoDCompanion.Services.Dungeon
 
             SearchRoll = RandomHelper.GetRandomNumber(1, 100);
 
-            if (Type == "Corridor")
+            if (Category == RoomCategory.Corridor)
             {
                 SearchRoll += 10; // Corridor search bonus
             }
@@ -303,75 +306,6 @@ namespace LoDCompanion.Services.Dungeon
             // Update the actual Doors list of this RoomCorridor instance  
             Doors = workingDoors;
             ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors  
-        }
-    }
-
-    public enum RoomCategory
-    {
-        None,
-        Room,
-        Corridor
-    }
-
-    public class RoomInfo
-    {
-        public string? Name { get; set; }
-        public RoomCategory Category { get; set; } = RoomCategory.None;
-        public string? Description { get; set; }
-        public string? SpecialRules { get; set; }
-        public int? ThreatLevelModifier { get; set; }
-        public int? PartyMoraleModifier { get; set; }
-        public int[]? Size { get; set; }
-        public int? DoorCount { get; set; }
-        public List<string>? FurnitureList { get; set; }
-        public int? EncounterModifier { get; set; }
-        public string? EncounterType { get; set; }
-        public bool HasLevers { get; set; }
-        public bool RandomEncounter { get; set; }
-        public bool HasSpecial { get; set; }
-
-        public RoomInfo()
-        {
-
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"--- Room: {Name} [{Category}] ---");
-            if (Size != null && Size.Length == 2)
-            {
-                sb.Append($"Size: {Size[0]}x{Size[1]} | ");
-            }
-            if (DoorCount.HasValue)
-            {
-                sb.Append($"Doors: {DoorCount} | ");
-            }
-            sb.AppendLine($"Random Encounter: {RandomEncounter}");
-
-            if (!string.IsNullOrEmpty(Description))
-            {
-                sb.AppendLine($"Description: {Description}");
-            }
-            if (FurnitureList != null && FurnitureList.Any())
-            {
-                sb.AppendLine($"Furniture: {string.Join(", ", FurnitureList)}");
-            }
-            if (!string.IsNullOrEmpty(SpecialRules))
-            {
-                sb.AppendLine($"Special Rules: {SpecialRules}");
-            }
-
-            var modifiers = new List<string>();
-            if (ThreatLevelModifier.HasValue) modifiers.Add($"Threat: {ThreatLevelModifier.Value:+#;-#;0}");
-            if (PartyMoraleModifier.HasValue) modifiers.Add($"Morale: {PartyMoraleModifier.Value:+#;-#;0}");
-            if (EncounterModifier.HasValue) modifiers.Add($"Encounter: {EncounterModifier.Value:+#;-#;0}");
-            if (modifiers.Any())
-            {
-                sb.AppendLine($"Modifiers: {string.Join(" | ", modifiers)}");
-            }
-
-            return sb.ToString();
         }
     }
 }
