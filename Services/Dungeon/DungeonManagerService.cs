@@ -154,7 +154,10 @@ namespace LoDCompanion.Services.Dungeon
             {
                 door.IsTrapped = true;
                 var trap = Trap.GetRandomTrap(); // A new trap is generated
-                _dungeonState.CurrentRoom.CurrentTrap = trap;
+                if (_dungeonState.CurrentRoom != null)
+                {
+                    _dungeonState.CurrentRoom.CurrentTrap = trap;
+                }
 
                 // Step 3: Resolve Trap
                 if (!_trap.DetectTrap(hero, trap))
@@ -208,9 +211,9 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         private void RevealNextRoom()
         {
-            if (_dungeonState.ExplorationDeck.TryDequeue(out RoomInfo nextRoomInfo))
+            if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out RoomInfo? nextRoomInfo) && nextRoomInfo != null)
             {
-                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name);
+                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
                     _dungeonState.CurrentRoom = newRoom;
@@ -266,7 +269,14 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     PlaceMonsters(monsters, newRoom);
                     // Hand off to the CombatManager to start the battle
-                    _combatManager.StartCombat(_dungeonState.HeroParty.Heroes, monsters);
+                    if (_dungeonState.HeroParty != null && _dungeonState.HeroParty.Heroes != null)
+                    {
+                        _combatManager.StartCombat(_dungeonState.HeroParty.Heroes, monsters);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Hero party is not initialized.");
+                    }
                 }
             }
             else

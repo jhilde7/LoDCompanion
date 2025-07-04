@@ -41,7 +41,9 @@ namespace LoDCompanion.Services.Dungeon
         private List<RoomInfo> BuildRoomList(int count, List<string> excludedRooms)
         {
             var rooms = new List<RoomInfo>();
-            var availableRooms = _gameData.RoomInfo.Where(r => r.Category == RoomCategory.Room && !excludedRooms.Contains(r.Name)).ToList();
+            var availableRooms = _gameData.RoomInfo
+                .Where(r => r.Category == RoomCategory.Room && !excludedRooms.Contains(r.Name ?? string.Empty))
+                .ToList();
 
             for (int i = 0; i < count; i++)
             {
@@ -58,7 +60,9 @@ namespace LoDCompanion.Services.Dungeon
         private List<RoomInfo> BuildCorridorList(int count, List<string> excludedCorridors)
         {
             var corridors = new List<RoomInfo>();
-            var availableCorridors = _gameData.RoomInfo.Where(r => r.Category == RoomCategory.Corridor && !excludedCorridors.Contains(r.Name)).ToList();
+            var availableCorridors = _gameData.RoomInfo
+                .Where(r => r.Category == RoomCategory.Corridor && !excludedCorridors.Contains(r.Name ?? string.Empty))
+                .ToList();
 
             for (int i = 0; i < count; i++)
             {
