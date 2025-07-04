@@ -18,15 +18,49 @@ namespace LoDCompanion.Services.Combat
         }
 
         /// <summary>
+        /// Resolves a monster's standard attack against a hero.
+        /// </summary>
+        public AttackResult PerformStandardAttack(Monster attacker, Hero target)
+        {
+            var context = new CombatContext(); // Standard attack has a default context
+            return ResolveAttack(attacker, target, context);
+        }
+
+        /// <summary>
+        /// Resolves a monster's Power Attack, which grants +20 CS.
+        /// </summary>
+        public AttackResult PerformPowerAttack(Monster attacker, Hero target)
+        {
+            var context = new CombatContext { IsPowerAttack = true };
+            Console.WriteLine($"{attacker.Name} uses a Power Attack!");
+            return ResolveAttack(attacker, target, context);
+        }
+
+        /// <summary>
+        /// Resolves a monster's Charge Attack, which grants +10 CS.
+        /// </summary>
+        public AttackResult PerformChargeAttack(Monster attacker, Hero target)
+        {
+            var context = new CombatContext { IsChargeAttack = true };
+            Console.WriteLine($"{attacker.Name} charges {target.Name}!");
+            return ResolveAttack(attacker, target, context);
+        }
+
+        /// <summary>
         /// Resolves a monster's physical attack against a hero, including the hero's defense attempt.
         /// </summary>
         /// <param name="attacker">The attacking monster.</param>
         /// <param name="target">The hero being attacked.</param>
         /// <returns>An AttackResult object detailing the outcome.</returns>
-        public AttackResult ResolveAttack(Monster attacker, Hero target)
+        public AttackResult ResolveAttack(Monster attacker, Hero target, CombatContext context)
         {
             var result = new AttackResult();
             var monsterWeapon = attacker.Weapons.First();
+
+            // Calculate To-Hit Chance
+            int toHitChance = attacker.CombatSkill;
+            if (context.IsPowerAttack) toHitChance += 20;
+            if (context.IsChargeAttack) toHitChance += 10;
 
             int monsterAttackSkill = (monsterWeapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
             result.ToHitChance = monsterAttackSkill;
@@ -152,25 +186,6 @@ namespace LoDCompanion.Services.Combat
                 return weapon.GetDamage(attacker.DamageBonus);
             }
             return RandomHelper.GetRandomNumber(attacker.DamageArray[0], attacker.DamageArray[1]) + attacker.DamageBonus;
-        }
-
-        /// <summary>
-        /// Applies hero's armor to the incoming damage.
-        /// </summary>
-        private int ApplyArmor(Hero target, int incomingDamage, MonsterWeapon? weapon)
-        {
-            int totalArmorValue = 0;
-            if (target.Armours != null)
-            {
-                // A real implementation would check the hit location from the PDF.
-                // For now, we'll sum all equipped armor.
-                totalArmorValue = target.Armours.Sum(a => a.DefValue);
-            }
-
-            int armourPiercing = weapon?.ArmourPiercing ?? 0;
-            int effectiveArmor = Math.Max(0, totalArmorValue - armourPiercing);
-
-            return Math.Max(0, incomingDamage - effectiveArmor);
         }
 
         /// <summary>

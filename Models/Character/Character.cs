@@ -27,6 +27,8 @@ namespace LoDCompanion.Models.Character
         public int DamageBonus { get; set; }
         public GridPosition? Position { get; set; }
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
+        public int MaxAP { get; set; } = 2;
+        public int CurrentAP { get; set; } = 2;
 
         // Constructor (optional, but good practice for initialization)
         public Character()
@@ -97,8 +99,6 @@ namespace LoDCompanion.Models.Character
         public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
 
-        public int MaxAP { get; set; } = 2;
-        public int CurrentAP { get; set; } = 2;
         public CombatStance Stance { get; set; } = CombatStance.Normal;
         public bool HasDodgedThisBattle { get; set; } = false;
         public List<Spell> Spells { get; set; } = new List<Spell>();
