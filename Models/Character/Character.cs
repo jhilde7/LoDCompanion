@@ -25,7 +25,7 @@ namespace LoDCompanion.Models.Character
         public int Level { get; set; }
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
-        public GridPosition? Position { get; set; }
+        public GridPosition Position { get; set; } = new GridPosition(0, 0);
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
         public int MaxAP { get; set; } = 2;
         public int CurrentAP { get; set; } = 2;

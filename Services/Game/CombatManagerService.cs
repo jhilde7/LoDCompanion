@@ -171,7 +171,47 @@ namespace LoDCompanion.Services.Game
             // TODO: Implement the full activation order from PDF page 101.
             // (Magic Users -> Ranged -> Adjacent to make room -> etc.)
             // For now, we'll just pick the first available monster.
-            return MonstersInCombat.FirstOrDefault(m => m.CurrentHP > 0 && m.CurrentAP > 0);
+            var availableMonsters = MonstersInCombat
+                .Where(m => m.CurrentHP > 0 && !MonstersThatHaveActedThisTurn.Contains(m.Id))
+                .ToList();
+
+            if (!availableMonsters.Any()) return null;
+
+            // Magic User or Ranged Weapon
+            var magicOrRanged = availableMonsters.First(m => m.Spells.Any() || m.Weapons.Any(w => w.IsRanged));
+            if (magicOrRanged != null) return magicOrRanged;
+
+            // Adjacent to a hero and could make room
+            // TODO: This requires complex grid analysis. We'll skip for now and go to #3.
+
+            // Adjacent to a hero
+            var adjacent = availableMonsters.First(m => IsAdjacentToHero(m, HeroesInCombat));
+            if (adjacent != null) return adjacent;
+
+            // Closest to a hero and can charge
+            // TODO: Requires grid analysis to see if a charge path is clear.
+
+            // Can move its full movement
+            // TODO: Requires grid analysis.
+
+            return availableMonsters.First();
+        }
+
+        /// <summary>
+        /// Helper method to check if a monster is adjacent to any hero.
+        /// </summary>
+        private bool IsAdjacentToHero(Monster monster, List<Hero> heroes)
+        {
+            if (monster.Position == null) return false;
+            foreach (var hero in heroes.Where(h => h.CurrentHP > 0 && h.Position != null))
+            {
+                if (Math.Abs(monster.Position.X - hero.Position.X) <= 1 &&
+                    Math.Abs(monster.Position.Y - hero.Position.Y) <= 1)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void ResolveMonsterAttack(Monster attacker, Hero target, int incomingDamage)
