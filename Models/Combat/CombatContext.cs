@@ -1,5 +1,13 @@
 ﻿namespace LoDCompanion.Models.Combat
 {
+    public enum HitLocation
+    {
+        Head,
+        Torso,
+        Arms,
+        Legs
+    }
+
     public class CombatContext
     {
         // General Modifiers

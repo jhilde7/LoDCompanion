@@ -2,6 +2,7 @@
 using LoDCompanion.Models;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Models.Combat;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -25,73 +26,120 @@ namespace LoDCompanion.Services.Combat
         public AttackResult ResolveAttack(Monster attacker, Hero target)
         {
             var result = new AttackResult();
-            var monsterWeapon = attacker.Weapons.FirstOrDefault(); // Assume the first weapon is used
+            var monsterWeapon = attacker.Weapons.First();
 
-            // Step 1: Determine the monster's attack skill
             int monsterAttackSkill = (monsterWeapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
             result.ToHitChance = monsterAttackSkill;
 
-            // Step 2: Roll the attack
             result.AttackRoll = RandomHelper.RollDie("D100");
 
-            // Step 3: Check if the monster's attack is successful
-            if (result.AttackRoll <= result.ToHitChance)
+            if (result.AttackRoll > result.ToHitChance)
             {
-                // The monster's attack connects! Now, the hero gets a chance to defend.
-                int potentialDamage = CalculatePotentialDamage(attacker, monsterWeapon);
+                result.IsHit = false;
+                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+                return result;
+            }
 
-                // Step 4: Resolve Hero's Defense
-                // In a real UI, the player would choose to dodge or parry.
-                // For now, we'll prioritize dodging if available.
-                DefenseResult defenseResult;
-                if (!target.HasDodgedThisBattle)
-                {
-                    defenseResult = _defense.AttemptDodge(target);
-                }
-                else if (target.Shield != null)
-                {
-                    defenseResult = _defense.AttemptShieldParry(target, target.Shield, potentialDamage);
-                }
-                else
-                {
-                    // No defense options left.
-                    defenseResult = new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
-                }
+            int potentialDamage = CalculatePotentialDamage(attacker, monsterWeapon);
 
-                result.OutcomeMessage = defenseResult.OutcomeMessage;
+            DefenseResult defenseResult = ResolveHeroDefense(target, potentialDamage);
+            result.OutcomeMessage = defenseResult.OutcomeMessage;
 
-                // Step 5: Calculate final damage after defense
-                if (defenseResult.WasSuccessful)
-                {
-                    // If a dodge or weapon parry was successful, all damage is negated.
-                    // If a shield parry was successful, some damage might get through.
-                    result.DamageDealt = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
-                }
-                else
-                {
-                    // Defense failed, full damage is applied.
-                    result.DamageDealt = potentialDamage;
-                }
+            int damageAfterDefense = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
 
-                if (result.DamageDealt > 0)
+            if (damageAfterDefense > 0)
+            {
+                // If damage remains, determine hit location and apply armor.
+                HitLocation location = DetermineHitLocation();
+                int finalDamage = ApplyArmorToLocation(target, location, damageAfterDefense, monsterWeapon);
+
+                target.TakeDamage(finalDamage);
+                result.DamageDealt = finalDamage;
+                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {finalDamage} damage!";
+
+                // Handle damaging quick slot items on a torso hit.
+                if (location == HitLocation.Torso)
                 {
-                    // Apply armor reduction for the final damage calculation
-                    int finalDamage = ApplyArmor(target, result.DamageDealt, monsterWeapon);
-                    target.TakeDamage(finalDamage);
-                    result.OutcomeMessage += $"\n{target.Name} takes {finalDamage} damage!";
-                }
-                else
-                {
-                    result.OutcomeMessage += $"\n{target.Name} takes no damage!";
+                    result.OutcomeMessage += "\n" + CheckForQuickSlotDamage(target);
                 }
             }
             else
             {
-                result.IsHit = false;
-                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+                result.DamageDealt = 0;
+                result.OutcomeMessage += $"\n{target.Name} takes no damage!";
             }
 
             return result;
+        }
+
+        private DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
+        {
+            // In a real UI, the player would choose. We'll prioritize dodge.
+            if (!target.HasDodgedThisBattle)
+            {
+                return _defense.AttemptDodge(target);
+            }
+            if (target.Shield != null)
+            {
+                return _defense.AttemptShieldParry(target, target.Shield, incomingDamage);
+            }
+            return new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
+        }
+
+        private HitLocation DetermineHitLocation()
+        {
+            int roll = RandomHelper.RollDie("D6");
+            return roll switch
+            {
+                1 => HitLocation.Head,
+                2 => HitLocation.Arms,
+                6 => HitLocation.Legs,
+                _ => HitLocation.Torso
+            };
+        }
+
+        /// <summary>
+        /// Applies armor reduction based on the specific hit location.
+        /// </summary>
+        private int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, MonsterWeapon? weapon)
+        {
+            var relevantArmor = target.Armours.Where(a => DoesArmorCoverLocation(a, location)).ToList();
+            int totalArmorValue = relevantArmor.Sum(a => a.DefValue);
+
+            int armourPiercing = weapon?.ArmourPiercing ?? 0;
+            int effectiveArmor = Math.Max(0, totalArmorValue - armourPiercing);
+
+            return Math.Max(0, incomingDamage - effectiveArmor);
+        }
+
+        /// <summary>
+        /// Checks if a piece of armor covers a given hit location.
+        /// </summary>
+        private bool DoesArmorCoverLocation(Armour armour, HitLocation location)
+        {
+            return location switch
+            {
+                HitLocation.Head => armour.HasProperty(ArmourProperty.Head),
+                HitLocation.Arms => armour.HasProperty(ArmourProperty.Arms),
+                HitLocation.Torso => armour.HasProperty(ArmourProperty.Torso),
+                HitLocation.Legs => armour.HasProperty(ArmourProperty.Legs),
+                _ => false,
+            };
+        }
+
+        /// <summary>
+        /// On a torso hit, rolls to see if an item in a quick slot is damaged.
+        /// </summary>
+        private string CheckForQuickSlotDamage(Hero target)
+        {
+            int slotRoll = RandomHelper.RollDie("D10");
+            if (slotRoll <= target.QuickSlots.Count)
+            {
+                var item = target.QuickSlots[slotRoll - 1]; // -1 for 0-based index
+                item.Durability--;
+                return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged.";
+            }
+            return "The hero's gear was spared from the impact.";
         }
 
         /// <summary>
@@ -99,17 +147,11 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         private int CalculatePotentialDamage(Monster attacker, MonsterWeapon? weapon)
         {
-            int damage = 0;
             if (weapon != null)
             {
-                damage = weapon.GetDamage(attacker.DamageBonus);
+                return weapon.GetDamage(attacker.DamageBonus);
             }
-            else
-            {
-                // Natural attack damage
-                damage = RandomHelper.GetRandomNumber(attacker.DamageArray[0], attacker.DamageArray[1]) + attacker.DamageBonus;
-            }
-            return damage;
+            return RandomHelper.GetRandomNumber(attacker.DamageArray[0], attacker.DamageArray[1]) + attacker.DamageBonus;
         }
 
         /// <summary>
