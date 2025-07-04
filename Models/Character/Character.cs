@@ -42,6 +42,17 @@ namespace LoDCompanion.Models.Character
             }
         }
     }
+
+    /// <summary>
+    /// Represents the tactical stance of a character in combat.
+    /// </summary>
+    public enum CombatStance
+    {
+        Normal,
+        Parry,
+        Overwatch
+    }
+
     public class Hero : Character
     {
 
@@ -86,6 +97,7 @@ namespace LoDCompanion.Models.Character
 
         public int MaxAP { get; set; } = 2;
         public int CurrentAP { get; set; } = 2;
+        public CombatStance Stance { get; set; } = CombatStance.Normal;
         public List<Spell> Spells { get; set; } = new List<Spell>();
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
         public int Coins { get; set; } = 150;

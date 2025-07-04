@@ -31,10 +31,13 @@ namespace LoDCompanion.Services.Game
         {
             _initiativeTokens.Clear();
 
-            // Add one token per hero
-            for (int i = 0; i < heroes.Count; i++)
+            // Add one token per hero, *unless* they are on Overwatch.
+            foreach (var hero in heroes)
             {
-                _initiativeTokens.Add(ActorType.Hero);
+                if (hero.Stance != CombatStance.Overwatch)
+                {
+                    _initiativeTokens.Add(ActorType.Hero);
+                }
             }
 
             // Add one token per monster

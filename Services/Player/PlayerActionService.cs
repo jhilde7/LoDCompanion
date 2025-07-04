@@ -23,7 +23,8 @@ namespace LoDCompanion.Services.Player
         HealSelf,
         HealOther,
         RearrangeGear,
-        IdentifyItem
+        IdentifyItem,
+        SetOverwatch
     }
 
     /// <summary>
@@ -110,6 +111,14 @@ namespace LoDCompanion.Services.Player
                 case PlayerActionType.IdentifyItem:
                     if (primaryTarget is Equipment itemToIdentify)
                         resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
+                    break;
+                case PlayerActionType.SetOverwatch:
+                    var equippedWeapon = hero.Weapons.FirstOrDefault();
+                    if (equippedWeapon == null) return false;
+                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return false;
+                    hero.Stance = CombatStance.Overwatch;
+                    hero.CurrentAP = 0; // End the hero's turn
+                    resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.");
                     break;
             }
 
