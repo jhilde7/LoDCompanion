@@ -39,6 +39,7 @@ namespace LoDCompanion.Models.Dungeon
     public class Quest
     {
         public QuestLocation Location { get; private set;}
+        public RoomInfo? StartingRoom { get; private set;}
         public string SpecialRules { get; private set;} = string.Empty;
         public int CorridorCount { get; private set;}
         public int RoomCount { get; private set;}

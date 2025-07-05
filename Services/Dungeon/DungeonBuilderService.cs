@@ -13,7 +13,7 @@ namespace LoDCompanion.Services.Dungeon
             _gameData = gameData;
         }
 
-        public List<RoomInfo> CreateDungeonDeck(int roomCount, int corridorCount, string objectiveRoom, List<string> roomsToExclude, List<string> corridorsToExclude)
+        public List<RoomInfo> CreateDungeonDeck(int roomCount, int corridorCount, RoomInfo objectiveRoom, List<string> roomsToExclude, List<string> corridorsToExclude)
         {
             var deck = new List<RoomInfo>();
 
@@ -32,7 +32,7 @@ namespace LoDCompanion.Services.Dungeon
             var secondHalf = initialDeck.Skip(halfDeckSize).ToList();
 
             // 3. Add the objective room to one of the piles and shuffle that pile.
-            var objectiveRoomInfo = _gameData.RoomInfo.First(r => r.Name == objectiveRoom);
+            var objectiveRoomInfo = _gameData.Rooms.First(r => r == objectiveRoom);
             if (objectiveRoomInfo != null)
             {
                 secondHalf.Add(objectiveRoomInfo);
@@ -50,7 +50,7 @@ namespace LoDCompanion.Services.Dungeon
         private List<RoomInfo> BuildRoomList(int count, List<string> excludedRooms)
         {
             var rooms = new List<RoomInfo>();
-            var availableRooms = _gameData.RoomInfo
+            var availableRooms = _gameData.Rooms
                 .Where(r => r.Category == RoomCategory.Room && !excludedRooms.Contains(r.Name ?? string.Empty))
                 .ToList();
 
@@ -69,7 +69,7 @@ namespace LoDCompanion.Services.Dungeon
         private List<RoomInfo> BuildCorridorList(int count, List<string> excludedCorridors)
         {
             var corridors = new List<RoomInfo>();
-            var availableCorridors = _gameData.RoomInfo
+            var availableCorridors = _gameData.Rooms
                 .Where(r => r.Category == RoomCategory.Corridor && !excludedCorridors.Contains(r.Name ?? string.Empty))
                 .ToList();
 

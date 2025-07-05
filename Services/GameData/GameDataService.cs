@@ -41,7 +41,7 @@ namespace LoDCompanion.Services.GameData
         public List<Armour> Armour => GetArmour();
         public List<Shield> Shields => GetShields();
         public List<Equipment> Relics => GetRelics();
-        public List<RoomInfo> RoomInfo => GetRooms();
+        public List<RoomInfo> Rooms => GetRooms();
         public List<Furniture> Furniture => GetFurniture();
         public List<ActiveStatusEffect> StatusEffects => GetStatusEffects();
 
@@ -5958,6 +5958,11 @@ namespace LoDCompanion.Services.GameData
                   }
             };
     }
+
+        public RoomInfo GetRoomByName(string name)
+        {
+            return Rooms.First(r => r.Name == name);
+        }
 
         public List<Furniture> GetFurniture()
     {

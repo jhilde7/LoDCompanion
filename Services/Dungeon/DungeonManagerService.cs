@@ -66,7 +66,7 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         // Create a new method to start a quest
-        public void StartQuest(Party heroParty, int roomCount, int corridorCount, string objectiveRoom, string startingRoomName = "Start Tile")
+        public void StartQuest(Party heroParty, int roomCount, int corridorCount, RoomInfo objectiveRoom, string startingRoomName = "Start Tile")
         {
             // 1. Initialize the basic dungeon state
             _dungeonState.HeroParty = heroParty;
@@ -84,7 +84,7 @@ namespace LoDCompanion.Services.Dungeon
             _dungeonState.CurrentRoom = _dungeonState.StartingRoom;
         }
 
-        public void InitializeDungeon(Party initialHeroes, string startingRoomName = "StartingRoom")
+        public void InitializeDungeon(Party initialHeroes, Quest quest)
         {
             if (initialHeroes == null || initialHeroes.Heroes.Count == 0)
             {
@@ -100,7 +100,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (_dungeonState.CurrentRoom != null)
             {
-                _dungeonState.CurrentRoom = _roomFactory.CreateRoom(startingRoomName) ?? new RoomService(_gameData); 
+                _dungeonState.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new RoomService(_gameData); 
             }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }

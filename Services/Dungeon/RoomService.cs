@@ -3,6 +3,7 @@ using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
 using System.Text;
 using LoDCompanion.Models.Dungeon;
+using System.Collections.Generic;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -196,6 +197,40 @@ namespace LoDCompanion.Services.Dungeon
             HasBeenSearched = true;
         }
 
+        public List<DoorChest> HandlePartialDeadends(List<DoorChest> workingDoors)
+        {
+            while (workingDoors.Any(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd))
+            {
+                DoorChest deadEndDoor = workingDoors.First(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd);
+                List<RoomService> remainingCards = new List<RoomService>(deadEndDoor.ConnectedRooms);
+
+                deadEndDoor.ConnectedRooms.Clear();
+
+                // Distribute remaining cards to other doors
+                if (workingDoors.Count > 1)
+                {
+                    List<DoorChest> otherDoors = workingDoors.Where(d => d != deadEndDoor).ToList();
+                    if (otherDoors.Any())
+                    {
+                        int doorIndex = 0;
+                        while (remainingCards.Count > 0)
+                        {
+                            if (otherDoors[doorIndex].ConnectedRooms == null)
+                            {
+                                otherDoors[doorIndex].ConnectedRooms = new List<RoomService>();
+                            }
+                            // Add to the bottom of the pile as per the rule
+                            otherDoors[doorIndex].ConnectedRooms.Add(remainingCards[0]);
+                            remainingCards.RemoveAt(0);
+                            doorIndex = (doorIndex + 1) % otherDoors.Count;
+                        }
+                    }
+                }
+            }
+
+            return workingDoors;
+        }
+
         /// <summary>
         /// This method encapsulates the original SplitDungeonBetweenDoors logic.
         /// It modifies the current room's `Doors` and `ConnectedRooms` properties.
@@ -213,56 +248,20 @@ namespace LoDCompanion.Services.Dungeon
             List<RoomService> workingDungeonCards = new List<RoomService>(availableDungeonCards);
             List<DoorChest> workingDoors = new List<DoorChest>(Doors); // Assuming 'Doors' is already populated  
 
-            // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards  
-            while (workingDoors.Any(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd))
+            // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards
+            workingDoors = HandlePartialDeadends(workingDoors);
+            if (workingDoors.All(d => d.ConnectedRooms == null || d.ConnectedRooms.Count == 0 || d.ConnectedRooms[0].IsDeadEnd))
             {
-                // Find the dead-end door and its remaining cards  
-                DoorChest deadEndDoor = workingDoors.First(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd);
-                List<RoomService> remainingCards = new List<RoomService>(deadEndDoor.ConnectedRooms ?? throw new NullReferenceException());
-
-                // Clear the dead-end door's cards (making it inaccessible for its original purpose)  
-                deadEndDoor.ConnectedRooms.Clear();
-
-                // Distribute remaining cards to other doors or create a new secret door  
-                int doorIndex = 0;
-                while (remainingCards.Count > 0)
+                if (workingDungeonCards.Any())
                 {
-                    // Find the next available door to add cards to.  
-                    // This loop cycles through existing doors, skipping the 'deadEndDoor' and any others that are themselves dead ends or already full.  
-                    int initialDoorIndex = doorIndex; // To prevent infinite loop if no suitable door is found  
-                    bool suitableDoorFound = false;
-                    for (int i = 0; i < workingDoors.Count; i++)
-                    {
-                        var connectedRooms = workingDoors[doorIndex].ConnectedRooms;
-                        bool isDeadEnd = connectedRooms != null && connectedRooms.Count > 0 && connectedRooms[0].IsDeadEnd;
-                        if (workingDoors[doorIndex] != deadEndDoor && !isDeadEnd)
-                        {
-                            suitableDoorFound = true;
-                            break;
-                        }
-                        doorIndex = (doorIndex + 1) % workingDoors.Count; // Cycle through doors  
-                        if (doorIndex == initialDoorIndex) // Checked all doors, no suitable found  
-                            break;
-                    }
+                    // Create a new secret door if all paths are dead ends
+                    DoorChest newSecretDoor = doorFactory();
+                    newSecretDoor.ConnectedRooms = new List<RoomService>();
+                    workingDoors.Add(newSecretDoor);
 
-                    if (!suitableDoorFound)
-                    {
-                        // If no suitable door is found among existing ones, create a new "secret" door.  
-                        // This new door needs to be instantiated by an external factory and added to the list.  
-                        DoorChest newSecretDoor = doorFactory(); // Use the injected factory  
-                        workingDoors.Add(newSecretDoor);
-                        newSecretDoor.ConnectedRooms = new List<RoomService>(); // Initialize its dungeon  
-                        doorIndex = workingDoors.Count - 1; // Point to the newly added door  
-                    }
-
-                    // Add a card to the chosen door (or the new secret door)  
-                    if (workingDoors[doorIndex].ConnectedRooms == null)
-                    {
-                        workingDoors[doorIndex].ConnectedRooms = new List<RoomService>();
-                    }
-                    workingDoors[doorIndex].ConnectedRooms.Insert(0, remainingCards[0]);
-                    remainingCards.RemoveAt(0);
-                    doorIndex = (doorIndex + 1) % workingDoors.Count; // Move to the next door for fair distribution  
+                    // Assign all remaining cards to this new secret door
+                    newSecretDoor.ConnectedRooms.AddRange(workingDungeonCards);
+                    workingDungeonCards.Clear();
                 }
             }
 
@@ -279,8 +278,17 @@ namespace LoDCompanion.Services.Dungeon
                 int index = 0;
                 while (workingDungeonCards.Count > 0)
                 {
-                    roomSplits[index].Add(workingDungeonCards[0]);
-                    workingDungeonCards.RemoveAt(0);
+                    // Get the card from the BOTTOM of the deck (the last element in the list)
+                    int lastCardIndex = workingDungeonCards.Count - 1;
+                    RoomService cardToDeal = workingDungeonCards[lastCardIndex];
+
+                    // Add the card to the current door's split
+                    roomSplits[index].Add(cardToDeal);
+
+                    // Remove the card from the working deck
+                    workingDungeonCards.RemoveAt(lastCardIndex);
+
+                    // Move to the next door for the next card
                     index = (index + 1) % roomSplits.Length;
                 }
 
@@ -288,14 +296,12 @@ namespace LoDCompanion.Services.Dungeon
                 for (int i = 0; i < workingDoors.Count; i++)
                 {
                     workingDoors[i].ConnectedRooms = roomSplits[i];
-                    // Note: No Instantiate calls here. The DoorChest objects are already in the list.  
                 }
             }
             else if (workingDoors.Count == 1)
             {
                 // 4. Handle single-door case  
                 workingDoors[0].ConnectedRooms = workingDungeonCards;
-                // Note: No Instantiate calls here.  
             }
             else
             {
