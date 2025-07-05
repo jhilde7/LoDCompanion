@@ -1,10 +1,13 @@
 ﻿using LoDCompanion.Utilities;
 using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Combat;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Combat
 {
     public class MonsterSpecialService
     {
+        private readonly GameDataService _gameData;
 
         public MonsterSpecialService()
         {
@@ -23,12 +26,14 @@ namespace LoDCompanion.Services.Combat
             {
                 case "bellow":
                     return Bellow(monster, heroes);
+                case "camouflage":
+                    return Camouflage(monster, heroes);
+                case "entangle":
+                    return Entangle(monster, heroes);
                 case "firebreath":
                     return FireBreath(monster, heroes);
                 case "ghostlyhowl":
                     return GhostlyHowl(monster, heroes);
-                case "kick":
-                    return Kick(monster, heroes);
                 case "masterofthedead":
                     return MasterOfTheDead(monster, heroes);
                 case "multipleattack":
@@ -43,14 +48,8 @@ namespace LoDCompanion.Services.Combat
                     return Petrify(monster, heroes);
                 case "poisonspit":
                     return PoisonSpit(monster, heroes);
-                case "regenerate":
-                    return Regenerate(monster, heroes);
-                case "riddlemaster":
-                    return RiddleMaster(monster, heroes);
                 case "seduction":
                     return Seduction(monster, heroes);
-                case "stupid":
-                    return Stupid(monster, heroes);
                 case "summonchildren":
                     return SummonChildren(monster, heroes);
                 case "tongueattack":
@@ -59,11 +58,6 @@ namespace LoDCompanion.Services.Combat
                     return Swallow(monster, heroes);
                 case "sweepingstrike":
                     return SweepingStrike(monster, heroes);
-                case "fear": // Assuming basic Fear effect (check for specific FearLevel on monster)
-                    return ApplyFear(monster, heroes);
-                case "terror": // Assuming basic Terror effect (check for specific TerrorLevel on monster)
-                    return ApplyTerror(monster, heroes);
-                // Add more cases for other special abilities
                 default:
                     return $"{monster.Name} attempts an unknown special ability: {abilityType}. Nothing happens.";
             }
@@ -79,7 +73,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < hero.Resolve) // Assuming lower is better for Resolve check
                 {
-                    hero.Status.Add("Stunned"); // Assuming Status is a List<string> or similar
+                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Stunned)); // Assuming Status is a List<string> or similar
                     outcome += $"{hero.Name} is stunned by the roar!\n";
                 }
                 else
@@ -88,6 +82,18 @@ namespace LoDCompanion.Services.Combat
                 }
             }
             return outcome;
+        }
+
+        private string Camouflage(Monster monster, List<Hero> heroes)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        private string Entangle(Monster monster, List<Hero> heroes)
+        {
+            //TODO
+            throw new NotImplementedException();
         }
 
         public string FireBreath(Monster monster, List<Hero> heroes)
@@ -148,7 +154,7 @@ namespace LoDCompanion.Services.Combat
         public string MultipleAttack(Monster monster, List<Hero> heroes, int attackCount)
         {
             string outcome = $"{monster.Name} unleashes {attackCount} rapid attacks!\n";
-            var monsterCombatService = new MonsterCombatService(this); // Assuming this service is available or injected
+            //var monsterCombatService = new MonsterCombatService(this); // Assuming this service is available or injected
             for (int i = 0; i < attackCount; i++)
             {
                 if (heroes.Count > 0)
@@ -172,7 +178,7 @@ namespace LoDCompanion.Services.Combat
                 int conRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (conRoll < hero.Constitution) // Example: Constitution check to resist petrification
                 {
-                    hero.Status.Add("Petrified");
+                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Petrified));
                     outcome += $"{hero.Name} is turned to stone!\n";
                 }
                 else
@@ -191,7 +197,7 @@ namespace LoDCompanion.Services.Combat
                 var target = heroes[0]; // Assume single target
                 int damage = RandomHelper.GetRandomNumber(1, 4); // Initial damage
                 target.TakeDamage(damage);
-                target.Status.Add("Poisoned"); // Apply poisoned status
+                target.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Poisoned));
                 outcome += $"{target.Name} is hit for {damage} damage and is poisoned!\n";
             }
             return outcome;
@@ -222,7 +228,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < hero.Resolve) // Example: Resolve check to resist charm
                 {
-                    hero.Status.Add("Charmed"); // Or some other effect
+                    //hero.ActiveStatusEffect.Add("Charmed"); // Or some other effect
                     outcome += $"{hero.Name} is charmed by {monster.Name}!\n";
                 }
                 else
@@ -257,7 +263,7 @@ namespace LoDCompanion.Services.Combat
                 int damage = RandomHelper.GetRandomNumber(1, 4);
                 target.TakeDamage(damage);
                 outcome += $"{target.Name} is hit for {damage} damage and ensnared by the tongue!\n";
-                target.Status.Add("Ensnared"); // Apply status effect
+                target.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Ensnared)); // Apply status effect
             }
             return outcome;
         }
@@ -272,7 +278,7 @@ namespace LoDCompanion.Services.Combat
                 int swallowRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (swallowRoll > target.Dexterity) // Example: Dexterity check to avoid being swallowed
                 {
-                    target.Status.Add("Swallowed"); // Apply swallowed status (e.g., for ongoing damage)
+                    target.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.BeingSwallowed)); // Apply swallowed status (e.g., for ongoing damage)
                     outcome += $"{target.Name} is swallowed by {monster.Name}!\n";
                 }
                 else
@@ -304,7 +310,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < (hero.Resolve - fearLevel)) // Example: Resolve vs. FearLevel
                 {
-                    hero.Status.Add("Feared");
+                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Fear));
                     outcome += $"{hero.Name} is gripped by fear!\n";
                 }
                 else
@@ -324,7 +330,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < (hero.Resolve - terrorLevel)) // Example: Resolve vs. TerrorLevel
                 {
-                    hero.Status.Add("Terrified");
+                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Terror));
                     outcome += $"{hero.Name} is terrified and tries to flee!\n";
                 }
                 else
