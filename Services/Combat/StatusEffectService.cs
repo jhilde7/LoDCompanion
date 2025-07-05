@@ -13,7 +13,7 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         public void AttemptToApplyStatus(Character target, StatusEffectType type)
         {
-            if (target.ActiveStatusEffects.Any(e => e.Type == type)) return; // Already affected
+            if (target.ActiveStatusEffects.Any(e => e.Category == type)) return; // Already affected
 
             bool resisted = false;
             if (target is Hero hero)
@@ -45,7 +45,7 @@ namespace LoDCompanion.Services.Combat
         public void ApplyStatus(Character target, StatusEffectType type, int duration)
         {
             // Prevent stacking the same effect.
-            if (!target.ActiveStatusEffects.Any(e => e.Type == type))
+            if (!target.ActiveStatusEffects.Any(e => e.Category == type))
             {
                 target.ActiveStatusEffects.Add(new ActiveStatusEffect(type, duration));
                 Console.WriteLine($"{target.Name} is now {type}!");
@@ -63,7 +63,7 @@ namespace LoDCompanion.Services.Combat
 
             foreach (var effect in effectsToProcess)
             {
-                switch (effect.Type)
+                switch (effect.Category)
                 {
                     case StatusEffectType.Poisoned:
                         // As per PDF, make a CON test. On fail, lose 1 HP.
@@ -74,7 +74,7 @@ namespace LoDCompanion.Services.Combat
                         }
                         break;
 
-                    case StatusEffectType.Burning:
+                    case StatusEffectType.FireBurning:
                         // As per PDF, Fire damage over time.
                         int fireDamage = RandomHelper.RollDie("D6") / 2;
                         character.TakeDamage(fireDamage);
@@ -94,7 +94,7 @@ namespace LoDCompanion.Services.Combat
                     if (effect.Duration <= 0)
                     {
                         character.ActiveStatusEffects.Remove(effect);
-                        Console.WriteLine($"{character.Name} is no longer {effect.Type}.");
+                        Console.WriteLine($"{character.Name} is no longer {effect.Category}.");
                     }
                 }
             }
