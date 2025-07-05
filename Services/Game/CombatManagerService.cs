@@ -12,6 +12,7 @@ namespace LoDCompanion.Services.Game
 {
     public class CombatManagerService
     {
+        private readonly GameDataService _gameData;
         private readonly InitiativeService _initiative;
         private readonly HeroCombatService _heroCombat;
         private readonly MonsterCombatService _monsterCombat;
@@ -19,10 +20,11 @@ namespace LoDCompanion.Services.Game
         private readonly MonsterAIService _monsterAI;
         private readonly DefenseService _defense;
         private readonly StatusEffectService _statusEffect;
+        private readonly GridService _grid;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
-        private List<string> MonstersThatHaveActedThisTurn = new List<string>();
+        private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
         private Hero? ActiveHero;
         // This set will store the unique ID of each character who has used their Unwieldly bonus in this combat.
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();        
@@ -34,7 +36,9 @@ namespace LoDCompanion.Services.Game
             PlayerActionService playerActionService,
             DefenseService defenseService,
             MonsterAIService monsterAIService,
-            StatusEffectService statusEffectService)
+            StatusEffectService statusEffectService,
+            GridService grid,
+            GameDataService gameData)
         {
             _initiative = initiativeService;
             _heroCombat = heroCombatService;
@@ -43,6 +47,8 @@ namespace LoDCompanion.Services.Game
             _monsterAI = monsterAIService;
             _defense = defenseService;
             _statusEffect = statusEffectService;
+            _grid = grid;
+            _gameData = gameData;
         }
 
 
@@ -130,18 +136,22 @@ namespace LoDCompanion.Services.Game
             }
             else // It's a Monster's turn
             {
-                ActiveHero = null; // No hero is active
+                ActiveHero = null; 
                 Console.WriteLine("A monster acts!");
 
-                // Determine which monster acts based on activation order rules (PDF pg 101)
-                var monsterToAct = SelectMonsterToAct();
+                var monstersToAct = MonstersInCombat;
+                foreach(var monster in MonstersThatHaveActedThisTurn)
+                {
+                    monstersToAct.Remove(monster);
+                }
+                var monsterToAct = SelectMonsterToAct(monstersToAct, HeroesInCombat);
                 if (monsterToAct != null)
                 {
                     monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                     Console.WriteLine($"A monster ({monsterToAct.Name}) prepares to act...");
                     _statusEffect.ProcessStatusEffects(monsterToAct);
-                    MonstersThatHaveActedThisTurn.Add(monsterToAct.Id);
+                    MonstersThatHaveActedThisTurn.Add(monsterToAct);
                     var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
 
                     if (interruptingHero != null)
@@ -166,35 +176,68 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private Monster? SelectMonsterToAct()
+        private Monster? SelectMonsterToAct(List<Monster> availableMonsters, List<Hero> heroes)
         {
-            // TODO: Implement the full activation order from PDF page 101.
-            // (Magic Users -> Ranged -> Adjacent to make room -> etc.)
-            // For now, we'll just pick the first available monster.
-            var availableMonsters = MonstersInCombat
-                .Where(m => m.CurrentHP > 0 && !MonstersThatHaveActedThisTurn.Contains(m.Id))
-                .ToList();
-
             if (!availableMonsters.Any()) return null;
 
-            // Magic User or Ranged Weapon
-            var magicOrRanged = availableMonsters.First(m => m.Spells.Any() || m.Weapons.Any(w => ((RangedWeapon)w).IsRanged));
+            // 1. Magic User or Ranged Weapon
+            var magicOrRanged = availableMonsters
+                .FirstOrDefault(m => m.Spells.Any() || m.Weapons.Any(w => w is RangedWeapon));
             if (magicOrRanged != null) return magicOrRanged;
 
-            // Adjacent to a hero and could make room
-            // TODO: This requires complex grid analysis. We'll skip for now and go to #3.
+            // 2. Adjacent to a hero and could make room
+            var canMakeRoom = availableMonsters
+                .FirstOrDefault(m => IsAdjacentToHero(m, heroes) && CanMakeRoom(m, heroes));
+            if (canMakeRoom != null) return canMakeRoom;
 
-            // Adjacent to a hero
-            var adjacent = availableMonsters.First(m => IsAdjacentToHero(m, HeroesInCombat));
+            // 3. Adjacent to a hero
+            var adjacent = availableMonsters
+                .FirstOrDefault(m => IsAdjacentToHero(m, heroes));
             if (adjacent != null) return adjacent;
 
-            // Closest to a hero and can charge
-            // TODO: Requires grid analysis to see if a charge path is clear.
+            // 4. Closest to a hero and can charge
+            var canCharge = availableMonsters
+                .Where(m => CanCharge(m, heroes))
+                .OrderBy(m => GetDistanceToClosestHero(m, heroes))
+                .FirstOrDefault();
+            if (canCharge != null) return canCharge;
 
-            // Can move its full movement
-            // TODO: Requires grid analysis.
+            // 5. Can move its full movement
+            var canMoveFull = availableMonsters
+                .OrderByDescending(m => m.Move) // Prioritize faster monsters
+                .FirstOrDefault(m => CanMoveFullPath(m));
+            if (canMoveFull != null) return canMoveFull;
 
+            // Default: return the first available monster if no other condition is met
             return availableMonsters.First();
+        }
+
+        private bool CanMakeRoom(Monster monster, List<Hero> heroes)
+        {
+            // This is a more complex grid analysis function.
+            // It would check if the monster can move to a position that opens up
+            // a path for another monster to attack a hero.
+            // For now, we can default to false.
+            return false;
+        }
+
+        private bool CanCharge(Monster monster, List<Hero> heroes)
+        {
+            // Checks if a monster has a clear path to charge a hero.
+            // A charge is typically a straight line move ending in an attack.
+            var target = GetClosestHero(monster, heroes);
+            if (target == null || monster.Position == null || target.Position == null) return false;
+
+            int distance = _grid.GetDistance(monster.Position, target.Position);
+            return distance > 1 && distance <= monster.Move && _grid.HasClearPath(monster.Position, target.Position);
+        }
+
+        private bool CanMoveFullPath(Monster monster)
+        {
+            // This would check if the monster has enough open space around it
+            // to move its full movement distance without being blocked by other units or terrain.
+            // This is a complex analysis; a simpler version might just check for a few empty adjacent squares.
+            return true; // Placeholder
         }
 
         /// <summary>
@@ -212,6 +255,23 @@ namespace LoDCompanion.Services.Game
                 }
             }
             return false;
+        }
+
+        private int GetDistanceToClosestHero(Monster monster, List<Hero> heroes)
+        {
+            if (monster.Position == null) return int.MaxValue;
+            return heroes
+                .Where(h => h.Position != null)
+                .Min(h => _grid.GetDistance(monster.Position, h.Position!));
+        }
+
+        private Hero? GetClosestHero(Monster monster, List<Hero> heroes)
+        {
+            if (monster.Position == null) return null;
+            return heroes
+               .Where(h => h.Position != null && h.CurrentHP > 0 && !h.ActiveStatusEffects.Contains(_gameData.GetStatusEffectByType(StatusEffectType.Pit)))
+               .OrderBy(h => _grid.GetDistance(monster.Position, h.Position!))
+               .FirstOrDefault();
         }
 
         public void ResolveMonsterAttack(Monster attacker, Hero target, int incomingDamage)

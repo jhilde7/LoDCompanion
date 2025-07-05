@@ -1,59 +1,76 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Utilities;
+using System.Drawing;
+using System.Linq;
 
 namespace LoDCompanion.Services.Dungeon
 {
     public class GridService
     {
+        public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
+
+
         public GridService() { }
 
         /// <summary>
-        /// Creates a grid for a room based on its dimensions and furniture.
+        /// Places a new room onto the global grid at a specific offset.
         /// </summary>
-        public void GenerateGridForRoom(RoomService room)
+        /// <param name="room">The room to place.</param>
+        /// <param name="roomOffset">The global grid position of the room's top-left corner.</param>
+        public void PlaceRoomOnGrid(RoomService room, GridPosition roomOffset)
         {
-            room.Grid.Clear();
-            room.Width = room.Size[0];
-            room.Height = room.Size[1];
+            room.GridOffset = roomOffset; // Store the room's global position
 
             for (int y = 0; y < room.Height; y++)
             {
                 for (int x = 0; x < room.Width; x++)
                 {
-                    var square = new GridSquare(x, y);
-                    // TODO: Add logic to check if furniture from room.FurnitureList occupies this square
-                    // and set IsObstacle and BlocksLineOfSight accordingly.
-                    room.Grid.Add(square);
+                    var globalPos = new GridPosition(roomOffset.X + x, roomOffset.Y + y);
+                    if (!DungeonGrid.ContainsKey(globalPos))
+                    {
+                        var square = new GridSquare(globalPos.X, globalPos.Y);
+
+                        // --- NEW: Simplified wall/floor logic ---
+                        // We assume a square is NOT a wall unless specified by room layout.
+                        // Your room generation logic would set `IsWall = true` for border squares.
+                        square.IsWall = false; // Default to floor
+
+                        // TODO: Add logic to place furniture on the square from room.FurnitureList
+                        // square.Furniture = ...
+
+                        DungeonGrid[globalPos] = square;
+                    }
                 }
             }
         }
 
-        /// <summary>
-        /// Moves a character to a new position on the grid.
-        /// </summary>
-        public bool MoveCharacter(Models.Character.Character character, GridPosition newPosition, RoomService room)
+        public GridSquare? GetSquareAt(GridPosition position)
         {
-            var targetSquare = room.Grid.FirstOrDefault(s => s.Position.X == newPosition.X && s.Position.Y == newPosition.Y);
-            if (targetSquare == null || targetSquare.IsOccupied || (targetSquare.Furniture != null && targetSquare.Furniture.NoEntry))
+            DungeonGrid.TryGetValue(position, out var square);
+            return square;
+        }
+
+        /// <summary>
+        /// Moves a character to a new position on the global dungeon grid.
+        /// </summary>
+        public bool MoveCharacter(Character character, GridPosition newPosition)
+        {
+            var targetSquare = GetSquareAt(newPosition);
+            // The check is now much cleaner!
+            if (targetSquare == null || targetSquare.MovementBlocked || targetSquare.IsOccupied)
             {
-                return false; // Invalid move
+                return false;
             }
 
-            // Vacate the old square
             if (character.Position != null)
             {
-                var oldSquare = room.Grid.FirstOrDefault(s => s.Position.X == character.Position.X && s.Position.Y == character.Position.Y);
-                if (oldSquare != null)
-                {
-                    oldSquare.OccupyingCharacterId = null;
-                }
+                var oldSquare = GetSquareAt(character.Position);
+                if (oldSquare != null) oldSquare.OccupyingCharacterId = null;
             }
 
-            // Occupy the new square
             targetSquare.OccupyingCharacterId = character.Id;
             character.Position = newPosition;
-
             return true;
         }
 
@@ -65,14 +82,67 @@ namespace LoDCompanion.Services.Dungeon
             return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y);
         }
 
-        /// <summary>
-        /// A placeholder for a Line of Sight algorithm (e.g., Bresenham's line algorithm).
-        /// </summary>
-        public bool HasLineOfSight(GridPosition start, GridPosition end, RoomService room)
+        public LineOfSightResult HasLineOfSight(GridPosition start, GridPosition end)
         {
-            // TODO: Implement a line-drawing algorithm to check for intervening squares
-            // with BlocksLineOfSight == true.
-            return true; // Assume true for now
+            var result = new LineOfSightResult();
+
+            int x0 = start.X; int y0 = start.Y;
+            int x1 = end.X; int y1 = end.Y;
+            int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+            int dy = -Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+            int err = dx + dy, e2;
+
+            bool isStraightLine = (start.X == end.X || start.Y == end.Y);
+
+            while (true)
+            {
+                var currentPos = new GridPosition(x0, y0);
+
+                // --- Check the current square in the line ---
+                // We always skip the start and end squares themselves.
+                if (!currentPos.Equals(start) && !currentPos.Equals(end))
+                {
+                    var square = GetSquareAt(currentPos);
+
+                    // If the square doesn't exist, it's a wall. LOS is blocked.
+                    if (square == null || square.IsWall)
+                    {
+                        result.IsBlocked = true;
+                        return result; // No need to check further
+                    }
+
+                    // Check for furniture that obstructs LOS
+                    if (square.IsObstacle)
+                    {
+                        result.ObstructionPenalty -= 10;
+                    }
+
+                    // Check if another character is in the way
+                    if (square.IsOccupied)
+                    {
+                        // A model is in the LOS, which always adds a penalty.
+                        result.ObstructionPenalty -= 10;
+
+                        // Check the straight-line shot rule
+                        if (isStraightLine)
+                        {
+                            result.IsIllegalStraightShot = true;
+                        }
+                    }
+                }
+
+                if (x0 == x1 && y0 == y1)
+                {
+                    // We have reached the end of the line.
+                    break;
+                }
+
+                e2 = 2 * err;
+                if (e2 >= dy) { err += dy; x0 += sx; }
+                if (e2 <= dx) { err += dx; y0 += sy; }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -109,7 +179,7 @@ namespace LoDCompanion.Services.Dungeon
                 !(pushbackSquare.Furniture != null && 
                 (pushbackSquare.Furniture.CanBeClimbed || pushbackSquare.Furniture.NoEntry)))
             {
-                MoveCharacter(target, pushbackPosition, room);
+                MoveCharacter(target, pushbackPosition);
                 return $"{shover.Name} successfully shoves {target.Name} back!";
             }
             else
@@ -121,16 +191,13 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
-        /// Finds the shortest path between two points using the A* algorithm.
+        /// Finds the shortest path between two points using the A* algorithm,
+        /// now correctly using your existing Node class and helper methods.
         /// </summary>
-        /// <param name="start">The starting position.</param>
-        /// <param name="end">The destination position.</param>
-        /// <param name="room">The room grid to navigate.</param>
-        /// <returns>A list of GridPosition objects representing the path, or an empty list if no path is found.</returns>
-        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, RoomService room)
+        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end)
         {
             var openSet = new List<Node>();
-            var closedSet = new HashSet<Node>();
+            var closedSet = new HashSet<GridPosition>();
 
             var startNode = new Node(start, null, 0, GetDistance(start, end));
             openSet.Add(startNode);
@@ -141,42 +208,83 @@ namespace LoDCompanion.Services.Dungeon
 
                 if (currentNode.Position.Equals(end))
                 {
+                    // Path found, reconstruct and return it.
                     return ReconstructPath(currentNode);
                 }
 
                 openSet.Remove(currentNode);
-                closedSet.Add(currentNode);
+                closedSet.Add(currentNode.Position);
 
-                foreach (var neighborPos in GetNeighbors(currentNode.Position, room))
+                foreach (var neighborPos in GetNeighbors(currentNode.Position))
                 {
-                    var neighborSquare = room.Grid.First(s => s.Position.Equals(neighborPos));
-                    if (closedSet.Any(n => n.Position.Equals(neighborPos)))
+                    if (closedSet.Contains(neighborPos))
+                    {
+                        continue; // Ignore already evaluated positions.
+                    }
+
+                    var neighborSquare = GetSquareAt(neighborPos);
+                    // This check is now redundant if GetNeighbors already does it, but it's safe to keep.
+                    if (neighborSquare == null || neighborSquare.MovementBlocked)
                     {
                         continue;
                     }
 
-                    // Calculate the cost to move to the neighbor
-                    // Climbing costs double movement.
-                    int movementCost = neighborSquare.Furniture != null && neighborSquare.Furniture.CanBeClimbed ? 2 : 1;
-                    int gScore = currentNode.GScore + movementCost;
+                    // Calculate the cost to move to the neighbor.
+                    int movementCost = neighborSquare.DoubleMoveCost ? 2 : 1;
+                    int tentativeGScore = currentNode.GScore + movementCost;
 
-                    var neighborNode = openSet.First(n => n.Position.Equals(neighborPos));
+                    var neighborNode = openSet.FirstOrDefault(n => n.Position.Equals(neighborPos));
 
                     if (neighborNode == null)
                     {
-                        neighborNode = new Node(neighborPos, currentNode, gScore, GetDistance(neighborPos, end));
+                        // This is a new node.
+                        neighborNode = new Node(neighborPos, currentNode, tentativeGScore, GetDistance(neighborPos, end));
                         openSet.Add(neighborNode);
                     }
-                    else if (gScore < neighborNode.GScore)
+                    else if (tentativeGScore < neighborNode.GScore)
                     {
+                        // We found a better path to this existing node.
                         neighborNode.Parent = currentNode;
-                        neighborNode.GScore = gScore;
+                        neighborNode.GScore = tentativeGScore;
                     }
                 }
             }
 
-            return new List<GridPosition>(); // Return an empty list if no path is found
+            // No path could be found.
+            return new List<GridPosition>();
         }
+
+        /// <summary>
+        /// Checks for a clear path, now using the `IsObstacle` property for ranged attacks.
+        /// </summary>
+        public bool HasClearPath(GridPosition start, GridPosition end)
+        {
+            int x0 = start.X; int y0 = start.Y;
+            int x1 = end.X; int y1 = end.Y;
+            int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+            int dy = -Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+            int err = dx + dy, e2;
+
+            while (true)
+            {
+                var currentPos = new GridPosition(x0, y0);
+                var currentSquare = GetSquareAt(currentPos);
+
+                // Path is blocked if the square doesn't exist (it's the void between rooms)
+                // or if it's an obstacle. Ignore start/end points.
+                if ((currentSquare == null || currentSquare.IsWall || currentSquare.DoubleMoveCost) && !currentPos.Equals(start) && !currentPos.Equals(end))
+                {
+                    return false;
+                }
+
+                if (x0 == x1 && y0 == y1) break;
+                e2 = 2 * err;
+                if (e2 >= dy) { err += dy; x0 += sx; }
+                if (e2 <= dx) { err += dx; y0 += sy; }
+            }
+            return true;
+        }
+
 
         /// <summary>
         /// Reconstructs the path from the end node back to the start.
@@ -196,7 +304,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Gets the walkable neighbors of a given position.
         /// </summary>
-        private IEnumerable<GridPosition> GetNeighbors(GridPosition position, RoomService room)
+        private IEnumerable<GridPosition> GetNeighbors(GridPosition position)
         {
             int[] dx = { 0, 0, 1, -1 };
             int[] dy = { 1, -1, 0, 0 };
@@ -204,7 +312,7 @@ namespace LoDCompanion.Services.Dungeon
             for (int i = 0; i < 4; i++)
             {
                 var newPos = new GridPosition(position.X + dx[i], position.Y + dy[i]);
-                var square = room.Grid.FirstOrDefault(s => s.Position.Equals(newPos));
+                var square = GetSquareAt(newPos);
 
                 // A square is a valid neighbor if it exists and is not marked as "No Entry".
                 // The movement cost for climbable obstacles is handled by the A* algorithm itself.
@@ -232,5 +340,13 @@ namespace LoDCompanion.Services.Dungeon
                 HScore = hScore;
             }
         }
+    }
+
+    public class LineOfSightResult
+    {
+        public bool IsBlocked { get; set; }
+        public int ObstructionPenalty { get; set; }
+        public bool IsIllegalStraightShot { get; set; }
+        public bool CanShoot => !IsBlocked;
     }
 }

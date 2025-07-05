@@ -45,6 +45,7 @@ namespace LoDCompanion.Services.Dungeon
         public List<GridSquare> Grid { get; set; } = new List<GridSquare>();
         public int Width { get; set; }
         public int Height { get; set; }
+        public GridPosition GridOffset { get; set; } = new GridPosition(0, 0);
 
         // Constructor for creating a RoomCorridor instance
         public RoomService(GameDataService gameData)

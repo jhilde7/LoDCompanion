@@ -80,6 +80,22 @@ namespace LoDCompanion.Models.Dungeon
             X = x;
             Y = y;
         }
+
+        public bool Equals(GridPosition? other)
+        {
+            if (other is null) return false;
+            return X == other.X && Y == other.Y;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as GridPosition);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y);
+        }
     }
 
     /// <summary>
@@ -88,9 +104,14 @@ namespace LoDCompanion.Models.Dungeon
     public class GridSquare
     {
         public GridPosition Position { get; set; }
-        public bool IsOccupied => OccupyingCharacterId != null;
         public string? OccupyingCharacterId { get; set; }
         public Furniture? Furniture { get; set; }
+        public bool IsWall { get; set; }
+
+        public bool MovementBlocked => IsWall || Furniture != null && Furniture.NoEntry;
+        public bool DoubleMoveCost => Furniture != null && Furniture.CanBeClimbed; //moving through cost 2x movement
+        public bool IsObstacle => Furniture != null && Furniture.IsObstacle; //Affects ranged attacks passing through this square
+        public bool IsOccupied => OccupyingCharacterId != null;
 
         public GridSquare(int x, int y)
         {

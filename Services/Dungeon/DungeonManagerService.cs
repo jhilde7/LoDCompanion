@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Models;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Game;
@@ -199,20 +200,30 @@ namespace LoDCompanion.Services.Dungeon
 
             // Step 6: Open the door and reveal the next room
             door.IsOpen = true;
-            RevealNextRoom();
+            RevealNextRoom(door);
             return "The door creaks open...";
         }
 
         /// <summary>
         /// Reveals the next room after a door has been successfully opened.
         /// </summary>
-        private List<Monster>? RevealNextRoom()
+        private List<Monster>? RevealNextRoom(DoorChest openedDoor)
         {
             if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out RoomInfo? nextRoomInfo) && nextRoomInfo != null)
             {
                 var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
+                    GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
+                    _grid.PlaceRoomOnGrid(newRoom, newRoomOffset);
+
+                    // Link the rooms logically
+                    if (_dungeonState.CurrentRoom != null)
+                    {
+                        openedDoor.ConnectedRooms.Add(newRoom);
+                        newRoom.ConnectedRooms.Add(_dungeonState.CurrentRoom);
+                    }
+
                     _dungeonState.CurrentRoom = newRoom;
                     return CheckForEncounter(newRoom);
                 }
@@ -221,6 +232,34 @@ namespace LoDCompanion.Services.Dungeon
             // No more rooms in this path.
             if (_dungeonState.CurrentRoom != null) _dungeonState.CurrentRoom.IsDeadEnd = true;
             return null;
+        }
+
+        /// <summary>
+        /// Calculates where to place the new room based on the door that was opened.
+        /// </summary>
+        private GridPosition CalculateNewRoomOffset(DoorChest door, RoomService newRoom)
+        {
+            GridPosition primaryDoorPos = door.Position[0];
+            int newRoomWidth = newRoom.Width;
+            int newRoomHeight = newRoom.Height;
+
+            switch (door.Orientation)
+            {
+                case Orientation.North:
+                    // Place the new room's bottom edge against the door
+                    return new GridPosition(primaryDoorPos.X - (newRoomWidth / 2) + 1, primaryDoorPos.Y + 1);
+                case Orientation.South:
+                    // Place the new room's top edge against the door
+                    return new GridPosition(primaryDoorPos.X - (newRoomWidth / 2) + 1, primaryDoorPos.Y - newRoomHeight);
+                case Orientation.East:
+                    // Place the new room's left edge against the door
+                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y - (newRoomHeight / 2) + 1);
+                case Orientation.West:
+                    // Place the new room's right edge against the door
+                    return new GridPosition(primaryDoorPos.X - newRoomWidth, primaryDoorPos.Y - (newRoomHeight / 2) + 1);
+                default:
+                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y);
+            }
         }
 
         private List<Monster>? CheckForEncounter(RoomService newRoom)
