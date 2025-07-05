@@ -58,7 +58,7 @@ namespace LoDCompanion.Services.Player
             }
 
             // Step 1: Check for Rations
-            var ration = party.Heroes.SelectMany(h => h.Backpack).FirstOrDefault(i => i.Name == "Ration");
+            var ration = party.Heroes.SelectMany(h => h.Backpack).First(i => i.Name == "Ration");
             if (ration == null || ration.Quantity <= 0)
             {
                 result.Message = "The party has no rations and cannot rest.";
@@ -90,6 +90,7 @@ namespace LoDCompanion.Services.Player
 
             // --- If rest was not interrupted ---
             result.WasSuccessful = true;
+            party.PartyMorale += 2;
             result.Message = "The party rests successfully.";
 
             // Step 3: Apply healing and recovery
