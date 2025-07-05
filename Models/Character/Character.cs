@@ -244,7 +244,8 @@ namespace LoDCompanion.Models.Character
         public string Type { get; set; } = string.Empty;
         public int ArmourValue { get; set; }
         public bool HasShield { get; set; } // Indicates if the monster has a shield
-        public int[] DamageArray { get; set; } = new int[2]; // Initialize to avoid null reference
+        public int MinDamage { get; set; }
+        public int MaxDamage { get; set; }
         public bool HasSpecialAttack { get; set; }
         public bool IsGhost { get; set; }
         public int ToHitPenalty { get; set; } 
@@ -254,7 +255,7 @@ namespace LoDCompanion.Models.Character
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
         public bool IsUndead { get; set; }
         public List<string> Spells { get; set; } = new List<string>(); // List of actual spell names
-        public List<MonsterWeapon> Weapons { get; set; } = new List<MonsterWeapon>(); // List of Monster Weapon objects
+        public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
         public Corpse Body { get; set; }
         public string TreasureType { get; set; } = "-"; // Default value indicating no treasure type assigned
         public List<string> Treasures { get; set; } = new List<string>();
@@ -274,14 +275,14 @@ namespace LoDCompanion.Models.Character
 
             sb.AppendLine("\n-- Combat Stats --");
             sb.AppendLine($"CS: {CombatSkill}, RS: {RangedSkill}, Dodge: {Dodge}, To Hit Bonus: {ToHitPenalty}");
-            sb.AppendLine($"Damage: {DamageArray[0]}-{DamageArray[1]}, DB: {DamageBonus}");
+            sb.AppendLine($"Damage: {MinDamage}-{MaxDamage}, DB: {DamageBonus}");
 
             if (Weapons.Any())
             {
                 sb.AppendLine("\n-- Weapons --");
                 foreach (var weapon in Weapons)
                 {
-                    sb.AppendLine($"- {weapon.Name} (Damage: {weapon.DamageArray[0]} - {weapon.DamageArray[1]})");
+                    sb.AppendLine($"- {weapon.Name} (Damage: {weapon.MinDamage} - {weapon.MaxDamage})");
                 }
             }
 
