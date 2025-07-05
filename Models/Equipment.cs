@@ -205,6 +205,8 @@ namespace LoDCompanion.Models
 
     public class Weapon : Equipment
     {
+        public bool IsRanged { get; set; }
+        public bool IsMelee { get; set; }
         public new int Durability { get; set; } = 6;
         public int Class { get; set; }
         public int MinDamage { get; set; }
@@ -212,19 +214,8 @@ namespace LoDCompanion.Models
         public int ArmourPiercing { get; set; }
         public Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
 
-
-        // You can add common weapon methods here, e.g., for calculating damage roll
         public virtual int RollDamage()
         {
-            if (MinDamage > MaxDamage)
-            {
-                // Swap if min is greater than max
-                int temp = MinDamage;
-                MinDamage = MaxDamage;
-                MaxDamage = temp;
-            }
-            if (MinDamage == 0 && MaxDamage == 0) return 0;
-
             return RandomHelper.GetRandomNumber(MinDamage, MaxDamage);
         }
 
@@ -236,6 +227,7 @@ namespace LoDCompanion.Models
         
         public MeleeWeapon() 
         {
+            IsMelee = true;
             SetMithrilModifier();
         } 
 
@@ -353,7 +345,10 @@ namespace LoDCompanion.Models
         public int ReloadTime { get; set; } = 1;
         public bool IsLoaded { get; set; } = false;
 
-        public RangedWeapon() { } // Default constructor
+        public RangedWeapon() 
+        {
+            IsRanged = true;
+        } 
 
         public override string ToString()
         {

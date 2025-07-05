@@ -141,7 +141,7 @@ namespace LoDCompanion.Services.Dungeon
                 // TODO: Replace with a roll on the actual quest's encounter table.
                 // For now, we'll just grab a random monster.
                 var monsterTemplates = new Dictionary<string, Monster>();
-                var weaponTemplates = new Dictionary<string, MonsterWeapon>();
+                var weaponTemplates = new Dictionary<string, Weapon>();
 
                 List<Monster> monsters = new List<Monster>();
 

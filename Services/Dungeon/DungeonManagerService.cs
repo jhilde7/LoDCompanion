@@ -248,7 +248,7 @@ namespace LoDCompanion.Services.Dungeon
 
                 // TODO: Replace these placeholders with actual monster/weapon data loading
                 var monsterTemplates = new Dictionary<string, Monster>();
-                var weaponTemplates = new Dictionary<string, MonsterWeapon>();
+                var weaponTemplates = new Dictionary<string, Weapon>();
 
                 List<Monster> monsters = new List<Monster>();
 

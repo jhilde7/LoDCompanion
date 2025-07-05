@@ -178,7 +178,7 @@ namespace LoDCompanion.Services.Game
             if (!availableMonsters.Any()) return null;
 
             // Magic User or Ranged Weapon
-            var magicOrRanged = availableMonsters.First(m => m.Spells.Any() || m.Weapons.Any(w => w.IsRanged));
+            var magicOrRanged = availableMonsters.First(m => m.Spells.Any() || m.Weapons.Any(w => ((RangedWeapon)w).IsRanged));
             if (magicOrRanged != null) return magicOrRanged;
 
             // Adjacent to a hero and could make room

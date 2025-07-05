@@ -135,7 +135,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Applies armor reduction based on the specific hit location.
         /// </summary>
-        private int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, MonsterWeapon? weapon)
+        private int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, Weapon? weapon)
         {
             var relevantArmor = target.Armours.Where(a => DoesArmorCoverLocation(a, location)).ToList();
             int totalArmorValue = relevantArmor.Sum(a => a.DefValue);
@@ -179,13 +179,13 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Calculates the raw damage of a monster's attack before armor and defense.
         /// </summary>
-        private int CalculatePotentialDamage(Monster attacker, MonsterWeapon? weapon)
+        private int CalculatePotentialDamage(Monster attacker, Weapon? weapon)
         {
             if (weapon != null)
             {
-                return weapon.GetDamage(attacker.DamageBonus);
+                return weapon.RollDamage();
             }
-            return RandomHelper.GetRandomNumber(attacker.DamageArray[0], attacker.DamageArray[1]) + attacker.DamageBonus;
+            return RandomHelper.GetRandomNumber(attacker.MinDamage, attacker.MaxDamage) + attacker.DamageBonus;
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace LoDCompanion.Services.Combat
         /// <param name="targetHero">The hero being targeted.</param>
         /// <param name="monsterWeapon">The weapon the monster is using (can be null if natural attack).</param>
         /// <returns>A tuple containing attack message and damage dealt.</returns>
-        public (string message, int damageDealt) ProcessPhysicalAttack(Monster attacker, Hero targetHero, MonsterWeapon? monsterWeapon = null)
+        public (string message, int damageDealt) ProcessPhysicalAttack(Monster attacker, Hero targetHero, Weapon? monsterWeapon = null)
         {
             if (attacker == null) throw new ArgumentNullException(nameof(attacker));
             if (targetHero == null) throw new ArgumentNullException(nameof(targetHero));
@@ -338,19 +338,19 @@ namespace LoDCompanion.Services.Combat
         /// <param name="weapon">The weapon used by the monster (can be null for natural attacks).</param>
         /// <param name="targetArmourPieces">The collection of armor pieces on the target.</param>
         /// <returns>The total damage dealt after armor reduction.</returns>
-        public int GetDamage(Monster attacker, List<Armour> targetArmourPieces, MonsterWeapon? weapon = null)
+        public int GetDamage(Monster attacker, List<Armour> targetArmourPieces, Weapon? weapon = null)
         {
             if (attacker == null) throw new ArgumentNullException(nameof(attacker));
 
             int baseDamage = 0;
             if (weapon != null)
             {
-                baseDamage = weapon.GetDamage(attacker.DamageBonus);
+                baseDamage = weapon.RollDamage();
             }
             else
             {
                 // Natural attack damage (e.g., from Monster's base stats or predefined natural attack damage)
-                baseDamage = RandomHelper.GetRandomNumber(attacker.DamageArray[0], attacker.DamageArray[1]);
+                baseDamage = RandomHelper.GetRandomNumber(attacker.MinDamage, attacker.MaxDamage);
             }
 
             // Calculate total armor value from target's equipped armor
