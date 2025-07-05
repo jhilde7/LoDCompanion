@@ -48,6 +48,34 @@ namespace LoDCompanion.Services.Dungeon
             {
                 if (monsterState.IsRevealed) continue;
 
+                if (monsterState.IsAtClosedDoor)
+                {
+                    // Monster is waiting at a door. Roll to see if it breaks through.
+                    // Rule: 2-6 on a d6 to open a standard door.
+                    if (RandomHelper.RollDie("D6") >= 2)
+                    {
+                        monsterState.IsAtClosedDoor = false;
+                        // The door is now considered open. The monster will move on its next turn.
+                        Console.WriteLine("The wandering monster breaks through the door!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("The wandering monster waits at the closed door.");
+                    }
+                    continue; // End this monster's turn
+                }
+
+                if (monsterState.IsAtChasm)
+                {
+                    // Monster is at a chasm. Roll to see if it crosses.
+                    // Rule: Any roll to continue will get it across, but ends its move for the turn.
+                    monsterState.IsAtChasm = false; // It will cross or move on next turn
+                    // TODO: define chasm as to eliminate a NoEntry from blocking the A* algoritm
+                    // TODO: Find the square on the other side of the chasm and update monsterState.CurrentPosition
+                    Console.WriteLine("The wandering monster crosses the chasm and waits.");
+                    continue; // End this monster's turn
+                }
+
                 int moveRoll = RandomHelper.RollDie("D6");
                 if (moveRoll >= 2)
                 {
@@ -87,10 +115,12 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         // This handles cases where no heroes are in the same room, or no path exists.
                         Console.WriteLine("Wandering monster has no path to any hero.");
+                        continue;
                     }
                 }
                 else
                 {
+                    // TODO: Implement logic to move away from the party
                     Console.WriteLine("Wandering monster token moves away from the party.");
                 }
             }
