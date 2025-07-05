@@ -127,5 +127,117 @@ namespace LoDCompanion.Services.Dungeon
                 return $"{shover.Name} shoves {target.Name}, but they are blocked and fall over!";
             }
         }
+
+        /// <summary>
+        /// Finds the shortest path between two points using the A* algorithm.
+        /// </summary>
+        /// <param name="start">The starting position.</param>
+        /// <param name="end">The destination position.</param>
+        /// <param name="room">The room grid to navigate.</param>
+        /// <returns>A list of GridPosition objects representing the path, or an empty list if no path is found.</returns>
+        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, RoomService room)
+        {
+            var openSet = new List<Node>();
+            var closedSet = new HashSet<Node>();
+
+            var startNode = new Node(start, null, 0, GetDistance(start, end));
+            openSet.Add(startNode);
+
+            while (openSet.Count > 0)
+            {
+                var currentNode = openSet.OrderBy(node => node.FScore).First();
+
+                if (currentNode.Position.Equals(end))
+                {
+                    return ReconstructPath(currentNode);
+                }
+
+                openSet.Remove(currentNode);
+                closedSet.Add(currentNode);
+
+                foreach (var neighborPos in GetNeighbors(currentNode.Position, room))
+                {
+                    var neighborSquare = room.Grid.First(s => s.Position.Equals(neighborPos));
+                    if (closedSet.Any(n => n.Position.Equals(neighborPos)))
+                    {
+                        continue;
+                    }
+
+                    // Calculate the cost to move to the neighbor
+                    // Climbing costs double movement.
+                    int movementCost = neighborSquare.IsObstacle ? 2 : 1;
+                    int gScore = currentNode.GScore + movementCost;
+
+                    var neighborNode = openSet.FirstOrDefault(n => n.Position.Equals(neighborPos));
+
+                    if (neighborNode == null)
+                    {
+                        neighborNode = new Node(neighborPos, currentNode, gScore, GetDistance(neighborPos, end));
+                        openSet.Add(neighborNode);
+                    }
+                    else if (gScore < neighborNode.GScore)
+                    {
+                        neighborNode.Parent = currentNode;
+                        neighborNode.GScore = gScore;
+                    }
+                }
+            }
+
+            return new List<GridPosition>(); // Return an empty list if no path is found
+        }
+
+        /// <summary>
+        /// Reconstructs the path from the end node back to the start.
+        /// </summary>
+        private List<GridPosition> ReconstructPath(Node node)
+        {
+            var path = new List<GridPosition>();
+            while (node != null)
+            {
+                path.Add(node.Position);
+                node = node.Parent;
+            }
+            path.Reverse();
+            return path;
+        }
+
+        /// <summary>
+        /// Gets the walkable neighbors of a given position.
+        /// </summary>
+        private IEnumerable<GridPosition> GetNeighbors(GridPosition position, RoomService room)
+        {
+            int[] dx = { 0, 0, 1, -1 };
+            int[] dy = { 1, -1, 0, 0 };
+
+            for (int i = 0; i < 4; i++)
+            {
+                var newPos = new GridPosition(position.X + dx[i], position.Y + dy[i]);
+                var square = room.Grid.FirstOrDefault(s => s.Position.Equals(newPos));
+
+                // A square is a valid neighbor if it exists and is not an obstacle that cannot be climbed.
+                if (square != null && (!square.IsObstacle || square.CanBeClimbed))
+                {
+                    yield return newPos;
+                }
+            }
+        }
+
+        // --- Helper Class for A* ---
+        private class Node
+        {
+            public GridPosition Position { get; }
+            public Node Parent { get; set; }
+            public int GScore { get; set; } // Cost from start to current node
+            public int HScore { get; set; } // Heuristic cost from current node to end
+            public int FScore => GScore + HScore; // Total cost
+
+            public Node(GridPosition position, Node parent, int gScore, int hScore)
+            {
+                Position = position;
+                Parent = parent;
+                GScore = gScore;
+                HScore = hScore;
+            }
+        }
     }
 }
