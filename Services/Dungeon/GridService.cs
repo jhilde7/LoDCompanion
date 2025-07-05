@@ -35,7 +35,7 @@ namespace LoDCompanion.Services.Dungeon
         public bool MoveCharacter(Models.Character.Character character, GridPosition newPosition, RoomService room)
         {
             var targetSquare = room.Grid.FirstOrDefault(s => s.Position.X == newPosition.X && s.Position.Y == newPosition.Y);
-            if (targetSquare == null || targetSquare.IsOccupied || targetSquare.IsObstacle)
+            if (targetSquare == null || targetSquare.IsOccupied || (targetSquare.Furniture != null && targetSquare.Furniture.NoEntry))
             {
                 return false; // Invalid move
             }
@@ -76,16 +76,6 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
-        /// A placeholder for a pathfinding algorithm (e.g., A*).
-        /// </summary>
-        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, RoomService room)
-        {
-            // TODO: Implement A* or another pathfinding algorithm to navigate the grid,
-            // avoiding squares where IsObstacle && !CanBeClimbed or if the shorstest route requires climbing over an object which is twice the movement cost.
-            return new List<GridPosition> { end }; // Return a direct path for now
-        }
-
-        /// <summary>
         /// Attempts to shove a target character one square back.
         /// </summary>
         /// <param name="shover">The character performing the shove.</param>
@@ -115,7 +105,9 @@ namespace LoDCompanion.Services.Dungeon
             // Check if the pushback square is valid and not occupied.
             var pushbackSquare = room.Grid.FirstOrDefault(s => s.Position.X == pushbackPosition.X && s.Position.Y == pushbackPosition.Y);
 
-            if (pushbackSquare != null && !pushbackSquare.IsOccupied && !pushbackSquare.IsObstacle)
+            if (pushbackSquare != null && !pushbackSquare.IsOccupied && 
+                !(pushbackSquare.Furniture != null && 
+                (pushbackSquare.Furniture.CanBeClimbed || pushbackSquare.Furniture.NoEntry)))
             {
                 MoveCharacter(target, pushbackPosition, room);
                 return $"{shover.Name} successfully shoves {target.Name} back!";
@@ -165,10 +157,10 @@ namespace LoDCompanion.Services.Dungeon
 
                     // Calculate the cost to move to the neighbor
                     // Climbing costs double movement.
-                    int movementCost = neighborSquare.IsObstacle ? 2 : 1;
+                    int movementCost = neighborSquare.Furniture != null && neighborSquare.Furniture.CanBeClimbed ? 2 : 1;
                     int gScore = currentNode.GScore + movementCost;
 
-                    var neighborNode = openSet.FirstOrDefault(n => n.Position.Equals(neighborPos));
+                    var neighborNode = openSet.First(n => n.Position.Equals(neighborPos));
 
                     if (neighborNode == null)
                     {
@@ -214,8 +206,9 @@ namespace LoDCompanion.Services.Dungeon
                 var newPos = new GridPosition(position.X + dx[i], position.Y + dy[i]);
                 var square = room.Grid.FirstOrDefault(s => s.Position.Equals(newPos));
 
-                // A square is a valid neighbor if it exists and is not an obstacle that cannot be climbed.
-                if (square != null && (!square.IsObstacle || square.CanBeClimbed))
+                // A square is a valid neighbor if it exists and is not marked as "No Entry".
+                // The movement cost for climbable obstacles is handled by the A* algorithm itself.
+                if (square != null && (square.Furniture != null && !square.Furniture.NoEntry))
                 {
                     yield return newPos;
                 }

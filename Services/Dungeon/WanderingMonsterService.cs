@@ -8,11 +8,13 @@ namespace LoDCompanion.Services.Dungeon
     {
         private readonly EncounterService _encounter;
         private readonly DungeonState _dungeonState;
+        private readonly GridService _grid;
 
-        public WanderingMonsterService(DungeonState dungeonState, EncounterService encounter)
+        public WanderingMonsterService(DungeonState dungeonState, EncounterService encounter, GridService grid)
         {
             _dungeonState = dungeonState;
             _encounter = encounter;
+            _grid = grid;
         }
 
         /// <summary>
@@ -23,7 +25,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             if (dungeonState.StartingRoom == null) return;
 
-            var newWanderingMonster = new WanderingMonsterState(dungeonState.StartingRoom.RoomName);
+            var newWanderingMonster = new WanderingMonsterState();
             dungeonState.WanderingMonsters.Add(newWanderingMonster);
 
             Console.WriteLine("A wandering monster token has been placed at the dungeon entrance.");
@@ -37,29 +39,58 @@ namespace LoDCompanion.Services.Dungeon
         public bool MoveWanderingMonsters(DungeonState dungeonState)
         {
             bool partySpotted = false;
+            if (dungeonState.HeroParty == null || !dungeonState.HeroParty.Heroes.Any() || dungeonState.WanderingMonsters == null)
+            {
+                return false;
+            }
+
             foreach (var monsterState in dungeonState.WanderingMonsters)
             {
-                if (monsterState.IsRevealed) continue; // Revealed monsters act in normal combat.
+                if (monsterState.IsRevealed) continue;
 
-                // Simplified movement logic. A full implementation would need a grid and pathfinding.
-                // For now, we simulate the d6 roll for direction.
                 int moveRoll = RandomHelper.RollDie("D6");
                 if (moveRoll >= 2)
                 {
-                    // Monster moves towards the party.
-                    // TODO: Implement logic to move the token 4 squares towards the party's current room.
-                    // This involves finding the next room in the path.
-                    Console.WriteLine($"Wandering monster token moves towards the party...");
+                    // Find the shortest path to any hero in the same room.
+                    List<GridPosition> shortestPath = new List<GridPosition>();
 
-                    // After moving, check if it spots the party.
-                    if (CheckForReveal(monsterState, dungeonState))
+                    foreach (var hero in dungeonState.HeroParty?.Heroes ?? Enumerable.Empty<Hero>())
                     {
-                        partySpotted = true;
+                        if (hero == null) continue;
+                        if (hero.CurrentHP <= 0) continue;
+
+                        if (monsterState.CurrentRoom == null) continue;
+
+                        List<GridPosition> currentPath = _grid.FindShortestPath(monsterState.CurrentPosition, hero.Position, monsterState.CurrentRoom);
+
+                        // If this is the first valid path found, or if it's shorter than the previous shortest path
+                        if (currentPath.Any() && (!shortestPath.Any() || currentPath.Count < shortestPath.Count))
+                        {
+                            shortestPath = currentPath;
+                        }
+                    }
+
+                    // If a valid path to a hero was found, move the monster
+                    if (shortestPath.Any() && shortestPath.Count > 1)
+                    {
+                        // Move the monster up to 4 squares along the path
+                        int squaresToMove = Math.Min(4, shortestPath.Count - 1);
+                        monsterState.CurrentPosition = shortestPath[squaresToMove];
+                        Console.WriteLine($"Wandering monster moves towards the party, now at ({monsterState.CurrentPosition.X}, {monsterState.CurrentPosition.Y}).");
+
+                        if (CheckForReveal(monsterState, dungeonState))
+                        {
+                            partySpotted = true;
+                        }
+                    }
+                    else
+                    {
+                        // This handles cases where no heroes are in the same room, or no path exists.
+                        Console.WriteLine("Wandering monster has no path to any hero.");
                     }
                 }
                 else
                 {
-                    // Monster moves away from the party.
                     Console.WriteLine("Wandering monster token moves away from the party.");
                 }
             }
@@ -73,7 +104,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             // Simplified reveal logic. Rule: "If it enters a room from where it has line of sight to
             // the characters and they are within 10 squares, roll on the quest-specific Monster Table".
-            if (monsterState.CurrentRoomId == dungeonState.CurrentRoom?.RoomName)
+            if (monsterState.CurrentRoom == dungeonState.CurrentRoom)
             {
                 Console.WriteLine("The wandering monster has found the party!");
 

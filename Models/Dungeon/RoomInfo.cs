@@ -90,8 +90,7 @@ namespace LoDCompanion.Models.Dungeon
         public GridPosition Position { get; set; }
         public bool IsOccupied => OccupyingCharacterId != null;
         public string? OccupyingCharacterId { get; set; }
-        public bool IsObstacle { get; set; } // True if furniture or a wall blocks movement.
-        public bool BlocksLineOfSight { get; set; } // True if furniture or a pillar blocks LOS.
+        public Furniture? Furniture { get; set; }
 
         public GridSquare(int x, int y)
         {
