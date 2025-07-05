@@ -9,8 +9,9 @@ namespace LoDCompanion.Services.Combat
     {
         private readonly GameDataService _gameData;
 
-        public MonsterSpecialService()
+        public MonsterSpecialService(GameDataService gameDataService)
         {
+            _gameData = gameDataService;
         }
 
         /// <summary>
