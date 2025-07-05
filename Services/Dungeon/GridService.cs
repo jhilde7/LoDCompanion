@@ -105,30 +105,21 @@ namespace LoDCompanion.Services.Dungeon
                     var square = GetSquareAt(currentPos);
 
                     // If the square doesn't exist, it's a wall. LOS is blocked.
-                    if (square == null || square.IsWall)
+                    if (square == null || square.LoSBlocked)
                     {
                         result.IsBlocked = true;
-                        return result; // No need to check further
+                        return result;
                     }
 
                     // Check for furniture that obstructs LOS
-                    if (square.IsObstacle)
+                    if (square.IsObstacle || square.IsOccupied)
                     {
                         result.ObstructionPenalty -= 10;
+                        return result;
                     }
 
-                    // Check if another character is in the way
-                    if (square.IsOccupied)
-                    {
-                        // A model is in the LOS, which always adds a penalty.
-                        result.ObstructionPenalty -= 10;
+                    result.ClearShot = true;
 
-                        // Check the straight-line shot rule
-                        if (isStraightLine)
-                        {
-                            result.IsIllegalStraightShot = true;
-                        }
-                    }
                 }
 
                 if (x0 == x1 && y0 == y1)
@@ -346,7 +337,7 @@ namespace LoDCompanion.Services.Dungeon
     {
         public bool IsBlocked { get; set; }
         public int ObstructionPenalty { get; set; }
-        public bool IsIllegalStraightShot { get; set; }
+        public bool ClearShot { get; set; }
         public bool CanShoot => !IsBlocked;
     }
 }

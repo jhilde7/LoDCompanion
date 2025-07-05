@@ -108,6 +108,7 @@ namespace LoDCompanion.Models.Dungeon
         public Furniture? Furniture { get; set; }
         public bool IsWall { get; set; }
 
+        public bool LoSBlocked => IsWall || Furniture != null && Furniture.BlocksLoS;
         public bool MovementBlocked => IsWall || Furniture != null && Furniture.NoEntry;
         public bool DoubleMoveCost => Furniture != null && Furniture.CanBeClimbed; //moving through cost 2x movement
         public bool IsObstacle => Furniture != null && Furniture.IsObstacle; //Affects ranged attacks passing through this square
