@@ -32,7 +32,22 @@ namespace LoDCompanion.Services.Game
                 switch (monster.Behavior)
                 {
                     case MonsterBehaviorType.HumanoidMelee:
-                        ExecuteHumanoidMeleeAction(monster, heroes, room, ref ap);
+                        ExecuteHumanoidWithCloseCombatWeapon(monster, heroes, room, ref ap);
+                        break;
+                    case MonsterBehaviorType.Ranged:
+                        ExecuteHumanoidWithMissileWeapon(monster, heroes, room, ref ap);
+                        break;
+                    case MonsterBehaviorType.Beast:
+                        ExecuteBeast(monster, heroes, room, ref ap);
+                        break;
+                    case MonsterBehaviorType.LowerUndead:
+                        ExecuteLowerUndead(monster, heroes, room, ref ap); 
+                        break;
+                    case MonsterBehaviorType.HigherUndead:
+                        ExecuteHigherUndead(monster, heroes, room, ref ap);
+                        break;
+                    case MonsterBehaviorType.MagicUser:
+                        ExecuteMagicUser(monster, heroes, room, ref ap);
                         break;
                 }
                 // Decide on the action based on the monster's behavior type.
@@ -41,7 +56,31 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteHumanoidMeleeAction(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteMagicUser(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        private void ExecuteHigherUndead(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        private void ExecuteLowerUndead(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        private void ExecuteBeast(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        private void ExecuteHumanoidWithCloseCombatWeapon(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
         {
             var target = ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null)
@@ -116,6 +155,11 @@ namespace LoDCompanion.Services.Game
                 ap--;
                 return;
             }
+        }
+
+        private void ExecuteHumanoidWithMissileWeapon(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        {
+            //TODO
         }
 
         private Hero? ChooseTarget(Monster monster, List<Hero> heroes)

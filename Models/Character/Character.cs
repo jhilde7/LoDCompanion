@@ -233,7 +233,9 @@ namespace LoDCompanion.Models.Character
         HumanoidMelee,
         Ranged,
         MagicUser,
-        Beast
+        Beast,
+        LowerUndead,
+        HigherUndead
     }
 
     public class Monster : Character // Inherit from the new Character base class
