@@ -35,7 +35,7 @@ else
     <div class="row">
         <!-- Main Creation Area -->
         <div class="col-md-9">
-            <h1>Create Your Hero (@(PartyManager.Party.Heroes.Count + 1) of 4)</h1>
+            <h1>Create Your Hero (@(PartyManager.Party?.Heroes.Count + 1) of 4)</h1>
             <!-- Progress Bar -->
             <span class="progress" style="height: 25px;">
                 <div class="progress-bar @GetProgressClass(Step.Species)" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 22%; cursor: pointer;" @onclick="() => SetStep(Step.Species)">Species</div>
@@ -127,10 +127,10 @@ else
         <div class="col-md-3">
             <div class="card sticky-top" style="top: 1rem;">
                 <div class="card-header">
-                    <h5>Current Party (@PartyManager.Party.Heroes.Count / 4)</h5>
+                    <h5>Current Party (@PartyManager.Party?.Heroes.Count / 4)</h5>
                 </div>
                 <ul class="list-group list-group-flush">
-                    @if (PartyManager.Party.Heroes.Any())
+                    @if (PartyManager.Party != null && PartyManager.Party.Heroes.Any())
                     {
                         @foreach (var hero in PartyManager.Party.Heroes)
                         {
@@ -972,10 +972,10 @@ else
 
     private RenderFragment CharacterSummary =>@<section>
         <h2 class="text-success">@State.Name has been added to the party!</h2>
-        <p>You now have @PartyManager.Party.Heroes.Count hero(es) in your party.</p>
+        <p>You now have @PartyManager.Party?.Heroes.Count hero(es) in your party.</p>
         <hr />
 
-        @if (PartyManager.Party.Heroes.Count < 4)
+        @if (PartyManager.Party != null && PartyManager.Party.Heroes.Count < 4)
         {
             <p>Time to create your next hero.</p>
             <button class="btn btn-lg btn-primary" @onclick="CreateNextHero">Create Another Hero</button>
