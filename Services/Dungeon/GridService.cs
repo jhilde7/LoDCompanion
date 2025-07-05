@@ -181,7 +181,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Reconstructs the path from the end node back to the start.
         /// </summary>
-        private List<GridPosition> ReconstructPath(Node node)
+        private List<GridPosition> ReconstructPath(Node? node)
         {
             var path = new List<GridPosition>();
             while (node != null)
@@ -219,12 +219,12 @@ namespace LoDCompanion.Services.Dungeon
         private class Node
         {
             public GridPosition Position { get; }
-            public Node Parent { get; set; }
+            public Node? Parent { get; set; }
             public int GScore { get; set; } // Cost from start to current node
             public int HScore { get; set; } // Heuristic cost from current node to end
             public int FScore => GScore + HScore; // Total cost
 
-            public Node(GridPosition position, Node parent, int gScore, int hScore)
+            public Node(GridPosition position, Node? parent, int gScore, int hScore)
             {
                 Position = position;
                 Parent = parent;
