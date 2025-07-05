@@ -317,7 +317,7 @@ namespace LoDCompanion.Services.Game
                 if (context.IsFireDamage)
                 {
                     // Rule: Fire causes ongoing damage.
-                    _statusEffect.ApplyStatus(target, StatusEffectType.Burning, 1);
+                    _statusEffect.ApplyStatus(target, StatusEffectType.FireBurning, 1);
                 }
                 if (context.IsFrostDamage && RandomHelper.RollDie("D100") <= 50)
                 {

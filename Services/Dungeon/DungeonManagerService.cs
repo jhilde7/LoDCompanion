@@ -19,7 +19,6 @@ namespace LoDCompanion.Services.Dungeon
         private readonly ThreatService _threat;
         private readonly LockService _lock;
         private readonly TrapService _trap;
-        private readonly CombatManagerService _combatManager;
         private readonly PartyRestingService _partyResting;
         private readonly LeverService _lever;
         private readonly QuestService _quest;
@@ -46,8 +45,7 @@ namespace LoDCompanion.Services.Dungeon
             PartyRestingService partyResting,
             LeverService leverService,
             QuestService questService,
-            GridService gridService,
-            CombatManagerService combatManager)
+            GridService gridService)
         {
             _gameData = gameData;
             _wanderingMonster = wanderingMonster;
@@ -63,7 +61,6 @@ namespace LoDCompanion.Services.Dungeon
             _lever = leverService;
             _quest = questService;
             _grid = gridService;
-            _combatManager = combatManager;
 
             _dungeonState = dungeonState;
         }
@@ -209,7 +206,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Reveals the next room after a door has been successfully opened.
         /// </summary>
-        private void RevealNextRoom()
+        private List<Monster>? RevealNextRoom()
         {
             if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out RoomInfo? nextRoomInfo) && nextRoomInfo != null)
             {
@@ -217,22 +214,21 @@ namespace LoDCompanion.Services.Dungeon
                 if (newRoom != null)
                 {
                     _dungeonState.CurrentRoom = newRoom;
-                    CheckForEncounter(newRoom);
+                    return CheckForEncounter(newRoom);
                 }
             }
-            else
-            {
-                // No more rooms in this path.
-                if (_dungeonState.CurrentRoom != null) _dungeonState.CurrentRoom.IsDeadEnd = true;
-            }
+
+            // No more rooms in this path.
+            if (_dungeonState.CurrentRoom != null) _dungeonState.CurrentRoom.IsDeadEnd = true;
+            return null;
         }
 
-        private void CheckForEncounter(RoomService newRoom)
+        private List<Monster>? CheckForEncounter(RoomService newRoom)
         {
             if (!newRoom.RandomEncounter)
             {
                 _dungeonState.RoomsWithoutEncounters++;
-                return;
+                return null;
             }
 
             int encounterChance = (newRoom.Category == RoomCategory.Room) ? 50 : 30;
@@ -271,7 +267,7 @@ namespace LoDCompanion.Services.Dungeon
                     // Hand off to the CombatManager to start the battle
                     if (_dungeonState.HeroParty != null && _dungeonState.HeroParty.Heroes != null)
                     {
-                        _combatManager.StartCombat(_dungeonState.HeroParty.Heroes, monsters);
+                        return monsters;
                     }
                     else
                     {
@@ -279,12 +275,11 @@ namespace LoDCompanion.Services.Dungeon
                     }
                 }
             }
-            else
-            {
-                // No encounter
-                Console.WriteLine("The room is quiet... for now.");
-                _dungeonState.RoomsWithoutEncounters++;
-            }
+
+            // No encounter
+            Console.WriteLine("The room is quiet... for now.");
+            _dungeonState.RoomsWithoutEncounters++;
+            return null;
         }
 
         private void PlaceMonsters(List<Monster> monsters, RoomService room)
