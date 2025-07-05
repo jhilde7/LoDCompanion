@@ -514,6 +514,51 @@ namespace LoDCompanion.Services.GameData
             }
             return strengths;
         }
+
+        /// <summary>
+        /// Attempts to brew a potion from a given recipe.
+        /// </summary>
+        /// <param name="alchemist">The hero attempting to brew the potion.</param>
+        /// <param name="recipe">The alchemical recipe to be brewed.</param>
+        /// <returns>A string message indicating the success or failure of the brewing attempt.</returns>
+        public string BrewPotion(Hero alchemist, AlchemicalRecipe recipe)
+        {
+            // 1. Check if the alchemist has the required components in their backpack
+            foreach (var component in recipe.Components)
+            {
+                var requiredItem = alchemist.Backpack.FirstOrDefault(item => item.Name == component.Name && item.Quantity > 0);
+                if (requiredItem == null)
+                {
+                    return $"Brewing failed: Missing component - {component.Name}.";
+                }
+            }
+
+            // 2. Consume the components
+            foreach (var component in recipe.Components)
+            {
+                var itemInBackpack = alchemist.Backpack.First(item => item.Name == component.Name);
+                itemInBackpack.Quantity--;
+                if (itemInBackpack.Quantity <= 0)
+                {
+                    alchemist.Backpack.Remove(itemInBackpack);
+                }
+            }
+
+            // 3. Create the new potion
+            var newPotion = new Potion
+            {
+                Name = recipe.Name,
+                Strength = recipe.Strength,
+                EffectDescription = recipe.EffectDescription,
+                Value = recipe.Value,
+                // ... copy other relevant properties from the recipe
+            };
+
+            // 4. Add the new potion to the alchemist's backpack
+            BackpackHelper.AddItem(alchemist.Backpack, newPotion);
+
+            return $"Successfully brewed: {newPotion.Strength} {newPotion.Name}.";
+        }
     }
 
     public class AlchemyItem : Equipment
