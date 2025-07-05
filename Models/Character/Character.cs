@@ -48,6 +48,25 @@ namespace LoDCompanion.Models.Character
                 CurrentHP = 0;
             }
         }
+
+        public void ResetActionPoints()
+        {
+            this.CurrentAP = MaxAP;
+        }
+
+        public bool CanAct()
+        {
+            return this.CurrentAP > 0;
+        }
+
+        public void SpendActionPoints(int amount)
+        {
+            this.CurrentAP -= amount;
+            if (this.CurrentAP < 0)
+            {
+                this.CurrentAP = 0;
+            }
+        }
     }
 
     /// <summary>
