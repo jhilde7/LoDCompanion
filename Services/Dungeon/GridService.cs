@@ -22,23 +22,20 @@ namespace LoDCompanion.Services.Dungeon
         {
             room.GridOffset = roomOffset; // Store the room's global position
 
+            // Assuming the room itself is a flat 2D layout being placed at a specific Z level
             for (int y = 0; y < room.Height; y++)
             {
                 for (int x = 0; x < room.Width; x++)
                 {
-                    var globalPos = new GridPosition(roomOffset.X + x, roomOffset.Y + y);
+                    // UPDATED: The Z coordinate from the offset is now used.
+                    var globalPos = new GridPosition(roomOffset.X + x, roomOffset.Y + y, roomOffset.Z);
+
                     if (!DungeonGrid.ContainsKey(globalPos))
                     {
-                        var square = new GridSquare(globalPos.X, globalPos.Y);
+                        // UPDATED: The GridSquare is initialized with its full 3D position.
+                        var square = new GridSquare(globalPos.X, globalPos.Y, globalPos.Z);
 
-                        // --- NEW: Simplified wall/floor logic ---
-                        // We assume a square is NOT a wall unless specified by room layout.
-                        // Your room generation logic would set `IsWall = true` for border squares.
-                        square.IsWall = false; // Default to floor
-
-                        // TODO: Add logic to place furniture on the square from room.FurnitureList
-                        // square.Furniture = ...
-
+                        // Your existing logic for placing walls and furniture...
                         DungeonGrid[globalPos] = square;
                     }
                 }
@@ -79,60 +76,35 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         public int GetDistance(GridPosition start, GridPosition end)
         {
-            return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y);
+            return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y) + Math.Abs(start.Z - end.Z);
         }
 
         public LineOfSightResult HasLineOfSight(GridPosition start, GridPosition end)
         {
             var result = new LineOfSightResult();
+            var line = GetLine(start, end);
 
-            int x0 = start.X; int y0 = start.Y;
-            int x1 = end.X; int y1 = end.Y;
-            int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-            int dy = -Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-            int err = dx + dy, e2;
-
-            bool isStraightLine = (start.X == end.X || start.Y == end.Y);
-
-            while (true)
+            // Skip the first (start) and last (end) squares in the line.
+            foreach (var pos in line.Skip(1).SkipLast(1))
             {
-                var currentPos = new GridPosition(x0, y0);
+                var square = GetSquareAt(pos);
 
-                // --- Check the current square in the line ---
-                // We always skip the start and end squares themselves.
-                if (!currentPos.Equals(start) && !currentPos.Equals(end))
+                // If the square doesn't exist or has LoS-blocking furniture/walls.
+                if (square == null || square.LoSBlocked)
                 {
-                    var square = GetSquareAt(currentPos);
-
-                    // If the square doesn't exist, it's a wall. LOS is blocked.
-                    if (square == null || square.LoSBlocked)
-                    {
-                        result.IsBlocked = true;
-                        return result;
-                    }
-
-                    // Check for furniture that obstructs LOS
-                    if (square.IsObstacle || square.IsOccupied)
-                    {
-                        result.ObstructionPenalty -= 10;
-                        return result;
-                    }
-
-                    result.ClearShot = true;
-
+                    result.IsBlocked = true;
+                    return result; // The first thing that blocks LoS stops the check.
                 }
 
-                if (x0 == x1 && y0 == y1)
+                // Check for obstructions that apply a penalty but don't fully block.
+                if (square.IsObstacle || square.IsOccupied)
                 {
-                    // We have reached the end of the line.
-                    break;
+                    result.ObstructionPenalty -= 10;
                 }
-
-                e2 = 2 * err;
-                if (e2 >= dy) { err += dy; x0 += sx; }
-                if (e2 <= dx) { err += dx; y0 += sy; }
             }
 
+            // If we checked all squares and none fully blocked the line.
+            result.ClearShot = result.ObstructionPenalty == 0;
             return result;
         }
 
@@ -156,26 +128,41 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             // Shove is successful. Calculate pushback direction.
-            if (shover.Position == null || target.Position == null) return "Cannot shove character with no position.";
-
             int dx = target.Position.X - shover.Position.X;
             int dy = target.Position.Y - shover.Position.Y;
+            int dz = target.Position.Z - shover.Position.Z;
 
-            var pushbackPosition = new GridPosition(target.Position.X + dx, target.Position.Y + dy);
+            int shoveX = 0, shoveY = 0, shoveZ = 0;
 
-            // Check if the pushback square is valid and not occupied.
-            var pushbackSquare = room.Grid.FirstOrDefault(s => s.Position.X == pushbackPosition.X && s.Position.Y == pushbackPosition.Y);
+            // Determine the primary axis of the shove
+            if (Math.Abs(dx) >= Math.Abs(dy) && Math.Abs(dx) >= Math.Abs(dz))
+            {
+                shoveX = Math.Sign(dx); // Shove is primarily horizontal (X)
+            }
+            else if (Math.Abs(dy) >= Math.Abs(dx) && Math.Abs(dy) >= Math.Abs(dz))
+            {
+                shoveY = Math.Sign(dy); // Shove is primarily horizontal (Y)
+            }
+            else
+            {
+                shoveZ = Math.Sign(dz); // Shove is primarily vertical
+            }
 
-            if (pushbackSquare != null && !pushbackSquare.IsOccupied && 
-                !(pushbackSquare.Furniture != null && 
-                (pushbackSquare.Furniture.CanBeClimbed || pushbackSquare.Furniture.NoEntry)))
+            var pushbackPosition = new GridPosition(
+                target.Position.X + shoveX,
+                target.Position.Y + shoveY,
+                target.Position.Z + shoveZ
+            );
+
+            var pushbackSquare = GetSquareAt(pushbackPosition);
+
+            if (pushbackSquare != null && !pushbackSquare.MovementBlocked && !pushbackSquare.IsOccupied)
             {
                 MoveCharacter(target, pushbackPosition);
                 return $"{shover.Name} successfully shoves {target.Name} back!";
             }
             else
             {
-                // Pushback is blocked, target falls over.
                 // TODO: Add a "Prone" status effect to the target.
                 return $"{shover.Name} shoves {target.Name}, but they are blocked and fall over!";
             }
@@ -250,29 +237,20 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         public bool HasClearPath(GridPosition start, GridPosition end)
         {
-            int x0 = start.X; int y0 = start.Y;
-            int x1 = end.X; int y1 = end.Y;
-            int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-            int dy = -Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-            int err = dx + dy, e2;
+            var line = GetLine(start, end);
 
-            while (true)
+            // Skip the first (start) and last (end) squares in the line.
+            foreach (var pos in line.Skip(1).SkipLast(1))
             {
-                var currentPos = new GridPosition(x0, y0);
-                var currentSquare = GetSquareAt(currentPos);
+                var square = GetSquareAt(pos);
 
-                // Path is blocked if the square doesn't exist (it's the void between rooms)
-                // or if it's an obstacle. Ignore start/end points.
-                if ((currentSquare == null || currentSquare.IsWall || currentSquare.DoubleMoveCost) && !currentPos.Equals(start) && !currentPos.Equals(end))
+                // Path is blocked if a square is missing, a wall, or has movement-blocking furniture.
+                if (square == null || square.MovementBlocked)
                 {
                     return false;
                 }
-
-                if (x0 == x1 && y0 == y1) break;
-                e2 = 2 * err;
-                if (e2 >= dy) { err += dy; x0 += sx; }
-                if (e2 <= dx) { err += dx; y0 += sy; }
             }
+
             return true;
         }
 
@@ -297,17 +275,26 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         private IEnumerable<GridPosition> GetNeighbors(GridPosition position)
         {
-            int[] dx = { 0, 0, 1, -1 };
-            int[] dy = { 1, -1, 0, 0 };
-
-            for (int i = 0; i < 4; i++)
+            // Define potential neighbors in 6 directions (4 horizontal, 2 vertical)
+            var directions = new GridPosition[]
             {
-                var newPos = new GridPosition(position.X + dx[i], position.Y + dy[i]);
+                new GridPosition(1, 0, 0),  // East
+                new GridPosition(-1, 0, 0), // West
+                new GridPosition(0, 1, 0),  // North
+                new GridPosition(0, -1, 0), // South
+                new GridPosition(0, 0, 1),  // Up
+                new GridPosition(0, 0, -1)  // Down
+            };
+
+            foreach (var dir in directions)
+            {
+                var newPos = new GridPosition(position.X + dir.X, position.Y + dir.Y, position.Z + dir.Z);
                 var square = GetSquareAt(newPos);
 
-                // A square is a valid neighbor if it exists and is not marked as "No Entry".
-                // The movement cost for climbable obstacles is handled by the A* algorithm itself.
-                if (square != null && (square.Furniture != null && !square.Furniture.NoEntry))
+                // A square is a valid neighbor if it exists and is not blocked.
+                // You could add more complex rules here for vertical movement,
+                // e.g., requiring "Stairs" or a "Ladder" to move up or down.
+                if (square != null && !square.MovementBlocked)
                 {
                     yield return newPos;
                 }
@@ -329,6 +316,69 @@ namespace LoDCompanion.Services.Dungeon
                 Parent = parent;
                 GScore = gScore;
                 HScore = hScore;
+            }
+        }
+
+        /// <summary>
+        /// Gets all grid points along a 3D line using Bresenham's 3D algorithm.
+        /// </summary>
+        /// <returns>An enumerable list of GridPositions forming the line.</returns>
+        private IEnumerable<GridPosition> GetLine(GridPosition start, GridPosition end)
+        {
+            int x1 = start.X, y1 = start.Y, z1 = start.Z;
+            int x2 = end.X, y2 = end.Y, z2 = end.Z;
+
+            int dx = Math.Abs(x2 - x1);
+            int dy = Math.Abs(y2 - y1);
+            int dz = Math.Abs(z2 - z1);
+
+            int sx = (x1 < x2) ? 1 : -1;
+            int sy = (y1 < y2) ? 1 : -1;
+            int sz = (z1 < z2) ? 1 : -1;
+
+            yield return new GridPosition(x1, y1, z1);
+
+            if (dx >= dy && dx >= dz) // X-dominant
+            {
+                int err1 = 2 * dy - dx;
+                int err2 = 2 * dz - dx;
+                while (x1 != x2)
+                {
+                    if (err1 >= 0) { y1 += sy; err1 -= 2 * dx; }
+                    if (err2 >= 0) { z1 += sz; err2 -= 2 * dx; }
+                    err1 += 2 * dy;
+                    err2 += 2 * dz;
+                    x1 += sx;
+                    yield return new GridPosition(x1, y1, z1);
+                }
+            }
+            else if (dy >= dx && dy >= dz) // Y-dominant
+            {
+                int err1 = 2 * dx - dy;
+                int err2 = 2 * dz - dy;
+                while (y1 != y2)
+                {
+                    if (err1 >= 0) { x1 += sx; err1 -= 2 * dy; }
+                    if (err2 >= 0) { z1 += sz; err2 -= 2 * dy; }
+                    err1 += 2 * dx;
+                    err2 += 2 * dz;
+                    y1 += sy;
+                    yield return new GridPosition(x1, y1, z1);
+                }
+            }
+            else // Z-dominant
+            {
+                int err1 = 2 * dy - dz;
+                int err2 = 2 * dx - dz;
+                while (z1 != z2)
+                {
+                    if (err1 >= 0) { y1 += sy; err1 -= 2 * dz; }
+                    if (err2 >= 0) { x1 += sx; err2 -= 2 * dz; }
+                    err1 += 2 * dy;
+                    err2 += 2 * dx;
+                    z1 += sz;
+                    yield return new GridPosition(x1, y1, z1);
+                }
             }
         }
     }

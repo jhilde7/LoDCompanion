@@ -24,7 +24,7 @@ namespace LoDCompanion.Models.Dungeon
         public int EncounterModifier { get; set; }
         public string? EncounterType { get; set; }
         public bool HasLevers { get; set; }
-        public bool RandomEncounter { get; set; }
+        public bool RandomEncounter { get; set; } = true;
         public bool HasSpecial { get; set; }
 
 
@@ -68,23 +68,26 @@ namespace LoDCompanion.Models.Dungeon
     }
 
     /// <summary>
-    /// Represents a simple X, Y coordinate on the game grid.
+    /// Represents a 3D coordinate on the game grid.
     /// </summary>
     public class GridPosition
     {
         public int X { get; set; }
         public int Y { get; set; }
+        public int Z { get; set; }
 
-        public GridPosition(int x, int y)
+        public GridPosition(int x, int y, int z)
         {
             X = x;
             Y = y;
+            Z = z;
         }
 
         public bool Equals(GridPosition? other)
         {
             if (other is null) return false;
-            return X == other.X && Y == other.Y;
+            // UPDATED: Equality check now includes Z
+            return X == other.X && Y == other.Y && Z == other.Z;
         }
 
         public override bool Equals(object? obj)
@@ -94,7 +97,8 @@ namespace LoDCompanion.Models.Dungeon
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(X, Y);
+            // UPDATED: HashCode now includes Z
+            return HashCode.Combine(X, Y, Z);
         }
     }
 
@@ -114,9 +118,9 @@ namespace LoDCompanion.Models.Dungeon
         public bool IsObstacle => Furniture != null && Furniture.IsObstacle; //Affects ranged attacks passing through this square
         public bool IsOccupied => OccupyingCharacterId != null;
 
-        public GridSquare(int x, int y)
+        public GridSquare(int x, int y, int z)
         {
-            Position = new GridPosition(x, y);
+            Position = new GridPosition(x, y, z);
         }
     }
 }
