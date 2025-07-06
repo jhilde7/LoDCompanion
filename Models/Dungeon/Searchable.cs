@@ -57,10 +57,14 @@ namespace LoDCompanion.Models.Dungeon
         public string Description { get; set; } = string.Empty;
         public bool IsObstacle { get; set; }
         public bool IsSearchable { get; set; }
+        public bool IsDrinkable { get; set; }
+        public bool IsLevers {  get; set; }
         public string SpecialRules { get; set; } = string.Empty ;
         public bool CanBeClimbed { get; set; }
         public bool HeightAdvantage { get; set; }
         public bool NoEntry { get; set; }
+        public bool BlocksLoS { get; set; }
+        public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
 
         // Constructor for easy initialization
         public Furniture()
