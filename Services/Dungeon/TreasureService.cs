@@ -254,17 +254,17 @@ namespace LoDCompanion.Services.Dungeon
             switch (roll)
             {
                 case 1: treasure = CreateItem("Amulet"); break;
-                case 2: treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Arrow", 5); break;
-                case 3: treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Arrow", 10); break;
+                case 2: treasure = EquipmentService.GetAmmoByNameSetQuantity("Arrow", 5); break;
+                case 3: treasure = EquipmentService.GetAmmoByNameSetQuantity("Arrow", 10); break;
                 case 4:
-                case 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Bandage (old rags)", RandomHelper.GetRandomNumber(1, 3)); break;
-                case 6: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Bandage (linen)", RandomHelper.GetRandomNumber(1, 2)); break;
-                case 7: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Bear Trap", (2 - (RandomHelper.GetRandomNumber(1, 2) - 1)), RandomHelper.GetRandomNumber(1, 3)); break;
+                case 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bandage (old rags)", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 6: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bandage (linen)", RandomHelper.GetRandomNumber(1, 2)); break;
+                case 7: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Bear Trap", (2 - (RandomHelper.GetRandomNumber(1, 2) - 1)), RandomHelper.GetRandomNumber(1, 3)); break;
                 case 8:
-                case 9: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Bedroll", RandomHelper.GetRandomNumber(1, 3)); break;
-                case 10: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Beef Jerky", RandomHelper.GetRandomNumber(1, 4)); break;
-                case 11: treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Bolt", 5); break;
-                case 12: treasure = EquipmentService.GetShieldByNameSetDurability(_gameData, "Buckler", armourDurability); break;
+                case 9: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bedroll", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 10: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Beef Jerky", RandomHelper.GetRandomNumber(1, 4)); break;
+                case 11: treasure = EquipmentService.GetAmmoByNameSetQuantity("Bolt", 5); break;
+                case 12: treasure = EquipmentService.GetShieldByNameSetDurability("Buckler", armourDurability); break;
                 case 13:
                 case 14: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 20)); break;
                 case 15: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 40)); break;
@@ -272,14 +272,14 @@ namespace LoDCompanion.Services.Dungeon
                 case 17: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(3, 60)); break;
                 case 18: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 80)); break;
                 case 19: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 100)); break;
-                case 20: treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, "Cloak", armourDurability); break;
-                case 21: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Crowbar", (6 - defaultDurabilityDamageRoll), RandomHelper.GetRandomNumber(1, 6)); break;
-                case 22: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Dagger", weaponDurability); break;
-                case 23: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Empty Bottle", RandomHelper.GetRandomNumber(1, 6)); break;
+                case 20: treasure = EquipmentService.GetArmourByNameSetDurability("Cloak", armourDurability); break;
+                case 21: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Crowbar", (6 - defaultDurabilityDamageRoll), RandomHelper.GetRandomNumber(1, 6)); break;
+                case 22: treasure = EquipmentService.GetWeaponByNameSetDurability("Dagger", weaponDurability); break;
+                case 23: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Empty Bottle", RandomHelper.GetRandomNumber(1, 6)); break;
                 case 24: treasure = GetFineTreasure(); break;
                 case 25: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
-                case 26: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Javelin", weaponDurability); break;
-                case 27: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Lantern", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 26: treasure = EquipmentService.GetWeaponByNameSetDurability("Javelin", weaponDurability); break;
+                case 27: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Lantern", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 28:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
@@ -291,11 +291,11 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Leather Leggings"; break;
                         case 6: itemName = "Leather Bracers"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
-                case 29: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Lock Picks", RandomHelper.GetRandomNumber(1, 4)); break;
-                case 30: treasure = EquipmentService.GetEquipmentByName(_gameData, "Backpack - Medium"); break;
-                case 31: treasure = EquipmentService.GetEquipmentByName(_gameData, "Rope (old)"); break;
+                case 29: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", RandomHelper.GetRandomNumber(1, 4)); break;
+                case 30: treasure = EquipmentService.GetEquipmentByName("Backpack - Medium"); break;
+                case 31: treasure = EquipmentService.GetEquipmentByName("Rope (old)"); break;
                 case 32:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
@@ -307,27 +307,27 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Padded Pants"; break;
                         case 6: itemName = "Padded Coat"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
                 case 33: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
                 case 34: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure("Part", 1)); break;
-                case 35: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Rapier", weaponDurability); break;
-                case 36: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Ration", RandomHelper.GetRandomNumber(1, 4)); break;
-                case 37: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Ration", RandomHelper.GetRandomNumber(1, 6)); break;
+                case 35: treasure = EquipmentService.GetWeaponByNameSetDurability("Rapier", weaponDurability); break;
+                case 36: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 4)); break;
+                case 37: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 6)); break;
                 case 38: treasure = CreateItem("Potion Recipe - Weak"); break;
                 case 39:
-                case 40: treasure = EquipmentService.GetEquipmentByName(_gameData, "Ring"); break;
-                case 41: treasure = EquipmentService.GetEquipmentByName(_gameData, "Rope"); break;
-                case 42: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Shortbow", weaponDurability); break;
-                case 43: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Shortsword", weaponDurability); break;
-                case 44: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Skinning Knife", RandomHelper.GetRandomNumber(1, 3)); break;
-                case 45: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Sling", weaponDurability); break;
-                case 46: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Staff", weaponDurability); break;
+                case 40: treasure = EquipmentService.GetEquipmentByName("Ring"); break;
+                case 41: treasure = EquipmentService.GetEquipmentByName("Rope"); break;
+                case 42: treasure = EquipmentService.GetWeaponByNameSetDurability("Shortbow", weaponDurability); break;
+                case 43: treasure = EquipmentService.GetWeaponByNameSetDurability("Shortsword", weaponDurability); break;
+                case 44: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Skinning Knife", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 45: treasure = EquipmentService.GetWeaponByNameSetDurability("Sling", weaponDurability); break;
+                case 46: treasure = EquipmentService.GetWeaponByNameSetDurability("Staff", weaponDurability); break;
                 case 47:
                 case 48:
-                case 49: treasure = EquipmentService.GetEquipmentByName(_gameData, "Torch"); break;
-                case 50: treasure = EquipmentService.GetEquipmentByName(_gameData, "Whetstone"); break;
-                case 51: treasure = EquipmentService.GetEquipmentByName(_gameData, "Wild game traps"); break;
+                case 49: treasure = EquipmentService.GetEquipmentByName("Torch"); break;
+                case 50: treasure = EquipmentService.GetEquipmentByName("Whetstone"); break;
+                case 51: treasure = EquipmentService.GetEquipmentByName("Wild game traps"); break;
                 case 52: treasure = CreateItem("Wolf Pelt", 0, 50, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 53: treasure = GetWonderfulTreasure(); break;
                 case 54: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
@@ -349,9 +349,9 @@ namespace LoDCompanion.Services.Dungeon
 
             switch (roll)
             {
-                case 1: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Alchemist Tool", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
-                case 2: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Alchemist Belt", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
-                case 3: treasure = EquipmentService.GetEquipmentByName(_gameData, "Armour Repair Kit"); break;
+                case 1: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Alchemist Tool", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
+                case 2: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Alchemist Belt", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
+                case 3: treasure = EquipmentService.GetEquipmentByName("Armour Repair Kit"); break;
                 case 4:
                     roll = RandomHelper.GetRandomNumber(1, 3);
                     switch (roll)
@@ -360,17 +360,17 @@ namespace LoDCompanion.Services.Dungeon
                         case 2: itemName = "Greataxe"; break;
                         case 3: itemName = "Halberd"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
                     break;
                 case 5:
-                    treasure = EquipmentService.GetAmmoByName(_gameData, "Barbed Arrow");
+                    treasure = EquipmentService.GetAmmoByName("Barbed Arrow");
                     treasure.Quantity = 5;
                     break;
                 case 6:
-                    treasure = EquipmentService.GetAmmoByName(_gameData, "Barbed Bolt");
+                    treasure = EquipmentService.GetAmmoByName("Barbed Bolt");
                     treasure.Quantity = 5;
                     break;
-                case 7: treasure = EquipmentService.GetEquipmentByName(_gameData, "Bedroll"); break;
+                case 7: treasure = EquipmentService.GetEquipmentByName("Bedroll"); break;
                 case 8:
                     roll = RandomHelper.GetRandomNumber(1, 2);
                     switch (roll)
@@ -378,18 +378,18 @@ namespace LoDCompanion.Services.Dungeon
                         case 1: itemName = "Morning Star"; break;
                         case 2: itemName = "Flail"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
                     break;
                 case 9: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 100) + 40); break;
                 case 10: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 200) + 20); break;
                 case 11: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(3, 300)); break;
-                case 12: treasure = EquipmentService.GetEquipmentByName(_gameData, "Door Mirror"); break;
+                case 12: treasure = EquipmentService.GetEquipmentByName("Door Mirror"); break;
                 case 13: treasure = CreateItem("Lock Picks - Dwarven", 1, 0, RandomHelper.GetRandomNumber(1, 6)); break;
-                case 14: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Elven Bow", (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 2)))); break;
-                case 15: treasure = EquipmentService.GetEquipmentByName(_gameData, "Elven Skinning Knife"); break;
+                case 14: treasure = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 2)))); break;
+                case 15: treasure = EquipmentService.GetEquipmentByName("Elven Skinning Knife"); break;
                 case 16: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Ingredient", 1)); break;
-                case 17: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Extended Battle Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
-                case 18: treasure = EquipmentService.GetEquipmentByName(_gameData, "Fishing Gear"); break;
+                case 17: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
+                case 18: treasure = EquipmentService.GetEquipmentByName("Fishing Gear"); break;
                 case 19: treasure = CreateItem("Gemstone", 0, RandomHelper.GetRandomNumber(3, 300)); break;
                 case 20: treasure = CreateItem("Gemstone", 0, 100, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 21:
@@ -399,11 +399,11 @@ namespace LoDCompanion.Services.Dungeon
                         case 1: itemName = "Battle Hammer"; break;
                         case 2: itemName = "Warhammer"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
                     break;
-                case 22: treasure = EquipmentService.GetShieldByNameSetDurability(_gameData, "Heater Shield", (DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)))); break;
-                case 23: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Iron Wedge", 6, (RandomHelper.GetRandomNumber(1, 3))); break;
-                case 24: treasure = EquipmentService.GetEquipmentByName(_gameData, "Backpack - Large"); break;
+                case 22: treasure = EquipmentService.GetShieldByNameSetDurability("Heater Shield", (DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)))); break;
+                case 23: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Iron Wedge", 6, (RandomHelper.GetRandomNumber(1, 3))); break;
+                case 24: treasure = EquipmentService.GetEquipmentByName("Backpack - Large"); break;
                 case 25:
                 case 26:
                     roll = RandomHelper.GetRandomNumber(1, 6);
@@ -416,7 +416,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Leather Leggings"; break;
                         case 6: itemName = "Leather Bracers"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
                 case 27: treasure = CreateItem("Lute"); break;
                 case 28:
@@ -431,11 +431,11 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Mail Leggings"; break;
                         case 6: itemName = "Sleeved Mail Coat"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
-                case 30: treasure = EquipmentService.GetEquipmentByName(_gameData, "Necklace"); treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
+                case 30: treasure = EquipmentService.GetEquipmentByName("Necklace"); treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
                 case 31: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Part", 1)); break;
-                case 32: treasure = EquipmentService.GetEquipmentByName(_gameData, "Partial Map"); break;
+                case 32: treasure = EquipmentService.GetEquipmentByName("Partial Map"); break;
                 case 33:
                 case 34: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Standard); break;
                 case 35: treasure = AlchemyService.GetPotionByName("Potion of Health"); break;
@@ -448,17 +448,17 @@ namespace LoDCompanion.Services.Dungeon
                         case 3: itemName = "Crossbow Pistol"; break;
                         case 4: itemName = "Arbalest"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
                     break;
                 case 37: treasure = CreateItem("Relic"); break;
-                case 38: treasure = EquipmentService.GetEquipmentByName(_gameData, "Ring"); break;
+                case 38: treasure = EquipmentService.GetEquipmentByName("Ring"); break;
                 case 39: treasure = CreateItem("Scroll"); break;
                 case 40: treasure = CreateItem("Scroll", 0, 100, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 41:
-                    treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Silver Arrow", RandomHelper.GetRandomNumber(1, 10));
+                    treasure = EquipmentService.GetAmmoByNameSetQuantity("Silver Arrow", RandomHelper.GetRandomNumber(1, 10));
                     break;
                 case 42:
-                    treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Silver Bolt", RandomHelper.GetRandomNumber(1, 10));
+                    treasure = EquipmentService.GetAmmoByNameSetQuantity("Silver Bolt", RandomHelper.GetRandomNumber(1, 10));
                     break;
                 case 43:
                 case 44:
@@ -475,9 +475,9 @@ namespace LoDCompanion.Services.Dungeon
                         case 7: itemName = "Longsword"; break;
                         case 8: itemName = "Rapier"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, DefaultWeaponDurability - durabilityDamageRoll);
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - durabilityDamageRoll);
                     break;
-                case 45: treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Superior Sling Stone", RandomHelper.GetRandomNumber(1, 10)); break;
+                case 45: treasure = EquipmentService.GetAmmoByNameSetQuantity("Superior Sling Stone", RandomHelper.GetRandomNumber(1, 10)); break;
                 case 46: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Supreme); break;
                 case 47:
                     roll = RandomHelper.GetRandomNumber(1, 4);
@@ -488,15 +488,15 @@ namespace LoDCompanion.Services.Dungeon
                         case 3: itemName = "Longsword"; break;
                         case 4: itemName = "Greatsword"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
                     break;
-                case 48: treasure = EquipmentService.GetEquipmentByName(_gameData, "Tobacco"); break;
-                case 49: treasure = EquipmentService.GetEquipmentByName(_gameData, "Trap Disarming Kit"); break;
+                case 48: treasure = EquipmentService.GetEquipmentByName("Tobacco"); break;
+                case 49: treasure = EquipmentService.GetEquipmentByName("Trap Disarming Kit"); break;
                 case 50:
                 case 51:
                 case 52: treasure = GetWonderfulTreasure(); break;
                 case 53: treasure = GetRandomWizardStaff(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)); break;
-                case 54: treasure = EquipmentService.GetEquipmentByName(_gameData, "Dwarven Ale"); break;
+                case 54: treasure = EquipmentService.GetEquipmentByName("Dwarven Ale"); break;
                 default:
                     treasure = CreateItem("Unknown Fine Item");
                     break;
@@ -517,9 +517,9 @@ namespace LoDCompanion.Services.Dungeon
 
             switch (roll)
             {
-                case 1: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Aim Attachment", RandomHelper.GetRandomNumber(1, 3)); break;
+                case 1: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Aim Attachment", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 2: treasure = CreateItem("Talent Training Manual"); break;
-                case 3: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Combat Harness", 6 - defaultDurabilityDamageRoll); break;
+                case 3: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Combat Harness", 6 - defaultDurabilityDamageRoll); break;
                 case 4:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
@@ -531,15 +531,15 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Dragon Scale Pants"; break;
                         case 6: itemName = "Dragon Scale Bracers"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, (10 - defaultDurabilityDamageRoll));
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, (10 - defaultDurabilityDamageRoll));
                     break;
-                case 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity(_gameData, "Superior Lock Picks", RandomHelper.GetRandomNumber(1, 6)); break;
-                case 6: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Dwarven Pickaxe", (6 - defaultDurabilityDamageRoll)); break;
-                case 7: treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Elven Bow", DefaultWeaponDurability); break;
+                case 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Superior Lock Picks", RandomHelper.GetRandomNumber(1, 6)); break;
+                case 6: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Dwarven Pickaxe", (6 - defaultDurabilityDamageRoll)); break;
+                case 7: treasure = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", DefaultWeaponDurability); break;
                 case 8: treasure = CreateItem("Elven Bowstring"); break;
                 case 9: treasure = AlchemyService.GetPotionByName("Potion of Restoration"); break;
                 case 10: treasure = CreateItem("Relic - Epic"); break;
-                case 11: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity(_gameData, "Extended Battle Belt", 6); break;
+                case 11: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", 6); break;
                 case 12: treasure = CreateItem("Set of Fine Clothes"); break;
                 case 13: treasure = CreateItem("Flute"); break;
                 case 14:
@@ -561,7 +561,7 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 23:
                     itemArray = GetMagicItem("Armour");
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, "Cloak", armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability("Cloak", armourDurability);
                     treasure.Name = "Magic Cloak of " + itemArray[0];
                     treasure.Value = 300;
                     treasure.MagicEffect += itemArray[1];
@@ -607,7 +607,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 24: itemName = "Heater Shield"; value = 300; break;
                         case 25: itemName = "Tower Shield"; value = 600; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     treasure.Name = "Magic " + itemName + " of " + itemArray[0];
                     treasure.Value = value;
                     treasure.MagicEffect = itemArray[1];
@@ -619,7 +619,7 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 29:
                     itemArray = GetMagicItem("Item");
-                    treasure = EquipmentService.GetEquipmentByName(_gameData, "Ring");
+                    treasure = EquipmentService.GetEquipmentByName("Ring");
                     treasure.Value = 700;
                     treasure.Name = "Magic ring of " + itemArray[0];
                     treasure.Description = itemArray[1];
@@ -653,7 +653,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 14: itemName = "Elven Bow"; value = 1500; break;
                         case 15: itemName = "Longbow"; value = 300; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, armourDurability);
                     treasure.Name = "Magic " + itemName + " of " + itemArray[0];
                     treasure.MagicEffect = itemArray[1];
                     treasure.Value = value;
@@ -675,7 +675,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 5: itemName = "Mail Leggings"; break;
                         case 6: itemName = "Sleeved Mail Coat"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
                 case 36:
                 case 37:
@@ -694,10 +694,10 @@ namespace LoDCompanion.Services.Dungeon
                         case 9: itemName = "Mithril Plate Leggings"; break;
                         case 10: itemName = "Mithril Plate Bracers"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
                 case 39:
-                    treasure = EquipmentService.GetShieldByNameSetDurability(_gameData, "Mithril Heater Shield", armourDurability);
+                    treasure = EquipmentService.GetShieldByNameSetDurability("Mithril Heater Shield", armourDurability);
                     break;
                 case 40:
                 case 41:
@@ -718,7 +718,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 11: itemName = "Mithril Flail"; break;
                         case 12: itemName = "Mithril Halberd"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, weaponDurability);
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, weaponDurability);
                     break;
                 case 43:
                     roll = RandomHelper.GetRandomNumber(1, 6);
@@ -733,7 +733,7 @@ namespace LoDCompanion.Services.Dungeon
                         default:
                             break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, (8 - defaultDurabilityDamageRoll));
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, (8 - defaultDurabilityDamageRoll));
                     break;
                 case 44: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Part", RandomHelper.GetRandomNumber(1, 3))); break;
                 case 45:
@@ -745,7 +745,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 3: itemName = "Plate Leggings"; break;
                         case 4: itemName = "Plate Bracers"; break;
                     }
-                    treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, itemName, armourDurability);
+                    treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
                 case 46:
                 case 47: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Supreme); break;
@@ -753,7 +753,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 49:
                 case 50: treasure = CreateItem("Power Stone", 0, 1000, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 51:
-                    treasure = EquipmentService.GetAmmoByNameSetQuantity(_gameData, "Silver Arrow", RandomHelper.GetRandomNumber(1, 10));
+                    treasure = EquipmentService.GetAmmoByNameSetQuantity("Silver Arrow", RandomHelper.GetRandomNumber(1, 10));
                     break;
                 case 52:
                     roll = RandomHelper.GetRandomNumber(1, 4);
@@ -764,10 +764,10 @@ namespace LoDCompanion.Services.Dungeon
                         case 3: itemName = "Silver Flail"; break;
                         case 4: itemName = "Silver Halberd"; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(_gameData, itemName, weaponDurability);
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, weaponDurability);
                     break;
-                case 53: treasure = EquipmentService.GetShieldByNameSetDurability(_gameData, "Tower Shield", armourDurability); break;
-                case 54: treasure = EquipmentService.GetArmourByNameSetDurability(_gameData, "Wyvern Cloak", DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 2) - 1)); break;
+                case 53: treasure = EquipmentService.GetShieldByNameSetDurability("Tower Shield", armourDurability); break;
+                case 54: treasure = EquipmentService.GetArmourByNameSetDurability("Wyvern Cloak", DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 2) - 1)); break;
                 default:
                     treasure = CreateItem("Unknown Wonderful Item");
                     break;
@@ -798,8 +798,8 @@ namespace LoDCompanion.Services.Dungeon
 
         public MagicStaff GetRandomWizardStaff(int durability)
         {
-            int roll = RandomHelper.GetRandomNumber(0, _gameData.MagicStaves.Count - 1); // Adjust for 0-indexed list
-            MagicStaff newStaff = _gameData.MagicStaves[roll];
+            int roll = RandomHelper.GetRandomNumber(0, EquipmentService.MagicStaves.Count - 1); // Adjust for 0-indexed list
+            MagicStaff newStaff = EquipmentService.MagicStaves[roll];
             newStaff.Durability = durability; // Set the specific durability for this instance
 
             return newStaff;
@@ -1073,26 +1073,26 @@ namespace LoDCompanion.Services.Dungeon
             int roll = RandomHelper.GetRandomNumber(1, 20);
             switch (roll)
             {
-                case 1: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Padded Cap", durability); break;
-                case 2: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Padded Vest", durability); break;
-                case 3: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Padded Jacket", durability); break;
-                case 4: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Padded Pants", durability); break;
-                case 5: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Padded Coat", durability); break;
-                case 6: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Leather Cap", durability); break;
-                case 7: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Leather Vest", durability); break;
-                case 8: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Leather Jacket", durability); break;
-                case 9: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Leather Leggings", durability); break;
-                case 10: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Leather Bracers", durability); break;
-                case 11: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Mail Coif", durability); break;
-                case 12: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Mail Shirt", durability); break;
-                case 13: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Sleeved Mail Shirt", durability); break;
-                case 14: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Mail Coat", durability); break;
-                case 15: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Sleeved Mail Coat", durability); break;
-                case 16: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Mail Leggings", durability); break;
-                case 17: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Plate Helmet", durability); break;
-                case 18: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Breastplate", durability); break;
-                case 19: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Plate Bracers", durability); break;
-                case 20: armour = EquipmentService.GetArmourByNameSetDurability(_gameData, "Plate Leggings", durability); break;
+                case 1: armour = EquipmentService.GetArmourByNameSetDurability("Padded Cap", durability); break;
+                case 2: armour = EquipmentService.GetArmourByNameSetDurability("Padded Vest", durability); break;
+                case 3: armour = EquipmentService.GetArmourByNameSetDurability("Padded Jacket", durability); break;
+                case 4: armour = EquipmentService.GetArmourByNameSetDurability("Padded Pants", durability); break;
+                case 5: armour = EquipmentService.GetArmourByNameSetDurability("Padded Coat", durability); break;
+                case 6: armour = EquipmentService.GetArmourByNameSetDurability("Leather Cap", durability); break;
+                case 7: armour = EquipmentService.GetArmourByNameSetDurability("Leather Vest", durability); break;
+                case 8: armour = EquipmentService.GetArmourByNameSetDurability("Leather Jacket", durability); break;
+                case 9: armour = EquipmentService.GetArmourByNameSetDurability("Leather Leggings", durability); break;
+                case 10: armour = EquipmentService.GetArmourByNameSetDurability("Leather Bracers", durability); break;
+                case 11: armour = EquipmentService.GetArmourByNameSetDurability("Mail Coif", durability); break;
+                case 12: armour = EquipmentService.GetArmourByNameSetDurability("Mail Shirt", durability); break;
+                case 13: armour = EquipmentService.GetArmourByNameSetDurability("Sleeved Mail Shirt", durability); break;
+                case 14: armour = EquipmentService.GetArmourByNameSetDurability("Mail Coat", durability); break;
+                case 15: armour = EquipmentService.GetArmourByNameSetDurability("Sleeved Mail Coat", durability); break;
+                case 16: armour = EquipmentService.GetArmourByNameSetDurability("Mail Leggings", durability); break;
+                case 17: armour = EquipmentService.GetArmourByNameSetDurability("Plate Helmet", durability); break;
+                case 18: armour = EquipmentService.GetArmourByNameSetDurability("Breastplate", durability); break;
+                case 19: armour = EquipmentService.GetArmourByNameSetDurability("Plate Bracers", durability); break;
+                case 20: armour = EquipmentService.GetArmourByNameSetDurability("Plate Leggings", durability); break;
                 default:
                     armour = CreateItem("Unknown Random Armour", durability); // Should not happen
                     break;
@@ -1106,28 +1106,28 @@ namespace LoDCompanion.Services.Dungeon
             int roll = RandomHelper.GetRandomNumber(1, 22);
             switch (roll)
             {
-                case 1: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Dagger", durability); break;
-                case 2: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Shortsword", durability); break;
-                case 3: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Rapier", durability); break;
-                case 4: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Broadsword", durability); break;
-                case 5: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Longsword", durability); break;
-                case 6: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Battleaxe", durability); break;
-                case 7: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Battle Hammer", durability); break;
-                case 8: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Morning Star", durability); break;
-                case 9: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Flail", durability); break;
-                case 10: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Staff", durability); break;
-                case 11: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Javelin", durability); break;
-                case 12: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Greatsword", durability); break;
-                case 13: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Greataxe", durability); break;
-                case 14: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Warhammer", durability); break;
-                case 15: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Halberd", durability); break;
-                case 16: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Shortbow", durability); break;
-                case 17: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Longbow", durability); break;
-                case 18: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Elven Bow", durability); break;
-                case 19: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Crossbow Pistol", durability); break;
-                case 20: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Crossbow", durability); break;
-                case 21: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Arbalest", durability); break;
-                case 22: weapon = EquipmentService.GetWeaponByNameSetDurability(_gameData, "Sling", durability); break;
+                case 1: weapon = EquipmentService.GetWeaponByNameSetDurability("Dagger", durability); break;
+                case 2: weapon = EquipmentService.GetWeaponByNameSetDurability("Shortsword", durability); break;
+                case 3: weapon = EquipmentService.GetWeaponByNameSetDurability("Rapier", durability); break;
+                case 4: weapon = EquipmentService.GetWeaponByNameSetDurability("Broadsword", durability); break;
+                case 5: weapon = EquipmentService.GetWeaponByNameSetDurability("Longsword", durability); break;
+                case 6: weapon = EquipmentService.GetWeaponByNameSetDurability("Battleaxe", durability); break;
+                case 7: weapon = EquipmentService.GetWeaponByNameSetDurability("Battle Hammer", durability); break;
+                case 8: weapon = EquipmentService.GetWeaponByNameSetDurability("Morning Star", durability); break;
+                case 9: weapon = EquipmentService.GetWeaponByNameSetDurability("Flail", durability); break;
+                case 10: weapon = EquipmentService.GetWeaponByNameSetDurability("Staff", durability); break;
+                case 11: weapon = EquipmentService.GetWeaponByNameSetDurability("Javelin", durability); break;
+                case 12: weapon = EquipmentService.GetWeaponByNameSetDurability("Greatsword", durability); break;
+                case 13: weapon = EquipmentService.GetWeaponByNameSetDurability("Greataxe", durability); break;
+                case 14: weapon = EquipmentService.GetWeaponByNameSetDurability("Warhammer", durability); break;
+                case 15: weapon = EquipmentService.GetWeaponByNameSetDurability("Halberd", durability); break;
+                case 16: weapon = EquipmentService.GetWeaponByNameSetDurability("Shortbow", durability); break;
+                case 17: weapon = EquipmentService.GetWeaponByNameSetDurability("Longbow", durability); break;
+                case 18: weapon = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", durability); break;
+                case 19: weapon = EquipmentService.GetWeaponByNameSetDurability("Crossbow Pistol", durability); break;
+                case 20: weapon = EquipmentService.GetWeaponByNameSetDurability("Crossbow", durability); break;
+                case 21: weapon = EquipmentService.GetWeaponByNameSetDurability("Arbalest", durability); break;
+                case 22: weapon = EquipmentService.GetWeaponByNameSetDurability("Sling", durability); break;
                 default:
                     weapon = CreateItem("Unknown Random Weapon", durability); // Should not happen
                     break;

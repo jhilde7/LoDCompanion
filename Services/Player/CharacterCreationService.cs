@@ -331,16 +331,16 @@ namespace LoDCompanion.Services.CharacterCreation
                         List<string> list = item.Split(new[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
                         foreach (var item2 in list)
                         {
-                            State.SpecificWeaponChoices.Add(EquipmentService.GetMeleeWeaponByName(_gameData, item2));
+                            State.SpecificWeaponChoices.Add(EquipmentService.GetMeleeWeaponByName(item2));
                         }
                     }
                     else if (item.Contains("Weapon"))
                     {
-                        State.WeaponChoices = EquipmentService.GetStartingWeapons(_gameData);
+                        State.WeaponChoices = EquipmentService.GetStartingWeapons();
                     }
                     else if (item.Contains("Relic"))
                     {
-                        State.RelicChoices = _gameData.Relics;
+                        State.RelicChoices = EquipmentService.Relics;
                     }
                     else if(item.Contains("Potions"))
                     {
@@ -410,11 +410,11 @@ namespace LoDCompanion.Services.CharacterCreation
         {
             if (State.SelectedWeapon != null)
             {
-                State.StartingEquipment.Add(EquipmentService.GetWeaponByName(_gameData, State.SelectedWeapon));
+                State.StartingEquipment.Add(EquipmentService.GetWeaponByName(State.SelectedWeapon));
             }
             if(State.SelectedRelic != null) 
             {
-                State.StartingEquipment.Add(EquipmentService.GetRelicByName(_gameData, State.SelectedRelic));
+                State.StartingEquipment.Add(EquipmentService.GetRelicByName(State.SelectedRelic));
             }
 
             if (State.SelectedSpecies == null)

@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Dungeon
