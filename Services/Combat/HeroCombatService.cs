@@ -85,8 +85,8 @@ namespace LoDCompanion.Services.Combat
             if (targetWeapon != null)
             {
                 if (targetWeapon.Name == "Rapier") finalChance -= 5;
-                if (targetWeapon.IsSlow) finalChance += 5;
-                if (targetWeapon.IsBFO) finalChance += 5;
+                if (targetWeapon.Properties.ContainsKey(WeaponProperty.Slow)) finalChance += 5;
+                if (targetWeapon.Properties.ContainsKey(WeaponProperty.BFO)) finalChance += 5;
                 if (targetWeapon.Name == "Staff") finalChance -= 5;
             }
 
