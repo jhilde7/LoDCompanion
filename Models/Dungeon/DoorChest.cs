@@ -25,7 +25,7 @@ namespace LoDCompanion.Models.Dungeon
 
         // List of rooms that this door/chest could lead to (for doors)
         // In a web project, this would represent the connections in your dungeon graph.
-        public GridPosition[] Position { get; set; } = {new GridPosition(0, 0), new GridPosition(1, 0)};
+        public GridPosition[] Position { get; set; } = {new GridPosition(0, 0, 0), new GridPosition(1, 0, 0)};
         public List<RoomService> ConnectedRooms { get; set; } = new List<RoomService>();
 
         // Constructor
