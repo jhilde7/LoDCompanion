@@ -90,7 +90,7 @@ namespace LoDCompanion.Services.Dungeon
 
                         if (monsterState.CurrentRoom == null) continue;
 
-                        List<GridPosition> currentPath = _grid.FindShortestPath(monsterState.CurrentPosition, hero.Position, monsterState.CurrentRoom);
+                        List<GridPosition> currentPath = _grid.FindShortestPath(monsterState.CurrentPosition, hero.Position);
 
                         // If this is the first valid path found, or if it's shorter than the previous shortest path
                         if (currentPath.Any() && (!shortestPath.Any() || currentPath.Count < shortestPath.Count))
