@@ -381,6 +381,31 @@ namespace LoDCompanion.Services.Dungeon
                 }
             }
         }
+
+        internal void GenerateGridForRoom(RoomService room)
+        {
+            if (room.Size == null || room.Size.Length != 2)
+            {
+                // Handle error: room size is not defined
+                return;
+            }
+
+            int width = room.Size[0];
+            int height = room.Size[1];
+
+            var grid = new Furniture[width, height, 10];
+
+            foreach (var furniture in room.FurnitureList)
+            {
+                foreach (var position in furniture.OccupiedSquares)
+                {
+                    if (position.X >= 0 && position.X < width && position.Y >= 0 && position.Y < height)
+                    {
+                        grid[position.X, position.Y, position.Z] = furniture;
+                    }
+                }
+            }
+        }
     }
 
     public class LineOfSightResult
