@@ -247,18 +247,18 @@ namespace LoDCompanion.Services.Dungeon
             {
                 case Orientation.North:
                     // Place the new room's bottom edge against the door
-                    return new GridPosition(primaryDoorPos.X - (newRoomWidth / 2) + 1, primaryDoorPos.Y + 1);
+                    return new GridPosition(primaryDoorPos.X - (newRoomWidth / 2) + 1, primaryDoorPos.Y + 1, primaryDoorPos.Z);
                 case Orientation.South:
                     // Place the new room's top edge against the door
-                    return new GridPosition(primaryDoorPos.X - (newRoomWidth / 2) + 1, primaryDoorPos.Y - newRoomHeight);
+                    return new GridPosition(primaryDoorPos.X - (newRoomWidth / 2) + 1, primaryDoorPos.Y - newRoomHeight, primaryDoorPos.Z);
                 case Orientation.East:
                     // Place the new room's left edge against the door
-                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y - (newRoomHeight / 2) + 1);
+                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y - (newRoomHeight / 2) + 1, primaryDoorPos.Z);
                 case Orientation.West:
                     // Place the new room's right edge against the door
-                    return new GridPosition(primaryDoorPos.X - newRoomWidth, primaryDoorPos.Y - (newRoomHeight / 2) + 1);
+                    return new GridPosition(primaryDoorPos.X - newRoomWidth, primaryDoorPos.Y - (newRoomHeight / 2) + 1, primaryDoorPos.Z);
                 default:
-                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y);
+                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y, primaryDoorPos.Z);
             }
         }
 
