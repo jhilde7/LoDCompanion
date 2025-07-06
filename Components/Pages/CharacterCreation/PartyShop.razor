@@ -9,6 +9,7 @@
 @using LoDCompanion.Components
 @using LoDCompanion.Components.Shared
 
+@inject QuestService QuestService
 @inject PartyManagerService PartyService
 @inject DungeonManagerService DungeonManager
 @inject NavigationManager NavManager
@@ -56,7 +57,7 @@ else
         if(currentParty != null)
         {
             // Generate the dungeon using the service
-            DungeonManager.InitializeDungeon(currentParty);
+            DungeonManager.InitializeDungeon(currentParty, QuestService.GetQuestByName("First Blood"));
 
             // Navigate to the dungeon page
             NavManager.NavigateTo("/dungeon");

@@ -12,7 +12,18 @@ namespace LoDCompanion.Models.Dungeon
         SilverCity,
         TheOutpost,
         Windfair,
-        Whiteport
+        Whiteport,
+        AncientLands,
+        Random,
+        MainQuest,
+        CurrentTown,
+        OutsideRochdale,
+        White22,
+        White34,
+        White36,
+        White38,
+        White39,
+        White40
     }
 
     public enum EncounterType
@@ -26,6 +37,11 @@ namespace LoDCompanion.Models.Dungeon
          AncientLands,
          GoblinKing,
          SpringCleaning,
+         TheTombOfTheSpiderQueen,
+         StopTheHeretics,
+         TheMasterAlchemist,
+         SlayTheBeast,
+         TheMissingBrother,
          C26,
          C29,
          R17,
@@ -33,25 +49,35 @@ namespace LoDCompanion.Models.Dungeon
          R20,
          R28,
          R30,
-         TombGuardian
+         TombGuardian,
+         MainQuest,
+         Random
     }
 
     public class Quest
     {
-        public QuestLocation Location { get; private set;}
-        public RoomInfo? StartingRoom { get; private set;}
-        public string SpecialRules { get; private set;} = string.Empty;
-        public int CorridorCount { get; private set;}
-        public int RoomCount { get; private set;}
-        public int RewardCoin { get; private set;}
-        public string RewardSpecial { get; private set;} = string.Empty;
-        public EncounterType EncounterType { get; private set;}
-        public RoomInfo? ObjectiveRoom { get; private set;}
-        public int StartThreatLevel { get; private set;}
-        public int MinThreatLevel { get; private set;}
-        public int MaxThreatLevel { get; private set;}
-        public string NarrativeObjectiveRoom { get; private set; } = string.Empty;
-        public string NarrativeSetup { get; private set;} = string.Empty;
-        public string NarrativeAftermath { get; private set; } = string.Empty;
+        public bool IsSideQuest { get; set; }
+        public QuestLocation Location { get; set;}
+        public string Name { get; set;} = string.Empty;
+        public RoomInfo? StartingRoom { get; set;}
+        public string SpecialRules { get; set;} = string.Empty;
+        public int CorridorCount { get; set;}
+        public int RoomCount { get; set;}
+        public int RewardCoin { get; set;}
+        public string RewardSpecial { get; set;} = string.Empty;
+        public EncounterType EncounterType { get; set;}
+        public RoomInfo? ObjectiveRoom { get; set;}
+        public int StartThreatLevel { get; set;}
+        public int MinThreatLevel { get; set;}
+        public int MaxThreatLevel { get; set;}
+        public string NarrativeQuest { get; set; } = string.Empty;
+        public string NarrativeObjectiveRoom { get; set; } = string.Empty;
+        public string NarrativeSetup { get; set;} = string.Empty;
+        public string NarrativeAftermath { get; set; } = string.Empty;
+
+        public Quest()
+        {
+
+        }
     }
 }

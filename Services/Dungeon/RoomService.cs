@@ -3459,6 +3459,16 @@ namespace LoDCompanion.Services.Dungeon
             return Rooms.First(r => r.Name == name);
         }
 
+        public List<RoomInfo> GetExplorationDeckRooms()
+        {
+            return Rooms.Where(r => r.Name.StartsWith("R") || r.Name.StartsWith("C")).ToList();
+        }
+
+        public RoomInfo GetRandomRoom()
+        {
+            return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
+        }
+
         public List<Furniture> GetFurniture()
         {
             return new List<Furniture>()

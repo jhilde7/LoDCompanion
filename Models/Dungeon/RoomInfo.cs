@@ -12,7 +12,7 @@ namespace LoDCompanion.Models.Dungeon
 
     public class RoomInfo
     {
-        public string? Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public RoomCategory Category { get; set; } = RoomCategory.None;
         public string? Description { get; set; }
         public string? SpecialRules { get; set; }
