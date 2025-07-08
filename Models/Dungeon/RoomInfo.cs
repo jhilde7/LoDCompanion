@@ -7,7 +7,11 @@ namespace LoDCompanion.Models.Dungeon
     {
         None,
         Room,
-        Corridor
+        Corridor,
+        Wilderness,
+        AncientLands,
+        City,
+
     }
 
     public class RoomInfo
