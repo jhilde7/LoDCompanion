@@ -1,9 +1,7 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Utilities;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace LoDCompanion.Services.Game
+namespace LoDCompanion.Services.Combat
 {
     /// <summary>
     /// Represents the type of actor whose turn it is.
