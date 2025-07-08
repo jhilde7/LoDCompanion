@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using SixLabors.ImageSharp;
 
 namespace LoDCompanion.Models.Dungeon
 {
@@ -30,6 +31,7 @@ namespace LoDCompanion.Models.Dungeon
         public bool HasLevers { get; set; }
         public bool RandomEncounter { get; set; } = true;
         public bool HasSpecial { get; set; }
+        public Uri? ImageUri { get; set; }
 
 
         public RoomInfo()
@@ -115,6 +117,8 @@ namespace LoDCompanion.Models.Dungeon
         public string? OccupyingCharacterId { get; set; }
         public Furniture? Furniture { get; set; }
         public bool IsWall { get; set; }
+        public int TilePixelWidth { get; set; } = 128;
+        public int TilePixelHeight { get; set; } = 128;
 
         public bool LoSBlocked => IsWall || Furniture != null && Furniture.BlocksLoS;
         public bool MovementBlocked => IsWall || Furniture != null && Furniture.NoEntry;

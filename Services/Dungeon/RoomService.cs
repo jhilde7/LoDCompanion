@@ -4,6 +4,7 @@ using LoDCompanion.Services.GameData;
 using System.Text;
 using LoDCompanion.Models.Dungeon;
 using System.Collections.Generic;
+using SixLabors.ImageSharp;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -323,27 +324,43 @@ namespace LoDCompanion.Services.Dungeon
             return new List<RoomInfo> {
                 new RoomInfo(){
                     Name = "Start Tile",
+                    ImageUri = new Uri("/Resources/start_tile.png"),
                     Category = RoomCategory.Corridor,
                     Description = "This is the standard tile when entering a dungeon.",
-                    Size = [ 2, 6 ],
+                    Size = [ 2, 4 ],
                     DoorCount = 1,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
+                        ]
+                  },
+                new RoomInfo(){
+                    Name = "Start Tile Ancient Lands",
+                    ImageUri = new Uri("/Resources/start_tile_ancient_lands.png"),
+                    Category = RoomCategory.Corridor,
+                    Description = "This is the standard tile when entering a dungeon.",
+                    Size = [ 2, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
                         ]
                   },
                   new RoomInfo(){
                     Name = "C1",
+                    ImageUri = new Uri("/Resources/C1.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The party enters a long corridor with a door at the other end.",
                     Size = [ 2, 6 ],
@@ -365,6 +382,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C2",
+                    ImageUri = new Uri("/Resources/C2.png"),
                     Category = RoomCategory.Corridor,
                     Description = "In the middle of the corridor lies an old backpack. Maybe there is something useful inside?",
                     Size = [ 2, 6 ],
@@ -386,6 +404,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C3",
+                    ImageUri = new Uri("/Resources/C3.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The walls in this corridor are engraved with large skulls. They give an eerie feeling of vigilance, as if they are watching every step the adventurers take.",
                     ThreatLevelModifier = 1,
@@ -408,6 +427,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C4",
+                    ImageUri = new Uri("/Resources/C4.png"),
                     Category = RoomCategory.Corridor,
                     Description = "Just another long-stretched corridor. Better hurry on forward!",
                     Size = [ 2, 6 ],
@@ -429,6 +449,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C5",
+                    ImageUri = new Uri("/Resources/C5.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The floor in this corridor is made of metal grates. By the look of it, the metal has seen better days and it's very rusty. The first step makes the metal creak and the tormented sound echoes through the corridor. Moving through this corridor is bound to attract some attention.",
                     SpecialRules = "See card for special rules.",
@@ -452,6 +473,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C6",
+                    ImageUri = new Uri("/Resources/C6.png"),
                     Category = RoomCategory.Corridor,
                     Description = "This dank corridor seems to end with two doorways, each lit by a torch on the wall.",
                     Size = [ 2, 6 ],
@@ -473,6 +495,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C7",
+                    ImageUri = new Uri("/Resources/C7.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The blood spilt in this corridor has dried, but appears to only be one or two days old at most.",
                     ThreatLevelModifier = 1,
@@ -496,6 +519,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C8",
+                    ImageUri = new Uri("/Resources/C8.png"),
                     Category = RoomCategory.Corridor,
                     Description = "A long corridor with three more doors to explore. It's completely empty apart from cobweb's covering the floor.",
                     Size = [ 2, 6 ],
@@ -517,6 +541,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C9",
+                    ImageUri = new Uri("/Resources/C9.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The party suddenly halts as they discover that the floor has given way in the middle of this corridor. Where the floor should be, there is now a large gaping hole with unknown depth.",
                     SpecialRules = "See card for special rules.",
@@ -538,6 +563,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C10",
+                    ImageUri = new Uri("/Resources/C10.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The corridor splits in two at a crossway, leaving three possible ways to go. There is nothing special to observe here.",
                     Size = [ 6, 6 ],
@@ -567,6 +593,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C11",
+                    ImageUri = new Uri("/Resources/C11.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The corridor splits in two.From the left there is a foul smell, and there seems to be far away noises coming from the right.",
                     Size = [ 4, 6 ],
@@ -592,6 +619,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C12",
+                    ImageUri = new Uri("/Resources/C12.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The corridor makes a sharp turn. In the corner, up against the wall sits a dead adventurer. By the look of it, they must have been there for a while since most of the flesh has been eaten away.",
                     Size = [ 4, 4 ],
@@ -613,6 +641,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C13",
+                    ImageUri = new Uri("/Resources/C13.png"),
                     Category = RoomCategory.Corridor,
                     Description = "A short distance ahead is a bend in the corridor. Everything seems quiet, apart from the sound of water droplets hitting the floor.",
                     Size = [ 4, 4 ],
@@ -634,6 +663,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C14",
+                    ImageUri = new Uri("/Resources/C14.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The corridor makes a sharp turn. As the party enters the corridor there is a sudden sound of something dragging across the floor and shadows dancing on the wall before everything goes silent.",
                     ThreatLevelModifier = 1,
@@ -656,6 +686,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C15",
+                    ImageUri = new Uri("/Resources/C15.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The corridor in front of you has collapsed and there is no way you can get through without moving the debris blocking the path.",
                     SpecialRules = "See card for special rules.",
@@ -672,7 +703,26 @@ namespace LoDCompanion.Services.Dungeon
                         ]
                   },
                   new RoomInfo(){
+                    Name = "C15 Cleared",
+                    ImageUri = new Uri("/Resources/C15_cleared.png"),
+                    Category = RoomCategory.Corridor,
+                    Description = "You have cleared the rubble, and can move to the next room.",
+                    Size = [ 2, 4 ],
+                    DoorCount = 1,
+                    FurnitureList = [
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
+                        ]
+                  },
+                  new RoomInfo(){
                     Name = "C16",
+                    ImageUri = new Uri("/Resources/C16.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The party comes across some stairs that lead upwards into darkness. The steps are slippery and worn. This must be a widely used passage.",
                     SpecialRules = "See card for special rules.",
@@ -692,6 +742,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C17",
+                    ImageUri = new Uri("/Resources/C17.png"),
                     Category = RoomCategory.Corridor,
                     Description = "There are four different openings in this corridor, each covered by a heavy wooden door.",
                     Size = [ 2, 6 ],
@@ -713,6 +764,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C18",
+                    ImageUri = new Uri("/Resources/C18.png"),
                     Category = RoomCategory.Corridor,
                     Description = "There are two different openings in this corridor, each covered by a heavy wooden door.",
                     Size = [ 2, 6 ],
@@ -734,6 +786,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C20",
+                    ImageUri = new Uri("/Resources/C20.png"),
                     Category = RoomCategory.Corridor,
                     Description = "A long corridor with nothing but sand and stone. A closed door can be seen in the darkness ahead.",
                     Size = [ 2, 6 ],
@@ -755,6 +808,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C21",
+                    ImageUri = new Uri("/Resources/C21.png"),
                     Category = RoomCategory.Corridor,
                     Description = "An old wooden bridge spans the canal passing through this corridor.",
                     Size = [ 2, 6 ],
@@ -776,6 +830,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C22",
+                    ImageUri = new Uri("/Resources/C22.png"),
                     Category = RoomCategory.Corridor,
                     Description = "Two more doors can be seen further down this corridor. Even though they appear closed, there is a draft causing the sand on the floor to shift.",
                     Size = [ 2, 6 ],
@@ -797,6 +852,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C23",
+                    ImageUri = new Uri("/Resources/C23.png"),
                     Category = RoomCategory.Corridor,
                     Description = "There is a dead adventurer in exotic clothing lying on the floor in a pool of blood. Their demise appears to have happened in the past few hours.",
                     ThreatLevelModifier = 2,
@@ -818,6 +874,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C24",
+                    ImageUri = new Uri("/Resources/C24.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The wall on one side of this corridor has collapsed, making the passageway even narrower",
                     SpecialRules = "The 2 center squares with stones cannot be entered.",
@@ -841,6 +898,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C25",
+                    ImageUri = new Uri("/Resources/C25.png"),
                     Category = RoomCategory.Corridor,
                     Description = "In the darkness ahead, you see that this corridor makes a sharp turn.",
                     Size = [ 2, 6 ],
@@ -862,6 +920,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C26",
+                    ImageUri = new Uri("/Resources/C26.png"),
                     Category = RoomCategory.Corridor,
                     Description = "In the center of this corridor is a huge plant, with brown green vines. The vines seem to sway slowly even though there is no wind.",
                     SpecialRules = "See card for special rules.",
@@ -889,7 +948,37 @@ namespace LoDCompanion.Services.Dungeon
                         ]
                   },
                   new RoomInfo(){
+                    Name = "C26 Cleared",
+                    ImageUri = new Uri("/Resources/C26_cleared.png"),
+                    Category = RoomCategory.Corridor,
+                    Description = "The carnivorous plant that used to be here is no longer.",
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 4, 6 ],
+                    DoorCount = 1,
+                    HasSpecial = true,
+                    RandomEncounter = false,
+                    FurnitureList = [
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
+                        ]
+                  },
+                  new RoomInfo(){
                     Name = "C27",
+                    ImageUri = new Uri("/Resources/C27.png"),
                     Category = RoomCategory.Corridor,
                     Description = "The party enters an empty crossway with a foul smell. It's hard to tell from which passageway the smell is coming from.",
                     Size = [ 6, 6 ],
@@ -919,6 +1008,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C28",
+                    ImageUri = new Uri("/Resources/C28.png"),
                     Category = RoomCategory.Corridor,
                     Description = "A pole with a large number of blades is spinning around it's own axle as it moves back and forth across the hallway. Judging by the remains around the trap, this will require skill and timing to bypass.",
                     Size = [ 2, 6 ],
@@ -941,6 +1031,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C29",
+                    ImageUri = new Uri("/Resources/C29.png"),
                     Category = RoomCategory.Corridor,
                     Description = "A large swarm of bats is disturbed as the adventurers enter this corridor. The air is filled with flapping black wings.",
                     SpecialRules = "See card for special rules.",
@@ -971,6 +1062,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R1",
+                    ImageUri = new Uri("/Resources/R1.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 5, 5 ],
@@ -996,6 +1088,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R2",
+                    ImageUri = new Uri("/Resources/R2.png"),
                     Category = RoomCategory.Room,
                     ThreatLevelModifier = 1,
                     Size = [ 6, 6 ],
@@ -1041,6 +1134,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R3",
+                    ImageUri = new Uri("/Resources/R3.png"),
                     Category = RoomCategory.Room,
                     PartyMoraleModifier = -4,
                     Size = [ 6, 6 ],
@@ -1086,6 +1180,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R4",
+                    ImageUri = new Uri("/Resources/R4.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1132,6 +1227,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R5",
+                    ImageUri = new Uri("/Resources/R5.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -1225,6 +1321,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R6",
+                    ImageUri = new Uri("/Resources/R6.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1271,6 +1368,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R7",
+                    ImageUri = new Uri("/Resources/R7.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1315,6 +1413,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R8",
+                    ImageUri = new Uri("/Resources/R8.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     FurnitureList = [
@@ -1338,6 +1437,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R9",
+                    ImageUri = new Uri("/Resources/R9.png"),
                     Category = RoomCategory.Room,
                     ThreatLevelModifier = -2,
                     Size = [ 6, 6 ],
@@ -1374,6 +1474,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R10",
+                    ImageUri = new Uri("/Resources/R10.png"),
                     Category = RoomCategory.Room,
                     Description = "Finally, a room worthy of your presence. Even though the stones are as dark and dank as the rest of the dungeon, there is a silver lining here. Alongside one wall there are three chests to be plundered.",
                     Size = [ 6, 6 ],
@@ -1410,6 +1511,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R11",
+                    ImageUri = new Uri("/Resources/R11.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "Levers can be pulled, check card of instructions.",
                     Size = [ 6, 6 ],
@@ -1452,6 +1554,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R12",
+                    ImageUri = new Uri("/Resources/R12.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     FurnitureList = [
@@ -1476,6 +1579,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R13",
+                    ImageUri = new Uri("/Resources/R13.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -1500,6 +1604,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R14",
+                    ImageUri = new Uri("/Resources/R14.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -1524,6 +1629,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R15",
+                    ImageUri = new Uri("/Resources/R15.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -1548,6 +1654,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R16",
+                    ImageUri = new Uri("/Resources/R16.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 4 ],
                     DoorCount = 1,
@@ -1576,6 +1683,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R17",
+                    ImageUri = new Uri("/Resources/R17.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1622,6 +1730,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                       Name = "R18",
+                    ImageUri = new Uri("/Resources/R18.png"),
                       Category = RoomCategory.Room,
                       Size = [ 12, 6 ],
                       DoorCount = 1,
@@ -1701,6 +1810,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R19",
+                    ImageUri = new Uri("/Resources/R19.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -1744,6 +1854,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R20",
+                    ImageUri = new Uri("/Resources/R20.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 12, 6 ],
@@ -1828,6 +1939,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R21",
+                    ImageUri = new Uri("/Resources/R21.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "Walls cannot be passed through and block LOS.",
                     Size = [ 12, 6 ],
@@ -1897,6 +2009,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R22",
+                    ImageUri = new Uri("/Resources/R22.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -1947,6 +2060,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R23",
+                    ImageUri = new Uri("/Resources/R23.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     HasSpecial = true,
@@ -1998,6 +2112,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R24",
+                    ImageUri = new Uri("/Resources/R24.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2042,6 +2157,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R25",
+                    ImageUri = new Uri("/Resources/R25.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2088,6 +2204,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R26",
+                    ImageUri = new Uri("/Resources/R26.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -2112,11 +2229,11 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R27",
+                    ImageUri = new Uri("/Resources/R27.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
                     DoorCount = 1,
-                    RandomEncounter = true,
                     HasSpecial = true,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
@@ -2125,29 +2242,76 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
                         GetFurnitureByNameSetPosition("Bridge",
                             new List<GridPosition>() { new GridPosition(2, 1, 0), new GridPosition(2, 2, 0),
                                 new GridPosition(2, 3, 0), new GridPosition(2, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(0, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Chasm", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 5, 0)}),
+                        ]
+                  },
+                  new RoomInfo(){
+                    Name = "R27_Triggered",
+                    ImageUri = new Uri("/Resources/R27_triggered.png"),
+                    Category = RoomCategory.Room,
+                    SpecialRules = "See card for special rules.",
+                    Size = [ 6, 6 ],
+                    DoorCount = 1,
+                    HasSpecial = true,
+                    FurnitureList = [
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 1, 0)}), 
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
@@ -2158,6 +2322,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R28",
+                    ImageUri = new Uri("/Resources/R28.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     HasSpecial = true,
@@ -2202,6 +2367,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R29",
+                    ImageUri = new Uri("/Resources/R29.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -2228,6 +2394,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R30",
+                    ImageUri = new Uri("/Resources/R30.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2280,6 +2447,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R31",
+                    ImageUri = new Uri("/Resources/R31.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2327,6 +2495,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R32",
+                    ImageUri = new Uri("/Resources/R32.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 0,
@@ -2364,6 +2533,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R33",
+                    ImageUri = new Uri("/Resources/R33.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2409,6 +2579,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R1B",
+                    ImageUri = new Uri("/Resources/R1B.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     ThreatLevelModifier = 2,
@@ -2456,6 +2627,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R2B",
+                    ImageUri = new Uri("/Resources/R2B.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "Threat level decreased by 2.",
                     ThreatLevelModifier = -2,
@@ -2501,6 +2673,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R3B",
+                    ImageUri = new Uri("/Resources/R3B.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     HasSpecial = true,
@@ -2548,6 +2721,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R4B",
+                    ImageUri = new Uri("/Resources/R4B.png"),
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2591,6 +2765,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R5B",
+                    ImageUri = new Uri("/Resources/R5B.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -2674,6 +2849,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R6B",
+                    ImageUri = new Uri("/Resources/R6B.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "Levers can be pulled, check card of instructions.",
                     HasLevers = true,
@@ -2721,6 +2897,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R7B",
+                    ImageUri = new Uri("/Resources/R7B.png"),
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2767,6 +2944,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R8B",
+                    ImageUri = new Uri("/Resources/R8B.png"),
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -2791,6 +2969,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Great Crypt",
+                    ImageUri = new Uri("/Resources/great_crypt.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -2871,6 +3050,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Fountain Room",
+                    ImageUri = new Uri("/Resources/fountain_room.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -2951,6 +3131,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Throne Room",
+                    ImageUri = new Uri("/Resources/throne_room.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3033,6 +3214,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Lava River",
+                    ImageUri = new Uri("/Resources/lava_river.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3114,6 +3296,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Chamber of Reverence",
+                    ImageUri = new Uri("/Resources/chamber_of_reverence.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3199,6 +3382,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Lone Tomb",
+                    ImageUri = new Uri("/Resources/lone_tomb.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3282,6 +3466,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Large Tomb",
+                    ImageUri = new Uri("/Resources/large_tomb.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3368,6 +3553,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Ancient Throne Room",
+                    ImageUri = new Uri("/Resources/ancient_throne_room.png"),
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3454,6 +3640,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Bandits Hideout",
+                      ImageUri = new Uri("/Resources/bandits_hideout.png"),
                       Category = RoomCategory.Room,
                       Size = [11, 12],
                     FurnitureList = [
@@ -3586,6 +3773,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Road With Stone",
+                      ImageUri = new Uri("/Resources/road_with_stone.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -3737,6 +3925,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Field With Trees And Stone",
+                      ImageUri = new Uri("/Resources/field_with_trees_and_stone.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -3890,6 +4079,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Pond",
+                      ImageUri = new Uri("/Resources/pond.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4042,6 +4232,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Broken Cart",
+                      ImageUri = new Uri("/Resources/broken_cart.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4195,6 +4386,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Field With Trees",
+                      ImageUri = new Uri("/Resources/field_with_trees.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4347,6 +4539,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Rune Stone",
+                      ImageUri = new Uri("/Resources/rune_stone.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4497,6 +4690,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Crypt Graveyard",
+                      ImageUri = new Uri("/Resources/crypt_graveyard.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4649,6 +4843,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "City Street",
+                      ImageUri = new Uri("/Resources/city_street.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4802,6 +4997,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Farm",
+                      ImageUri = new Uri("/Resources/farm.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4955,6 +5151,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Rest In Pieces",
+                      ImageUri = new Uri("/Resources/rest_in_pieces.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5106,159 +5303,8 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo()
                   {
-                      Name = "Field With Trees",
-                      Category = RoomCategory.Wilderness,
-                      Size = [12, 12],
-                    FurnitureList = [
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 11, 0)}),
-                    ]
-                  },
-                  new RoomInfo()
-                  {
                       Name = "Farm Field",
+                      ImageUri = new Uri("/Resources/farm_field.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5411,6 +5457,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Sphinx",
+                      ImageUri = new Uri("/Resources/sphinx.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5560,6 +5607,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Ritual Site",
+                      ImageUri = new Uri("/Resources/ritual_site.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5712,6 +5760,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Pyramid",
+                      ImageUri = new Uri("/Resources/pyramid.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5864,6 +5913,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Barren Land",
+                      ImageUri = new Uri("/Resources/barren_land.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -6016,6 +6066,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Camp",
+                      ImageUri = new Uri("/Resources/camp.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -6169,6 +6220,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Fallen Tree",
+                      ImageUri = new Uri("/Resources/fallen_tree.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -6317,6 +6369,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Cross Road",
+                      ImageUri = new Uri("/Resources/cross_road.png"),
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
