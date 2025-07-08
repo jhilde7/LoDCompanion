@@ -32,6 +32,8 @@ namespace LoDCompanion.Models.Dungeon
         public bool RandomEncounter { get; set; } = true;
         public bool HasSpecial { get; set; }
         public Uri? ImageUri { get; set; }
+        public int TilePixelWidth { get; set; } = 128;
+        public int TilePixelHeight { get; set; } = 128;
 
 
         public RoomInfo()
@@ -71,6 +73,20 @@ namespace LoDCompanion.Models.Dungeon
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Converts a grid position to a top-left pixel coordinate on the room's image.
+        /// </summary>
+        /// <param name="gridPos">The GridPosition of the furniture or character.</param>
+        /// <param name="room">The RoomInfo containing the grid and pixel dimensions.</param>
+        /// <returns>A Point representing the top-left (X, Y) pixel of the grid square.</returns>
+        public System.Drawing.Point GetPixelCoordinateForGridPosition(GridPosition gridPos, RoomInfo room)
+        {
+            int pixelX = gridPos.X * room.TilePixelWidth;
+            int pixelY = gridPos.Y * room.TilePixelHeight;
+
+            return new System.Drawing.Point(pixelX, pixelY);
+        }
     }
 
     /// <summary>
@@ -92,7 +108,6 @@ namespace LoDCompanion.Models.Dungeon
         public bool Equals(GridPosition? other)
         {
             if (other is null) return false;
-            // UPDATED: Equality check now includes Z
             return X == other.X && Y == other.Y && Z == other.Z;
         }
 
@@ -103,7 +118,6 @@ namespace LoDCompanion.Models.Dungeon
 
         public override int GetHashCode()
         {
-            // UPDATED: HashCode now includes Z
             return HashCode.Combine(X, Y, Z);
         }
     }
@@ -117,8 +131,6 @@ namespace LoDCompanion.Models.Dungeon
         public string? OccupyingCharacterId { get; set; }
         public Furniture? Furniture { get; set; }
         public bool IsWall { get; set; }
-        public int TilePixelWidth { get; set; } = 128;
-        public int TilePixelHeight { get; set; } = 128;
 
         public bool LoSBlocked => IsWall || Furniture != null && Furniture.BlocksLoS;
         public bool MovementBlocked => IsWall || Furniture != null && Furniture.NoEntry;
