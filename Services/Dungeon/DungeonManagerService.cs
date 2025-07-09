@@ -29,6 +29,7 @@ namespace LoDCompanion.Services.Dungeon
         public Party? HeroParty => _dungeonState.HeroParty;
         public RoomService? StartingRoom => _dungeonState.StartingRoom;
         public RoomService? CurrentRoom => _dungeonState.CurrentRoom;
+        public DungeonState? DungeonState => _dungeonState;
 
 
         public DungeonManagerService(
