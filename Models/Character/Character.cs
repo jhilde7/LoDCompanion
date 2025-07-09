@@ -114,7 +114,7 @@ namespace LoDCompanion.Models.Character
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
         public List<Perk> Perks { get; set; } = new List<Perk>();
-        public List<Equipment> Weapons { get; set; } = new List<Equipment>();
+        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public List<Armour> Armours { get; set; } = new List<Armour>();
         public Shield? Shield { get; set; }
         public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
