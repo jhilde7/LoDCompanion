@@ -9,8 +9,10 @@ namespace LoDCompanion.Services.Game
         private readonly RoomService _room;
         public Quest? ActiveQuest { get; private set; }
         public bool IsObjectiveComplete { get; private set; }
+        public event Action? OnQuestStateChanged;
 
         public List<Quest> Quests => GetQuests();
+        public bool IsQuestActive => ActiveQuest != null;
 
         public QuestService(RoomService roomService)
         {
