@@ -241,7 +241,7 @@ namespace LoDCompanion.Models.Character
     public class Monster : Character // Inherit from the new Character base class
     {
         private readonly GameDataService _gameData;
-        public string Type { get; set; } = string.Empty;
+        public EncounterType? Type { get; set; }
         public int ArmourValue { get; set; }
         public bool HasShield { get; set; } // Indicates if the monster has a shield
         public int MinDamage { get; set; }
