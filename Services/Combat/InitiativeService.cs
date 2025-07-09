@@ -44,14 +44,14 @@ namespace LoDCompanion.Services.Combat
                 _initiativeTokens.Add(ActorType.Monster);
             }
 
-            // Handle "Bashing Down Doors" rule from PDF page 92
+            // Handle "Bashing Down Doors"
             if (didBashDoor)
             {
                 _initiativeTokens.Add(ActorType.Monster);
                 _initiativeTokens.Add(ActorType.Monster);
             }
 
-            // Handle "Perfect Hearing" rule from PDF page 92
+            // Handle "Perfect Hearing" rule
             bool heroHasPerfectHearing = heroes.Any(h => h.Talents.Any(t => t.IsPerfectHearing));
             bool monsterHasPerfectHearing = monsters.Any(m => m.SpecialRules.Contains("Perfect Hearing"));
 
