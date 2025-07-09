@@ -25,7 +25,7 @@ namespace LoDCompanion.Services.Game
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
-        private Hero? ActiveHero;
+        public Hero? ActiveHero { get; private set; }
         // This set will store the unique ID of each character who has used their Unwieldly bonus in this combat.
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();        
 
