@@ -18,5 +18,6 @@ namespace LoDCompanion.Models.Dungeon
         public Queue<RoomInfo> ExplorationDeck { get; set; } = new Queue<RoomInfo>();
         public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
         public List<WanderingMonsterState> WanderingMonsters { get; set; } = new List<WanderingMonsterState>();
+        public List<Monster> RevealedMonsters { get; set; } = new List<Monster>();
     }
 }
