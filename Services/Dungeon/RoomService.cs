@@ -138,10 +138,10 @@ namespace LoDCompanion.Services.Dungeon
                         // You'd have to signal back to the DungeonManagerService to create this room.
                         break;
                     case int r when r >= 16 && r <= 25:
-                        room.SearchResults.AddRange(treasure.FoundTreasure("Fine", count));
+                        room.SearchResults.AddRange(treasure.FoundTreasure(TreasureType.Fine, count));
                         break;
                     case int r when r >= 26 && r <= 40:
-                        room.SearchResults.AddRange(treasure.FoundTreasure("Mundane", count));
+                        room.SearchResults.AddRange(treasure.FoundTreasure(TreasureType.Mundane, count));
                         break;
                     case int r when r >= 41 && r <= 45:
                         room.SearchResults.Add("You found a set of levers. (Interaction handled by a LeverService)");

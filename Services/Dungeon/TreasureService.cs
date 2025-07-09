@@ -5,6 +5,22 @@ using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Dungeon
 {
+    public enum TreasureType
+    {
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+        Part,
+        Ingredient,
+        None,
+        Mundane,
+        Fine,
+        Wonderful
+
+    }
+
     public class TreasureService
     {
         private readonly GameDataService _gameData;
@@ -34,7 +50,7 @@ namespace LoDCompanion.Services.Dungeon
             // Again, no "BuildEquipmentWithParent" as there's no Unity game object to build
             return $"{item.Quantity} {item.Name}";
         }
-        public List<string> SearchCorpse(string type, Hero hero, int searchRoll)
+        public List<string> SearchCorpse(TreasureType type, Hero hero, int searchRoll)
         {
             List<string> rewards = new List<string>();
 
@@ -46,7 +62,7 @@ namespace LoDCompanion.Services.Dungeon
 
             switch (type)
             {
-                case "T1":
+                case TreasureType.T1:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
                         searchRoll = RandomHelper.GetRandomNumber(1, 10);
@@ -71,7 +87,7 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                     }
                     break;
-                case "T2":
+                case TreasureType.T2:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
                         searchRoll = RandomHelper.GetRandomNumber(1, 10);
@@ -79,10 +95,10 @@ namespace LoDCompanion.Services.Dungeon
                     switch (searchRoll)
                     {
                         case 1:
-                            rewards.AddRange(FoundTreasure("Fine", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
                             break;
                         case 2:
-                            rewards.AddRange(FoundTreasure("Mundane", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Mundane, count));
                             break;
                         case 3:
                             rewards.Add(GetTreasure("Coin", 0, 1, 50));
@@ -98,7 +114,7 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                     }
                     break;
-                case "T3":
+                case TreasureType.T3:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
                         searchRoll = RandomHelper.GetRandomNumber(1, 10);
@@ -107,14 +123,14 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         case 1:
                         case 2:
-                            rewards.AddRange(FoundTreasure("Fine", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
                             break;
                         case 3:
                         case 4:
                             rewards.Add(GetTreasure("Coin", 0, 1, 100));
                             break;
                         case 5:
-                            rewards.AddRange(FoundTreasure("Mundane", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Mundane, count));
                             break;
                         case 6:
                             rewards.Add(GetTreasure("Coin", 0, 1, 80));
@@ -127,7 +143,7 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                     }
                     break;
-                case "T4":
+                case TreasureType.T4:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
                         searchRoll = RandomHelper.GetRandomNumber(1, 10);
@@ -158,7 +174,7 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                     }
                     break;
-                case "T5":
+                case TreasureType.T5:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
                         searchRoll = RandomHelper.GetRandomNumber(1, 10);
@@ -167,21 +183,21 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         case 1:
                         case 2:
-                            rewards.AddRange(FoundTreasure("Wonderful", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Wonderful, count));
                             count *= 2;
-                            rewards.AddRange(FoundTreasure("Fine", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
                             break;
                         case 3:
                         case 4:
                             count *= 2;
-                            rewards.AddRange(FoundTreasure("Fine", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
                             rewards.Add(GetTreasure("Grimoire"));
                             break;
                         case 5:
                         case 6:
                         case 7:
                             count *= 3;
-                            rewards.AddRange(FoundTreasure("Fine", count));
+                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
                             break;
                         case 8:
                         case 9:
@@ -193,14 +209,14 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                     }
                     break;
-                case "Part":
+                case TreasureType.Part:
                     if (searchRoll == 0)
                     {
                         searchRoll = RandomHelper.GetRandomNumber(1, 100);
                     }
                     if (searchRoll <= hero.AlchemySkill)
                     {
-                        rewards.Add(GetTreasure("Part", 0, 0, 1, GetAlchemicalTreasure("Part", 1, false)));
+                        rewards.Add(GetTreasure("Part", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Part, 1, false)));
                     }
                     else
                     {
@@ -213,7 +229,7 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public List<string> FoundTreasure(string type, int count)
+        public List<string> FoundTreasure(TreasureType type, int count)
         {
             List<string> rewards = new List<string>();
             for (int i = 0; i < count; i++)
@@ -221,15 +237,15 @@ namespace LoDCompanion.Services.Dungeon
                 Equipment item;
                 switch (type)
                 {
-                    case "Mundane":
+                    case TreasureType.Mundane:
                         item = GetMundaneTreasure();
                         rewards.Add(item.Name);
                         break;
-                    case "Fine":
+                    case TreasureType.Fine:
                         item = GetFineTreasure();
                         rewards.Add(item.Name);
                         break;
-                    case "Wonderful":
+                    case TreasureType.Wonderful:
                         item = GetWonderfulTreasure();
                         rewards.Add(item.Name);
                         break;
@@ -277,7 +293,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 22: treasure = EquipmentService.GetWeaponByNameSetDurability("Dagger", weaponDurability); break;
                 case 23: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Empty Bottle", RandomHelper.GetRandomNumber(1, 6)); break;
                 case 24: treasure = GetFineTreasure(); break;
-                case 25: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
+                case 25: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
                 case 26: treasure = EquipmentService.GetWeaponByNameSetDurability("Javelin", weaponDurability); break;
                 case 27: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Lantern", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 28:
@@ -309,8 +325,8 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
-                case 33: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
-                case 34: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure("Part", 1)); break;
+                case 33: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
+                case 34: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Part, 1)); break;
                 case 35: treasure = EquipmentService.GetWeaponByNameSetDurability("Rapier", weaponDurability); break;
                 case 36: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 4)); break;
                 case 37: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 6)); break;
@@ -330,7 +346,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 51: treasure = EquipmentService.GetEquipmentByName("Wild game traps"); break;
                 case 52: treasure = CreateItem("Wolf Pelt", 0, 50, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 53: treasure = GetWonderfulTreasure(); break;
-                case 54: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
+                case 54: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
                 default:
                     treasure = CreateItem("Unknown Mundane Item"); // Fallback for unexpected rolls
                     break;
@@ -387,7 +403,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 13: treasure = CreateItem("Lock Picks - Dwarven", 1, 0, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 14: treasure = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 2)))); break;
                 case 15: treasure = EquipmentService.GetEquipmentByName("Elven Skinning Knife"); break;
-                case 16: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Ingredient", 1)); break;
+                case 16: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, 1)); break;
                 case 17: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
                 case 18: treasure = EquipmentService.GetEquipmentByName("Fishing Gear"); break;
                 case 19: treasure = CreateItem("Gemstone", 0, RandomHelper.GetRandomNumber(3, 300)); break;
@@ -434,7 +450,7 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
                 case 30: treasure = EquipmentService.GetEquipmentByName("Necklace"); treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
-                case 31: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Part", 1)); break;
+                case 31: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Part, 1)); break;
                 case 32: treasure = EquipmentService.GetEquipmentByName("Partial Map"); break;
                 case 33:
                 case 34: treasure = AlchemyService.GetPotionByStrength(PotionStrength.Standard); break;
@@ -547,7 +563,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 16: treasure = CreateItem("Grimoire"); break;
                 case 17: treasure = CreateItem("Harp"); break;
                 case 18: treasure = CreateItem("Huge Backpack"); break;
-                case 19: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Ingredient", RandomHelper.GetRandomNumber(1, 3))); break;
+                case 19: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
                 case 20:
                 case 21: treasure = CreateItem("Legendary"); break;
                 case 22:
@@ -735,7 +751,7 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, (8 - defaultDurabilityDamageRoll));
                     break;
-                case 44: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure("Part", RandomHelper.GetRandomNumber(1, 3))); break;
+                case 44: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Part, RandomHelper.GetRandomNumber(1, 3))); break;
                 case 45:
                     roll = RandomHelper.GetRandomNumber(1, 4);
                     switch (roll)
@@ -775,17 +791,17 @@ namespace LoDCompanion.Services.Dungeon
             return treasure;
         }
 
-        public string GetAlchemicalTreasure(string type, int amount, bool getOrigin = true)
+        public string GetAlchemicalTreasure(TreasureType type, int amount, bool getOrigin = true)
         {
             List<string> items = new List<string>();
-            if (type == "Ingredient")
+            if (type == TreasureType.Ingredient)
             {
                 foreach (AlchemyItem itemName in AlchemyService.GetIngredients(amount))
                 {
                     items.Add(itemName.Name);
                 }
             }
-            else if (type == "Part")
+            else if (type == TreasureType.Part)
             {
                 foreach (AlchemyItem itemName in AlchemyService.GetParts(amount))
                 {
