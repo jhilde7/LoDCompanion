@@ -35,7 +35,7 @@ namespace LoDCompanion.Services.Game
                     case MonsterBehaviorType.HumanoidMelee:
                         ExecuteHumanoidWithCloseCombatWeapon(monster, heroes, room, ref ap);
                         break;
-                    case MonsterBehaviorType.Ranged:
+                    case MonsterBehaviorType.HumanoidRanged:
                         ExecuteHumanoidWithMissileWeapon(monster, heroes, room, ref ap);
                         break;
                     case MonsterBehaviorType.Beast:

@@ -230,8 +230,9 @@ namespace LoDCompanion.Models.Character
 
     public enum MonsterBehaviorType
     {
+        Humanoid,
         HumanoidMelee,
-        Ranged,
+        HumanoidRanged,
         MagicUser,
         Beast,
         LowerUndead,
