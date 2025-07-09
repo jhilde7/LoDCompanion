@@ -8,7 +8,7 @@ namespace LoDCompanion.Models.Dungeon
     {
         public bool HasBeenSearched { get; set; }
         public Hero? HeroPerformingSearch { get; set; }
-        public string TreasureType { get; set; } = "-"; // Default to empty string for safety
+        public TreasureType TreasureType { get; set; } = TreasureType.None; // Default to empty string for safety
         public List<string> Treasures { get; set; }
 
         public Searchable()
@@ -21,7 +21,7 @@ namespace LoDCompanion.Models.Dungeon
     public class Corpse : Searchable
     {
         private readonly GameDataService _gameData;
-        public Corpse(GameDataService gameData, string treasureType)
+        public Corpse(GameDataService gameData, TreasureType treasureType)
         {
             _gameData = gameData;
             TreasureType = treasureType;

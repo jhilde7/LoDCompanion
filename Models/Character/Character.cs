@@ -1,6 +1,7 @@
 ﻿
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
 using System.Diagnostics;
@@ -258,7 +259,7 @@ namespace LoDCompanion.Models.Character
         public List<string> Spells { get; set; } = new List<string>(); // List of actual spell names
         public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
         public Corpse Body { get; set; }
-        public string TreasureType { get; set; } = "-"; // Default value indicating no treasure type assigned
+        public TreasureType TreasureType { get; set; } = TreasureType.None; // Default value indicating no treasure type assigned
         public List<string> Treasures { get; set; } = new List<string>();
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
 
