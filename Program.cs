@@ -32,6 +32,7 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 builder.Services.AddScoped<CharacterCreationState>();
 builder.Services.AddScoped<DungeonState>();
 builder.Services.AddScoped<GameState>();
+builder.Services.AddScoped<Room>();
 //GameData
 builder.Services.AddSingleton<GameDataService>();
 builder.Services.AddSingleton<EquipmentService>();
@@ -51,7 +52,6 @@ builder.Services.AddScoped<WanderingMonsterService>();
 builder.Services.AddScoped<GridService>();
 builder.Services.AddScoped<QuestService>();
 builder.Services.AddScoped<QuestEncounterService>();
-builder.Services.AddScoped<Room>();
 builder.Services.AddSingleton<RoomService>();
 builder.Services.AddSingleton<EncounterService>();
 builder.Services.AddSingleton<LeverService>();
