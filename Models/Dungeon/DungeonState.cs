@@ -13,8 +13,8 @@ namespace LoDCompanion.Models.Dungeon
         public int MaxThreatLevel { get; set; }
         public int ThreatLevel { get; set; }
         public int WhenSpawnWanderingMonster { get; set; }
-        public RoomService? StartingRoom { get; set; }
-        public RoomService? CurrentRoom { get; set; }
+        public Room? StartingRoom { get; set; }
+        public Room? CurrentRoom { get; set; }
         public Queue<RoomInfo> ExplorationDeck { get; set; } = new Queue<RoomInfo>();
         public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
         public List<WanderingMonsterState> WanderingMonsters { get; set; } = new List<WanderingMonsterState>();
