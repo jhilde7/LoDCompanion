@@ -33,6 +33,7 @@ builder.Services.AddScoped<CharacterCreationState>();
 builder.Services.AddScoped<DungeonState>();
 builder.Services.AddScoped<GameState>();
 builder.Services.AddScoped<Room>();
+builder.Services.AddScoped<Monster>();
 //GameData
 builder.Services.AddSingleton<GameDataService>();
 builder.Services.AddSingleton<EquipmentService>();
