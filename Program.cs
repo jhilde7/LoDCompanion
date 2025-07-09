@@ -29,50 +29,50 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 
 //register core services.
 //State
-builder.Services.AddSingleton<CharacterCreationState>();
-builder.Services.AddSingleton<DungeonState>();
-builder.Services.AddSingleton<GameState>();
+builder.Services.AddScoped<CharacterCreationState>();
+builder.Services.AddScoped<DungeonState>();
+builder.Services.AddScoped<GameState>();
 //GameData
-builder.Services.AddScoped<GameDataService>();
-builder.Services.AddScoped<EquipmentService>();
-builder.Services.AddScoped<AlchemyService>();
+builder.Services.AddSingleton<GameDataService>();
+builder.Services.AddSingleton<EquipmentService>();
+builder.Services.AddSingleton<AlchemyService>();
 //Combat
-builder.Services.AddScoped<InitiativeService>();
 builder.Services.AddScoped<CombatManagerService>();
-builder.Services.AddScoped<HeroCombatService>();
-builder.Services.AddScoped<MonsterCombatService>();
-builder.Services.AddScoped<DefenseService>();
-builder.Services.AddScoped<StatusEffectService>();
-builder.Services.AddScoped<MonsterSpecialService>();
+builder.Services.AddSingleton<DefenseService>();
+builder.Services.AddSingleton<MonsterCombatService>();
+builder.Services.AddSingleton<InitiativeService>();
+builder.Services.AddSingleton<HeroCombatService>();
+builder.Services.AddSingleton<StatusEffectService>();
+builder.Services.AddSingleton<MonsterSpecialService>();
 //Dungeon
 builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
-builder.Services.AddScoped<EncounterService>();
-builder.Services.AddScoped<LeverService>();
-builder.Services.AddScoped<LockService>();
-builder.Services.AddScoped<QuestEncounterService>();
-builder.Services.AddScoped<RoomFactoryService>();
-builder.Services.AddScoped<RoomService>();
-builder.Services.AddScoped<SearchService>();
-builder.Services.AddScoped<ThreatService>();
-builder.Services.AddScoped<TrapService>();
-builder.Services.AddScoped<TreasureService>();
 builder.Services.AddScoped<WanderingMonsterService>();
 builder.Services.AddScoped<GridService>();
 builder.Services.AddScoped<QuestService>();
+builder.Services.AddScoped<QuestEncounterService>();
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddSingleton<EncounterService>();
+builder.Services.AddSingleton<LeverService>();
+builder.Services.AddSingleton<LockService>();
+builder.Services.AddSingleton<RoomFactoryService>();
+builder.Services.AddSingleton<SearchService>();
+builder.Services.AddSingleton<ThreatService>();
+builder.Services.AddSingleton<TrapService>();
+builder.Services.AddSingleton<TreasureService>();
 //Party
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();
-builder.Services.AddScoped<PartyRestingService>();
-builder.Services.AddScoped<PlayerActionService>();
-builder.Services.AddScoped<HealingService>();
 builder.Services.AddScoped<InventoryService>();
-builder.Services.AddScoped<IdentificationService>();
+builder.Services.AddScoped<PlayerActionService>();
+builder.Services.AddSingleton<PartyRestingService>();
+builder.Services.AddSingleton<HealingService>();
+builder.Services.AddSingleton<IdentificationService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<GameStateManagerService>();
-builder.Services.AddScoped<MonsterAIService>();
+builder.Services.AddSingleton<MonsterAIService>();
 
 var app = builder.Build();
 
