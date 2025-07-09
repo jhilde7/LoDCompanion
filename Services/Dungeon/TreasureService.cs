@@ -17,8 +17,9 @@ namespace LoDCompanion.Services.Dungeon
         None,
         Mundane,
         Fine,
-        Wonderful
-
+        Wonderful,
+        Turog,
+        TheMasterLocksmith
     }
 
     public class TreasureService
