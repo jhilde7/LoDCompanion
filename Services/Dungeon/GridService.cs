@@ -18,7 +18,7 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         /// <param name="room">The room to place.</param>
         /// <param name="roomOffset">The global grid position of the room's top-left corner.</param>
-        public void PlaceRoomOnGrid(RoomService room, GridPosition roomOffset)
+        public void PlaceRoomOnGrid(Room room, GridPosition roomOffset)
         {
             room.GridOffset = roomOffset; // Store the room's global position
 
@@ -382,11 +382,10 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        internal void GenerateGridForRoom(RoomService room)
+        internal void GenerateGridForRoom(Room room)
         {
             if (room.Size == null || room.Size.Length != 2)
             {
-                // Handle error: room size is not defined
                 return;
             }
 
