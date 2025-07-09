@@ -2,7 +2,7 @@
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Dungeon;
 
-namespace LoDCompanion.Services.Dungeon
+namespace LoDCompanion.Services.Game
 {
     public class QuestService
     {

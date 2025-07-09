@@ -2,10 +2,11 @@
 
 using System.Collections.Generic;
 using LoDCompanion.Models.Character; // For Monster
+using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities; // For RandomHelper
 
-namespace LoDCompanion.Services.Dungeon
+namespace LoDCompanion.Services.Game
 {
     public class QuestEncounterService
     {
