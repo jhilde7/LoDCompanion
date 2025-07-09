@@ -30,8 +30,9 @@ namespace LoDCompanion.Models.Dungeon
     {
          Beasts,
          Undead,
-         Bandits,
-         Orcs,
+         Bandits_Brigands,
+         Magic,
+         Orcs_Goblins,
          Reptiles,
          DarkElves,
          AncientLands,
