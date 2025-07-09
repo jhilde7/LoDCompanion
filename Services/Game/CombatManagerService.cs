@@ -52,7 +52,7 @@ namespace LoDCompanion.Services.Game
         }
 
 
-        public void StartCombat(List<Hero> heroes, List<Monster> monsters)
+        public void StartCombat(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
         {
             HeroesInCombat = heroes;
             MonstersInCombat = monsters;
@@ -64,7 +64,7 @@ namespace LoDCompanion.Services.Game
             }
 
             // Setup the initiative for the first turn.
-            _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
+            _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat, didBashDoor);
 
             Console.WriteLine("Combat has started!");
             ProcessNextInInitiative();

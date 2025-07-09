@@ -38,9 +38,9 @@ builder.Services.AddSingleton<EquipmentService>();
 builder.Services.AddSingleton<AlchemyService>();
 //Combat
 builder.Services.AddScoped<CombatManagerService>();
+builder.Services.AddScoped<InitiativeService>();
 builder.Services.AddSingleton<DefenseService>();
 builder.Services.AddSingleton<MonsterCombatService>();
-builder.Services.AddSingleton<InitiativeService>();
 builder.Services.AddSingleton<HeroCombatService>();
 builder.Services.AddSingleton<StatusEffectService>();
 builder.Services.AddSingleton<MonsterSpecialService>();
