@@ -56,11 +56,8 @@ else
     {
         if(currentParty != null)
         {
-            // Generate the dungeon using the service
-            DungeonManager.InitializeDungeon(currentParty, QuestService.GetQuestByName("First Blood"));
-
-            // Navigate to the dungeon page
-            NavManager.NavigateTo("/dungeon");
+            QuestService.StartQuest(QuestService.GetQuestByName("First Blood"));
+            NavManager.NavigateTo("/wilderness");
         }
     }
 
