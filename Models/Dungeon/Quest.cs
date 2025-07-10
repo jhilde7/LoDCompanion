@@ -64,7 +64,9 @@ namespace LoDCompanion.Models.Dungeon
         public RoomInfo? StartingRoom { get; set;}
         public string SpecialRules { get; set;} = string.Empty;
         public int CorridorCount { get; set;}
-        public int RoomCount { get; set;}
+        public List<RoomInfo>? CorridorsToExclude { get; set;}
+        public int RoomCount { get; set; }
+        public List<RoomInfo>? RoomsToExclude { get; set; }
         public int RewardCoin { get; set;}
         public string RewardSpecial { get; set;} = string.Empty;
         public EncounterType EncounterType { get; set;}
