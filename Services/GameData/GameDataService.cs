@@ -382,8 +382,8 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 1,
                       MaxDamage = 10,
-                      IsArmourPiercing = true,
-                      IsLightning = true,
+                      IsArmourPiercing = true,                      
+                      DamageType = DamageType.Lightning,
                       IsMagicMissile = true,
                       School = MagicSchool.Destruction,
                       IsAOESpell = true,
@@ -604,7 +604,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 8,
                       IncludeCasterLevelInDamage = true,
-                      IsFireDmg = true,
+                      DamageType = DamageType.Fire,
                       School = MagicSchool.Destruction,
                       IsAOESpell = true,
                       AOEMinDamage = 1,
@@ -622,7 +622,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 1,
                       MaxDamage = 6,
-                      IsFireDmg = true,
+                      DamageType = DamageType.Fire,
                       School = MagicSchool.Destruction,
                       PrayerEffect = "This spell creates a Fire Wall, up to 3 squares long. It may only be placed in a straight line and not in a square that contains an enemy. All except lower Undead and Fire Elementals will avoid or try to walk around. Spell lasts for 1d4+1 turns. Any Lower Undead walking through takes 1d6 Fire DMG. Fire Elementals are immune."
                     },
@@ -670,7 +670,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 1,
                       MaxDamage = 20,
-                      IsFireDmg = true,
+                      DamageType = DamageType.Fire,
                       IsMagicMissile = true,
                       School = MagicSchool.Destruction,
                       IsAOESpell = true,
@@ -2779,6 +2779,17 @@ namespace LoDCompanion.Services.GameData
         }
     }
 
+    public enum DamageType
+    {
+        Mundane,
+        Silver,
+        Fire,
+        Water,
+        Lightning,
+        Acid,
+        Poison
+    }
+
     public enum MagicSchool
     {
         Necromancy,
@@ -2810,9 +2821,7 @@ namespace LoDCompanion.Services.GameData
         public int MaxDamage { get; set; }
         public bool IncludeCasterLevelInDamage { get; set; }
         public bool IsArmourPiercing { get; set; }
-        public bool IsWaterDmg { get; set; }
-        public bool IsFireDmg { get; set; }
-        public bool IsLightning { get; set; }
+        public DamageType DamageType { get; set; }
 
         // Spell Category Flags (can be used for filtering or specific effects)
         public bool IsQuickSpell { get; set; }
