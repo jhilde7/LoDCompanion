@@ -52,7 +52,7 @@ builder.Services.AddScoped<DungeonManagerService>();
 builder.Services.AddScoped<WanderingMonsterService>();
 builder.Services.AddScoped<GridService>();
 builder.Services.AddScoped<QuestService>();
-builder.Services.AddScoped<QuestEncounterService>();
+builder.Services.AddSingleton<QuestSetupService>();
 builder.Services.AddSingleton<RoomService>();
 builder.Services.AddSingleton<EncounterService>();
 builder.Services.AddSingleton<LeverService>();
