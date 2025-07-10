@@ -21,7 +21,7 @@ namespace LoDCompanion.Services.Dungeon
             _gameData = gameDataService;
         }
 
-        public List<Monster> GetRandomEncounterByType(EncounterType type, EncounterType currentDungeonEncounterType)
+        public List<Monster> GetRandomEncounterByType(EncounterType type)
         {
             List<Monster> encounters = new List<Monster>();
             Monster monster; // Used temporarily for individual monster creation with additional properties
@@ -1528,7 +1528,7 @@ namespace LoDCompanion.Services.Dungeon
                             // This originally called dungeonManager.encounter.encounterType.
                             // In a service-oriented approach, the calling service (e.g., DungeonManagerService)
                             // would pass the appropriate current encounter type.
-                            encounters = GetRandomEncounterByType(type, currentDungeonEncounterType);
+                            encounters = GetRandomEncounterByType(type);
                             break;
                     }
                     break;
@@ -1541,7 +1541,7 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         case 6:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Snake"));
-                            encounters.AddRange(GetRandomEncounterByType(type, currentDungeonEncounterType));
+                            encounters.AddRange(GetRandomEncounterByType(type));
                             break;
                         case 4:
                         case 5:
