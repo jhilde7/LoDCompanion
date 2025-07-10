@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Models.Dungeon
 {
@@ -75,6 +76,7 @@ namespace LoDCompanion.Models.Dungeon
         public string NarrativeObjectiveRoom { get; set; } = string.Empty;
         public string NarrativeSetup { get; set;} = string.Empty;
         public string NarrativeAftermath { get; set; } = string.Empty;
+        public List<QuestSetupAction> SetupActions { get; set; } = new();
 
         public Quest()
         {
