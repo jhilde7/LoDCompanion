@@ -159,7 +159,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 7,
                       ManaCost = 8,
                       TurnDuration = -1,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "Causes the caster to fall to the ground, appearing dead to all around. Enemies will not target the caster for the rest of the battle. The caster may do nothing until the end of the battle."
                     },
                     new Spell(){
@@ -172,7 +172,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 8,
                       IsQuickSpell = true,
                       IsMagicMissile = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "A bright flare shoots from the caster's hand, hissing through the air to strike the target with a large bang. DMG is 1D8."
                     },
                     new Spell(){
@@ -183,7 +183,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 1,
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
-                      IsAlteration = true,
+                      School = MagicSchool.Alteration,
                       IsAOESpell = true,
                       PrayerEffect = "Suddenly a powerful wind blows through the dungeon, making arrows fly astray. All Missile Weapons now have a -15 modifier to hit if the arrows pass the room the Wizard is in. The wind lasts for Caster level turns. Upkeep is 1 point of Mana."
                     },
@@ -198,7 +198,7 @@ namespace LoDCompanion.Services.GameData
                       IsArmourPiercing = true,
                       IsQuickSpell = true,
                       IsTouch = true,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "This is a close combat spell, where the caster touches his enemy and causes him harm through magical energy. The target loses 1d10 Hit Points which ignores armour."
                     },
                     new Spell(){
@@ -210,7 +210,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 10,
                       IsQuickSpell = true,
                       IsTouch = true,
-                      IsRestoration = true,
+                      School = MagicSchool.Restoration,
                       PrayerEffect = "The caster lays his hand on a comrade and heals 1d10 Hit Points."
                     },
                     new Spell(){
@@ -221,7 +221,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 6,
                       IsQuickSpell = true,
-                      IsRestoration = true,
+                      School = MagicSchool.Restoration,
                       PrayerEffect = "The caster can heal one hero within 4 squares and in LOS (intervening models does not matter). It heals 1d6 Hit Points."
                     },
                     new Spell(){
@@ -231,7 +231,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 10,
                       UpkeepCost = 1,
                       TurnDuration = -1,
-                      IsMysticism = true,
+                      School = MagicSchool.Mysticism,
                       PrayerEffect = "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn."
                     },
                     new Spell(){
@@ -240,7 +240,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 10,
                       ManaCost = 10,
                       TurnDuration = 1,
-                      IsHex = true,
+                      School = MagicSchool.Hex,
                       PrayerEffect = "Causes the target to slip and fall. The target will remain prone until its next action when it will spend its first turn standing up."
                     },
                     new Spell(){
@@ -250,7 +250,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 10,
                       UpkeepCost = 1,
                       TurnDuration = -1,
-                      IsIllusion = true,
+                      School = MagicSchool.Illusion,
                       PrayerEffect = "May target self or hero in LOS. Target becomes blurry and any attacks against the target is at -15. The effect lasts for 1d4 turns."
                     },
                     new Spell(){
@@ -262,7 +262,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 2,
                       MaxDamage = 6,
                       IncludeCasterLevelInDamage = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "The target is struck from above by a powerful blow, causing 2d6+Caster Level points of DMG. Armour and NA protects as normal. Target must be in LOS."
                     },
                     new Spell(){
@@ -270,7 +270,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 2,
                       CastingValue = 20,
                       IsIncantation = true,
-                      IsEnchantment = true,
+                      School = MagicSchool.Enchantment,
                       PrayerEffect = "This spell is used to create scrolls. As long as the wizard knows the spell he wants to use as the basis for the scroll, and has a good quality parchment, this is quite easy although time consuming."
                     },
                     new Spell(){
@@ -278,7 +278,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 2,
                       ManaCost = 8,
                       IsTouch = true,
-                      IsAlteration = true,
+                      School = MagicSchool.Alteration,
                       PrayerEffect = "This spell can be used to magically open locked doors or chests. The caster must stand close enough to touch the lock, and the locks hit points is used as the CV of the spell."
                     },
                     new Spell(){
@@ -286,7 +286,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 2,
                       CastingValue = 13,
                       ManaCost = 12,
-                      IsAlteration = true,
+                      School = MagicSchool.Alteration,
                       PrayerEffect = "The Spell Caster can magically seal a door. Any monster outside trying to pass through will take 1d3 turns in doing so. Doors that have been broken down cannot be sealed. This can be cast on any door, even if there are monsters present. It can only be cast once per door."
                     },
                     new Spell(){
@@ -294,7 +294,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 2,
                       CastingValue = 10,
                       ManaCost = 12,
-                      IsHex = true,
+                      School = MagicSchool.Hex,
                       PrayerEffect = "The spell can be cast on an enemy Magic Caster. If the spell is successfully cast, the target must make a RES test when casting a spell. A failure means that the target cannot cast magic that turn, but may otherwise act as normal. Making this test does not cost an AP. If successful, the target may cast the spell as planned and the spell ceases to have any effect."
                     },
                     new Spell(){
@@ -304,7 +304,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 8,
                       UpkeepCost = 2,
                       TurnDuration = -1,
-                      IsMysticism = true,
+                      School = MagicSchool.Mysticism,
                       PrayerEffect = "Caster may strengthen a hero in LOS with +10 in either STR or CON. The spell lasts for 1d6 turns."
                     },
                     new Spell(){
@@ -313,7 +313,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 15,
                       ManaCost = 10,
                       UpkeepCost = 4,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster reaches into the Void and summons a Lesser Plague Demon. Place the demon in a random free square in the room. The demon may act as part of the hero's next turn. It will fight for the caster, but also try to break free at every turn. At the start of each turn, the caster must use 4 Mana as upkeep, and then pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. Add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -321,7 +321,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 3,
                       CastingValue = 15,
                       ManaCost = 18,
-                      IsIllusion = true,
+                      School = MagicSchool.Illusion,
                       PrayerEffect = "If successfully cast at a target in LOS, the target must pass RES or be unable to use that action. If the target fails, it may try again for Action Point number 2. Once it succeeds, the effect of the spell is gone."
                     },
                     new Spell(){
@@ -330,7 +330,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 20,
                       ManaCost = 12,
                       TurnDuration = 1,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "The caster may try to take control of a lower undead in LOS. If the caster succeeds with the RES+Caster Level test, the wizard may control the Undead until next turn. It still retains its monster activation token. Make Resolve test every time you activate the creature. As long as the test succeeds, the caster may control the Undead creature. There is no upkeep since the Undead has been brought back by something else than the caster's magic."
                     },
                     new Spell(){
@@ -341,7 +341,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 1,
                       TurnDuration = -1,
                       IsMagicMissile = true,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "A storm of flies soars from the gaping mouth of the caster, surrounding the target. The cloud of flies will make it harder for the enemy to fight by reducing its CS by 10. The spell lasts for 1d3 turns."
                     },
                     new Spell(){
@@ -350,7 +350,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 25,
                       ManaCost = 16,
                       IsIncantation = true,
-                      IsEnchantment = true,
+                      School = MagicSchool.Enchantment,
                       PrayerEffect = "This spell can only be cast between quests and requires a powerstone. The power of the stone will then be fused with an object such as a weapon, an armour or a piece of jewellery. See chapter on Crafting."
                     },
                     new Spell(){
@@ -360,7 +360,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 16,
                       MinDamage = 1,
                       MaxDamage = 10,
-                      IsRestoration = true,
+                      School = MagicSchool.Restoration,
                       PrayerEffect = "The caster may heal a hero within 4 squares and in LOS. The target regains 1d10 Hit Points."
                     },
                     new Spell(){
@@ -371,7 +371,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 1,
                       MaxDamage = 12,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "A series of razor-sharp Ice spikes shoot from the floor, striking the target from below. It causes 1d12 Frost DMG. Target must be in LOS."
                     },
                     new Spell(){
@@ -385,7 +385,7 @@ namespace LoDCompanion.Services.GameData
                       IsArmourPiercing = true,
                       IsLightning = true,
                       IsMagicMissile = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       IsAOESpell = true,
                       AOEMinDamage = 1,
                       AOEMaxDamage = 10,
@@ -399,7 +399,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 15,
                       UpkeepCost = 2,
                       TurnDuration = -1,
-                      IsMysticism = true,
+                      School = MagicSchool.Mysticism,
                       PrayerEffect = "The caster may bolster the armour of any target within LOS with +2 for all parts of the body. The spell lasts for Caster Level+2 turns."
                     },
                     new Spell(){
@@ -413,7 +413,7 @@ namespace LoDCompanion.Services.GameData
                       IsArmourPiercing = true,
                       IsQuickSpell = true,
                       IsMagicMissile = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "A bolt of pure energy lashes from the caster to a target within LOS. Target loses 1d10 Hit Points, ignoring any armour."
                     },
                     new Spell(){
@@ -423,7 +423,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 12,
                       UpkeepCost = 2,
                       TurnDuration = -1,
-                      IsHex = true,
+                      School = MagicSchool.Hex,
                       PrayerEffect = "A target within LOS of the caster must pass a Resolve test or lose one Action Point. Test again at the start of each enemy turn. The effect will last until the enemy test succeeds."
                     },
                     new Spell(){
@@ -434,7 +434,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 5,
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -445,7 +445,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 5,
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -457,7 +457,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 6,
                       IsArmourPiercing = true,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "Caster causes 1d6 DMG with no armour or NA, and the caster may heal with the same amount of HP up to maximum Hit Points."
                     },
                     new Spell(){
@@ -468,7 +468,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 2,
                       MaxDamage = 6,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "This spell only hurts Undead with the Ethereal Role. A successful spell will damage the Undead creature with 2d6."
                     },
                     new Spell(){
@@ -478,7 +478,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 15,
                       TurnDuration = -1,
                       IsQuickSpell = true,
-                      IsMysticism = true,
+                      School = MagicSchool.Mysticism,
                       PrayerEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
                     },
                     new Spell(){
@@ -490,7 +490,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 2,
                       MaxDamage = 8,
                       IsMagicMissile = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "A beam of frost shoots from the hands of the caster towards the target, which must be in LOS. The target takes 2d8 Frost DMG."
                     },
                     new Spell(){
@@ -501,7 +501,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 6,
                       TurnDuration = -1,
                       IsQuickSpell = true,
-                      IsHex = true,
+                      School = MagicSchool.Hex,
                       PrayerEffect = "The wizard holds an enemy in LOS in its place, making it impossible to move or fight. The enemy will make a RES Test at the start of their turn, and if successful, it will break free and act as normal. The activation token should be added to the bag as usual, and the enemy will try to act in the normal order of activation."
                     },
                     new Spell(){
@@ -513,7 +513,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 1,
                       MaxDamage = 4,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "Caster may trap a target in LOS in ice, forcing it to break free before being able to do anything else. The caster may roll Caster Level d10 to determine how strong the tomb is, and the target does its maximum damage (Inc) weapon) once per turn until the tomb breaks. It may act with both its actions on the turn the tomb breaks. For every turn, the target takes 1d4 points of Frost DMG."
                     },
                     new Spell(){
@@ -521,7 +521,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 4,
                       CastingValue = 15,
                       ManaCost = 25,
-                      IsAlteration = true,
+                      School = MagicSchool.Alteration,
                       PrayerEffect = "The caster may shift the place of two heroes that are in LOS. If the spell fails, both heroes suffer 2 Sanity Points for the ordeal. The caster may not transpose himself."
                     },
                     new Spell(){
@@ -529,7 +529,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 4,
                       CastingValue = 15,
                       ManaCost = 25,
-                      IsDivination = true,
+                      School = MagicSchool.Divination,
                       PrayerEffect = "Caster can tell what is on the other side of a door. Place the tile and roll for Encounter before opening a door. The heroes gain 2 activation tokens if there is an encounter on the other side of the door."
                     },
                     new Spell(){
@@ -537,7 +537,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 4,
                       CastingValue = 25,
                       ManaCost = 15,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster lures a demon from its dimension over to this world. It will randomly be either a Blood Demon or a Plague Demon. The demon is placed in a random place in the same tile as the wizard and fights for the caster. Once summoned, immediately add a hero activation token to the bag and activate the demon just like a hero. However, at the start of the wizard's activation following the summoning, the caster must pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. When it breaks free, it will make a Resolve Test of its own and if it succeeds, it takes part of the caster's mind with it. Deduct 1d3 Sanity Points from the caster. Once in our plane, the demon will relish the fighting, so no upkeep is needed."
                     },
                     new Spell(){
@@ -548,7 +548,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 5,
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for ML number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -559,7 +559,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 5,
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -571,7 +571,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 4,
                       IsArmourPiercing = true,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       IsAOESpell = true,
                       PrayerEffect = "This spell conjures a host of restless spirits to torment your enemies. Each enemy on the tile takes 1d4 points of DMG with no armour and NA. Undead enemies are immune."
                     },
@@ -582,7 +582,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 18,
                       TurnDuration = -1,
                       IsTouch = true,
-                      IsHex = true,
+                      School = MagicSchool.Hex,
                       PrayerEffect = "The caster can choose to lower the Strength or Constitution of a chosen target if the target fails a Resolve Test. If the target fails, it loses its NA armour or DMG bonus for 1d4 turns, depending on what the wizard chooses."
                     },
                     new Spell(){
@@ -592,7 +592,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 18,
                       UpkeepCost = 10,
                       TurnDuration = 1,
-                      IsIllusion = true,
+                      School = MagicSchool.Illusion,
                       PrayerEffect = "May target any enemy in sight. Target must pass RES or attack the closest enemy during its next activation. Once that activation is over, the effect is gone."
                     },
                     new Spell(){
@@ -605,7 +605,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 8,
                       IncludeCasterLevelInDamage = true,
                       IsFireDmg = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       IsAOESpell = true,
                       AOEMinDamage = 1,
                       AOEMaxDamage = 4,
@@ -623,7 +623,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 6,
                       IsFireDmg = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       PrayerEffect = "This spell creates a Fire Wall, up to 3 squares long. It may only be placed in a straight line and not in a square that contains an enemy. All except lower Undead and Fire Elementals will avoid or try to walk around. Spell lasts for 1d4+1 turns. Any Lower Undead walking through takes 1d6 Fire DMG. Fire Elementals are immune."
                     },
                     new Spell(){
@@ -632,7 +632,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 15,
                       ManaCost = 20,
                       TurnDuration = 1,
-                      IsAlteration = true,
+                      School = MagicSchool.Alteration,
                       PrayerEffect = "May target self or hero in LOS. Target may levitate for the entire turn. That means the character moves above the ground, not touching any traps or similar. It may be used to leave a pit and to traverse a pit. You cannot levitate through a square which contains a model or over lava."
                     },
                     new Spell(){
@@ -642,7 +642,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 15,
                       UpkeepCost = 2,
                       TurnDuration = -1,
-                      IsIllusion = true,
+                      School = MagicSchool.Illusion,
                       PrayerEffect = "The caster makes a copy of herself which may be placed anywhere within 4 squares of the caster. Enemies will treat this mirrored image as a target just like any other hero, even though it cannot take DMG. The mirrored self cannot move or attack. It will last for 1d4 turns."
                     },
                     new Spell(){
@@ -651,7 +651,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 15,
                       ManaCost = 15,
                       TurnDuration = -1,
-                      IsMysticism = true,
+                      School = MagicSchool.Mysticism,
                       PrayerEffect = "May target self or any friendly character in LOS. Character gains +1M. The spell lasts until a Scenario die roll of 9-10."
                     },
                     new Spell(){
@@ -659,7 +659,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 5,
                       CastingValue = 20,
                       ManaCost = 30,
-                      IsDivination = true,
+                      School = MagicSchool.Divination,
                       PrayerEffect = "All heroes that have acted may immediately put activation tokens back in the bag. They may act again as if it is a new turn. This spell may only be cast once during a battle."
                     },
                     new Spell(){
@@ -672,7 +672,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 20,
                       IsFireDmg = true,
                       IsMagicMissile = true,
-                      IsDestruction = true,
+                      School = MagicSchool.Destruction,
                       IsAOESpell = true,
                       AOEMinDamage = 1,
                       AOEMaxDamage = 10,
@@ -684,7 +684,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 6,
                       CastingValue = 30,
                       ManaCost = 40,
-                      IsMysticism = true,
+                      School = MagicSchool.Mysticism,
                       IsAOESpell = true,
                       AOERadius = 2,
                       PrayerEffect = "The caster conjures a large opening in the ground, swallowing any who happens to be standing there. The wizard must have LOS to at least 1 of the squares. The hole covers 4 squares and any model with their whole base inside that range must make a DEX Test or perish. That also means an X-Large creature will not be affected by this spell. The party gets the XP for any creatures that perish. Any furniture or traps in these squares also disappears. The hole then immediately closes up."
@@ -694,7 +694,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 6,
                       CastingValue = 20,
                       ManaCost = 30,
-                      IsRestoration = true,
+                      School = MagicSchool.Restoration,
                       PrayerEffect = "This spell restores all of a hero's Hit Points."
                     },
                     new Spell(){
@@ -704,7 +704,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 15,
                       UpkeepCost = 5,
                       TurnDuration = -1,
-                      IsNecromancy = true,
+                      School = MagicSchool.Necromancy,
                       PrayerEffect = "The caster may try to raise a defeated Lower Undead or dead human in LOS. Add one hero activation token to the bag immediately. Any Zombie or Skeleton raised will retain its stats and equipment. Any raised human will gain the stats of a zombie and retain its weapon, but armour will be 0."
                     },
                     new Spell(){
@@ -714,7 +714,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 25,
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
-                      IsConjuration = true,
+                      School = MagicSchool.Conjuration,
                       PrayerEffect = "The caster draws a demon from its dimension to do his biddings. The demon is placed in a random place on the same tile as the wizard and fights for the caster for 1d3+Caster Level turns. Once in our plane, the demon will relish fighting, so no upkeep is needed. However, making a pact with a Greater Demon comes at a price, no matter how skilled a wizard you may be. Deduct 1d6 Sanity Points from the caster."
                     },
                     new Spell(){
@@ -722,7 +722,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 6,
                       CastingValue = 14,
                       ManaCost = 20,
-                      IsAlteration = true,
+                      School = MagicSchool.Alteration,
                       PrayerEffect = "The wizard may teleport one of his companions within LOS or himself up to 4 squares. This is risky business though, and a failed spell will cost the target one Sanity Point as he is partly in the void before coming back."
                     }
                 };
@@ -2778,6 +2778,21 @@ namespace LoDCompanion.Services.GameData
             return StatusEffects.First(x => x.Category == type);
         }
     }
+
+    public enum MagicSchool
+    {
+        Necromancy,
+        Destruction,
+        Alteration,
+        Restoration,
+        Mysticism,
+        Hex,
+        Illusion,
+        Enchantment,
+        Conjuration,
+        Divination
+    }
+
       public class Spell
       {
         public string Name { get; set; } = string.Empty;
@@ -2804,16 +2819,7 @@ namespace LoDCompanion.Services.GameData
         public bool IsIncantation { get; set; }
         public bool IsMagicMissile { get; set; }
         public bool IsTouch { get; set; }
-        public bool IsNecromancy { get; set; }
-        public bool IsDestruction { get; set; }
-        public bool IsAlteration { get; set; }
-        public bool IsRestoration { get; set; }
-        public bool IsMysticism { get; set; }
-        public bool IsHex { get; set; }
-        public bool IsIllusion { get; set; }
-        public bool IsEnchantment { get; set; }
-        public bool IsConjuration { get; set; }
-        public bool IsDivination { get; set; }
+        public MagicSchool School { get; set; }
 
         // AOE properties
         public bool IsAOESpell { get; set; }
@@ -2829,7 +2835,7 @@ namespace LoDCompanion.Services.GameData
         public override string ToString()
         {
           var sb = new StringBuilder();
-          sb.AppendLine($"--- Spell: {Name} (Lvl {Level}) ---");
+          sb.AppendLine($"--- Spell: {Name} {School} (Lvl {Level}) ---");
           sb.AppendLine($"Cost: {ManaCost} Mana | Upkeep: {UpkeepCost} | CV: {CastingValue}");
           if (TurnDuration > 0)
           {
@@ -2853,8 +2859,6 @@ namespace LoDCompanion.Services.GameData
           if (IsQuickSpell) types.Add("Quick");
           if (IsIncantation) types.Add("Incantation");
           if (IsTouch) types.Add("Touch");
-          if (IsNecromancy) types.Add("Necromancy");
-          if (IsDestruction) types.Add("Destruction");
           if (types.Any())
           {
             sb.AppendLine($"Category: {string.Join(", ", types)}");
