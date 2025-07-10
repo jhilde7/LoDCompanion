@@ -29,7 +29,7 @@ namespace LoDCompanion.Services.Dungeon
         /// This method would be called by a RoomFactoryService.
         /// </summary>
         /// <param name="roomInfo">The data object containing room definitions.</param>
-        public void InitializeRoomData(RoomInfo roomInfo, Room room)
+        public Room InitializeRoomData(RoomInfo roomInfo, Room room)
         {
             // Basic Information
             room.RoomName = roomInfo.Name ?? string.Empty;
@@ -79,6 +79,7 @@ namespace LoDCompanion.Services.Dungeon
             room.ActivateSpecial = false; // Reset special activation on initialization
             room.HasBeenSearched = false;
             room.IsEncounter = false; // Start with no active encounter
+            return room;
         }
 
 
