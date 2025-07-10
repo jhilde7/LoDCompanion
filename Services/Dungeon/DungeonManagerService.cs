@@ -13,7 +13,6 @@ namespace LoDCompanion.Services.Dungeon
         private readonly GameDataService _gameData;
         private readonly WanderingMonsterService _wanderingMonster;
         private readonly EncounterService _encounter;
-        private readonly QuestEncounterService _questEncounter;
         private readonly RoomFactoryService _roomFactory;
         private readonly GameStateManagerService _gameManager;
         private readonly DungeonBuilderService _dungeonBuilder;
@@ -27,8 +26,8 @@ namespace LoDCompanion.Services.Dungeon
         private readonly DungeonState _dungeonState;
         
         public Party? HeroParty => _dungeonState.HeroParty;
-        public RoomService? StartingRoom => _dungeonState.StartingRoom;
-        public RoomService? CurrentRoom => _dungeonState.CurrentRoom;
+        public Room? StartingRoom => _dungeonState.StartingRoom;
+        public Room? CurrentRoom => _dungeonState.CurrentRoom;
         public DungeonState? DungeonState => _dungeonState;
 
 
@@ -37,7 +36,6 @@ namespace LoDCompanion.Services.Dungeon
             GameDataService gameData,
             WanderingMonsterService wanderingMonster,
             EncounterService encounterService,
-            QuestEncounterService questEncounter,
             RoomFactoryService roomFactoryService,
             GameStateManagerService gameStateManager,
             DungeonBuilderService dungeonBuilder,
@@ -52,7 +50,6 @@ namespace LoDCompanion.Services.Dungeon
             _gameData = gameData;
             _wanderingMonster = wanderingMonster;
             _encounter = encounterService;
-            _questEncounter = questEncounter;
             _roomFactory = roomFactoryService;
             _gameManager = gameStateManager;
             _dungeonBuilder = dungeonBuilder;
@@ -68,7 +65,7 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         // Create a new method to start a quest
-        public void StartQuest(Party heroParty, int roomCount, int corridorCount, RoomInfo objectiveRoom, string startingRoomName = "Start Tile")
+        public void StartQuest(Party heroParty, Quest quest)
         {
             // 1. Initialize the basic dungeon state
             _dungeonState.HeroParty = heroParty;
@@ -78,11 +75,11 @@ namespace LoDCompanion.Services.Dungeon
             _dungeonState.WhenSpawnWanderingMonster = 5; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
-            List<RoomInfo> explorationDeck = _dungeonBuilder.CreateDungeonDeck(roomCount, corridorCount, objectiveRoom, new List<string>(), new List<string>());
-            _dungeonState.ExplorationDeck = new Queue<RoomInfo>(explorationDeck);
+            List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
+            _dungeonState.ExplorationDeck = new Queue<Room>(explorationDeck);
 
             // 3. Create and set the starting room
-            _dungeonState.StartingRoom = _roomFactory.CreateRoom(startingRoomName);
+            _dungeonState.StartingRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Starting Tile");
             _dungeonState.CurrentRoom = _dungeonState.StartingRoom;
         }
 
@@ -102,7 +99,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (_dungeonState.CurrentRoom != null)
             {
-                _dungeonState.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new RoomService(_gameData); 
+                _dungeonState.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
             }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
@@ -210,9 +207,9 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         private List<Monster>? RevealNextRoom(DoorChest openedDoor)
         {
-            if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out RoomInfo? nextRoomInfo) && nextRoomInfo != null)
+            if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null)
             {
-                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
+                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.RoomName ?? string.Empty);
                 if (newRoom != null)
                 {
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
@@ -238,7 +235,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Calculates where to place the new room based on the door that was opened.
         /// </summary>
-        private GridPosition CalculateNewRoomOffset(DoorChest door, RoomService newRoom)
+        private GridPosition CalculateNewRoomOffset(DoorChest door, Room newRoom)
         {
             GridPosition primaryDoorPos = door.Position[0];
             int newRoomWidth = newRoom.Width;
@@ -263,7 +260,7 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        private List<Monster>? CheckForEncounter(RoomService newRoom)
+        private List<Monster>? CheckForEncounter(Room newRoom)
         {
             if (!newRoom.RandomEncounter)
             {
@@ -286,19 +283,15 @@ namespace LoDCompanion.Services.Dungeon
                 Console.WriteLine("Encounter! Monsters appear!");
                 _dungeonState.RoomsWithoutEncounters = 0;
 
-                // TODO: Replace these placeholders with actual monster/weapon data loading
-                var monsterTemplates = new Dictionary<string, Monster>();
-                var weaponTemplates = new Dictionary<string, Weapon>();
-
                 List<Monster> monsters = new List<Monster>();
 
                 if (_dungeonState.Quest != null)
                 {
-                    monsters = _encounter.GetEncounters(_dungeonState.Quest.EncounterType, monsterTemplates, weaponTemplates); 
+                    monsters = _encounter.GetRandomEncounterByType(_dungeonState.Quest.EncounterType); 
                 }
                 else
                 {
-                    monsters = _encounter.GetEncounters(EncounterType.Beasts, monsterTemplates, weaponTemplates);
+                    monsters = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
                 }
 
                 if (monsters.Any())
@@ -322,27 +315,13 @@ namespace LoDCompanion.Services.Dungeon
             return null;
         }
 
-        private void PlaceMonsters(List<Monster> monsters, RoomService room)
+        private void PlaceMonsters(List<Monster> monsters, Room room)
         {
-            // This is a simplified representation of monster placement. A real implementation
-            // would require a grid system for the room and hero positions.
-
-            foreach (var monster in monsters)
+            foreach (Monster monster in monsters)
             {
-                if (monster.Type.Contains("Archer") || monster.Spells.Any())
-                {
-                    // Ranged/Magic users are placed as far away as possible with LOS.
-                    Console.WriteLine($"Placing ranged monster: {monster.Name} at the back of the room.");
-                    // TODO: Add logic to find the furthest valid grid square.
-                }
-                else
-                {
-                    // Melee monsters are placed randomly, at least 1 square away from heroes.
-                    Console.WriteLine($"Placing melee monster: {monster.Name} randomly.");
-                    // TODO: Add logic to find a random valid grid square away from the party.
-                }
+                _encounter.PlaceMonster(monster, room, null);
+
             }
-            // After placement, the room's state would be updated with monster positions.
             room.IsEncounter = true;
         }
 
