@@ -170,8 +170,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 1,
                       MaxDamage = 8,
-                      IsQuickSpell = true,
-                      IsMagicMissile = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.MagicMissile },
                       School = MagicSchool.Destruction,
                       PrayerEffect = "A bright flare shoots from the caster's hand, hissing through the air to strike the target with a large bang. DMG is 1D8."
                     },
@@ -196,8 +195,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 10,
                       IsArmourPiercing = true,
-                      IsQuickSpell = true,
-                      IsTouch = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.Touch },
                       School = MagicSchool.Necromancy,
                       PrayerEffect = "This is a close combat spell, where the caster touches his enemy and causes him harm through magical energy. The target loses 1d10 Hit Points which ignores armour."
                     },
@@ -208,8 +206,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 12,
                       MinDamage = 1,
                       MaxDamage = 10,
-                      IsQuickSpell = true,
-                      IsTouch = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.Touch },
                       School = MagicSchool.Restoration,
                       PrayerEffect = "The caster lays his hand on a comrade and heals 1d10 Hit Points."
                     },
@@ -220,7 +217,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 10,
                       MinDamage = 1,
                       MaxDamage = 6,
-                      IsQuickSpell = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
                       School = MagicSchool.Restoration,
                       PrayerEffect = "The caster can heal one hero within 4 squares and in LOS (intervening models does not matter). It heals 1d6 Hit Points."
                     },
@@ -269,7 +266,7 @@ namespace LoDCompanion.Services.GameData
                       Name = "Magic Scribbles",
                       Level = 2,
                       CastingValue = 20,
-                      IsIncantation = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.Incantation },
                       School = MagicSchool.Enchantment,
                       PrayerEffect = "This spell is used to create scrolls. As long as the wizard knows the spell he wants to use as the basis for the scroll, and has a good quality parchment, this is quite easy although time consuming."
                     },
@@ -277,7 +274,7 @@ namespace LoDCompanion.Services.GameData
                       Name = "Open Lock",
                       Level = 2,
                       ManaCost = 8,
-                      IsTouch = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.Touch },
                       School = MagicSchool.Alteration,
                       PrayerEffect = "This spell can be used to magically open locked doors or chests. The caster must stand close enough to touch the lock, and the locks hit points is used as the CV of the spell."
                     },
@@ -340,7 +337,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 16,
                       UpkeepCost = 1,
                       TurnDuration = -1,
-                      IsMagicMissile = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
                       School = MagicSchool.Necromancy,
                       PrayerEffect = "A storm of flies soars from the gaping mouth of the caster, surrounding the target. The cloud of flies will make it harder for the enemy to fight by reducing its CS by 10. The spell lasts for 1d3 turns."
                     },
@@ -349,7 +346,7 @@ namespace LoDCompanion.Services.GameData
                       Level = 3,
                       CastingValue = 25,
                       ManaCost = 16,
-                      IsIncantation = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.Incantation },
                       School = MagicSchool.Enchantment,
                       PrayerEffect = "This spell can only be cast between quests and requires a powerstone. The power of the stone will then be fused with an object such as a weapon, an armour or a piece of jewellery. See chapter on Crafting."
                     },
@@ -384,7 +381,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 10,
                       IsArmourPiercing = true,                      
                       DamageType = DamageType.Lightning,
-                      IsMagicMissile = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
                       School = MagicSchool.Destruction,
                       IsAOESpell = true,
                       AOEMinDamage = 1,
@@ -411,8 +408,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 10,
                       IsArmourPiercing = true,
-                      IsQuickSpell = true,
-                      IsMagicMissile = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile, SpellProperty.QuickSpell },
                       School = MagicSchool.Destruction,
                       PrayerEffect = "A bolt of pure energy lashes from the caster to a target within LOS. Target loses 1d10 Hit Points, ignoring any armour."
                     },
@@ -477,7 +473,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 12,
                       ManaCost = 15,
                       TurnDuration = -1,
-                      IsQuickSpell = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
                       School = MagicSchool.Mysticism,
                       PrayerEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
                     },
@@ -489,7 +485,7 @@ namespace LoDCompanion.Services.GameData
                       IsDamageSpell = true,
                       MinDamage = 2,
                       MaxDamage = 8,
-                      IsMagicMissile = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
                       School = MagicSchool.Destruction,
                       PrayerEffect = "A beam of frost shoots from the hands of the caster towards the target, which must be in LOS. The target takes 2d8 Frost DMG."
                     },
@@ -500,7 +496,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 20,
                       UpkeepCost = 6,
                       TurnDuration = -1,
-                      IsQuickSpell = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
                       School = MagicSchool.Hex,
                       PrayerEffect = "The wizard holds an enemy in LOS in its place, making it impossible to move or fight. The enemy will make a RES Test at the start of their turn, and if successful, it will break free and act as normal. The activation token should be added to the bag as usual, and the enemy will try to act in the normal order of activation."
                     },
@@ -581,7 +577,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 18,
                       ManaCost = 18,
                       TurnDuration = -1,
-                      IsTouch = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.Touch },
                       School = MagicSchool.Hex,
                       PrayerEffect = "The caster can choose to lower the Strength or Constitution of a chosen target if the target fails a Resolve Test. If the target fails, it loses its NA armour or DMG bonus for 1d4 turns, depending on what the wizard chooses."
                     },
@@ -671,7 +667,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 20,
                       DamageType = DamageType.Fire,
-                      IsMagicMissile = true,
+                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
                       School = MagicSchool.Destruction,
                       IsAOESpell = true,
                       AOEMinDamage = 1,
@@ -2805,6 +2801,14 @@ namespace LoDCompanion.Services.GameData
         Divination
     }
 
+    public enum SpellProperty
+    {
+        QuickSpell,
+        Incantation,
+        MagicMissile,
+        Touch
+    }
+
       public class Spell
       {
         public string Name { get; set; } = string.Empty;
@@ -2825,10 +2829,7 @@ namespace LoDCompanion.Services.GameData
         public DamageType DamageType { get; set; } = DamageType.Magic;
 
         // Spell Category Flags (can be used for filtering or specific effects)
-        public bool IsQuickSpell { get; set; }
-        public bool IsIncantation { get; set; }
-        public bool IsMagicMissile { get; set; }
-        public bool IsTouch { get; set; }
+        public List<SpellProperty>? Properties { get; set; }
         public MagicSchool School { get; set; }
 
         // AOE properties
@@ -2865,13 +2866,9 @@ namespace LoDCompanion.Services.GameData
             sb.AppendLine($" | Radius: {AOERadius}");
           }
 
-          var types = new List<string>();
-          if (IsQuickSpell) types.Add("Quick");
-          if (IsIncantation) types.Add("Incantation");
-          if (IsTouch) types.Add("Touch");
-          if (types.Any())
+          if (Properties != null && Properties.Any())
           {
-            sb.AppendLine($"Category: {string.Join(", ", types)}");
+            sb.AppendLine($"Category: {string.Join(", ", Properties)}");
           }
 
           return sb.ToString();
