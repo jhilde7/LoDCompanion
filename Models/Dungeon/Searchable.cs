@@ -1,11 +1,16 @@
 ﻿using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Models.Dungeon
 {
-    public class Searchable
+    public class Searchable : IGameEntity
     {
+        public string Name { get; set; } = string.Empty;
+        public Room Room { get; set; } = new Room();
+        public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
+        public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public bool HasBeenSearched { get; set; }
         public Hero? HeroPerformingSearch { get; set; }
         public TreasureType TreasureType { get; set; } = TreasureType.None; // Default to empty string for safety
@@ -53,7 +58,6 @@ namespace LoDCompanion.Models.Dungeon
 
     public class Furniture : Searchable
     {
-        public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public bool IsObstacle { get; set; }
         public bool IsSearchable { get; set; }
@@ -64,7 +68,6 @@ namespace LoDCompanion.Models.Dungeon
         public bool HeightAdvantage { get; set; }
         public bool NoEntry { get; set; }
         public bool BlocksLoS { get; set; }
-        public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
 
         // Constructor for easy initialization
         public Furniture()
