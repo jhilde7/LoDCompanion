@@ -1569,6 +1569,21 @@ namespace LoDCompanion.Services.Dungeon
             return encounters;
         }
 
+        public List<Monster> GetEncounterByName(string name)
+        {
+            List<Monster> encounter = new List<Monster>();
+            switch (name)
+            {
+                case "First Blood":
+                    encounter.AddRange(BuildMonsters(2, GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }));
+                    encounter.Add(BuildMonster(GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Short Bow") }));
+                    encounter.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true));
+                    break;
+                default: break;
+            }
+            return encounter;
+        }
+
         /// <summary>
         /// Creates a list of new Monster instances based on a template, applying specified properties.
         /// </summary>
