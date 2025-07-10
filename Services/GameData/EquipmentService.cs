@@ -833,6 +833,46 @@ namespace LoDCompanion.Services.GameData
                 },
                 new MeleeWeapon()
                 {
+                    Category = "Treasure",
+                    Shop = ShopCategory.Weapons,
+                    Name = "The Goblins Scimitar",
+                    Description = "This scimitar once belonged to the Goblin King, Teezmeald. He wielded it in his famous last fight against the great Elf warrior, Aelynthi Bihorn. As Elves despise all things of Goblin making, Bihorn left the blade where the king fell. Whoever, or whatever, snatched the blade from his withered corpse will never be known, but this artifact continues to crave blood, no matter who wields it.",
+                    //TODO: The wielder of this weapon gains the perk Frenzy
+                    MinDamage = 3,
+                    MaxDamage = 10,
+                    Encumbrance = 8,
+                    Class = 3,
+                    Value = 0,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
+                    Category = "Treasure",
+                    Shop = ShopCategory.Weapons,
+                    Name = "The Flames of Zul",
+                    Description = "When examining the fallen Mummy, the heroes find a sword strapped to its back. The sword is unnaturally cold and the metal is almost black. When given a test swing, a flame suddenly bursts out from it. As soon as the blade is held still, the flame vanishes.",
+                    //TODO: All DMG is causes is regarded as fir DMG.
+                    MinDamage = 3,
+                    MaxDamage = 10,
+                    Encumbrance = 8,
+                    Class = 3,
+                    Value = 0,
+                    Availability = 0,
+                    Properties = new Dictionary<WeaponProperty, int>
+                    {
+                        { WeaponProperty.Edged, 0 },
+                        { WeaponProperty.Sword, 0 },
+                        { WeaponProperty.Metal, 0 }
+                    }
+                },
+                new MeleeWeapon()
+                {
                     Category = "Common",
                     Shop = ShopCategory.Weapons,
                     Name = "Longsword",

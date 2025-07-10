@@ -48,7 +48,6 @@ namespace LoDCompanion.Services.Dungeon
         public string GetTreasure(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
         {
             Equipment item = CreateItem(itemName, durability, value, amount, description);
-            // Again, no "BuildEquipmentWithParent" as there's no Unity game object to build
             return $"{item.Quantity} {item.Name}";
         }
         public List<string> SearchCorpse(TreasureType type, Hero hero, int searchRoll)
@@ -223,6 +222,14 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         rewards.Add("You found nothing.");
                     }
+                    break;
+                case TreasureType.Turog:
+                    rewards.Add(GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 200)));
+                    rewards.Add("The Goblins Scimitar");
+                    break;
+                case TreasureType.TheMasterLocksmith:
+                    rewards.AddRange(SearchCorpse(TreasureType.T5, hero, searchRoll));
+                    rewards.Add("The Flames of Zul");
                     break;
                 default:
                     break;
