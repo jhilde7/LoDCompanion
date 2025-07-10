@@ -160,7 +160,97 @@ namespace LoDCompanion.Services.Game
                     ObjectiveRoom = _room.GetRoomByName("Barren Land"),
                     NarrativeQuest = "The heroes have travelled for days and are finally nearing their destination in the village...the hero on watch is suddenly snapped into high alert by the faint sound of stealthy footsteps. Realising the potential peril, he quickly tries to wake the rest of the party. As they fumble to rise, a gang of bandits charge out of the darkness.",
                     NarrativeSetup = "The party has been attacked by three bandits and one bandit leader. The bandit leader is equipped with a longsword, a shield and has armour 1. Two bandits are armed with shortswords and have armour 0. One bandit is armed with a shortbow, dagger and has armour 0. Use the wilderness outdoor tiles (open ground tiles) and place the heroes in the centre, adjacent to each other. Then randomise which board edge each bandit approaches from, placing them 1d10 squares from the edge.",
-                    NarrativeAftermath = "With the bandits dead, the party decides to gather their gear and continue their travel. They arrive at the settlement without further issues. Head to the settlement chapter and start by rolling for a settlement event."
+                    NarrativeAftermath = "With the bandits dead, the party decides to gather their gear and continue their travel. They arrive at the settlement without further issues. Head to the settlement chapter and start by rolling for a settlement event.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            // A new ActionType for initiative changes.
+                            ActionType = QuestSetupActionType.ModifyInitiative,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Target", "Monster" }, // Or "Enemy"
+                                { "Amount", "+2" },
+                                { "Turn", "1" } // Specifies it only applies to the first turn
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            // This handles the darkness rule.
+                            ActionType = QuestSetupActionType.SetCombatRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "MaxVision" },
+                                { "Value", "10" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "RoomName", "Barren Land" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetTurnOrder,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                // The narrative implies the bandits act first due to the surprise.
+                                { "First", "Enemies" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.PlaceHeroes,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "Center" },
+                                { "Arrangement", "Adjacent" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Bandit Leader" },
+                                { "Count", "1" },
+                                { "Weapons", "Longsword,Shield" },
+                                { "Shield", "true" },
+                                { "Armour", "1" },
+                                { "PlacementRule", "RandomEdge" },
+                                { "PlacementArgs", "1d10" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Bandit" },
+                                { "Count", "2" },
+                                { "Weapons", "Shortsword" },
+                                { "Armour", "0" },
+                                { "PlacementRule", "RandomEdge" },
+                                { "PlacementArgs", "1d10" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Bandit" },
+                                { "Count", "1" },
+                                { "Weapons", "Shortbow,Dagger" },
+                                { "Armour", "0" },
+                                { "PlacementRule", "RandomEdge" },
+                                { "PlacementArgs", "1d10" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
@@ -218,7 +308,49 @@ namespace LoDCompanion.Services.Game
                     NarrativeQuest = "A deal is settled. The party will deal with the bandits, in exchange for coins. Digging around for more information...it becomes clear that all attacks have happened close to the old ruined fort...all wagons were completely smashed up...no trace has been found of the wagons' crew.",
                     NarrativeObjectiveRoom = "The party enters a room which seems to be the former great hall of the Commandant at the fort. Close to the throne stands the leader of the bandits together with his bodyguards. It suddenly dawns on the adventurers what caused the carts to be totally demolished. The bandit leader is no ordinary man, but a towering, muscular Ogre. Spotting the adventurers, he points a chubby finger at them and bellows for his guards to attack.",
                     NarrativeSetup = "Place Graup, the Ogre, by the throne. Roll twice on the Bandits and Brigands Table and randomly place them around the Ogre, as close as possible. The heroes enter along the short side of the room. Bandits move first. Graup is an ordinary Ogre and is armed with a longsword and has Armour 1.",
-                    NarrativeAftermath = "Taking a look around the room the party notices two chests filled with loot from the bandits' plunder. There is also a thick ledger, detailing the plunder...Curiously, the last raids have listed the wagons crew as plunder as well. It appears that their bodies have been sold for coin...Taking what they can, the heroes start their journey back to the city."
+                    NarrativeAftermath = "Taking a look around the room the party notices two chests filled with loot from the bandits' plunder. There is also a thick ledger, detailing the plunder...Curiously, the last raids have listed the wagons crew as plunder as well. It appears that their bodies have been sold for coin...Taking what they can, the heroes start their journey back to the city.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Throne Room" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetTurnOrder,
+                            Parameters = new Dictionary<string, string>() { { "First", "Enemies" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.PlaceHeroes,
+                            Parameters = new Dictionary<string, string>() { { "Rule", "ShortSide" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>() {
+                                { "Name", "Graup" },
+                                { "BaseMonster", "Ogre" },
+                                { "Count", "1" },
+                                { "Equipment", "Longsword" },
+                                { "Armour", "1" },
+                                { "PlacementRule", "RelativeToTarget" },
+                                { "PlacementTarget", "Throne" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnFromChart,
+                            Parameters = new Dictionary<string, string>() {
+                                { "ChartName", "BanditsAndBrigands" },
+                                { "Rolls", "2" },
+                                { "PlacementRule", "RelativeToTarget" },
+                                { "PlacementTarget", "Graup" },
+                                { "PlacementArgs", "AsCloseAsPossible" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
