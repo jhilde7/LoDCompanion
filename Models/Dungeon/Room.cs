@@ -31,7 +31,7 @@ namespace LoDCompanion.Models.Dungeon
         public int TreasureRoll { get; set; } = 0;
         public Trap CurrentTrap { get; set; } = new Trap("No Trap", 0, 0, string.Empty); // Default trap, no trap present initially
         public List<string> SearchResults { get; set; } = new List<string>();
-        public List<RoomService> ConnectedRooms { get; set; } = new List<RoomService>(); // Represents connected dungeon segments
+        public List<Room> ConnectedRooms { get; set; } = new List<Room>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
         public List<GridSquare> Grid { get; set; } = new List<GridSquare>();
         public int Width { get; set; }
