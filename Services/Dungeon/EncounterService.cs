@@ -1596,7 +1596,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="Spells">Optional: A list of spell names the monsters can cast.</param>
         /// <param name="SpecialRule">Optional: A special rule to add to the monsters.</param>
         /// <returns>A list of new Monster objects.</returns>
-        private List<Monster> BuildMonsters(
+        public List<Monster> BuildMonsters(
             int count,
             Monster templateMonster,
             List<Weapon>? weapons = null,
@@ -1623,7 +1623,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="Spells">Optional: A list of spell names the monster can cast.</param>
         /// <param name="SpecialRule">Optional: A special rule to add to the monster.</param>
         /// <returns>A new Monster object.</returns>
-        public Monster BuildMonster(
+        private Monster BuildMonster(
             Monster templateMonster,
             List<Weapon>? weapons = null,
             int armourValue = 0,
