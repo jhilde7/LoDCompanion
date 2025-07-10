@@ -1,4 +1,5 @@
-﻿using LoDCompanion.Services.Dungeon;
+﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Services.Dungeon;
 
 namespace LoDCompanion.Models.Dungeon
 {
@@ -37,5 +38,7 @@ namespace LoDCompanion.Models.Dungeon
         public int Width { get; set; }
         public int Height { get; set; }
         public GridPosition GridOffset { get; set; } = new GridPosition(0, 0, 0);
+        public List<Hero>? HeroesInRoom { get; set; }
+        public List<Monster>? MonstersInRoom { get; set; }
     }
 }
