@@ -2,14 +2,16 @@
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.Game;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
 using System.Diagnostics;
+using System.Numerics;
 using System.Text;
 
 namespace LoDCompanion.Models.Character
 {
-    public class Character
+    public class Character : IGameEntity
     {
         internal readonly string Id;
         public string Name { get; set; } = string.Empty; // Default to empty string for safety
@@ -26,7 +28,9 @@ namespace LoDCompanion.Models.Character
         public int Level { get; set; }
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
+        public Room Room { get; set; } = new Room();
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
+        public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
         public int MaxAP { get; set; } = 2;
         public int CurrentAP { get; set; } = 2;
@@ -38,6 +42,32 @@ namespace LoDCompanion.Models.Character
         {
             Id = Guid.NewGuid().ToString();
             CurrentHP = MaxHP;
+        }
+
+        public void UpdateOccupiedSquares()
+        {
+            OccupiedSquares.Clear();
+            int SizeX = 1;
+            int SizeY = 1;
+            int SizeZ = 0;
+
+            if(IsLarge)
+            {
+                SizeX = 2;
+                SizeY = 2;
+                SizeZ = 0;
+            }
+
+            for (int x = 0; x < SizeX; x++)
+            {
+                for (int y = 0; y < SizeY; y++)
+                {
+                    for (int z = 0; z < SizeZ; z++)
+                    {
+                        OccupiedSquares.Add(new GridPosition(Position.X + x, Position.Y + y, Position.Z + z));
+                    }
+                }
+            }
         }
 
         // Common methods for all characters
