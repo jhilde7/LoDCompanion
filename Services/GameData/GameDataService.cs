@@ -2787,7 +2787,8 @@ namespace LoDCompanion.Services.GameData
         Water,
         Lightning,
         Acid,
-        Poison
+        Poison,
+        Magic
     }
 
     public enum MagicSchool
@@ -2821,7 +2822,7 @@ namespace LoDCompanion.Services.GameData
         public int MaxDamage { get; set; }
         public bool IncludeCasterLevelInDamage { get; set; }
         public bool IsArmourPiercing { get; set; }
-        public DamageType DamageType { get; set; }
+        public DamageType DamageType { get; set; } = DamageType.Magic;
 
         // Spell Category Flags (can be used for filtering or specific effects)
         public bool IsQuickSpell { get; set; }
