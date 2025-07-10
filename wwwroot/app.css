@@ -50,3 +50,12 @@ h1:focus {
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25); /* A soft blue shadow */
         transform: translateY(-2px);
     }
+
+/* Add styles for grid, heroes, monsters, etc. here */
+.grid-tile.active-hero {
+    border: 2px solid green;
+}
+
+.grid-tile.selected-target {
+    outline: 2px solid red;
+}
