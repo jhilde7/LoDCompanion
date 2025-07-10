@@ -13,13 +13,13 @@ namespace LoDCompanion.Services.Dungeon
             _rooms = roomService;
         }
 
-        public List<Room> CreateDungeonDeck(int roomCount, int corridorCount, Room objectiveRoom, List<string> roomsToExclude, List<string> corridorsToExclude)
+        public List<Room> CreateDungeonDeck(Quest quest)
         {
             var deck = new List<Room>();
 
             // 1. Build the lists of rooms and corridors
-            var rooms = BuildRoomList(roomCount, roomsToExclude);
-            var corridors = BuildCorridorList(corridorCount, corridorsToExclude);
+            var rooms = BuildRoomList(quest.RoomCount, quest.RoomsToExclude);
+            var corridors = BuildCorridorList(quest.CorridorCount, quest.CorridorsToExclude);
 
             var initialDeck = new List<Room>();
             initialDeck.AddRange(rooms);
@@ -32,12 +32,16 @@ namespace LoDCompanion.Services.Dungeon
             var secondHalf = initialDeck.Skip(halfDeckSize).ToList();
 
             // 3. Add the objective room to one of the piles and shuffle that pile.
-            var objectiveRoomInfo = _rooms.GetRoomByName(objectiveRoom.RoomName);
-            _rooms.InitializeRoomData(objectiveRoomInfo, objectiveRoom);
-            if (objectiveRoomInfo != null)
+            if (quest.ObjectiveRoom != null)
             {
-                secondHalf.Add(objectiveRoom);
-                secondHalf.Shuffle();
+                var objectiveRoomInfo = _rooms.GetRoomByName(quest.ObjectiveRoom.Name);
+                Room objectiveRoom = new Room();
+                _rooms.InitializeRoomData(objectiveRoomInfo, objectiveRoom);
+                if (objectiveRoomInfo != null)
+                {
+                    secondHalf.Add(objectiveRoom);
+                    secondHalf.Shuffle();
+                } 
             }
 
             // 4. Combine the piles, placing the pile with the objective at the bottom. 
@@ -48,33 +52,43 @@ namespace LoDCompanion.Services.Dungeon
             return finalDeck;
         }
 
-        private List<Room> BuildRoomList(int count, List<string> excludedRooms)
+        private List<Room> BuildRoomList(int count, List<RoomInfo>? excluded)
         {
             var rooms = new List<Room>();
-            var availableRooms = _rooms.Rooms
-                .Where(r => r.Category == RoomCategory.Room && !excludedRooms.Contains(r.Name ?? string.Empty))
+            var available = _rooms.Rooms
+                .Where(r => r.Category == RoomCategory.Room && (excluded == null || !excluded.Contains(r)))
                 .ToList();
 
-            availableRooms.Shuffle();
-            foreach (RoomInfo roomInfo in availableRooms.GetRange(0, count))
+            available.Shuffle();
+
+            int numberToTake = Math.Min(count, available.Count);
+            if (numberToTake > 0)
             {
-                rooms.Add(_rooms.InitializeRoomData(roomInfo, new Room()));
+                foreach (RoomInfo roomInfo in available.GetRange(0, numberToTake))
+                {
+                    rooms.Add(_rooms.InitializeRoomData(roomInfo, new Room()));
+                }
             }
 
             return rooms;
         }
 
-        private List<Room> BuildCorridorList(int count, List<string> excludedCorridors)
+        private List<Room> BuildCorridorList(int count, List<RoomInfo>? excluded)
         {
             var corridors = new List<Room>();
-            var availableCorridors = _rooms.Rooms
-                .Where(r => r.Category == RoomCategory.Corridor && !excludedCorridors.Contains(r.Name ?? string.Empty))
+            var available = _rooms.Rooms
+                .Where(r => r.Category == RoomCategory.Corridor && (excluded == null || !excluded.Contains(r)))
                 .ToList();
 
-            availableCorridors.Shuffle();
-            foreach (RoomInfo roomInfo in availableCorridors.GetRange(0, count))
+            available.Shuffle();
+
+            int numberToTake = Math.Min(count, available.Count);
+            if (numberToTake > 0)
             {
-                corridors.Add(_rooms.InitializeRoomData(roomInfo, new Room()));
+                foreach (RoomInfo roomInfo in available.GetRange(0, numberToTake))
+                {
+                    corridors.Add(_rooms.InitializeRoomData(roomInfo, new Room()));
+                } 
             }
 
             return corridors;
