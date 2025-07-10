@@ -256,7 +256,7 @@ namespace LoDCompanion.Models.Character
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
         public bool IsUndead { get; set; }
-        public List<string> Spells { get; set; } = new List<string>(); // List of actual spell names
+        public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
         public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
         public Corpse Body { get; set; }
         public TreasureType TreasureType { get; set; } = TreasureType.None; // Default value indicating no treasure type assigned
@@ -319,35 +319,6 @@ namespace LoDCompanion.Models.Character
                     SpecialRuleDescriptions.Add(newRule);
                 }
             }
-        }
-
-        /// <summary>
-        /// Populates the Spells list by looking up actual spell names based on initial spell types.
-        /// Requires an instance of SpellLookupService.
-        /// </summary>
-        /// <param name="spellLookupService">The service used to lookup spell names.</param>
-        public void DesignateSpells()
-        {
-
-            List<string> returnedSpells = new List<string>();
-            foreach (string spellType in Spells) // Assuming 'Spells' initially holds spell types/categories
-            {
-                string returnedSpell = "";
-                int attempts = 0; // Prevent infinite loops
-                const int maxAttempts = 10;
-                do
-                {
-                    returnedSpell = _gameData.GetRandomSpellNameByCategory(spellType, IsUndead);
-                    attempts++;
-                }
-                while (returnedSpells.Contains(returnedSpell) && attempts < maxAttempts);
-
-                if (!string.IsNullOrEmpty(returnedSpell) && !returnedSpells.Contains(returnedSpell))
-                {
-                    returnedSpells.Add(returnedSpell);
-                }
-            }
-            Spells = returnedSpells; // Update the actual Spells list with designated spells
         }
 
 
