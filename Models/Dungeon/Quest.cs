@@ -61,6 +61,7 @@ namespace LoDCompanion.Models.Dungeon
         public bool IsSideQuest { get; set; }
         public QuestLocation Location { get; set;}
         public string Name { get; set;} = string.Empty;
+        public QuestType QuestType { get; set; } = QuestType.Dungeon;
         public RoomInfo? StartingRoom { get; set;}
         public string SpecialRules { get; set;} = string.Empty;
         public int CorridorCount { get; set;}
