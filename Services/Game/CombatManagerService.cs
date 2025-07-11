@@ -26,6 +26,7 @@ namespace LoDCompanion.Services.Game
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
 
+        public List<string> CombatLog { get; set; } = new List<string>();
         public event Action? OnCombatStateChanged;
         public Hero? ActiveHero { get; private set; }
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();        
@@ -67,7 +68,7 @@ namespace LoDCompanion.Services.Game
             // Setup the initiative for the first turn.
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat, didBashDoor);
 
-            Console.WriteLine("Combat has started!");
+            CombatLog.Add("Combat has started!");
             ProcessNextInInitiative();
 
             OnCombatStateChanged?.Invoke();
@@ -78,7 +79,7 @@ namespace LoDCompanion.Services.Game
         /// </summary>
         private void StartNewTurn()
         {
-            Console.WriteLine("--- New Turn ---");
+            CombatLog.Add("--- New Turn ---");
             MonstersThatHaveActedThisTurn.Clear();
 
             foreach (var hero in HeroesInCombat)
@@ -105,7 +106,7 @@ namespace LoDCompanion.Services.Game
         {
             if (IsCombatOver())
             {
-                Console.WriteLine("Combat is over!");
+                CombatLog.Add("Combat is over!");
                 OnCombatStateChanged?.Invoke();
                 return;
             }
@@ -130,7 +131,7 @@ namespace LoDCompanion.Services.Game
 
                     // Process status effects at the start of the hero's turn
                     _statusEffect.ProcessStatusEffects(ActiveHero);
-                    Console.WriteLine($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
+                    CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
                     // The game now waits for UI input to call HeroPerformsAction(...).
                 }
                 else
@@ -142,7 +143,7 @@ namespace LoDCompanion.Services.Game
             else // It's a Monster's turn
             {
                 ActiveHero = null; 
-                Console.WriteLine("A monster acts!");
+                CombatLog.Add("A monster acts!");
 
                 var monstersToAct = MonstersInCombat;
                 foreach(var monster in MonstersThatHaveActedThisTurn)
@@ -154,14 +155,14 @@ namespace LoDCompanion.Services.Game
                 {
                     monsterToAct.IsVulnerableAfterPowerAttack = false;
 
-                    Console.WriteLine($"A monster ({monsterToAct.Name}) prepares to act...");
+                    CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
                     _statusEffect.ProcessStatusEffects(monsterToAct);
                     MonstersThatHaveActedThisTurn.Add(monsterToAct);
                     var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
 
                     if (interruptingHero != null)
                     {
-                        Console.WriteLine($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
+                        CombatLog.Add($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
                         // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterToAct);
                         interruptingHero.Stance = CombatStance.Normal; // Overwatch is used up
                     }
@@ -283,7 +284,7 @@ namespace LoDCompanion.Services.Game
 
         public void ResolveMonsterAttack(Monster attacker, Hero target, int incomingDamage)
         {
-            Console.WriteLine($"{attacker.Name} attacks {target.Name}!");
+            CombatLog.Add($"{attacker.Name} attacks {target.Name}!");
 
             // In a real UI, you would now ask the player if they want to Dodge or Parry.
             // For this example, let's assume they try to dodge if they can.
@@ -302,11 +303,11 @@ namespace LoDCompanion.Services.Game
             {
                 // No defense options available.
                 target.TakeDamage(incomingDamage);
-                Console.WriteLine($"The attack hits for {incomingDamage} damage!");
+                CombatLog.Add($"The attack hits for {incomingDamage} damage!");
                 return;
             }
 
-            Console.WriteLine(defenseResult.OutcomeMessage);
+            CombatLog.Add(defenseResult.OutcomeMessage);
 
             if (defenseResult.WasSuccessful)
             {
@@ -314,14 +315,14 @@ namespace LoDCompanion.Services.Game
                 if (remainingDamage > 0)
                 {
                     target.TakeDamage(remainingDamage);
-                    Console.WriteLine($"{target.Name} still takes {remainingDamage} damage!");
+                    CombatLog.Add($"{target.Name} still takes {remainingDamage} damage!");
                 }
             }
             else
             {
                 // The defense failed, so the hero takes full damage.
                 target.TakeDamage(incomingDamage);
-                Console.WriteLine($"The attack hits for {incomingDamage} damage!");
+                CombatLog.Add($"The attack hits for {incomingDamage} damage!");
             }
 
             OnCombatStateChanged?.Invoke();
@@ -359,7 +360,7 @@ namespace LoDCompanion.Services.Game
 
                 if (ActiveHero.CurrentAP <= 0)
                 {
-                    Console.WriteLine($"{ActiveHero.Name}'s turn is over.");
+                    CombatLog.Add($"{ActiveHero.Name}'s turn is over.");
                     ProcessNextInInitiative();
                 }
             }
@@ -380,7 +381,7 @@ namespace LoDCompanion.Services.Game
             }
 
             var attackResult = _heroCombat.ResolveAttack(hero, target, weapon, context);
-            Console.WriteLine(attackResult.OutcomeMessage);
+            CombatLog.Add(attackResult.OutcomeMessage);
 
             // --- Apply secondary status effects based on the context ---
             if (attackResult.IsHit)
