@@ -51,11 +51,49 @@ h1:focus {
         transform: translateY(-2px);
     }
 
-/* Add styles for grid, heroes, monsters, etc. here */
-.grid-tile.active-hero {
-    border: 2px solid green;
+.grid-container {
+    position: relative;
+    border: 2px solid #5a4d3a;
+    background-image: url('/images/backgrounds/grass_tile.png'); /* Example background */
+    background-size: 128px 128px;
 }
 
-.grid-tile.selected-target {
-    outline: 2px solid red;
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+
+.furniture-item {
+    background-color: rgba(139, 69, 19, 0.5); /* Brownish, semi-transparent */
+    border: 1px dashed #654321;
+}
+
+.monster-item {
+    background-color: rgba(220, 20, 60, 0.7); /* Crimson, semi-transparent */
+    border: 2px solid #8b0000;
+    border-radius: 50%;
+}
+
+.hero-item {
+    background-color: rgba(30, 144, 255, 0.7); /* DodgerBlue, semi-transparent */
+    border: 2px solid #0000cd;
+    border-radius: 50%;
+}
+
+.item-label {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.hp-bar {
+    position: absolute;
+    bottom: 5px;
+    height: 5px;
+    background-color: #28a745; /* Green */
+    border-radius: 2px;
 }
