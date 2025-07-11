@@ -29,7 +29,9 @@ namespace LoDCompanion.Services.Player
         SetOverwatch,
         PowerAttack,
         ChargeAttack,
-        Shove
+        Shove,
+        CastSpell,
+        EndTurn
 
     }
 
@@ -158,7 +160,7 @@ namespace LoDCompanion.Services.Player
                 case PlayerActionType.Shove:
                     if (primaryTarget is Character targetToShove)
                     {
-                        resultMessage = _grid.ShoveCharacter(hero, targetToShove, new RoomService(new GameDataService())); // Pass current room
+                        resultMessage = _grid.ShoveCharacter(hero, targetToShove, targetToShove.Room); // Pass current room
                     }
                     break;
             }
