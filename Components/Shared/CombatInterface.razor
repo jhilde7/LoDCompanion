@@ -68,24 +68,8 @@
     {
         if (_currentInputState == InputState.SelectingTarget)
         {
-            // We have our target, so now we can perform the action.
-            if (CombatManager.ActiveHero != null)
-            {
-                Weapon? equippedWeapon = (Weapon?)CombatManager.ActiveHero.GetEquippedWeapon();
+            CombatManager.HeroPerformsAction(PlayerActionType.StandardAttack, targetMonster);
 
-                if (equippedWeapon != null)
-                {
-                    CombatManager.HeroPerformsAttack(CombatManager.ActiveHero, targetMonster, equippedWeapon);
-                }
-                else
-                {
-                    _feedbackMessage = "Hero does not have a weapon equipped";
-                }
-            }
-            else
-            {
-                _feedbackMessage = "No Hero Selected";
-            }
             ResetInputState();
         }
     }
