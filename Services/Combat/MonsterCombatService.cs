@@ -202,7 +202,7 @@ namespace LoDCompanion.Services.Combat
 
             // Determine monster's base attack value (CombatSkill or RangedSkill if applicable)
             int monsterAttackSkill = attacker.CombatSkill; // Assuming most monsters use CombatSkill
-            if (monsterWeapon != null && (monsterWeapon.IsRanged || attacker.Type.Contains("Archer"))) // Placeholder for ranged monsters
+            if (monsterWeapon != null && (monsterWeapon.IsRanged))
             {
                 monsterAttackSkill = attacker.RangedSkill;
             }
