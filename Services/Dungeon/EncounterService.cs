@@ -4,9 +4,7 @@ using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
-using LoDCompanion.Services.Dungeon;
-using System.Xml.Linq;
-using System.Collections.Generic;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -3289,5 +3287,5 @@ namespace LoDCompanion.Services.Dungeon
         {
             return Monsters.First(m => m.Name == name);
         }
-    }
+    }    
 }
