@@ -289,7 +289,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Spring Cleaning",
                     Location = QuestLocation.CurrentTown,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear regardless of the Scenario dice result. For this quest only, the party may gain the benefits of the 'Rest' rule (p. 86) without consuming any food rations.",
                     CorridorCount = 4,
                     RoomCount = 4,
@@ -309,7 +309,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "The Dead Rising",
                     Location = QuestLocation.SilverCity,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
                     CorridorCount = 5,
                     RoomCount = 5,
@@ -328,7 +328,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Highwaymen",
                     Location = QuestLocation.White34,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
                     CorridorCount = 6,
                     RoomCount = 6,
@@ -401,7 +401,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "The Apprentice",
                     Location = QuestLocation.White22,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result. Any Encounter Table roll of 15-20 results in an encounter with the caretaker, plus the ordinary encounter. The caretaker, Emil, wields a sharpened shovel (Greataxe) and drops a bronze key upon death.",
                     CorridorCount = 6,
                     RoomCount = 6,
@@ -420,7 +420,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Sacrifice",
                     Location = QuestLocation.White36,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     CorridorCount = 7,
                     RoomCount = 7,
                     EncounterType = EncounterType.Undead,
@@ -437,7 +437,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "The Master",
                     Location = QuestLocation.White39,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice triggers an event on a roll of 8-0. If the heroes chose to stop the sacrifice in Quest 6A, roll twice on the Encounter Table for every encounter, choosing the higher result. The middle chest in room R10 is locked and can only be opened with the bronze key from Quest 5; it contains the Vanquisher.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -464,7 +464,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Level 1: The Entrance",
                     Location = QuestLocation.White40,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Secondary Quest card 1 should be mixed in with the first half of the pile.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -519,7 +519,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Stop the Heretics",
                     Location = QuestLocation.Random,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear. In the Objective Room, the heroes have 10 turns to kill the caster. If they fail, the ritual succeeds, the caster collapses, and demons are summoned.",
                     CorridorCount = 6,
                     RoomCount = 6,
@@ -538,7 +538,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "The Master Alchemist",
                     Location = QuestLocation.Random,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. To complete the objective, a hero must spend 2 actions next to the lava river and pass a DEX test to fill a special vial.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -557,7 +557,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Preventing a Disaster",
                     Location = QuestLocation.SilverCity,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. Ignore any special rules for the dead members of the Brotherhood; treat them as searchable dead adventurers. The objective room has tremors: if the Scenario Dice is 1-2, each hero must pass a DEX test or be toppled.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -596,7 +596,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "The Pleasure House",
                     Location = QuestLocation.SilverCity,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice is triggered on a result of 8-0.",
                     CorridorCount = 8,
                     RoomCount = 6,
@@ -616,7 +616,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Cleansing the Water",
                     Location = QuestLocation.CurrentTown,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "A Wandering Monster will appear when the Threat Level reaches 14.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -636,7 +636,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Baptising",
                     Location = QuestLocation.Random,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     CorridorCount = 7,
                     RoomCount = 7,
                     RewardCoin = 300,
@@ -655,7 +655,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Returning the Relic",
                     Location = QuestLocation.Random,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Due to the curse of the stone, all Luck Points are nullified until the stone is returned. The Scenario dice is triggered on a result of 8-0. After all enemies are defeated, a hero must stand before the statue and pass a DEX Test to replace the stone, which takes one turn. Failure increases the Threat Level by 1.",
                     CorridorCount = 8,
                     RoomCount = 8,
@@ -674,7 +674,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Slaying the Fiend",
                     Location = QuestLocation.Random,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The fiend, Molgor, is a huge Minotaur with the Frenzy and Ferocious Charge rules. He has been wounded in a previous fight; roll on a table to determine how many starting wounds to subtract.",
                     CorridorCount = 8,
                     RoomCount = 8,
@@ -693,7 +693,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Closing the Portal",
                     Location = QuestLocation.SilverCity,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Any encounter roll of an even 10 (10, 20, 30...) results in an encounter with random demons. To close the portal, a hero must spend 1d6+1 consecutive turns reading a scroll. If the reader is interrupted in any way, they must start over. Every other turn, a new demon emerges from the portal.",
                     CorridorCount = 8,
                     RoomCount = 8,
@@ -713,7 +713,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Retrieving the Family Heirloom",
                     Location = QuestLocation.Random,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice is triggered on 8-0. The objective room contains six tombs. Take 6 playing cards (3 black, 1 red, 2 face cards) and shuffle them. Opening a tomb takes two heroes a full turn. Draw a card: Black means an empty tomb. Red means the sword is found. A face card means a mummy attacks.",
                     CorridorCount = 8,
                     RoomCount = 8,
@@ -732,7 +732,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Stopping the Necromancer",
                     Location = QuestLocation.CurrentTown,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The floor of the objective room is covered in corpses, making combat difficult; heroes suffer a -10% penalty to CS and RS. A 'To Hit' roll of 90+ means the hero falls and must pass a DEX test to stand up. The Zombies will form a protective circle around Ragnalf and will not move. If Ragnalf dies, all zombies die as well.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -751,7 +751,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Tomb Raiders",
                     Location = QuestLocation.White38,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Opening a tomb takes two heroes a full turn. While in the objective room, the Scenario dice triggers an event on a roll of 1-4; any result that would increase the Threat Level instead summons a Wandering Monster.",
                     CorridorCount = 7,
                     RoomCount = 5,
@@ -770,7 +770,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "The Pyramid of Xantha",
                     Location = QuestLocation.AncientLands,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Due to the abundance of treasure, you may re-roll 4 rolls on the Furniture Chart during the quest (a re-roll cannot be re-rolled). If the scenario roll is triggered in the objective room, the mummy of Xánthu himself (a Mummy Prince) will rise from a sarcophagus to join the fight.",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -789,7 +789,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Tomb of the Hierophant",
                     Location = QuestLocation.AncientLands,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart. Mix a special deck of 14 playing cards (11 red, Ace/2/3 of Spades). Flip one card upon entering each new tile; if a spade is drawn, a special event occurs (finding a statue, triggering a fire trap, or finding a stone tablet).",
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -809,7 +809,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Temple of Despair",
                     Location = QuestLocation.AncientLands,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. A side quest card is added to the exploration deck; if drawn, it triggers a special encounter with a Mummy Priest and wraiths.",
                     CorridorCount = 6,
                     RoomCount = 6,
@@ -828,7 +828,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Halls of Amenhotep",
                     Location = QuestLocation.AncientLands,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. The fifth time the initiative bag is reloaded, two Tomb Guardians awaken from the statues in the room and join the fight.",
                     CorridorCount = 6,
                     RoomCount = 6,
@@ -848,7 +848,7 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "Crypt of Khaba",
                     Location = QuestLocation.AncientLands,
-                    StartingRoom = _room.GetRoomByName("StartingTile"),
+                    StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart. A special playing card deck is used; each time you enter a new tile, you flip a card. If the Ace of Spades is drawn, it triggers a special encounter with the undead Queen Khaba and her four wight bodyguards.",
                     CorridorCount = 6,
                     RoomCount = 6,
