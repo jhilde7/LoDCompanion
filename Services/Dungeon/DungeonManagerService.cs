@@ -1,5 +1,4 @@
 ﻿using LoDCompanion.Models.Character;
-using LoDCompanion.Models;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Game;
@@ -283,24 +282,25 @@ namespace LoDCompanion.Services.Dungeon
                 Console.WriteLine("Encounter! Monsters appear!");
                 _dungeonState.RoomsWithoutEncounters = 0;
 
-                List<Monster> monsters = new List<Monster>();
+                newRoom.MonstersInRoom = new List<Monster>();
 
                 if (_dungeonState.Quest != null)
                 {
-                    monsters = _encounter.GetRandomEncounterByType(_dungeonState.Quest.EncounterType); 
+                    newRoom.MonstersInRoom = _encounter.GetRandomEncounterByType(_dungeonState.Quest.EncounterType); 
                 }
                 else
                 {
-                    monsters = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
+                    newRoom.MonstersInRoom = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
                 }
 
-                if (monsters.Any())
+                if (newRoom.MonstersInRoom.Any())
                 {
-                    PlaceMonsters(monsters, newRoom);
+                    newRoom.IsEncounter = true;
+
                     // Hand off to the CombatManager to start the battle
                     if (_dungeonState.HeroParty != null && _dungeonState.HeroParty.Heroes != null)
                     {
-                        return monsters;
+                        return newRoom.MonstersInRoom;
                     }
                     else
                     {
@@ -313,16 +313,6 @@ namespace LoDCompanion.Services.Dungeon
             Console.WriteLine("The room is quiet... for now.");
             _dungeonState.RoomsWithoutEncounters++;
             return null;
-        }
-
-        private void PlaceMonsters(List<Monster> monsters, Room room)
-        {
-            foreach (Monster monster in monsters)
-            {
-                _encounter.PlaceMonster(monster, room, null);
-
-            }
-            room.IsEncounter = true;
         }
 
         public void WinBattle()
