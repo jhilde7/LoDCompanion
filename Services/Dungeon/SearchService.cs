@@ -33,7 +33,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="assistingHeroes">A list of other heroes helping with the search.</param>
         /// <param name="room">The room being searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public SearchResult SearchRoom(Hero primaryHero, List<Hero> assistingHeroes, RoomService room)
+        public SearchResult SearchRoom(Hero primaryHero, List<Hero> assistingHeroes, Room room)
         {
             var result = new SearchResult();
             if (room.HasBeenSearched)
@@ -55,7 +55,7 @@ namespace LoDCompanion.Services.Dungeon
                 result.WasSuccessful = true;
                 result.Message = "The party's thorough search paid off!";
                 // The PDF on page 85 implies a general treasure roll. We'll use the TreasureService for this.
-                result.FoundItems = _treasureService.FoundTreasure("Mundane", 1);
+                result.FoundItems = _treasureService.FoundTreasure(TreasureType.Mundane, 1);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace LoDCompanion.Services.Dungeon
             // We'll use the TreasureService to handle this roll.
             result.WasSuccessful = true;
             result.Message = $"You search the {furniture.Name}...";
-            result.FoundItems = _treasureService.FoundTreasure("Mundane", 1); // Assuming a mundane find
+            result.FoundItems = _treasureService.FoundTreasure(TreasureType.Mundane, 1); // Assuming a mundane find
 
             furniture.HasBeenSearched = true;
             return result;
