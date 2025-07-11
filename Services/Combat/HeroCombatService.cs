@@ -50,7 +50,7 @@ namespace LoDCompanion.Services.Combat
 
                 if (context.IsChargeAttack)
                 {
-                    result.OutcomeMessage += "\n" + _grid.ShoveCharacter(attacker, target, new RoomService(new GameDataService())); // Pass current room
+                    result.OutcomeMessage += "\n" + _grid.ShoveCharacter(attacker, target, target.Room); // Pass current room
                 }
             }
             else
