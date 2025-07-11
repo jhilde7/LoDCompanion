@@ -148,11 +148,11 @@ namespace LoDCompanion.Services.Dungeon
 
                 if (_dungeonState.Quest != null)
                 {
-                    monsters = _encounter.GetEncounters(_dungeonState.Quest.EncounterType, monsterTemplates, weaponTemplates);
+                    monsters = _encounter.GetEncounters(_dungeonState.Quest.EncounterType);
                 }
                 else
                 {
-                    monsters = _encounter.GetEncounters(EncounterType.Beasts, monsterTemplates, weaponTemplates);
+                    monsters = _encounter.GetEncounters(EncounterType.Beasts);
                 }
 
                 if (monsters.Count > 0)
