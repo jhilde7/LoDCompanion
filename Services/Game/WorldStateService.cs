@@ -1,5 +1,5 @@
 ﻿using LoDCompanion.Models.Dungeon;
-using LoDCompanion.Services.Player;
+using LoDCompanion.Models.Character;
 using LoDCompanion.Services.Dungeon;
 
 namespace LoDCompanion.Services.Game
@@ -24,10 +24,14 @@ namespace LoDCompanion.Services.Game
     public class WorldStateService : IWorldStateService
     {
         private readonly RoomService _room;
+        private readonly GameStateManagerService _gameStateManager;
 
-        public WorldStateService(RoomService rs)
+        public Party? HeroParty => _gameStateManager.GameState.CurrentParty;
+
+        public WorldStateService(RoomService roomService, GameStateManagerService gameStateManagerService)
         {
-            _room = rs;
+            _room = roomService;
+            _gameStateManager = gameStateManagerService;
         }
 
         public IGameEntity? FindEntityInRoomByName(Room room, string name)
