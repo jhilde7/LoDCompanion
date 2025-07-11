@@ -2740,7 +2740,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Booksehlf", new List<GridPosition>() {
+                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() {
                             new GridPosition(3, 0, 0), new GridPosition(4, 0, 0), new GridPosition(3, 0, 1), new GridPosition(4, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
