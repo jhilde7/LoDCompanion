@@ -6,6 +6,62 @@ using System.Linq;
 
 namespace LoDCompanion.Services.Dungeon
 {
+
+    /// <summary>
+    /// Represents a 3D coordinate on the game grid.
+    /// </summary>
+    public class GridPosition
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
+
+        public GridPosition(int x, int y, int z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public bool Equals(GridPosition? other)
+        {
+            if (other is null) return false;
+            return X == other.X && Y == other.Y && Z == other.Z;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as GridPosition);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z);
+        }
+    }
+
+    /// <summary>
+    /// Represents a single square on the room's grid.
+    /// </summary>
+    public class GridSquare
+    {
+        public GridPosition Position { get; set; }
+        public string? OccupyingCharacterId { get; set; }
+        public Furniture? Furniture { get; set; }
+        public bool IsWall { get; set; }
+
+        public bool LoSBlocked => IsWall || Furniture != null && Furniture.BlocksLoS;
+        public bool MovementBlocked => IsWall || Furniture != null && Furniture.NoEntry;
+        public bool DoubleMoveCost => Furniture != null && Furniture.CanBeClimbed; //moving through cost 2x movement
+        public bool IsObstacle => Furniture != null && Furniture.IsObstacle; //Affects ranged attacks passing through this square
+        public bool IsOccupied => OccupyingCharacterId != null;
+
+        public GridSquare(int x, int y, int z)
+        {
+            Position = new GridPosition(x, y, z);
+        }
+    }
+
     public class GridService
     {
         public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
@@ -273,7 +329,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Gets the walkable neighbors of a given position.
         /// </summary>
-        private IEnumerable<GridPosition> GetNeighbors(GridPosition position)
+        internal IEnumerable<GridPosition> GetNeighbors(GridPosition position)
         {
             // Define potential neighbors in 6 directions (4 horizontal, 2 vertical)
             var directions = new GridPosition[]

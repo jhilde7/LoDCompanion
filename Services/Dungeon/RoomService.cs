@@ -12,8 +12,8 @@ namespace LoDCompanion.Services.Dungeon
     public class RoomService
     {
         private readonly GameDataService _gameData;
-        // Public properties to hold the room's data and state.
-        // These will be populated by a RoomFactoryService or DungeonManagerService.
+        public int TilePixelWidth { get; set; } = 128;
+        public int TilePixelHeight { get; set; } = 128;
 
         public List<RoomInfo> Rooms => GetRooms();
         public List<Furniture> Furniture => GetFurniture();
@@ -285,6 +285,20 @@ namespace LoDCompanion.Services.Dungeon
             // Update the actual Doors list of this RoomCorridor instance  
             room.Doors = workingDoors;
             room.ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors  
+        }
+
+        /// <summary>
+        /// Converts a grid position to a top-left pixel coordinate on the room's image.
+        /// </summary>
+        /// <param name="gridPos">The GridPosition of the furniture or character.</param>
+        /// <param name="room">The RoomInfo containing the grid and pixel dimensions.</param>
+        /// <returns>A Point representing the top-left (X, Y) pixel of the grid square.</returns>
+        public System.Drawing.Point GetPixelCoordinateForGridPosition(GridPosition gridPos, Room room)
+        {
+            int pixelX = gridPos.X * TilePixelWidth;
+            int pixelY = gridPos.Y * TilePixelHeight;
+
+            return new System.Drawing.Point(pixelX, pixelY);
         }
 
         public List<RoomInfo> GetRooms()
