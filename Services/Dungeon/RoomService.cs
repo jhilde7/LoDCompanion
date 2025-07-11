@@ -5,6 +5,7 @@ using System.Text;
 using LoDCompanion.Models.Dungeon;
 using System.Collections.Generic;
 using SixLabors.ImageSharp;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -285,6 +286,21 @@ namespace LoDCompanion.Services.Dungeon
             // Update the actual Doors list of this RoomCorridor instance  
             room.Doors = workingDoors;
             room.ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors  
+        }
+
+        internal IGameEntity? GetFurnitureInRoomByName(Room room, string name)
+        {
+            return room.FurnitureList.First(f => f.Name == name);
+        }
+
+        internal IGameEntity? GetMonsterInRoomByName(Room room, string name)
+        {
+            return room.MonstersInRoom?.First(m => m.Name == name);
+        }
+
+        internal IGameEntity? GetHeroInRoomByName(Room room, string name)
+        {
+            return room.HeroesInRoom?.First(h => h.Name == name);
         }
 
         /// <summary>
