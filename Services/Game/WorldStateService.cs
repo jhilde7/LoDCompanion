@@ -24,14 +24,10 @@ namespace LoDCompanion.Services.Game
     public class WorldStateService : IWorldStateService
     {
         private readonly RoomService _room;
-        private readonly EncounterService _encounter;
-        private readonly PartyManagerService _party;
 
-        public WorldStateService(RoomService fm, EncounterService mm, PartyManagerService hm)
+        public WorldStateService(RoomService rs)
         {
-            _room = fm;
-            _encounter = mm;
-            _party = hm;
+            _room = rs;
         }
 
         public IGameEntity? FindEntityInRoomByName(Room room, string name)
