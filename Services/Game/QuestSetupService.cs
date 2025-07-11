@@ -29,31 +29,31 @@ namespace LoDCompanion.Services.Game
     public class QuestSetupService
     {
         private readonly EncounterService _encounter;
+        private readonly PlacementService _placement;
         private readonly RoomService _room;
-        private readonly GameDataService _gameData;
         private readonly PartyManagerService _party;
 
         public QuestSetupService(
             EncounterService encounter, 
             RoomService room, 
-            GameDataService gameData,
-            PartyManagerService partyManagerService)
+            PartyManagerService partyManagerService,
+            PlacementService placementService)
         {
             _encounter = encounter;
             _room = room;
-            _gameData = gameData;
             _party = partyManagerService;
+            _placement = placementService;
         }
 
-        public void ExecuteObjectiveRoomSetup(Quest quest)
+        public void ExecuteRoomSetup(Quest quest, Room room)
         {
             foreach (var action in quest.SetupActions)
             {
-                ExecuteAction(action);
+                ExecuteAction(room, action);
             }
         }
 
-        private void ExecuteAction(QuestSetupAction action)
+        private void ExecuteAction(Room room, QuestSetupAction action)
         {
             switch (action.ActionType)
             {
@@ -64,39 +64,22 @@ namespace LoDCompanion.Services.Game
                     _room.GetRoomByName(action.Parameters["RoomName"]);
                     break;
                 case QuestSetupActionType.PlaceHeroes:
-                    _encounter.PlaceHeroes(
-                        _party.GetCurrentParty().Heroes,
-                        _room.InitializeRoomData(_room.GetRoomByName(action.Parameters["RoomName"]), new Room()),
-                        action.Parameters
-                    );
+                    if (_party.Party != null)
+                    {
+                        foreach (Hero hero in _party.Party.Heroes)
+                        {
+                            _placement.PlaceEntity(hero, room, action.Parameters);
+                        } 
+                    }
                     break;
                 case QuestSetupActionType.SpawnMonster:
-                    Monster baseMonster = _encounter.GetMonsterByName(action.Parameters["Name"]);
-                    int count = int.Parse(action.Parameters["Count"]);
-                    List<Weapon> weapons = new List<Weapon>();
-                    foreach (string weapon in action.Parameters["Weapons"].Split(","))
-                    {
-                        weapons.Add(EquipmentService.GetWeaponByName(weapon.Trim()));
-                    }
-                    bool hasShield = bool.Parse(action.Parameters["Shield"]);
-                    int armour = int.Parse(action.Parameters["Armour"]);
-                    List<MonsterSpell> spells = new List<MonsterSpell>();
-                    foreach (string spell in action.Parameters["Spells"].Split(","))
-                    {
-                        spells.Add(_gameData.GetMonsterSpellByName(spell));
-                    }
-                    string specialRule = action.Parameters["SpecialRule"];
 
-                    List<Monster> spawnMonsters = _encounter.BuildMonsters(count, baseMonster, weapons, armour, hasShield, spells, specialRule);
+                    List<Monster> spawnMonsters = _encounter.GetEncounterByParams(action.Parameters);
 
                     // The CombatManager places the created monster.
                     foreach (Monster monster in spawnMonsters)
                     {
-                        _encounter.PlaceMonster(
-                                        monster,
-                                        _room.InitializeRoomData(_room.GetRoomByName(action.Parameters["RoomName"]), new Room()),
-                                        action.Parameters
-                                    ); 
+                        _placement.PlaceEntity(monster, room, action.Parameters); 
                     }
                     break;
                 case QuestSetupActionType.SpawnFromChart:
@@ -132,11 +115,7 @@ namespace LoDCompanion.Services.Game
 
                     foreach (Monster monster in chartMonsters)
                     {
-                        _encounter.PlaceMonster(
-                                        monster,
-                                        _room.InitializeRoomData(_room.GetRoomByName(action.Parameters["RoomName"]), new Room()),
-                                        action.Parameters
-                                    );
+                        _placement.PlaceEntity(monster, room, action.Parameters);
                     }
                     break;
                 case QuestSetupActionType.SetTurnOrder:
