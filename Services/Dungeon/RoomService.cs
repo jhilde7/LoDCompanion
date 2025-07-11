@@ -6548,6 +6548,12 @@ namespace LoDCompanion.Services.Dungeon
             return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
         }
 
+        public RoomInfo GetRandomWildernessRoom()
+        {
+            var rooms = Rooms.Where(r => r.Category == RoomCategory.Wilderness);
+            return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
+        }
+
         public List<Furniture> GetFurniture()
         {
             return new List<Furniture>()
