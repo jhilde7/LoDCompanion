@@ -72,7 +72,7 @@ namespace LoDCompanion.Services.Dungeon
             _dungeonState.ExplorationDeck = new Queue<Room>(explorationDeck);
 
             // 3. Create and set the starting room
-            _dungeonState.StartingRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Starting Tile");
+            _dungeonState.StartingRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
             _dungeonState.CurrentRoom = _dungeonState.StartingRoom;
         }
 
