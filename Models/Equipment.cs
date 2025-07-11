@@ -355,7 +355,7 @@ namespace LoDCompanion.Models
             var sb = new StringBuilder();
             sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
             sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
-            sb.AppendLine($"Ammo Category: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
+            sb.AppendLine($" | Ammo Category: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
             if (ElvenBowstring) sb.Append(" | Elven Bowstring");
             if (AimAttachment) sb.Append(" | Aim Attachment");
             if (!string.IsNullOrEmpty(MagicEffect))
