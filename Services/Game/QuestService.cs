@@ -61,7 +61,7 @@ namespace LoDCompanion.Services.Game
 
                 case QuestType.WildernessQuest:
                     // For a single encounter, it tells the EncounterSetupService to build it.
-                    _questSetup.ExecuteRoomSetup(quest);
+                    _questSetup.ExecuteRoomSetup(quest, _room.InitializeRoomData(_room.GetRandomWildernessRoom(), new Room()));
                     break;
             }
 
