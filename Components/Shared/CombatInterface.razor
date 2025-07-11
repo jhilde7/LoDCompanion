@@ -1,5 +1,8 @@
 ﻿@using LoDCompanion.Services.Player
 @using LoDCompanion.Services.Game
+@using LoDCompanion.Services.Dungeon
+@using LoDCompanion.Models.Character
+@using LoDCompanion.Models
 
 @inject CombatManagerService CombatManager
 
@@ -29,11 +32,82 @@
 </div>
 
 @code {
+    private enum InputState
+    {
+        AwaitingAction,    // Waiting for the player to click a main action button.
+        SelectingTarget,   // Player has clicked "Attack", now waiting for a monster click.
+        SelectingDestination // Player has clicked "Move", now waiting for a grid square click.
+    }
+
+    private InputState _currentInputState = InputState.AwaitingAction;
+    private string _feedbackMessage = string.Empty;
+
+    private void OnActionButtonClicked(PlayerActionType actionType)
+    {
+        switch (actionType)
+        {
+            case PlayerActionType.StandardAttack:
+                _currentInputState = InputState.SelectingTarget;
+                _feedbackMessage = "Select a target to attack.";
+                break;
+
+            case PlayerActionType.Move:
+                _currentInputState = InputState.SelectingDestination;
+                _feedbackMessage = "Select a destination square.";
+                break;
+
+            case PlayerActionType.EndTurn:
+                // EndTurn has no target, so it can be called directly.
+                CombatManager.HeroPerformsAction(PlayerActionType.EndTurn, null);
+                ResetInputState();
+                break;
+        }
+    }
+
+    private void OnMonsterClicked(Monster targetMonster)
+    {
+        if (_currentInputState == InputState.SelectingTarget)
+        {
+            // We have our target, so now we can perform the action.
+            if (CombatManager.ActiveHero != null)
+            {
+                Weapon? equippedWeapon = (Weapon?)CombatManager.ActiveHero.GetEquippedWeapon();
+
+                if (equippedWeapon != null)
+                {
+                    CombatManager.HeroPerformsAttack(CombatManager.ActiveHero, targetMonster, equippedWeapon);
+                }
+                else
+                {
+                    _feedbackMessage = "Hero does not have a weapon equipped";
+                }
+            }
+            else
+            {
+                _feedbackMessage = "No Hero Selected";
+            }
+            ResetInputState();
+        }
+    }
+
+    private void OnGridSquareClicked(GridPosition targetPosition)
+    {
+        if (_currentInputState == InputState.SelectingDestination)
+        {
+            CombatManager.HeroPerformsAction(PlayerActionType.Move, targetPosition);
+            ResetInputState();
+        }
+    }
+
     private void PerformAction(PlayerActionType actionType)
     {
-        // In a real game, clicking "Attack" would change the state to "SelectingTarget"
-        // and then you'd click on a monster. For this example, we directly call the service.
         CombatManager.HeroPerformsAction(actionType, null);
+    }
+
+    private void ResetInputState()
+    {
+        _currentInputState = InputState.AwaitingAction;
+        _feedbackMessage = string.Empty;
     }
 
     protected override void OnInitialized()
