@@ -19,6 +19,8 @@ namespace LoDCompanion.Services.Game
         private readonly EncounterService _encounter;
         private readonly WorldStateService _worldState;
         private readonly PlacementService _placement;
+        private readonly QuestSetupService _questSetup;
+
         public Quest? ActiveQuest { get; private set; }
         public bool IsObjectiveComplete { get; private set; }
         public event Action? OnQuestStateChanged;
@@ -31,13 +33,15 @@ namespace LoDCompanion.Services.Game
             RoomService roomService,
             WorldStateService worldState,
             PlacementService placement,
-            EncounterService encounter)
+            EncounterService encounter,
+            QuestSetupService questSetup)
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
             _worldState = worldState;
             _placement = placement;
             _encounter = encounter;
+            _questSetup = questSetup;
         }
 
         /// <summary>
@@ -57,54 +61,11 @@ namespace LoDCompanion.Services.Game
 
                 case QuestType.WildernessQuest:
                     // For a single encounter, it tells the EncounterSetupService to build it.
-                    ExecuteSetup(quest);
+                    _questSetup.ExecuteRoomSetup(quest);
                     break;
             }
 
             OnQuestStateChanged?.Invoke();
-        }
-
-        public void ExecuteSetup(Quest quest)
-        {
-            Room? currentRoom = null;
-
-            foreach (var action in quest.SetupActions)
-            {
-                // The QuestSetupService no longer needs a complex switch statement.
-                // It just directs the main action type.
-
-                if (action.ActionType == QuestSetupActionType.SetRoom)
-                {
-                    currentRoom = _room.CreateRoom(action.Parameters["RoomName"]);
-                }
-                else if (action.ActionType == QuestSetupActionType.PlaceHeroes)
-                {
-                    if (currentRoom != null)
-                    {
-                        List<Hero> heroes = _worldState.HeroParty?.Heroes ?? throw new NullReferenceException();
-                        foreach (Hero hero in heroes)
-                        {
-                            // It passes the entire parameter dictionary to the specialist.
-                            _placement.PlaceEntity(hero, currentRoom, action.Parameters);
-                        }
-                    }
-                }
-                else if (action.ActionType == QuestSetupActionType.SpawnMonster || action.ActionType == QuestSetupActionType.SpawnFromChart)
-                {
-                    if (currentRoom != null)
-                    {
-                        // Create the monster(s)...
-                        List<Monster> monstersToPlace = _encounter.GetEncounterByParams(action.Parameters);
-
-                        // ...then tell the PlacementService to place them.
-                        foreach (var monster in monstersToPlace)
-                        {
-                            _placement.PlaceEntity(monster, currentRoom, action.Parameters);
-                        }
-                    }
-                }
-                // Other, non-placement actions would be handled here
-            }
         }
 
         /// <summary>
