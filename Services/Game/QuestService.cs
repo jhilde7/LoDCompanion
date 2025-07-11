@@ -4,9 +4,21 @@ using LoDCompanion.Services.Dungeon;
 
 namespace LoDCompanion.Services.Game
 {
+    public enum QuestType
+    {
+        Dungeon,
+        WildernessQuest,
+        WildernessEvent,
+        DesertEvent,
+        RoadsEvent
+    }
     public class QuestService
     {
+        private readonly DungeonManagerService _dungeonManager;
         private readonly RoomService _room;
+        private readonly EncounterService _encounter;
+        private readonly WorldStateService _worldState;
+        private readonly PlacementService _placement;
         public Quest? ActiveQuest { get; private set; }
         public bool IsObjectiveComplete { get; private set; }
         public event Action? OnQuestStateChanged;
@@ -14,20 +26,85 @@ namespace LoDCompanion.Services.Game
         public List<Quest> Quests => GetQuests();
         public bool IsQuestActive => ActiveQuest != null;
 
-        public QuestService(RoomService roomService)
+        public QuestService(
+            DungeonManagerService dungeonManagerService, 
+            RoomService roomService,
+            WorldStateService worldState,
+            PlacementService placement,
+            EncounterService encounter)
         {
             _room = roomService;
+            _dungeonManager = dungeonManagerService;
+            _worldState = worldState;
+            _placement = placement;
+            _encounter = encounter;
         }
 
         /// <summary>
         /// Starts a new quest, setting it as the active one.
         /// </summary>
         /// <param name="quest">The quest to begin.</param>
-        public void StartQuest(Quest quest)
+        public void StartQuest(Party party, Quest quest)
         {
             ActiveQuest = quest;
-            IsObjectiveComplete = false;
-            Console.WriteLine($"Quest Started: {ActiveQuest.NarrativeSetup}");
+
+            switch (quest.QuestType)
+            {
+                case QuestType.Dungeon:
+                    // For a dungeon, it tells the DungeonManager to build it.
+                    _dungeonManager.InitializeDungeon(party, ActiveQuest);
+                    break;
+
+                case QuestType.WildernessQuest:
+                    // For a single encounter, it tells the EncounterSetupService to build it.
+                    ExecuteSetup(quest);
+                    break;
+            }
+
+            OnQuestStateChanged?.Invoke();
+        }
+
+        public void ExecuteSetup(Quest quest)
+        {
+            Room? currentRoom = null;
+
+            foreach (var action in quest.SetupActions)
+            {
+                // The QuestSetupService no longer needs a complex switch statement.
+                // It just directs the main action type.
+
+                if (action.ActionType == QuestSetupActionType.SetRoom)
+                {
+                    currentRoom = _room.CreateRoom(action.Parameters["RoomName"]);
+                }
+                else if (action.ActionType == QuestSetupActionType.PlaceHeroes)
+                {
+                    if (currentRoom != null)
+                    {
+                        List<Hero> heroes = _worldState.HeroParty?.Heroes ?? throw new NullReferenceException();
+                        foreach (Hero hero in heroes)
+                        {
+                            // It passes the entire parameter dictionary to the specialist.
+                            _placement.PlaceEntity(hero, currentRoom, action.Parameters);
+                        }
+                    }
+                }
+                else if (action.ActionType == QuestSetupActionType.SpawnMonster || action.ActionType == QuestSetupActionType.SpawnFromChart)
+                {
+                    if (currentRoom != null)
+                    {
+                        // Create the monster(s)...
+                        List<Monster> monstersToPlace = _encounter.GetEncounterByParams(action.Parameters);
+
+                        // ...then tell the PlacementService to place them.
+                        foreach (var monster in monstersToPlace)
+                        {
+                            _placement.PlaceEntity(monster, currentRoom, action.Parameters);
+                        }
+                    }
+                }
+                // Other, non-placement actions would be handled here
+            }
         }
 
         /// <summary>
@@ -155,6 +232,7 @@ namespace LoDCompanion.Services.Game
                 new Quest()
                 {
                     Name = "First Blood",
+                    QuestType = QuestType.WildernessQuest,
                     SpecialRules = "The bandits gain +2 initiative tokens on the first turn as they surprise the sleeping heroes. Due to the darkness, no one can see or shoot further than 10 squares. The Scenario die is not in use.",
                     EncounterType = EncounterType.Bandits_Brigands,
                     ObjectiveRoom = _room.GetRoomByName("Barren Land"),
@@ -355,6 +433,7 @@ namespace LoDCompanion.Services.Game
                 new Quest()
                 {
                     Name = "The Burning Village",
+                    QuestType = QuestType.WildernessQuest,
                     Location = QuestLocation.OutsideRochdale,
                     SpecialRules = "The heroes are allowed one rest before the battle, but no roll on the Travel Events Table is necessary. No Threat Level is used during this quest. The Scenario dice should still be rolled and a result of 9-0 triggers reinforcements for the Goblinoids. In that case, roll once more on the OaG Table and place them cantered along a random table edge.",
                     RewardSpecial = "If the heroes win, they receive 3 random potions and 1 Fine Treasure. If they flee, there is no reward.",

@@ -1594,7 +1594,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="Spells">Optional: A list of spell names the monsters can cast.</param>
         /// <param name="SpecialRule">Optional: A special rule to add to the monsters.</param>
         /// <returns>A list of new Monster objects.</returns>
-        public List<Monster> BuildMonsters(
+        private List<Monster> BuildMonsters(
             int count,
             Monster templateMonster,
             List<Weapon>? weapons = null,
@@ -3286,6 +3286,92 @@ namespace LoDCompanion.Services.Dungeon
         public Monster GetMonsterByName(string name)
         {
             return Monsters.First(m => m.Name == name);
+        }
+
+        /// <summary>
+        /// Creates a list of monsters by parsing a dictionary of string-based parameters.
+        /// This acts as a bridge between data-driven setup actions and the monster creation logic.
+        /// </summary>
+        /// <param name="parameters">A dictionary containing the monster setup instructions.</param>
+        /// <returns>A list of new Monster objects, or an empty list if setup fails.</returns>
+        internal List<Monster> GetEncounterByParams(Dictionary<string, string> parameters)
+        {
+            // 1. Get the Template Monster
+            // This is the only required parameter. If it's missing, we can't proceed.
+            if (!parameters.TryGetValue("Name", out var monsterName))
+            {
+                Console.WriteLine("Error: SpawnMonster action is missing a 'Name' parameter.");
+                return new List<Monster>();
+            }
+
+            // You would have a service or method to get the base monster template by its name.
+            Monster? templateMonster = GetMonsterByName(monsterName);
+            if (templateMonster == null)
+            {
+                Console.WriteLine($"Error: Could not find a monster template for '{monsterName}'.");
+                return new List<Monster>();
+            }
+
+            // 2. Parse all optional parameters from the dictionary
+
+            // Safely parse the count, defaulting to 1 if not specified.
+            int count = parameters.TryGetValue("Count", out var countStr) && int.TryParse(countStr, out var parsedCount)
+                ? parsedCount
+                : 1;
+
+            // Safely parse the armour value.
+            int armourValue = parameters.TryGetValue("Armour", out var armourStr) && int.TryParse(armourStr, out var parsedArmour)
+                ? parsedArmour
+                : 0;
+
+            // Safely parse the shield status.
+            bool hasShield = parameters.TryGetValue("Shield", out var shieldStr) && bool.TryParse(shieldStr, out var parsedShield)
+                ? parsedShield
+                : false;
+
+            // Parse the comma-separated list of weapons.
+            List<Weapon> weapons = new List<Weapon>();
+            if (parameters.TryGetValue("Weapons", out var weaponsStr))
+            {
+                foreach (string weaponName in weaponsStr.Split(','))
+                {
+                    // Assumes a service exists to get weapon data by name.
+                    Weapon? weapon = EquipmentService.GetWeaponByName(weaponName.Trim());
+                    if (weapon != null)
+                    {
+                        weapons.Add(weapon);
+                    }
+                }
+            }
+
+            // Parse the comma-separated list of spells.
+            List<MonsterSpell> spells = new List<MonsterSpell>();
+            if (parameters.TryGetValue("Spells", out var spellsStr))
+            {
+                foreach (string spellName in spellsStr.Split(','))
+                {
+                    // Assumes a service exists to get spell data by name.
+                    MonsterSpell? spell = _gameData.GetMonsterSpellByName(spellName.Trim());
+                    if (spell != null)
+                    {
+                        spells.Add(spell);
+                    }
+                }
+            }
+
+            // Get the special rule, if any.
+            string? specialRule = parameters.GetValueOrDefault("SpecialRule");
+
+            // 3. Call the existing BuildMonsters method with the parsed data
+            return BuildMonsters(
+                count,
+                templateMonster,
+                weapons.Any() ? weapons : null,
+                armourValue,
+                hasShield,
+                spells.Any() ? spells : null,
+                specialRule
+            );
         }
     }    
 }
