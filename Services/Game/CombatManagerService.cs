@@ -25,8 +25,9 @@ namespace LoDCompanion.Services.Game
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
+
+        public event Action? OnCombatStateChanged;
         public Hero? ActiveHero { get; private set; }
-        // This set will store the unique ID of each character who has used their Unwieldly bonus in this combat.
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();        
 
         public CombatManagerService(
@@ -68,6 +69,8 @@ namespace LoDCompanion.Services.Game
 
             Console.WriteLine("Combat has started!");
             ProcessNextInInitiative();
+
+            OnCombatStateChanged?.Invoke();
         }
 
         /// <summary>
@@ -103,12 +106,14 @@ namespace LoDCompanion.Services.Game
             if (IsCombatOver())
             {
                 Console.WriteLine("Combat is over!");
+                OnCombatStateChanged?.Invoke();
                 return;
             }
 
             if (_initiative.IsTurnOver())
             {
                 StartNewTurn();
+                OnCombatStateChanged?.Invoke();
                 return;
             }
 
@@ -174,6 +179,8 @@ namespace LoDCompanion.Services.Game
                 // After the monster's turn is resolved, process the next actor in initiative.
                 ProcessNextInInitiative();
             }
+
+            OnCombatStateChanged?.Invoke();
         }
 
         private Monster? SelectMonsterToAct(List<Monster> availableMonsters, List<Hero> heroes)
@@ -316,6 +323,8 @@ namespace LoDCompanion.Services.Game
                 target.TakeDamage(incomingDamage);
                 Console.WriteLine($"The attack hits for {incomingDamage} damage!");
             }
+
+            OnCombatStateChanged?.Invoke();
         }
 
         /// <summary>
@@ -345,6 +354,8 @@ namespace LoDCompanion.Services.Game
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
                 _playerAction.PerformAction(ActiveHero, action, target);
+
+                OnCombatStateChanged?.Invoke();
 
                 if (ActiveHero.CurrentAP <= 0)
                 {
@@ -399,6 +410,8 @@ namespace LoDCompanion.Services.Game
             {
                 UnwieldlyBonusUsed.Add(hero.Id);
             }
+
+            OnCombatStateChanged?.Invoke();
         }
 
         public int CalculateDamage(Hero attacker, MeleeWeapon weapon)
