@@ -56,7 +56,7 @@ else
     {
         if(currentParty != null)
         {
-            QuestService.StartQuest(QuestService.GetQuestByName("First Blood"));
+            QuestService.StartQuest(currentParty, QuestService.GetQuestByName("First Blood"));
             NavManager.NavigateTo("/wilderness");
         }
     }
