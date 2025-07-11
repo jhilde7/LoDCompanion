@@ -14,8 +14,6 @@ namespace LoDCompanion.Services.Game
     {
         private readonly GameDataService _gameData;
         private readonly InitiativeService _initiative;
-        private readonly HeroCombatService _heroCombat;
-        private readonly MonsterCombatService _monsterCombat;
         private readonly PlayerActionService _playerAction;
         private readonly MonsterAIService _monsterAI;
         private readonly DefenseService _defense;
@@ -33,8 +31,6 @@ namespace LoDCompanion.Services.Game
 
         public CombatManagerService(
             InitiativeService initiativeService,
-            HeroCombatService heroCombatService,
-            MonsterCombatService monsterCombatService,
             PlayerActionService playerActionService,
             DefenseService defenseService,
             MonsterAIService monsterAIService,
@@ -43,8 +39,6 @@ namespace LoDCompanion.Services.Game
             GameDataService gameData)
         {
             _initiative = initiativeService;
-            _heroCombat = heroCombatService;
-            _monsterCombat = monsterCombatService;
             _playerAction = playerActionService;
             _monsterAI = monsterAIService;
             _defense = defenseService;
@@ -364,55 +358,6 @@ namespace LoDCompanion.Services.Game
                     ProcessNextInInitiative();
                 }
             }
-        }
-
-        // This would be called by the UI when a hero performs an attack
-        public void HeroPerformsAttack(Hero hero, Monster target, Weapon weapon)
-        {
-            var context = new CombatContext();
-            context.ArmourPiercingValue = weapon.ArmourPiercing;
-
-            if (weapon is MeleeWeapon meleeWeapon && meleeWeapon.HasProperty(WeaponProperty.Unwieldly))
-            {
-                if (!UnwieldlyBonusUsed.Contains(hero.Id))
-                {
-                    context.ApplyUnwieldlyBonus = true;
-                }
-            }
-
-            var attackResult = _heroCombat.ResolveAttack(hero, target, weapon, context);
-            CombatLog.Add(attackResult.OutcomeMessage);
-
-            // --- Apply secondary status effects based on the context ---
-            if (attackResult.IsHit)
-            {
-                if (context.IsFireDamage)
-                {
-                    // Rule: Fire causes ongoing damage.
-                    _statusEffect.ApplyStatus(target, StatusEffectType.FireBurning, 1);
-                }
-                if (context.IsFrostDamage && RandomHelper.RollDie("D100") <= 50)
-                {
-                    // Rule: Frost has a 50% chance to stun.
-                    _statusEffect.ApplyStatus(target, StatusEffectType.Stunned, 1);
-                }
-                if (context.IsPoisonousAttack)
-                {
-                    _statusEffect.AttemptToApplyStatus(target, StatusEffectType.Poisoned);
-                }
-                if (context.CausesDisease)
-                {
-                    _statusEffect.AttemptToApplyStatus(target, StatusEffectType.Diseased);
-                }
-            }
-
-            // 4. If the bonus was applied and the attack was a hit, record it.
-            if (context.ApplyUnwieldlyBonus && attackResult.IsHit)
-            {
-                UnwieldlyBonusUsed.Add(hero.Id);
-            }
-
-            OnCombatStateChanged?.Invoke();
         }
 
         public int CalculateDamage(Hero attacker, MeleeWeapon weapon)
