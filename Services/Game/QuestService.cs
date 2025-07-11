@@ -188,9 +188,9 @@ namespace LoDCompanion.Services.Game
                 {
                     Name = "First Blood",
                     QuestType = QuestType.WildernessQuest,
+                    StartingRoom = _room.GetRoomByName("Barren Land"),
                     SpecialRules = "The bandits gain +2 initiative tokens on the first turn as they surprise the sleeping heroes. Due to the darkness, no one can see or shoot further than 10 squares. The Scenario die is not in use.",
                     EncounterType = EncounterType.Bandits_Brigands,
-                    ObjectiveRoom = _room.GetRoomByName("Barren Land"),
                     NarrativeQuest = "The heroes have travelled for days and are finally nearing their destination in the village...the hero on watch is suddenly snapped into high alert by the faint sound of stealthy footsteps. Realising the potential peril, he quickly tries to wake the rest of the party. As they fumble to rise, a gang of bandits charge out of the darkness.",
                     NarrativeSetup = "The party has been attacked by three bandits and one bandit leader. The bandit leader is equipped with a longsword, a shield and has armour 1. Two bandits are armed with shortswords and have armour 0. One bandit is armed with a shortbow, dagger and has armour 0. Use the wilderness outdoor tiles (open ground tiles) and place the heroes in the centre, adjacent to each other. Then randomise which board edge each bandit approaches from, placing them 1d10 squares from the edge.",
                     NarrativeAftermath = "With the bandits dead, the party decides to gather their gear and continue their travel. They arrive at the settlement without further issues. Head to the settlement chapter and start by rolling for a settlement event.",
@@ -390,6 +390,7 @@ namespace LoDCompanion.Services.Game
                     Name = "The Burning Village",
                     QuestType = QuestType.WildernessQuest,
                     Location = QuestLocation.OutsideRochdale,
+                    StartingRoom = _room.GetRoomByName("Field With Trees"),
                     SpecialRules = "The heroes are allowed one rest before the battle, but no roll on the Travel Events Table is necessary. No Threat Level is used during this quest. The Scenario dice should still be rolled and a result of 9-0 triggers reinforcements for the Goblinoids. In that case, roll once more on the OaG Table and place them cantered along a random table edge.",
                     RewardSpecial = "If the heroes win, they receive 3 random potions and 1 Fine Treasure. If they flee, there is no reward.",
                     EncounterType = EncounterType.Orcs_Goblins,
