@@ -16,9 +16,6 @@ namespace LoDCompanion.Services.Game
     {
         private readonly DungeonManagerService _dungeonManager;
         private readonly RoomService _room;
-        private readonly EncounterService _encounter;
-        private readonly WorldStateService _worldState;
-        private readonly PlacementService _placement;
         private readonly QuestSetupService _questSetup;
 
         public Quest? ActiveQuest { get; private set; }
@@ -38,9 +35,6 @@ namespace LoDCompanion.Services.Game
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
-            _worldState = worldState;
-            _placement = placement;
-            _encounter = encounter;
             _questSetup = questSetup;
         }
 
