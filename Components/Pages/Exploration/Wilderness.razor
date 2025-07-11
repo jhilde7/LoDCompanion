@@ -1,157 +1,55 @@
-﻿// LoDCompanion/Components/Pages/Wilderness.razor
+﻿@page "/wilderness"
+@rendermode InteractiveServer
 
-@page "/wilderness"
-@using LoDCompanion.Models.Dungeon
-@using LoDCompanion.Models.Character
-@using LoDCompanion.Models
-@inject LoDCompanion.Services.Dungeon.DungeonManagerService DungeonManager
-@inject LoDCompanion.Services.Game.QuestService QuestService
-@inject LoDCompanion.Services.Game.CombatManagerService CombatManager
-@inject LoDCompanion.Services.Player.PartyManagerService PartyManager
-@inject NavigationManager NavManager
+@using LoDCompanion.Services.Dungeon
+@using LoDCompanion.Services.Game
 
-<style>
-    /* Add styles for grid, heroes, monsters, etc. here */
-    .grid-tile.active-hero {
-        border: 2px solid yellow;
-    }
+@inject QuestService QuestService
+@inject CombatManagerService CombatManager
+@inject RoomService RoomService 
 
-    .grid-tile.selected-target {
-        outline: 2px solid red;
-    }
-</style>
-
-<div class="container-fluid">
-    @if (activeQuest == null)
+<div class="wilderness-container">
+    @if (QuestService.IsQuestActive && QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest)
     {
-        <div class="wilderness-travel">
-            <h1>Into the Wilds</h1>
-            <p>Your party is traveling through the dense, untamed wilderness...</p>
-            <button class="btn btn-primary" @onclick="TriggerFirstBloodQuest">Continue Journey</button>
+        <div class="quest-header">
+            <h1>@QuestService.ActiveQuest.Name</h1>
+            <p class="narrative-text"><em>@QuestService.ActiveQuest.NarrativeQuest</em></p>
+            @if (!string.IsNullOrEmpty(QuestService.ActiveQuest.SpecialRules))
+            {
+                <p><strong>Special Rules:</strong> @QuestService.ActiveQuest.SpecialRules</p>
+            }
+        </div>
+
+        <div class="game-area">
+            <GridDisplayComponent Room="RoomService.CurrentRoom" />
+        </div>
+
+        <div class="combat-ui">
+            <CombatInterfaceComponent />
         </div>
     }
     else
     {
-        <div class="row">
-            <div class="col-md-9">
-                @if (!isBattleOver)
-                {
-                    <div class="aftermath">
-                        <h3>Victory!</h3>
-                        <p><em>@activeQuest.NarrativeAftermath</em></p>
-                        <button class="btn btn-success" @onclick="ProceedToSettlement">Continue to Settlement</button>
-                    </div>
-                }
-                else if (!isBattleOver)
-                {
-                    <div class="quest-briefing">
-                        <h1>Encounter: @activeQuest.Name</h1>
-                        <p><em>@activeQuest.NarrativeQuest</em></p>
-                        <button class="btn btn-danger btn-lg" @onclick="StartBattle">Start Battle</button>
-                    </div>
-                }
-                else if (dungeonState != null)
-                {
-                    @* --- This would be your visual combat grid --- *@
-                    <div class="game-grid">
-                        @* Render your grid tiles, heroes, and monsters here *@
-                    </div>
-                }
-            </div>
-
-            <div class="col-md-3">
-                @if (!isBattleOver)
-                {
-                    @* --- This is the new Player Action Panel --- *@
-                    @if (CombatManager.ActiveHero != null)
-                    {
-                        <div class="player-actions card bg-light">
-                            <div class="card-header bg-primary text-white">
-                                <strong>@CombatManager.ActiveHero.Name's Turn (@CombatManager.ActiveHero.CurrentAP AP)</strong>
-                            </div>
-                            <div class="card-body">
-                                <p>Select an action for your hero.</p>
-                                <button class="btn btn-danger w-100 mb-2" @onclick="() => PerformHeroAttack()">Attack</button>
-                                <button class="btn btn-info w-100 mb-2">Move</button>
-                                <button class="btn btn-success w-100" @onclick="EndHeroTurn">End Turn</button>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center">
-                            <em class="text-muted">Processing monster turn...</em>
-                        </div>
-                    }
-                }
-            </div>
+        <div class="no-quest-active">
+            <h3>The wilderness is quiet... for now.</h3>
+            <p>Your journey continues uneventfully.</p>
         </div>
     }
 </div>
 
-
 @code {
-    private DungeonState? dungeonState;
-    private Quest? activeQuest;
-    private Monster? selectedTarget; // To store which monster the player clicks on
-    private bool isBattleOver => CombatManager.IsCombatOver();
-
-    private void TriggerFirstBloodQuest()
+    protected override void OnInitialized()
     {
-        activeQuest = QuestService.GetQuestByName("First Blood");
-        if (activeQuest != null)
-        {
-            DungeonManager.InitializeDungeon(PartyManager.GetCurrentParty(), activeQuest);
-            dungeonState = DungeonManager.DungeonState;
-        }
+        // Subscribe to the QuestService's event. When a quest starts,
+        // this component will automatically re-render.
+        QuestService.OnQuestStateChanged += StateHasChanged;
+        CombatManager.OnCombatStateChanged += StateHasChanged; // Also listen for combat updates
     }
 
-    private void StartBattle()
+    // Always unsubscribe from events to prevent memory leaks when the component is destroyed.
+    public void Dispose()
     {
-        if (dungeonState?.HeroParty?.Heroes != null && dungeonState.RevealedMonsters != null)
-        {
-            // The page's only job is to provide the combatants.
-            // The 'didBashDoor' parameter can be taken from quest rules.
-            CombatManager.StartCombat(dungeonState.HeroParty.Heroes, dungeonState.RevealedMonsters);
-        }
-    }
-
-    private void PerformHeroAttack()
-    {
-        if (CombatManager.ActiveHero != null && selectedTarget != null)
-        {
-            // Assume the hero uses their first equipped weapon for simplicity
-            Weapon weapon = CombatManager.ActiveHero.Weapons.FirstOrDefault();
-            if (weapon != null)
-            {
-                CombatManager.HeroPerformsAttack(CombatManager.ActiveHero, selectedTarget, weapon);
-                CheckForBattleEnd();
-            }
-        }
-    }
-
-    private void EndHeroTurn()
-    {
-        if (CombatManager.ActiveHero != null)
-        {
-            // A simple way to end the turn is to set AP to 0 and proceed.
-            CombatManager.ActiveHero.CurrentAP = 0;
-            CombatManager.ProcessNextInInitiative();
-            CheckForBattleEnd();
-        }
-    }
-
-    private void CheckForBattleEnd() //Is this needed?
-    {
-        if (isBattleOver)
-        {
-            // do something
-        }
-        StateHasChanged(); // Re-render the UI to reflect changes
-    }
-
-    private void ProceedToSettlement()
-    {
-        NavManager.NavigateTo("/settlement");
+        QuestService.OnQuestStateChanged -= StateHasChanged;
+        CombatManager.OnCombatStateChanged -= StateHasChanged;
     }
 }
