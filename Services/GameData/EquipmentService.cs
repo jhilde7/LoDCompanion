@@ -45,15 +45,18 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static Ammo GetAmmoByName(string name)
+        public static Ammo? GetAmmoByName(string name)
         {
-            return Ammo.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            return Ammo.FirstOrDefault(x => x.Name == name);
         }
 
-        public static Ammo GetAmmoByNameSetQuantity(string name, int qty)
+        public static Ammo? GetAmmoByNameSetQuantity(string name, int qty)
         {
-            Ammo item = GetAmmoByName(name);
-            item.Quantity = qty;
+            Ammo? item = GetAmmoByName(name);
+            if (item != null)
+            {
+                item.Quantity = qty; 
+            }
             return item;
         }
 
@@ -64,26 +67,29 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static MeleeWeapon GetMeleeWeaponByName(string name)
+        public static MeleeWeapon? GetMeleeWeaponByName(string name)
         {
-            return MeleeWeapons.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            return MeleeWeapons.FirstOrDefault(x => x.Name == name);
         }
 
-        public static RangedWeapon GetRangedWeaponByName(string name)
+        public static RangedWeapon? GetRangedWeaponByName(string name)
         {
-            return RangedWeapons.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            return RangedWeapons.FirstOrDefault(x => x.Name == name);
         }
 
-        public static Weapon GetWeaponByName(string name)
+        public static Weapon? GetWeaponByName(string name)
         {
-            return (Weapon)GetMeleeWeaponByName(name) ?? 
-                (Weapon)GetRangedWeaponByName(name) ?? throw new NullReferenceException();
+            return (Weapon?)GetMeleeWeaponByName(name) ?? 
+                (Weapon?)GetRangedWeaponByName(name);
         }
 
-        public static Weapon GetWeaponByNameSetDurability(string name, int durability)
+        public static Weapon? GetWeaponByNameSetDurability(string name, int durability)
         {
-            Weapon weapon = GetWeaponByName(name);
-            weapon.Durability = durability;
+            Weapon? weapon = GetWeaponByName(name);
+            if (weapon != null)
+            {
+                weapon.Durability = durability; 
+            }
             return weapon;
         }
 
