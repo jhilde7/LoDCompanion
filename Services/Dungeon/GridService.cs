@@ -171,7 +171,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="target">The character being shoved.</param>
         /// <param name="room">The current room grid.</param>
         /// <returns>A string describing the outcome.</returns>
-        public string ShoveCharacter(Character shover, Character target, RoomService room)
+        public string ShoveCharacter(Character shover, Character target, Room room)
         {
             if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
 
