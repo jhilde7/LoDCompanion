@@ -131,11 +131,9 @@ namespace LoDCompanion.Services.Player
                 case ItemSlot.QuickSlot:
                     return hero.QuickSlots;
                 case ItemSlot.EquippedWeapon:
-                    return hero.Weapons;
+                    return hero.Weapons.Cast<Equipment>().ToList();
                 case ItemSlot.EquippedArmour:
-                    // Casting List<Armour> to List<Equipment> is complex.
-                    // This operation should be handled with more specific logic if needed.
-                    return null;
+                    return hero.Armours.Cast<Equipment>().ToList();
                 default:
                     return null;
             }
