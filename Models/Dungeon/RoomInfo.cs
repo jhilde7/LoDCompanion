@@ -31,7 +31,7 @@ namespace LoDCompanion.Models.Dungeon
         public bool HasLevers { get; set; }
         public bool RandomEncounter { get; set; } = true;
         public bool HasSpecial { get; set; }
-        public Uri? ImageUri { get; set; }
+        public string? ImagePath { get; set; }
 
 
         public RoomInfo()
