@@ -164,7 +164,7 @@ namespace LoDCompanion.Services.Game
                     {
                         // No interruption, so the monster performs its turn using the AI.
                         // The 'new RoomService' is a placeholder for the actual current room state.
-                        _monsterAI.ExecuteMonsterTurn(monsterToAct, HeroesInCombat, new RoomService(new GameDataService()));
+                        _monsterAI.ExecuteMonsterTurn(monsterToAct, HeroesInCombat, monsterToAct.Room);
                     }
 
                     ProcessNextInInitiative(); // No valid monsters left to act

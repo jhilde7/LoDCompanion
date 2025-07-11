@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.Models;
 using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Utilities;
@@ -23,7 +24,7 @@ namespace LoDCompanion.Services.Game
         /// <param name="monster">The monster taking its turn.</param>
         /// <param name="heroes">The list of all heroes in the combat.</param>
         /// <param name="room">The current room where combat is taking place.</param>
-        public void ExecuteMonsterTurn(Monster monster, List<Hero> heroes, RoomService room)
+        public void ExecuteMonsterTurn(Monster monster, List<Hero> heroes, Room room)
         {
             // The monster gets 2 Action Points.
             monster.CurrentAP = monster.MaxAP;
@@ -57,7 +58,7 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteMagicUser(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteMagicUser(Monster monster, List<Hero> heroes, Room room, ref int ap)
         {
             var target = ChooseTarget(monster, heroes, true);
             if (target == null || monster.Position == null || target.Position == null)
@@ -132,7 +133,7 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteHigherUndead(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteHigherUndead(Monster monster, List<Hero> heroes, Room room, ref int ap)
         {
             var target = ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null)
@@ -183,7 +184,7 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteLowerUndead(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteLowerUndead(Monster monster, List<Hero> heroes, Room room, ref int ap)
         {
             if (monster.Weapons.Any(w => w.IsRanged))
             {
@@ -221,7 +222,7 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteBeast(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteBeast(Monster monster, List<Hero> heroes, Room room, ref int ap)
         {
             var target = ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null)
@@ -280,7 +281,7 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteHumanoidWithCloseCombatWeapon(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteHumanoidWithCloseCombatWeapon(Monster monster, List<Hero> heroes, Room room, ref int ap)
         {
             var target = ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null)
@@ -352,7 +353,7 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void ExecuteHumanoidWithMissileWeapon(Monster monster, List<Hero> heroes, RoomService room, ref int ap)
+        private void ExecuteHumanoidWithMissileWeapon(Monster monster, List<Hero> heroes, Room room, ref int ap)
         {
             var target = ChooseTarget(monster, heroes, true);
             if (target == null || monster.Position == null || target.Position == null)
