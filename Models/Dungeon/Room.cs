@@ -6,7 +6,7 @@ namespace LoDCompanion.Models.Dungeon
     public class Room
     {
         public string RoomName { get; set; } = string.Empty; // Default to empty string for safety
-        public bool IsStart Tile { get; set; }
+        public bool IsStartingTile { get; set; }
         public bool IsObjectiveRoom { get; set; }
         public bool HasLevers { get; set; } // Flag, actual lever logic in a service
         public RoomCategory Category { get; set; } = RoomCategory.Room; // Default type, can be "Room" or "Corridor"
