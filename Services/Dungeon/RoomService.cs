@@ -88,7 +88,7 @@ namespace LoDCompanion.Services.Dungeon
             return new System.Drawing.Point(pixelX, pixelY);
         }
 
-        public Room CreateRoom(string roomName)
+        public Room? CreateRoom(string roomName)
         {
             // Get the definition from your game data
             RoomInfo? roomInfo = GetRoomByName(roomName);
