@@ -13,6 +13,7 @@ namespace LoDCompanion.Services.Dungeon
     public class RoomService
     {
         private readonly GameDataService _gameData;
+        private readonly GridService _grid;
         public int TilePixelWidth { get; set; } = 128;
         public int TilePixelHeight { get; set; } = 128;
 
@@ -20,9 +21,10 @@ namespace LoDCompanion.Services.Dungeon
         public List<Furniture> Furniture => GetFurniture();
 
         // Constructor for creating a RoomCorridor instance
-        public RoomService(GameDataService gameData)
+        public RoomService(GameDataService gameData, GridService gridService)
         {
             _gameData = gameData;
+            _grid = gridService;
         }
 
         /// <summary>
@@ -46,23 +48,14 @@ namespace LoDCompanion.Services.Dungeon
 
             // Furniture
             room.FurnitureList = roomInfo.FurnitureList ?? new List<Furniture>();
-            // Note: Actual furniture *objects* or their creation are handled by a service
-            // The original `furniture.Create(f, furniture, transform);` is removed.
 
             // Encounters
-            // roomEncounter (original Unity field) would be replaced by logic in EncounterService
-            // Here, we just store the encounter type name if available
-            // This RoomCorridor no longer instantiates Encounters directly.
-            // EncounterType = roomInfo.EncounterType; // If RoomInfo has this field
             room.EncounterModifier = roomInfo.EncounterModifier;
             room.RandomEncounter = roomInfo.RandomEncounter;
 
             // Doors and Dead Ends
             room.DoorCount = roomInfo.DoorCount;
             room.Doors.Clear(); // Clear any existing doors
-            // Note: Creation of DoorChest *instances* will be handled by DungeonManagerService
-            // or RoomFactoryService, not directly here via `Instantiate`.
-            // The DoorCount is a definition for how many doors *should* be created externally.
 
             if (room.DoorCount == 0)
             {
@@ -71,8 +64,6 @@ namespace LoDCompanion.Services.Dungeon
 
             // Levers (If Applicable)
             room.HasLevers = roomInfo.HasLevers;
-            // Note: `gameObject.AddComponent<Levers>();` is removed.
-            // A separate `LeverService` would handle lever interactions.
 
             // Set initial state for various triggers
             room.RollEncounter = false;
@@ -81,6 +72,28 @@ namespace LoDCompanion.Services.Dungeon
             room.HasBeenSearched = false;
             room.IsEncounter = false; // Start with no active encounter
             return room;
+        }
+
+        public Room CreateRoom(string roomName)
+        {
+            // Get the definition from your game data
+            RoomInfo? roomInfo = GetRoomByName(roomName);
+            if (roomInfo == null)
+            {
+                // Handle error: room definition not found
+                return null;
+            }
+
+            var newRoom = new Room();
+
+            // Initialize the room's properties from the definition
+            InitializeRoomData(roomInfo, newRoom);
+
+            // Generate the grid and place the furniture for this room
+            _grid.GenerateGridForRoom(newRoom); // Assuming GridService has this method
+
+            Console.WriteLine($"Room '{roomName}' created with a {newRoom.Width}x{newRoom.Height} grid.");
+            return newRoom;
         }
 
 
