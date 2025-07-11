@@ -16,11 +16,9 @@ namespace LoDCompanion.Services.Dungeon
         private readonly GameStateManagerService _gameManager;
         private readonly DungeonBuilderService _dungeonBuilder;
         private readonly ThreatService _threat;
-        private readonly LockService _lock;
         private readonly TrapService _trap;
         private readonly PartyRestingService _partyResting;
         private readonly LeverService _lever;
-        private readonly QuestService _quest;
         private readonly GridService _grid;
         private readonly DungeonState _dungeonState;
         
@@ -39,11 +37,9 @@ namespace LoDCompanion.Services.Dungeon
             GameStateManagerService gameStateManager,
             DungeonBuilderService dungeonBuilder,
             ThreatService threatService,
-            LockService lockService,
             TrapService trapService,
             PartyRestingService partyResting,
             LeverService leverService,
-            QuestService questService,
             GridService gridService)
         {
             _gameData = gameData;
@@ -53,11 +49,9 @@ namespace LoDCompanion.Services.Dungeon
             _gameManager = gameStateManager;
             _dungeonBuilder = dungeonBuilder;
             _threat = threatService;
-            _lock = lockService;
             _trap = trapService;
             _partyResting = partyResting;
             _lever = leverService;
-            _quest = questService;
             _grid = gridService;
 
             _dungeonState = dungeonState;
@@ -405,39 +399,6 @@ namespace LoDCompanion.Services.Dungeon
                 if (_dungeonState.StartingRoom != null) _wanderingMonster.SpawnWanderingMonster(_dungeonState);
             }
             // ... handle other results like ShouldLockADoor, ShouldSpawnPortcullis, etc.
-        }
-
-        /// <summary>
-        /// Called when the party decides to leave the dungeon after completing their objective.
-        /// </summary>
-        public string FinishQuest()
-        {
-            if (!_quest.IsObjectiveComplete)
-            {
-                return "The quest objective is not yet complete. You cannot leave yet.";
-            }
-
-            if (_dungeonState.HeroParty == null) return "Error: No active party.";
-
-            // Grant rewards and get the aftermath message.
-            var resultMessage = _quest.GrantRewards(_dungeonState.HeroParty);
-
-            // Tell the GameStateManager to handle the post-quest state transition.
-            _gameManager.CompleteDungeon();
-
-            return resultMessage;
-        }
-
-        /// <summary>
-        /// Called when the party decides to leave the dungeon before completing the objective.
-        /// </summary>
-        public async Task<string> AbandonQuest()
-        {
-            // Per the rules, we simply save the current state to be resumed later.
-            await _gameManager.SaveGameAsync("In-Settlement"); // Or another appropriate location
-            _gameManager.LeaveDungeon(); // Clears the active dungeon from the game state for this session
-
-            return "You have abandoned the quest. Your progress has been saved, but the dungeon will be repopulated with new threats upon your return.";
         }
     }
 }
