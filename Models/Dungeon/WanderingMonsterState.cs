@@ -6,7 +6,7 @@ namespace LoDCompanion.Models.Dungeon
     public class WanderingMonsterState
     {
         public string Id { get; } = System.Guid.NewGuid().ToString();
-        public RoomService? CurrentRoom { get; set; }
+        public Room? CurrentRoom { get; set; }
         public Monster? RevealedMonster { get; set; }
         public GridPosition CurrentPosition { get; set; } = new GridPosition(0, 0, 0);
         public bool IsAtClosedDoor { get; set; } = false;
