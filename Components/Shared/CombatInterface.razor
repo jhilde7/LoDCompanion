@@ -1,0 +1,48 @@
+﻿@using LoDCompanion.Services.Player
+@using LoDCompanion.Services.Game
+
+@inject CombatManagerService CombatManager
+
+<div class="combat-interface-container">
+    <div class="combat-log-wrapper">
+        <h3>Combat Log</h3>
+        <div class="combat-log">
+            @foreach (var message in CombatManager.CombatLog.TakeLast(10))
+            {
+                <div class="log-entry">@message</div>
+            }
+        </div>
+    </div>
+
+    @if (CombatManager.ActiveHero != null)
+    {
+        <div class="player-action-bar">
+            <h4>@CombatManager.ActiveHero.Name's Turn (@CombatManager.ActiveHero.CurrentAP AP)</h4>
+            <div class="action-buttons">
+                <button class="action-button" @onclick="() => PerformAction(PlayerActionType.StandardAttack)">Attack</button>
+                <button class="action-button" @onclick="() => PerformAction(PlayerActionType.Move)">Move</button>
+                <button class="action-button" @onclick="() => PerformAction(PlayerActionType.CastSpell)">Cast Spell</button>
+                <button class="action-button end-turn" @onclick="() => PerformAction(PlayerActionType.EndTurn)">End Turn</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private void PerformAction(PlayerActionType actionType)
+    {
+        // In a real game, clicking "Attack" would change the state to "SelectingTarget"
+        // and then you'd click on a monster. For this example, we directly call the service.
+        CombatManager.HeroPerformsAction(actionType, null);
+    }
+
+    protected override void OnInitialized()
+    {
+        CombatManager.OnCombatStateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CombatManager.OnCombatStateChanged -= StateHasChanged;
+    }
+}
