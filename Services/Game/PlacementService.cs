@@ -223,6 +223,8 @@ namespace LoDCompanion.Services.Game
         {
             entity.Position = targetPosition;
 
+            if(entity is Character characterEntity) characterEntity.UpdateOccupiedSquares();
+
             foreach (var squareCoords in entity.OccupiedSquares)
             {
                 var square = _grid.GetSquareAt(squareCoords);
