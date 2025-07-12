@@ -68,6 +68,7 @@ namespace LoDCompanion.Services.Game
                     var roomInfo = _room.GetRoomByName(action.Parameters["RoomName"]);
                     _room.InitializeRoomData(roomInfo, room);
                     _grid.GenerateGridForRoom(room);
+                    _grid.PlaceRoomOnGrid(room, room.GridOffset);
                     break;
                 case QuestSetupActionType.PlaceHeroes:
                     if (_party.Party != null)

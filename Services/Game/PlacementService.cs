@@ -43,6 +43,7 @@ namespace LoDCompanion.Services.Game
 
             Console.WriteLine($"Placing {entity.Name} with rule: {rule}");
             List<GridPosition> potentialPositions = new List<GridPosition>();
+            
 
             switch (rule)
             {
@@ -52,14 +53,17 @@ namespace LoDCompanion.Services.Game
 
                 case PlacementRule.ShortSide:
                     potentialPositions = GetEdgePositions(room, entity, isShortSide: true);
+                    potentialPositions.Shuffle();
                     break;
 
                 case PlacementRule.LongSide:
                     potentialPositions = GetEdgePositions(room, entity, isShortSide: false);
+                    potentialPositions.Shuffle();
                     break;
 
                 case PlacementRule.RandomEdge:
                     potentialPositions = GetEdgePositions(room, entity, isShortSide: null);
+                    potentialPositions.Shuffle();
                     break;
 
                 case PlacementRule.RelativeToTarget:
@@ -83,8 +87,13 @@ namespace LoDCompanion.Services.Game
 
             if (potentialPositions.Any())
             {
-                GridPosition targetPosition = potentialPositions[RandomHelper.GetRandomNumber(0, potentialPositions.Count - 1)];
-                AttemptFinalPlacement(entity, targetPosition);
+                foreach (var position in potentialPositions)
+                {
+                    if (AttemptFinalPlacement(entity, position))
+                    {
+                        return;
+                    }
+                }
             }
             else
             {
@@ -93,7 +102,14 @@ namespace LoDCompanion.Services.Game
                 potentialPositions = FindAllValidSquaresForEntity(room, entity);
                 if (potentialPositions.Any())
                 {
-                    AttemptFinalPlacement(entity, potentialPositions.First());
+                    potentialPositions.Shuffle();
+                    foreach (var position in potentialPositions)
+                    {
+                        if (AttemptFinalPlacement(entity, position))
+                        {
+                            return;
+                        }
+                    }
                 }
                 else
                 {
@@ -106,50 +122,41 @@ namespace LoDCompanion.Services.Game
 
         private List<GridPosition> GetCenterPositions(Room room, IGameEntity entity)
         {
+            var potentialPositions = new List<GridPosition>();
             int centerX = room.Width / 2;
             int centerY = room.Height / 2;
             var centerPos = new GridPosition(centerX, centerY, room.GridOffset.Z);
 
-            // First, check the exact center. It's the most desirable spot.
-            if (IsPlacementFootprintValid(entity, centerPos))
-            {
-                return new List<GridPosition> { centerPos };
-            }
+            potentialPositions.Add(centerPos);
 
-            // If the center is blocked, spiral outwards to find the nearest valid spot.
             // The loop's limit is half the largest room dimension, ensuring we search the whole room.
             int maxRadius = Math.Max(room.Width, room.Height) / 2 + 1;
 
             for (int r = 1; r < maxRadius; r++)
             {
-                // Check top edge of the spiral ring
+                // Top edge of the spiral ring
                 for (int x = centerX - r; x <= centerX + r; x++)
                 {
-                    var pos = new GridPosition(x, centerY - r, centerPos.Z);
-                    if (IsPlacementFootprintValid(entity, pos)) return new List<GridPosition> { pos };
+                    potentialPositions.Add(new GridPosition(x, centerY - r, centerPos.Z));
                 }
-                // Check bottom edge
+                // Bottom edge
                 for (int x = centerX - r; x <= centerX + r; x++)
                 {
-                    var pos = new GridPosition(x, centerY + r, centerPos.Z);
-                    if (IsPlacementFootprintValid(entity, pos)) return new List<GridPosition> { pos };
+                    potentialPositions.Add(new GridPosition(x, centerY + r, centerPos.Z));
                 }
-                // Check left edge
+                // Left edge
                 for (int y = centerY - r + 1; y < centerY + r; y++)
                 {
-                    var pos = new GridPosition(centerX - r, y, centerPos.Z);
-                    if (IsPlacementFootprintValid(entity, pos)) return new List<GridPosition> { pos };
+                    potentialPositions.Add(new GridPosition(centerX - r, y, centerPos.Z));
                 }
-                // Check right edge
+                // Right edge
                 for (int y = centerY - r + 1; y < centerY + r; y++)
                 {
-                    var pos = new GridPosition(centerX + r, y, centerPos.Z);
-                    if (IsPlacementFootprintValid(entity, pos)) return new List<GridPosition> { pos };
+                    potentialPositions.Add(new GridPosition(centerX + r, y, centerPos.Z));
                 }
             }
 
-            // If no valid position is found after spiraling through the entire room.
-            return new List<GridPosition>();
+            return potentialPositions;
         }
 
 
@@ -179,7 +186,7 @@ namespace LoDCompanion.Services.Game
                 }
             }
 
-            return edgeSquares.Where(p => IsPlacementFootprintValid(entity, p)).ToList();
+            return edgeSquares;
         }
 
         private List<GridPosition> GetPositionsNearTarget(IGameEntity entity, IGameEntity target)
@@ -189,7 +196,7 @@ namespace LoDCompanion.Services.Game
             {
                 surroundingPositions.AddRange(_grid.GetNeighbors(occupiedSquare));
             }
-            return surroundingPositions.Distinct().Where(p => IsPlacementFootprintValid(entity, p)).ToList();
+            return surroundingPositions;
         }
 
         private List<GridPosition> GetFarAwayPositions(Room room, IGameEntity entity, IGameEntity awayFromTarget)
@@ -210,10 +217,7 @@ namespace LoDCompanion.Services.Game
                 for (int x = 0; x < room.Width; x++)
                 {
                     var position = new GridPosition(room.GridOffset.X + x, room.GridOffset.Y + y, room.GridOffset.Z);
-                    if (IsPlacementFootprintValid(entity, position))
-                    {
-                        validSquares.Add(position);
-                    }
+                    validSquares.Add(position);
                 }
             }
             return validSquares;
@@ -223,7 +227,7 @@ namespace LoDCompanion.Services.Game
         {
             entity.Position = targetPosition;
 
-            if(entity is Character characterEntity) characterEntity.UpdateOccupiedSquares();
+            if (entity is Character character) character.UpdateOccupiedSquares();
 
             foreach (var squareCoords in entity.OccupiedSquares)
             {
@@ -240,10 +244,11 @@ namespace LoDCompanion.Services.Game
         {
             if (!IsPlacementFootprintValid(entity, targetPosition))
             {
-                Console.WriteLine($"Final placement check failed for {entity.ToString()} at {targetPosition.ToString()}.");
+                Console.WriteLine($"Final placement check failed for {entity.Name} id: {entity.Id} at {targetPosition.ToString()}.");
                 return false;
             }
 
+            string debug = "";
             foreach (var squareCoords in entity.OccupiedSquares)
             {
                 var square = _grid.GetSquareAt(squareCoords);
@@ -252,7 +257,8 @@ namespace LoDCompanion.Services.Game
                     square.OccupyingCharacterId = entity.Id;
                 }
             }
-            Console.WriteLine($"{entity.ToString()} at {targetPosition.ToString()}!");
+
+            Console.WriteLine($"{entity.Name} id: {entity.Id} at {targetPosition.ToString()}!");
             return true;
         }
     }

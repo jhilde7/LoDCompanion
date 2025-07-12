@@ -14,9 +14,7 @@
             {
                 @foreach (var square in furniture.OccupiedSquares)
                 {
-                    <div class="grid-item furniture-overlay-square" title="@furniture.ToString()" style="@GetSquareStyle(square)">
-                        @* This div is the interactive overlay for one part of the furniture. *@
-                        @* It can be styled with CSS for hover effects or clickability. *@
+                    <div class="grid-item furniture-overlay-square" title="@furniture.Name" style="@GetSquareStyle(square)">
                     </div>
                 }
             }
@@ -54,43 +52,49 @@
     {
         get
         {
-            if (Room == null)
-            {
-                return "";
-            }
-
-            // Base styles for the grid layout. 'position: relative' is crucial for the absolutely positioned children.
+            if (Room == null) return "";
             var style = $"position: relative; width: 90vmin; max-width: 1200px; aspect-ratio: {Room.Width} / {Room.Height};";
-            // Add the background image if the URL is provided on the Room object.
             if (!string.IsNullOrEmpty(Room.ImagePath))
             {
                 style += $" background-image: url('{Room.ImagePath}'); background-size: 100% 100%; background-position: center;";
             }
-
             return style;
         }
     }
 
     private string GetItemStyle(IGameEntity entity)
     {
-        if (Room == null || entity.OccupiedSquares == null || !entity.OccupiedSquares.Any())
+        if (Room == null)
         {
             return "";
         }
 
-        // Find the min and max coordinates to define the bounding box of the entity.
-        var minX = entity.OccupiedSquares.Min(p => p.X);
-        var minY = entity.OccupiedSquares.Min(p => p.Y);
+        if (entity.OccupiedSquares != null && entity.OccupiedSquares.Any())
+        {
+            // The entity's OccupiedSquares are in WORLD coordinates.
+            // Convert them to LOCAL coordinates for rendering.
+            var minWorldX = entity.OccupiedSquares.Min(p => p.X);
+            var minWorldY = entity.OccupiedSquares.Min(p => p.Y);
+            var localX = minWorldX - Room.GridOffset.X;
+            var localY = minWorldY - Room.GridOffset.Y;
 
+            // Calculate the bounding box size in grid units.
+            var maxWorldX = entity.OccupiedSquares.Max(p => p.X);
+            var maxWorldY = entity.OccupiedSquares.Max(p => p.Y);
+            var widthInTiles = (maxWorldX - minWorldX) + 1;
+            var heightInTiles = (maxWorldY - minWorldY) + 1;
 
-        // Calculate the width and height of the bounding box in grid units.
-        var maxX = entity.OccupiedSquares.Max(p => p.X);
-        var maxY = entity.OccupiedSquares.Max(p => p.Y);
-        var widthInTiles = (maxX - minX) + 1;
-        var heightInTiles = (maxY - minY) + 1;
+            return GetPercentageStyle(localX, localY, widthInTiles, heightInTiles);
+        }
 
-        // Return the final CSS style string.
-        return GetPercentageStyle(minX, minY, widthInTiles, heightInTiles);
+        // If OccupiedSquares is empty, try using the entity's single anchor position.
+        if (entity.Position != null)
+        {
+            return GetSquareStyle(entity.Position);
+        }
+
+        // If both checks fail, return an empty style.
+        return "";
     }
 
     private string GetSquareStyle(GridPosition position)
@@ -98,19 +102,30 @@
         if (Room == null) return "";
 
         // Calculate position and size as percentages for a single square.
-        return GetPercentageStyle(position.X, position.Y, 1, 1);
+        // The position is in WORLD coordinates. Convert to LOCAL for rendering.
+        var localX = position.X - Room.GridOffset.X;
+        var localY = position.Y - Room.GridOffset.Y;
+        return GetPercentageStyle(localX, localY, 1, 1);
     }
 
     private string GetPercentageStyle(int x, int y, int widthInTiles, int heightInTiles)
     {
-        if (Room == null || Room.Width == 0 || Room.Height == 0) return "";
+        if (Room?.Width is null or 0 || Room?.Height is null or 0)
+        {
+            return "";
+        }
 
-        var left = (double)x / Room.Width * 100;
-        var top = (double)y / Room.Height * 100;
-        var width = (double)widthInTiles / Room.Width * 100;
-        var height = (double)heightInTiles / Room.Height * 100;
+        // Use double for calculations to avoid integer division and ensure precision.
+        double roomWidth = Room.Width;
+        double roomHeight = Room.Height;
+
+        double left = x / roomWidth * 100;
+        double top = y / roomHeight * 100;
+        double width = widthInTiles / roomWidth * 100;
+        double height = heightInTiles / roomHeight * 100;
 
         // Use InvariantCulture to ensure '.' is used as the decimal separator in CSS, regardless of server culture.
-        return $"position: absolute; left: {left.ToString(System.Globalization.CultureInfo.InvariantCulture)}%; top: {top.ToString(System.Globalization.CultureInfo.InvariantCulture)}%; width: {width.ToString(System.Globalization.CultureInfo.InvariantCulture)}%; height: {height.ToString(System.Globalization.CultureInfo.InvariantCulture)}%;";
+        FormattableString style = $"position: absolute; left: {left}%; top: {top}%; width: {width}%; height: {height}%;";
+        return style.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 }

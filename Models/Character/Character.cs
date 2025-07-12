@@ -57,13 +57,13 @@ namespace LoDCompanion.Models.Character
             OccupiedSquares.Clear();
             int SizeX = 1;
             int SizeY = 1;
-            int SizeZ = 0;
+            int SizeZ = 1;
 
             if(IsLarge)
             {
                 SizeX = 2;
                 SizeY = 2;
-                SizeZ = 0;
+                SizeZ = 1;
             }
 
             for (int x = 0; x < SizeX; x++)

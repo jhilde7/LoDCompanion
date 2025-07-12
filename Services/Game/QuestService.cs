@@ -278,7 +278,7 @@ namespace LoDCompanion.Services.Game
                             ActionType = QuestSetupActionType.SpawnMonster,
                             Parameters = new Dictionary<string, string>()
                             {
-                                { "Name", "Bandit" },
+                                { "Name", "Bandit Archer" },
                                 { "Count", "1" },
                                 { "Weapons", "Shortbow,Dagger" },
                                 { "Armour", "0" },
