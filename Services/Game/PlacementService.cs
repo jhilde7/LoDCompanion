@@ -238,7 +238,7 @@ namespace LoDCompanion.Services.Game
         {
             if (!IsPlacementFootprintValid(entity, targetPosition))
             {
-                Console.WriteLine($"Final placement check failed for {entity.Name} at {targetPosition}.");
+                Console.WriteLine($"Final placement check failed for {entity.ToString()} at {targetPosition.ToString()}.");
                 return false;
             }
 
@@ -247,10 +247,10 @@ namespace LoDCompanion.Services.Game
                 var square = _grid.GetSquareAt(squareCoords);
                 if (square != null)
                 {
-                    square.OccupyingCharacterId = entity.Name;
+                    square.OccupyingCharacterId = entity.Id;
                 }
             }
-            Console.WriteLine($"{entity.Name} placed successfully at {targetPosition}!");
+            Console.WriteLine($"{entity.ToString()} at {targetPosition.ToString()}!");
             return true;
         }
     }

@@ -13,7 +13,7 @@ namespace LoDCompanion.Models.Character
 {
     public class Character : IGameEntity
     {
-        internal readonly string Id;
+        public string Id { get; }
         public string Name { get; set; } = string.Empty; // Default to empty string for safety
         public int CurrentHP { get; set; }
         public int MaxHP { get; set; }

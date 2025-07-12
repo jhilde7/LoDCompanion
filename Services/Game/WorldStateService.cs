@@ -6,6 +6,7 @@ namespace LoDCompanion.Services.Game
 {
     public interface IGameEntity
     {
+        internal string Id { get; }
         string Name { get; set; }
         Room Room { get; set; }
         GridPosition Position { get; set; } 

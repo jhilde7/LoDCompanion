@@ -8,6 +8,7 @@ namespace LoDCompanion.Models.Dungeon
 {
     public class Searchable : IGameEntity
     {
+        public string Id { get; }
         public string Name { get; set; } = string.Empty;
         public Room Room { get; set; } = new Room();
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
@@ -19,6 +20,7 @@ namespace LoDCompanion.Models.Dungeon
 
         public Searchable()
         {
+            Id = Guid.NewGuid().ToString();
             HasBeenSearched = false;
             Treasures = new List<string>();
         }
