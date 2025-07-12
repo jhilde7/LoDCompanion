@@ -295,14 +295,23 @@ namespace LoDCompanion.Models.Character
         public bool IsUndead { get; set; }
         public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
         public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
-        public Corpse Body { get; set; }
-        public TreasureType TreasureType { get; set; } = TreasureType.None; // Default value indicating no treasure type assigned
+        public Corpse Body { get; set; } = new Corpse(TreasureType.None);
+        private TreasureType _treasureType = TreasureType.None;
+        public TreasureType TreasureType
+        {
+            get => _treasureType;
+            set
+            {
+                _treasureType = value;
+                Body = new Corpse(_treasureType);
+            }
+        }
         public List<string> Treasures { get; set; } = new List<string>();
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
 
-        public Monster() : base()
+        public Monster()
         {
-            Body = new Corpse(TreasureType);
+            
         }
 
         public override string ToString()
