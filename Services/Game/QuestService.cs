@@ -242,7 +242,7 @@ namespace LoDCompanion.Services.Game
                             ActionType = QuestSetupActionType.PlaceHeroes,
                             Parameters = new Dictionary<string, string>()
                             {
-                                { "Rule", "Center" },
+                                { "PlacementRule", "Center" },
                                 { "Arrangement", "Adjacent" }
                             }
                         },
