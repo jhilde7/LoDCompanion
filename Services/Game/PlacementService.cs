@@ -38,7 +38,6 @@ namespace LoDCompanion.Services.Game
         {
             if (!Enum.TryParse<PlacementRule>(placementParams.GetValueOrDefault("PlacementRule"), out var rule))
             {
-                Console.WriteLine($"Error: Invalid or missing PlacementRule.");
                 return;
             }
 
