@@ -5,8 +5,6 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
-using System.Diagnostics;
-using System.Numerics;
 using System.Text;
 
 namespace LoDCompanion.Models.Character
@@ -16,7 +14,18 @@ namespace LoDCompanion.Models.Character
         public string Id { get; }
         public string Name { get; set; } = string.Empty; // Default to empty string for safety
         public int CurrentHP { get; set; }
-        public int MaxHP { get; set; }
+        private int _maxHP;
+        public int MaxHP
+        {
+            get => _maxHP;
+            set
+            {
+                _maxHP = value;
+                // This is the key: set CurrentHP whenever MaxHP is assigned.
+                // This works perfectly for initialization via object initializers.
+                CurrentHP = _maxHP;
+            }
+        }
         public int Strength { get; set; }
         public int Constitution { get; set; }
         public int Dexterity { get; set; }
@@ -41,7 +50,6 @@ namespace LoDCompanion.Models.Character
         public Character()
         {
             Id = Guid.NewGuid().ToString();
-            CurrentHP = MaxHP;
         }
 
         public void UpdateOccupiedSquares()
@@ -294,8 +302,7 @@ namespace LoDCompanion.Models.Character
 
         public Monster() : base()
         {
-            Body = new Corpse(TreasureType); // Initialize the Body with the default TreasureType
-            CurrentHP = MaxHP;
+            Body = new Corpse(TreasureType);
         }
 
         public override string ToString()
