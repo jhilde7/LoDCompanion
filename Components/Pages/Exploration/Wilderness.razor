@@ -8,12 +8,12 @@
 
 @inject QuestService QuestService
 @inject CombatManagerService CombatManager
-@inject RoomService RoomService 
+@inject RoomService RoomService
 
 <div class="wilderness-container">
-    @if (QuestService.IsQuestActive && 
-    QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest && 
-    QuestService.ActiveQuest.StartingRoom != null)
+    @if (QuestService.IsQuestActive &&
+        QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
+        QuestService.ActiveEncounterRoom != null)
     {
         <div class="quest-header">
             <h1>@QuestService.ActiveQuest.Name</h1>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="game-area">
-            <GridDisplay Room="RoomService.InitializeRoomData(QuestService.ActiveQuest.StartingRoom, new Models.Dungeon.Room())" />
+            <GridDisplay Room="QuestService.ActiveEncounterRoom" />
         </div>
 
         <div class="combat-ui">
