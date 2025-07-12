@@ -3,13 +3,17 @@
 
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
+@using LoDCompanion.Components
+@using LoDCompanion.Components.Shared
 
 @inject QuestService QuestService
 @inject CombatManagerService CombatManager
 @inject RoomService RoomService 
 
 <div class="wilderness-container">
-    @if (QuestService.IsQuestActive && QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest)
+    @if (QuestService.IsQuestActive && 
+    QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest && 
+    QuestService.ActiveQuest.StartingRoom != null)
     {
         <div class="quest-header">
             <h1>@QuestService.ActiveQuest.Name</h1>
@@ -21,11 +25,11 @@
         </div>
 
         <div class="game-area">
-            <@GridDisplayComponent Room="RoomService.CurrentRoom" />
+            <GridDisplay Room="RoomService.InitializeRoomData(QuestService.ActiveQuest.StartingRoom, new Models.Dungeon.Room())" />
         </div>
 
         <div class="combat-ui">
-            <@CombatInterfaceComponent />
+            <CombatInterface />
         </div>
     }
     else
