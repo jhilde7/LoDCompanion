@@ -23,6 +23,11 @@ namespace LoDCompanion.Services.Dungeon
             Z = z;
         }
 
+        public override string ToString()
+        {
+            return $"X:{X} Y:{Y} Z:{Z}";
+        }
+
         public bool Equals(GridPosition? other)
         {
             if (other is null) return false;

@@ -2,6 +2,7 @@
 using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Game;
+using System.Text;
 
 namespace LoDCompanion.Models.Dungeon
 {
@@ -71,6 +72,47 @@ namespace LoDCompanion.Models.Dungeon
         public Furniture()
         {
 
+        }
+
+        public override string ToString()
+        {
+            // Use StringBuilder for efficient string building
+            var sb = new StringBuilder();
+
+            // Start with the name from the base class
+            sb.Append($"'{this.Name}'");
+
+            // Add the description if it exists
+            if (!string.IsNullOrEmpty(Description))
+            {
+                sb.Append($": {Description}");
+            }
+
+            // Create a list of features based on the boolean properties
+            var features = new List<string>();
+            if (IsSearchable) features.Add("Searchable");
+            if (IsObstacle) features.Add("Obstacle");
+            if (NoEntry) features.Add("Blocks Movement");
+            if (BlocksLoS) features.Add("Blocks Line of Sight");
+            if (CanBeClimbed) features.Add("Climbable");
+            if (HeightAdvantage) features.Add("Grants Height Advantage");
+            if (IsLevers) features.Add("Has Levers");
+            if (IsDrinkable) features.Add("Drinkable");
+
+
+            // Append the list of features if any exist
+            if (features.Any())
+            {
+                sb.Append($" [{string.Join(", ", features)}]");
+            }
+
+            // Append any special rules
+            if (!string.IsNullOrEmpty(SpecialRules))
+            {
+                sb.Append($" (Rules: {SpecialRules})");
+            }
+
+            return sb.ToString();
         }
     }
 }
