@@ -61,7 +61,7 @@ namespace LoDCompanion.Services.Game
                     // Example: _gameState.SetRule(action.Parameters["Rule"], action.Parameters["Value"]);
                     break;
                 case QuestSetupActionType.SetRoom:
-                    _room.GetRoomByName(action.Parameters["RoomName"]);
+                    _room.InitializeRoomData(_room.GetRoomByName(action.Parameters["RoomName"]), room);
                     break;
                 case QuestSetupActionType.PlaceHeroes:
                     if (_party.Party != null)
