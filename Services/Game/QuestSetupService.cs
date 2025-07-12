@@ -85,7 +85,6 @@ namespace LoDCompanion.Services.Game
                     List<Monster> spawnMonsters = _encounter.GetEncounterByParams(action.Parameters);
 
                     if (room.MonstersInRoom == null) room.MonstersInRoom = new List<Monster>();
-                    // The CombatManager places the created monster.
                     foreach (Monster monster in spawnMonsters)
                     {
                         _placement.PlaceEntity(monster, room, action.Parameters); 
