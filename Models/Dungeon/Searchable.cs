@@ -25,10 +25,8 @@ namespace LoDCompanion.Models.Dungeon
 
     public class Corpse : Searchable
     {
-        private readonly GameDataService _gameData;
-        public Corpse(GameDataService gameData, TreasureType treasureType)
-        {
-            _gameData = gameData;
+        public Corpse(TreasureType treasureType)
+        {            
             TreasureType = treasureType;
             HasBeenSearched = false;
             Treasures = new List<string>();
@@ -48,7 +46,7 @@ namespace LoDCompanion.Models.Dungeon
                 return new List<string>();
             }
 
-            new TreasureService(_gameData).SearchCorpse(TreasureType, hero, searchRoll);
+            TreasureService.SearchCorpse(TreasureType, hero, searchRoll);
 
             HasBeenSearched = true;
             Console.WriteLine($"{hero.Name} found: {string.Join(", ", Treasures)}");

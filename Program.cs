@@ -61,7 +61,6 @@ builder.Services.AddSingleton<LockService>();
 builder.Services.AddSingleton<SearchService>();
 builder.Services.AddSingleton<ThreatService>();
 builder.Services.AddSingleton<TrapService>();
-builder.Services.AddSingleton<TreasureService>();
 //Party
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();

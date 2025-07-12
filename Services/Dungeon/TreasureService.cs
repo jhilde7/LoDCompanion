@@ -22,18 +22,12 @@ namespace LoDCompanion.Services.Dungeon
         TheMasterLocksmith
     }
 
-    public class TreasureService
+    public static class TreasureService
     {
-        private readonly GameDataService _gameData;
         private const int DefaultArmourDurability = 6;
         private const int DefaultWeaponDurability = 6;
 
-        public TreasureService(GameDataService gameData)
-        {
-            _gameData = gameData;
-        }
-
-        public List<string> GetTreasures(List<Equipment> itemsFound)
+        public static List<string> GetTreasures(List<Equipment> itemsFound)
         {
             List<string> rewards = new List<string>();
             foreach (Equipment item in itemsFound)
@@ -45,12 +39,12 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public string GetTreasure(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
+        public static string GetTreasure(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
         {
             Equipment item = CreateItem(itemName, durability, value, amount, description);
             return $"{item.Quantity} {item.Name}";
         }
-        public List<string> SearchCorpse(TreasureType type, Hero hero, int searchRoll)
+        public static List<string> SearchCorpse(TreasureType type, Hero hero, int searchRoll)
         {
             List<string> rewards = new List<string>();
 
@@ -237,7 +231,7 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public List<string> FoundTreasure(TreasureType type, int count)
+        public static List<string> FoundTreasure(TreasureType type, int count)
         {
             List<string> rewards = new List<string>();
             for (int i = 0; i < count; i++)
@@ -264,7 +258,7 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public Equipment? GetMundaneTreasure()
+        public static Equipment? GetMundaneTreasure()
         {
             int roll = RandomHelper.GetRandomNumber(1, 54);
             int defaultDurabilityDamageRoll = RandomHelper.GetRandomNumber(1, 4) + 1;
@@ -363,7 +357,7 @@ namespace LoDCompanion.Services.Dungeon
             return treasure;
         }
 
-        public Equipment? GetFineTreasure()
+        public static Equipment? GetFineTreasure()
         {
             string itemName = "";
             int roll = RandomHelper.GetRandomNumber(1, 54);
@@ -526,7 +520,7 @@ namespace LoDCompanion.Services.Dungeon
             return treasure;
         }
 
-        public Equipment? GetWonderfulTreasure()
+        public static Equipment? GetWonderfulTreasure()
         {
             string itemName = "";
             int roll = RandomHelper.GetRandomNumber(1, 54);
@@ -797,7 +791,7 @@ namespace LoDCompanion.Services.Dungeon
             return treasure;
         }
 
-        public string GetAlchemicalTreasure(TreasureType type, int amount, bool getOrigin = true)
+        public static string GetAlchemicalTreasure(TreasureType type, int amount, bool getOrigin = true)
         {
             List<string> items = new List<string>();
             if (type == TreasureType.Ingredient)
@@ -818,7 +812,7 @@ namespace LoDCompanion.Services.Dungeon
             return string.Join(", ", items);
         }
 
-        public MagicStaff GetRandomWizardStaff(int durability)
+        public static MagicStaff GetRandomWizardStaff(int durability)
         {
             int roll = RandomHelper.GetRandomNumber(0, EquipmentService.MagicStaves.Count - 1); // Adjust for 0-indexed list
             MagicStaff newStaff = EquipmentService.MagicStaves[roll];
@@ -827,7 +821,7 @@ namespace LoDCompanion.Services.Dungeon
             return newStaff;
         }
 
-        public string[] GetRelic(string type = "Standard") // as it refers to fixed data
+        public static string[] GetRelic(string type = "Standard") // as it refers to fixed data
         {
             string[] relic = new string[2];
             int roll = RandomHelper.GetRandomNumber(1, 6); // Use RandomHelper
@@ -864,7 +858,7 @@ namespace LoDCompanion.Services.Dungeon
             return relic;
         }
 
-        public string[] GetPowerStone() // as it refers to fixed data
+        public static string[] GetPowerStone() // as it refers to fixed data
         {
             string[] stone = new string[2];
             int roll = RandomHelper.GetRandomNumber(1, 20);
@@ -895,7 +889,7 @@ namespace LoDCompanion.Services.Dungeon
             return stone;
         }
 
-        public string[] GetMagicItem(string type)
+        public static string[] GetMagicItem(string type)
         {
             string[] magic = new string[3];
             int roll = RandomHelper.GetRandomNumber(1, 10);
@@ -1008,7 +1002,7 @@ namespace LoDCompanion.Services.Dungeon
             return magic;
         }
 
-        public string GetLegendary() // as it refers to fixed data
+        public static string GetLegendary() // as it refers to fixed data
         {
             string item = "";
             int roll = RandomHelper.GetRandomNumber(1, 6);
@@ -1075,7 +1069,7 @@ namespace LoDCompanion.Services.Dungeon
             return item;
         }
 
-        public List<Equipment> GetArmourPieces(int count, int durabilityWear = 0)
+        public static List<Equipment> GetArmourPieces(int count, int durabilityWear = 0)
         {
             List<Equipment> items = new List<Equipment>();
             if (durabilityWear == 0)
@@ -1089,7 +1083,7 @@ namespace LoDCompanion.Services.Dungeon
             return items;
         }
 
-        public Equipment GetRandomArmour(int durability = DefaultArmourDurability)
+        public static Equipment GetRandomArmour(int durability = DefaultArmourDurability)
         {
             Equipment armour;
             int roll = RandomHelper.GetRandomNumber(1, 20);
@@ -1122,7 +1116,7 @@ namespace LoDCompanion.Services.Dungeon
             return armour;
         }
 
-        public Equipment? GetRandomWeapon(int durability)
+        public static Equipment? GetRandomWeapon(int durability)
         {
             Equipment? weapon;
             int roll = RandomHelper.GetRandomNumber(1, 22);
@@ -1166,7 +1160,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="quantity">The quantity of the item.</param>
         /// <param name="itemDescription">An optional description for the item.</param>
         /// <returns>A newly created _Equipment object of the appropriate derived type.</returns>
-        public Equipment CreateItem(string itemName, int durability = 0, int value = 0, int quantity = 0, string itemDescription = "")
+        public static Equipment CreateItem(string itemName, int durability = 0, int value = 0, int quantity = 0, string itemDescription = "")
         {
             Equipment newItem;
 
