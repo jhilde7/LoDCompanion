@@ -1,6 +1,4 @@
-﻿<h3>GridDisplay</h3>
-
-@using LoDCompanion.Models.Dungeon
+﻿@using LoDCompanion.Models.Dungeon
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
 
@@ -9,18 +7,26 @@
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
     {
+        @* Render furniture as individual, interactive overlay squares *@
         @foreach (var furniture in Room.FurnitureList)
         {
-            <div class="grid-item furniture-item" style="@GetItemStyle(furniture)">
-                <div class="item-label">@furniture.Name</div>
-            </div>
+            if (furniture.OccupiedSquares != null)
+            {
+                @foreach (var square in furniture.OccupiedSquares)
+                {
+                    <div class="grid-item furniture-overlay-square" title="@furniture.ToString()" style="@GetSquareStyle(square)">
+                        @* This div is the interactive overlay for one part of the furniture. *@
+                        @* It can be styled with CSS for hover effects or clickability. *@
+                    </div>
+                }
+            }
         }
 
         @if (Room.MonstersInRoom != null)
         {
             @foreach (var monster in Room.MonstersInRoom)
             {
-                <div class="grid-item monster-item" style="@GetItemStyle(monster)">
+                <div class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
                 </div>
@@ -31,7 +37,7 @@
         {
             @foreach (var hero in Room.HeroesInRoom)
             {
-                <div class="grid-item hero-item" style="@GetItemStyle(hero)">
+                <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)">
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
                 </div>
@@ -44,27 +50,63 @@
     [Parameter]
     public Room? Room { get; set; }
 
-    private string GridStyle => Room != null
-        ? $"display: grid; grid-template-columns: repeat({Room.Width}, {RoomService.TilePixelWidth}px); grid-template-rows: repeat({Room.Height}, {RoomService.TilePixelHeight}px);"
-        : "";
+    private string GridStyle
+    {
+        get
+        {
+            if (Room == null)
+            {
+                return "";
+            }
+
+            // Base styles for the grid layout. 'position: relative' is crucial for the absolutely positioned children.
+            var style = $"position: relative; display: grid; grid-template-columns: repeat({Room.Width}, {RoomService.TilePixelWidth}px); grid-template-rows: repeat({Room.Height}, {RoomService.TilePixelHeight}px);";
+
+            // Add the background image if the URL is provided on the Room object.
+            if (!string.IsNullOrEmpty(Room.ImagePath))
+            {
+                style += $" background-image: url('{Room.ImagePath}'); background-size: cover; background-position: center;";
+            }
+
+            return style;
+        }
+    }
 
     private string GetItemStyle(IGameEntity entity)
     {
-        if (Room == null) return "";
+        if (Room == null || entity.OccupiedSquares == null || !entity.OccupiedSquares.Any())
+        {
+            return "";
+        }
 
-        var point = RoomService.GetPixelCoordinateForGridPosition(entity.Position, Room);
+        // Find the min and max coordinates to define the bounding box of the entity.
+        var minX = entity.OccupiedSquares.Min(p => p.X);
+        var minY = entity.OccupiedSquares.Min(p => p.Y);
+        var maxX = entity.OccupiedSquares.Max(p => p.X);
+        var maxY = entity.OccupiedSquares.Max(p => p.Y);
 
-        // Assumes IGameEntity has SizeX and SizeY properties
-        var width = (entity as IHasSize)?.SizeX ?? 1;
-        var height = (entity as IHasSize)?.SizeY ?? 1;
+        // The top-left position of the bounding box in grid coordinates.
+        var topLeftGridPosition = new GridPosition(minX, minY, entity.Position.Z);
 
-        return $"position: absolute; left: {point.X}px; top: {point.Y}px; width: {width * RoomService.TilePixelWidth}px; height: {height * RoomService.TilePixelHeight}px;";
+        // Convert the grid position to pixel coordinates for the CSS 'top' and 'left' properties.
+        var point = RoomService.GetPixelCoordinateForGridPosition(topLeftGridPosition, Room);
+
+        // Calculate the width and height of the bounding box in grid units.
+        var widthInTiles = (maxX - minX) + 1;
+        var heightInTiles = (maxY - minY) + 1;
+
+        // Return the final CSS style string.
+        return $"position: absolute; left: {point.X}px; top: {point.Y}px; width: {widthInTiles * RoomService.TilePixelWidth}px; height: {heightInTiles * RoomService.TilePixelHeight}px;";
     }
 
-    // Helper interface to get size for multi-tile entities
-    public interface IHasSize
+    private string GetSquareStyle(GridPosition position)
     {
-        int SizeX { get; }
-        int SizeY { get; }
+        if (Room == null) return "";
+
+        var point = RoomService.GetPixelCoordinateForGridPosition(position, Room);
+        var width = RoomService.TilePixelWidth;
+        var height = RoomService.TilePixelHeight;
+
+        return $"position: absolute; left: {point.X}px; top: {point.Y}px; width: {width}px; height: {height}px;";
     }
 }
