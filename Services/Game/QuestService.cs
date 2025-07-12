@@ -19,6 +19,7 @@ namespace LoDCompanion.Services.Game
         private readonly QuestSetupService _questSetup;
 
         public Quest? ActiveQuest { get; private set; }
+        public Room? ActiveEncounterRoom { get; private set; }
         public bool IsObjectiveComplete { get; private set; }
         public event Action? OnQuestStateChanged;
 
@@ -54,8 +55,9 @@ namespace LoDCompanion.Services.Game
                     break;
 
                 case QuestType.WildernessQuest:
-                    // For a single encounter, it tells the EncounterSetupService to build it.
-                    _questSetup.ExecuteRoomSetup(quest, _room.InitializeRoomData(_room.GetRandomWildernessRoom(), new Room()));
+                    // For a single encounter, create a room and have the QuestSetupService populate it.
+                    ActiveEncounterRoom = new Room();
+                    _questSetup.ExecuteRoomSetup(quest, ActiveEncounterRoom);
                     break;
             }
 
@@ -100,6 +102,7 @@ namespace LoDCompanion.Services.Game
 
             // Reset the quest service for the next adventure.
             ActiveQuest = null;
+            ActiveEncounterRoom = null;
             IsObjectiveComplete = false;
 
             return rewardMessage;
