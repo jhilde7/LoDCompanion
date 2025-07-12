@@ -272,7 +272,6 @@ namespace LoDCompanion.Models.Character
 
     public class Monster : Character // Inherit from the new Character base class
     {
-        private readonly GameDataService _gameData;
         public EncounterType? Type { get; set; }
         public int ArmourValue { get; set; }
         public bool HasShield { get; set; } // Indicates if the monster has a shield
@@ -293,9 +292,8 @@ namespace LoDCompanion.Models.Character
         public List<string> Treasures { get; set; } = new List<string>();
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
 
-        public Monster(GameDataService gameData) : base()
+        public Monster() : base()
         {
-            _gameData = gameData;
             Body = new Corpse(TreasureType); // Initialize the Body with the default TreasureType
             CurrentHP = MaxHP;
         }
