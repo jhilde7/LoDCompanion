@@ -80,29 +80,42 @@ h1:focus {
     border: 1px dashed #654321;
 }
 
+.monster-item, .hero-item {
+    /* Flexbox helps arrange the name and HP bar vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes name to top, hp to bottom */
+    align-items: center;
+    /* Visuals */
+    border: 1px solid #1a1a1a;
+    box-sizing: border-box;
+    color: white;
+    text-shadow: 1px 1px 2px black; /* Makes text more readable */
+    font-weight: bold;
+    overflow: hidden; /* Ensures content doesn't spill out */
+}
+
 .monster-item {
-    background-color: rgba(220, 20, 60, 0.7); /* Crimson, semi-transparent */
-    border: 2px solid #8b0000;
-    border-radius: 50%;
+    background-color: rgba(178, 34, 34, 0.85); /* A semi-transparent red (Firebrick) */
 }
 
 .hero-item {
-    background-color: rgba(30, 144, 255, 0.7); /* DodgerBlue, semi-transparent */
-    border: 2px solid #0000cd;
-    border-radius: 50%;
+    background-color: rgba(46, 139, 87, 0.85); /* A semi-transparent green (Seagreen) */
 }
 
 .item-label {
-    font-size: 12px;
-    font-weight: bold;
+    padding-top: 4px; /* Give the name some space from the top edge */
 }
 
 .hp-bar {
-    position: absolute;
-    bottom: 5px;
-    height: 5px;
-    background-color: #28a745; /* Green */
-    border-radius: 2px;
+    height: 6px;
+    background-color: #dc3545; /* Default red for monster HP */
+    border-top: 1px solid #1a1a1a;
+    align-self: stretch; /* Makes the bar span the full width */
+}
+
+.hero-item .hp-bar {
+    background-color: #198754; /* Override with green for hero HP */
 }
 
 .combat-interface-container {
