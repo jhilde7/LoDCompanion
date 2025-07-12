@@ -43,36 +43,36 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Leech"));
                             break;
                         case <= 10:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 0, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 0, true);
                             break;
                         case <= 12:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 14:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 18:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }));
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }));
                             break;
                         case <= 20:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Satyr Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") }, 0, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Beastman Guard"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Satyr Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon() }, 0, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Beastman Guard"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true));
                             break;
                         case 21:
                             encounters.Add(BuildMonster(GetMonsterByName("Cave Bear")));
                             break;
                         case 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 24:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(1, 1, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 1)));
                             break;
                         case <= 26:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Harpy"));
@@ -83,106 +83,106 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                         case <= 30:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Leech"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 0, true));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 0, true));
                             break;
                         case <= 32:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true));
                             break;
                         case <= 34:
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true));
                             break;
                         case <= 36:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 2, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 38:
                             encounters.Add(BuildMonster(GetMonsterByName("Giant Centipede")));
                             break;
                         case <= 40:
-                            encounters = BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 3);
+                            encounters = BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3);
                             break;
                         case <= 42:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Lesser Plague Demon"));
                             break;
                         case <= 44:
-                            encounters = BuildMonsters(1, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
                             break;
                         case <= 46:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") }, 3));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() }, 3));
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 48:
                             encounters.Add(BuildMonster(GetMonsterByName("Slime")));
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
                             break;
                         case <= 50:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
                             break;
                         case <= 52:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Werewolf"));
                             break;
                         case <= 54:
-                            encounters = BuildMonsters(1, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
                             encounters.Add(BuildMonster(GetMonsterByName("Giant Centipede")));
                             break;
                         case <= 56:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Gargoyle"));
                             break;
                         case 57:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gnoll Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case 58:
                             encounters.Add(BuildMonster(GetMonsterByName("Griffon")));
                             break;
                         case <= 60:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true));
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(1, 1, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Satyr"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true));
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 1)));
                             break;
                         case <= 62:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true));
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 0, false, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon");
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 1, true);
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1));
                             break;
                         case <= 68:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1));
                             break;
                         case <= 70:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 72:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Plague Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 0, false, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Plague Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon");
                             break;
                         case <= 76:
-                            encounters = BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 78:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Sergeant"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2));
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Sergeant"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2));
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Sergeant"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gnoll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Sergeant"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Gnoll Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1)));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 0, false, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon");
                             break;
                         case <= 84:
                             encounters.Add(BuildMonster(GetMonsterByName("Bloated Demon")));
@@ -190,14 +190,14 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                         case <= 86:
                             encounters = BuildMonsters(1, GetMonsterByName("Bloated Demon"));
-                            encounters.AddRange(BuildMonsters(3, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
+                            encounters.AddRange(BuildMonsters(3, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
                             break;
                         case 87:
                             encounters.Add(BuildMonster(GetMonsterByName("Lurker")));
                             break;
                         case 88:
                             encounters = BuildMonsters(1, GetMonsterByName("Lurker"), null, 0, false, BuildSpellList(3, 2, 2));
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1));
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1));
                             break;
                         case <= 90:
                             encounters.Add(BuildMonster(GetMonsterByName("Giant Spider")));
@@ -207,19 +207,19 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.Add(BuildMonster(GetMonsterByName("Wyvern")));
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, GetMonsterByName("Beastman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
                             break;
                         case <= 96:
                             encounters.Add(BuildMonster(GetMonsterByName("Gigantic Spider")));
                             break;
                         case <= 98:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Leech"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 0, false, null, "Cursed weapon"));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon"));
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Lesser Plague Demon")));
                             break;
                         case <= 100:
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Greater Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 3));
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Greater Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3));
                             break;
                         default:
                             break;
@@ -250,17 +250,17 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Zombie"));
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 1, true);
                             break;
                         case <= 18:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 20:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2);
                             break;
                         case <= 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
                             break;
                         case <= 24:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ghoul"));
@@ -269,19 +269,19 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(1, GetMonsterByName("Shambler"));
                             break;
                         case <= 28:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(1, 1, 0));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 0));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 30:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 2, true);
                             break;
                         case <= 32:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3);
                             break;
                         case <= 34:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dire Wolf")));
                             break;
                         case <= 36:
@@ -297,20 +297,20 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Ghoul"));
                             break;
                         case <= 44:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 46:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dire Wolf"));
                             break;
                         case <= 48:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dire Wolf"));
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(1, 2, 0));
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 2, 0));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 50:
-                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon> { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon> { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 52:
                             encounters = BuildMonsters(2, GetMonsterByName("Mummy"), null, 1);
@@ -320,89 +320,89 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Zombie")));
                             break;
                         case <= 56:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 58:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 3);
                             break;
                         case <= 60:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 62:
-                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon> { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon> { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 0));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 0));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Minotaur Skeleton"), new List<Weapon> { EquipmentService.GetWeaponByName("Greataxe") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Minotaur Skeleton"), new List<Weapon> { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() });
                             break;
                         case <= 68:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Ghoul"));
                             break;
                         case <= 70:
-                            encounters = BuildMonsters(2, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2);
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 1));
+                            encounters = BuildMonsters(2, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 72:
-                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 3);
                             break;
                         case <= 76:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") }, 3);
-                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() }, 3);
+                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 78:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Minotaur Skeleton"), new List<Weapon> { EquipmentService.GetWeaponByName("Greataxe") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Minotaur Skeleton"), new List<Weapon> { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 1);
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(1, GetMonsterByName("Vampire Fledgling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters = BuildMonsters(1, GetMonsterByName("Vampire Fledgling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 82:
                             encounters = BuildMonsters(1, GetMonsterByName("Ghost"));
                             break;
                         case <= 84:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 10), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 10), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
                             break;
                         case <= 86:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 6), GetMonsterByName("Zombie"), null, 2);
                             break;
                         case <= 88:
-                            encounters = BuildMonsters(1, GetMonsterByName("Vampire Fledgling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Vampire Fledgling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Ghoul")));
                             break;
                         case <= 90:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wraith"));
                             break;
                         case <= 92:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 3);
                             break;
                         case <= 94:
                             encounters = BuildMonsters(2, GetMonsterByName("Ghost"));
                             break;
                         case <= 96:
                             encounters = BuildMonsters(1, GetMonsterByName("Banshee"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Zombie"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 98:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wraith"));
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(3, 2, 1));
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 100:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wraith")));
-                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Vampire "), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2));
+                            encounters.AddRange(BuildMonsters(1, GetMonsterByName("Vampire "), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2));
                             break;
                     }
                     break;
@@ -422,29 +422,29 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bat Swarm"));
                             break;
                         case <= 10:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             break;
                         case <= 12:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 14:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 1);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Shortsword") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1));
                             break;
                         case <= 18:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Wolf")));
                             break;
                         case <= 20:
-                            encounters = BuildMonsters(2, GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() });
                             break;
                         case <= 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 4), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 4), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 24:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Wolf"));
@@ -454,146 +454,146 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.Add(BuildMonster(GetMonsterByName("Slime")));
                             break;
                         case <= 28:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 3));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3));
                             break;
                         case <= 30:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
                             break;
                         case <= 32:
-                            encounters = BuildMonsters(2, GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
-                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(1, 2, 0));
+                            encounters = BuildMonsters(2, GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
+                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 2, 0));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 34:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 2, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 36:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             break;
                         case <= 38:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") });
-                            encounters.Add(BuildMonster(GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 4, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() });
+                            encounters.Add(BuildMonster(GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 4, true));
                             break;
                         case <= 40:
-                            encounters = BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 42:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 44:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") }, 2));
+                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() }, 2));
                             break;
                         case <= 46:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 0, true);
-                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, false, BuildSpellList(2, 2, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 0, true);
+                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 48:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() }, 1);
                             break;
                         case <= 50:
                             encounters = BuildMonsters(2, GetMonsterByName("Shambler"));
                             break;
                         case <= 52:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true);
                             break;
                         case <= 54:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1);
                             break;
                         case <= 56:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
-                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 0, false, BuildSpellList(3, 2, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
+                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 58:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
-                            encounters.Add(BuildMonster(GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
+                            encounters.Add(BuildMonster(GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 60:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2);
                             break;
                         case <= 62:
                             encounters = BuildMonsters(2, GetMonsterByName("Giant Centipede"));
                             break;
                         case <= 64:
                             encounters = BuildMonsters(2, GetMonsterByName("Shambler"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow"), EquipmentService.GetWeaponByName("Dagger") }, 3));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 3));
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2);
-                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2);
+                            encounters.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             break;
                         case <= 68:
-                            encounters = BuildMonsters(2, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 70:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 72:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true, null, "Cursed weapon");
-                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 0, false, BuildSpellList(3, 2, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Greater Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 74:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true));
                             break;
                         case <= 76:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             break;
                         case <= 78:
                             encounters = BuildMonsters(2, GetMonsterByName("Shambler"));
-                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 1));
+                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(3, GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
-                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(3, GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 84:
-                            encounters = BuildMonsters(4, GetMonsterByName("Centaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 3, true);
+                            encounters = BuildMonsters(4, GetMonsterByName("Centaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 3, true);
                             break;
                         case <= 86:
-                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
-                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(3, 2, 1));
+                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
+                            monster = BuildMonster(GetMonsterByName("Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Greater Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 88:
-                            encounters = BuildMonsters(3, GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
+                            encounters = BuildMonsters(3, GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
                             break;
                         case <= 90:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 92:
-                            encounters = BuildMonsters(2, GetMonsterByName("Centaur Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Shortsword") }, 1);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters = BuildMonsters(2, GetMonsterByName("Centaur Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(3, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 3);
+                            encounters = BuildMonsters(3, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3);
                             break;
                         case <= 96:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true, null, "Cursed weapon");
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Shortsword") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Fallen Knight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2));
                             break;
                         case <= 98:
-                            encounters.Add(BuildMonster(GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             encounters.Add(BuildMonster(GetMonsterByName("Gigantic Spider")));
                             break;
                         case <= 100:
@@ -614,33 +614,33 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Rat"));
                             break;
                         case <= 8:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() });
                             break;
                         case <= 10:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             break;
                         case <= 12:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 14:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true);
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 18:
-                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1);
+                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf")));
                             break;
                         case <= 20:
-                            encounters = BuildMonsters(1, GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters = BuildMonsters(1, GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 2, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, false, BuildSpellList(1, 1, 0)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 2, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 0)));
                             break;
                         case <= 24:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Wolf"));
@@ -652,123 +652,123 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 30:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
                             break;
                         case <= 32:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true);
                             break;
                         case <= 34:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1));
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 3, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1));
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 3, true));
                             break;
                         case <= 36:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 1, false, BuildSpellList(1, 1, 1)));
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 1, false, BuildSpellList(1, 1, 1)));
                             break;
                         case <= 38:
-                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1);
-                            encounters.Add(BuildMonster(GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1);
+                            encounters.Add(BuildMonster(GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 40:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 42:
-                            encounters = BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 44:
-                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             break;
                         case <= 46:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 2, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 2, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
                             break;
                         case <= 48:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(1, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 50:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") });
+                            encounters = BuildMonsters(1, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() });
                             break;
                         case <= 52:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 54:
-                            encounters = BuildMonsters(1, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
                             break;
                         case <= 56:
-                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 58:
                             encounters = BuildMonsters(1, GetMonsterByName("Giant Centipede"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 1));
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 1, 1)));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 1));
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 1, 1)));
                             break;
                         case <= 60:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf")));
-                            encounters.Add(BuildMonster(GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true));
                             break;
                         case <= 62:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() }, 2);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 2, true);
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 68:
-                            encounters = BuildMonsters(1, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(1, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 70:
-                            encounters = BuildMonsters(2, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() });
                             break;
                         case <= 72:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Orc Brute"), new List<Weapon> { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 0, false, BuildSpellList(3, 1, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Orc Brute"), new List<Weapon> { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 1, 1)));
                             break;
                         case <= 76:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }));
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Ettin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }));
                             break;
                         case <= 78:
                             encounters = BuildMonsters(2, GetMonsterByName("Shambler"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1)));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(3, GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(3, GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 84:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 86:
-                            encounters = BuildMonsters(4, GetMonsterByName("Centaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 2, true);
+                            encounters = BuildMonsters(4, GetMonsterByName("Centaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 2, true);
                             break;
                         case <= 88:
-                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
-                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 1, false, BuildSpellList(2, 2, 2)));
+                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
+                            encounters.Add(BuildMonster(GetMonsterByName("Orc Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 1, false, BuildSpellList(2, 2, 2)));
                             break;
                         case <= 90:
-                            encounters = BuildMonsters(2, GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
+                            encounters = BuildMonsters(2, GetMonsterByName("Ogre Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 92:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Ogre Berserker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 94:
                             encounters = BuildMonsters(4, GetMonsterByName("Giant Spider"));
@@ -778,12 +778,12 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(2, GetMonsterByName("Gigantic Spider"));
                             break;
                         case <= 98:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Shortsword") }, 2));
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 0));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc Brute"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2));
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0));
                             break;
                         case <= 100:
-                            encounters = BuildMonsters(1, GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true);
+                            encounters = BuildMonsters(1, GetMonsterByName("Orc Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Wyvern")));
                             break;
                     }
@@ -807,33 +807,33 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 12:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             break;
                         case <= 14:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, true));
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, true));
                             break;
                         case <= 18:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
                             break;
                         case <= 20:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 1, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 0, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 0, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true));
                             break;
                         case <= 24:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 0, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, false, BuildSpellList(1, 1, 0)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 0, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 0)));
                             break;
                         case <= 26:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 28:
@@ -843,15 +843,15 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(1, GetMonsterByName("Giant Centipede"));
                             break;
                         case <= 32:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true);
                             break;
                         case <= 34:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 1, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1));
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1));
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             break;
                         case <= 36:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Raptor")));
                             break;
                         case <= 38:
@@ -861,58 +861,58 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 4), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 42:
-                            encounters = BuildMonsters(2, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2);
                             break;
                         case <= 44:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Giant Toad")));
                             break;
                         case <= 46:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 3, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 3, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Toad")));
                             break;
                         case <= 48:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2);
                             break;
                         case <= 50:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") }, 3);
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 1, false, BuildSpellList(1, 1, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() }, 3);
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 1, false, BuildSpellList(1, 1, 1)));
                             break;
                         case <= 52:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true);
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Shambler")));
                             break;
                         case <= 54:
-                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2);
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Slime")));
                             break;
                         case <= 56:
-                            encounters = BuildMonsters(2, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 2);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1));
+                            encounters = BuildMonsters(2, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1));
                             break;
                         case <= 58:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 1, false, BuildSpellList(2, 2, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 1, false, BuildSpellList(2, 2, 1)));
                             break;
                         case <= 60:
-                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 3);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }, 1));
+                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 3);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Gecko"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1));
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Raptor")));
                             break;
                         case <= 62:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 68:
-                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 70:
                             encounters = BuildMonsters(2, GetMonsterByName("Giant Toad"));
@@ -923,22 +923,22 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                         case <= 74:
                             encounters = BuildMonsters(1, GetMonsterByName("Salamander"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 0, false, BuildSpellList(3, 2, 1)));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1)));
                             break;
                         case <= 76:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Toad"));
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Salamander")));
                             break;
                         case <= 78:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2);
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(3, 2, 2)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Saurian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 2)));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(3, GetMonsterByName("Saurian Warchief"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 2, true);
+                            encounters = BuildMonsters(3, GetMonsterByName("Saurian Warchief"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 2, true);
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Shambler")));
                             break;
                         case <= 84:
@@ -948,29 +948,29 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(1, GetMonsterByName("Basilisk"));
                             break;
                         case <= 88:
-                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 1);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
-                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 1, false, BuildSpellList(4, 2, 2)));
+                            encounters = BuildMonsters(1, GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
+                            encounters.Add(BuildMonster(GetMonsterByName("Saurian Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 1, false, BuildSpellList(4, 2, 2)));
                             break;
                         case <= 90:
-                            encounters = BuildMonsters(1, GetMonsterByName("Saurian Warchief"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
+                            encounters = BuildMonsters(1, GetMonsterByName("Saurian Warchief"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
                             encounters.Add(BuildMonster(GetMonsterByName("Basilisk")));
                             break;
                         case <= 92:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Naga"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 2);
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Giant Toad")));
                             encounters.Add(BuildMonster(GetMonsterByName("Basilisk")));
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(3, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 3);
+                            encounters = BuildMonsters(3, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3);
                             break;
                         case <= 96:
                             encounters = BuildMonsters(1, GetMonsterByName("Gigantic Snake"));
                             break;
                         case <= 98:
-                            encounters = BuildMonsters(2, GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Shortsword") }, 2));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true));
+                            encounters = BuildMonsters(2, GetMonsterByName("Frogling"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gecko Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Saurian Elite"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true));
                             break;
                         case <= 100:
                             encounters = BuildMonsters(1, GetMonsterByName("Hydra"));
@@ -993,30 +993,30 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Bat Swarm"));
                             break;
                         case <= 10:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             break;
                         case <= 12:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 14:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Dark Elf Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 1);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Dark Elf Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1));
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 1, false, null, "Poisonous 1"));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 1, false, null, "Poisonous 1"));
                             break;
                         case <= 18:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Wolf")));
                             break;
                         case <= 20:
-                            encounters = BuildMonsters(1, GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 1);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 4), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf Sniper"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 4), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dark Elf Sniper"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 24:
                             encounters = BuildMonsters(2, GetMonsterByName("Giant Centipede"));
@@ -1030,40 +1030,40 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 30:
-                            encounters = BuildMonsters(1, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
                             break;
                         case <= 32:
-                            encounters = BuildMonsters(2, GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(1, 1, 0)));
+                            encounters = BuildMonsters(2, GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 0)));
                             break;
                         case <= 34:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf Sniper"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf Sniper"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 36:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             break;
                         case <= 38:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Flail") ?? new Weapon() });
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Harpy")));
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 40:
-                            encounters = BuildMonsters(2, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 42:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow"), EquipmentService.GetWeaponByName("Dagger") }, 1, false, null, "Poisonous 1"));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1, false, null, "Poisonous 1"));
                             break;
                         case <= 44:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true));
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 46:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 0, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, false, BuildSpellList(2, 1, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 0, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, false, BuildSpellList(2, 1, 1)));
                             break;
                         case <= 48:
                             encounters = BuildMonsters(2, GetMonsterByName("Slime"));
@@ -1078,81 +1078,81 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(2, GetMonsterByName("Shambler"));
                             break;
                         case <= 56:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Plague Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
-                            encounters.Add(BuildMonster(GetMonsterByName("Psyker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 0, false, BuildSpellList(2, 2, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Plague Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
+                            encounters.Add(BuildMonster(GetMonsterByName("Psyker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1)));
                             break;
                         case <= 58:
-                            encounters = BuildMonsters(1, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 1, false, null, "Poisonous 1"));
+                            encounters = BuildMonsters(1, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1, false, null, "Poisonous 1"));
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider")));
                             break;
                         case <= 60:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2);
                             break;
                         case <= 62:
                             encounters = BuildMonsters(2, GetMonsterByName("Giant Centipede"));
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 3);
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Shambler")));
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(1, GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true);
+                            encounters = BuildMonsters(1, GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true);
                             break;
                         case <= 68:
-                            encounters = BuildMonsters(2, GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() });
                             break;
                         case <= 70:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 72:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true, null, "Cursed weapon");
-                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 0, false, BuildSpellList(3, 2, 1)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters.Add(BuildMonster(GetMonsterByName("Dark Elf Warlock"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1)));
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider")));
                             break;
                         case <= 76:
-                            encounters = BuildMonsters(2, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
+                            encounters = BuildMonsters(2, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             break;
                         case <= 78:
                             encounters = BuildMonsters(2, GetMonsterByName("Shambler"));
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Psyker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(3, 2, 1)));
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Psyker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1)));
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(2, GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
-                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Dark Elf Sniper"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow"), EquipmentService.GetWeaponByName("Dagger") }, 2));
+                            encounters = BuildMonsters(2, GetMonsterByName("Dark Elf Captain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Dark Elf Sniper"), new List<Weapon>() { EquipmentService.GetWeaponByName("Crossbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(2, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2);
                             break;
                         case <= 84:
-                            encounters = BuildMonsters(1, GetMonsterByName("Medusa"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") }, 0, true);
+                            encounters = BuildMonsters(1, GetMonsterByName("Medusa"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 0, true);
                             break;
                         case <= 86:
-                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
-                            encounters.Add(BuildMonster(GetMonsterByName("Psyker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(3, 2, 2)));
+                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
+                            encounters.Add(BuildMonster(GetMonsterByName("Psyker"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 2)));
                             break;
                         case <= 88:
                             encounters = BuildMonsters(1, GetMonsterByName("Basilisk"));
                             break;
                         case <= 90:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 1, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Dark Elf"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 1, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2));
                             break;
                         case <= 92:
-                            encounters = BuildMonsters(1, GetMonsterByName("Medusa"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
+                            encounters = BuildMonsters(1, GetMonsterByName("Medusa"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(3, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 3);
+                            encounters = BuildMonsters(3, GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3);
                             break;
                         case <= 96:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 4, true, null, "Cursed weapon");
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 2, false, null, "Poisonous 1"));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Blood Demon"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Dark Elf Assassin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2, false, null, "Poisonous 1"));
                             break;
                         case <= 98:
-                            encounters.Add(BuildMonster(GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Dryder"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             encounters.Add(BuildMonster(GetMonsterByName("Gigantic Spider")));
                             break;
                         case <= 100:
@@ -1176,27 +1176,27 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Slime"));
                             break;
                         case <= 10:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 1, true);
                             break;
                         case <= 12:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Leech"));
                             break;
                         case <= 14:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 0, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, true);
                             break;
                         case <= 16:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 1));
                             break;
                         case <= 18:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2));
                             break;
                         case <= 20:
                             encounters = BuildMonsters(1, GetMonsterByName("Giant Scorpion"));
                             break;
                         case <= 22:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() });
                             break;
                         case <= 24:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Gargoyle"));
@@ -1206,19 +1206,19 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 28:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 0));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 0));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 30:
-                            encounters = BuildMonsters(2, GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 1);
+                            encounters = BuildMonsters(2, GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 1);
                             break;
                         case <= 32:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Scorpion"));
                             break;
                         case <= 34:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Skeleton"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Gargoyle")));
                             break;
                         case <= 36:
@@ -1228,35 +1228,35 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(1, GetMonsterByName("Sphinx"));
                             break;
                         case <= 40:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true);
                             break;
                         case <= 42:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Snake"));
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Slime")));
                             break;
                         case <= 44:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow"), EquipmentService.GetWeaponByName("Dagger") }, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Skeleton Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 1));
                             break;
                         case <= 46:
                             encounters = BuildMonsters(1, GetMonsterByName("Giant Centipede"));
                             break;
                         case <= 48:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 2);
-                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(2, 2, 0));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2);
+                            monster = BuildMonster(GetMonsterByName("Necromancer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 0));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 50:
-                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 52:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battlehammer") ?? new Weapon() }, 1);
                             encounters.Add(BuildMonster(GetMonsterByName("Shambler")));
                             break;
                         case <= 54:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2));
                             break;
                         case <= 56:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Sphinx"));
@@ -1269,34 +1269,34 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 62:
-                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Zombie Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            monster = BuildMonster(GetMonsterByName("Mummy Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 0, false, BuildSpellList(3, 2, 1));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            monster = BuildMonster(GetMonsterByName("Mummy Priest"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 66:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Slime")));
                             break;
                         case <= 68:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Scorpion"));
                             break;
                         case <= 70:
-                            encounters = BuildMonsters(2, GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(2, GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             encounters.Add(BuildMonster(GetMonsterByName("Giant Scorpion")));
                             break;
                         case <= 72:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 3);
                             break;
                         case <= 76:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true);
-                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true);
+                            encounters.AddRange(BuildMonsters(4, GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword") ?? new Weapon() }, 2));
                             break;
                         case 77:
                             encounters = BuildMonsters(4, GetMonsterByName("Mummy"), null, 1);
@@ -1305,8 +1305,8 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(4, GetMonsterByName("Gargoyle"));
                             break;
                         case <= 80:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            monster = BuildMonster(GetMonsterByName("Mummy Queen"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, false, BuildSpellList(3, 2, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 7), GetMonsterByName("Mummy"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            monster = BuildMonster(GetMonsterByName("Mummy Queen"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, false, BuildSpellList(3, 2, 2));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
@@ -1317,11 +1317,11 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(1, GetMonsterByName("Gigantic Spider"));
                             break;
                         case <= 86:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2);
                             break;
                         case <= 88:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 2);
-                            monster = BuildMonster(GetMonsterByName("Mummy Queen"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, false, BuildSpellList(5, 2, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2);
+                            monster = BuildMonster(GetMonsterByName("Mummy Queen"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, false, BuildSpellList(5, 2, 2));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
@@ -1329,7 +1329,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wraith"));
                             break;
                         case <= 92:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") }, 3);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 3);
                             break;
                         case <= 94:
                             encounters = BuildMonsters(2, GetMonsterByName("Ghost"));
@@ -1343,9 +1343,9 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.AddRange(BuildMonsters(2, GetMonsterByName("Sphinx")));
                             break;
                         case <= 100:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 3, true);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Wight"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Wraith")));
-                            monster = BuildMonster(GetMonsterByName("Mummy Queen"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, false, BuildSpellList(3, 3, 2));
+                            monster = BuildMonster(GetMonsterByName("Mummy Queen"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, false, BuildSpellList(3, 3, 2));
                             monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
@@ -1364,26 +1364,26 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Rat"));
                             break;
                         case <= 12:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() });
                             break;
                         case <= 15:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             break;
                         case <= 18:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 2), GetMonsterByName("Giant Snake"));
                             break;
                         case <= 21:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Cave Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 24:
-                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf")));
                             break;
                         case <= 27:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") }, 1, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 1, false, BuildSpellList(1, 1, 0)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Orc"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Javelin") ?? new Weapon() }, 1, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 1, false, BuildSpellList(1, 1, 0)));
                             break;
                         case <= 31:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Wolf"));
@@ -1395,81 +1395,81 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), GetMonsterByName("Giant Spider"));
                             break;
                         case <= 40:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
                             break;
                         case <= 43:
-                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 2, true);
-                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }));
+                            encounters = BuildMonsters(1, GetMonsterByName("Ogre"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
+                            encounters.AddRange(BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }));
                             break;
                         case <= 46:
-                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 1);
+                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             break;
                         case <= 49:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Wolf"));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 2, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 2, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2));
                             break;
                         case <= 52:
-                            encounters = BuildMonsters(1, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(1, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 56:
-                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() });
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Rat")));
-                            encounters.Add(BuildMonster(GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }));
+                            encounters.Add(BuildMonster(GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }));
                             break;
                         case <= 59:
-                            encounters = BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 62:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 2));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2));
                             break;
                         case <= 65:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 0, true);
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 2, false, BuildSpellList(2, 2, 2)));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, true);
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2, false, BuildSpellList(2, 2, 2)));
                             break;
                         case <= 68:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 71:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Wolf"));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") }, 2, true));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") }, 2, false, BuildSpellList(2, 2, 2)));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 2, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 2, false, BuildSpellList(2, 2, 2)));
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(2, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(2, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 77:
-                            encounters = BuildMonsters(2, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
-                            encounters.AddRange(BuildMonsters(6, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net"), EquipmentService.GetWeaponByName("Shortsword") }));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") }, 2, false, BuildSpellList(2, 2, 2)));
+                            encounters = BuildMonsters(2, GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(6, GetMonsterByName("Cave Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Net") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Shaman"), new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 2, false, BuildSpellList(2, 2, 2)));
                             break;
                         case <= 81:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Giant Spider"));
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 84:
-                            encounters = BuildMonsters(2, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
+                            encounters = BuildMonsters(2, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
                             break;
                         case <= 87:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), GetMonsterByName("Giant Wolf"));
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 3, true));
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 3, true));
                             break;
                         case <= 91:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(3, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }, 2, true);
-                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") }, 4));
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(3, 6), GetMonsterByName("Goblin"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2, true);
+                            encounters.Add(BuildMonster(GetMonsterByName("Goblin Chieftain"), new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 4));
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(2, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(3, 6), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow"), EquipmentService.GetWeaponByName("Dagger") }));
+                            encounters = BuildMonsters(2, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(3, 6), GetMonsterByName("Goblin Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }));
                             break;
                         case <= 97:
-                            encounters = BuildMonsters(2, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") });
-                            encounters.Add(BuildMonster(GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }));
+                            encounters = BuildMonsters(2, GetMonsterByName("River Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
+                            encounters.Add(BuildMonster(GetMonsterByName("Stone Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }));
                             break;
                         case <= 100:
                             encounters = BuildMonsters(1, GetMonsterByName("Gigantic Spider"));
@@ -1498,10 +1498,10 @@ namespace LoDCompanion.Services.Dungeon
                     switch (roll)
                     {
                         case 1:
-                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Common Troll"), new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
                             break;
                         case 2:
-                            encounters = BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2);
+                            encounters = BuildMonsters(1, GetMonsterByName("Minotaur"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2);
                             break;
                         case 3:
                             encounters = BuildMonsters(1, GetMonsterByName("Gigantic Snake"));
@@ -1555,7 +1555,7 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         case 4:
                         case <= 6:
-                            encounters = BuildMonsters(2, GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") }, 2);
+                            encounters = BuildMonsters(2, GetMonsterByName("Tomb Guardian"), new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 2);
                             break;
                         default:
                             break;
@@ -1574,9 +1574,9 @@ namespace LoDCompanion.Services.Dungeon
             switch (name)
             {
                 case "First Blood":
-                    encounter.AddRange(BuildMonsters(2, GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") }));
-                    encounter.Add(BuildMonster(GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Short Bow") }));
-                    encounter.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") }, 1, true));
+                    encounter.AddRange(BuildMonsters(2, GetMonsterByName("Bandit"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }));
+                    encounter.Add(BuildMonster(GetMonsterByName("Bandit Archer"), new List<Weapon>() { EquipmentService.GetWeaponByName("Shortbow") ?? new Weapon() ?? new Weapon() }));
+                    encounter.Add(BuildMonster(GetMonsterByName("Bandit Leader"), new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1, true));
                     break;
                 default: break;
             }
@@ -1666,7 +1666,7 @@ namespace LoDCompanion.Services.Dungeon
         private List<MonsterSpell> BuildSpellList(int touchSpell, int rangedSpell, int supportSpell)
         {
             List<MonsterSpell> Spells = new List<MonsterSpell>();
-            Spells.AddRange( GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.CloseCombat), touchSpell) );
+            Spells.AddRange(GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.CloseCombat), touchSpell));
             Spells.AddRange(GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.Ranged), rangedSpell));
             Spells.AddRange(GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.Support), supportSpell));
 
@@ -1767,7 +1767,7 @@ namespace LoDCompanion.Services.Dungeon
             new Monster(_gameData)
                 { Name = "Bloated Demon" , CombatSkill = 50, RangedSkill = 25, MaxHP = 32, NaturalArmour = 2, Move = 3,
                 Dexterity = 25, Resolve = 80, Type = EncounterType.Magic, Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Demon", "Floater", "Disease ridden", "Fear 5", "Large" }, 
+                SpecialRules = new List<string>(){ "Demon", "Floater", "Disease ridden", "Fear 5", "Large" },
                 XP = 650, TreasureType = TreasureType.Part},
             new Monster(_gameData)
                 { Name = "Blood Demon" , CombatSkill = 60, MaxHP = 12, DamageBonus = 2, NaturalArmour = 2, Move = 4,
@@ -1902,21 +1902,21 @@ namespace LoDCompanion.Services.Dungeon
                 Dexterity = 40, Resolve = 30, ToHitPenalty = -5, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.Beast,
                 SpecialRules = new List<string>(){ "Perfect hearing", "Scurry" }, XP = 40, TreasureType = TreasureType.Part },
             new Monster(_gameData)
-                { 
-                Name = "Giant Scorpion" , 
-                CombatSkill = 55, 
-                MaxHP = 30, 
-                MinDamage = 1, 
-                MaxDamage = 12, 
-                NaturalArmour = 4, 
+                {
+                Name = "Giant Scorpion" ,
+                CombatSkill = 55,
+                MaxHP = 30,
+                MinDamage = 1,
+                MaxDamage = 12,
+                NaturalArmour = 4,
                 Move = 5,
-                Dexterity = 40, 
-                Resolve = 40, 
-                Type = EncounterType.Beasts, 
+                Dexterity = 40,
+                Resolve = 40,
+                Type = EncounterType.Beasts,
                 Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Fear 4", "Poisonous", "Wall crawler" }, 
-                XP = 220, 
-                TreasureType = TreasureType.Part 
+                SpecialRules = new List<string>(){ "Fear 4", "Poisonous", "Wall crawler" },
+                XP = 220,
+                TreasureType = TreasureType.Part
             },
             new Monster(_gameData)
             {
@@ -1943,7 +1943,7 @@ namespace LoDCompanion.Services.Dungeon
                 MinDamage = 1,
                 MaxDamage = 10,
                 NaturalArmour = 1,
-                Move = 6, 
+                Move = 6,
                 Dexterity = 60,
                 Resolve = 45,
                 ToHitPenalty = -5,
@@ -2035,7 +2035,7 @@ namespace LoDCompanion.Services.Dungeon
                 MaxDamage = 10,
                 DamageBonus = 3,
                 NaturalArmour = 3,
-                Move = 6, 
+                Move = 6,
                 Dexterity = 45,
                 Resolve = 60,
                 ToHitPenalty = -5,
@@ -3018,7 +3018,7 @@ namespace LoDCompanion.Services.Dungeon
                 MaxDamage = 10,
                 DamageBonus = 3,
                 NaturalArmour = 4,
-                Move = 4, 
+                Move = 4,
                 Dexterity = 30,
                 Resolve = 50,
                 ToHitPenalty = -5,
@@ -3373,5 +3373,5 @@ namespace LoDCompanion.Services.Dungeon
                 specialRule
             );
         }
-    }    
+    }
 }
