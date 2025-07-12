@@ -296,7 +296,7 @@ namespace LoDCompanion.Models.Character
         public Monster(GameDataService gameData) : base()
         {
             _gameData = gameData;
-            Body = new Corpse(_gameData, TreasureType); // Initialize the Body with the default TreasureType
+            Body = new Corpse(TreasureType); // Initialize the Body with the default TreasureType
             CurrentHP = MaxHP;
         }
 
