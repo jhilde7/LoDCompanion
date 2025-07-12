@@ -141,30 +141,29 @@ namespace LoDCompanion.Services.Dungeon
             if (searchRoll <= searchTarget)
             {
                 int treasureRoll = RandomHelper.GetRandomNumber(1, 100);
-                TreasureService treasure = new TreasureService(_gameData);
                 // Original logic from SearchRoom(string type, bool isThief, int roll)
                 int count = hero.IsThief ? 2 : 1; // Assuming IsThief is a property on Hero
 
                 switch (treasureRoll)
                 {
                     case int r when r >= 1 && r <= 15:
-                        room.SearchResults.Add("You found a secret door leading to a small treasure chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
+                        room.SearchResults.Add("You found a secret door leading to a small TreasureService chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
                         // Note: The logic for creating a new room/door (GetRoom, Instantiate)
                         // must be handled by DungeonManagerService. This just adds the text result.
                         // You'd have to signal back to the DungeonManagerService to create this room.
                         break;
                     case int r when r >= 16 && r <= 25:
-                        room.SearchResults.AddRange(treasure.FoundTreasure(TreasureType.Fine, count));
+                        room.SearchResults.AddRange(TreasureService.FoundTreasure(TreasureType.Fine, count));
                         break;
                     case int r when r >= 26 && r <= 40:
-                        room.SearchResults.AddRange(treasure.FoundTreasure(TreasureType.Mundane, count));
+                        room.SearchResults.AddRange(TreasureService.FoundTreasure(TreasureType.Mundane, count));
                         break;
                     case int r when r >= 41 && r <= 45:
                         room.SearchResults.Add("You found a set of levers. (Interaction handled by a LeverService)");
                         room.HasLevers = true; // Update room state
                         break;
                     case int r when r >= 46 && r <= 50:
-                        room.SearchResults.Add(treasure.GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
+                        room.SearchResults.Add(TreasureService.GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
                         break;
                     case int r when r >= 91 && r <= 100:
                         room.SearchResults.Add("You've sprung a trap!");

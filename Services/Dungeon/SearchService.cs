@@ -19,11 +19,10 @@ namespace LoDCompanion.Services.Dungeon
     /// </summary>
     public class SearchService
     {
-        private readonly TreasureService _treasureService;
 
-        public SearchService(TreasureService treasureService)
+        public SearchService()
         {
-            _treasureService = treasureService;
+            
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace LoDCompanion.Services.Dungeon
                 result.WasSuccessful = true;
                 result.Message = "The party's thorough search paid off!";
                 // The PDF on page 85 implies a general treasure roll. We'll use the TreasureService for this.
-                result.FoundItems = _treasureService.FoundTreasure(TreasureType.Mundane, 1);
+                result.FoundItems = TreasureService.FoundTreasure(TreasureType.Mundane, 1);
             }
             else
             {
@@ -90,7 +89,7 @@ namespace LoDCompanion.Services.Dungeon
             // We'll use the TreasureService to handle this roll.
             result.WasSuccessful = true;
             result.Message = $"You search the {furniture.Name}...";
-            result.FoundItems = _treasureService.FoundTreasure(TreasureType.Mundane, 1); // Assuming a mundane find
+            result.FoundItems = TreasureService.FoundTreasure(TreasureType.Mundane, 1); // Assuming a mundane find
 
             furniture.HasBeenSearched = true;
             return result;
@@ -113,7 +112,7 @@ namespace LoDCompanion.Services.Dungeon
 
             result.WasSuccessful = true;
             result.Message = $"{hero.Name} searches the remains...";
-            result.FoundItems = _treasureService.SearchCorpse(corpse.TreasureType, hero, 0); // Roll is handled inside
+            result.FoundItems = TreasureService.SearchCorpse(corpse.TreasureType, hero, 0); // Roll is handled inside
 
             corpse.HasBeenSearched = true;
             return result;
