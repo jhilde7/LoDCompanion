@@ -60,12 +60,11 @@
             }
 
             // Base styles for the grid layout. 'position: relative' is crucial for the absolutely positioned children.
-            var style = $"position: relative; display: grid; grid-template-columns: repeat({Room.Width}, {RoomService.TilePixelWidth}px); grid-template-rows: repeat({Room.Height}, {RoomService.TilePixelHeight}px);";
-
+            var style = $"position: relative; width: 90vmin; max-width: 1200px; aspect-ratio: {Room.Width} / {Room.Height};";
             // Add the background image if the URL is provided on the Room object.
             if (!string.IsNullOrEmpty(Room.ImagePath))
             {
-                style += $" background-image: url('{Room.ImagePath}'); background-size: cover; background-position: center;";
+                style += $" background-image: url('{Room.ImagePath}'); background-size: 100% 100%; background-position: center;";
             }
 
             return style;
@@ -82,31 +81,36 @@
         // Find the min and max coordinates to define the bounding box of the entity.
         var minX = entity.OccupiedSquares.Min(p => p.X);
         var minY = entity.OccupiedSquares.Min(p => p.Y);
-        var maxX = entity.OccupiedSquares.Max(p => p.X);
-        var maxY = entity.OccupiedSquares.Max(p => p.Y);
 
-        // The top-left position of the bounding box in grid coordinates.
-        var topLeftGridPosition = new GridPosition(minX, minY, entity.Position.Z);
-
-        // Convert the grid position to pixel coordinates for the CSS 'top' and 'left' properties.
-        var point = RoomService.GetPixelCoordinateForGridPosition(topLeftGridPosition, Room);
 
         // Calculate the width and height of the bounding box in grid units.
+        var maxX = entity.OccupiedSquares.Max(p => p.X);
+        var maxY = entity.OccupiedSquares.Max(p => p.Y);
         var widthInTiles = (maxX - minX) + 1;
         var heightInTiles = (maxY - minY) + 1;
 
         // Return the final CSS style string.
-        return $"position: absolute; left: {point.X}px; top: {point.Y}px; width: {widthInTiles * RoomService.TilePixelWidth}px; height: {heightInTiles * RoomService.TilePixelHeight}px;";
+        return GetPercentageStyle(minX, minY, widthInTiles, heightInTiles);
     }
 
     private string GetSquareStyle(GridPosition position)
     {
         if (Room == null) return "";
 
-        var point = RoomService.GetPixelCoordinateForGridPosition(position, Room);
-        var width = RoomService.TilePixelWidth;
-        var height = RoomService.TilePixelHeight;
+        // Calculate position and size as percentages for a single square.
+        return GetPercentageStyle(position.X, position.Y, 1, 1);
+    }
 
-        return $"position: absolute; left: {point.X}px; top: {point.Y}px; width: {width}px; height: {height}px;";
+    private string GetPercentageStyle(int x, int y, int widthInTiles, int heightInTiles)
+    {
+        if (Room == null || Room.Width == 0 || Room.Height == 0) return "";
+
+        var left = (double)x / Room.Width * 100;
+        var top = (double)y / Room.Height * 100;
+        var width = (double)widthInTiles / Room.Width * 100;
+        var height = (double)heightInTiles / Room.Height * 100;
+
+        // Use InvariantCulture to ensure '.' is used as the decimal separator in CSS, regardless of server culture.
+        return $"position: absolute; left: {left.ToString(System.Globalization.CultureInfo.InvariantCulture)}%; top: {top.ToString(System.Globalization.CultureInfo.InvariantCulture)}%; width: {width.ToString(System.Globalization.CultureInfo.InvariantCulture)}%; height: {height.ToString(System.Globalization.CultureInfo.InvariantCulture)}%;";
     }
 }

@@ -14,8 +14,6 @@ namespace LoDCompanion.Services.Dungeon
     {
         private readonly GameDataService _gameData;
         private readonly GridService _grid;
-        public int TilePixelWidth { get; set; } = 128;
-        public int TilePixelHeight { get; set; } = 128;
 
         public List<RoomInfo> Rooms => GetRooms();
         public List<Furniture> Furniture => GetFurniture();
@@ -75,20 +73,6 @@ namespace LoDCompanion.Services.Dungeon
             room.HasBeenSearched = false;
             room.IsEncounter = false; // Start with no active encounter
             return room;
-        }
-
-        /// <summary>
-        /// Converts a grid position to a top-left pixel coordinate on the room's image.
-        /// </summary>
-        /// <param name="gridPos">The GridPosition of the furniture or character.</param>
-        /// <param name="room">The RoomInfo containing the grid and pixel dimensions.</param>
-        /// <returns>A Point representing the top-left (X, Y) pixel of the grid square.</returns>
-        public System.Drawing.Point GetPixelCoordinateForGridPosition(GridPosition gridPos, Room room)
-        {
-            int pixelX = gridPos.X * TilePixelWidth;
-            int pixelY = gridPos.Y * TilePixelHeight;
-
-            return new System.Drawing.Point(pixelX, pixelY);
         }
 
         public Room? CreateRoom(string roomName)
