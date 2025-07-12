@@ -40,6 +40,7 @@ namespace LoDCompanion.Services.Dungeon
             room.Description = roomInfo.Description ?? string.Empty;
             room.SpecialRules = roomInfo.SpecialRules ?? string.Empty;
             room.HasSpecial = roomInfo.HasSpecial;
+            room.ImagePath = roomInfo.ImagePath ?? string.Empty;
 
             // Stats
             room.ThreatLevelModifier = roomInfo.ThreatLevelModifier;
@@ -247,9 +248,9 @@ namespace LoDCompanion.Services.Dungeon
                 return;
             }
 
-            // Copy to mutable lists for manipulation  
+            // Copy to mutable lists for manipulation
             List<Room> workingDungeonCards = new List<Room>(availableDungeonCards);
-            List<DoorChest> workingDoors = new List<DoorChest>(room.Doors); // Assuming 'Doors' is already populated  
+            List<DoorChest> workingDoors = new List<DoorChest>(room.Doors); // Assuming 'Doors' is already populated
 
             // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards
             workingDoors = HandlePartialDeadends(workingDoors);
@@ -268,10 +269,10 @@ namespace LoDCompanion.Services.Dungeon
                 }
             }
 
-            // After handling dead ends, proceed with distributing remaining dungeon cards  
+            // After handling dead ends, proceed with distributing remaining dungeon cards
             if (workingDoors.Count > 1)
             {
-                // 2. Distribute cards to multiple doors (near equal amounts)  
+                // 2. Distribute cards to multiple doors (near equal amounts)
                 List<Room>[] roomSplits = new List<Room>[workingDoors.Count];
                 for (int i = 0; i < roomSplits.Length; i++)
                 {
@@ -295,7 +296,7 @@ namespace LoDCompanion.Services.Dungeon
                     index = (index + 1) % roomSplits.Length;
                 }
 
-                // 3. Assign room splits to doors  
+                // 3. Assign room splits to doors
                 for (int i = 0; i < workingDoors.Count; i++)
                 {
                     workingDoors[i].ConnectedRooms = roomSplits[i];
@@ -303,18 +304,18 @@ namespace LoDCompanion.Services.Dungeon
             }
             else if (workingDoors.Count == 1)
             {
-                // 4. Handle single-door case  
+                // 4. Handle single-door case
                 workingDoors[0].ConnectedRooms = workingDungeonCards;
             }
             else
             {
-                // No doors, or no cards to distribute  
-                // This scenario might need specific handling depending on game rules.  
+                // No doors, or no cards to distribute
+                // This scenario might need specific handling depending on game rules.
             }
 
-            // Update the actual Doors list of this RoomCorridor instance  
+            // Update the actual Doors list of this RoomCorridor instance
             room.Doors = workingDoors;
-            room.ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors  
+            room.ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors
         }
 
         internal IGameEntity? GetFurnitureInRoomByName(Room room, string name)
@@ -1401,7 +1402,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Study Table", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Study Table", new List<GridPosition>() {
                             new GridPosition(2, 2, 0), new GridPosition(3, 2, 0), new GridPosition(2, 3, 0), new GridPosition(3, 3, 0),
                             new GridPosition(2, 2, 1), new GridPosition(3, 2, 1), new GridPosition(2, 3, 1), new GridPosition(3, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
@@ -1416,7 +1417,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() {
                             new GridPosition(0, 5, 0), new GridPosition(1, 5, 0), new GridPosition(0, 5, 1), new GridPosition(1, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
@@ -1431,7 +1432,7 @@ namespace LoDCompanion.Services.Dungeon
                     Size = [ 4, 4 ],
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Dead Adventurer", 
+                        GetFurnitureByNameSetPosition("Dead Adventurer",
                             new List<GridPosition>() { new GridPosition(1, 0, 0), new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
@@ -1468,7 +1469,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Fountain", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Fountain", new List<GridPosition>() {
                             new GridPosition(2, 3, 0), new GridPosition(3, 3, 0), new GridPosition(2, 4, 0), new GridPosition(3, 4, 0),
                             new GridPosition(2, 3, 1), new GridPosition(3, 3, 1), new GridPosition(2, 4, 1), new GridPosition(3, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
@@ -1572,7 +1573,7 @@ namespace LoDCompanion.Services.Dungeon
                     Size = [ 4, 4 ],
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Study Table", 
+                        GetFurnitureByNameSetPosition("Study Table",
                             new List<GridPosition>() { new GridPosition(1, 0, 0), new GridPosition(1, 0, 1)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
@@ -1585,7 +1586,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() {
                             new GridPosition(1, 3, 0), new GridPosition(2, 3, 0), new GridPosition(1, 3, 1), new GridPosition(2, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
                         ]
@@ -1599,7 +1600,7 @@ namespace LoDCompanion.Services.Dungeon
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
                             new GridPosition(2, 0, 0), new GridPosition(3, 0, 0), new GridPosition(2, 0, 1), new GridPosition(3, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
@@ -1609,7 +1610,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
                             new GridPosition(0, 3, 0), new GridPosition(1, 3, 0), new GridPosition(0, 3, 1), new GridPosition(1, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
@@ -1650,7 +1651,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         GetFurnitureByNameSetPosition("Drawer", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Bed", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Bed", new List<GridPosition>() {
                             new GridPosition(3, 0, 0), new GridPosition(3, 1, 0), new GridPosition(3, 0, 1), new GridPosition(3, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
@@ -1680,7 +1681,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Bed", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Bed", new List<GridPosition>() {
                             new GridPosition(0, 2, 0), new GridPosition(0, 3, 0), new GridPosition(0, 2, 1), new GridPosition(0, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
@@ -1689,7 +1690,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Table", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Table", new List<GridPosition>() {
                             new GridPosition(3, 3, 0), new GridPosition(4, 3, 0), new GridPosition(3, 3, 1), new GridPosition(4, 3, 1)}),
                         GetFurnitureByNameSetPosition("Hearth", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
                         ]
@@ -1752,7 +1753,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Dining Table", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Dining Table", new List<GridPosition>() {
                             new GridPosition(4, 0, 0), new GridPosition(5, 0, 0), new GridPosition(4, 1, 0), new GridPosition(5, 1, 0),
                             new GridPosition(4, 0, 1), new GridPosition(5, 0, 1), new GridPosition(4, 1, 1), new GridPosition(5, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 0, 0)}),
@@ -1779,14 +1780,14 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Dining Table", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Dining Table", new List<GridPosition>() {
                             new GridPosition(8, 2, 0), new GridPosition(9, 2, 0), new GridPosition(8, 3, 0), new GridPosition(9, 3, 0),
                             new GridPosition(8, 2, 1), new GridPosition(9, 2, 1), new GridPosition(8, 3, 1), new GridPosition(9, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Dining Table", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Dining Table", new List<GridPosition>() {
                             new GridPosition(2, 3, 0), new GridPosition(3, 3, 0), new GridPosition(2, 4, 0), new GridPosition(3, 4, 0),
                             new GridPosition(2, 3, 1), new GridPosition(3, 3, 1), new GridPosition(2, 4, 1), new GridPosition(3, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
@@ -1811,10 +1812,10 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Armour Rack", 
+                        GetFurnitureByNameSetPosition("Armour Rack",
                             new List<GridPosition>() { new GridPosition(6, 5, 0), new GridPosition(6, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Armour Rack", 
+                        GetFurnitureByNameSetPosition("Armour Rack",
                             new List<GridPosition>() { new GridPosition(8, 5, 0), new GridPosition(8, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 5, 0)}),
@@ -1832,7 +1833,7 @@ namespace LoDCompanion.Services.Dungeon
                     HasSpecial = true,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Hearth", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Hearth", new List<GridPosition>() {
                             new GridPosition(2, 0, 0), new GridPosition(3, 0, 0), new GridPosition(2, 0, 1), new GridPosition(3, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
@@ -1853,7 +1854,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Bookshelf", new List<GridPosition>() {
                             new GridPosition(0, 4, 0), new GridPosition(1, 5, 0), new GridPosition(0, 4, 1), new GridPosition(1, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
@@ -1909,7 +1910,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 2, 0)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(8, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(10, 2, 0), new GridPosition(10, 2, 1)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(11, 2, 0)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
@@ -2002,7 +2003,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Stairs", new List<GridPosition>() { new GridPosition(10, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Weapon Rack", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Weapon Rack", new List<GridPosition>() {
                             new GridPosition(5, 4, 0), new GridPosition(5, 5, 0), new GridPosition(5, 4, 1), new GridPosition(5, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 4, 0)}),
                         GetFurnitureByNameSetPosition("Dead Adventurer", new List<GridPosition>() { new GridPosition(7, 4, 0)}),
@@ -2028,15 +2029,15 @@ namespace LoDCompanion.Services.Dungeon
                     Size = [ 6, 6 ],
                     DoorCount = 1,
                     FurnitureList = [
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(0, 0, 0), new GridPosition(0, 0, 1)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(1, 0, 0), new GridPosition(1, 0, 1)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(4, 0, 0), new GridPosition(4, 0, 1)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(5, 0, 0), new GridPosition(5, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
@@ -2046,7 +2047,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Sarcophagus", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Sarcophagus", new List<GridPosition>() {
                             new GridPosition(2, 2, 0), new GridPosition(3, 2, 0), new GridPosition(2, 3, 0), new GridPosition(3, 3, 0),
                             new GridPosition(2, 2, 1), new GridPosition(3, 2, 1), new GridPosition(2, 3, 1), new GridPosition(3, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
@@ -2061,13 +2062,13 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(0, 5, 0), new GridPosition(0, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(5, 5, 0), new GridPosition(5, 5, 1)}),
                         ]
                   },
@@ -2082,23 +2083,23 @@ namespace LoDCompanion.Services.Dungeon
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(2, 0, 0), new GridPosition(2, 0, 1)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(3, 0, 0), new GridPosition(3, 0, 1)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(0, 1, 0), new GridPosition(0, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
                         GetFurnitureByNameSetPosition("Dead Adventurer", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(5, 1, 0), new GridPosition(5, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Stairs", 
+                        GetFurnitureByNameSetPosition("Stairs",
                             new List<GridPosition>() { new GridPosition(2, 2, 0), new GridPosition(3, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
@@ -2114,7 +2115,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Debris", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(0, 5, 0), new GridPosition(0, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
@@ -2186,7 +2187,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(5, 1, 0), new GridPosition(5, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Pit", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
@@ -2205,7 +2206,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(5, 4, 0), new GridPosition(5, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
@@ -2303,7 +2304,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
                         GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 1, 0)}), 
+                        GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
                         GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
                         GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
                         GetFurnitureByNameSetPosition("Water", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
@@ -2356,13 +2357,13 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        new Furniture{Name = "Table", CanBeClimbed = true, OccupiedSquares = new List<GridPosition>() { 
-                            new GridPosition(2, 2, 0), new GridPosition(3, 2, 0), new GridPosition(2, 3, 0), new GridPosition(3, 3, 0), 
-                            new GridPosition(3, 4, 0), new GridPosition(3, 5, 0), new GridPosition(5, 4, 0), new GridPosition(5, 5, 0), 
-                            new GridPosition(2, 2, 1), new GridPosition(3, 2, 1), new GridPosition(2, 3, 1), new GridPosition(3, 3, 1), 
+                        new Furniture{Name = "Table", CanBeClimbed = true, OccupiedSquares = new List<GridPosition>() {
+                            new GridPosition(2, 2, 0), new GridPosition(3, 2, 0), new GridPosition(2, 3, 0), new GridPosition(3, 3, 0),
+                            new GridPosition(3, 4, 0), new GridPosition(3, 5, 0), new GridPosition(5, 4, 0), new GridPosition(5, 5, 0),
+                            new GridPosition(2, 2, 1), new GridPosition(3, 2, 1), new GridPosition(2, 3, 1), new GridPosition(3, 3, 1),
                             new GridPosition(3, 4, 1),  new GridPosition(3, 5, 1), new GridPosition(5, 4, 1), new GridPosition(5, 5, 1)}},
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Barrels", 
+                        GetFurnitureByNameSetPosition("Barrels",
                             new List<GridPosition>() { new GridPosition(5, 2, 0), new GridPosition(5, 2, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
@@ -2398,7 +2399,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Dead Adventurer", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(0, 3, 0), new GridPosition(0, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
@@ -2416,13 +2417,13 @@ namespace LoDCompanion.Services.Dungeon
                     EncounterType = "R30",
                     HasSpecial = true,
                     FurnitureList = [
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(0, 0, 0), new GridPosition(0, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(5, 0, 0), new GridPosition(5, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
@@ -2448,13 +2449,13 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(0, 5, 0), new GridPosition(0, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", 
+                        GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(5, 5, 0), new GridPosition(5, 5, 1)}),
                         ]
                   },
@@ -2472,7 +2473,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(1, 1, 0), new GridPosition(1, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
@@ -2488,11 +2489,11 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Dead Adventurer", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(4, 3, 0), new GridPosition(4, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(1, 4, 0), new GridPosition(1, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
@@ -2518,7 +2519,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(5, 0, 0), new GridPosition(5, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
@@ -2531,7 +2532,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
                             new GridPosition(5, 2, 0), new GridPosition(5, 3, 0), new GridPosition(5, 2, 1), new GridPosition(5, 3, 1)}),
                         GetFurnitureByNameSetPosition("Pottery", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
@@ -2552,11 +2553,11 @@ namespace LoDCompanion.Services.Dungeon
                     DoorCount = 1,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
-                        new Furniture(){ Name = "Statue", IsObstacle = true, NoEntry = true, OccupiedSquares = new List<GridPosition>() { 
+                        new Furniture(){ Name = "Statue", IsObstacle = true, NoEntry = true, OccupiedSquares = new List<GridPosition>() {
                             new GridPosition(1, 0, 0), new GridPosition(1, 1, 0), new GridPosition(1, 0, 1), new GridPosition(1, 1, 1) } },
-                        GetFurnitureByNameSetPosition("Alchemist Table", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Alchemist Table", new List<GridPosition>() {
                             new GridPosition(2, 0, 0), new GridPosition(3, 0, 0), new GridPosition(2, 0, 1), new GridPosition(3, 0, 1)}),
-                        new Furniture(){ Name = "Statue", IsObstacle = true, NoEntry = true, OccupiedSquares = new List<GridPosition>() { 
+                        new Furniture(){ Name = "Statue", IsObstacle = true, NoEntry = true, OccupiedSquares = new List<GridPosition>() {
                             new GridPosition(4, 0, 0), new GridPosition(4, 1, 0), new GridPosition(4, 0, 1), new GridPosition(4, 1, 1) } },
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
@@ -2586,7 +2587,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Bookshelf", 
+                        GetFurnitureByNameSetPosition("Bookshelf",
                             new List<GridPosition>() { new GridPosition(5, 5, 0), new GridPosition(5, 5, 1)}),
                         ]
                   },
@@ -2661,7 +2662,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 1, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Fountain", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Fountain", new List<GridPosition>() {
                             new GridPosition(2, 2, 0), new GridPosition(3, 2, 0), new GridPosition(2, 3, 0), new GridPosition(3, 3, 0),
                             new GridPosition(2, 2, 1), new GridPosition(3, 2, 1), new GridPosition(2, 3, 1), new GridPosition(3, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
@@ -3657,18 +3658,18 @@ namespace LoDCompanion.Services.Dungeon
                       Category = RoomCategory.Room,
                       Size = [11, 12],
                     FurnitureList = [
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(0, 0, 0), new GridPosition(0, 0, 1)}),
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(1, 0, 0), new GridPosition(1, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
                             new GridPosition(3, 0, 0), new GridPosition(4, 0, 0), new GridPosition(3, 0, 1), new GridPosition(4, 0, 1)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(5, 0, 0), new GridPosition(5, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(8, 0, 0), new GridPosition(8, 0, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 1, 0)}),
                         GetFurnitureByNameSetPosition("Treasure Pile", new List<GridPosition>() { new GridPosition(1, 1, 0)}),
@@ -3684,7 +3685,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Chair", 
+                        GetFurnitureByNameSetPosition("Chair",
                             new List<GridPosition>() { new GridPosition(5, 2, 0), new GridPosition(6, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 2, 0)}),
@@ -3693,7 +3694,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Chair", 
+                        GetFurnitureByNameSetPosition("Chair",
                             new List<GridPosition>() { new GridPosition(4, 3, 0), new GridPosition(4, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 3, 0)}),
@@ -3702,26 +3703,26 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 3, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(0, 4, 0), new GridPosition(0, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Fountain", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Fountain", new List<GridPosition>() {
                             new GridPosition(6, 4, 0), new GridPosition(7, 4, 0), new GridPosition(5, 8, 0), new GridPosition(6, 8, 0),
                             new GridPosition(5, 5, 0), new GridPosition(6, 5, 0), new GridPosition(7, 5, 0), new GridPosition(8, 5, 0),
                             new GridPosition(5, 6, 0), new GridPosition(6, 6, 0), new GridPosition(7, 6, 0), new GridPosition(8, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Brazier", 
+                        GetFurnitureByNameSetPosition("Brazier",
                             new List<GridPosition>() { new GridPosition(10, 4, 0), new GridPosition(10, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),                        
-                        GetFurnitureByNameSetPosition("Bed", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
+                        GetFurnitureByNameSetPosition("Bed", new List<GridPosition>() {
                             new GridPosition(9, 5, 0), new GridPosition(10, 5, 0), new GridPosition(9, 6, 0), new GridPosition(10, 6, 0),
                             new GridPosition(9, 5, 1), new GridPosition(10, 5, 1), new GridPosition(9, 6, 1), new GridPosition(10, 6, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 6, 0)}),
@@ -3729,11 +3730,11 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(0, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Chair", 
+                        GetFurnitureByNameSetPosition("Chair",
                             new List<GridPosition>() { new GridPosition(3, 7, 0), new GridPosition(3, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 7, 0)}),
@@ -3741,7 +3742,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 7, 0)}),
-                        GetFurnitureByNameSetPosition("Brazier", 
+                        GetFurnitureByNameSetPosition("Brazier",
                             new List<GridPosition>() { new GridPosition(10, 7, 0), new GridPosition(10, 7, 1)}),
                         GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(0, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 8, 0)}),
@@ -3757,11 +3758,11 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Chair", 
+                        GetFurnitureByNameSetPosition("Chair",
                             new List<GridPosition>() { new GridPosition(6, 9, 0), new GridPosition(7, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
                             new GridPosition(0, 10, 0), new GridPosition(1, 10, 0), new GridPosition(0, 11, 0), new GridPosition(1, 11, 0),
                             new GridPosition(0, 10, 1), new GridPosition(1, 10, 1), new GridPosition(0, 11, 1), new GridPosition(1, 11, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 10, 0)}),
@@ -3774,11 +3775,11 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Barrels", new List<GridPosition>() {
                             new GridPosition(2, 11, 0), new GridPosition(3, 11, 0), new GridPosition(2, 11, 1), new GridPosition(3, 11, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(5, 11, 0), new GridPosition(5, 11, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 11, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Pillar", 
+                        GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(8, 11, 0), new GridPosition(8, 11, 1)})
                     ]
 
@@ -3866,8 +3867,8 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
-                            new GridPosition(5, 6, 0), new GridPosition(6, 5, 0), new GridPosition(6, 6, 0), 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
+                            new GridPosition(5, 6, 0), new GridPosition(6, 5, 0), new GridPosition(6, 6, 0),
                             new GridPosition(7, 6, 0), new GridPosition(5, 7, 0), new GridPosition(6, 7, 0),
                             new GridPosition(5, 6, 1), new GridPosition(6, 5, 1), new GridPosition(6, 6, 1),
                             new GridPosition(7, 6, 1), new GridPosition(5, 7, 1), new GridPosition(6, 7, 1)}),
@@ -4072,7 +4073,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 10, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 10, 0)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(9, 10, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", 
+                        GetFurnitureByNameSetPosition("Boulder",
                             new List<GridPosition>() { new GridPosition(10, 10, 0), new GridPosition(10, 10, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 10, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 11, 0)}),
@@ -4353,7 +4354,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 8, 0)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(6, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(8, 8, 0), new GridPosition(8, 8, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 8, 0)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(10, 8, 0)}),
@@ -4634,7 +4635,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(6, 6, 0), new GridPosition(7, 6, 0), new GridPosition(6, 7, 0), new GridPosition(7, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 6, 0)}),
@@ -4811,7 +4812,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(8, 8, 0), new GridPosition(9, 8, 0), new GridPosition(8, 8, 1), new GridPosition(9, 8, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 8, 0)}),
@@ -4887,7 +4888,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
                             new GridPosition(3, 2, 0), new GridPosition(3, 3, 0), new GridPosition(3, 2, 1), new GridPosition(3, 3, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
@@ -5000,7 +5001,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(5, 11, 0)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(6, 11, 0)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(7, 11, 0)}),
-                        GetFurnitureByNameSetPosition("Barrels", 
+                        GetFurnitureByNameSetPosition("Barrels",
                             new List<GridPosition>() { new GridPosition(8, 11, 0), new GridPosition(8, 11, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 11, 0)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(10, 11, 0)}),
@@ -5130,7 +5131,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(8, 9, 0), new GridPosition(8, 9, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 9, 0)}),
@@ -5540,7 +5541,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 5, 0)}),
-                        GetFurnitureByNameSetPosition("Statue", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Statue", new List<GridPosition>() {
                             new GridPosition(6, 5, 0), new GridPosition(7, 5, 0), new GridPosition(8, 5, 0), new GridPosition(9, 5, 0),
                             new GridPosition(6, 6, 0), new GridPosition(7, 6, 0), new GridPosition(8, 6, 0), new GridPosition(9, 6, 0),
                             new GridPosition(6, 5, 1), new GridPosition(7, 5, 1), new GridPosition(8, 5, 1), new GridPosition(9, 5, 1),
@@ -5663,7 +5664,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(3, 3, 0), new GridPosition(2, 4, 0), new GridPosition(3, 3, 1), new GridPosition(2, 4, 1)}),
                         GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(7, 3, 0), new GridPosition(8, 4, 0), new GridPosition(7, 3, 1), new GridPosition(8, 4, 1)}),
@@ -5721,12 +5722,12 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 7, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(1, 8, 0), new GridPosition(2, 8, 0), new GridPosition(1, 8, 1), new GridPosition(2, 8, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(6, 8, 0), new GridPosition(7, 8, 0), new GridPosition(6, 8, 1), new GridPosition(7, 8, 1)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(8, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 8, 0)}),
@@ -6089,7 +6090,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 0, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(6, 0, 0), new GridPosition(7, 0, 0), new GridPosition(6, 1, 0), new GridPosition(7, 1, 0),
                             new GridPosition(6, 0, 1), new GridPosition(7, 0, 1), new GridPosition(6, 1, 1), new GridPosition(7, 1, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 0, 0)}),
@@ -6137,7 +6138,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Barrels", 
+                        GetFurnitureByNameSetPosition("Barrels",
                             new List<GridPosition>() { new GridPosition(7, 4, 0), new GridPosition(7, 4, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(8, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 4, 0)}),
@@ -6184,7 +6185,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 8, 0)}),
-                        GetFurnitureByNameSetPosition("Boxes", 
+                        GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(5, 8, 0), new GridPosition(5, 8, 1)}),
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(6, 8, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 8, 0)}),
@@ -6295,7 +6296,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(7, 4, 0)}),
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(8, 4, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(9, 4, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(10, 4, 0), new GridPosition(11, 4, 0), new GridPosition(10, 5, 0), new GridPosition(11, 5, 0),
                             new GridPosition(10, 4, 1), new GridPosition(11, 4, 1), new GridPosition(10, 5, 1), new GridPosition(11, 5, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
@@ -6316,8 +6317,8 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(6, 6, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 6, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
-                            new GridPosition(8, 6, 0), new GridPosition(9, 6, 0), new GridPosition(7, 7, 0), new GridPosition(8, 7, 0), 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
+                            new GridPosition(8, 6, 0), new GridPosition(9, 6, 0), new GridPosition(7, 7, 0), new GridPosition(8, 7, 0),
                             new GridPosition(6, 8, 0), new GridPosition(7, 8, 0),  new GridPosition(6, 9, 0),
                             new GridPosition(8, 6, 1), new GridPosition(9, 6, 1), new GridPosition(7, 7, 1), new GridPosition(8, 7, 1),
                             new GridPosition(6, 8, 1), new GridPosition(7, 8, 1),  new GridPosition(6, 9, 1)}),
@@ -6354,7 +6355,7 @@ namespace LoDCompanion.Services.Dungeon
                         GetFurnitureByNameSetPosition("Tree", new List<GridPosition>() { new GridPosition(9, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(10, 9, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(11, 9, 0)}),
-                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() { 
+                        GetFurnitureByNameSetPosition("Boulder", new List<GridPosition>() {
                             new GridPosition(0, 10, 0), new GridPosition(1, 10, 0), new GridPosition(2, 10, 0), new GridPosition(3, 10, 0),
                             new GridPosition(0, 10, 1), new GridPosition(1, 10, 1), new GridPosition(2, 10, 1), new GridPosition(3, 10, 1)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 10, 0)}),
