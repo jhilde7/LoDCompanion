@@ -70,8 +70,8 @@ namespace LoDCompanion.Services.Dungeon
                     switch (searchRoll)
                     {
                         case 1:
-                            Equipment equipmentFound = GetRandomWeapon(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4)));
-                            rewards.Add(GetTreasure(equipmentFound.Name, equipmentFound.Durability));
+                            Equipment? equipmentFound = GetRandomWeapon(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4)));
+                            if (equipmentFound != null) rewards.Add(GetTreasure(equipmentFound.Name, equipmentFound.Durability));
                             break;
                         case 2:
                             rewards.Add(GetTreasure("Coin", 0, 1, 20));
@@ -242,20 +242,20 @@ namespace LoDCompanion.Services.Dungeon
             List<string> rewards = new List<string>();
             for (int i = 0; i < count; i++)
             {
-                Equipment item;
+                Equipment? item;
                 switch (type)
                 {
                     case TreasureType.Mundane:
                         item = GetMundaneTreasure();
-                        rewards.Add(item.Name);
+                        if (item != null) rewards.Add(item.Name);
                         break;
                     case TreasureType.Fine:
                         item = GetFineTreasure();
-                        rewards.Add(item.Name);
+                        if (item != null) rewards.Add(item.Name);
                         break;
                     case TreasureType.Wonderful:
                         item = GetWonderfulTreasure();
-                        rewards.Add(item.Name);
+                        if (item != null) rewards.Add(item.Name);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException("type");
@@ -264,7 +264,7 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public Equipment GetMundaneTreasure()
+        public Equipment? GetMundaneTreasure()
         {
             int roll = RandomHelper.GetRandomNumber(1, 54);
             int defaultDurabilityDamageRoll = RandomHelper.GetRandomNumber(1, 4) + 1;
@@ -273,7 +273,7 @@ namespace LoDCompanion.Services.Dungeon
             // Console.WriteLine($"Treasure roll {roll}"); // For debugging, replace with proper logging
 
             string itemName = "";
-            Equipment treasure;
+            Equipment? treasure;
 
             switch (roll)
             {
@@ -363,13 +363,13 @@ namespace LoDCompanion.Services.Dungeon
             return treasure;
         }
 
-        public Equipment GetFineTreasure()
+        public Equipment? GetFineTreasure()
         {
             string itemName = "";
             int roll = RandomHelper.GetRandomNumber(1, 54);
             // Console.WriteLine($"Treasure roll {roll}");
 
-            Equipment treasure = new Equipment();
+            Equipment? treasure = new Equipment();
 
             switch (roll)
             {
@@ -387,12 +387,10 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
                     break;
                 case 5:
-                    treasure = EquipmentService.GetAmmoByName("Barbed Arrow");
-                    treasure.Quantity = 5;
+                    treasure = EquipmentService.GetAmmoByNameSetQuantity("Barbed Arrow", 5);
                     break;
                 case 6:
-                    treasure = EquipmentService.GetAmmoByName("Barbed Bolt");
-                    treasure.Quantity = 5;
+                    treasure = EquipmentService.GetAmmoByNameSetQuantity("Barbed Bolt", 5);
                     break;
                 case 7: treasure = EquipmentService.GetEquipmentByName("Bedroll"); break;
                 case 8:
@@ -528,7 +526,7 @@ namespace LoDCompanion.Services.Dungeon
             return treasure;
         }
 
-        public Equipment GetWonderfulTreasure()
+        public Equipment? GetWonderfulTreasure()
         {
             string itemName = "";
             int roll = RandomHelper.GetRandomNumber(1, 54);
@@ -537,7 +535,7 @@ namespace LoDCompanion.Services.Dungeon
             int weaponDurability = DefaultWeaponDurability - defaultDurabilityDamageRoll;
             // Console.WriteLine($"Treasure roll {roll}");
 
-            Equipment treasure;
+            Equipment? treasure;
 
             switch (roll)
             {
@@ -1124,9 +1122,9 @@ namespace LoDCompanion.Services.Dungeon
             return armour;
         }
 
-        public Equipment GetRandomWeapon(int durability)
+        public Equipment? GetRandomWeapon(int durability)
         {
-            Equipment weapon;
+            Equipment? weapon;
             int roll = RandomHelper.GetRandomNumber(1, 22);
             switch (roll)
             {
