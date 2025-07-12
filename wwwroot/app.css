@@ -51,6 +51,13 @@ h1:focus {
         transform: translateY(-2px);
     }
 
+.game-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
 .grid-container {
     position: relative;
     border: 2px solid #5a4d3a;
