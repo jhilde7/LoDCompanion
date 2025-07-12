@@ -45,6 +45,8 @@ namespace LoDCompanion.Services.Dungeon
             room.ThreatLevelModifier = roomInfo.ThreatLevelModifier;
             room.PartyMoraleModifier = roomInfo.PartyMoraleModifier;
             room.Size = roomInfo.Size ?? new int[] { 1, 1 };
+            room.Width = room.Size[0];
+            room.Height = room.Size[1];
 
             // Furniture
             room.FurnitureList = roomInfo.FurnitureList ?? new List<Furniture>();
