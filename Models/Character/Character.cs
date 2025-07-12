@@ -297,6 +297,7 @@ namespace LoDCompanion.Models.Character
         {
             _gameData = gameData;
             Body = new Corpse(_gameData, TreasureType); // Initialize the Body with the default TreasureType
+            CurrentHP = MaxHP;
         }
 
         public override string ToString()
