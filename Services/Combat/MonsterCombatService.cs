@@ -10,11 +10,16 @@ namespace LoDCompanion.Services.Combat
     {
         private readonly MonsterSpecialService _monsterSpecial;
         private readonly DefenseService _defense;
+        private readonly DirectionService _direction;
 
-        public MonsterCombatService(MonsterSpecialService monsterSpecialService, DefenseService defenseService)
+        public MonsterCombatService(
+            MonsterSpecialService monsterSpecialService, 
+            DefenseService defenseService,
+            DirectionService directionService)
         {
             _monsterSpecial = monsterSpecialService;
             _defense = defenseService;
+            _direction = directionService;
         }
 
         /// <summary>
@@ -119,7 +124,7 @@ namespace LoDCompanion.Services.Combat
             if (attacker.Position.Z > target.Position.Z) modifier += 10;
 
             // Attacking from behind gives a significant advantage.
-            if (IsAttackingFromBehind(attacker, target)) modifier += 20;
+            if (_direction.IsAttackingFromBehind(attacker, target)) modifier += 20;
             // If the hero performed a Power Attack, they are vulnerable.
             if (target.IsVulnerableAfterPowerAttack)
             {
@@ -127,7 +132,7 @@ namespace LoDCompanion.Services.Combat
             }
             else
             {
-                if(!IsAttackingFromBehind(attacker, target))
+                if(!_direction.IsAttackingFromBehind(attacker, target))
                 {
                     // If not vulnerable, their normal defensive bonuses apply.
                     if (target.Shield != null)
@@ -148,26 +153,6 @@ namespace LoDCompanion.Services.Combat
             }
 
             return modifier;
-        }
-
-        /// <summary>
-        /// Determines if the attacker is behind the target.
-        /// This requires knowing the target's facing direction.
-        /// </summary>
-        private bool IsAttackingFromBehind(Monster attacker, Hero target)
-        {
-            if (attacker.Position == null || target.Position == null) return false;
-
-            // This is a simplified implementation. A full implementation would require
-            // the Hero object to have a 'FacingDirection' property (e.g., a Vector2).
-            // For example, if target is facing North (0, 1), an attack from the South would be "from behind".
-            int dx = attacker.Position.X - target.Position.X;
-            int dy = attacker.Position.Y - target.Position.Y;
-
-            // Assuming target facing can be determined (e.g., from a 'Facing' property)
-            // if (target.Facing.Matches(-dx, -dy)) return true;
-
-            return false; // Placeholder
         }
 
         private DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
