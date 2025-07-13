@@ -167,6 +167,8 @@ namespace LoDCompanion.Models.Character
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
         public int Coins { get; set; } = 150;
 
+        public bool HasBeenTargetedThisTurn { get; set; }
+
         // Constructor
         public Hero() : base()
         {
