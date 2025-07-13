@@ -5,13 +5,11 @@ namespace LoDCompanion.Services.Dungeon
 {
     public class RoomFactoryService
     {
-        private readonly GameDataService _gameData;
         private readonly GridService _grid;
         private readonly RoomService _roomService;
 
-        public RoomFactoryService(GameDataService gameData, GridService gridService, RoomService roomService)
+        public RoomFactoryService(GridService gridService, RoomService roomService)
         {
-            _gameData = gameData;
             _grid = gridService;
             _roomService = roomService;
         }
