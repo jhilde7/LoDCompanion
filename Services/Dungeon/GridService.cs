@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Utilities;
 using System;
@@ -71,10 +72,14 @@ namespace LoDCompanion.Services.Dungeon
 
     public class GridService
     {
+        private readonly DirectionService _direction;
         public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
 
 
-        public GridService() { }
+        public GridService(DirectionService direction) 
+        { 
+            _direction = direction;
+        }
 
         /// <summary>
         /// Places a new room onto the global grid at a specific offset.
@@ -472,54 +477,64 @@ namespace LoDCompanion.Services.Dungeon
         public List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity)
         {
             var reachableSquares = new List<GridPosition>();
-            var visited = new HashSet<GridPosition>();
-            var queue = new Queue<(GridPosition position, int cost)>();
+            // 'visited' tracks positions we've seen and the cost to reach them.
+            var visited = new Dictionary<GridPosition, int>();
+            var queue = new Queue<GridPosition>();
 
-            queue.Enqueue((entity.Position, 0));
-            visited.Add(entity.Position);
-
-            // The entity's maximum movement allowance.
-            int maxMovement = 0;
-            if (entity is Character character) maxMovement = character.Move;
+            // Start at the entity's current position with a cost of 0.
+            queue.Enqueue(entity.Position);
+            visited[entity.Position] = 0;
 
             while (queue.Count > 0)
             {
-                var (currentPos, currentCost) = queue.Dequeue();
+                var currentPos = queue.Dequeue();
+                var currentCost = visited[currentPos];
 
                 // Get all valid, walkable neighbors from the current position.
                 foreach (var neighborPos in GetNeighbors(currentPos))
                 {
-                    if (visited.Contains(neighborPos))
-                    {
-                        continue;
-                    }
-
-                    var neighborSquare = GetSquareAt(neighborPos);
-
-                    // Check if the neighbor square is occupied by another entity.
-                    // The entity's own squares are not checked because we start from its position.
-                    if (neighborSquare != null && neighborSquare.IsOccupied)
-                    {
-                        continue;
-                    }
-
                     // Calculate the cost to move into this neighbor square.
-                    int moveCost = (neighborSquare != null && neighborSquare.DoubleMoveCost) ? 2 : 1 ;
-                    int newCost = currentCost + moveCost;
+                    var neighborSquare = GetSquareAt(neighborPos);
+                    if (neighborSquare == null) continue;
 
-                    // If we can afford to move here, add it to our lists.
-                    if (newCost <= maxMovement)
+                    // This is the base cost to enter the square.
+                    int movementCost = neighborSquare.DoubleMoveCost ? 2 : 1;
+
+                    // Check if the neighbor square is in the ZOC of any enemy in the room.
+                    if (room.MonstersInRoom != null)
                     {
-                        visited.Add(neighborPos);
-                        queue.Enqueue((neighborPos, newCost));
-                        reachableSquares.Add(neighborPos);
+                        foreach (var monster in room.MonstersInRoom)
+                        {
+                            if (_direction.IsInZoneOfControl(neighborPos, monster))
+                            {
+                                // Moving through ZOC costs 2 Movement Points.
+                                movementCost = 2;
+                                break; // The penalty is applied once.
+                            }
+                        }
+                    }
+
+                    int newCost = currentCost + movementCost;
+
+                    if (entity is Character character && newCost <= character.Move)
+                    {
+                        // ...and we haven't found a cheaper path to this square already...
+                        if (!visited.ContainsKey(neighborPos) || newCost < visited[neighborPos])
+                        {
+                            // ...then this is a valid square to move to.
+                            visited[neighborPos] = newCost;
+                            queue.Enqueue(neighborPos);
+                            reachableSquares.Add(neighborPos);
+                        }
                     }
                 }
             }
 
-            return reachableSquares;
+            // Return all the unique positions found within the movement range.
+            return reachableSquares.Distinct().ToList();
         }
     }
+
 
     public class LineOfSightResult
     {
