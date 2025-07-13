@@ -62,6 +62,8 @@
     public EventCallback<Monster> OnMonsterClicked { get; set; }
     [Parameter]
     public EventCallback<GridPosition> OnGridSquareClicked { get; set; }
+    [Parameter]
+    public EventCallback<Hero> OnHeroClicked { get; set; }
 
     private string GridStyle
     {
