@@ -405,7 +405,7 @@ namespace LoDCompanion.Services.Game
                 else
                 {
                     Console.WriteLine($"{monster.Name} shoots at {target.Name}.");
-                    _monsterCombatService.PerformStandardAttack(monster, target);
+                    Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                 }
             }
             else
