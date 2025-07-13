@@ -669,7 +669,7 @@ namespace LoDCompanion.Services.Dungeon
                         case 14: itemName = "Elven Bow"; value = 1500; break;
                         case 15: itemName = "Longbow"; value = 300; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, armourDurability);
+                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, armourDurability) ?? new Weapon();
                     treasure.Name = "Magic " + itemName + " of " + itemArray[0];
                     treasure.MagicEffect = itemArray[1];
                     treasure.Value = value;
