@@ -248,7 +248,6 @@ namespace LoDCompanion.Services.Game
                 return false;
             }
 
-            string debug = "";
             foreach (var squareCoords in entity.OccupiedSquares)
             {
                 var square = _grid.GetSquareAt(squareCoords);
