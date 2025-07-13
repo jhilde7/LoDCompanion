@@ -58,12 +58,9 @@ namespace LoDCompanion.Services.Combat
             var monsterWeapon = attacker.Weapons.First();
 
             // Calculate To-Hit Chance
-            int toHitChance = attacker.CombatSkill;
-            if (context.IsPowerAttack) toHitChance += 20;
-            if (context.IsChargeAttack) toHitChance += 10;
-
-            int monsterAttackSkill = (monsterWeapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
-            result.ToHitChance = monsterAttackSkill;
+            int baseSkill = (monsterWeapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
+            int situationalModifier = CalculateHitChanceModifier(attacker, target);
+            result.ToHitChance = baseSkill + situationalModifier;
 
             result.AttackRoll = RandomHelper.RollDie("D100");
 
@@ -104,6 +101,73 @@ namespace LoDCompanion.Services.Combat
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Calculates the total "to-hit" modifier for a monster attacking a hero.
+        /// This method is now public to be used by other services like MonsterAIService.
+        /// </summary>
+        public int CalculateHitChanceModifier(Monster attacker, Hero target)
+        {
+            int modifier = 0;
+            var heroWeapon = target.GetEquippedWeapon();
+
+
+            if (target.Stance == CombatStance.Prone) modifier += 30;
+
+            // Height advantage also provides a bonus.
+            if (attacker.Position.Z > target.Position.Z) modifier += 10;
+
+            // Attacking from behind gives a significant advantage.
+            if (IsAttackingFromBehind(attacker, target)) modifier += 20;
+            // If the hero performed a Power Attack, they are vulnerable.
+            if (target.IsVulnerableAfterPowerAttack)
+            {
+                modifier += 10;
+            }
+            else
+            {
+                if(!IsAttackingFromBehind(attacker, target))
+                {
+                    // If not vulnerable, their normal defensive bonuses apply.
+                    if (target.Shield != null)
+                    {
+                        modifier -= 5;
+                    }
+                    // A Parry Stance makes the hero harder to hit.
+                    if (target.Stance == CombatStance.Parry)
+                    {
+                        modifier -= 10;
+                        if (target.GetEquippedWeapon() is MeleeWeapon meleeWeapon)
+                        {
+                            if (meleeWeapon != null && meleeWeapon.HasProperty(WeaponProperty.BFO)) modifier += 5;
+                            if (meleeWeapon != null && meleeWeapon.HasProperty(WeaponProperty.Defensive)) modifier -= 10;
+                        }
+                    }
+                }
+            }
+
+            return modifier;
+        }
+
+        /// <summary>
+        /// Determines if the attacker is behind the target.
+        /// This requires knowing the target's facing direction.
+        /// </summary>
+        private bool IsAttackingFromBehind(Monster attacker, Hero target)
+        {
+            if (attacker.Position == null || target.Position == null) return false;
+
+            // This is a simplified implementation. A full implementation would require
+            // the Hero object to have a 'FacingDirection' property (e.g., a Vector2).
+            // For example, if target is facing North (0, 1), an attack from the South would be "from behind".
+            int dx = attacker.Position.X - target.Position.X;
+            int dy = attacker.Position.Y - target.Position.Y;
+
+            // Assuming target facing can be determined (e.g., from a 'Facing' property)
+            // if (target.Facing.Matches(-dx, -dy)) return true;
+
+            return false; // Placeholder
         }
 
         private DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
