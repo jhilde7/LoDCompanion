@@ -360,9 +360,24 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        internal List<string> GetSpecialAttacks(List<string> specialRules)
+        internal List<SpecialActiveAbility> GetSpecialAttacks(List<string> specialRules)
         {
-            throw new NotImplementedException();
+            var activeAbilities = new List<SpecialActiveAbility>();
+
+            if (specialRules == null)
+            {
+                return activeAbilities;
+            }
+
+            foreach (string ruleString in specialRules)
+            {
+                if (Enum.TryParse<SpecialActiveAbility>(ruleString, true, out var ability))
+                {
+                    activeAbilities.Add(ability);
+                }
+            }
+
+            return activeAbilities;
         }
     }
 }
