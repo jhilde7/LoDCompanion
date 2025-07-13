@@ -74,24 +74,21 @@ namespace LoDCompanion.Services.Game
                 int actionRoll = RandomHelper.RollDie("D6");
                 switch (actionRoll)
                 {
-                    case 1:
-                    case 2:
+                    case <= 2:
                         // Move M away but stay in LOS
                         // TODO: This logic would be complex, involving finding a suitable square
                         Console.WriteLine($"{monster.Name} moves away from {target.Name}.");
                         monster.CurrentAP--;
                         break;
-                    case 3:
-                    case 4:
+                    case <= 4:
                         // Cast close combat spell
                         Console.WriteLine($"{monster.Name} casts a close combat spell on {target.Name}.");
                         //TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { target }, "SomeCloseCombatSpell");
                         monster.CurrentAP--;
                         break;
-                    case 5:
-                    case 6:
+                    case <= 6:
                         // Standard attack
-                        _monsterCombatService.PerformStandardAttack(monster, target);
+                        Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                         monster.CurrentAP--;
                         break;
                 }
@@ -171,7 +168,7 @@ namespace LoDCompanion.Services.Game
                     }
                     else
                     {
-                        _monsterCombatService.PerformStandardAttack(monster, target);
+                        Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                         monster.CurrentAP--;
                     }
                 }
@@ -212,7 +209,7 @@ namespace LoDCompanion.Services.Game
                 int attackRoll = RandomHelper.RollDie("D6");
                 if (attackRoll <= 4)
                 {
-                    _monsterCombatService.PerformStandardAttack(monster, target);
+                    Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                 }
                 else
                 {
@@ -257,7 +254,7 @@ namespace LoDCompanion.Services.Game
                     {
                         if (monster.CurrentHP < monster.MaxHP / 2)
                         {
-                            _monsterCombatService.PerformStandardAttack(monster, target);
+                            Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                         }
                         else
                         {
@@ -268,7 +265,7 @@ namespace LoDCompanion.Services.Game
                     }
                     else
                     {
-                        _monsterCombatService.PerformStandardAttack(monster, target);
+                        Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                         monster.CurrentAP--;
                     }
                 }
@@ -305,7 +302,7 @@ namespace LoDCompanion.Services.Game
                             monster.CurrentAP = 0; // Ends turn
                             break;
                         case <= 5: // Standard Attack
-                            _monsterCombatService.PerformStandardAttack(monster, target);
+                            Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
                             monster.CurrentAP--;
                             break;
                         case 6: // Power Attack
