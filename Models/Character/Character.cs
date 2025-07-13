@@ -34,6 +34,7 @@ namespace LoDCompanion.Models.Character
         public int CombatSkill { get; set; }
         public int RangedSkill { get; set; }
         public int Dodge { get; set; }
+        public int Move { get; set; }
         public int Level { get; set; }
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
@@ -289,7 +290,6 @@ namespace LoDCompanion.Models.Character
         public bool HasSpecialAttack { get; set; }
         public bool IsGhost { get; set; }
         public int ToHitPenalty { get; set; } 
-        public int Move { get; set; }
         public int XP { get; set; }
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
