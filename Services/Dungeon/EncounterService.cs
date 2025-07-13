@@ -1687,7 +1687,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 45,
                 ToHitPenalty = -5,
                 Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 90,
                 TreasureType = TreasureType.T1
             },
@@ -1702,7 +1702,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 45,
                 ToHitPenalty = -5,
                 Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidRanged,
                 XP = 90,
                 TreasureType = TreasureType.T1
             },
@@ -1721,13 +1721,13 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 50,
                 ToHitPenalty = -10,
                 Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 130,
                 TreasureType = TreasureType.T2
             },
             new Monster()
                 { Name = "Banshee" , CombatSkill = 40, MaxHP = 18, Move = 6,
-                Dexterity = 45, Resolve = 60, ToHitPenalty = -10, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 45, Resolve = 60, ToHitPenalty = -10, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.HigherUndead,
                 SpecialRules = new List<string>(){ "Ghostly Howl" , "Terror 5" , "Ethereal" , "Ghostly touch" }, XP = 650, TreasureType = TreasureType.Part },
             new Monster()
                 { Name = "Bat swarm", CombatSkill = 100 , MaxHP = 10, MinDamage = 1, MaxDamage = 4, Move = 6,
@@ -1735,15 +1735,15 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Auto hit", "Flyer", "Always acts first on the first turn of battle" }, XP = 15, TreasureType = TreasureType.Part},
             new Monster()
                 { Name = "Beastman" , CombatSkill = 50, RangedSkill = 20, MaxHP = 15, Move = 5,
-                Dexterity = 35, Resolve = 35, ToHitPenalty = -5, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 35, Resolve = 35, ToHitPenalty = -5, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 100, TreasureType = TreasureType.T1 },
             new Monster()
                 { Name = "Beastman Chieftain" , CombatSkill = 65, MaxHP = 20, DamageBonus = 1, NaturalArmour = 1, Move = 5,
-                Dexterity = 35, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 35, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 150, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Beastman Guard" , CombatSkill = 55, RangedSkill = 20, MaxHP = 18, DamageBonus = 1, NaturalArmour = 1, Move = 5,
-                Dexterity = 35, Resolve = 45, ToHitPenalty = -10, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 35, Resolve = 45, ToHitPenalty = -10, Type = EncounterType.Beasts, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 110, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Berserker" , CombatSkill = 50, RangedSkill = 35, MaxHP = 14, Move = 4,
@@ -1764,11 +1764,11 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Ferocious charge" }, XP = 130, TreasureType = TreasureType.Part},
             new Monster()
                 { Name = "Cave Goblin" , CombatSkill = 45, RangedSkill = 30, MaxHP = 8, Move = 4,
-                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.Orcs_Goblins, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.Orcs_Goblins, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Hate Dwarves" }, XP = 70, TreasureType = TreasureType.T1 },
             new Monster()
                 { Name = "Cave Goblin Archer" , CombatSkill = 45, RangedSkill = 30, MaxHP = 8, Move = 4,
-                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.Orcs_Goblins, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.Orcs_Goblins, Behavior = MonsterBehaviorType.HumanoidRanged,
                 SpecialRules = new List<string>(){ "Hate Dwarves" }, XP = 70, TreasureType = TreasureType.T1 },
             new Monster()
                 { Name = "Centaur" , CombatSkill = 50, RangedSkill = 50, MaxHP = 20, DamageBonus = 1, NaturalArmour = 1, Move = 7,
@@ -1788,23 +1788,23 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Regenerate", "Stupid", "Simple weapons", "Large", "Bellow", "Fear 3" }, XP = 500, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Dark Elf" , CombatSkill = 55, RangedSkill = 45, MaxHP = 11, Move = 5,
-                Dexterity = 50, Resolve = 45, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 45, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 125, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Dark Elf Archer" , CombatSkill = 55, RangedSkill = 45, MaxHP = 11, Move = 5,
-                Dexterity = 50, Resolve = 45, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 45, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.HumanoidRanged,
                 XP = 125, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Dark Elf Assassin" , CombatSkill = 65, RangedSkill = 50, MaxHP = 11, Move = 5,
-                Dexterity = 65, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 65, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Sneaky" }, XP = 135, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Dark Elf Captain" , CombatSkill = 65, RangedSkill = 55, MaxHP = 13, Move = 5,
-                Dexterity = 50, Resolve = 55, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 55, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 150, TreasureType = TreasureType.T3 },
             new Monster()
                 { Name = "Dark Elf Sniper" , CombatSkill = 50, RangedSkill = 65, MaxHP = 11, Move = 5,
-                Dexterity = 50, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.HumanoidRanged,
                 XP = 135, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Dark Elf Warlock" , CombatSkill = 50, RangedSkill = 60, MaxHP = 11, Move = 5,
@@ -1820,7 +1820,7 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Fire breath", "Terror 10", "X-Large", "Sweeping strike" }, XP = 3500, TreasureType = TreasureType.Part },
             new Monster()
                 { Name = "Drider" , CombatSkill = 65, RangedSkill = 45, MaxHP = 28, NaturalArmour = 2, Move = 6,
-                Dexterity = 50, Resolve = 65, ToHitPenalty = -5, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 65, ToHitPenalty = -5, Type = EncounterType.DarkElves, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Fear 5", "Wall crawler", "Large" }, XP = 600, TreasureType = TreasureType.T3 },
             new Monster()
                 { Name = "Earth Elemental" , CombatSkill = 50, MaxHP = 20, MinDamage = 1, MaxDamage = 10, DamageBonus = 2, NaturalArmour = 2, Move = 4,
@@ -1832,7 +1832,7 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Stupid", "Simple weapons", "Large", "Free Bellow", "Sweeping strike" }, XP = 550, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Fallen Knight" , CombatSkill = 60, MaxHP = 18, DamageBonus = 1, NaturalArmour = 1, Move = 4,
-                Dexterity = 40, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.Bandits_Brigands, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 40, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.Bandits_Brigands, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 240, TreasureType = TreasureType.T3 },
             new Monster()
                 { Name = "Fire Elemental" , CombatSkill = 55, MaxHP = 15, MinDamage = 1, MaxDamage = 10, Move = 4,
@@ -1840,7 +1840,7 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Magic being", "Fire damage", "Extra damage from Water" }, XP = 250, TreasureType = TreasureType.None },
             new Monster()
                 { Name = "Frogling" , CombatSkill = 45, RangedSkill = 40, MaxHP = 8, Move = 5,
-                Dexterity = 45, Resolve = 35, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 45, Resolve = 35, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Poisonous spit", "Silent" }, XP = 90, TreasureType = TreasureType.T1 },
             new Monster()
                 { Name = "Gargoyle" , CombatSkill = 50, MaxHP = 25, MinDamage = 1, MaxDamage = 12, NaturalArmour = 4, Move = 4,
@@ -1848,23 +1848,23 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 400, TreasureType = TreasureType.Part },
             new Monster()
                 { Name = "Gecko" , CombatSkill = 45, RangedSkill = 45, MaxHP = 10, Move = 5,
-                Dexterity = 45, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 45, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 95, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Gecko Archer" , CombatSkill = 45, RangedSkill = 45, MaxHP = 10, Move = 5,
-                Dexterity = 45, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 45, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.HumanoidRanged,
                 XP = 95, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Gecko Assassin" , CombatSkill = 40, RangedSkill = 45, MaxHP = 10, Move = 5,
-                Dexterity = 55, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 55, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Reptiles, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Camouflage", "sneaky" }, XP = 100, TreasureType = TreasureType.T1 },
             new Monster()
                 { Name = "Ghost" , CombatSkill = 35, MaxHP = 15, Move = 6,
-                Dexterity = 40, Resolve = 50, ToHitPenalty = -5, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 40, Resolve = 50, ToHitPenalty = -5, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.LowerUndead,
                 SpecialRules = new List<string>(){ "Ethereal", "Fear 5", "Ghostly touch" }, XP = 550, TreasureType = TreasureType.Part},
             new Monster()
                 { Name = "Ghoul" , CombatSkill = 40, MaxHP = 11, MinDamage = 1, MaxDamage = 10, NaturalArmour = 1, Move = 4,
-                Dexterity = 35, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 35, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.LowerUndead,
                 SpecialRules = new List<string>(){ "Fear 3", "Poisonous" }, XP = 90, TreasureType = TreasureType.T1 },
             new Monster()
                 { Name = "Giant" , CombatSkill = 45, RangedSkill = 25, MaxHP = 70, DamageBonus = 5, NaturalArmour = 3, Move = 6,
@@ -2042,7 +2042,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -10,
                 Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 80,
                 TreasureType = TreasureType.T1
             },
@@ -2058,7 +2058,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -10,
                 Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidRanged,
                 XP = 80,
                 TreasureType = TreasureType.T1
             },
@@ -2075,7 +2075,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 50,
                 ToHitPenalty = -10,
                 Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 100,
                 TreasureType = TreasureType.T2
             },
@@ -2107,7 +2107,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -5,
                 Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>() { "Fear elves" },
                 XP = 70,
                 TreasureType = TreasureType.T1
@@ -2123,7 +2123,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -5,
                 Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidRanged,
                 SpecialRules = new List<string>() { "Fear elves" },
                 XP = 70,
                 TreasureType = TreasureType.T1
@@ -2139,7 +2139,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 50,
                 ToHitPenalty = -5,
                 Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.MagicUser,
                 SpecialRules = new List<string>() { "Magic User" },
                 XP = 130,
                 TreasureType = TreasureType.T2
@@ -2268,7 +2268,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 65,
                 ToHitPenalty = -10,
                 Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidRanged,
                 SpecialRules = new List<string>() { "Petrify" },
                 XP = 350,
                 TreasureType = TreasureType.T3
@@ -2389,7 +2389,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 65,
                 ToHitPenalty = -5,
                 Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>() { "Multiple attacks 3" },
                 XP = 650,
                 TreasureType = TreasureType.T3
@@ -2425,7 +2425,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 45,
                 ToHitPenalty = -10,
                 Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>() { "Large", "Sweeping strike" },
                 XP = 400,
                 TreasureType = TreasureType.T2
@@ -2461,7 +2461,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 55,
                 ToHitPenalty = -10,
                 Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>() { "Large", "Sweeping strike" },
                 XP = 600,
                 TreasureType = TreasureType.T3
@@ -2478,7 +2478,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -5,
                 Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 95,
                 TreasureType = TreasureType.T1
             },
@@ -2495,7 +2495,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -5,
                 Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 XP = 110,
                 TreasureType = TreasureType.T2
             },
@@ -2512,7 +2512,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 50,
                 ToHitPenalty = -10,
                 Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>() { "Frenzy" },
                 XP = 130,
                 TreasureType = TreasureType.T3
@@ -2628,7 +2628,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -10,
                 Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>() { "Perfect hearing" },
                 XP = 80,
                 TreasureType = TreasureType.T1
@@ -2644,7 +2644,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 40,
                 ToHitPenalty = -10,
                 Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HumanoidRanged,
                 SpecialRules = new List<string>() { "Perfect hearing" },
                 XP = 80,
                 TreasureType = TreasureType.T1
@@ -2864,7 +2864,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 70,
                 ToHitPenalty = -15,
                 Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HigherUndead,
                 SpecialRules = new List<string>() { "Fear 10", "Master of the Dead", "Extra DMG from silver" },
                 XP = 2000,
                 TreasureType = TreasureType.T5
@@ -2882,7 +2882,7 @@ namespace LoDCompanion.Services.Dungeon
                 Resolve = 70,
                 ToHitPenalty = -15,
                 Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.Humanoid,
+                Behavior = MonsterBehaviorType.HigherUndead,
                 SpecialRules = new List<string>() { "Fear 10", "Seduction", "Extra DMG from silver" },
                 XP = 1500,
                 TreasureType = TreasureType.T5
@@ -3052,8 +3052,8 @@ namespace LoDCompanion.Services.Dungeon
                 SpecialRules = new List<string>(){ "Disease", "Fear 2" }, XP = 115, TreasureType = TreasureType.Part },
             new Monster()
                 { Name = "Grop" , CombatSkill = 45, RangedSkill = 35, MaxHP = 16, DamageBonus = 1, NaturalArmour = 1, Move = 4,
-                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.Bandits_Brigands, Behavior = MonsterBehaviorType.Humanoid,
-                XP = 110, TreasureType = TreasureType.T2 },
+                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.Bandits_Brigands, Behavior = MonsterBehaviorType.HumanoidMelee,
+                SpecialRules = new List<string>(){ "Battleaxe", "Shield", "Armour 2"}, XP = 110, TreasureType = TreasureType.T2 },
             new Monster()
                 { Name = "Ulfric" , CombatSkill = 45, MaxHP = 12, DamageBonus = 1, NaturalArmour = 1, Move = 4,
                 Dexterity = 30, Resolve = 35, ToHitPenalty = -10, Type = EncounterType.Undead, Behavior = MonsterBehaviorType.LowerUndead,
@@ -3071,7 +3071,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 550, TreasureType = TreasureType.T2},
             new Monster()
             { Name = "Digg", CombatSkill = 45, RangedSkill = 35, MaxHP = 16, DamageBonus = 1, NaturalArmour = 1, Move = 4,
-                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 25, Resolve = 40, ToHitPenalty = -5, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Battleaxe", "Shield", "Armour 2"}, XP = 110, TreasureType = TreasureType.T2},
             new Monster()
             { Name = "Kraghul the Mighty", CombatSkill = 60, MaxHP = 30, DamageBonus = 4, NaturalArmour = 3, Move = 6,
@@ -3085,7 +3085,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 900, TreasureType = TreasureType.Part},
             new Monster()
             { Name = "Briggo", CombatSkill = 35, MaxHP = 24, DamageBonus = 2, NaturalArmour = 1, Move = 6,
-                Dexterity = 25, Resolve = 35, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 25, Resolve = 35, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Large", "Sweeping strike", "Warhammer", "Armour 2" },
                 XP = 400, TreasureType = TreasureType.T2},
             new Monster()
@@ -3095,17 +3095,17 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 500, TreasureType = TreasureType.T2},
             new Monster()
             { Name = "Goldfrid the Short", CombatSkill = 35, RangedSkill = 55, MaxHP = 12, Move = 4,
-                Dexterity = 50, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidRanged,
                 SpecialRules = new List<string>(){ "Special rule: Will always try to move out of close combat", "Shortbow", "Shortsword", "Armour 1" },
                 XP = 120, TreasureType = TreasureType.T4},
             new Monster()
             { Name = "Madame Isabelle", CombatSkill = 45, MaxHP = 14, Move = 4,
-                Dexterity = 50, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Seduction", "Longsword", "Armour 1" },
                 XP = 140, TreasureType = TreasureType.T3},
             new Monster()
             { Name = "Gaul the Mauler", CombatSkill = 45, MaxHP = 22, DamageBonus = 2, NaturalArmour = 1, Move = 4,
-                Dexterity = 25, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 25, Resolve = 40, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Longsword, Shield, Armour 2" },
                 XP = 150, TreasureType = TreasureType.T4},
             new Monster()
@@ -3125,11 +3125,11 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 800, TreasureType = TreasureType.T5},
             new Monster()
             { Name = "Queen Khaba", CombatSkill = 65, RangedSkill = 65, MaxHP = 35, Move = 4,
-                Dexterity = 35, Resolve = 85, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 35, Resolve = 85, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HigherUndead,
                 SpecialRules = new List<string>(){ "Extra damage from fire", "Fear 5", "Magic User", "Dagger", "Armour 0"}, XP = 800, TreasureType = TreasureType.T5},
             new Monster()
             { Name = "The Mapmaker", MaxHP = 10, Move = 4,
-                Dexterity = 25, Resolve = 35, ToHitPenalty = -5, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 25, Resolve = 35, ToHitPenalty = -5, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Dodge (45)" },
                 XP = 0, TreasureType = TreasureType.None},
             new Monster()
@@ -3187,7 +3187,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 250, TreasureType = TreasureType.T5},
             new Monster()
             { Name = "The Captain", CombatSkill = 70, RangedSkill = 55, MaxHP = 14, Move = 4,
-                Dexterity = 50, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Longsword", "Shield", "Armour 2" },
                 XP = 280, TreasureType = TreasureType.T4},
             new Monster()
@@ -3217,7 +3217,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 200, TreasureType = TreasureType.T4},
             new Monster()
             { Name = "Goblin Chieftain", CombatSkill = 55, RangedSkill = 35, MaxHP = 15, Move = 4,
-                Dexterity = 35, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 35, Resolve = 50, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Poisonous weapon" },
                 XP = 130, TreasureType = TreasureType.T3},
             new Monster()
@@ -3242,7 +3242,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 650, TreasureType = TreasureType.T2},
             new Monster()
             { Name = "Gneeb the Manslayer", CombatSkill = 70, RangedSkill = 55, MaxHP = 30, DamageBonus = 1, Move = 4,
-                Dexterity = 50, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 50, Resolve = 50, ToHitPenalty = -15, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HumanoidMelee,
                 SpecialRules = new List<string>(){ "Poisonous weapon", "Frenzy", "Javelin", "Shield", "Armour 4", "Cloak (Armour +1 from behind)" },
                 XP = 600, TreasureType = TreasureType.T5},
             new Monster()
@@ -3252,7 +3252,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 1500, TreasureType = TreasureType.T5},
             new Monster()
             { Name = "The Apostle", CombatSkill = 65, RangedSkill = 40, MaxHP = 20, DamageBonus = 2, NaturalArmour = 2, Move = 6,
-                Dexterity = 65, Resolve = 70, ToHitPenalty = -15, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 65, Resolve = 70, ToHitPenalty = -15, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.HigherUndead,
                 SpecialRules = new List<string>(){ "Fear 10", "Seduction", "Extra DMG from Silver", "Longsword", "Armour 2" },
                 XP = 1500, TreasureType = TreasureType.T5},
             new Monster()
@@ -3262,7 +3262,7 @@ namespace LoDCompanion.Services.Dungeon
                 XP = 200, TreasureType = TreasureType.T4},
             new Monster()
             { Name = "Emil the Caretaker", CombatSkill = 55, RangedSkill = 70, MaxHP = 18, Move = 4,
-                Dexterity = 30, Resolve = 60, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.Humanoid,
+                Dexterity = 30, Resolve = 60, ToHitPenalty = -10, Type = EncounterType.MainQuest, Behavior = MonsterBehaviorType.LowerUndead,
                 SpecialRules = new List<string>(){ "Sharpened shovel (greataxe}", "Armour 0" },
                 XP = 110, TreasureType = TreasureType.T2 }
             };
