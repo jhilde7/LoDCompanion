@@ -1,6 +1,8 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.Game;
 using LoDCompanion.Utilities;
+using System;
 using System.Drawing;
 using System.Linq;
 
@@ -465,6 +467,57 @@ namespace LoDCompanion.Services.Dungeon
                     }
                 }
             }
+        }
+
+        public List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity)
+        {
+            var reachableSquares = new List<GridPosition>();
+            var visited = new HashSet<GridPosition>();
+            var queue = new Queue<(GridPosition position, int cost)>();
+
+            queue.Enqueue((entity.Position, 0));
+            visited.Add(entity.Position);
+
+            // The entity's maximum movement allowance.
+            int maxMovement = 0;
+            if (entity is Character character) maxMovement = character.Move;
+
+            while (queue.Count > 0)
+            {
+                var (currentPos, currentCost) = queue.Dequeue();
+
+                // Get all valid, walkable neighbors from the current position.
+                foreach (var neighborPos in GetNeighbors(currentPos))
+                {
+                    if (visited.Contains(neighborPos))
+                    {
+                        continue;
+                    }
+
+                    var neighborSquare = GetSquareAt(neighborPos);
+
+                    // Check if the neighbor square is occupied by another entity.
+                    // The entity's own squares are not checked because we start from its position.
+                    if (neighborSquare != null && neighborSquare.IsOccupied)
+                    {
+                        continue;
+                    }
+
+                    // Calculate the cost to move into this neighbor square.
+                    int moveCost = (neighborSquare != null && neighborSquare.DoubleMoveCost) ? 2 : 1 ;
+                    int newCost = currentCost + moveCost;
+
+                    // If we can afford to move here, add it to our lists.
+                    if (newCost <= maxMovement)
+                    {
+                        visited.Add(neighborPos);
+                        queue.Enqueue((neighborPos, newCost));
+                        reachableSquares.Add(neighborPos);
+                    }
+                }
+            }
+
+            return reachableSquares;
         }
     }
 
