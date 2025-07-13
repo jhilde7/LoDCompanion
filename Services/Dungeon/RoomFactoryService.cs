@@ -6,13 +6,13 @@ namespace LoDCompanion.Services.Dungeon
     public class RoomFactoryService
     {
         private readonly GameDataService _gameData;
-        private readonly GridService _gridService;
+        private readonly GridService _grid;
         private readonly RoomService _roomService;
 
         public RoomFactoryService(GameDataService gameData, GridService gridService, RoomService roomService)
         {
             _gameData = gameData;
-            _gridService = gridService;
+            _grid = gridService;
             _roomService = roomService;
         }
 
@@ -23,7 +23,7 @@ namespace LoDCompanion.Services.Dungeon
             _roomService.InitializeRoomData(roomDefinition, room);
             room.RoomName = roomName;
 
-            _gridService.GenerateGridForRoom(room);
+            _grid.GenerateGridForRoom(room);
 
             return room;
         }
