@@ -21,11 +21,16 @@
     {
         <div class="player-action-bar">
             <h4>@CombatManager.ActiveHero.Name's Turn (@CombatManager.ActiveHero.CurrentAP AP)</h4>
+            @if (!string.IsNullOrEmpty(_feedbackMessage))
+            {
+                <div class="feedback-message">@_feedbackMessage</div>
+            }
+
             <div class="action-buttons">
-                <button class="action-button" @onclick="() => PerformAction(PlayerActionType.StandardAttack)">Attack</button>
-                <button class="action-button" @onclick="() => PerformAction(PlayerActionType.Move)">Move</button>
-                <button class="action-button" @onclick="() => PerformAction(PlayerActionType.CastSpell)">Cast Spell</button>
-                <button class="action-button end-turn" @onclick="() => PerformAction(PlayerActionType.EndTurn)">End Turn</button>
+                <button class="action-button" @onclick="() => OnActionButtonClicked(PlayerActionType.StandardAttack)">Attack</button>
+                <button class="action-button" @onclick="() => OnActionButtonClicked(PlayerActionType.Move)">Move</button>
+                <button class="action-button" @onclick="() => OnActionButtonClicked(PlayerActionType.CastSpell)">Cast Spell</button>
+                <button class="action-button end-turn" @onclick="() => OnActionButtonClicked(PlayerActionType.EndTurn)">End Turn</button>
             </div>
         </div>
     }
@@ -80,11 +85,6 @@
             CombatManager.HeroPerformsAction(PlayerActionType.Move, targetPosition);
             ResetInputState();
         }
-    }
-
-    private void PerformAction(PlayerActionType actionType)
-    {
-        CombatManager.HeroPerformsAction(actionType, null);
     }
 
     private void ResetInputState()
