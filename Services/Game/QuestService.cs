@@ -17,6 +17,7 @@ namespace LoDCompanion.Services.Game
         private readonly DungeonManagerService _dungeonManager;
         private readonly RoomService _room;
         private readonly QuestSetupService _questSetup;
+        private readonly CombatManagerService _combatManager;
 
         public Quest? ActiveQuest { get; private set; }
         public Room? ActiveEncounterRoom { get; private set; }
@@ -32,11 +33,13 @@ namespace LoDCompanion.Services.Game
             WorldStateService worldState,
             PlacementService placement,
             EncounterService encounter,
-            QuestSetupService questSetup)
+            QuestSetupService questSetup,
+            CombatManagerService combatManagerService)
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
             _questSetup = questSetup;
+            _combatManager = combatManagerService;
         }
 
         /// <summary>
@@ -58,6 +61,22 @@ namespace LoDCompanion.Services.Game
                     // For a single encounter, create a room and have the QuestSetupService populate it.
                     ActiveEncounterRoom = new Room();
                     _questSetup.ExecuteRoomSetup(quest, ActiveEncounterRoom);
+
+                    if (ActiveEncounterRoom != null && ActiveEncounterRoom.HeroesInRoom != null && ActiveEncounterRoom.MonstersInRoom != null)
+                    {
+                        // Check for any special quest rules that affect the start of combat.
+                        bool hasSurpriseAttack = quest.SetupActions.First(q => q.ActionType == QuestSetupActionType.ModifyInitiative) != null; // Simple check for "First Blood"
+
+                        // Tell the CombatManager to begin the fight with the characters in the room.
+                        _combatManager.StartCombat(
+                        ActiveEncounterRoom.HeroesInRoom,
+                        ActiveEncounterRoom.MonstersInRoom,
+                        hasSurpriseAttack);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Cannot start combat. Room or characters not initialized.");
+                    }
                     break;
             }
 
