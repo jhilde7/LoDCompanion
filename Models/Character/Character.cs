@@ -297,6 +297,7 @@ namespace LoDCompanion.Models.Character
         public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
         public Corpse Body { get; set; } = new Corpse(TreasureType.None);
         private TreasureType _treasureType = TreasureType.None;
+        public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public TreasureType TreasureType
         {
             get => _treasureType;
