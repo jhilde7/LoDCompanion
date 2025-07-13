@@ -46,6 +46,7 @@
 </div>
 
 @code {
+    private bool _isFirstRender = true;
     private CombatInterface? _combatInterface;
 
     private void HandleMonsterClick(Monster monster)
@@ -63,6 +64,15 @@
         if (CombatManager.IsAwaitingHeroSelection)
         {
             CombatManager.SelectHeroToAction(hero);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isFirstRender = false;
+            CombatManager.StartFirstTurn();
         }
     }
 
