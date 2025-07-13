@@ -131,7 +131,7 @@ namespace LoDCompanion.Services.Game
                     CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
                     // The game now waits for UI input to call HeroPerformsAction(...).
                 }
-                else
+                else if (!IsAwaitingHeroSelection)
                 {
                     // This can happen if all non-Overwatch heroes have used their AP.
                     ProcessNextInInitiative();
