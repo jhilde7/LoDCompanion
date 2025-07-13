@@ -1,12 +1,21 @@
 ﻿@using LoDCompanion.Models.Dungeon
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
+@using LoDCompanion.Models.Character
 
 @inject RoomService RoomService
 
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
     {
+        @* Render clickable grid squares for movement *@
+        @foreach (var square in Room.Grid)
+        {
+            <div class="grid-background-square" style="@GetSquareStyle(square.Position)"
+                 @onclick="() => OnGridSquareClicked.InvokeAsync(square.Position)">
+            </div>
+        }
+
         @* Render furniture as individual, interactive overlay squares *@
         @foreach (var furniture in Room.FurnitureList)
         {
@@ -24,7 +33,8 @@
         {
             @foreach (var monster in Room.MonstersInRoom)
             {
-                <div class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)">
+                <div class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
+                     @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
                 </div>
@@ -47,6 +57,10 @@
 @code {
     [Parameter]
     public Room? Room { get; set; }
+    [Parameter]
+    public EventCallback<Monster> OnMonsterClicked { get; set; }
+    [Parameter]
+    public EventCallback<GridPosition> OnGridSquareClicked { get; set; }
 
     private string GridStyle
     {

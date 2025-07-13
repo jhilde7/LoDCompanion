@@ -64,17 +64,16 @@
         }
     }
 
-    private void OnMonsterClicked(Monster targetMonster)
+    public void OnMonsterClicked(Monster targetMonster)
     {
         if (_currentInputState == InputState.SelectingTarget)
         {
             CombatManager.HeroPerformsAction(PlayerActionType.StandardAttack, targetMonster);
-
             ResetInputState();
         }
     }
 
-    private void OnGridSquareClicked(GridPosition targetPosition)
+    public void OnGridSquareClicked(GridPosition targetPosition)
     {
         if (_currentInputState == InputState.SelectingDestination)
         {

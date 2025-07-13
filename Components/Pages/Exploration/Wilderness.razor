@@ -3,6 +3,7 @@
 
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
+@using LoDCompanion.Models.Character
 @using LoDCompanion.Components
 @using LoDCompanion.Components.Shared
 
@@ -12,8 +13,8 @@
 
 <div class="wilderness-container">
     @if (QuestService.IsQuestActive &&
-        QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
-        QuestService.ActiveEncounterRoom != null)
+      QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
+      QuestService.ActiveEncounterRoom != null)
     {
         <div class="quest-header">
             <h1>@QuestService.ActiveQuest.Name</h1>
@@ -25,11 +26,13 @@
         </div>
 
         <div class="game-area">
-            <GridDisplay Room="QuestService.ActiveEncounterRoom" />
+            <GridDisplay Room="QuestService.ActiveEncounterRoom"
+            OnMonsterClicked="HandleMonsterClick"
+            OnGridSquareClicked="HandleGridSquareClick" />
         </div>
 
         <div class="combat-ui">
-            <CombatInterface />
+            <CombatInterface @ref="_combatInterface" />
         </div>
     }
     else
@@ -42,6 +45,18 @@
 </div>
 
 @code {
+    private CombatInterface? _combatInterface;
+
+    private void HandleMonsterClick(Monster monster)
+    {
+        _combatInterface?.OnMonsterClicked(monster);
+    }
+
+    private void HandleGridSquareClick(GridPosition position)
+    {
+        _combatInterface?.OnGridSquareClicked(position);
+    }
+
     protected override void OnInitialized()
     {
         // Subscribe to the QuestService's event. When a quest starts,
