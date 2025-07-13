@@ -9,6 +9,14 @@ using System.Text;
 
 namespace LoDCompanion.Models.Character
 {
+    public enum FacingDirection
+    {
+        North,
+        South,
+        East,
+        West
+    }
+
     public class Character : IGameEntity
     {
         public string Id { get; }
@@ -46,6 +54,8 @@ namespace LoDCompanion.Models.Character
         public int CurrentAP { get; set; } = 2;
         public bool IsLarge { get; set; }
         public bool IsVulnerableAfterPowerAttack { get; set; }
+        public FacingDirection Facing { get; set; } = FacingDirection.North;
+
 
         // Constructor (optional, but good practice for initialization)
         public Character()
