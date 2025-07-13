@@ -45,7 +45,8 @@
         {
             @foreach (var hero in Room.HeroesInRoom)
             {
-                <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)">
+                <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
+                     @onclick="() => OnHeroClicked.InvokeAsync(hero)">
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
                 </div>

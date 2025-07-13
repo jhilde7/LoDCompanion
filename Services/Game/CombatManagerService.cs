@@ -23,6 +23,7 @@ namespace LoDCompanion.Services.Game
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
+        public bool IsAwaitingHeroSelection { get; private set; } = false;
 
         public List<string> CombatLog { get; set; } = new List<string>();
         public event Action? OnCombatStateChanged;
@@ -116,9 +117,11 @@ namespace LoDCompanion.Services.Game
 
             if (nextActorType == ActorType.Hero)
             {
-                // A hero gets to act. The UI would allow the player to choose an available hero.
-                // For now, we'll assume the player is now in control.
-                ActiveHero = HeroesInCombat.First(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch);
+                IsAwaitingHeroSelection = true;
+                ActiveHero = null; // Clear the previously active hero
+                CombatLog.Add("Hero's turn. Select an available hero to act.");
+                OnCombatStateChanged?.Invoke(); // Notify the UI to update for selection mode
+
                 if (ActiveHero != null)
                 {
                     ActiveHero.IsVulnerableAfterPowerAttack = false;
@@ -341,6 +344,29 @@ namespace LoDCompanion.Services.Game
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// This NEW public method is called by the UI when a player clicks on a valid hero.
+        /// </summary>
+        public void SelectHeroToAction(Hero hero)
+        {
+            // Ensure we are in the correct state and the hero is valid
+            if (!IsAwaitingHeroSelection || !HeroesInCombat.Contains(hero) || hero.CurrentAP <= 0)
+            {
+                CombatLog.Add("Invalid hero selection.");
+                OnCombatStateChanged?.Invoke();
+                return;
+            }
+
+            // Set the selected hero as active and exit the selection state
+            ActiveHero = hero;
+            IsAwaitingHeroSelection = false;
+
+            // Perform standard start-of-turn logic
+            _statusEffect.ProcessStatusEffects(ActiveHero);
+            CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
+            OnCombatStateChanged?.Invoke();
         }
 
         // This method would be called by the UI when the player selects an action.

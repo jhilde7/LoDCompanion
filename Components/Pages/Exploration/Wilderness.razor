@@ -27,8 +27,9 @@
 
         <div class="game-area">
             <GridDisplay Room="QuestService.ActiveEncounterRoom"
-            OnMonsterClicked="HandleMonsterClick"
-            OnGridSquareClicked="HandleGridSquareClick" />
+                         OnMonsterClicked="HandleMonsterClick"
+                         OnGridSquareClicked="HandleGridSquareClick"
+                         OnHeroClicked="HandleHeroClick" />
         </div>
 
         <div class="combat-ui">
@@ -55,6 +56,14 @@
     private void HandleGridSquareClick(GridPosition position)
     {
         _combatInterface?.OnGridSquareClicked(position);
+    }
+
+    private void HandleHeroClick(Hero hero)
+    {
+        if (CombatManager.IsAwaitingHeroSelection)
+        {
+            CombatManager.SelectHeroToAction(hero);
+        }
     }
 
     protected override void OnInitialized()
