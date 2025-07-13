@@ -115,7 +115,8 @@ namespace LoDCompanion.Models.Character
     {
         Normal,
         Parry,
-        Overwatch
+        Overwatch,
+        Aiming
     }
 
     public class Hero : Character
