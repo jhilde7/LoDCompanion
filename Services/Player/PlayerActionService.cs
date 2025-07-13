@@ -5,7 +5,6 @@ using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
-using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Player
 {
@@ -82,9 +81,6 @@ namespace LoDCompanion.Services.Player
                 return false;
             }
 
-            // Deduct AP before performing the action
-            hero.CurrentAP -= apCost;
-
             string resultMessage = $"{hero.Name} performed {actionType}.";
             // Execute the action logic
             switch (actionType)
@@ -96,6 +92,7 @@ namespace LoDCompanion.Services.Player
                         var context = new CombatContext();
                         var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context);
                         resultMessage = attackResult.OutcomeMessage;
+                        hero.CurrentAP -= apCost;
                     }
                     else
                     {
@@ -104,30 +101,57 @@ namespace LoDCompanion.Services.Player
                     break;
 
                 case PlayerActionType.Move:
-                    Console.WriteLine($"{hero.Name} moves.");
-                    // Add movement logic here
+                    if (primaryTarget is GridPosition targetPosition)
+                    {
+                        // Attempt to move the character using the grid service.
+                        if (_grid.MoveCharacter(hero, targetPosition))
+                        {
+                            hero.CurrentAP -= apCost;
+                            resultMessage = $"{hero.Name} moves to {targetPosition}.";
+                        }
+                        else
+                        {
+                            // If the move is invalid (blocked path, etc.), do not deduct AP.
+                            resultMessage = $"{hero.Name} cannot move to {targetPosition}. The path is blocked.";
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid destination for move action.";
+                    }
                     break;
 
                 case PlayerActionType.OpenDoor:
                     if (primaryTarget is DoorChest door)
                     {
                         _dungeonManager.InteractWithDoor(door, hero);
+                        hero.CurrentAP -= apCost;
                     }
                     break;
                 case PlayerActionType.HealSelf:
                     resultMessage = _healing.ApplyBandage(hero, hero);
+                    hero.CurrentAP -= apCost;
                     break;
                 case PlayerActionType.HealOther:
                     if (primaryTarget is Hero targetHero)
+                    {
                         resultMessage = _healing.ApplyBandage(hero, targetHero);
+                        hero.CurrentAP -= apCost;
+                    }
                     break;
                 case PlayerActionType.RearrangeGear:
                     if (primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
+                    { 
                         resultMessage = _inventory.RearrangeItem(hero, item, slots.Item1, slots.Item2);
+                        hero.CurrentAP -= apCost;
+                    }
                     break;
                 case PlayerActionType.IdentifyItem:
                     if (primaryTarget is Equipment itemToIdentify)
+                    { 
                         resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
+                        hero.CurrentAP -= apCost;
+                    }
                     break;
                 case PlayerActionType.SetOverwatch:
                     var equippedWeapon = hero.Weapons.First();
@@ -144,6 +168,7 @@ namespace LoDCompanion.Services.Player
                         var attackResult = _heroCombat.ResolveAttack(hero, monster1, weapon1, context);
                         hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
+                        hero.CurrentAP -= apCost;
                     }
                     break;
 
@@ -154,6 +179,7 @@ namespace LoDCompanion.Services.Player
                         // TODO: Add movement logic before the attack
                         var attackResult = _heroCombat.ResolveAttack(hero, monsterTarget, chargeWeapon, context);
                         resultMessage = attackResult.OutcomeMessage;
+                        hero.CurrentAP -= apCost;
                     }
                     break;
 
@@ -161,6 +187,7 @@ namespace LoDCompanion.Services.Player
                     if (primaryTarget is Character targetToShove)
                     {
                         resultMessage = _grid.ShoveCharacter(hero, targetToShove, targetToShove.Room); // Pass current room
+                        hero.CurrentAP -= apCost;
                     }
                     break;
             }
