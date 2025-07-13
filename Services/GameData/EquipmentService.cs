@@ -985,6 +985,7 @@ namespace LoDCompanion.Services.GameData
                     Class = 2,
                     Value = 5,
                     Availability = 5,
+                    MaxDurability = 4,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
                         { WeaponProperty.Defensive, 0 },
