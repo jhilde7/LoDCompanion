@@ -5,6 +5,24 @@ using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Combat
 {
+    public enum SpecialActiveAbility
+    {
+        Bellow,
+        Camouflage,
+        Entangle,
+        FireBreath,
+        GhostlyHowl,
+        MasterOfTheDead,
+        MultipleAttack,
+        Petrify,
+        PoisonSpit,
+        Seduction,
+        SummonChildren,
+        TongueAttack,
+        Swallow,
+        SweepingStrike
+    }
+
     public class MonsterSpecialService
     {
         private readonly GameDataService _gameData;
@@ -21,23 +39,23 @@ namespace LoDCompanion.Services.Combat
         /// <param name="heroes">The list of heroes targeted by the action.</param>
         /// <param name="abilityType">The type of special ability to execute (e.g., "Bellow", "FireBreath").</param>
         /// <returns>A string describing the outcome of the special action.</returns>
-        public string ExecuteSpecialAbility(Monster monster, List<Hero> heroes, string abilityType)
+        public string ExecuteSpecialAbility(Monster monster, List<Hero> heroes, Hero target, SpecialActiveAbility abilityType)
         {
-            switch (abilityType.ToLower())
+            switch (abilityType)
             {
-                case "bellow":
+                case SpecialActiveAbility.Bellow:
                     return Bellow(monster, heroes);
-                case "camouflage":
+                case SpecialActiveAbility.Camouflage:
                     return Camouflage(monster, heroes);
-                case "entangle":
+                case SpecialActiveAbility.Entangle:
                     return Entangle(monster, heroes);
-                case "firebreath":
+                case SpecialActiveAbility.FireBreath:
                     return FireBreath(monster, heroes);
-                case "ghostlyhowl":
+                case SpecialActiveAbility.GhostlyHowl:
                     return GhostlyHowl(monster, heroes);
-                case "masterofthedead":
+                case SpecialActiveAbility.MasterOfTheDead:
                     return MasterOfTheDead(monster, heroes);
-                case "multipleattack":
+                case SpecialActiveAbility.MultipleAttack:
                     // This one needs a specific count, assume it's passed with the monster's state or handled externally
                     // For now, let's use a default or an assumed property on monster.
                     int attackCount = 1; // Default
@@ -45,19 +63,19 @@ namespace LoDCompanion.Services.Combat
                     else if (monster.SpecialRules.Contains("Multiple Attack x3")) attackCount = 3;
                     // ... and so on for other counts
                     return MultipleAttack(monster, heroes, attackCount);
-                case "petrify":
+                case SpecialActiveAbility.Petrify:
                     return Petrify(monster, heroes);
-                case "poisonspit":
+                case SpecialActiveAbility.PoisonSpit:
                     return PoisonSpit(monster, heroes);
-                case "seduction":
+                case SpecialActiveAbility.Seduction:
                     return Seduction(monster, heroes);
-                case "summonchildren":
+                case SpecialActiveAbility.SummonChildren:
                     return SummonChildren(monster, heroes);
-                case "tongueattack":
+                case SpecialActiveAbility.TongueAttack:
                     return TongueAttack(monster, heroes);
-                case "swallow":
+                case SpecialActiveAbility.Swallow:
                     return Swallow(monster, heroes);
-                case "sweepingstrike":
+                case SpecialActiveAbility.SweepingStrike:
                     return SweepingStrike(monster, heroes);
                 default:
                     return $"{monster.Name} attempts an unknown special ability: {abilityType}. Nothing happens.";
@@ -342,7 +360,7 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        internal string TriggerRandomSpecialAttack(Monster attacker, Hero targetHero)
+        internal List<string> GetSpecialAttacks(List<string> specialRules)
         {
             throw new NotImplementedException();
         }
