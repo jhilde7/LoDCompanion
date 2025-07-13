@@ -9,13 +9,13 @@ namespace LoDCompanion.Services.Game
 {
     public class MonsterAIService
     {
-        private readonly GridService _gridService;
-        private readonly MonsterCombatService _monsterCombatService;
+        private readonly GridService _grid;
+        private readonly MonsterCombatService _monsterCombat;
 
         public MonsterAIService(GridService gridService, MonsterCombatService monsterCombatService)
         {
-            _gridService = gridService;
-            _monsterCombatService = monsterCombatService;
+            _grid = gridService;
+            _monsterCombat = monsterCombatService;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
-            int distance = _gridService.GetDistance(monster.Position, target.Position);
+            int distance = _grid.GetDistance(monster.Position, target.Position);
 
             if (distance <= 1)
             {
@@ -88,12 +88,12 @@ namespace LoDCompanion.Services.Game
                         break;
                     case <= 6:
                         // Standard attack
-                        Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                        Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                         monster.CurrentAP--;
                         break;
                 }
             }
-            else if (_gridService.HasLineOfSight(monster.Position, target.Position).CanShoot)
+            else if (_grid.HasLineOfSight(monster.Position, target.Position).CanShoot)
             {
                 int spellTypeRoll = RandomHelper.RollDie("D6");
                 if (spellTypeRoll <= 4) // Ranged magic
@@ -139,7 +139,7 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
-            int distance = _gridService.GetDistance(monster.Position, target.Position);
+            int distance = _grid.GetDistance(monster.Position, target.Position);
 
             if (distance > monster.Move)
             {
@@ -150,7 +150,7 @@ namespace LoDCompanion.Services.Game
 
             if (distance > 1 && distance <= monster.Move)
             {
-                _monsterCombatService.PerformChargeAttack(monster, target);
+                _monsterCombat.PerformChargeAttack(monster, target);
                 monster.CurrentAP = 0;
                 return;
             }
@@ -163,12 +163,12 @@ namespace LoDCompanion.Services.Game
                     int attackTypeRoll = RandomHelper.RollDie("D6");
                     if (attackTypeRoll <= 2)
                     {
-                        _monsterCombatService.PerformPowerAttack(monster, target);
+                        _monsterCombat.PerformPowerAttack(monster, target);
                         monster.CurrentAP -= 2;
                     }
                     else
                     {
-                        Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                        Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                         monster.CurrentAP--;
                     }
                 }
@@ -196,7 +196,7 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
-            int distance = _gridService.GetDistance(monster.Position, target.Position);
+            int distance = _grid.GetDistance(monster.Position, target.Position);
 
             if (distance > 1)
             {
@@ -209,11 +209,11 @@ namespace LoDCompanion.Services.Game
                 int attackRoll = RandomHelper.RollDie("D6");
                 if (attackRoll <= 4)
                 {
-                    Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                    Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                 }
                 else
                 {
-                    _monsterCombatService.PerformPowerAttack(monster, target);
+                    _monsterCombat.PerformPowerAttack(monster, target);
                 }
                 monster.CurrentAP -= 2;
             }
@@ -228,7 +228,7 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
-            int distance = _gridService.GetDistance(monster.Position, target.Position);
+            int distance = _grid.GetDistance(monster.Position, target.Position);
 
             if (distance > monster.Move)
             {
@@ -239,7 +239,7 @@ namespace LoDCompanion.Services.Game
 
             if (distance > 1 && distance <= monster.Move)
             {
-                _monsterCombatService.PerformChargeAttack(monster, target);
+                _monsterCombat.PerformChargeAttack(monster, target);
                 monster.CurrentAP = 0;
                 return;
             }
@@ -254,18 +254,18 @@ namespace LoDCompanion.Services.Game
                     {
                         if (monster.CurrentHP < monster.MaxHP / 2)
                         {
-                            Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                            Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                         }
                         else
                         {
-                            _monsterCombatService.PerformPowerAttack(monster, target);
+                            _monsterCombat.PerformPowerAttack(monster, target);
                         }
 
                         monster.CurrentAP -= 2;
                     }
                     else
                     {
-                        Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                        Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                         monster.CurrentAP--;
                     }
                 }
@@ -287,7 +287,7 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
-            int distance = _gridService.GetDistance(monster.Position, target.Position);
+            int distance = _grid.GetDistance(monster.Position, target.Position);
 
             if (distance <= 1)
             {
@@ -302,11 +302,11 @@ namespace LoDCompanion.Services.Game
                             monster.CurrentAP = 0; // Ends turn
                             break;
                         case <= 5: // Standard Attack
-                            Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                            Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                             monster.CurrentAP--;
                             break;
                         case 6: // Power Attack
-                            _monsterCombatService.PerformPowerAttack(monster, target);
+                            _monsterCombat.PerformPowerAttack(monster, target);
                             monster.IsVulnerableAfterPowerAttack = true;
                             monster.CurrentAP -= 2; // Power Attack costs 2 AP
                             break;
@@ -337,7 +337,7 @@ namespace LoDCompanion.Services.Game
                 }
                 else // Charge Attack
                 {
-                    _monsterCombatService.PerformChargeAttack(monster, target);
+                    _monsterCombat.PerformChargeAttack(monster, target);
                     monster.CurrentAP = 0; // Charge is a 2 AP action
                 }
                 return;
@@ -359,7 +359,7 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
-            int distance = _gridService.GetDistance(monster.Position, target.Position);
+            int distance = _grid.GetDistance(monster.Position, target.Position);
 
             if (distance <= 2)
             {
@@ -402,7 +402,7 @@ namespace LoDCompanion.Services.Game
                 else
                 {
                     Console.WriteLine($"{monster.Name} shoots at {target.Name}.");
-                    Console.WriteLine($"{_monsterCombatService.PerformStandardAttack(monster, target)}.");
+                    Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
                 }
             }
             else
@@ -423,7 +423,7 @@ namespace LoDCompanion.Services.Game
 
             return heroes
                 .Where(h => monster.Position != null && h.Position != null)
-                .OrderBy(h => _gridService.GetDistance(monster.Position!, h.Position!))
+                .OrderBy(h => _grid.GetDistance(monster.Position!, h.Position!))
                 .First();
         }
     }
