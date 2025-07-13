@@ -49,24 +49,32 @@ namespace LoDCompanion.Services.Game
         }
 
 
-        public void StartCombat(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
+        public void SetupCombat(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
         {
             HeroesInCombat = heroes;
             MonstersInCombat = monsters;
             UnwieldlyBonusUsed.Clear();
+            CombatLog.Clear();
+            MonstersThatHaveActedThisTurn.Clear();
+            ActiveHero = null;
+            IsAwaitingHeroSelection = false;
 
             foreach (var hero in heroes)
             {
                 hero.HasDodgedThisBattle = false;
             }
 
-            // Setup the initiative for the first turn.
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat, didBashDoor);
 
-            CombatLog.Add("Combat has started!");
-            ProcessNextInInitiative();
+            CombatLog.Add("The battle begins!");
 
             OnCombatStateChanged?.Invoke();
+        }
+
+        public void StartFirstTurn()
+        {
+            CombatLog.Add("--- Turn 1 ---");
+            ProcessNextInInitiative();
         }
 
         /// <summary>
