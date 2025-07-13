@@ -68,7 +68,7 @@ namespace LoDCompanion.Services.Game
                         bool hasSurpriseAttack = quest.SetupActions.First(q => q.ActionType == QuestSetupActionType.ModifyInitiative) != null; // Simple check for "First Blood"
 
                         // Tell the CombatManager to begin the fight with the characters in the room.
-                        _combatManager.StartCombat(
+                        _combatManager.SetupCombat(
                         ActiveEncounterRoom.HeroesInRoom,
                         ActiveEncounterRoom.MonstersInRoom,
                         hasSurpriseAttack);
