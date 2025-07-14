@@ -10,20 +10,13 @@ using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Combat
 {
-    public class MonsterCombatService
+    public static class MonsterCombatService
     {
-        private readonly DefenseService _defense;
-
-        public MonsterCombatService(
-            DefenseService defenseService)
-        {
-            _defense = defenseService;
-        }
 
         /// <summary>
         /// Resolves a monster's standard attack against a hero.
         /// </summary>
-        public AttackResult PerformStandardAttack(Monster attacker, Hero target)
+        public static AttackResult PerformStandardAttack(Monster attacker, Hero target)
         {
             var context = new CombatContext(); // Standard attack has a default context
             return ResolveAttack(attacker, target, context);
@@ -32,7 +25,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a monster's Power Attack, which grants +20 CS.
         /// </summary>
-        public AttackResult PerformPowerAttack(Monster attacker, Hero target)
+        public static AttackResult PerformPowerAttack(Monster attacker, Hero target)
         {
             var context = new CombatContext { IsPowerAttack = true };
             Console.WriteLine($"{attacker.Name} uses a Power Attack!");
@@ -42,7 +35,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a monster's Charge Attack, which grants +10 CS.
         /// </summary>
-        public AttackResult PerformChargeAttack(Monster attacker, Hero target)
+        public static AttackResult PerformChargeAttack(Monster attacker, Hero target)
         {
             var context = new CombatContext { IsChargeAttack = true };
             Console.WriteLine($"{attacker.Name} charges {target.Name}!");
@@ -55,7 +48,7 @@ namespace LoDCompanion.Services.Combat
         /// <param name="attacker">The attacking monster.</param>
         /// <param name="target">The hero being attacked.</param>
         /// <returns>An AttackResult object detailing the outcome.</returns>
-        public AttackResult ResolveAttack(Monster attacker, Hero target, CombatContext context)
+        public static AttackResult ResolveAttack(Monster attacker, Hero target, CombatContext context)
         {
             var result = new AttackResult();
             var monsterWeapon = attacker.Weapons.First();
@@ -108,9 +101,9 @@ namespace LoDCompanion.Services.Combat
 
         /// <summary>
         /// Calculates the total "to-hit" modifier for a monster attacking a hero.
-        /// This method is now public to be used by other services like MonsterAIService.
+        /// This method is now public static to be used by other services like MonsterAIService.
         /// </summary>
-        public int CalculateHitChanceModifier(Monster attacker, Hero target)
+        public static int CalculateHitChanceModifier(Monster attacker, Hero target)
         {
             int modifier = 0;
             var heroWeapon = target.GetEquippedWeapon();
@@ -153,21 +146,21 @@ namespace LoDCompanion.Services.Combat
             return modifier;
         }
 
-        private DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
+        private static DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
         {
             // In a real UI, the player would choose. We'll prioritize dodge.
             if (!target.HasDodgedThisBattle)
             {
-                return _defense.AttemptDodge(target);
+                return DefenseService.AttemptDodge(target);
             }
             if (target.Shield != null)
             {
-                return _defense.AttemptShieldParry(target, target.Shield, incomingDamage);
+                return DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
             }
             return new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
         }
 
-        private HitLocation DetermineHitLocation()
+        private static HitLocation DetermineHitLocation()
         {
             int roll = RandomHelper.RollDie("D6");
             return roll switch
@@ -182,7 +175,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Applies armor reduction based on the specific hit location.
         /// </summary>
-        private int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, Weapon? weapon)
+        private static int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, Weapon? weapon)
         {
             var relevantArmor = target.Armours.Where(a => DoesArmorCoverLocation(a, location)).ToList();
             int totalArmorValue = relevantArmor.Sum(a => a.DefValue);
@@ -196,7 +189,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Checks if a piece of armor covers a given hit location.
         /// </summary>
-        private bool DoesArmorCoverLocation(Armour armour, HitLocation location)
+        private static bool DoesArmorCoverLocation(Armour armour, HitLocation location)
         {
             return location switch
             {
@@ -211,7 +204,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// On a torso hit, rolls to see if an item in a quick slot is damaged.
         /// </summary>
-        private string CheckForQuickSlotDamage(Hero target)
+        private static string CheckForQuickSlotDamage(Hero target)
         {
             int slotRoll = RandomHelper.RollDie("D10");
             if (slotRoll <= target.QuickSlots.Count)
@@ -226,7 +219,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Calculates the raw damage of a monster's attack before armor and defense.
         /// </summary>
-        private int CalculatePotentialDamage(Monster attacker, Weapon? weapon)
+        private static int CalculatePotentialDamage(Monster attacker, Weapon? weapon)
         {
             if (weapon != null)
             {
@@ -242,7 +235,7 @@ namespace LoDCompanion.Services.Combat
         /// <param name="targetHero">The hero being targeted.</param>
         /// <param name="monsterSpellDamage">The spell damage properties.</param>
         /// <returns>A tuple containing spell message and damage dealt.</returns>
-        public (string message, int damageDealt) ProcessSpellDamage(Monster attacker, Hero targetHero, Spell monsterSpellDamage)
+        public static (string message, int damageDealt) ProcessSpellDamage(Monster attacker, Hero targetHero, Spell monsterSpellDamage)
         {
             if (attacker == null) throw new ArgumentNullException(nameof(attacker));
             if (targetHero == null) throw new ArgumentNullException(nameof(targetHero));
@@ -270,7 +263,7 @@ namespace LoDCompanion.Services.Combat
         /// <param name="adjacentHeroes">List of heroes adjacent to the monster.</param>
         /// <param name="heroesInLOS">List of heroes in line of sight of the monster.</param>
         /// <returns>A string describing the monster's action.</returns>
-        public string GetAction(Monster monster, List<Hero> adjacentHeroes, List<Hero> heroesInLOS)
+        public static string GetAction(Monster monster, List<Hero> adjacentHeroes, List<Hero> heroesInLOS)
         {
             if (monster == null) throw new ArgumentNullException(nameof(monster));
 
@@ -321,7 +314,7 @@ namespace LoDCompanion.Services.Combat
         /// <param name="weapon">The weapon used by the monster (can be null for natural attacks).</param>
         /// <param name="targetArmourPieces">The collection of armor pieces on the target.</param>
         /// <returns>The total damage dealt after armor reduction.</returns>
-        public int GetDamage(Monster attacker, List<Armour> targetArmourPieces, Weapon? weapon = null)
+        public static int GetDamage(Monster attacker, List<Armour> targetArmourPieces, Weapon? weapon = null)
         {
             if (attacker == null) throw new ArgumentNullException(nameof(attacker));
 

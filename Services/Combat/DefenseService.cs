@@ -16,14 +16,13 @@ namespace LoDCompanion.Services.Combat
     /// <summary>
     /// Handles hero defensive actions like dodging and parrying.
     /// </summary>
-    public class DefenseService
+    public static class DefenseService
     {
-        public DefenseService() { }
 
         /// <summary>
         /// Resolves a hero's dodge attempt against an incoming attack.
         /// </summary>
-        public DefenseResult AttemptDodge(Hero hero)
+        public static DefenseResult AttemptDodge(Hero hero)
         {
             var result = new DefenseResult();
             if (hero.HasDodgedThisBattle)
@@ -60,7 +59,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a weapon.
         /// </summary>
-        public DefenseResult AttemptWeaponParry(Hero hero, Weapon weapon)
+        public static DefenseResult AttemptWeaponParry(Hero hero, Weapon weapon)
         {
             var result = new DefenseResult();
             if (hero.Stance != CombatStance.Parry)
@@ -95,7 +94,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a shield.
         /// </summary>
-        public DefenseResult AttemptShieldParry(Hero hero, Shield shield, int incomingDamage)
+        public static DefenseResult AttemptShieldParry(Hero hero, Shield shield, int incomingDamage)
         {
             var result = new DefenseResult();
 
