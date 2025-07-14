@@ -3,23 +3,21 @@ using LoDCompanion.Models;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Models.Combat;
+using System;
+using System.Threading;
+using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Combat
 {
     public class MonsterCombatService
     {
-        private readonly MonsterSpecialService _monsterSpecial;
         private readonly DefenseService _defense;
-        private readonly DirectionService _direction;
 
         public MonsterCombatService(
-            MonsterSpecialService monsterSpecialService, 
-            DefenseService defenseService,
-            DirectionService directionService)
+            DefenseService defenseService)
         {
-            _monsterSpecial = monsterSpecialService;
             _defense = defenseService;
-            _direction = directionService;
         }
 
         /// <summary>
@@ -124,7 +122,7 @@ namespace LoDCompanion.Services.Combat
             if (attacker.Position.Z > target.Position.Z) modifier += 10;
 
             // Attacking from behind gives a significant advantage.
-            if (_direction.IsAttackingFromBehind(attacker, target)) modifier += 20;
+            if (DirectionService.IsAttackingFromBehind(attacker, target)) modifier += 20;
             // If the hero performed a Power Attack, they are vulnerable.
             if (target.IsVulnerableAfterPowerAttack)
             {
@@ -132,7 +130,7 @@ namespace LoDCompanion.Services.Combat
             }
             else
             {
-                if(!_direction.IsAttackingFromBehind(attacker, target))
+                if(!DirectionService.IsAttackingFromBehind(attacker, target))
                 {
                     // If not vulnerable, their normal defensive bonuses apply.
                     if (target.Shield != null)

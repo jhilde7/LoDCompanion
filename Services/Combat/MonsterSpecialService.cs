@@ -2,6 +2,7 @@
 using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Services.GameData;
+using System;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -25,11 +26,10 @@ namespace LoDCompanion.Services.Combat
 
     public class MonsterSpecialService
     {
-        private readonly GameDataService _gameData;
 
-        public MonsterSpecialService(GameDataService gameDataService)
+        public MonsterSpecialService()
         {
-            _gameData = gameDataService;
+            
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < hero.Resolve) // Assuming lower is better for Resolve check
                 {
-                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Stunned)); // Assuming Status is a List<string> or similar
+                    StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned)); // Assuming Status is a List<string> or similar
                     outcome += $"{hero.Name} is stunned by the roar!\n";
                 }
                 else
@@ -197,7 +197,7 @@ namespace LoDCompanion.Services.Combat
                 int conRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (conRoll < hero.Constitution) // Example: Constitution check to resist petrification
                 {
-                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Petrified));
+                    StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Petrified));
                     outcome += $"{hero.Name} is turned to stone!\n";
                 }
                 else
@@ -216,7 +216,7 @@ namespace LoDCompanion.Services.Combat
                 var target = heroes[0]; // Assume single target
                 int damage = RandomHelper.GetRandomNumber(1, 4); // Initial damage
                 target.TakeDamage(damage);
-                target.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Poisoned));
+                StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Poisoned));
                 outcome += $"{target.Name} is hit for {damage} damage and is poisoned!\n";
             }
             return outcome;
@@ -282,7 +282,7 @@ namespace LoDCompanion.Services.Combat
                 int damage = RandomHelper.GetRandomNumber(1, 4);
                 target.TakeDamage(damage);
                 outcome += $"{target.Name} is hit for {damage} damage and ensnared by the tongue!\n";
-                target.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Ensnared)); // Apply status effect
+                StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Ensnared)); // Apply status effect
             }
             return outcome;
         }
@@ -297,7 +297,7 @@ namespace LoDCompanion.Services.Combat
                 int swallowRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (swallowRoll > target.Dexterity) // Example: Dexterity check to avoid being swallowed
                 {
-                    target.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.BeingSwallowed)); // Apply swallowed status (e.g., for ongoing damage)
+                    StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.BeingSwallowed)); // Apply swallowed status (e.g., for ongoing damage)
                     outcome += $"{target.Name} is swallowed by {monster.Name}!\n";
                 }
                 else
@@ -329,7 +329,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < (hero.Resolve - fearLevel)) // Example: Resolve vs. FearLevel
                 {
-                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Fear));
+                    StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Fear));
                     outcome += $"{hero.Name} is gripped by fear!\n";
                 }
                 else
@@ -349,7 +349,7 @@ namespace LoDCompanion.Services.Combat
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
                 if (resolveRoll < (hero.Resolve - terrorLevel)) // Example: Resolve vs. TerrorLevel
                 {
-                    hero.ActiveStatusEffects.Add(_gameData.GetStatusEffectByType(StatusEffectType.Terror));
+                    StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Terror));
                     outcome += $"{hero.Name} is terrified and tries to flee!\n";
                 }
                 else
