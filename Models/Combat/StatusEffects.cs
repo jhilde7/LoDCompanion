@@ -133,7 +133,6 @@
         WeShallNotFalter,
         GodsChampion,
         //--Spells--
-        Blind,
         ProtectiveShield,
         FakeDeath,
         GustOfWind,
@@ -152,8 +151,11 @@
         BolsteredMind,
         CauseAnimosity,
         Levitate,
-        Shield,
         Speed,
+        Blind,
+        Shield,
+        GustOfWindAura, 
+        MuteAura,
         //--MonsterSpecial--
         CauseFear,
         CauseTerror,
@@ -196,7 +198,8 @@
         Sneaky,
         Stench,
         Stupid,
-        WallCrawler
+        WallCrawler,
+        RaiseDead
     }
 
     /// <summary>
