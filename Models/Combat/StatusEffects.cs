@@ -133,6 +133,7 @@
         WeShallNotFalter,
         GodsChampion,
         //--Spells--
+        Blind,
         ProtectiveShield,
         FakeDeath,
         GustOfWind,
@@ -140,6 +141,7 @@
         Silence,
         Blur,
         MagicArmour,
+        Seduce,
         Slow,
         Corruption,
         ControlUndead,
