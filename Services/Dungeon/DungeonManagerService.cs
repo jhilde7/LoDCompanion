@@ -19,7 +19,6 @@ namespace LoDCompanion.Services.Dungeon
         private readonly TrapService _trap;
         private readonly PartyRestingService _partyResting;
         private readonly LeverService _lever;
-        private readonly GridService _grid;
         private readonly DungeonState _dungeonState;
         
         public Party? HeroParty => _dungeonState.HeroParty;
@@ -39,8 +38,7 @@ namespace LoDCompanion.Services.Dungeon
             ThreatService threatService,
             TrapService trapService,
             PartyRestingService partyResting,
-            LeverService leverService,
-            GridService gridService)
+            LeverService leverService)
         {
             _gameData = gameData;
             _wanderingMonster = wanderingMonster;
@@ -52,7 +50,6 @@ namespace LoDCompanion.Services.Dungeon
             _trap = trapService;
             _partyResting = partyResting;
             _lever = leverService;
-            _grid = gridService;
 
             _dungeonState = dungeonState;
         }
@@ -206,7 +203,7 @@ namespace LoDCompanion.Services.Dungeon
                 if (newRoom != null)
                 {
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
-                    _grid.PlaceRoomOnGrid(newRoom, newRoomOffset);
+                    if(DungeonState != null) GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, DungeonState.DungeonGrid);
 
                     // Link the rooms logically
                     if (_dungeonState.CurrentRoom != null)

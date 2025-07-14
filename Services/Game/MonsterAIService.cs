@@ -13,16 +13,13 @@ namespace LoDCompanion.Services.Game
 {
     public class MonsterAIService
     {
-        private readonly MonsterCombatService _monsterCombat;
         private readonly MonsterSpecialService _monsterSpecial;
         private readonly DungeonState _dungeon;
 
         public MonsterAIService(
-            MonsterCombatService monsterCombatService,
             MonsterSpecialService monsterSpecialService,
             DungeonState dungeon)
         {
-            _monsterCombat = monsterCombatService;
             _monsterSpecial = monsterSpecialService;
             _dungeon = dungeon;
         }
@@ -93,7 +90,7 @@ namespace LoDCompanion.Services.Game
             }
             else if (distance > 1)
             {
-                _monsterCombat.PerformChargeAttack(monster, target);
+                MonsterCombatService.PerformChargeAttack(monster, target);
                 monster.CurrentAP = 0;
             }
             else
@@ -132,7 +129,7 @@ namespace LoDCompanion.Services.Game
                     case 1: EnterParryStance(monster); break;
                     case <= 4: MoveTowards(monster, target); break;
                     default: 
-                        _monsterCombat.PerformChargeAttack(monster, target);
+                        MonsterCombatService.PerformChargeAttack(monster, target);
                         monster.CurrentAP = 0;
                         break;
                 }
@@ -190,10 +187,10 @@ namespace LoDCompanion.Services.Game
                                 monster.CombatStance = CombatStance.Aiming;
                                 Console.WriteLine($"{monster.Name} starts aiming");
                             }
-                            else _monsterCombat.PerformStandardAttack(monster, target);
+                            else MonsterCombatService.PerformStandardAttack(monster, target);
                                 break;
                         default:
-                            _monsterCombat.PerformStandardAttack(monster, target); break;
+                            MonsterCombatService.PerformStandardAttack(monster, target); break;
                     }
                     monster.CurrentAP--;
                 }
@@ -207,7 +204,7 @@ namespace LoDCompanion.Services.Game
                     }
                     else
                     {
-                        _monsterCombat.PerformStandardAttack(monster, target);
+                        MonsterCombatService.PerformStandardAttack(monster, target);
                     }
                     monster.CurrentAP--;
                 }
@@ -234,10 +231,10 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.First().Key;
                             GridPosition targetPosition = spellChoice.First().Value;
-                            spell.CastSpell(monster, targetPosition);
+                            spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
-                    default: _monsterCombat.PerformStandardAttack(monster, target); break;
+                    default: MonsterCombatService.PerformStandardAttack(monster, target); break;
                 }
             }
             else if(losHeroes.Any())
@@ -250,7 +247,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.First().Key;
                             GridPosition targetPosition = spellChoice.First().Value;
-                            spell.CastSpell(monster, targetPosition);
+                            spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
                     default:
@@ -259,7 +256,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.First().Key;
                             GridPosition targetPosition = spellChoice.First().Value;
-                            spell.CastSpell(monster, targetPosition);
+                            spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
                 }
@@ -277,7 +274,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.First().Key;
                             GridPosition targetPosition = spellChoice.First().Value;
-                            spell.CastSpell(monster, targetPosition);
+                            spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
                 }
@@ -301,34 +298,34 @@ namespace LoDCompanion.Services.Game
                         switch (attackTypeRoll)
                         {
                             case 1: EnterParryStance(monster); return;
-                            case <= 5: _monsterCombat.PerformStandardAttack(monster, target); break;
+                            case <= 5: MonsterCombatService.PerformStandardAttack(monster, target); break;
                             default:
                                 if (isWounded) EnterParryStance(monster);
-                                else _monsterCombat.PerformPowerAttack(monster, target); break;
+                                else MonsterCombatService.PerformPowerAttack(monster, target); break;
                         }
                         break;
                     case MonsterBehaviorType.Beast:
                         switch (attackTypeRoll)
                         {
                             case <= 4:
-                                if (isWounded) _monsterCombat.PerformStandardAttack(monster, target);
-                                else _monsterCombat.PerformPowerAttack(monster,target); break;
-                            default: _monsterCombat.PerformStandardAttack(monster, target); break;
+                                if (isWounded) MonsterCombatService.PerformStandardAttack(monster, target);
+                                else MonsterCombatService.PerformPowerAttack(monster,target); break;
+                            default: MonsterCombatService.PerformStandardAttack(monster, target); break;
                         }
                         break;
                     case MonsterBehaviorType.LowerUndead:
                         switch (attackTypeRoll)
                         {
                             case <= 4:
-                                _monsterCombat.PerformStandardAttack(monster, target); break;
-                            default: _monsterCombat.PerformPowerAttack(monster, target); break;
+                                MonsterCombatService.PerformStandardAttack(monster, target); break;
+                            default: MonsterCombatService.PerformPowerAttack(monster, target); break;
                         }
                         break;
                     case MonsterBehaviorType.HigherUndead:
                         switch (attackTypeRoll)
                         {
-                            case <= 2: _monsterCombat.PerformPowerAttack(monster, target); break;
-                            default: _monsterCombat.PerformStandardAttack(monster, target); break;
+                            case <= 2: MonsterCombatService.PerformPowerAttack(monster, target); break;
+                            default: MonsterCombatService.PerformStandardAttack(monster, target); break;
                         }
                         break;
                 }
@@ -344,7 +341,7 @@ namespace LoDCompanion.Services.Game
                 }
                 else
                 {
-                    _monsterCombat.PerformStandardAttack(monster, target);
+                    MonsterCombatService.PerformStandardAttack(monster, target);
                 }
                 monster.CurrentAP--;
             }
@@ -458,7 +455,7 @@ namespace LoDCompanion.Services.Game
                     else
                     {
                         return targetableHeroes
-                        .OrderByDescending(h => _monsterCombat.CalculateHitChanceModifier(monster, h)) // Highest modifier is easiest
+                        .OrderByDescending(h => MonsterCombatService.CalculateHitChanceModifier(monster, h)) // Highest modifier is easiest
                         .ThenBy(h => h.CurrentHP) // Then by lowest HP
                         .FirstOrDefault();
                     }

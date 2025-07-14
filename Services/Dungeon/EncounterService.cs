@@ -271,7 +271,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 28:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Skeleton", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 1, 0));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 30:
@@ -306,7 +306,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 48:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Dire Wolf");
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 2, 0));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 50:
@@ -335,7 +335,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 64:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Zombie", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 0));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 66:
@@ -347,7 +347,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 70:
                             encounters = BuildMonsters(2, "Zombie Ogre", new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 2);
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 72:
@@ -396,7 +396,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 98:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Wraith");
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 100:
@@ -463,7 +463,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 32:
                             encounters = BuildMonsters(2, "Bandit", new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true);
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(1, 2, 0));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 34:
@@ -494,7 +494,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 46:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Bandit", new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 0, true);
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 48:
@@ -512,7 +512,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 56:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), "Berserker", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 1);
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 58:
@@ -543,7 +543,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 72:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Fallen Knight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Greater Demon"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Greater Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 74:
@@ -556,7 +556,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 78:
                             encounters = BuildMonsters(2, "Shambler");
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Demon"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 80:
@@ -572,7 +572,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 86:
                             encounters = BuildMonsters(1, "Common Troll", new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() }, 1);
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Summon Greater Demon"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Greater Demon"));
                             encounters.Add(monster);
                             break;
                         case <= 88:
@@ -1208,7 +1208,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 28:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Wight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 0));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 30:
@@ -1244,7 +1244,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 48:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Wight", new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2);
                             monster = BuildMonster("Necromancer", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 0));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 50:
@@ -1274,7 +1274,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 64:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Mummy", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             monster = BuildMonster("Mummy Priest", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 66:
@@ -1307,7 +1307,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 80:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 7), "Mummy", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, true);
                             monster = BuildMonster("Mummy Queen", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, false, BuildSpellList(3, 2, 2));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 82:
@@ -1322,7 +1322,7 @@ namespace LoDCompanion.Services.Dungeon
                         case <= 88:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Tomb Guardian", new List<Weapon>() { EquipmentService.GetWeaponByName("Halberd") ?? new Weapon() }, 2);
                             monster = BuildMonster("Mummy Queen", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, false, BuildSpellList(5, 2, 2));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                         case <= 90:
@@ -1346,7 +1346,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Wight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 3, true);
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Wraith"));
                             monster = BuildMonster("Mummy Queen", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 2, false, BuildSpellList(3, 3, 2));
-                            monster.Spells.Add(_gameData.GetMonsterSpellByName("Raise Dead"));
+                            monster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                             encounters.Add(monster);
                             break;
                     }
@@ -1651,9 +1651,9 @@ namespace LoDCompanion.Services.Dungeon
         private List<MonsterSpell> BuildSpellList(int touchSpell, int rangedSpell, int supportSpell)
         {
             List<MonsterSpell> Spells = new List<MonsterSpell>();
-            Spells.AddRange(GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.CloseCombat), touchSpell));
-            Spells.AddRange(GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.Ranged), rangedSpell));
-            Spells.AddRange(GetRandomSpellsFromList(_gameData.GetMonsterSpellsByType(MonsterSpellType.Support), supportSpell));
+            Spells.AddRange(GetRandomSpellsFromList(SpellService.GetMonsterSpellsByType(MonsterSpellType.CloseCombat), touchSpell));
+            Spells.AddRange(GetRandomSpellsFromList(SpellService.GetMonsterSpellsByType(MonsterSpellType.Ranged), rangedSpell));
+            Spells.AddRange(GetRandomSpellsFromList(SpellService.GetMonsterSpellsByType(MonsterSpellType.Support), supportSpell));
 
             return Spells;
         }
@@ -3330,7 +3330,7 @@ namespace LoDCompanion.Services.Dungeon
                 foreach (string spellName in spellsStr.Split(','))
                 {
                     // Assumes a service exists to get spell data by name.
-                    MonsterSpell? spell = _gameData.GetMonsterSpellByName(spellName.Trim());
+                    MonsterSpell? spell = SpellService.GetMonsterSpellByName(spellName.Trim());
                     if (spell != null)
                     {
                         spells.Add(spell);

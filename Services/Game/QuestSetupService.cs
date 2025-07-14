@@ -32,7 +32,7 @@ namespace LoDCompanion.Services.Game
         private readonly PlacementService _placement;
         private readonly RoomService _room;
         private readonly PartyManagerService _party;
-        private readonly GridService _grid;
+        private readonly DungeonState _dungeon;
 
 
         public QuestSetupService(
@@ -40,13 +40,13 @@ namespace LoDCompanion.Services.Game
             RoomService room, 
             PartyManagerService partyManagerService,
             PlacementService placementService,
-            GridService gridService)
+            DungeonState dungeonState)
         {
             _encounter = encounter;
             _room = room;
             _party = partyManagerService;
             _placement = placementService;
-            _grid = gridService;
+            _dungeon = dungeonState;
         }
 
         public void ExecuteRoomSetup(Quest quest, Room room)
@@ -67,8 +67,8 @@ namespace LoDCompanion.Services.Game
                 case QuestSetupActionType.SetRoom:
                     var roomInfo = _room.GetRoomByName(action.Parameters["RoomName"]);
                     _room.InitializeRoomData(roomInfo, room);
-                    _grid.GenerateGridForRoom(room);
-                    _grid.PlaceRoomOnGrid(room, room.GridOffset);
+                    GridService.GenerateGridForRoom(room);
+                    GridService.PlaceRoomOnGrid(room, room.GridOffset, _dungeon.DungeonGrid);
                     break;
                 case QuestSetupActionType.PlaceHeroes:
                     if (_party.Party != null)

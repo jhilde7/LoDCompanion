@@ -7,6 +7,7 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
 using System.Threading;
+using LoDCompanion.Models.Dungeon;
 
 namespace LoDCompanion.Services.Game
 {
@@ -16,9 +17,7 @@ namespace LoDCompanion.Services.Game
         private readonly InitiativeService _initiative;
         private readonly PlayerActionService _playerAction;
         private readonly MonsterAIService _monsterAI;
-        private readonly DefenseService _defense;
-        private readonly StatusEffectService _statusEffect;
-        private readonly GridService _grid;
+        private readonly DungeonState _dungeon;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
@@ -33,19 +32,15 @@ namespace LoDCompanion.Services.Game
         public CombatManagerService(
             InitiativeService initiativeService,
             PlayerActionService playerActionService,
-            DefenseService defenseService,
             MonsterAIService monsterAIService,
-            StatusEffectService statusEffectService,
-            GridService grid,
-            GameDataService gameData)
+            GameDataService gameData,
+            DungeonState dungeonState)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
             _monsterAI = monsterAIService;
-            _defense = defenseService;
-            _statusEffect = statusEffectService;
-            _grid = grid;
             _gameData = gameData;
+            _dungeon = dungeonState;
         }
 
 
@@ -135,7 +130,7 @@ namespace LoDCompanion.Services.Game
                     ActiveHero.IsVulnerableAfterPowerAttack = false;
 
                     // Process status effects at the start of the hero's turn
-                    _statusEffect.ProcessStatusEffects(ActiveHero);
+                    StatusEffectService.ProcessStatusEffects(ActiveHero);
                     CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
                     // The game now waits for UI input to call HeroPerformsAction(...).
                 }
@@ -161,7 +156,7 @@ namespace LoDCompanion.Services.Game
                     monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                     CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
-                    _statusEffect.ProcessStatusEffects(monsterToAct);
+                    StatusEffectService.ProcessStatusEffects(monsterToAct);
                     MonstersThatHaveActedThisTurn.Add(monsterToAct);
                     var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
 
@@ -241,8 +236,8 @@ namespace LoDCompanion.Services.Game
             var target = GetClosestHero(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null) return false;
 
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-            return distance > 1 && distance <= monster.Move && _grid.HasClearPath(monster.Position, target.Position);
+            int distance = GridService.GetDistance(monster.Position, target.Position);
+            return distance > 1 && distance <= monster.Move && GridService.HasClearPath(monster.Position, target.Position, _dungeon.DungeonGrid);
         }
 
         private bool CanMoveFullPath(Monster monster)
@@ -275,15 +270,15 @@ namespace LoDCompanion.Services.Game
             if (monster.Position == null) return int.MaxValue;
             return heroes
                 .Where(h => h.Position != null)
-                .Min(h => _grid.GetDistance(monster.Position, h.Position!));
+                .Min(h => GridService.GetDistance(monster.Position, h.Position!));
         }
 
         private Hero? GetClosestHero(Monster monster, List<Hero> heroes)
         {
             if (monster.Position == null) return null;
             return heroes
-               .Where(h => h.Position != null && h.CurrentHP > 0 && !h.ActiveStatusEffects.Contains(_gameData.GetStatusEffectByType(StatusEffectType.Pit)))
-               .OrderBy(h => _grid.GetDistance(monster.Position, h.Position!))
+               .Where(h => h.Position != null && h.CurrentHP > 0 && !h.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Pit)))
+               .OrderBy(h => GridService.GetDistance(monster.Position, h.Position!))
                .FirstOrDefault();
         }
 
@@ -298,11 +293,11 @@ namespace LoDCompanion.Services.Game
 
             if (!target.HasDodgedThisBattle)
             {
-                defenseResult = _defense.AttemptDodge(target);
+                defenseResult = DefenseService.AttemptDodge(target);
             }
             else if (target.Shield != null)
             {
-                defenseResult = _defense.AttemptShieldParry(target, target.Shield, incomingDamage);
+                defenseResult = DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
             }
             else
             {
@@ -372,7 +367,7 @@ namespace LoDCompanion.Services.Game
             IsAwaitingHeroSelection = false;
 
             // Perform standard start-of-turn logic
-            _statusEffect.ProcessStatusEffects(ActiveHero);
+            StatusEffectService.ProcessStatusEffects(ActiveHero);
             CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
             OnCombatStateChanged?.Invoke();
         }

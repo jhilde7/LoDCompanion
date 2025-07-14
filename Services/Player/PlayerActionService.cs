@@ -41,7 +41,6 @@ namespace LoDCompanion.Services.Player
     {
         private readonly DungeonManagerService _dungeonManager;
         private readonly HeroCombatService _heroCombat;
-        private readonly GridService _grid;
         private readonly SearchService _search;
         private readonly HealingService _healing;
         private readonly InventoryService _inventory;
@@ -53,8 +52,7 @@ namespace LoDCompanion.Services.Player
             SearchService searchService,
             HealingService healingService,
             InventoryService inventoryService,
-            IdentificationService identificationService,
-            GridService grid)
+            IdentificationService identificationService)
         {
             _dungeonManager = dungeonManagerService;
             _heroCombat = heroCombatService;
@@ -62,7 +60,6 @@ namespace LoDCompanion.Services.Player
             _healing = healingService;
             _inventory = inventoryService;
             _identification = identificationService;
-            _grid = grid;
         }
 
         /// <summary>
@@ -104,7 +101,7 @@ namespace LoDCompanion.Services.Player
                     if (primaryTarget is GridPosition targetPosition)
                     {
                         // Attempt to move the character using the grid service.
-                        if (_grid.MoveCharacter(hero, targetPosition))
+                        if (_dungeonManager.DungeonState != null && GridService.MoveCharacter(hero, targetPosition, _dungeonManager.DungeonState.DungeonGrid))
                         {
                             hero.CurrentAP -= apCost;
                             resultMessage = $"{hero.Name} moves to {targetPosition}.";
@@ -186,7 +183,7 @@ namespace LoDCompanion.Services.Player
                 case PlayerActionType.Shove:
                     if (primaryTarget is Character targetToShove)
                     {
-                        resultMessage = _grid.ShoveCharacter(hero, targetToShove, targetToShove.Room); // Pass current room
+                        resultMessage = GridService.ShoveCharacter(hero, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
                         hero.CurrentAP -= apCost;
                     }
                     break;
