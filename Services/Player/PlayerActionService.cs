@@ -181,7 +181,7 @@ namespace LoDCompanion.Services.Player
                     break;
 
                 case PlayerActionType.Shove:
-                    if (primaryTarget is Character targetToShove)
+                    if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
                     {
                         resultMessage = GridService.ShoveCharacter(hero, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
                         hero.CurrentAP -= apCost;
