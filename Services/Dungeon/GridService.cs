@@ -72,9 +72,7 @@ namespace LoDCompanion.Services.Dungeon
 
     public class GridService
     {
-        private readonly DirectionService _direction;
-        public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
-
+        private readonly DirectionService _direction;        
 
         public GridService(DirectionService direction) 
         { 
@@ -86,7 +84,7 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         /// <param name="room">The room to place.</param>
         /// <param name="roomOffset">The global grid position of the room's top-left corner.</param>
-        public void PlaceRoomOnGrid(Room room, GridPosition roomOffset)
+        public void PlaceRoomOnGrid(Room room, GridPosition roomOffset, Dictionary<GridPosition, GridSquare> grid)
         {
             room.GridOffset = roomOffset; // Store the room's global position
 
@@ -98,30 +96,30 @@ namespace LoDCompanion.Services.Dungeon
                     // UPDATED: The Z coordinate from the offset is now used.
                     var globalPos = new GridPosition(roomOffset.X + x, roomOffset.Y + y, roomOffset.Z);
 
-                    if (!DungeonGrid.ContainsKey(globalPos))
+                    if (!grid.ContainsKey(globalPos))
                     {
                         // UPDATED: The GridSquare is initialized with its full 3D position.
                         var square = new GridSquare(globalPos.X, globalPos.Y, globalPos.Z);
 
                         // Your existing logic for placing walls and furniture...
-                        DungeonGrid[globalPos] = square;
+                        grid[globalPos] = square;
                     }
                 }
             }
         }
 
-        public GridSquare? GetSquareAt(GridPosition position)
+        public GridSquare? GetSquareAt(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
         {
-            DungeonGrid.TryGetValue(position, out var square);
+            grid.TryGetValue(position, out var square);
             return square;
         }
 
         /// <summary>
         /// Moves a character to a new position on the global dungeon grid.
         /// </summary>
-        public bool MoveCharacter(Character character, GridPosition newPosition)
+        public bool MoveCharacter(Character character, GridPosition newPosition, Dictionary<GridPosition, GridSquare> grid)
         {
-            var targetSquare = GetSquareAt(newPosition);
+            var targetSquare = GetSquareAt(newPosition, grid);
             // The check is now much cleaner!
             if (targetSquare == null || targetSquare.MovementBlocked || targetSquare.IsOccupied)
             {
@@ -130,7 +128,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (character.Position != null)
             {
-                var oldSquare = GetSquareAt(character.Position);
+                var oldSquare = GetSquareAt(character.Position, grid);
                 if (oldSquare != null) oldSquare.OccupyingCharacterId = null;
             }
 
@@ -147,7 +145,7 @@ namespace LoDCompanion.Services.Dungeon
             return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y) + Math.Abs(start.Z - end.Z);
         }
 
-        public LineOfSightResult HasLineOfSight(GridPosition start, GridPosition end)
+        public LineOfSightResult HasLineOfSight(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
             var result = new LineOfSightResult();
             var line = GetLine(start, end);
@@ -155,7 +153,7 @@ namespace LoDCompanion.Services.Dungeon
             // Skip the first (start) and last (end) squares in the line.
             foreach (var pos in line.Skip(1).SkipLast(1))
             {
-                var square = GetSquareAt(pos);
+                var square = GetSquareAt(pos, grid);
 
                 // If the square doesn't exist or has LoS-blocking furniture/walls.
                 if (square == null || square.LoSBlocked)
@@ -183,7 +181,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="target">The character being shoved.</param>
         /// <param name="room">The current room grid.</param>
         /// <returns>A string describing the outcome.</returns>
-        public string ShoveCharacter(Character shover, Character target, Room room)
+        public string ShoveCharacter(Character shover, Character target, Room room, Dictionary<GridPosition, GridSquare> grid)
         {
             if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
 
@@ -222,11 +220,11 @@ namespace LoDCompanion.Services.Dungeon
                 target.Position.Z + shoveZ
             );
 
-            var pushbackSquare = GetSquareAt(pushbackPosition);
+            var pushbackSquare = GetSquareAt(pushbackPosition, grid);
 
             if (pushbackSquare != null && !pushbackSquare.MovementBlocked && !pushbackSquare.IsOccupied)
             {
-                MoveCharacter(target, pushbackPosition);
+                MoveCharacter(target, pushbackPosition, grid);
                 return $"{shover.Name} successfully shoves {target.Name} back!";
             }
             else
@@ -240,7 +238,7 @@ namespace LoDCompanion.Services.Dungeon
         /// Finds the shortest path between two points using the A* algorithm,
         /// now correctly using your existing Node class and helper methods.
         /// </summary>
-        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end)
+        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
             var openSet = new List<Node>();
             var closedSet = new HashSet<GridPosition>();
@@ -261,14 +259,14 @@ namespace LoDCompanion.Services.Dungeon
                 openSet.Remove(currentNode);
                 closedSet.Add(currentNode.Position);
 
-                foreach (var neighborPos in GetNeighbors(currentNode.Position))
+                foreach (var neighborPos in GetNeighbors(currentNode.Position, grid))
                 {
                     if (closedSet.Contains(neighborPos))
                     {
                         continue; // Ignore already evaluated positions.
                     }
 
-                    var neighborSquare = GetSquareAt(neighborPos);
+                    var neighborSquare = GetSquareAt(neighborPos, grid);
                     // This check is now redundant if GetNeighbors already does it, but it's safe to keep.
                     if (neighborSquare == null || neighborSquare.MovementBlocked)
                     {
@@ -303,14 +301,14 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Checks for a clear path, now using the `IsObstacle` property for ranged attacks.
         /// </summary>
-        public bool HasClearPath(GridPosition start, GridPosition end)
+        public bool HasClearPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
             var line = GetLine(start, end);
 
             // Skip the first (start) and last (end) squares in the line.
             foreach (var pos in line.Skip(1).SkipLast(1))
             {
-                var square = GetSquareAt(pos);
+                var square = GetSquareAt(pos, grid);
 
                 // Path is blocked if a square is missing, a wall, or has movement-blocking furniture.
                 if (square == null || square.MovementBlocked)
@@ -341,7 +339,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Gets the walkable neighbors of a given position.
         /// </summary>
-        internal IEnumerable<GridPosition> GetNeighbors(GridPosition position)
+        internal IEnumerable<GridPosition> GetNeighbors(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
         {
             // Define potential neighbors in 6 directions (4 horizontal, 2 vertical)
             var directions = new GridPosition[]
@@ -357,7 +355,7 @@ namespace LoDCompanion.Services.Dungeon
             foreach (var dir in directions)
             {
                 var newPos = new GridPosition(position.X + dir.X, position.Y + dir.Y, position.Z + dir.Z);
-                var square = GetSquareAt(newPos);
+                var square = GetSquareAt(newPos, grid);
 
                 // A square is a valid neighbor if it exists and is not blocked.
                 // You could add more complex rules here for vertical movement,
@@ -474,7 +472,7 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity)
+        public List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity, Dictionary<GridPosition, GridSquare> grid)
         {
             var reachableSquares = new List<GridPosition>();
             // 'visited' tracks positions we've seen and the cost to reach them.
@@ -491,10 +489,10 @@ namespace LoDCompanion.Services.Dungeon
                 var currentCost = visited[currentPos];
 
                 // Get all valid, walkable neighbors from the current position.
-                foreach (var neighborPos in GetNeighbors(currentPos))
+                foreach (var neighborPos in GetNeighbors(currentPos, grid))
                 {
                     // Calculate the cost to move into this neighbor square.
-                    var neighborSquare = GetSquareAt(neighborPos);
+                    var neighborSquare = GetSquareAt(neighborPos, grid);
                     if (neighborSquare == null) continue;
 
                     // This is the base cost to enter the square.

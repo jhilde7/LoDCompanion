@@ -19,5 +19,6 @@ namespace LoDCompanion.Models.Dungeon
         public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
         public List<WanderingMonsterState> WanderingMonsters { get; set; } = new List<WanderingMonsterState>();
         public List<Monster> RevealedMonsters { get; set; } = new List<Monster>();
+        public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
     }
 }
