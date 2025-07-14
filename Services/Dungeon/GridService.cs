@@ -233,56 +233,59 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         public static List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
-            var openSet = new List<Node>();
+            // The PriorityQueue stores nodes to visit, prioritized by their F-Score.
+            var openSet = new PriorityQueue<Node, int>();
+
+            // This dictionary tracks the lowest G-Score found so far for each position.
+            // This is our replacement for searching the openSet.
+            var gScores = new Dictionary<GridPosition, int>();
+
+            // The set of positions that have already been evaluated.
             var closedSet = new HashSet<GridPosition>();
 
+            // Initialize with the starting node.
             var startNode = new Node(start, null, 0, GetDistance(start, end));
-            openSet.Add(startNode);
+            openSet.Enqueue(startNode, startNode.FScore);
+            gScores[start] = 0;
 
             while (openSet.Count > 0)
             {
-                var currentNode = openSet.OrderBy(node => node.FScore).First();
+                var currentNode = openSet.Dequeue();
 
+                // If we've already processed this node, skip it.
+                // This handles cases where we've added a duplicate node to the queue.
+                if (!closedSet.Add(currentNode.Position))
+                {
+                    continue;
+                }
+
+                // If we've reached the end, reconstruct and return the path.
                 if (currentNode.Position.Equals(end))
                 {
-                    // Path found, reconstruct and return it.
                     return ReconstructPath(currentNode);
                 }
 
-                openSet.Remove(currentNode);
-                closedSet.Add(currentNode.Position);
-
                 foreach (var neighborPos in GetNeighbors(currentNode.Position, grid))
                 {
-                    if (closedSet.Contains(neighborPos))
-                    {
-                        continue; // Ignore already evaluated positions.
-                    }
-
                     var neighborSquare = GetSquareAt(neighborPos, grid);
-                    // This check is now redundant if GetNeighbors already does it, but it's safe to keep.
-                    if (neighborSquare == null || neighborSquare.MovementBlocked)
-                    {
-                        continue;
-                    }
+                    if (neighborSquare == null) continue; // Should not happen if GetNeighbors is correct
 
-                    // Calculate the cost to move to the neighbor.
+                    // Calculate the cost to move to this neighbor.
                     int movementCost = neighborSquare.DoubleMoveCost ? 2 : 1;
                     int tentativeGScore = currentNode.GScore + movementCost;
 
-                    var neighborNode = openSet.FirstOrDefault(n => n.Position.Equals(neighborPos));
+                    // Check if this new path to the neighbor is better than any previous one.
+                    // gScores.GetValueOrDefault returns 0 if the key doesn't exist, which is fine,
+                    // but checking for the key explicitly or setting a high default is safer.
+                    int existingGScore = gScores.GetValueOrDefault(neighborPos, int.MaxValue);
 
-                    if (neighborNode == null)
+                    if (tentativeGScore < existingGScore)
                     {
-                        // This is a new node.
-                        neighborNode = new Node(neighborPos, currentNode, tentativeGScore, GetDistance(neighborPos, end));
-                        openSet.Add(neighborNode);
-                    }
-                    else if (tentativeGScore < neighborNode.GScore)
-                    {
-                        // We found a better path to this existing node.
-                        neighborNode.Parent = currentNode;
-                        neighborNode.GScore = tentativeGScore;
+                        // This path is the best one found so far. Record it.
+                        gScores[neighborPos] = tentativeGScore;
+
+                        var neighborNode = new Node(neighborPos, currentNode, tentativeGScore, GetDistance(neighborPos, end));
+                        openSet.Enqueue(neighborNode, neighborNode.FScore);
                     }
                 }
             }
