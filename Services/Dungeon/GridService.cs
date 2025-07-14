@@ -70,21 +70,14 @@ namespace LoDCompanion.Services.Dungeon
         }
     }
 
-    public class GridService
+    public static class GridService
     {
-        private readonly DirectionService _direction;        
-
-        public GridService(DirectionService direction) 
-        { 
-            _direction = direction;
-        }
-
         /// <summary>
         /// Places a new room onto the global grid at a specific offset.
         /// </summary>
         /// <param name="room">The room to place.</param>
         /// <param name="roomOffset">The global grid position of the room's top-left corner.</param>
-        public void PlaceRoomOnGrid(Room room, GridPosition roomOffset, Dictionary<GridPosition, GridSquare> grid)
+        public static void PlaceRoomOnGrid(Room room, GridPosition roomOffset, Dictionary<GridPosition, GridSquare> grid)
         {
             room.GridOffset = roomOffset; // Store the room's global position
 
@@ -108,7 +101,7 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public GridSquare? GetSquareAt(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
+        public static GridSquare? GetSquareAt(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
         {
             grid.TryGetValue(position, out var square);
             return square;
@@ -117,7 +110,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Moves a character to a new position on the global dungeon grid.
         /// </summary>
-        public bool MoveCharacter(Character character, GridPosition newPosition, Dictionary<GridPosition, GridSquare> grid)
+        public static bool MoveCharacter(Character character, GridPosition newPosition, Dictionary<GridPosition, GridSquare> grid)
         {
             var targetSquare = GetSquareAt(newPosition, grid);
             // The check is now much cleaner!
@@ -140,12 +133,12 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Calculates the distance between two points (Manhattan distance).
         /// </summary>
-        public int GetDistance(GridPosition start, GridPosition end)
+        public static int GetDistance(GridPosition start, GridPosition end)
         {
             return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y) + Math.Abs(start.Z - end.Z);
         }
 
-        public LineOfSightResult HasLineOfSight(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
+        public static LineOfSightResult HasLineOfSight(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
             var result = new LineOfSightResult();
             var line = GetLine(start, end);
@@ -181,7 +174,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="target">The character being shoved.</param>
         /// <param name="room">The current room grid.</param>
         /// <returns>A string describing the outcome.</returns>
-        public string ShoveCharacter(Character shover, Character target, Room room, Dictionary<GridPosition, GridSquare> grid)
+        public static string ShoveCharacter(Character shover, Character target, Room room, Dictionary<GridPosition, GridSquare> grid)
         {
             if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
 
@@ -238,7 +231,7 @@ namespace LoDCompanion.Services.Dungeon
         /// Finds the shortest path between two points using the A* algorithm,
         /// now correctly using your existing Node class and helper methods.
         /// </summary>
-        public List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
+        public static List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
             var openSet = new List<Node>();
             var closedSet = new HashSet<GridPosition>();
@@ -301,7 +294,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Checks for a clear path, now using the `IsObstacle` property for ranged attacks.
         /// </summary>
-        public bool HasClearPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
+        public static bool HasClearPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
             var line = GetLine(start, end);
 
@@ -324,7 +317,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Reconstructs the path from the end node back to the start.
         /// </summary>
-        private List<GridPosition> ReconstructPath(Node? node)
+        private static List<GridPosition> ReconstructPath(Node? node)
         {
             var path = new List<GridPosition>();
             while (node != null)
@@ -339,7 +332,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Gets the walkable neighbors of a given position.
         /// </summary>
-        internal IEnumerable<GridPosition> GetNeighbors(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
+        public static IEnumerable<GridPosition> GetNeighbors(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
         {
             // Define potential neighbors in 6 directions (4 horizontal, 2 vertical)
             var directions = new GridPosition[]
@@ -389,7 +382,7 @@ namespace LoDCompanion.Services.Dungeon
         /// Gets all grid points along a 3D line using Bresenham's 3D algorithm.
         /// </summary>
         /// <returns>An enumerable list of GridPositions forming the line.</returns>
-        private IEnumerable<GridPosition> GetLine(GridPosition start, GridPosition end)
+        private static IEnumerable<GridPosition> GetLine(GridPosition start, GridPosition end)
         {
             int x1 = start.X, y1 = start.Y, z1 = start.Z;
             int x2 = end.X, y2 = end.Y, z2 = end.Z;
@@ -448,7 +441,7 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        internal void GenerateGridForRoom(Room room)
+        public static void GenerateGridForRoom(Room room)
         {
             if (room.Size == null || room.Size.Length != 2)
             {
@@ -472,7 +465,7 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity, Dictionary<GridPosition, GridSquare> grid)
+        public static List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity, Dictionary<GridPosition, GridSquare> grid)
         {
             var reachableSquares = new List<GridPosition>();
             // 'visited' tracks positions we've seen and the cost to reach them.
@@ -503,7 +496,7 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         foreach (var monster in room.MonstersInRoom)
                         {
-                            if (_direction.IsInZoneOfControl(neighborPos, monster))
+                            if (DirectionService.IsInZoneOfControl(neighborPos, monster))
                             {
                                 // Moving through ZOC costs 2 Movement Points.
                                 movementCost = 2;

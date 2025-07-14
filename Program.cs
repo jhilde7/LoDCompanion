@@ -49,7 +49,6 @@ builder.Services.AddSingleton<MonsterSpecialService>();
 builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
 builder.Services.AddScoped<WanderingMonsterService>();
-builder.Services.AddScoped<GridService>();
 builder.Services.AddScoped<RoomFactoryService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<QuestService>();
