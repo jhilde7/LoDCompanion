@@ -152,6 +152,7 @@
         BolsteredMind,
         CauseAnimosity,
         Levitate,
+        Shield,
         Speed,
         //--MonsterSpecial--
         CauseFear,
