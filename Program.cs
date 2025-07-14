@@ -44,7 +44,6 @@ builder.Services.AddScoped<InitiativeService>();
 builder.Services.AddScoped<HeroCombatService>();
 builder.Services.AddSingleton<DefenseService>();
 builder.Services.AddSingleton<MonsterCombatService>();
-builder.Services.AddSingleton<StatusEffectService>();
 builder.Services.AddSingleton<MonsterSpecialService>();
 //Dungeon
 builder.Services.AddScoped<DungeonBuilderService>();

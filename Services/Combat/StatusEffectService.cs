@@ -4,14 +4,12 @@ using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Combat
 {
-    public class StatusEffectService
+    public static class StatusEffectService
     {
-        public StatusEffectService() { }
-
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
-        public void AttemptToApplyStatus(Character target, StatusEffectType type)
+        public static void AttemptToApplyStatus(Character target, StatusEffectType type)
         {
             if (target.ActiveStatusEffects.Any(e => e.Category == type)) return; // Already affected
 
@@ -42,7 +40,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Applies a new status effect to a target character.
         /// </summary>
-        public void ApplyStatus(Character target, StatusEffectType type, int duration)
+        public static void ApplyStatus(Character target, StatusEffectType type, int duration)
         {
             // Prevent stacking the same effect.
             if (!target.ActiveStatusEffects.Any(e => e.Category == type))
@@ -56,7 +54,7 @@ namespace LoDCompanion.Services.Combat
         /// Processes all active status effects for a character at the start of their turn.
         /// </summary>
         /// <param name="character">The character whose effects are to be processed.</param>
-        public void ProcessStatusEffects(Character character)
+        public static void ProcessStatusEffects(Character character)
         {
             // Use a copy of the list to avoid issues with modifying it while iterating.
             var effectsToProcess = character.ActiveStatusEffects.ToList();
