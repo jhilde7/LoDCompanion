@@ -6,13 +6,13 @@ namespace LoDCompanion.Services.Combat
     // Defines the 8 directions relative to a character's facing.
     public enum RelativeDirection { Front, FrontRight, FrontLeft, Right, Left, BackRight, BackLeft, Back }
 
-    public class DirectionService
+    public static class DirectionService
     {
         /// <summary>
         /// Determines the direction of a target relative to an observer's facing.
         /// </summary>
         /// <returns>The relative direction of the target.</returns>
-        public RelativeDirection GetRelativeDirection(FacingDirection observerFacing, GridPosition observerPosition, GridPosition targetPosition)
+        public static RelativeDirection GetRelativeDirection(FacingDirection observerFacing, GridPosition observerPosition, GridPosition targetPosition)
         {
             int dx = targetPosition.X - observerPosition.X;
             int dy = targetPosition.Y - observerPosition.Y; // Assuming Y+ is North
@@ -50,7 +50,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Checks if an attack is coming from behind the target.
         /// </summary>
-        public bool IsAttackingFromBehind(Character attacker, Character target)
+        public static bool IsAttackingFromBehind(Character attacker, Character target)
         {
             var relativeDir = GetRelativeDirection(target.Facing, target.Position, attacker.Position);
             return relativeDir is RelativeDirection.Back or RelativeDirection.BackLeft or RelativeDirection.BackRight;
@@ -60,7 +60,7 @@ namespace LoDCompanion.Services.Combat
         /// Checks if a position is within a character's Zone of Control.
         /// A model's ZOC includes squares "directly to its side, diagonally in front, and in front of it."
         /// </summary>
-        public bool IsInZoneOfControl(GridPosition positionToCheck, Character character)
+        public static bool IsInZoneOfControl(GridPosition positionToCheck, Character character)
         {
             var relativeDir = GetRelativeDirection(character.Facing, character.Position, positionToCheck);
             return relativeDir is not (RelativeDirection.Back or RelativeDirection.BackLeft or RelativeDirection.BackRight);
