@@ -285,7 +285,10 @@ namespace LoDCompanion.Services.Combat
                 new ActiveStatusEffect(StatusEffectType.Sneaky, 0),
                 new ActiveStatusEffect(StatusEffectType.Stench, 0),
                 new ActiveStatusEffect(StatusEffectType.Stupid, 0),
-                new ActiveStatusEffect(StatusEffectType.WallCrawler, 0)
+                new ActiveStatusEffect(StatusEffectType.WallCrawler, 0),
+                new ActiveStatusEffect(StatusEffectType.GustOfWindAura, 0),
+                new ActiveStatusEffect(StatusEffectType.MuteAura, 0),
+                new ActiveStatusEffect(StatusEffectType.RaiseDead, 0),
             };
         }
 
