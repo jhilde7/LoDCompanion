@@ -41,5 +41,15 @@ namespace LoDCompanion.Models.Dungeon
         public GridPosition GridOffset { get; set; } = new GridPosition(0, 0, 0);
         public List<Hero>? HeroesInRoom { get; set; }
         public List<Monster>? MonstersInRoom { get; set; }
+        public List<Character.Character> CharactersInRoom => GetInhabitants();
+
+        private List<Character.Character> GetInhabitants()
+        {
+            List<Character.Character> returnList = new List<Character.Character>();
+            if (HeroesInRoom != null) returnList.AddRange(HeroesInRoom);
+            if (MonstersInRoom != null) returnList.AddRange(MonstersInRoom);
+
+            return returnList;
+        }
     }
 }
