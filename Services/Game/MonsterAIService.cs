@@ -1,430 +1,710 @@
 ﻿using LoDCompanion.Models;
 using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
+using System;
+using System.Threading;
 
 namespace LoDCompanion.Services.Game
 {
     public class MonsterAIService
     {
-        private readonly GridService _grid;
         private readonly MonsterCombatService _monsterCombat;
+        private readonly MonsterSpecialService _monsterSpecial;
+        private readonly DungeonState _dungeon;
 
-        public MonsterAIService(GridService gridService, MonsterCombatService monsterCombatService)
+        public MonsterAIService(
+            MonsterCombatService monsterCombatService,
+            MonsterSpecialService monsterSpecialService,
+            DungeonState dungeon)
         {
-            _grid = gridService;
             _monsterCombat = monsterCombatService;
+            _monsterSpecial = monsterSpecialService;
+            _dungeon = dungeon;
         }
 
         /// <summary>
-        /// Executes a full turn for a given monster.
+        /// Executes a monster's turn by repeatedly choosing the best action until AP is depleted.
         /// </summary>
-        /// <param name="monster">The monster taking its turn.</param>
-        /// <param name="heroes">The list of all heroes in the combat.</param>
-        /// <param name="room">The current room where combat is taking place.</param>
         public void ExecuteMonsterTurn(Monster monster, List<Hero> heroes, Room room)
         {
-            // The monster gets 2 Action Points.
-            monster.CurrentAP = monster.MaxAP;
-            int ap = monster.CurrentAP;
             while (monster.CurrentAP > 0)
             {
-                switch (monster.Behavior)
+                // Store AP before acting to check if an action was taken.
+                int apBeforeAction = monster.CurrentAP;
+
+                // The main decision-making hub.
+                DecideAndPerformAction(monster, heroes, room);
+
+                // If no action was taken (e.g., no valid targets), end the turn to prevent an infinite loop.
+                if (monster.CurrentAP == apBeforeAction)
                 {
-                    case MonsterBehaviorType.HumanoidMelee:
-                        ExecuteHumanoidWithCloseCombatWeapon(monster, heroes, room, ref ap);
-                        break;
-                    case MonsterBehaviorType.HumanoidRanged:
-                        ExecuteHumanoidWithMissileWeapon(monster, heroes, room, ref ap);
-                        break;
-                    case MonsterBehaviorType.Beast:
-                        ExecuteBeast(monster, heroes, room, ref ap);
-                        break;
-                    case MonsterBehaviorType.LowerUndead:
-                        ExecuteLowerUndead(monster, heroes, room, ref ap); 
-                        break;
-                    case MonsterBehaviorType.HigherUndead:
-                        ExecuteHigherUndead(monster, heroes, room, ref ap);
-                        break;
-                    case MonsterBehaviorType.MagicUser:
-                        ExecuteMagicUser(monster, heroes, room, ref ap);
-                        break;
+                    monster.CurrentAP = 0;
                 }
-                // Decide on the action based on the monster's behavior type.
-                // For now, we'll use the HumanoidMelee logic from the PDF as a template.
-                // Add other behaviors (Ranged, MagicUser) here later.
+            }
+
+            // After all actions, ensure the monster faces the best direction.
+            EndTurnFacing(monster, heroes);
+        }
+
+        /// <summary>
+        /// The core AI decision tree that routes to the correct behavior.
+        /// </summary>
+        private void DecideAndPerformAction(Monster monster, List<Hero> heroes, Room room)
+        {
+            Hero? target = ChooseTarget(monster, heroes);
+            if (target == null) return; // No valid targets, do nothing.
+
+            // Delegate to the appropriate consolidated behavior handler.
+            switch (monster.Behavior)
+            {
+                case MonsterBehaviorType.Beast:
+                case MonsterBehaviorType.HigherUndead:
+                    ExecuteAggressiveMeleeBehavior(monster, target, heroes);
+                    break;
+                case MonsterBehaviorType.HumanoidMelee:
+                    ExecuteHumanoidMeleeBehavior(monster, target, heroes);
+                    break;
+                case MonsterBehaviorType.HumanoidRanged:
+                    ExecuteRangedBehavior(monster, target, heroes);
+                    break;
+                case MonsterBehaviorType.MagicUser:
+                    ExecuteMagicUserBehavior(monster, target, heroes, room);
+                    break;
+                case MonsterBehaviorType.LowerUndead:
+                    RangedWeapon? missile = (RangedWeapon?)monster.Weapons.First(x => x.IsRanged);
+                    if (missile != null) ExecuteRangedBehavior(monster, target, heroes);
+                    else ExecuteLowerUndeadBehavior(monster, target, heroes);
+                    break;
             }
         }
 
-        private void ExecuteMagicUser(Monster monster, List<Hero> heroes, Room room, ref int ap)
+        private void ExecuteAggressiveMeleeBehavior(Monster monster, Hero target, List<Hero> heroes)
         {
-            var target = ChooseTarget(monster, heroes, true);
-            if (target == null || monster.Position == null || target.Position == null)
+            int distance = GridService.GetDistance(monster.Position, target.Position);
+
+            if (distance > monster.Move)
             {
+                MoveTowards(monster, target);
+            }
+            else if (distance > 1)
+            {
+                _monsterCombat.PerformChargeAttack(monster, target);
                 monster.CurrentAP = 0;
-                return;
+            }
+            else
+            {
+                HandleAdjacentMeleeAttack(monster, target, heroes);
+            }
+        }
+
+        private void ExecuteLowerUndeadBehavior(Monster monster, Hero target, List<Hero> heroes)
+        {
+            int distance = GridService.GetDistance(monster.Position, target.Position);
+
+            if (distance >= monster.Move)
+            {
+                MoveTowards(monster, target);
+            }
+            else
+            {
+                HandleAdjacentMeleeAttack(monster, target, heroes);
+            }
+        }
+
+        private void ExecuteHumanoidMeleeBehavior(Monster monster, Hero target, List<Hero> heroes)
+        {
+            int distance = GridService.GetDistance(monster.Position, target.Position);
+
+            if (distance > monster.Move)
+            {
+                MoveTowards(monster, target); 
+            }
+            else if (distance > 1 && distance <= monster.Move) 
+            {
+                int roll = RandomHelper.RollDie("D6");
+                switch (roll)
+                {
+                    case 1: EnterParryStance(monster); break;
+                    case <= 4: MoveTowards(monster, target); break;
+                    default: 
+                        _monsterCombat.PerformChargeAttack(monster, target);
+                        monster.CurrentAP = 0;
+                        break;
+                }
+            }
+            else
+            {
+                HandleAdjacentMeleeAttack(monster, target, heroes); 
+            }
+        }
+
+        private void ExecuteRangedBehavior(Monster monster, Hero target, List<Hero> heroes)
+        {
+            int distance = GridService.GetDistance(monster.Position, target.Position);
+            List<int> distances = new List<int>();
+            RangedWeapon? missile = (RangedWeapon?)monster.Weapons.First(x => x.IsRanged);
+            MeleeWeapon? melee = (MeleeWeapon?)monster.Weapons.First(x => x.IsMelee);
+
+            foreach (Hero hero in heroes)
+            {
+                GridService.GetDistance(monster.Position, hero.Position); 
             }
 
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-
-            if (distance <= 1)
+            if (distances.First(i => i <= 2) > 0)
             {
-                int actionRoll = RandomHelper.RollDie("D6");
-                switch (actionRoll)
+                MoveAwayFrom(monster, target);
+                if (missile != null && !missile.IsLoaded)
                 {
-                    case <= 2:
-                        // Move M away but stay in LOS
-                        // TODO: This logic would be complex, involving finding a suitable square
-                        Console.WriteLine($"{monster.Name} moves away from {target.Name}.");
-                        monster.CurrentAP--;
-                        break;
-                    case <= 4:
-                        // Cast close combat spell
-                        Console.WriteLine($"{monster.Name} casts a close combat spell on {target.Name}.");
-                        //TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { target }, "SomeCloseCombatSpell");
-                        monster.CurrentAP--;
-                        break;
-                    case <= 6:
-                        // Standard attack
-                        Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
-                        monster.CurrentAP--;
-                        break;
+                    missile.reloadAmmo();
                 }
             }
-            else if (_grid.HasLineOfSight(monster.Position, target.Position).CanShoot)
+            else if (missile != null && !missile.IsLoaded)
             {
-                int spellTypeRoll = RandomHelper.RollDie("D6");
-                if (spellTypeRoll <= 4) // Ranged magic
-                {
-                    var rangedTarget = ChooseTarget(monster, heroes);
-                    if (rangedTarget != null)
-                    {
-                        Console.WriteLine($"{monster.Name} casts a ranged spell on {rangedTarget.Name}.");
-                        // TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { rangedTarget }, "SomeRangedSpell");
-                    }
-                }
-                else // Support magic
-                {
-                    Console.WriteLine($"{monster.Name} casts a support spell.");
-                    //TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, heroes, "SomeSupportSpell");
-                }
-                monster.CurrentAP = 0; // Casting a spell takes the whole turn
+                missile.reloadAmmo();
+                monster.CurrentAP--;
+            }
+            else if(!GridService.HasLineOfSight(monster.Position, target.Position, _dungeon.DungeonGrid).CanShoot)
+            {
+                MoveToGetLineOfSight(monster, target);
+            }
+            else if(distance <= 1)
+            {
+                HandleAdjacentMeleeAttack(monster, target, heroes);
             }
             else
             {
                 int actionRoll = RandomHelper.RollDie("D6");
                 if (actionRoll <= 4)
-                {
-                    // Move to get LOS
-                    Console.WriteLine($"{monster.Name} moves to get a clear line of sight.");
-                }
-                else
-                {
-                    // Cast support magic
-                    Console.WriteLine($"{monster.Name} casts a support spell.");
-                    // TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, heroes, "SomeSupportSpell");
-                }
-                monster.CurrentAP--;
-            }
-        }
-
-        private void ExecuteHigherUndead(Monster monster, List<Hero> heroes, Room room, ref int ap)
-        {
-            var target = ChooseTarget(monster, heroes);
-            if (target == null || monster.Position == null || target.Position == null)
-            {
-                monster.CurrentAP = 0;
-                return;
-            }
-
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-
-            if (distance > monster.Move)
-            {
-                Console.WriteLine($"{monster.Name} moves towards {target.Name}.");
-                monster.CurrentAP--;
-                return;
-            }
-
-            if (distance > 1 && distance <= monster.Move)
-            {
-                _monsterCombat.PerformChargeAttack(monster, target);
-                monster.CurrentAP = 0;
-                return;
-            }
-
-            if (distance <= 1)
-            {
-                int actionRoll = RandomHelper.RollDie("D6");
-                if (actionRoll <= 4)
-                {
-                    int attackTypeRoll = RandomHelper.RollDie("D6");
-                    if (attackTypeRoll <= 2)
-                    {
-                        _monsterCombat.PerformPowerAttack(monster, target);
-                        monster.CurrentAP -= 2;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
-                        monster.CurrentAP--;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"{monster.Name} uses a special ability on {target.Name}!");
-                    //TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { target }, "SomeSpecialAbility");
-                    monster.CurrentAP--;
-                }
-            }
-        }
-
-        private void ExecuteLowerUndead(Monster monster, List<Hero> heroes, Room room, ref int ap)
-        {
-            if (monster.Weapons.Any(w => w.IsRanged))
-            {
-                ExecuteHumanoidWithMissileWeapon(monster, heroes, room, ref ap);
-                return;
-            }
-
-            var target = ChooseTarget(monster, heroes);
-            if (target == null || monster.Position == null || target.Position == null)
-            {
-                monster.CurrentAP = 0;
-                return;
-            }
-
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-
-            if (distance > 1)
-            {
-                // Move towards the closest hero
-                Console.WriteLine($"{monster.Name} shambles towards {target.Name}.");
-                monster.CurrentAP--;
-            }
-            else
-            {
-                int attackRoll = RandomHelper.RollDie("D6");
-                if (attackRoll <= 4)
-                {
-                    Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
-                }
-                else
-                {
-                    _monsterCombat.PerformPowerAttack(monster, target);
-                }
-                monster.CurrentAP -= 2;
-            }
-        }
-
-        private void ExecuteBeast(Monster monster, List<Hero> heroes, Room room, ref int ap)
-        {
-            var target = ChooseTarget(monster, heroes);
-            if (target == null || monster.Position == null || target.Position == null)
-            {
-                monster.CurrentAP = 0;
-                return;
-            }
-
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-
-            if (distance > monster.Move)
-            {
-                Console.WriteLine($"{monster.Name} moves towards {target.Name}.");
-                monster.CurrentAP--;
-                return;
-            }
-
-            if (distance > 1 && distance <= monster.Move)
-            {
-                _monsterCombat.PerformChargeAttack(monster, target);
-                monster.CurrentAP = 0;
-                return;
-            }
-
-            if (distance <= 1)
-            {
-                int actionRoll = RandomHelper.RollDie("D6");
-                if (actionRoll <= 4)
-                {
-                    int attackTypeRoll = RandomHelper.RollDie("D6");
-                    if (attackTypeRoll <= 4)
-                    {
-                        if (monster.CurrentHP < monster.MaxHP / 2)
-                        {
-                            Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
-                        }
-                        else
-                        {
-                            _monsterCombat.PerformPowerAttack(monster, target);
-                        }
-
-                        monster.CurrentAP -= 2;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
-                        monster.CurrentAP--;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"{monster.Name} uses a special ability on {target.Name}!");
-                    // TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { target }, "SomeSpecialAbility");
-                    monster.CurrentAP--;
-                }
-            }
-        }
-
-        private void ExecuteHumanoidWithCloseCombatWeapon(Monster monster, List<Hero> heroes, Room room, ref int ap)
-        {
-            var target = ChooseTarget(monster, heroes);
-            if (target == null || monster.Position == null || target.Position == null)
-            {
-                ap = 0;
-                return;
-            }
-
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-
-            if (distance <= 1)
-            {
-                int actionRoll = RandomHelper.RollDie("D6");
-                if (actionRoll <= 4) // Attack
                 {
                     int attackTypeRoll = RandomHelper.RollDie("D6");
                     switch (attackTypeRoll)
                     {
-                        case 1: // Parry Stance
-                            Console.WriteLine($"{monster.Name} takes a Parry Stance.");
-                            monster.CurrentAP = 0; // Ends turn
-                            break;
-                        case <= 5: // Standard Attack
-                            Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
-                            monster.CurrentAP--;
-                            break;
-                        case 6: // Power Attack
-                            _monsterCombat.PerformPowerAttack(monster, target);
-                            monster.IsVulnerableAfterPowerAttack = true;
-                            monster.CurrentAP -= 2; // Power Attack costs 2 AP
-                            break;
+                        case <= 2:
+                            if (monster.CombatStance != CombatStance.Aiming)
+                            {
+                                monster.CombatStance = CombatStance.Aiming;
+                                Console.WriteLine($"{monster.Name} starts aiming");
+                            }
+                            else _monsterCombat.PerformStandardAttack(monster, target);
+                                break;
+                        default:
+                            _monsterCombat.PerformStandardAttack(monster, target); break;
                     }
-                }
-                else // Use Special Skill/Talent
-                {
-                    Console.WriteLine($"{monster.Name} uses a special ability!");
-                    // TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { target }, "SomeSpecialAbility");
                     monster.CurrentAP--;
-                }
-                return;
-            }
-
-            if (distance <= monster.Move)
-            {
-                int roll = RandomHelper.RollDie("D6");
-                if (roll == 1) // Parry Stance
-                {
-                    Console.WriteLine($"{monster.Name} takes a Parry Stance.");
-                    monster.CurrentAP = 0;
-                }
-                else if (roll <= 4) // Move into CC
-                {
-                    Console.WriteLine($"{monster.Name} moves to engage {target.Name}.");
-                    // _gridService.MoveCharacter(...);
-                    monster.CurrentAP--;
-                }
-                else // Charge Attack
-                {
-                    _monsterCombat.PerformChargeAttack(monster, target);
-                    monster.CurrentAP = 0; // Charge is a 2 AP action
-                }
-                return;
-            }
-            else
-            {
-                Console.WriteLine($"{monster.Name} moves towards {target.Name}.");
-                ap--;
-                return;
-            }
-        }
-
-        private void ExecuteHumanoidWithMissileWeapon(Monster monster, List<Hero> heroes, Room room, ref int ap)
-        {
-            var target = ChooseTarget(monster, heroes, true);
-            if (target == null || monster.Position == null || target.Position == null)
-            {
-                monster.CurrentAP = 0;
-                return;
-            }
-
-            int distance = _grid.GetDistance(monster.Position, target.Position);
-
-            if (distance <= 2)
-            {
-                Console.WriteLine($"{monster.Name} moves away from {target.Name}.");
-
-                if (monster.Weapons.First(r => r.IsRanged) is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
-                {
-                    rangedWeapon1.reloadAmmo();
-                    Console.WriteLine($"{monster.Name} reloads its {rangedWeapon1.Name}.");
-                }
-                monster.CurrentAP--;
-                return;
-            }
-
-            if (monster.Weapons.First() is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
-            {
-                rangedWeapon.reloadAmmo();
-                Console.WriteLine($"{monster.Name} reloads its {rangedWeapon.Name}.");
-                monster.CurrentAP--;
-                return;
-            }
-
-            // The monster will try to move to a better position if it hasn't already moved away.
-            if (monster.CurrentAP == monster.MaxAP)
-            {
-                Console.WriteLine($"{monster.Name} moves to a better vantage point.");
-                // Add logic for movement here
-                monster.CurrentAP--;
-            }
-
-            int attackRoll = RandomHelper.RollDie("D6");
-            if (attackRoll <= 4)
-            {
-                int aimOrShoot = RandomHelper.RollDie("D6");
-                if (aimOrShoot <= 2)
-                {
-                    Console.WriteLine($"{monster.Name} aims carefully.");
-                    // Set an "isAming" flag on the monster for the next turn
                 }
                 else
                 {
-                    Console.WriteLine($"{monster.Name} shoots at {target.Name}.");
-                    Console.WriteLine($"{_monsterCombat.PerformStandardAttack(monster, target)}.");
+                    List<SpecialActiveAbility> specialAttacks = _monsterSpecial.GetSpecialAttacks(monster.SpecialRules);
+                    if (specialAttacks.Count > 0)
+                    {
+                        specialAttacks.Shuffle();
+                        _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]);
+                    }
+                    else
+                    {
+                        _monsterCombat.PerformStandardAttack(monster, target);
+                    }
+                    monster.CurrentAP--;
+                }
+            }
+        }
+
+        private void ExecuteMagicUserBehavior(Monster monster, Hero? target, List<Hero> heroes, Room room)
+        {
+            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
+            var losHeroes = heroes.Where(h => GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
+
+            int roll = RandomHelper.RollDie("D6");
+            if (adjacentHeroes.Any())
+            {
+                target = ChooseTarget(monster, adjacentHeroes); // Choose from adjacent heroes
+                if (target == null) { return; }
+
+                switch (roll)
+                {
+                    case <= 2: MoveAwayFrom(monster, target); break;
+                    case <= 4:
+                        var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.CloseCombat);
+                        if (spellChoice != null)
+                        {
+                            MonsterSpell spell = spellChoice.First().Key;
+                            GridPosition targetPosition = spellChoice.First().Value;
+                            spell.CastSpell(monster, targetPosition);
+                        }
+                        break;
+                    default: _monsterCombat.PerformStandardAttack(monster, target); break;
+                }
+            }
+            else if(losHeroes.Any())
+            {
+                switch (roll)
+                {
+                    case <= 4:
+                        var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Ranged);
+                        if (spellChoice != null)
+                        {
+                            MonsterSpell spell = spellChoice.First().Key;
+                            GridPosition targetPosition = spellChoice.First().Value;
+                            spell.CastSpell(monster, targetPosition);
+                        }
+                        break;
+                    default:
+                        spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
+                        if (spellChoice != null)
+                        {
+                            MonsterSpell spell = spellChoice.First().Key;
+                            GridPosition targetPosition = spellChoice.First().Value;
+                            spell.CastSpell(monster, targetPosition);
+                        }
+                        break;
+                }
+            }
+            else if(!losHeroes.Any())
+            {
+                switch (roll)
+                {
+                    case <= 4:
+                        Hero? closestHero = ChooseTarget(monster, heroes);
+                        if (closestHero != null) MoveToGetLineOfSight(monster, closestHero); break;
+                    default:
+                        var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
+                        if (spellChoice != null)
+                        {
+                            MonsterSpell spell = spellChoice.First().Key;
+                            GridPosition targetPosition = spellChoice.First().Value;
+                            spell.CastSpell(monster, targetPosition);
+                        }
+                        break;
                 }
             }
             else
             {
-                Console.WriteLine($"{monster.Name} uses a special skill.");
-                // TODO: _monsterSpecialService.ExecuteSpecialAbility(monster, new List<Hero> { target }, "SomeSpecialAbility");
+                EnterParryStance(monster);
+            }
+        }
+
+        private void HandleAdjacentMeleeAttack(Monster monster, Hero target, List<Hero> heroes)
+        {
+            bool isWounded = (monster.CurrentHP <= monster.MaxHP / 2);
+            int actionRoll = RandomHelper.RollDie("D6");
+            if (actionRoll <= 4)
+            {
+                int attackTypeRoll = RandomHelper.RollDie("D6");
+                switch (monster.Behavior)
+                {
+                    case MonsterBehaviorType.HumanoidMelee:
+                        switch (attackTypeRoll)
+                        {
+                            case 1: EnterParryStance(monster); return;
+                            case <= 5: _monsterCombat.PerformStandardAttack(monster, target); break;
+                            default:
+                                if (isWounded) EnterParryStance(monster);
+                                else _monsterCombat.PerformPowerAttack(monster, target); break;
+                        }
+                        break;
+                    case MonsterBehaviorType.Beast:
+                        switch (attackTypeRoll)
+                        {
+                            case <= 4:
+                                if (isWounded) _monsterCombat.PerformStandardAttack(monster, target);
+                                else _monsterCombat.PerformPowerAttack(monster,target); break;
+                            default: _monsterCombat.PerformStandardAttack(monster, target); break;
+                        }
+                        break;
+                    case MonsterBehaviorType.LowerUndead:
+                        switch (attackTypeRoll)
+                        {
+                            case <= 4:
+                                _monsterCombat.PerformStandardAttack(monster, target); break;
+                            default: _monsterCombat.PerformPowerAttack(monster, target); break;
+                        }
+                        break;
+                    case MonsterBehaviorType.HigherUndead:
+                        switch (attackTypeRoll)
+                        {
+                            case <= 2: _monsterCombat.PerformPowerAttack(monster, target); break;
+                            default: _monsterCombat.PerformStandardAttack(monster, target); break;
+                        }
+                        break;
+                }
+                monster.CurrentAP--;
+            }
+            else
+            {
+                List<SpecialActiveAbility> specialAttacks = _monsterSpecial.GetSpecialAttacks(monster.SpecialRules);
+                if (specialAttacks.Count > 0)
+                {
+                    specialAttacks.Shuffle();
+                    _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]); 
+                }
+                else
+                {
+                    _monsterCombat.PerformStandardAttack(monster, target);
+                }
+                monster.CurrentAP--;
+            }
+        }
+
+        private void EnterParryStance(Monster monster)
+        {
+            monster.CombatStance = CombatStance.Parry;
+            monster.CurrentAP = 0;
+            Console.WriteLine($"{monster.Name} entered parry stance");
+        }
+
+        private void EndTurnFacing(Monster monster, List<Hero> heroes)
+        {
+            // An enemy will always end its turn with as few heroes as possible behind it.
+            // Logic to determine the best facing direction and update monster.Facing.
+        }
+
+        private void MoveTowards(Monster monster, Hero target)
+        {
+            // Placeholder for pathfinding logic
+            monster.CurrentAP--;
+        }
+
+        private void MoveAwayFrom(Monster monster, Hero target)
+        {
+            // Placeholder for pathfinding logic
+            monster.CurrentAP--;
+        }
+
+        private void MoveToGetLineOfSight(Monster monster, Hero target)
+        {
+            var allReachableSquares = GridService.GetAllWalkableSquares(monster.Room, monster, _dungeon.DungeonGrid);
+
+            var squaresWithLOS = allReachableSquares
+                .Where(pos => GridService.HasLineOfSight(pos, target.Position, _dungeon.DungeonGrid).CanShoot)
+                .ToList();
+
+            if (!squaresWithLOS.Any())
+            {
+                MoveTowards(monster, target);
+                return;
             }
 
+            var vantagePoints = squaresWithLOS
+                .Where(pos => {
+                    var square = GridService.GetSquareAt(pos, _dungeon.DungeonGrid);
+                    return square?.Furniture != null && (square.Furniture.CanBeClimbed || square.Furniture.HeightAdvantage);
+                })
+                .ToList();
+
+            GridPosition bestSpot;
+            if (vantagePoints.Any())
+            {
+                bestSpot = vantagePoints
+                    .OrderBy(pos => GridService.FindShortestPath(monster.Position, pos, _dungeon.DungeonGrid).Count)
+                    .First();
+                Console.WriteLine($"{monster.Name} moves to a high position for a better shot!");
+            }
+            else
+            {
+                bestSpot = squaresWithLOS
+                    .OrderBy(pos => GridService.FindShortestPath(monster.Position, pos, _dungeon.DungeonGrid).Count)
+                    .First();
+            }
+
+            var path = GridService.FindShortestPath(monster.Position, bestSpot, _dungeon.DungeonGrid);
+            GridService.MoveCharacter(monster, bestSpot, _dungeon.DungeonGrid);
             monster.CurrentAP--;
         }
 
         private Hero? ChooseTarget(Monster monster, List<Hero> heroes, bool isRanged = false)
         {
-            // "target one that has not been targeted by another enemy."
-            // This is complex state to track. For now, we'll use a simpler priority:
-            // 1. Closest hero.
-            if (!heroes.Any()) return null;
+            if (!heroes.Any(h => h.CurrentHP > 0) || monster.Position == null)
+            {
+                return null;
+            }
 
-            return heroes
-                .Where(h => monster.Position != null && h.Position != null)
-                .OrderBy(h => _grid.GetDistance(monster.Position!, h.Position!))
-                .First();
+            var targetableHeroes = heroes.Where(h => h.CurrentHP > 0 && h.Position != null).ToList();
+            if (!targetableHeroes.Any()) return null;
+
+            // --- Prioritize Untargeted Adjacent Heroes ---
+            // "If the enemy has a choice between adjacent targets, target one that has not been targeted by another enemy."
+            var adjacentHeroes = targetableHeroes
+                .Where(h => GridService.GetDistance(monster.Position, h.Position!) <= 1)
+                .ToList();
+
+            if (adjacentHeroes.Any())
+            {
+                List<Hero> untargetedAdjacent = adjacentHeroes.Where(h => h.HasBeenTargetedThisTurn).ToList();
+                if (untargetedAdjacent.Any())
+                {
+                    // If there's an untargeted hero adjacent, pick one randomly.
+                    untargetedAdjacent.Shuffle();
+                    return untargetedAdjacent[0];
+                }
+                // If all adjacent heroes have been targeted, fall through to default logic for the closest one.
+            }
+
+            // --- Behavior-Specific Targeting Logic ---
+            // If no priority target is found, use the monster's AI behavior.
+            switch (monster.Behavior)
+            {
+                case MonsterBehaviorType.HumanoidRanged:
+                    // "Target: 1-4: closest enemy, 5-6: easiest to hit (Lowest HP first)"
+                    int roll = RandomHelper.RollDie("D6");
+                    if (roll <= 4)
+                    {
+                        return targetableHeroes.OrderBy(h => GridService.GetDistance(monster.Position, h.Position!)).FirstOrDefault();
+                    }
+                    else
+                    {
+                        return targetableHeroes
+                        .OrderByDescending(h => _monsterCombat.CalculateHitChanceModifier(monster, h)) // Highest modifier is easiest
+                        .ThenBy(h => h.CurrentHP) // Then by lowest HP
+                        .FirstOrDefault();
+                    }
+
+                case MonsterBehaviorType.MagicUser:
+                    // "1-3: Closest Hero. 4-5: Least remaining hit points, 6: Opposing Magic User"
+                    int magicRoll = RandomHelper.RollDie("D6");
+                    if (magicRoll <= 3)
+                    {
+                        return targetableHeroes.OrderBy(h => GridService.GetDistance(monster.Position, h.Position!)).FirstOrDefault();
+                    }
+                    else if (magicRoll <= 5)
+                    {
+                        return targetableHeroes.OrderBy(h => h.CurrentHP).FirstOrDefault();
+                    }
+                    else
+                    {
+                        // Find a hero who is a magic user (e.g., has Arcane Arts skill > 0)
+                        var magicHero = targetableHeroes.FirstOrDefault(h => h.ArcaneArtsSkill > 0);
+                        // If a magic hero exists, target them. Otherwise, fall back to the closest.
+                        return magicHero ?? targetableHeroes.OrderBy(h => GridService.GetDistance(monster.Position, h.Position!)).FirstOrDefault();
+                    }
+
+                // Default for Beast, HumanoidMelee, Undead, etc.
+                default:
+                    // The default behavior is to target the closest hero.
+                    return targetableHeroes
+                        .OrderBy(h => GridService.GetDistance(monster.Position, h.Position!))
+                        .FirstOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Evaluates all available spells and returns the best one to cast and the target location to cast it.
+        /// </summary>
+        public Dictionary<MonsterSpell, GridPosition>? ChooseBestSpellAndTarget(Monster caster, List<Hero> heroes, List<Monster> allies, MonsterSpellType spellType)
+        {
+            var choices = new List<SpellChoice>();
+            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
+            var adjacentAllies = _dungeon.RevealedMonsters.Where(h => GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
+            var losHeroes = heroes.Where(h => GridService.HasLineOfSight(caster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
+
+            foreach (var spell in caster.Spells.Where(s => s.Type == spellType))
+            {
+                // Use the hint to determine the best target and score for this spell.
+                switch (spell.AITargetingHint)
+                {
+                    // Use the hint to determine how to score this spell
+                    // --- OFFENSIVE SPELLS ---
+                    case AiTargetHints.MaximizeHeroTargets:
+                    // This requires a helper that returns the best position and the number of targets hit.
+                    (GridPosition? bestPos, double targetsHit) = EvaluateAoESpell(caster, heroes, spell);
+                    if (targetsHit > 0)
+                    {
+                        // The target is the square itself, not a specific character.
+                        choices.Add(new SpellChoice { Spell = spell, Target = bestPos, Score = targetsHit * 10});
+                    }
+                    break;
+
+                    case AiTargetHints.TargetHighestCombatSkillHero:
+                        var strongestHero = losHeroes.OrderByDescending(h => h.CombatSkill).FirstOrDefault();
+                        if (strongestHero != null)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = strongestHero.Position, Score = 15 + (strongestHero.CombatSkill / 10.0) });
+                        }
+                        break;
+
+                    case AiTargetHints.TargetAdjacentHero:
+                        var adjacentHero = adjacentHeroes
+                            .OrderBy(h => h.CurrentHP) // Prioritize weaker adjacent heroes
+                           .FirstOrDefault();
+                        if (adjacentHero != null)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = adjacentHero.Position, Score = 18 });
+                        }
+                        break;
+
+                    case AiTargetHints.TargetRandomHero: // AI interprets "Random" as "General Purpose Attack"
+                        var weakestHero = losHeroes.OrderBy(h => h.CurrentHP).FirstOrDefault();
+                        if (weakestHero != null)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = weakestHero.Position, Score = 10 }); // Baseline score for a standard attack
+                        }
+                        break;
+
+                    // --- SUPPORT & HEALING SPELLS ---
+                    case AiTargetHints.HealLowestHealthAlly:
+                        var mostWoundedAlly = allies.OrderBy(a => (double)a.CurrentHP / a.MaxHP).FirstOrDefault();
+                        if (mostWoundedAlly != null && mostWoundedAlly.CurrentHP < mostWoundedAlly.MaxHP)
+                        {
+                            double missingHealthPercent = 1.0 - ((double)mostWoundedAlly.CurrentHP / mostWoundedAlly.MaxHP);
+                            choices.Add(new SpellChoice { Spell = spell, Target = mostWoundedAlly.Position, Score = 15 + (missingHealthPercent * 20) });
+                        }
+                        break;
+
+                    case AiTargetHints.HealLowestHealthAdjacentAlly:
+                        var mostWoundedAdjacent = adjacentAllies.OrderBy(a => (double)a.CurrentHP / a.MaxHP).FirstOrDefault();
+                        if (mostWoundedAdjacent != null && mostWoundedAdjacent.CurrentHP < mostWoundedAdjacent.MaxHP)
+                        {
+                            double missingHealthPercent = 1.0 - ((double)mostWoundedAdjacent.CurrentHP / mostWoundedAdjacent.MaxHP);
+                            choices.Add(new SpellChoice { Spell = spell, Target = mostWoundedAdjacent.Position, Score = 16 + (missingHealthPercent * 20) });
+                        }
+                        break;
+
+                    case AiTargetHints.ResurrectOrHealUndeadAllies:
+                        // This assumes a method to get fallen allies exists.
+                        var undeadAllies = _dungeon.RevealedMonsters.Where(m => m.Type == EncounterType.Undead);
+                        var fallenUndead = undeadAllies.Where(m => m.CurrentHP <= 0);
+                        if (fallenUndead.Any())
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = null, Score = 30 }); // Resurrection is top priority
+                        }
+                        else
+                        {
+                            var woundedUndead = undeadAllies.Where(a => a.CurrentHP < a.MaxHP).OrderBy(a => a.MaxHP - a.CurrentHP);
+                            if (woundedUndead != null)
+                            {
+                                choices.Add(new SpellChoice { Spell = spell, Target = woundedUndead.First().Position, Score = 15 });
+                            }
+                        }
+                        break;
+
+                    // --- BUFF & DEBUFF SPELLS ---
+                    case AiTargetHints.BuffHighestCombatSkillAlly:
+                        var allyToBuff = allies.Where(a => !a.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Frenzy)))
+                                               .OrderByDescending(a => a.CombatSkill).FirstOrDefault();
+                        if (allyToBuff != null)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = allyToBuff.Position, Score = 12 });
+                        }
+                        break;
+
+                    case AiTargetHints.BuffLowestArmourAlly:
+                        var allyToShield = allies.Where(a => !a.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Shield)))
+                                                 .OrderBy(a => a.ArmourValue).FirstOrDefault();
+                        if (allyToShield != null)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = allyToShield.Position, Score = 11 });
+                        }
+                        break;
+
+                    case AiTargetHints.DebuffEnemyCaster:
+                        var enemyCaster = losHeroes.FirstOrDefault(h => h.ProfessionName == "Wizard" || h.ProfessionName == "Warrior Priest");
+                        if (enemyCaster != null)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = enemyCaster.Position, Score = 16 });
+                        }
+                        break;
+
+                    case AiTargetHints.DebuffHeroRanged:
+                        int rangedHeroCount = losHeroes.Count(h => h.Weapons.Any(w => w is RangedWeapon));
+                        if (rangedHeroCount > 0)
+                        {
+                            // No specific target, but it's a valuable spell.
+                            choices.Add(new SpellChoice { Spell = spell, Target = null, Score = 8 * rangedHeroCount });
+                        }
+                        break;
+
+                    // --- UTILITY & SELF SPELLS ---
+                    case AiTargetHints.SelfPreservation:
+                        bool isLowHealth = (double)caster.CurrentHP / caster.MaxHP < 0.4;
+                        if (isLowHealth)
+                        {
+                            choices.Add(new SpellChoice { Spell = spell, Target = caster.Position, Score = 25 }); // High priority to escape danger
+                        }
+                        break;
+
+                    case AiTargetHints.SummonReinforcements:
+                        // No specific target, just needs a valid location. The high score reflects its power.
+                        choices.Add(new SpellChoice { Spell = spell, Target = null, Score = 22 });
+                        break;
+                }
+            }
+
+            if (!choices.Any())
+            {
+                return null; // No valid action
+            }
+
+            // Find the best choice from our list.
+            var bestChoice = choices.OrderByDescending(c => c.Score).First();
+
+            if (bestChoice.Spell != null && bestChoice.Target != null) return new Dictionary<MonsterSpell, GridPosition> { { bestChoice.Spell, bestChoice.Target } };
+            return null; // No valid action
+        }
+
+        /// <summary>
+        /// Evaluates the best GridPosition to cast an AoE spell to maximize heroes hit.
+        /// </summary>
+        /// <param name="caster">The monster casting the spell.</param>
+        /// <param name="heroes">A list of all active heroes on the map.</param>
+        /// <param name="spell">The AoE spell being evaluated (e.g., Fireball).</param>
+        /// <returns>The GridPosition that maximizes heroes hit, or null if no valid target found.</returns>
+        private (GridPosition?, double) EvaluateAoESpell(Monster caster, List<Hero> heroes, MonsterSpell spell)
+        {
+            GridPosition? bestAoECenter = null;
+            double maxHeroesHit = -1; // Initialize to -1 to ensure any valid hit count is better
+
+            // Collect all potential target squares.
+            HashSet<GridPosition> potentialCenterSquares = new HashSet<GridPosition>();
+            foreach (var hero in heroes)
+            {
+                potentialCenterSquares.Add(hero.Position);
+                foreach (var occupiedSquare in hero.OccupiedSquares)
+                {
+                    potentialCenterSquares.Add(occupiedSquare);
+                }
+                // Also consider squares around heroes that might be good centers
+                potentialCenterSquares.UnionWith(GridService.GetNeighbors(hero.Position, _dungeon.DungeonGrid));
+            }
+
+
+            foreach (var currentCenter in potentialCenterSquares)
+            {
+                // It should return all GridPositions within the specified radius from the currentCenter.
+                // Radius 0: only currentCenter
+                // Radius 1: currentCenter + all 8 (or 4) adjacent squares
+                // Radius N: currentCenter + all squares within N steps
+                List<GridPosition> currentAoESquares = GridService.GetAllSquaresInRadius(currentCenter, spell.AreaOfEffectRadius, _dungeon.DungeonGrid);
+
+                int currentHeroesHit = 0;
+                // Use a HashSet to ensure each hero is counted only once for the current AoE
+                HashSet<Hero> heroesAlreadyCountedInThisAoE = new HashSet<Hero>();
+
+                foreach (var hero in heroes)
+                {
+                    // Check if any of the squares occupied by the hero are within the current spell's AoE
+                    if (hero.OccupiedSquares.Any(heroSquare => currentAoESquares.Contains(heroSquare)))
+                    {
+                        // If the hero hasn't been counted yet for this specific AoE, add them
+                        if (heroesAlreadyCountedInThisAoE.Add(hero))
+                        {
+                            currentHeroesHit++;
+                        }
+                    }
+                }
+
+                // Update the best target if this center hits more heroes
+                if (currentHeroesHit > maxHeroesHit)
+                {
+                    maxHeroesHit = currentHeroesHit;
+                    bestAoECenter = currentCenter;
+                }
+            }
+
+            return (bestAoECenter, maxHeroesHit);
         }
     }
 }
