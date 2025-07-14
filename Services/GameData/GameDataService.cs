@@ -2779,131 +2779,131 @@ namespace LoDCompanion.Services.GameData
         public List<MonsterSpell> GetMonsterSpells()
         {
             return new List<MonsterSpell>()
-        {
-            new MonsterSpell()
             {
-                Name = "Blind",
-                Type = MonsterSpellType.Ranged,
-                Effect = "Through his incantation, the wizard manages to blind a target in LOS. It does not matter if there are intervening models or furniture, as long as the wizard can reasonably see its target. The target is blinded during its next turn and cannot fight. Any character striking at the target gets a +20 CS bonus. The target will walk two squares in random directions (randomize each step)."
-            },
-            new MonsterSpell()
-            {
-                Name = "Flare",
-                Type = MonsterSpellType.Ranged,
-                Effect = "The wizard targets one random target with a magic missile. The target must be in LOS of the caster and takes 1d10 DMG. Armour and NA works as normal."
-            },
-            new MonsterSpell()
-            {
-                Name = "Fireball",
-                Type = MonsterSpellType.Ranged,
-                Effect = "The wizard casts a fireball spell in the square that will hit the most non-allied targets. The spell effects the target square and all adjacent squares. The caster will ignore if this spell hurts any allies. The target square suffers 1d10+2 fire DMG, and the adjacent squares suffers 1d6+1 fire DMG. The spell requires LOS to the target square."
-            },
-            new MonsterSpell()
-            {
-                Name = "Frost ray",
-                Type = MonsterSpellType.Ranged,
-                Effect = "The wizard shoots a ray of frost at a target in LOS. The target suffers 1d8 DMG and is stunned (loses one AP next turn)."
-            },
-            new MonsterSpell()
-            {
-                Name = "Gust of wind",
-                Type = MonsterSpellType.Ranged,
-                Effect = "The wizard summons a gust of wind making the use of projectiles harder. For any ranged weapon where the projectile would pass within 10 squares of the wizard, heroes or enemies suffer a 10 to hit modifier. The spell lasts the entire battle or until the caster is dead."
-            },
-            new MonsterSpell()
-            {
-                Name = "Slow",
-                Type = MonsterSpellType.Ranged,
-                Effect = "The wizard targets one random target that will be slowed. It does not matter if there are intervening models or furniture, as long as the wizard can reasonably see its target. The target may still move, but each square now counts as 2, effectively halving the target's movement (RDD). The spell lasts until the end of the battle, but can be overcome by a successful RES test that may be done at the start of every turn."
-            },
-            new MonsterSpell()
-            {
-                Name = "Mind blast",
-                Type = MonsterSpellType.CloseCombat,
-                Effect = "The wizard touches the target and searing pain shoots through her head. The target loses 1d3 points of sanity. If the target is not a hero, the target instead loses 1d6 HP with no armour or natural armour."
-            },
-            new MonsterSpell()
-            {
-                Name = "Mirrored self",
-                Type = MonsterSpellType.CloseCombat,
-                Effect = "The wizard creates a duplicate of himself in any random empty square on the same tile. This copy is in the same condition as the wizard (i.e. same amount of wounds). Once placed, there is no telling which is the copy and which is the real wizard. Both will fight as normal and cast spells. Once one of them is killed there is a 50% chance that this was the real wizard. In that case, the copy vanishes as well. Otherwise the wizard will continue to fight."
-            },
-            new MonsterSpell()
-            {
-                Name = "Seduce",
-                Type = MonsterSpellType.CloseCombat,
-                Effect = "The wizard uses a seducing spell on an adjacent target. The target must pas a RES test or become seduced. A seduced target will fight for the enemy until having passed a RES test at the start of the turn or the caster dies. During the seduction, the target will act as a beast, or humanoid with a hand weapon/ranged weapon depending on the weapon equipped. The target will never use magic or any perks. Does not work on undead."
-            },
-            new MonsterSpell()
-            {
-                Name = "Stun",
-                Type = MonsterSpellType.CloseCombat,
-                Effect = "The wizard reaches out and touches its target, sending an electric bolt through her. The target is stunned and loses 1 AP during their next turn."
-            },
-            new MonsterSpell()
-            {
-                Name = "Teleportation",
-                Type = MonsterSpellType.CloseCombat,
-                Effect = "The wizard teleports herself to a random location on the same tile that is not adjacent to a non-allied character. If no such square is available, the wizard will instead end up in a random square in any random adjacent tile."
-            },
-            new MonsterSpell()
-            {
-                Name = "Vampiric touch",
-                Type = MonsterSpellType.CloseCombat,
-                Effect = "The wizard reaches out and touches the adjacent target. Through this touch, the wizard absorbs the target's life, adding it to his own life force. The target loses 1d10 HP and neither armour nor natural armour will help. The same amount of HP will be added to the casters HP, although it cannot go beyond his starting HP."
-            },
-            new MonsterSpell()
-            {
-                Name = "Frenzy",
-                Type = MonsterSpellType.Support,
-                Effect = "The wizard targets one ally that gets the frenzy special rule. This lasts until the end of the battle. No LOS required."
-            },
-            new MonsterSpell()
-            {
-                Name = "Healing",
-                Type = MonsterSpellType.Support,
-                Effect = "The wizard heals himself or the most wounded ally with 1d10 HP."
-            },
-            new MonsterSpell()
-            {
-                Name = "Healing hand",
-                Type = MonsterSpellType.Support,
-                Effect = "The wizard heals himself or the most wounded adjacent ally with 1d10 HP."
-            },
-            new MonsterSpell()
-            {
-                Name = "Mute",
-                Type = MonsterSpellType.Support,
-                Effect = "The wizard casts a mute spell, making the use of an enemies spell or prayer more difficult. Any prayer or spell in the same tile as the wizard now requires the enemy warrior priest or wizard to add +15 to the skill check. This spell is in effect until the wizard who cast the mute spell casts another spell."
-            },
-            new MonsterSpell()
-            {
-                Name = "Raise dead",
-                Type = MonsterSpellType.Support,
-                OnlyUndead = true,
-                Effect = "The wizard raises one random, fallen and undead enemy. It will regain all its HP and equipment. If there are no fallen enemies, this spell will instead heal one random undead with 1d6 HP. No LOS required. If the caster is slain, the raised dead will once again fall to the ground and stay dead."
-            },
-            new MonsterSpell()
-            {
-                Name = "Shield",
-                Type = MonsterSpellType.Support,
-                Effect = "The wizard conjures a shield around one random ally, including the caster himself. The target receives +2 armour. The spell lasts until the end of the battle or until the caster dies. There is no need for LOS to the target. A character can only get this bonus once."
-            },
-            new MonsterSpell()
-            {
-                Name = "Summon demon",
-                Type = MonsterSpellType.Support,
-                FullTurn = true,
-                Effect = "The wizard summons a random demon. This is placed in a random empty square in the same tile as the caster. If there is no empty square, it is placed in an adjacent tile. The summoned demon is determined by a d10 roll: 1-6 for a Lesser Plague Demon, 7-8 for a Blood Demon, and 9-10 for a Plague Demon."
-            },
-            new MonsterSpell()
-            {
-                Name = "Summon greater demon",
-                Type = MonsterSpellType.Support,
-                FullTurn = true,
-                Effect = "The wizard summons a random demon. This is placed in a random empty square in the same tile as the caster. If there is no empty square, it is placed in an adjacent tile. This spell can summon 1 demon per battle. The summoned demon is determined by a d10 roll: 1-6 for a Bloated Demon, 7-9 for a Lurker, and 10 for a Greater Demon."
-            }
-        };
+                new MonsterSpell()
+                {
+                    Name = "Blind",
+                    Type = MonsterSpellType.Ranged,
+                    Effect = "Through his incantation, the wizard manages to blind a target in LOS. It does not matter if there are intervening models or furniture, as long as the wizard can reasonably see its target. The target is blinded during its next turn and cannot fight. Any character striking at the target gets a +20 CS bonus. The target will walk two squares in random directions (randomize each step)."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Flare",
+                    Type = MonsterSpellType.Ranged,
+                    Effect = "The wizard targets one random target with a magic missile. The target must be in LOS of the caster and takes 1d10 DMG. Armour and NA works as normal."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Fireball",
+                    Type = MonsterSpellType.Ranged,
+                    Effect = "The wizard casts a fireball spell in the square that will hit the most non-allied targets. The spell effects the target square and all adjacent squares. The caster will ignore if this spell hurts any allies. The target square suffers 1d10+2 fire DMG, and the adjacent squares suffers 1d6+1 fire DMG. The spell requires LOS to the target square."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Frost ray",
+                    Type = MonsterSpellType.Ranged,
+                    Effect = "The wizard shoots a ray of frost at a target in LOS. The target suffers 1d8 DMG and is stunned (loses one AP next turn)."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Gust of wind",
+                    Type = MonsterSpellType.Ranged,
+                    Effect = "The wizard summons a gust of wind making the use of projectiles harder. For any ranged weapon where the projectile would pass within 10 squares of the wizard, heroes or enemies suffer a 10 to hit modifier. The spell lasts the entire battle or until the caster is dead."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Slow",
+                    Type = MonsterSpellType.Ranged,
+                    Effect = "The wizard targets one random target that will be slowed. It does not matter if there are intervening models or furniture, as long as the wizard can reasonably see its target. The target may still move, but each square now counts as 2, effectively halving the target's movement (RDD). The spell lasts until the end of the battle, but can be overcome by a successful RES test that may be done at the start of every turn."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Mind blast",
+                    Type = MonsterSpellType.CloseCombat,
+                    Effect = "The wizard touches the target and searing pain shoots through her head. The target loses 1d3 points of sanity. If the target is not a hero, the target instead loses 1d6 HP with no armour or natural armour."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Mirrored self",
+                    Type = MonsterSpellType.CloseCombat,
+                    Effect = "The wizard creates a duplicate of himself in any random empty square on the same tile. This copy is in the same condition as the wizard (i.e. same amount of wounds). Once placed, there is no telling which is the copy and which is the real wizard. Both will fight as normal and cast spells. Once one of them is killed there is a 50% chance that this was the real wizard. In that case, the copy vanishes as well. Otherwise the wizard will continue to fight."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Seduce",
+                    Type = MonsterSpellType.CloseCombat,
+                    Effect = "The wizard uses a seducing spell on an adjacent target. The target must pas a RES test or become seduced. A seduced target will fight for the enemy until having passed a RES test at the start of the turn or the caster dies. During the seduction, the target will act as a beast, or humanoid with a hand weapon/ranged weapon depending on the weapon equipped. The target will never use magic or any perks. Does not work on undead."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Stun",
+                    Type = MonsterSpellType.CloseCombat,
+                    Effect = "The wizard reaches out and touches its target, sending an electric bolt through her. The target is stunned and loses 1 AP during their next turn."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Teleportation",
+                    Type = MonsterSpellType.CloseCombat,
+                    Effect = "The wizard teleports herself to a random location on the same tile that is not adjacent to a non-allied character. If no such square is available, the wizard will instead end up in a random square in any random adjacent tile."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Vampiric touch",
+                    Type = MonsterSpellType.CloseCombat,
+                    Effect = "The wizard reaches out and touches the adjacent target. Through this touch, the wizard absorbs the target's life, adding it to his own life force. The target loses 1d10 HP and neither armour nor natural armour will help. The same amount of HP will be added to the casters HP, although it cannot go beyond his starting HP."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Frenzy",
+                    Type = MonsterSpellType.Support,
+                    Effect = "The wizard targets one ally that gets the frenzy special rule. This lasts until the end of the battle. No LOS required."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Healing",
+                    Type = MonsterSpellType.Support,
+                    Effect = "The wizard heals himself or the most wounded ally with 1d10 HP."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Healing hand",
+                    Type = MonsterSpellType.Support,
+                    Effect = "The wizard heals himself or the most wounded adjacent ally with 1d10 HP."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Mute",
+                    Type = MonsterSpellType.Support,
+                    Effect = "The wizard casts a mute spell, making the use of an enemies spell or prayer more difficult. Any prayer or spell in the same tile as the wizard now requires the enemy warrior priest or wizard to add +15 to the skill check. This spell is in effect until the wizard who cast the mute spell casts another spell."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Raise dead",
+                    Type = MonsterSpellType.Support,
+                    OnlyUndead = true,
+                    Effect = "The wizard raises one random, fallen and undead enemy. It will regain all its HP and equipment. If there are no fallen enemies, this spell will instead heal one random undead with 1d6 HP. No LOS required. If the caster is slain, the raised dead will once again fall to the ground and stay dead."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Shield",
+                    Type = MonsterSpellType.Support,
+                    Effect = "The wizard conjures a shield around one random ally, including the caster himself. The target receives +2 armour. The spell lasts until the end of the battle or until the caster dies. There is no need for LOS to the target. A character can only get this bonus once."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Summon demon",
+                    Type = MonsterSpellType.Support,
+                    FullTurn = true,
+                    Effect = "The wizard summons a random demon. This is placed in a random empty square in the same tile as the caster. If there is no empty square, it is placed in an adjacent tile. The summoned demon is determined by a d10 roll: 1-6 for a Lesser Plague Demon, 7-8 for a Blood Demon, and 9-10 for a Plague Demon."
+                },
+                new MonsterSpell()
+                {
+                    Name = "Summon greater demon",
+                    Type = MonsterSpellType.Support,
+                    FullTurn = true,
+                    Effect = "The wizard summons a random demon. This is placed in a random empty square in the same tile as the caster. If there is no empty square, it is placed in an adjacent tile. This spell can summon 1 demon per battle. The summoned demon is determined by a d10 roll: 1-6 for a Bloated Demon, 7-9 for a Lurker, and 10 for a Greater Demon."
+                }
+            };
         }
 
         public MonsterSpell GetMonsterSpellByName(string name)
