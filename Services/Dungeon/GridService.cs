@@ -524,6 +524,35 @@ namespace LoDCompanion.Services.Dungeon
             // Return all the unique positions found within the movement range.
             return reachableSquares.Distinct().ToList();
         }
+
+        internal static List<GridPosition> GetAllSquaresInRadius(GridPosition currentCenter, int areaOfEffectRadius, Dictionary<GridPosition, GridSquare> grid)
+        {
+            HashSet<GridPosition> affectedSquares = new HashSet<GridPosition>();
+            affectedSquares.Add(currentCenter); // Always include the center
+
+            if (areaOfEffectRadius <= 0) return affectedSquares.ToList();
+
+            Queue<Tuple<GridPosition, int>> queue = new Queue<Tuple<GridPosition, int>>();
+            queue.Enqueue(Tuple.Create(currentCenter, 0)); // Position, current_distance
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                GridPosition currentPos = current.Item1;
+                int currentDistance = current.Item2;
+
+                if (currentDistance >= areaOfEffectRadius) continue;
+
+                foreach (var neighbor in GetNeighbors(currentPos, grid)) // Use your actual GetNeighbors logic
+                {
+                    if (affectedSquares.Add(neighbor)) // Add returns true if it's a new element
+                    {
+                        queue.Enqueue(Tuple.Create(neighbor, currentDistance + 1));
+                    }
+                }
+            }
+            return affectedSquares.ToList();
+        }
     }
 
 
