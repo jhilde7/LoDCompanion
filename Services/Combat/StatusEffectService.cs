@@ -11,16 +11,16 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
-        public static void AttemptToApplyStatus(Character target, StatusEffectType type)
+        public static void AttemptToApplyStatus(Character target, ActiveStatusEffect effect)
         {
-            if (target.ActiveStatusEffects.Any(e => e.Category == type)) return; // Already affected
+            if (target.ActiveStatusEffects.Any(e => e.Category == effect.Category)) return; // Already affected
 
             bool resisted = false;
             if (target is Hero hero)
             {
                 // Perform the CON test based on the effect type
-                if (type == StatusEffectType.Poisoned) resisted = hero.ResistPoison();
-                if (type == StatusEffectType.Diseased) resisted = hero.ResistDisease();
+                if (effect.Category == StatusEffectType.Poisoned) resisted = hero.ResistPoison();
+                if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease();
             }
             else
             {
@@ -30,26 +30,22 @@ namespace LoDCompanion.Services.Combat
 
             if (!resisted)
             {
-                int duration = (type == StatusEffectType.Poisoned) ? RandomHelper.RollDie("D10") : -1; // -1 for permanent until cured
-                ApplyStatus(target, type, duration);
+                int duration = (effect.Category == StatusEffectType.Poisoned) ? RandomHelper.RollDie("D10") : -1; // -1 for permanent until cured
+                ApplyStatus(target, effect);
             }
             else
             {
-                Console.WriteLine($"{target.Name} resisted the {type} effect!");
+                Console.WriteLine($"{target.Name} resisted the {effect.Category} effect!");
             }
         }
 
         /// <summary>
         /// Applies a new status effect to a target character.
         /// </summary>
-        public static void ApplyStatus(Character target, StatusEffectType type, int duration)
-        {
-            // Prevent stacking the same effect.
-            if (!target.ActiveStatusEffects.Any(e => e.Category == type))
-            {
-                target.ActiveStatusEffects.Add(new ActiveStatusEffect(type, duration));
-                Console.WriteLine($"{target.Name} is now {type}!");
-            }
+        private static void ApplyStatus(Character target, ActiveStatusEffect effect)
+        { 
+            target.ActiveStatusEffects.Add(effect);
+            Console.WriteLine($"{target.Name} is now {effect.Category}!");
         }
 
         /// <summary>
@@ -105,10 +101,13 @@ namespace LoDCompanion.Services.Combat
         {
             return new List<ActiveStatusEffect>()
             {
+                new ActiveStatusEffect(StatusEffectType.Blind, 1),
                 new ActiveStatusEffect(StatusEffectType.FireBurning, 1),
                 new ActiveStatusEffect(StatusEffectType.AcidBurning, 1),
                 new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.GetRandomNumber(1, RandomHelper.RollDie("D10"))),
                 new ActiveStatusEffect(StatusEffectType.Diseased, 0),
+                new ActiveStatusEffect(StatusEffectType.Seduce, 0),
+                new ActiveStatusEffect(StatusEffectType.Shield, 0),
                 new ActiveStatusEffect(StatusEffectType.Stunned, 1),
                 new ActiveStatusEffect(StatusEffectType.Prone, 1),
                 new ActiveStatusEffect(StatusEffectType.Pit, 0),
