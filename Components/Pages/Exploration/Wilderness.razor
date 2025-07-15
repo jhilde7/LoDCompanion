@@ -1,6 +1,7 @@
 ﻿@page "/wilderness"
 @rendermode InteractiveServer
 
+@using LoDCompanion.Services.Player
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
 @using LoDCompanion.Models.Character
@@ -33,7 +34,8 @@
         </div>
 
         <div class="combat-ui">
-            <CombatInterface @ref="_combatInterface" />
+            <CombatInterface FeedbackMessage="@_feedbackMessage"
+                             OnActionButtonClicked="HandleActionButtonClick" />
         </div>
     }
     else
@@ -46,17 +48,55 @@
 </div>
 
 @code {
+    private enum InputState
+    {
+        AwaitingAction,
+        SelectingTarget,
+        SelectingDestination
+    }
+
     private bool _isFirstRender = true;
     private CombatInterface? _combatInterface;
+    private InputState _currentInputState = InputState.AwaitingAction;
+    private string _feedbackMessage = string.Empty;
+
+    private void HandleActionButtonClick(PlayerActionType actionType)
+    {
+        switch (actionType)
+        {
+            case PlayerActionType.StandardAttack:
+                _currentInputState = InputState.SelectingTarget;
+                _feedbackMessage = "Select a target to attack.";
+                break;
+
+            case PlayerActionType.Move:
+                _currentInputState = InputState.SelectingDestination;
+                _feedbackMessage = "Select a destination square.";
+                break;
+
+            case PlayerActionType.EndTurn:
+                CombatManager.HeroPerformsAction(PlayerActionType.EndTurn, null);
+                ResetInputState();
+                break;
+        }
+    }
 
     private void HandleMonsterClick(Monster monster)
     {
-        _combatInterface?.OnMonsterClicked(monster);
+        if (_currentInputState == InputState.SelectingTarget)
+        {
+            CombatManager.HeroPerformsAction(PlayerActionType.StandardAttack, monster);
+            ResetInputState();
+        }
     }
 
     private void HandleGridSquareClick(GridPosition position)
     {
-        _combatInterface?.OnGridSquareClicked(position);
+        if (_currentInputState == InputState.SelectingDestination)
+        {
+            CombatManager.HeroPerformsAction(PlayerActionType.Move, position);
+            ResetInputState();
+        }
     }
 
     private void HandleHeroClick(Hero hero)
@@ -65,6 +105,12 @@
         {
             CombatManager.SelectHeroToAction(hero);
         }
+    }
+
+    private void ResetInputState()
+    {
+        _currentInputState = InputState.AwaitingAction;
+        _feedbackMessage = string.Empty;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
