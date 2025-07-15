@@ -16,7 +16,8 @@
                 {
                     <div class="grid-item furniture-overlay-square" title="@furniture.Name"
                          style="@GetSquareStyle(square)"
-                         @onclick="() => OnGridSquareClicked.InvokeAsync(square)">
+                         @oncontextmenu="e => HandleRightClick(square, e)"
+                        @oncontextmenu:preventDefault>
                     </div>
                 }
             }
@@ -27,7 +28,9 @@
             @foreach (var monster in Room.MonstersInRoom)
             {
                 <div class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
-                     @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
+                     @oncontextmenu="e => HandleRightClick(monster, e)"
+                     @oncontextmenu:preventDefault
+                     @onclick="() => OnHeroClicked.InvokeAsync(null)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
                 </div>
@@ -52,9 +55,7 @@
     [Parameter]
     public Room? Room { get; set; }
     [Parameter]
-    public EventCallback<Monster> OnMonsterClicked { get; set; }
-    [Parameter]
-    public EventCallback<GridPosition> OnGridSquareClicked { get; set; }
+    public EventCallback<(object target, MouseEventArgs args)> OnRightClick { get; set; }
     [Parameter]
     public EventCallback<Hero> OnHeroClicked { get; set; }
 
@@ -137,5 +138,10 @@
         // Use InvariantCulture to ensure '.' is used as the decimal separator in CSS, regardless of server culture.
         FormattableString style = $"position: absolute; left: {left}%; top: {top}%; width: {width}%; height: {height}%;";
         return style.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private Task HandleRightClick(object target, MouseEventArgs args)
+    {
+        return OnRightClick.InvokeAsync((target, args));
     }
 }
