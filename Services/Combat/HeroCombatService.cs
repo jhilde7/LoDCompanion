@@ -34,7 +34,11 @@ namespace LoDCompanion.Services.Combat
         {
             var result = new AttackResult();
             bool isRanged = weapon is RangedWeapon;
-
+            if(weapon is RangedWeapon rangedWeapon)
+            {
+                rangedWeapon.IsLoaded = false;
+            }
+            
             int baseSkill = isRanged ? attacker.RangedSkill : attacker.CombatSkill;
 
             result.ToHitChance = CalculateToHitChance(baseSkill, target, weapon, context);
@@ -43,7 +47,6 @@ namespace LoDCompanion.Services.Combat
             if (result.AttackRoll <= result.ToHitChance)
             {
                 result.IsHit = true;
-                // Step 5: If it's a hit, calculate damage
                 result.DamageDealt = CalculateFinalDamage(attacker, target, weapon, context);
                 target.TakeDamage(result.DamageDealt);
                 result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {result.DamageDealt} damage!";

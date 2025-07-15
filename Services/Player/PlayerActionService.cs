@@ -85,11 +85,17 @@ namespace LoDCompanion.Services.Player
                 case PlayerActionType.StandardAttack:
                     if (primaryTarget is Monster monster && hero.Weapons.FirstOrDefault() is Weapon weapon)
                     {
-                        // In a real game, the context would be built from the game state.
+                        if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
+                        {
+                            rangedWeapon.reloadAmmo();
+                            hero.CurrentAP -= apCost;
+                            resultMessage = $"Weapon had no ammo, {hero.Name} reloaded {rangedWeapon.Name}";
+                        }
+
                         var context = new CombatContext();
                         var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
-                        hero.CurrentAP -= apCost;
+                        hero.CurrentAP -= apCost; 
                     }
                     else
                     {
@@ -187,7 +193,7 @@ namespace LoDCompanion.Services.Player
                     break;
             }
 
-            Console.WriteLine($"{hero.Name} performed {actionType}. {hero.CurrentAP} AP remaining.");
+            Console.WriteLine($"{hero.Name} performed {actionType}, {resultMessage}. {hero.CurrentAP} AP remaining.");
             return true;
         }
 
