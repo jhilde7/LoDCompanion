@@ -35,6 +35,13 @@ namespace LoDCompanion.Services.Player
 
     }
 
+    public class PlayerActionInfo
+    {
+        public PlayerActionType ActionType { get; set; }
+        public int ApCost { get; set; }
+        public object? Target { get; set; }
+    }
+
     /// <summary>
     /// Handles the execution of actions performed by heroes.
     /// </summary>
