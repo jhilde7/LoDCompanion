@@ -1006,7 +1006,7 @@ namespace LoDCompanion.Services.GameData
         public bool FullTurn { get; set; }
         public int CostAP { get; set; } = 1;
 
-        internal void CastSpell(Monster caster, GridPosition targetPosition, DungeonState dungeon)
+        internal string CastSpell(Monster caster, GridPosition targetPosition, DungeonState dungeon)
         {
             List<Character> characterList = [.. dungeon.RevealedMonsters];
             if (dungeon.HeroParty != null)
@@ -1022,14 +1022,12 @@ namespace LoDCompanion.Services.GameData
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(
                         target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Blind)); // Blinded for its next turn
-                    Console.WriteLine($"{caster.Name} blinds {target.Name}! They are disoriented and cannot fight effectively.");
-                    break;
+                    return $"{caster.Name} blinds {target.Name}! They are disoriented and cannot fight effectively.";
                 case "Flare":
                     if (target == null) break;
                     damage = RandomHelper.RollDie("D10");
                     //TODO: ProcessSpellDamage(damage);
-                    Console.WriteLine($"{caster.Name} hits {target.Name} with a Flare for {damage} damage.");
-                    break;
+                    return $"{caster.Name} hits {target.Name} with a Flare for {damage} damage.";
                 case "Fireball":
                     // The initial target can be null if the center of the blast is an empty square.
                     string outcome = $"{caster.Name} launches a fireball!";
@@ -1052,27 +1050,23 @@ namespace LoDCompanion.Services.GameData
                         //TODO: ProcessSpellDamage(splashDamage);
                         outcome += $"\n{splashTarget.Name} is caught in the blast for {splashDamage} damage.";
                     }
-                    Console.WriteLine(outcome);
-                    break;
+                    return outcome;
                 case "Frost ray":
                     if (target == null) break;
                     damage = RandomHelper.RollDie("D8");
                     //TODO: ProcessSpellDamage(damage);
                     StatusEffectService.AttemptToApplyStatus(
                         target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned));
-                    Console.WriteLine($"{caster.Name}'s Frost Ray hits {target.Name} for {damage} damage, stunning them.");
-                    break;
+                    return $"{caster.Name}'s Frost Ray hits {target.Name} for {damage} damage, stunning them.";
                 case "Gust of wind":
                     // This is a global debuff originating from the caster.
                     StatusEffectService.AttemptToApplyStatus(caster, StatusEffectService.GetStatusEffectByType(StatusEffectType.GustOfWindAura));
-                    Console.WriteLine($"{caster.Name} summons a howling gust of wind, making ranged attacks difficult!");
-                    break;
+                    return $"{caster.Name} summons a howling gust of wind, making ranged attacks difficult!";
                 case "Slow":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(
                         target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Slow));
-                    Console.WriteLine($"{caster.Name} slows {target.Name}, halving their movement.");
-                    break;
+                    return $"{caster.Name} slows {target.Name}, halving their movement.";
 
                 // --- CLOSE COMBAT SPELLS ---
                 case "Mind blast":
@@ -1081,15 +1075,14 @@ namespace LoDCompanion.Services.GameData
                     {
                         int sanityDamage = RandomHelper.RollDie("D3");
                         heroTarget.CurrentSanity -= sanityDamage;
-                        Console.WriteLine($"{caster.Name} blasts {heroTarget.Name}'s mind, causing {sanityDamage} sanity damage!");
+                        return $"{caster.Name} blasts {heroTarget.Name}'s mind, causing {sanityDamage} sanity damage!";
                     }
                     else
                     {
                         damage = RandomHelper.RollDie("D6");
                         //TODO: ProcessSpellDamage(damage); // No armour save
-                        Console.WriteLine($"{caster.Name} blasts {target.Name}'s mind for {damage} unblockable damage!");
+                        return $"{caster.Name} blasts {target.Name}'s mind for {damage} unblockable damage!";
                     }
-                    break;
 
                 case "Mirrored self":
                     // Logic to find an empty square and place a copy of the caster.
@@ -1101,25 +1094,23 @@ namespace LoDCompanion.Services.GameData
                         var mirrorImage = MonsterFactory.CreateCopy(caster);
                         GridService.MoveCharacter(mirrorImage, emptySquare.Position, dungeon.DungeonGrid);
                         dungeon.RevealedMonsters.Add(mirrorImage);
-                        Console.WriteLine($"{caster.Name} creates a perfect mirror image of itself!");
+                        return $"{caster.Name} creates a perfect mirror image of itself!";
                     }
                     else
                     {
-                        Console.WriteLine($"{caster.Name} tries to create a mirror image, but there is no room!");
+                        return $"{caster.Name} tries to create a mirror image, but there is no room!";
                     }
                     */
                     break;
                 case "Seduce":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Seduce));
-                    Console.WriteLine($"{caster.Name} seduces {target.Name}, turning them against their allies!");
-                    break;
+                    return $"{caster.Name} seduces {target.Name}, turning them against their allies!";
 
                 case "Stun":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned));
-                    Console.WriteLine($"{caster.Name} touches {target.Name}, stunning them with a jolt of energy.");
-                    break;
+                    return $"{caster.Name} touches {target.Name}, stunning them with a jolt of energy.";
 
                 case "Teleportation":
                     //TODO add logic to GridService is that is the best place for it
@@ -1128,7 +1119,7 @@ namespace LoDCompanion.Services.GameData
                     if (newPos != null)
                     {
                         GridService.MoveCharacter(caster, newPos, dungeon.DungeonGrid);
-                        Console.WriteLine($"{caster.Name} vanishes and reappears in a new location!");
+                        return $"{caster.Name} vanishes and reappears in a new location!";
                     }*/
                     break;
 
@@ -1137,41 +1128,36 @@ namespace LoDCompanion.Services.GameData
                     damage = RandomHelper.RollDie("D10");
                     //TODO: ProcessSpellDamage(damage); // No armour save
                     caster.CurrentHP = Math.Min(caster.MaxHP, caster.CurrentHP + damage);
-                    Console.WriteLine($"{caster.Name} drains {damage} life from {target.Name}, healing itself.");
-                    break;
+                    return $"{caster.Name} drains {damage} life from {target.Name}, healing itself.";
 
                 // --- SUPPORT SPELLS ---
                 case "Frenzy":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Frenzy));
-                    Console.WriteLine($"{caster.Name} enchants {target.Name}, who flies into a frenzy!");
-                    break;
+                    return $"{caster.Name} enchants {target.Name}, who flies into a frenzy!";
 
                 case "Healing":
                     if (target == null) break;
                     int healAmount = RandomHelper.RollDie("D10");
                     target.CurrentHP = Math.Min(target.MaxHP, target.CurrentHP + healAmount);
-                    Console.WriteLine($"{caster.Name} casts a healing spell on {target.Name}, recovering {healAmount} HP.");
-                    break;
+                    return $"{caster.Name} casts a healing spell on {target.Name}, recovering {healAmount} HP.";
 
                 case "Healing hand":
                     if (target == null) break;
                     healAmount = RandomHelper.RollDie("D10");
                     target.CurrentHP = Math.Min(target.MaxHP, target.CurrentHP + healAmount);
-                    Console.WriteLine($"{caster.Name} lays a healing hand on {target.Name}, recovering {healAmount} HP.");
-                    break;
+                    return $"{caster.Name} lays a healing hand on {target.Name}, recovering {healAmount} HP.";
 
                 case "Mute":
                     StatusEffectService.AttemptToApplyStatus(caster, StatusEffectService.GetStatusEffectByType(StatusEffectType.MuteAura));
-                    Console.WriteLine($"{caster.Name} casts a field of silence, making other spells harder to cast.");
-                    break;
+                    return $"{caster.Name} casts a field of silence, making other spells harder to cast.";
 
                 case "Raise dead":
                     var fallenUndead = dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
                     if (fallenUndead != null)
                     {
                         fallenUndead.CurrentHP = fallenUndead.MaxHP;
-                        Console.WriteLine($"{caster.Name} raises {fallenUndead.Name} from the dead!");
+                        return $"{caster.Name} raises {fallenUndead.Name} from the dead!";
                     }
                     else
                     {
@@ -1180,7 +1166,7 @@ namespace LoDCompanion.Services.GameData
                         {
                             healAmount = RandomHelper.RollDie("D6");
                             woundedUndead.CurrentHP = Math.Min(woundedUndead.MaxHP, woundedUndead.CurrentHP + healAmount);
-                            Console.WriteLine($"{caster.Name} channels dark energy, healing {woundedUndead.Name} for {healAmount} HP.");
+                            return $"{caster.Name} channels dark energy, healing {woundedUndead.Name} for {healAmount} HP.";
                         }
                     }
                     break;
@@ -1188,8 +1174,7 @@ namespace LoDCompanion.Services.GameData
                 case "Shield":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Shield));
-                    Console.WriteLine($"{caster.Name} conjures a magical shield around {target.Name}, granting +2 Armour.");
-                    break;
+                    return $"{caster.Name} conjures a magical shield around {target.Name}, granting +2 Armour.";
 
                 case "Summon demon":
                 case "Summon greater demon":
@@ -1203,14 +1188,16 @@ namespace LoDCompanion.Services.GameData
                         var newDemon = MonsterFactory.Create(demonToSummon);
                         GridService.MoveCharacter(newDemon, summonPos.Position, dungeon.DungeonGrid);
                         dungeon.RevealedMonsters.Add(newDemon);
-                        Console.WriteLine($"{caster.Name} summons a terrifying {newDemon.Name}!");
+                        return $"{caster.Name} summons a terrifying {newDemon.Name}!";
                     }
                     else
                     {
-                        Console.WriteLine($"{caster.Name} attempts a summoning, but there's no space for the creature!");
+                        return $"{caster.Name} attempts a summoning, but there's no space for the creature!";
                     }*/
                     break;
+                default: return $"{caster.Name} forgets the incantation.";
             }
+            return $"{caster.Name} forgets the incantation.";
         }
     }
 

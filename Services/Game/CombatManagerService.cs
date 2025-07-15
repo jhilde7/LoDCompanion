@@ -355,52 +355,6 @@ namespace LoDCompanion.Services.Game
                .FirstOrDefault();
         }
 
-        public void ResolveMonsterAttack(Monster attacker, Hero target, int incomingDamage)
-        {
-            CombatLog.Add($"{attacker.Name} attacks {target.Name}!");
-
-            // In a real UI, you would now ask the player if they want to Dodge or Parry.
-            // For this example, let's assume they try to dodge if they can.
-
-            DefenseResult defenseResult;
-
-            if (!target.HasDodgedThisBattle)
-            {
-                defenseResult = DefenseService.AttemptDodge(target);
-            }
-            else if (target.Shield != null)
-            {
-                defenseResult = DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
-            }
-            else
-            {
-                // No defense options available.
-                target.TakeDamage(incomingDamage);
-                CombatLog.Add($"The attack hits for {incomingDamage} damage!");
-                return;
-            }
-
-            CombatLog.Add(defenseResult.OutcomeMessage);
-
-            if (defenseResult.WasSuccessful)
-            {
-                int remainingDamage = incomingDamage - defenseResult.DamageNegated;
-                if (remainingDamage > 0)
-                {
-                    target.TakeDamage(remainingDamage);
-                    CombatLog.Add($"{target.Name} still takes {remainingDamage} damage!");
-                }
-            }
-            else
-            {
-                // The defense failed, so the hero takes full damage.
-                target.TakeDamage(incomingDamage);
-                CombatLog.Add($"The attack hits for {incomingDamage} damage!");
-            }
-
-            OnCombatStateChanged?.Invoke();
-        }
-
         /// <summary>
         /// Checks if any hero on Overwatch can interrupt a moving monster.
         /// </summary>

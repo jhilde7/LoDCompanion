@@ -156,8 +156,8 @@ namespace LoDCompanion.Services.Player
                     break;
                 case PlayerActionType.SetOverwatch:
                     var equippedWeapon = hero.Weapons.FirstOrDefault();
-                    if (equippedWeapon == null) return false;
-                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return false;
+                    if (equippedWeapon == null) return $"{hero.Name} does not have a weapon equipped";
+                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{hero.Name} needs to reload their weapon";
                     hero.Stance = CombatStance.Overwatch;
                     resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
                     break;

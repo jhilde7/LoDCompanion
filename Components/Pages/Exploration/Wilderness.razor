@@ -55,8 +55,6 @@
         SelectingDestination
     }
 
-    private bool _isFirstRender = true;
-    private CombatInterface? _combatInterface;
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
 
@@ -117,23 +115,19 @@
     {
         if (firstRender)
         {
-            _isFirstRender = false;
             CombatManager.StartFirstTurn();
         }
     }
 
     protected override void OnInitialized()
     {
-        // Subscribe to the QuestService's event. When a quest starts,
-        // this component will automatically re-render.
-        QuestService.OnQuestStateChanged += StateHasChanged;
-        CombatManager.OnCombatStateChanged += StateHasChanged; // Also listen for combat updates
+        QuestService.OnQuestStateChanged += () => InvokeAsync(StateHasChanged);
+        CombatManager.OnCombatStateChanged += () => InvokeAsync(StateHasChanged);
     }
 
-    // Always unsubscribe from events to prevent memory leaks when the component is destroyed.
     public void Dispose()
     {
-        QuestService.OnQuestStateChanged -= StateHasChanged;
-        CombatManager.OnCombatStateChanged -= StateHasChanged;
+        QuestService.OnQuestStateChanged -= () => InvokeAsync(StateHasChanged);
+        CombatManager.OnCombatStateChanged -= () => InvokeAsync(StateHasChanged);
     }
 }
