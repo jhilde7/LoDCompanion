@@ -377,7 +377,7 @@ namespace LoDCompanion.Services.Game
         {
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
-                _playerAction.PerformAction(ActiveHero, action, target);
+                _playerAction.PerformAction(_dungeon, ActiveHero, action, target);
 
                 OnCombatStateChanged?.Invoke();
 

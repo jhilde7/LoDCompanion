@@ -69,7 +69,7 @@ namespace LoDCompanion.Services.Player
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public bool PerformAction(Hero hero, PlayerActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
+        public bool PerformAction(DungeonState dungeon, Hero hero, PlayerActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
             int apCost = GetActionCost(actionType);
             if (hero.CurrentAP < apCost)
@@ -87,7 +87,7 @@ namespace LoDCompanion.Services.Player
                     {
                         // In a real game, the context would be built from the game state.
                         var context = new CombatContext();
-                        var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context);
+                        var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                         hero.CurrentAP -= apCost;
                     }
@@ -162,7 +162,7 @@ namespace LoDCompanion.Services.Player
                     if (primaryTarget is Monster monster1 && hero.Weapons.FirstOrDefault() is Weapon weapon1)
                     {
                         var context = new CombatContext { IsPowerAttack = true };
-                        var attackResult = _heroCombat.ResolveAttack(hero, monster1, weapon1, context);
+                        var attackResult = _heroCombat.ResolveAttack(hero, monster1, weapon1, context, dungeon);
                         hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
                         hero.CurrentAP -= apCost;
@@ -174,7 +174,7 @@ namespace LoDCompanion.Services.Player
                     {
                         var context = new CombatContext { IsChargeAttack = true };
                         // TODO: Add movement logic before the attack
-                        var attackResult = _heroCombat.ResolveAttack(hero, monsterTarget, chargeWeapon, context);
+                        var attackResult = _heroCombat.ResolveAttack(hero, monsterTarget, chargeWeapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                         hero.CurrentAP -= apCost;
                     }
