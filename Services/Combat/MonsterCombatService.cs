@@ -64,48 +64,50 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                return result;
             }
 
-            int potentialDamage = CalculatePotentialDamage(attacker, weapon);
-
-            DefenseResult defenseResult = ResolveHeroDefense(target, potentialDamage);
-            result.OutcomeMessage = defenseResult.OutcomeMessage;
-
-            int damageAfterDefense = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
-
-            if (damageAfterDefense > 0)
+            if (result.OutcomeMessage == string.Empty)
             {
-                // If damage remains, determine hit location and apply armor.
-                HitLocation location = DetermineHitLocation();
-                int finalDamage = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
+                int potentialDamage = CalculatePotentialDamage(attacker, weapon);
 
-                target.TakeDamage(finalDamage);
-                result.DamageDealt = finalDamage;
-                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {finalDamage} damage!";
+                DefenseResult defenseResult = ResolveHeroDefense(target, potentialDamage);
+                result.OutcomeMessage = defenseResult.OutcomeMessage;
 
-                // Handle damaging quick slot items on a torso hit.
-                if (location == HitLocation.Torso)
+                int damageAfterDefense = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
+
+                if (damageAfterDefense > 0)
                 {
-                    result.OutcomeMessage += "\n" + CheckForQuickSlotDamage(target);
+                    // If damage remains, determine hit location and apply armor.
+                    HitLocation location = DetermineHitLocation();
+                    int finalDamage = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
+
+                    target.TakeDamage(finalDamage);
+                    result.DamageDealt = finalDamage;
+                    result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {finalDamage} damage!";
+
+                    // Handle damaging quick slot items on a torso hit.
+                    if (location == HitLocation.Torso)
+                    {
+                        result.OutcomeMessage += "\n" + CheckForQuickSlotDamage(target);
+                    }
                 }
-            }
-            else
-            {
-                result.DamageDealt = 0;
-                result.OutcomeMessage += $"\n{target.Name} takes no damage!";
+                else
+                {
+                    result.DamageDealt = 0;
+                    result.OutcomeMessage += $"\n{target.Name} takes no damage!";
+                } 
             }
 
             if (context.IsChargeAttack || context.IsPowerAttack)
-            { 
-                attacker.CurrentAP -= 2; 
+            {
+                attacker.CurrentAP -= 2;
             }
             else
             {
-                attacker.CurrentAP --;
+                attacker.CurrentAP--;
             }
 
-                return result;
+            return result;
         }
 
         /// <summary>
@@ -156,12 +158,7 @@ namespace LoDCompanion.Services.Combat
         }
 
         private static DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
-        {
-            // In a real UI, the player would choose. We'll prioritize dodge.
-            if (!target.HasDodgedThisBattle)
-            {
-                return DefenseService.AttemptDodge(target);
-            }
+        {            
             if (target.Shield != null)
             {
                 return DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
