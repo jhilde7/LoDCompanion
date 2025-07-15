@@ -738,7 +738,7 @@ namespace LoDCompanion.Services.Game
                             var woundedUndead = undeadAllies.Where(a => a.CurrentHP < a.MaxHP).OrderBy(a => a.MaxHP - a.CurrentHP);
                             if (woundedUndead != null)
                             {
-                                choices.Add(new SpellChoice { Spell = spell, Target = woundedUndead.FirstOrDefault().Position, Score = 15 });
+                                choices.Add(new SpellChoice { Spell = spell, Target = woundedUndead.First().Position, Score = 15 });
                             }
                         }
                         break;
