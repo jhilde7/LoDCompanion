@@ -83,7 +83,7 @@ namespace LoDCompanion.Services.Player
             switch (actionType)
             {
                 case PlayerActionType.StandardAttack:
-                    if (primaryTarget is Monster monster && hero.Weapons.First() is Weapon weapon)
+                    if (primaryTarget is Monster monster && hero.Weapons.FirstOrDefault() is Weapon weapon)
                     {
                         // In a real game, the context would be built from the game state.
                         var context = new CombatContext();
@@ -151,7 +151,7 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case PlayerActionType.SetOverwatch:
-                    var equippedWeapon = hero.Weapons.First();
+                    var equippedWeapon = hero.Weapons.FirstOrDefault();
                     if (equippedWeapon == null) return false;
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return false;
                     hero.Stance = CombatStance.Overwatch;

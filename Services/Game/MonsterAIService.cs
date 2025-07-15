@@ -243,8 +243,8 @@ namespace LoDCompanion.Services.Game
                         var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.CloseCombat);
                         if (spellChoice != null)
                         {
-                            MonsterSpell spell = spellChoice.First().Key;
-                            GridPosition targetPosition = spellChoice.First().Value;
+                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
+                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
                             spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
@@ -259,8 +259,8 @@ namespace LoDCompanion.Services.Game
                         var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Ranged);
                         if (spellChoice != null)
                         {
-                            MonsterSpell spell = spellChoice.First().Key;
-                            GridPosition targetPosition = spellChoice.First().Value;
+                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
+                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
                             spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
@@ -268,8 +268,8 @@ namespace LoDCompanion.Services.Game
                         spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
                         if (spellChoice != null)
                         {
-                            MonsterSpell spell = spellChoice.First().Key;
-                            GridPosition targetPosition = spellChoice.First().Value;
+                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
+                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
                             spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
@@ -286,8 +286,8 @@ namespace LoDCompanion.Services.Game
                         var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
                         if (spellChoice != null)
                         {
-                            MonsterSpell spell = spellChoice.First().Key;
-                            GridPosition targetPosition = spellChoice.First().Value;
+                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
+                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
                             spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
@@ -407,7 +407,7 @@ namespace LoDCompanion.Services.Game
                 facingScores[potentialFacing] = currentScore;
             }
 
-            FacingDirection bestFacing = facingScores.OrderBy(kvp => kvp.Value).First().Key;
+            FacingDirection bestFacing = facingScores.OrderBy(kvp => kvp.Value).FirstOrDefault().Key;
 
             monster.Facing = bestFacing;
 
@@ -459,13 +459,13 @@ namespace LoDCompanion.Services.Game
 
             if (idealSquares.Any())
             {
-                bestRetreatSpot = idealSquares.First();
+                bestRetreatSpot = idealSquares.FirstOrDefault();
             }
             else
             {
                 bestRetreatSpot = allReachableSquares
                     .OrderByDescending(pos => GridService.GetDistance(pos, target.Position))
-                    .First();
+                    .FirstOrDefault();
             }
 
             var pathToRetreat = GridService.FindShortestPath(monster.Position, bestRetreatSpot, _dungeon.DungeonGrid);
@@ -509,14 +509,14 @@ namespace LoDCompanion.Services.Game
             {
                 bestSpot = vantagePoints
                     .OrderBy(pos => GridService.FindShortestPath(monster.Position, pos, _dungeon.DungeonGrid).Count)
-                    .First();
+                    .FirstOrDefault();
                 Console.WriteLine($"{monster.Name} moves to a high position for a better shot!");
             }
             else
             {
                 bestSpot = squaresWithLOS
                     .OrderBy(pos => GridService.FindShortestPath(monster.Position, pos, _dungeon.DungeonGrid).Count)
-                    .First();
+                    .FirstOrDefault();
             }
 
             var path = GridService.FindShortestPath(monster.Position, bestSpot, _dungeon.DungeonGrid);
@@ -684,7 +684,7 @@ namespace LoDCompanion.Services.Game
                             var woundedUndead = undeadAllies.Where(a => a.CurrentHP < a.MaxHP).OrderBy(a => a.MaxHP - a.CurrentHP);
                             if (woundedUndead != null)
                             {
-                                choices.Add(new SpellChoice { Spell = spell, Target = woundedUndead.First().Position, Score = 15 });
+                                choices.Add(new SpellChoice { Spell = spell, Target = woundedUndead.FirstOrDefault().Position, Score = 15 });
                             }
                         }
                         break;
@@ -747,7 +747,7 @@ namespace LoDCompanion.Services.Game
             }
 
             // Find the best choice from our list.
-            var bestChoice = choices.OrderByDescending(c => c.Score).First();
+            var bestChoice = choices.OrderByDescending(c => c.Score).FirstOrDefault();
 
             if (bestChoice.Spell != null && bestChoice.Target != null) return new Dictionary<MonsterSpell, GridPosition> { { bestChoice.Spell, bestChoice.Target } };
             return null; // No valid action

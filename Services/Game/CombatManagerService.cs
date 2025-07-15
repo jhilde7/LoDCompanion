@@ -217,7 +217,7 @@ namespace LoDCompanion.Services.Game
             if (canMoveFull != null) return canMoveFull;
 
             // Default: return the first available monster if no other condition is met
-            return availableMonsters.First();
+            return availableMonsters.FirstOrDefault();
         }
 
         private bool CanMakeRoom(Monster monster, List<Hero> heroes)

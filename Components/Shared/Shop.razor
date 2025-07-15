@@ -158,7 +158,7 @@
     {
         if (Party != null && Party.Heroes.Any())
         {
-            selectedCharacterId = Party.Heroes.First().Id;
+            selectedCharacterId = Party.Heroes.FirstOrDefault().Id;
         }
 
         fullInventory = GetShopInventory();

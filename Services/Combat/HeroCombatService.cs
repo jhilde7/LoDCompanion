@@ -68,7 +68,7 @@ namespace LoDCompanion.Services.Combat
         private int CalculateToHitChance(int baseSkill, Monster target, Weapon weapon, CombatContext context)
         {
             int finalChance = baseSkill;
-            var targetWeapon = target.Weapons.First();
+            var targetWeapon = target.Weapons.FirstOrDefault();
 
             // --- Apply Modifiers from Tables ---
             if (context.IsTargetProne) finalChance += 30;
