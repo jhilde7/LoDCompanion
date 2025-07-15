@@ -26,7 +26,8 @@
             @foreach (var monster in Room.MonstersInRoom)
             {
                 <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div"
-                                    class="grid-item monster-item" style="@GetItemStyle(monster)">
+                                    class="grid-item monster-item" style="@GetItemStyle(monster)"
+                                    @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
                 </ContextMenuTrigger>
@@ -50,6 +51,8 @@
 @code {
     [Parameter]
     public Room? Room { get; set; }
+    [Parameter]
+    public EventCallback<Monster> OnMonsterClicked { get; set; }
     [Parameter]
     public EventCallback<Hero> OnHeroClicked { get; set; }
 

@@ -46,12 +46,13 @@
 </div>
 
 <ContextMenu Id="gridActionsMenu">
-    <Item OnClick="@(args => HandleMoveClicked(args))">Move</Item>
+    <Item OnClick="@(args => HandleMoveClicked(args))">Move (1AP)</Item>
     @* Add other potential actions here *@
 </ContextMenu>
 
 <ContextMenu Id="attackActionsMenu">
-    <Item OnClick="@(args => HandleAttackClicked(args))">Attack</Item>
+    <Item OnClick="@(args => HandleAttackClicked(args))">Attack (1AP)</Item>
+    <Item OnClick="@(args => HandlePowerAttackClicked(args))">Power Attack (2 AP)</Item>
     @* Add other potential actions here *@
 </ContextMenu>
 
@@ -78,9 +79,6 @@
         }
     }
 
-    /// <summary>
-    /// Handles the click event for the "Attack" menu item.
-    /// </summary>
     private void HandleAttackClicked(ItemClickEventArgs args)
     {
         // The clicked monster is passed in the Data property.
@@ -90,9 +88,14 @@
         }
     }
 
-    /// <summary>
-    /// Handles the click event for the "Move" menu item.
-    /// </summary>
+    private void HandlePowerAttackClicked(ItemClickEventArgs args)
+    {
+        if (args.Data is Monster target)
+        {
+            CombatManager.HeroPerformsAction(PlayerActionType.PowerAttack, target);
+        }
+    }
+
     private void HandleMoveClicked(ItemClickEventArgs args)
     {
         // The clicked grid position is passed in the Data property.
@@ -102,13 +105,10 @@
         }
     }
 
+    
     private void HandleMonsterClick(Monster monster)
     {
-        if (_currentInputState == InputState.SelectingTarget)
-        {
-            CombatManager.HeroPerformsAction(PlayerActionType.StandardAttack, monster);
-            ResetInputState();
-        }
+        //TODO: use this to display a box of information about the Monster clicked
     }
 
     private void HandleGridSquareClick(GridPosition position)
