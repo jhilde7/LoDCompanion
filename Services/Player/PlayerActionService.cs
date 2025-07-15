@@ -90,8 +90,9 @@ namespace LoDCompanion.Services.Player
                         if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
                         {
                             rangedWeapon.reloadAmmo();
-                            apCost = 1;
+                            apCost = GetActionCost(actionType);
                             resultMessage = $"{hero.Name} spends a moment to reload their {rangedWeapon.Name}.";
+                            break;
                         }
 
                         var context = new CombatContext();
