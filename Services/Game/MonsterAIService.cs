@@ -42,7 +42,7 @@ namespace LoDCompanion.Services.Game
             }
 
             // After all actions, ensure the monster faces the best direction.
-            EndTurnFacing(monster, heroes);
+            actionResult += EndTurnFacing(monster, heroes);
             return actionResult;
         }
 
