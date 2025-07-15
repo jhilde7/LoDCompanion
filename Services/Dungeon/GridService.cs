@@ -125,8 +125,20 @@ namespace LoDCompanion.Services.Dungeon
                 if (oldSquare != null) oldSquare.OccupyingCharacterId = null;
             }
 
-            targetSquare.OccupyingCharacterId = character.Id;
             character.Position = newPosition;
+            character.UpdateOccupiedSquares();
+            foreach (var newSquarePos in character.OccupiedSquares)
+            {
+                var newSquare = GetSquareAt(newSquarePos, grid);
+                if (newSquare == null || newSquare.IsOccupied)
+                {
+                    // This is a safety check in case a multi-tile unit's new footprint is invalid.
+                    // A more robust implementation would check the whole footprint before committing the move.
+                    return false;
+                }
+                newSquare.OccupyingCharacterId = character.Id;
+            }
+
             return true;
         }
 
