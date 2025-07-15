@@ -193,25 +193,35 @@ namespace LoDCompanion.Services.Game
 
             if (nextActorType == ActorType.Hero)
             {
-                IsAwaitingHeroSelection = true;
-                ActiveHero = null; // Clear the previously active hero
-                CombatLog.Add("Hero's turn. Select an available hero to act.");
-                OnCombatStateChanged?.Invoke(); // Notify the UI to update for selection mode
+                var availableHeroes = HeroesInCombat
+                .Where(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch && h.CurrentHP > 0)
+                .ToList();
 
-                if (ActiveHero != null)
+                // Check if there are any heroes who can act.
+                if (availableHeroes.Any())
                 {
-                    ActiveHero.IsVulnerableAfterPowerAttack = false;
+                    IsAwaitingHeroSelection = true;
+                    ActiveHero = null; // Clear the previously active hero
+                    CombatLog.Add("Hero's turn. Select an available hero to act.");
+                    OnCombatStateChanged?.Invoke(); // Notify the UI to update for selection mode
 
-                    // Process status effects at the start of the hero's turn
-                    StatusEffectService.ProcessStatusEffects(ActiveHero);
-                    CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
-                    // The game now waits for UI input to call HeroPerformsAction(...).
+                    if (ActiveHero != null)
+                    {
+                        ActiveHero.IsVulnerableAfterPowerAttack = false;
+
+                        // Process status effects at the start of the hero's turn
+                        StatusEffectService.ProcessStatusEffects(ActiveHero);
+                        CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
+                        // The game now waits for UI input to call HeroPerformsAction(...).
+                    }
                 }
-                else if (!IsAwaitingHeroSelection)
+                else
                 {
-                    // This can happen if all non-Overwatch heroes have used their AP.
-                    ProcessNextInInitiative();
+                    // Log it and immediately process the next token in the bag.
+                    CombatLog.Add("A hero action was drawn, but no heroes are able to act.");
+                    ProcessNextInInitiative(); // Immediately draw the next token
                 }
+
             }
             else // It's a Monster's turn
             {
