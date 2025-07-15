@@ -218,8 +218,8 @@ namespace LoDCompanion.Services.Game
                 ActiveHero = null; 
                 CombatLog.Add("A monster acts!");
 
-                var monstersToAct = MonstersInCombat;
-                foreach(var monster in MonstersThatHaveActedThisTurn)
+                var monstersToAct = MonstersInCombat.Except(MonstersThatHaveActedThisTurn).ToList();
+                foreach (var monster in MonstersThatHaveActedThisTurn)
                 {
                     monstersToAct.Remove(monster);
                 }
