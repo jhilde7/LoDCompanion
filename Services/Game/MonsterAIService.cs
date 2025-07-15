@@ -181,13 +181,15 @@ namespace LoDCompanion.Services.Game
                         return result;
                     }
                 }
-                else if (missile != null && !missile.IsLoaded)
+                
+                if (missile != null && !missile.IsLoaded)
                 {
                     missile.reloadAmmo();
                     monster.CurrentAP--;
                     return $"{monster.Name} reloads their {weapon}";
                 }
-                else if(!GridService.HasLineOfSight(monster.Position, target.Position, _dungeon.DungeonGrid).CanShoot)
+
+                if(!GridService.HasLineOfSight(monster.Position, target.Position, _dungeon.DungeonGrid).CanShoot)
                 {
                     return MoveToGetLineOfSight(monster, target);
                 }
@@ -216,7 +218,7 @@ namespace LoDCompanion.Services.Game
                                             MonsterCombatService.PerformStandardAttack(monster, missile, target);
                                 }
                             default:
-                                if (monster.CombatStance != CombatStance.Aiming)
+                                if (monster.CombatStance == CombatStance.Aiming)
                                 {
                                     return $"After aiming, {monster.Name} shoots at {target.Name}!\n" +
                                             MonsterCombatService.PerformStandardAttack(monster, missile, target);
@@ -243,7 +245,10 @@ namespace LoDCompanion.Services.Game
                     }
                 }
             }
-            return $"{monster.Name} hesitates.";
+            else
+            {
+                return ExecuteHumanoidMeleeBehavior(monster, target, heroes);
+            }
         }
 
         private string ExecuteMagicUserBehavior(Monster monster, Hero? target, List<Hero> heroes, Room room)
