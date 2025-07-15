@@ -219,21 +219,18 @@ h1:focus {
         background-color: #7a6a53;
     }
 
-.toast-message {
+.floating-text {
     position: absolute;
-    padding: 5px 10px;
-    border-radius: 5px;
-    color: white;
-    font-size: 1.2em;
+    font-size: 1.5em; /* Larger for impact */
     font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-    pointer-events: none; /* Allows clicks to pass through */
-    animation: fadeOutUp 2s forwards;
-    z-index: 1001; /* Ensure it appears above other items */
+    text-shadow: 2px 2px 3px black;
+    pointer-events: none; /* Clicks pass through to the grid */
+    animation: fadeOutAndUp 2s ease-out forwards;
+    z-index: 1001; /* Make sure it's on top */
 }
 
-/* Animation keyframes */
-@keyframes fadeOutUp {
+/* The animation that moves the text up and fades it out */
+@keyframes fadeOutAndUp {
     from {
         opacity: 1;
         transform: translateY(0);
@@ -241,19 +238,20 @@ h1:focus {
 
     to {
         opacity: 0;
-        transform: translateY(-50px);
+        transform: translateY(-60px); /* Move 60px up */
     }
 }
 
-/* Specific styles for different toast types */
-.damage-toast {
-    color: #ff4d4d; /* Red for damage */
+/* Specific styles for damage, misses, etc. */
+.damage-text {
+    color: #ff3838; /* A vibrant red */
 }
 
-.miss-toast {
-    color: #f0e68c; /* Khaki for miss/dodge */
+.miss-text {
+    color: #fffacd; /* LemonChiffon for misses/dodges */
+    font-style: italic;
 }
 
-.info-toast {
-    color: #add8e6; /* Light blue for general info */
+.info-text {
+    color: #87cefa; /* LightSkyBlue for other info */
 }

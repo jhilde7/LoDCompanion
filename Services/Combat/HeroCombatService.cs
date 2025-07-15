@@ -30,7 +30,7 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         public static AttackResult ResolveAttack(Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState dungeon)
         {
-            ToastService _toast = new ToastService();
+            FloatingTextService _floatingTextService = new FloatingTextService();
             var result = new AttackResult();
             bool isRanged = weapon is RangedWeapon;
             if(weapon is RangedWeapon rangedWeapon)
@@ -49,7 +49,7 @@ namespace LoDCompanion.Services.Combat
                 result.DamageDealt = CalculateFinalDamage(attacker, target, weapon, context);
                 target.TakeDamage(result.DamageDealt);
                 result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {result.DamageDealt} damage!";
-                _toast.ShowToast($"-{result.DamageDealt}", target.Position, "damage-toast");
+                _floatingTextService.ShowText($"-{result.DamageDealt}", target.Position, "damage-toast");
 
                 if (context.IsChargeAttack)
                 {
@@ -60,7 +60,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                _toast.ShowToast("Miss!", target.Position, "miss-toast");
+                _floatingTextService.ShowText("Miss!", target.Position, "miss-toast");
             }
 
             return result;

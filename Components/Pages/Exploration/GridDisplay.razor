@@ -2,9 +2,10 @@
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
 @using LoDCompanion.Models.Character
+@using LoDCompanion.Components.Shared
 
 @inject RoomService RoomService
-@inject ToastService ToastService
+@inject FloatingTextService FloatingTextService
 
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
@@ -47,14 +48,18 @@
             }
         }
         
-        @foreach (var toast in ToastService.ActiveToasts)
+        @foreach (var text in FloatingTextService.ActiveTexts)
         {
-            <Toast Toast="toast" Style="@GetItemStyleFromPosition(toast.Position)" />
+            <div class="floating-text @Text.CssClass" Style="@GetItemStyleFromPosition(text.Position)">
+                @Text.Text
+            </div>
         }
     }
 </div>
 
 @code {
+    [Parameter]
+    public FloatingText Text { get; set; } = new();
     [Parameter]
     public Room? Room { get; set; }
     [Parameter]
@@ -143,22 +148,23 @@
         return style.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
+    // You'll need a helper method to position the text
     private string GetItemStyleFromPosition(GridPosition position)
     {
-        if (Room == null) return "";
-        var localX = position.X - Room.GridOffset.X;
-        var localY = position.Y - Room.GridOffset.Y;
+        // This can use your existing GetPercentageStyle logic
+        var localX = position.X - (Room?.GridOffset.X ?? 0);
+        var localY = position.Y - (Room?.GridOffset.Y ?? 0);
         return GetPercentageStyle(localX, localY, 1, 1);
     }
 
     protected override void OnInitialized()
     {
-        // Subscribe to toast changes to re-render the grid
-        ToastService.OnToastsChanged += StateHasChanged;
+        // Subscribe to text changes to re-render.
+        FloatingTextService.OnTextChanged += StateHasChanged;
     }
 
     public void Dispose()
     {
-        ToastService.OnToastsChanged -= StateHasChanged;
+        FloatingTextService.OnTextChanged -= StateHasChanged;
     }
 }

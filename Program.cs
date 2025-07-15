@@ -70,7 +70,7 @@ builder.Services.AddScoped<GameStateManagerService>();
 builder.Services.AddScoped<MonsterAIService>();
 builder.Services.AddScoped<WorldStateService>();
 builder.Services.AddScoped<PlacementService>();
-builder.Services.AddSingleton<ToastService>();
+builder.Services.AddSingleton<FloatingTextService>();
 
 //Package
 builder.Services.AddBlazoredLocalStorage();
