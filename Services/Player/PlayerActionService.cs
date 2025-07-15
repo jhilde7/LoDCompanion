@@ -48,7 +48,6 @@ namespace LoDCompanion.Services.Player
     public class PlayerActionService
     {
         private readonly DungeonManagerService _dungeonManager;
-        private readonly HeroCombatService _heroCombat;
         private readonly SearchService _search;
         private readonly HealingService _healing;
         private readonly InventoryService _inventory;
@@ -56,14 +55,12 @@ namespace LoDCompanion.Services.Player
 
         public PlayerActionService(
             DungeonManagerService dungeonManagerService, 
-            HeroCombatService heroCombatService,
             SearchService searchService,
             HealingService healingService,
             InventoryService inventoryService,
             IdentificationService identificationService)
         {
             _dungeonManager = dungeonManagerService;
-            _heroCombat = heroCombatService;
             _search = searchService;
             _healing = healingService;
             _inventory = inventoryService;
@@ -109,7 +106,7 @@ namespace LoDCompanion.Services.Player
                         }
 
                         var context = new CombatContext();
-                        var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context, dungeon);
+                        var attackResult = HeroCombatService.ResolveAttack(hero, monster, weapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     else
@@ -183,7 +180,7 @@ namespace LoDCompanion.Services.Player
                     if (primaryTarget is Monster monster1 && hero.Weapons.FirstOrDefault() is Weapon weapon1)
                     {
                         var context = new CombatContext { IsPowerAttack = true };
-                        var attackResult = _heroCombat.ResolveAttack(hero, monster1, weapon1, context, dungeon);
+                        var attackResult = HeroCombatService.ResolveAttack(hero, monster1, weapon1, context, dungeon);
                         hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
                     }
@@ -193,7 +190,7 @@ namespace LoDCompanion.Services.Player
                     {
                         var context = new CombatContext { IsChargeAttack = true };
                         // TODO: Add movement logic before the attack
-                        var attackResult = _heroCombat.ResolveAttack(hero, monsterTarget, chargeWeapon, context, dungeon);
+                        var attackResult = HeroCombatService.ResolveAttack(hero, monsterTarget, chargeWeapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     break;

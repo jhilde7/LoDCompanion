@@ -41,7 +41,6 @@ builder.Services.AddSingleton<AlchemyService>();
 //Combat
 builder.Services.AddScoped<CombatManagerService>();
 builder.Services.AddScoped<InitiativeService>();
-builder.Services.AddScoped<HeroCombatService>();
 builder.Services.AddSingleton<MonsterSpecialService>();
 //Dungeon
 builder.Services.AddScoped<DungeonBuilderService>();
