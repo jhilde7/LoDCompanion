@@ -22,13 +22,13 @@ namespace LoDCompanion.Services.Game
 
     public class PlacementService
     {
-        private readonly GridService _grid;
         private readonly WorldStateService _worldState;
+        private readonly DungeonState _dungeon;
 
-        public PlacementService(GridService gridService, WorldStateService worldStateService)
+        public PlacementService( WorldStateService worldStateService, DungeonState dungeon)
         {
-            _grid = gridService;
             _worldState = worldStateService;
+            _dungeon = dungeon;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace LoDCompanion.Services.Game
                     IGameEntity? targetEntity = _worldState.FindEntityInRoomByName(room, targetName);
                     if (targetEntity != null)
                     {
-                        potentialPositions = GetPositionsNearTarget(entity, targetEntity);
+                        potentialPositions = GetPositionsNearTarget(entity, targetEntity, _dungeon);
                     }
                     break;
 
@@ -89,7 +89,7 @@ namespace LoDCompanion.Services.Game
             {
                 foreach (var position in potentialPositions)
                 {
-                    if (AttemptFinalPlacement(entity, position))
+                    if (AttemptFinalPlacement(entity, position, _dungeon))
                     {
                         return;
                     }
@@ -105,7 +105,7 @@ namespace LoDCompanion.Services.Game
                     potentialPositions.Shuffle();
                     foreach (var position in potentialPositions)
                     {
-                        if (AttemptFinalPlacement(entity, position))
+                        if (AttemptFinalPlacement(entity, position, _dungeon))
                         {
                             return;
                         }
@@ -189,12 +189,12 @@ namespace LoDCompanion.Services.Game
             return edgeSquares;
         }
 
-        private List<GridPosition> GetPositionsNearTarget(IGameEntity entity, IGameEntity target)
+        private List<GridPosition> GetPositionsNearTarget(IGameEntity entity, IGameEntity target, DungeonState dungeon)
         {
             var surroundingPositions = new List<GridPosition>();
             foreach (var occupiedSquare in target.OccupiedSquares)
             {
-                surroundingPositions.AddRange(_grid.GetNeighbors(occupiedSquare));
+                surroundingPositions.AddRange(GridService.GetNeighbors(occupiedSquare, dungeon.DungeonGrid));
             }
             return surroundingPositions;
         }
@@ -205,7 +205,7 @@ namespace LoDCompanion.Services.Game
             if (!allValidSquares.Any()) return new List<GridPosition>();
 
             // Find the single square with the maximum distance to the target.
-            var farthestSquare = allValidSquares.OrderByDescending(p => _grid.GetDistance(p, awayFromTarget.Position)).FirstOrDefault();
+            var farthestSquare = allValidSquares.OrderByDescending(p => GridService.GetDistance(p, awayFromTarget.Position)).FirstOrDefault();
             return farthestSquare != null ? new List<GridPosition> { farthestSquare } : new List<GridPosition>();
         }
 
@@ -223,7 +223,7 @@ namespace LoDCompanion.Services.Game
             return validSquares;
         }
 
-        private bool IsPlacementFootprintValid(IGameEntity entity, GridPosition targetPosition)
+        private bool IsPlacementFootprintValid(IGameEntity entity, GridPosition targetPosition, DungeonState dungeon)
         {
             entity.Position = targetPosition;
 
@@ -231,7 +231,7 @@ namespace LoDCompanion.Services.Game
 
             foreach (var squareCoords in entity.OccupiedSquares)
             {
-                var square = _grid.GetSquareAt(squareCoords);
+                var square = GridService.GetSquareAt(squareCoords, dungeon.DungeonGrid);
                 if (square == null || square.IsWall || square.IsOccupied || square.MovementBlocked)
                 {
                     return false;
@@ -240,9 +240,9 @@ namespace LoDCompanion.Services.Game
             return true;
         }
 
-        private bool AttemptFinalPlacement(IGameEntity entity, GridPosition targetPosition)
+        private bool AttemptFinalPlacement(IGameEntity entity, GridPosition targetPosition, DungeonState dungeon)
         {
-            if (!IsPlacementFootprintValid(entity, targetPosition))
+            if (!IsPlacementFootprintValid(entity, targetPosition, dungeon))
             {
                 Console.WriteLine($"Final placement check failed for {entity.Name} id: {entity.Id} at {targetPosition.ToString()}.");
                 return false;
@@ -250,7 +250,7 @@ namespace LoDCompanion.Services.Game
 
             foreach (var squareCoords in entity.OccupiedSquares)
             {
-                var square = _grid.GetSquareAt(squareCoords);
+                var square = GridService.GetSquareAt(squareCoords, dungeon.DungeonGrid);
                 if (square != null)
                 {
                     square.OccupyingCharacterId = entity.Id;

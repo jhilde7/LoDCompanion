@@ -9,13 +9,11 @@ namespace LoDCompanion.Services.Dungeon
     {
         private readonly EncounterService _encounter;
         private readonly DungeonState _dungeonState;
-        private readonly GridService _grid;
 
-        public WanderingMonsterService(DungeonState dungeonState, EncounterService encounter, GridService grid)
+        public WanderingMonsterService(DungeonState dungeonState, EncounterService encounter)
         {
             _dungeonState = dungeonState;
             _encounter = encounter;
-            _grid = grid;
         }
 
         /// <summary>
@@ -35,17 +33,17 @@ namespace LoDCompanion.Services.Dungeon
         /// <summary>
         /// Moves all active wandering monster tokens according to the rules.
         /// </summary>
-        /// <param name="dungeonState">The current state of the dungeon.</param>
+        /// <param name="dungeon">The current state of the dungeon.</param>
         /// <returns>True if any monster spotted the party.</returns>
-        public bool MoveWanderingMonsters(DungeonState dungeonState)
+        public bool MoveWanderingMonsters(DungeonState dungeon)
         {
             bool partySpotted = false;
-            if (dungeonState.HeroParty == null || !dungeonState.HeroParty.Heroes.Any() || dungeonState.WanderingMonsters == null)
+            if (dungeon.HeroParty == null || !dungeon.HeroParty.Heroes.Any() || dungeon.WanderingMonsters == null)
             {
                 return false;
             }
 
-            foreach (var monsterState in dungeonState.WanderingMonsters)
+            foreach (var monsterState in dungeon.WanderingMonsters)
             {
                 if (monsterState.IsRevealed) continue;
 
@@ -83,14 +81,14 @@ namespace LoDCompanion.Services.Dungeon
                     // Find the shortest path to any hero in the same room.
                     List<GridPosition> shortestPath = new List<GridPosition>();
 
-                    foreach (var hero in dungeonState.HeroParty?.Heroes ?? Enumerable.Empty<Hero>())
+                    foreach (var hero in dungeon.HeroParty?.Heroes ?? Enumerable.Empty<Hero>())
                     {
                         if (hero == null) continue;
                         if (hero.CurrentHP <= 0) continue;
 
                         if (monsterState.CurrentRoom == null) continue;
 
-                        List<GridPosition> currentPath = _grid.FindShortestPath(monsterState.CurrentPosition, hero.Position);
+                        List<GridPosition> currentPath = GridService.FindShortestPath(monsterState.CurrentPosition, hero.Position, dungeon.DungeonGrid);
 
                         // If this is the first valid path found, or if it's shorter than the previous shortest path
                         if (currentPath.Any() && (!shortestPath.Any() || currentPath.Count < shortestPath.Count))
@@ -107,7 +105,7 @@ namespace LoDCompanion.Services.Dungeon
                         monsterState.CurrentPosition = shortestPath[squaresToMove];
                         Console.WriteLine($"Wandering monster moves towards the party, now at ({monsterState.CurrentPosition.X}, {monsterState.CurrentPosition.Y}).");
 
-                        if (CheckForReveal(monsterState, dungeonState))
+                        if (CheckForReveal(monsterState, dungeon))
                         {
                             partySpotted = true;
                         }

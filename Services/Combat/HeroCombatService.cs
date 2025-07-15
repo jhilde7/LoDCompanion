@@ -4,6 +4,7 @@ using LoDCompanion.Utilities;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Models.Dungeon;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -21,16 +22,15 @@ namespace LoDCompanion.Services.Combat
 
     public class HeroCombatService
     {
-        private readonly GridService _grid;
-
-        public HeroCombatService (GridService gridService)
+        
+        public HeroCombatService ()
         {
-            _grid = gridService;
+            
         }
         /// <summary>
         /// Resolves a hero's attack against a monster, calculating the final to-hit chance and damage.
         /// </summary>
-        public AttackResult ResolveAttack(Hero attacker, Monster target, Weapon weapon, CombatContext context)
+        public AttackResult ResolveAttack(Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult();
             bool isRanged = weapon is RangedWeapon;
@@ -50,7 +50,7 @@ namespace LoDCompanion.Services.Combat
 
                 if (context.IsChargeAttack)
                 {
-                    result.OutcomeMessage += "\n" + _grid.ShoveCharacter(attacker, target, target.Room); // Pass current room
+                    result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, target.Room, dungeon.DungeonGrid); // Pass current room
                 }
             }
             else

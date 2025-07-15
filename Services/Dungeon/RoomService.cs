@@ -13,16 +13,14 @@ namespace LoDCompanion.Services.Dungeon
     public class RoomService
     {
         private readonly GameDataService _gameData;
-        private readonly GridService _grid;
 
         public List<RoomInfo> Rooms => GetRooms();
         public List<Furniture> Furniture => GetFurniture();
 
         // Constructor for creating a RoomCorridor instance
-        public RoomService(GameDataService gameData, GridService gridService)
+        public RoomService(GameDataService gameData)
         {
             _gameData = gameData;
-            _grid = gridService;
         }
 
         /// <summary>
@@ -91,7 +89,7 @@ namespace LoDCompanion.Services.Dungeon
             InitializeRoomData(roomInfo, newRoom);
 
             // Generate the grid and place the furniture for this room
-            _grid.GenerateGridForRoom(newRoom); // Assuming GridService has this method
+            GridService.GenerateGridForRoom(newRoom); // Assuming GridService has this method
 
             Console.WriteLine($"Room '{roomName}' created with a {newRoom.Width}x{newRoom.Height} grid.");
             return newRoom;
