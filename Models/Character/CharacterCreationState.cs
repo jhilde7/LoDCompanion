@@ -57,8 +57,8 @@ namespace LoDCompanion.Models.Character
         public int MaxHP { get; set; }
         public int MaxArmour { get; set; }
 
-        public List<Equipment>? WeaponChoices { get; set; }
-        public List<Equipment>? SpecificWeaponChoices { get; set; }
+        public List<Weapon>? WeaponChoices { get; set; }
+        public List<Weapon>? SpecificWeaponChoices { get; set; }
         public List<Equipment>? RelicChoices { get; set; }
         public List<Potion>? PotionChoices { get;  set; }
         public List<Part>? PartChoices { get;  set; }

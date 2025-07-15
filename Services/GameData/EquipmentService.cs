@@ -93,9 +93,9 @@ namespace LoDCompanion.Services.GameData
             return weapon;
         }
 
-        public static List<Equipment> GetStartingWeapons()
+        public static List<Weapon> GetStartingWeapons()
         {
-            List<Equipment> list = new List<Equipment>();
+            List<Weapon> list = new List<Weapon>();
             list.AddRange(MeleeWeapons.Where(x => x.Availability > 3));
             list.AddRange(RangedWeapons.Where(x => x.Availability > 3));
             return list;
