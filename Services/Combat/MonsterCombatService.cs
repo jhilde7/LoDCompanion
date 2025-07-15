@@ -51,6 +51,7 @@ namespace LoDCompanion.Services.Combat
         /// <returns>An AttackResult object detailing the outcome.</returns>
         public static AttackResult ResolveAttack(Monster attacker, Weapon? weapon, Hero target, CombatContext context)
         {
+            ToastService _toast = new ToastService();
             var result = new AttackResult();
 
             // Calculate To-Hit Chance
@@ -64,6 +65,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+                _toast.ShowToast("Miss!", target.Position, "miss-toast");
             }
 
             if (result.OutcomeMessage == string.Empty)
@@ -84,7 +86,7 @@ namespace LoDCompanion.Services.Combat
                     target.TakeDamage(finalDamage);
                     result.DamageDealt = finalDamage;
                     result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {finalDamage} damage!";
-
+                    _toast.ShowToast($"-{finalDamage}", target.Position, "damage-toast");
                     // Handle damaging quick slot items on a torso hit.
                     if (location == HitLocation.Torso)
                     {
@@ -95,6 +97,7 @@ namespace LoDCompanion.Services.Combat
                 {
                     result.DamageDealt = 0;
                     result.OutcomeMessage += $"\n{target.Name} takes no damage!";
+                    _toast.ShowToast("No Effect!", target.Position, "miss-toast");
                 } 
             }
 

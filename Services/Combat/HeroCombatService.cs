@@ -5,6 +5,8 @@ using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Components.Shared;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -20,18 +22,15 @@ namespace LoDCompanion.Services.Combat
         public int AttackRoll { get; set; }
     }
 
-    public class HeroCombatService
+    public static class HeroCombatService
     {
-        
-        public HeroCombatService ()
-        {
-            
-        }
+
         /// <summary>
         /// Resolves a hero's attack against a monster, calculating the final to-hit chance and damage.
         /// </summary>
-        public AttackResult ResolveAttack(Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState dungeon)
+        public static AttackResult ResolveAttack(Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState dungeon)
         {
+            ToastService _toast = new ToastService();
             var result = new AttackResult();
             bool isRanged = weapon is RangedWeapon;
             if(weapon is RangedWeapon rangedWeapon)
@@ -50,6 +49,7 @@ namespace LoDCompanion.Services.Combat
                 result.DamageDealt = CalculateFinalDamage(attacker, target, weapon, context);
                 target.TakeDamage(result.DamageDealt);
                 result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {result.DamageDealt} damage!";
+                _toast.ShowToast($"-{result.DamageDealt}", target.Position, "damage-toast");
 
                 if (context.IsChargeAttack)
                 {
@@ -60,6 +60,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+                _toast.ShowToast("Miss!", target.Position, "miss-toast");
             }
 
             return result;
@@ -68,7 +69,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Calculates the final To-Hit chance based on the tables on page 99 of the combat PDF.
         /// </summary>
-        private int CalculateToHitChance(int baseSkill, Monster target, Weapon weapon, CombatContext context)
+        private static int CalculateToHitChance(int baseSkill, Monster target, Weapon weapon, CombatContext context)
         {
             int finalChance = baseSkill;
             var targetWeapon = target.Weapons.FirstOrDefault();
@@ -117,16 +118,16 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         /// <param name="heroWeapon">The weapon being used by the hero (MeleeWeapon or RangedWeapon).</param>
         /// <returns>The calculated raw damage roll.</returns>
-        public int CalculateDamageRoll(Weapon heroWeapon) 
+        public static int CalculateDamageRoll(Weapon heroWeapon) 
         {
             return RandomHelper.GetRandomNumber(heroWeapon.MinDamage, heroWeapon.MaxDamage); ;
         }
-        
+
         /// <summary>
-         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
-         /// This method now incorporates the logic from the previous bonus calculation methods.
-         /// </summary>
-        private int CalculateFinalDamage(Hero attacker, Monster target, Weapon weapon, CombatContext context)
+        /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
+        /// This method now incorporates the logic from the previous bonus calculation methods.
+        /// </summary>
+        private static int CalculateFinalDamage(Hero attacker, Monster target, Weapon weapon, CombatContext context)
         {
             int damage = weapon.RollDamage();
             damage += attacker.DamageBonus;
