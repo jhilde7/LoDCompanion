@@ -218,3 +218,42 @@ h1:focus {
     .context-menu-item:hover {
         background-color: #7a6a53;
     }
+
+.toast-message {
+    position: absolute;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none; /* Allows clicks to pass through */
+    animation: fadeOutUp 2s forwards;
+    z-index: 1001; /* Ensure it appears above other items */
+}
+
+/* Animation keyframes */
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+/* Specific styles for different toast types */
+.damage-toast {
+    color: #ff4d4d; /* Red for damage */
+}
+
+.miss-toast {
+    color: #f0e68c; /* Khaki for miss/dodge */
+}
+
+.info-toast {
+    color: #add8e6; /* Light blue for general info */
+}
