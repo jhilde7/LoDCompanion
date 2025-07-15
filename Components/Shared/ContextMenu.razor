@@ -1,6 +1,7 @@
 ﻿@using LoDCompanion.Models.Character
 @using LoDCompanion.Models.Dungeon
 @using LoDCompanion.Services.Player
+@using LoDCompanion.Services.Dungeon
 
 <div class="context-menu" style="@MenuStyle" @onclick:stopPropagation>
     <div class="context-menu-header">@TargetName</div>
@@ -19,7 +20,7 @@
     public List<PlayerActionInfo> AvailableActions { get; set; } = new();
 
     [Parameter]
-    public Point Position { get; set; }
+    public required GridPosition Position { get; set; }
 
     [Parameter]
     public string TargetName { get; set; } = "Actions";
