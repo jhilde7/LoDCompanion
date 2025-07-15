@@ -14,11 +14,9 @@
             {
                 @foreach (var square in furniture.OccupiedSquares)
                 {
-                    <div class="grid-item furniture-overlay-square" title="@furniture.Name"
-                         style="@GetSquareStyle(square)"
-                         @oncontextmenu="e => HandleRightClick(square, e)"
-                        @oncontextmenu:preventDefault>
-                    </div>
+                    <ContextMenuTrigger MenuId="gridActionsMenu" Data="square" WrapperTag="div"
+                                        class="grid-background-square" style="@GetSquareStyle(square)">
+                    </ContextMenuTrigger>
                 }
             }
         }
@@ -27,13 +25,11 @@
         {
             @foreach (var monster in Room.MonstersInRoom)
             {
-                <div class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
-                     @oncontextmenu="e => HandleRightClick(monster, e)"
-                     @oncontextmenu:preventDefault
-                     @onclick="() => OnHeroClicked.InvokeAsync(null)">
+                <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div"
+                                    class="grid-item monster-item" style="@GetItemStyle(monster)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
-                </div>
+                </ContextMenuTrigger>
             }
         }
 
@@ -54,8 +50,6 @@
 @code {
     [Parameter]
     public Room? Room { get; set; }
-    [Parameter]
-    public EventCallback<(object target, MouseEventArgs args)> OnRightClick { get; set; }
     [Parameter]
     public EventCallback<Hero> OnHeroClicked { get; set; }
 
@@ -138,10 +132,5 @@
         // Use InvariantCulture to ensure '.' is used as the decimal separator in CSS, regardless of server culture.
         FormattableString style = $"position: absolute; left: {left}%; top: {top}%; width: {width}%; height: {height}%;";
         return style.ToString(System.Globalization.CultureInfo.InvariantCulture);
-    }
-
-    private Task HandleRightClick(object target, MouseEventArgs args)
-    {
-        return OnRightClick.InvokeAsync((target, args));
     }
 }
