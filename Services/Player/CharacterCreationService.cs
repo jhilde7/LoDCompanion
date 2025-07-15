@@ -519,7 +519,7 @@ namespace LoDCompanion.Services.CharacterCreation
         private List<Spell> GetStartingSpells()
         {
             var spells = new List<Spell>();
-            var possibleSpells = _gameData.GetSpellsByLevel(1);
+            var possibleSpells = SpellService.GetSpellsByLevel(1);
             if (possibleSpells == null)
             {
                 throw new ArgumentException("No spells found for level 1.");

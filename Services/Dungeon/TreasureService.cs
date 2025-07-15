@@ -1222,7 +1222,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = "Gemstone", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 }; // Value will be set by the calling method
                     break;
                 case "Grimoire":
-                    newItem = new Equipment { Name = $"Grimoire of {new GameDataService().GetRandomSpellName()}", Encumbrance = 1, Durability = 0, Value = 0, Description = "This spell can be learned back at the Wizards' Guild as long as you have the proper level", MaxDurability = 0 };
+                    newItem = new Equipment { Name = $"Grimoire of {SpellService.GetRandomSpellName()}", Encumbrance = 1, Durability = 0, Value = 0, Description = "This spell can be learned back at the Wizards' Guild as long as you have the proper level", MaxDurability = 0 };
                     break;
                 case "Harp":
                     newItem = new Equipment { Name = "Harp", Encumbrance = 2, Durability = 0, Value = 100, Description = "May be used during a short rest, with a WIS test, all heroes regain an extra 1d3HP.", MaxDurability = 0 };
@@ -1238,7 +1238,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = "Set of Fine Clothes", Encumbrance = 0, Durability = 0, Value = 0, Description = "Increases Barter +5", MaxDurability = 0 };
                     break;
                 case "Scroll":
-                    newItem = new Equipment { Name = $"Scroll of {new GameDataService().GetRandomSpellName()}", Encumbrance = 0, Durability = 0, Value = 100, MaxDurability = 0 };
+                    newItem = new Equipment { Name = $"Scroll of {SpellService.GetRandomSpellName()}", Encumbrance = 0, Durability = 0, Value = 100, MaxDurability = 0 };
                     break;
                 case "Talent Training Manual":
                     newItem = new Equipment { Name = $"{new GameDataService().GetRandomTalent()} Training Manual", Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };
