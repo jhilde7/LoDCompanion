@@ -51,6 +51,15 @@ h1:focus {
         transform: translateY(-2px);
     }
 
+.wilderness-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    /* REMOVE this line to prevent clipping the context menu */
+    /* overflow: hidden; */
+}
+
 .game-area {
     display: flex;
     justify-content: center;
@@ -178,7 +187,7 @@ h1:focus {
     }
 
 .context-menu {
-    position: absolute;
+    position: fixed;
     z-index: 1000;
     min-width: 150px;
     background-color: #332d25;

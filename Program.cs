@@ -67,11 +67,14 @@ builder.Services.AddSingleton<HealingService>();
 builder.Services.AddSingleton<IdentificationService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
-builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<GameStateManagerService>();
 builder.Services.AddScoped<MonsterAIService>();
 builder.Services.AddScoped<WorldStateService>();
 builder.Services.AddScoped<PlacementService>();
+
+//Package
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazorContextMenu();
 
 var app = builder.Build();
 
