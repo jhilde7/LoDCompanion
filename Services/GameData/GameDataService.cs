@@ -11,8 +11,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace LoDCompanion.Services.GameData
 {
-  public class GameDataService
-  {
+    public class GameDataService
+    {
         public List<Prayer> Prayers => GetPrayers();
         public List<Species> Species => GetSpecies();
         public List<Profession> Professions => GetProfessions();
@@ -36,8 +36,8 @@ namespace LoDCompanion.Services.GameData
 
 
         public List<Prayer> GetPrayers()
-    {
-      return new List<Prayer>()
+        {
+            return new List<Prayer>()
                 {
                 new Prayer(){
                   Name = "Bringer of Light",
@@ -142,24 +142,24 @@ namespace LoDCompanion.Services.GameData
                   Duration = "Until end of battle (effect on energy/constitution is after battle)."
                 }
             };
-    }
+        }
 
         internal List<Prayer> GetPrayersByLevel(int level)
         {
-          List<Prayer> list = new List<Prayer>();
-          foreach (Prayer prayer in Prayers)
-          {
-            if (prayer.Level == level)
+            List<Prayer> list = new List<Prayer>();
+            foreach (Prayer prayer in Prayers)
             {
-              list.Add(prayer);
+                if (prayer.Level == level)
+                {
+                    list.Add(prayer);
+                }
             }
-          }
-          return list;
+            return list;
         }
 
         public List<Talent> GetTalents()
-    {
-      return new List<Talent>()
+        {
+            return new List<Talent>()
                     {
                         new Talent(){
                             Category = TalentCategory.Physical,
@@ -613,432 +613,432 @@ namespace LoDCompanion.Services.GameData
                             IsWise = true
                         }
             };
-    }
+        }
 
         public List<Talent> GetTalentCategoryAtLevelup(Profession profession, int level)
-    {
+        {
 
-      switch (profession.Name)
-      {
-        case "Alchemist":
-          return level switch
-          {
-            3 => MentalTalents,
-            4 => CommonTalents,
-            6 => CombatTalents,
-            7 => MentalTalents,
-            8 => CommonTalents,
-            _ => AlchemistTalents
-          };
-        case "Barbarian":
-          return level switch
-          {
-            2 => PhysicalTalents,
-            4 => MentalTalents,
-            5 => CommonTalents,
-            7 => PhysicalTalents,
-            9 => CommonTalents,
-            _ => CombatTalents
-          };
-        case "Ranger":
-          return level switch
-          {
-            2 => PhysicalTalents,
-            4 => CommonTalents,
-            5 => MentalTalents,
-            7 => PhysicalTalents,
-            8 => CommonTalents,
-            9 => MentalTalents,
-            _ => CombatTalents
-          };
-        case "Rogue":
-          return level switch
-          {
-            2 => PhysicalTalents,
-            3 => SneakyTalents,
-            5 => MentalTalents,
-            6 => PhysicalTalents,
-            8 => SneakyTalents,
-            9 => CommonTalents,
-            _ => CombatTalents
-          };
-        case "Thief":
-          return level switch
-          {
-            3 => CommonTalents,
-            5 => CombatTalents,
-            6 => MentalTalents,
-            7 => PhysicalTalents,
-            8 => CommonTalents,
-            9 => CombatTalents,
-            _ => SneakyTalents
-          };
-        case "Warrior":
-          return level switch
-          {
-            2 => MentalTalents,
-            4 => PhysicalTalents,
-            6 => CommonTalents,
-            7 => MentalTalents,
-            9 => CommonTalents,
-            _ => CombatTalents
-          };
-        case "Warrior Priest":
-          return level switch
-          {
-            2 => MentalTalents,
-            4 => CombatTalents,
-            5 => PhysicalTalents,
-            7 => CombatTalents,
-            8 => MentalTalents,
-            10 => CombatTalents,
-            _ => FaithTalents
-          };
-        case "Wizard":
-          return level switch
-          {
-            3 => CommonTalents,
-            4 => MentalTalents,
-            6 => MentalTalents,
-            7 => PhysicalTalents,
-            9 => CommonTalents,
-            10 => MentalTalents,
-            _ => MagicTalents
-          };
-        default: return CommonTalents;
-      }
-    }
+            switch (profession.Name)
+            {
+                case "Alchemist":
+                    return level switch
+                    {
+                        3 => MentalTalents,
+                        4 => CommonTalents,
+                        6 => CombatTalents,
+                        7 => MentalTalents,
+                        8 => CommonTalents,
+                        _ => AlchemistTalents
+                    };
+                case "Barbarian":
+                    return level switch
+                    {
+                        2 => PhysicalTalents,
+                        4 => MentalTalents,
+                        5 => CommonTalents,
+                        7 => PhysicalTalents,
+                        9 => CommonTalents,
+                        _ => CombatTalents
+                    };
+                case "Ranger":
+                    return level switch
+                    {
+                        2 => PhysicalTalents,
+                        4 => CommonTalents,
+                        5 => MentalTalents,
+                        7 => PhysicalTalents,
+                        8 => CommonTalents,
+                        9 => MentalTalents,
+                        _ => CombatTalents
+                    };
+                case "Rogue":
+                    return level switch
+                    {
+                        2 => PhysicalTalents,
+                        3 => SneakyTalents,
+                        5 => MentalTalents,
+                        6 => PhysicalTalents,
+                        8 => SneakyTalents,
+                        9 => CommonTalents,
+                        _ => CombatTalents
+                    };
+                case "Thief":
+                    return level switch
+                    {
+                        3 => CommonTalents,
+                        5 => CombatTalents,
+                        6 => MentalTalents,
+                        7 => PhysicalTalents,
+                        8 => CommonTalents,
+                        9 => CombatTalents,
+                        _ => SneakyTalents
+                    };
+                case "Warrior":
+                    return level switch
+                    {
+                        2 => MentalTalents,
+                        4 => PhysicalTalents,
+                        6 => CommonTalents,
+                        7 => MentalTalents,
+                        9 => CommonTalents,
+                        _ => CombatTalents
+                    };
+                case "Warrior Priest":
+                    return level switch
+                    {
+                        2 => MentalTalents,
+                        4 => CombatTalents,
+                        5 => PhysicalTalents,
+                        7 => CombatTalents,
+                        8 => MentalTalents,
+                        10 => CombatTalents,
+                        _ => FaithTalents
+                    };
+                case "Wizard":
+                    return level switch
+                    {
+                        3 => CommonTalents,
+                        4 => MentalTalents,
+                        6 => MentalTalents,
+                        7 => PhysicalTalents,
+                        9 => CommonTalents,
+                        10 => MentalTalents,
+                        _ => MagicTalents
+                    };
+                default: return CommonTalents;
+            }
+        }
 
         public Talent GetRandomTalent()
         {
-          return GetRandomTalentByCategory();
+            return GetRandomTalentByCategory();
         }
 
         public Talent GetRandomTalentByCategory(TalentCategory? category = null)
-    {
-      switch (category)
-      {
-        case TalentCategory.Physical:
-          return PhysicalTalents[RandomHelper.GetRandomNumber(0, PhysicalTalents.Count - 1)];
-        case TalentCategory.Combat:
-          return CombatTalents[RandomHelper.GetRandomNumber(0, CombatTalents.Count - 1)];
-        case TalentCategory.Faith:
-          return FaithTalents[RandomHelper.GetRandomNumber(0, FaithTalents.Count - 1)];
-        case TalentCategory.Alchemist:
-          return AlchemistTalents[RandomHelper.GetRandomNumber(0, AlchemistTalents.Count - 1)];
-        case TalentCategory.Common:
-          return CommonTalents[RandomHelper.GetRandomNumber(0, CommonTalents.Count - 1)];
-        case TalentCategory.Magic:
-          return MagicTalents[RandomHelper.GetRandomNumber(0, MagicTalents.Count - 1)];
-        case TalentCategory.Sneaky:
-          return SneakyTalents[RandomHelper.GetRandomNumber(0, SneakyTalents.Count - 1)];
-        case TalentCategory.Mental:
-          return MentalTalents[RandomHelper.GetRandomNumber(0, MentalTalents.Count - 1)];
-        default:
-          return Talents[RandomHelper.GetRandomNumber(0, Talents.Count - 1)];
-      }
-    }
+        {
+            switch (category)
+            {
+                case TalentCategory.Physical:
+                    return PhysicalTalents[RandomHelper.GetRandomNumber(0, PhysicalTalents.Count - 1)];
+                case TalentCategory.Combat:
+                    return CombatTalents[RandomHelper.GetRandomNumber(0, CombatTalents.Count - 1)];
+                case TalentCategory.Faith:
+                    return FaithTalents[RandomHelper.GetRandomNumber(0, FaithTalents.Count - 1)];
+                case TalentCategory.Alchemist:
+                    return AlchemistTalents[RandomHelper.GetRandomNumber(0, AlchemistTalents.Count - 1)];
+                case TalentCategory.Common:
+                    return CommonTalents[RandomHelper.GetRandomNumber(0, CommonTalents.Count - 1)];
+                case TalentCategory.Magic:
+                    return MagicTalents[RandomHelper.GetRandomNumber(0, MagicTalents.Count - 1)];
+                case TalentCategory.Sneaky:
+                    return SneakyTalents[RandomHelper.GetRandomNumber(0, SneakyTalents.Count - 1)];
+                case TalentCategory.Mental:
+                    return MentalTalents[RandomHelper.GetRandomNumber(0, MentalTalents.Count - 1)];
+                default:
+                    return Talents[RandomHelper.GetRandomNumber(0, Talents.Count - 1)];
+            }
+        }
 
         private List<Talent> GetTalentsByCategory(TalentCategory category)
         {
-          return Talents.Where(t => t.Category == category).ToList();
+            return Talents.Where(t => t.Category == category).ToList();
         }
 
         public Talent GetTalentByName(string name)
         {
-          return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
+            return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
         }
 
         public enum HateCategory
-    {
-      Bandits,
-      Bats,
-      Beastmen,
-      Centipedes,
-      DarkElves,
-      Demons,
-      Dragons,
-      Elementals,
-      Froglings,
-      Geckos,
-      Ghosts,
-      Ghouls,
-      Giants,
-      Gnolls,
-      Goblins,
-      Golems,
-      Minotaurs,
-      Mummies,
-      Ogres,
-      Orcs,
-      Rats,
-      Saurians,
-      Scorpions,
-      Skeletons,
-      Snakes,
-      Spiders,
-      Toads,
-      Trolls,
-      Vampires,
-      Werewolves,
-      Wights,
-      Wolves,
-      Zombies
-    }
+        {
+            Bandits,
+            Bats,
+            Beastmen,
+            Centipedes,
+            DarkElves,
+            Demons,
+            Dragons,
+            Elementals,
+            Froglings,
+            Geckos,
+            Ghosts,
+            Ghouls,
+            Giants,
+            Gnolls,
+            Goblins,
+            Golems,
+            Minotaurs,
+            Mummies,
+            Ogres,
+            Orcs,
+            Rats,
+            Saurians,
+            Scorpions,
+            Skeletons,
+            Snakes,
+            Spiders,
+            Toads,
+            Trolls,
+            Vampires,
+            Werewolves,
+            Wights,
+            Wolves,
+            Zombies
+        }
 
         public Talent GetHateByName(HateCategory? hateCategory)
-    {
-      string baseDescription = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.";
-      int roll = 0;
-      if (!hateCategory.HasValue)
-      {
-        roll = RandomHelper.GetRandomNumber(1, 33);
-      }
-      else
-      {
-        roll = (int)hateCategory + 1;
-      }
+        {
+            string baseDescription = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.";
+            int roll = 0;
+            if (!hateCategory.HasValue)
+            {
+                roll = RandomHelper.GetRandomNumber(1, 33);
+            }
+            else
+            {
+                roll = (int)hateCategory + 1;
+            }
 
-      return roll switch
-      {
-        1 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Bandits",
-          Description = $"This talent applies to any enemy with 'Bandit' in its name. {baseDescription}",
-          IsHate = true
-        },
-        2 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Bats",
-          Description = $"This talent applies to any enemy with 'Bat' in its name. {baseDescription}",
-          IsHate = true
-        },
-        3 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Beastmen",
-          Description = $"This talent applies to any enemy with 'Beastman' in its name. {baseDescription}",
-          IsHate = true
-        },
-        4 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Centipedes",
-          Description = $"This talent applies to any enemy with 'Centipede' in its name. {baseDescription}",
-          IsHate = true
-        },
-        5 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Dark Elves",
-          Description = $"This talent applies to any enemy with 'Dark Elf' in its name. {baseDescription}",
-          IsHate = true
-        },
-        6 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Demons",
-          Description = $"This talent applies to any enemy with 'Demon' in its name. {baseDescription}",
-          IsHate = true
-        },
-        7 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Dragons",
-          Description = $"This talent applies to any enemy with 'Dragon' in its name. {baseDescription}",
-          IsHate = true
-        },
-        8 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Elementals",
-          Description = $"This talent applies to any enemy with 'Elemental' in its name. {baseDescription}",
-          IsHate = true
-        },
-        9 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Froglings",
-          Description = $"This talent applies to any enemy with 'Frogling' in its name. {baseDescription}",
-          IsHate = true
-        },
-        10 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Geckos",
-          Description = $"This talent applies to any enemy with 'Gecko' in its name. {baseDescription}",
-          IsHate = true
-        },
-        11 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Ghosts",
-          Description = $"This talent applies to ethereal undead like Ghosts, Banshees, and Wraiths. {baseDescription}",
-          IsHate = true
-        },
-        12 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Ghouls",
-          Description = $"This talent applies to any enemy with 'Ghoul' in its name. {baseDescription}",
-          IsHate = true
-        },
-        13 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Giants",
-          Description = $"This talent applies to any enemy with 'Giant' in its name. {baseDescription}",
-          IsHate = true
-        },
-        14 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Gnolls",
-          Description = $"This talent applies to any enemy with 'Gnoll' in its name. {baseDescription}",
-          IsHate = true
-        },
-        15 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Goblins",
-          Description = $"This talent applies to any enemy with 'Goblin' in its name. {baseDescription}",
-          IsHate = true
-        },
-        16 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Golems",
-          Description = $"This talent applies to any enemy with 'Golem' in its name. {baseDescription}",
-          IsHate = true
-        },
-        17 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Minotaurs",
-          Description = $"This talent applies to any enemy with 'Minotaur' in its name. {baseDescription}",
-          IsHate = true
-        },
-        18 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Mummies",
-          Description = $"This talent applies to any enemy with 'Mummy' in its name. {baseDescription}",
-          IsHate = true
-        },
-        19 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Ogres",
-          Description = $"This talent applies to any enemy with 'Ogre' in its name. {baseDescription}",
-          IsHate = true
-        },
-        20 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Orcs",
-          Description = $"This talent applies to any enemy with 'Orc' in its name. {baseDescription}",
-          IsHate = true
-        },
-        21 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Rats",
-          Description = $"This talent applies to any enemy with 'Rat' in its name. {baseDescription}",
-          IsHate = true
-        },
-        22 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Saurians",
-          Description = $"This talent applies to any enemy with 'Saurian' in its name. {baseDescription}",
-          IsHate = true
-        },
-        23 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Scorpions",
-          Description = $"This talent applies to any enemy with 'Scorpion' in its name. {baseDescription}",
-          IsHate = true
-        },
-        24 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Skeletons",
-          Description = $"This talent applies to any enemy with 'Skeleton' in its name. {baseDescription}",
-          IsHate = true
-        },
-        25 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Snakes",
-          Description = $"This talent applies to any enemy with 'Snake' in its name. {baseDescription}",
-          IsHate = true
-        },
-        26 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Spiders",
-          Description = $"This talent applies to any enemy with 'Spider' in its name. {baseDescription}",
-          IsHate = true
-        },
-        27 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Toads",
-          Description = $"This talent applies to any enemy with 'Toad' in its name. {baseDescription}",
-          IsHate = true
-        },
-        28 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Trolls",
-          Description = $"This talent applies to any enemy with 'Troll' in its name. {baseDescription}",
-          IsHate = true
-        },
-        29 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Vampires",
-          Description = $"This talent applies to any enemy with 'Vampire' in its name. {baseDescription}",
-          IsHate = true
-        },
-        30 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Werewolves",
-          Description = $"This talent applies to any enemy with 'Werewolf' in its name. {baseDescription}",
-          IsHate = true
-        },
-        31 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Wights",
-          Description = $"This talent applies to any enemy with 'Wight' in its name. {baseDescription}",
-          IsHate = true
-        },
-        32 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Wolves",
-          Description = $"This talent applies to any enemy with 'Wolf' in its name. {baseDescription}",
-          IsHate = true
-        },
-        33 => new Talent()
-        {
-          Category = TalentCategory.Mental,
-          Name = "Hate Zombies",
-          Description = $"This talent applies to any enemy with 'Zombie' in its name. {baseDescription}",
-          IsHate = true
-        },
-        _ => new Talent()
-      };
-    }
+            return roll switch
+            {
+                1 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Bandits",
+                    Description = $"This talent applies to any enemy with 'Bandit' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                2 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Bats",
+                    Description = $"This talent applies to any enemy with 'Bat' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                3 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Beastmen",
+                    Description = $"This talent applies to any enemy with 'Beastman' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                4 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Centipedes",
+                    Description = $"This talent applies to any enemy with 'Centipede' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                5 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Dark Elves",
+                    Description = $"This talent applies to any enemy with 'Dark Elf' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                6 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Demons",
+                    Description = $"This talent applies to any enemy with 'Demon' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                7 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Dragons",
+                    Description = $"This talent applies to any enemy with 'Dragon' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                8 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Elementals",
+                    Description = $"This talent applies to any enemy with 'Elemental' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                9 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Froglings",
+                    Description = $"This talent applies to any enemy with 'Frogling' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                10 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Geckos",
+                    Description = $"This talent applies to any enemy with 'Gecko' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                11 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Ghosts",
+                    Description = $"This talent applies to ethereal undead like Ghosts, Banshees, and Wraiths. {baseDescription}",
+                    IsHate = true
+                },
+                12 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Ghouls",
+                    Description = $"This talent applies to any enemy with 'Ghoul' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                13 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Giants",
+                    Description = $"This talent applies to any enemy with 'Giant' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                14 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Gnolls",
+                    Description = $"This talent applies to any enemy with 'Gnoll' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                15 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Goblins",
+                    Description = $"This talent applies to any enemy with 'Goblin' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                16 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Golems",
+                    Description = $"This talent applies to any enemy with 'Golem' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                17 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Minotaurs",
+                    Description = $"This talent applies to any enemy with 'Minotaur' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                18 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Mummies",
+                    Description = $"This talent applies to any enemy with 'Mummy' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                19 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Ogres",
+                    Description = $"This talent applies to any enemy with 'Ogre' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                20 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Orcs",
+                    Description = $"This talent applies to any enemy with 'Orc' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                21 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Rats",
+                    Description = $"This talent applies to any enemy with 'Rat' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                22 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Saurians",
+                    Description = $"This talent applies to any enemy with 'Saurian' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                23 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Scorpions",
+                    Description = $"This talent applies to any enemy with 'Scorpion' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                24 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Skeletons",
+                    Description = $"This talent applies to any enemy with 'Skeleton' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                25 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Snakes",
+                    Description = $"This talent applies to any enemy with 'Snake' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                26 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Spiders",
+                    Description = $"This talent applies to any enemy with 'Spider' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                27 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Toads",
+                    Description = $"This talent applies to any enemy with 'Toad' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                28 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Trolls",
+                    Description = $"This talent applies to any enemy with 'Troll' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                29 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Vampires",
+                    Description = $"This talent applies to any enemy with 'Vampire' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                30 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Werewolves",
+                    Description = $"This talent applies to any enemy with 'Werewolf' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                31 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Wights",
+                    Description = $"This talent applies to any enemy with 'Wight' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                32 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Wolves",
+                    Description = $"This talent applies to any enemy with 'Wolf' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                33 => new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = "Hate Zombies",
+                    Description = $"This talent applies to any enemy with 'Zombie' in its name. {baseDescription}",
+                    IsHate = true
+                },
+                _ => new Talent()
+            };
+        }
 
         public List<Perk> GetPerks()
-    {
-      return new List<Perk>()
+        {
+            return new List<Perk>()
                        {
                             new Perk(){
                                 Category = PerkCategory.Leader,
@@ -1281,109 +1281,109 @@ namespace LoDCompanion.Services.GameData
                             Comment = "Only works on one enemy per Energy Point spent."
                           }
             };
-    }
+        }
 
         public List<Perk>? GetPerkCategoryAtLevelup(Profession profession, int level)
-    {
-      switch (profession.Name)
-      {
-        case "Alchemist":
-          return level switch
-          {
-            2 => AlchemistPerks,
-            4 => LeaderPerks,
-            6 => CombatPerks,
-            8 => AlchemistPerks,
-            10 => CommonPerks,
-            _ => null,
-          };
-        case "Barbarian":
-          return level switch
-          {
-            2 => CombatPerks,
-            4 => CommonPerks,
-            6 => CombatPerks,
-            8 => CommonPerks,
-            10 => CombatPerks,
-            _ => null,
-          };
-        case "Ranger":
-          return level switch
-          {
-            2 => CombatPerks,
-            4 => CommonPerks,
-            6 => CombatPerks,
-            8 => CommonPerks,
-            10 => CommonPerks,
-            _ => null,
-          };
-        case "Rogue":
-          return level switch
-          {
-            2 => CombatPerks,
-            4 => SneakyPerks,
-            6 => CommonPerks,
-            8 => CombatPerks,
-            10 => SneakyPerks,
-            _ => null,
-          };
-        case "Thief":
-          return level switch
-          {
-            2 => SneakyPerks,
-            4 => CommonPerks,
-            6 => SneakyPerks,
-            8 => CombatPerks,
-            10 => SneakyPerks,
-            _ => null,
-          };
-        case "Warrior":
-          return level switch
-          {
-            2 => LeaderPerks,
-            4 => CombatPerks,
-            6 => CombatPerks,
-            8 => CommonPerks,
-            10 => CombatPerks,
-            _ => null,
-          };
-        case "Warrior Priest":
-          return level switch
-          {
-            2 => FaithPerks,
-            4 => LeaderPerks,
-            6 => CombatPerks,
-            8 => FaithPerks,
-            10 => CommonPerks,
-            _ => null,
-          };
-        case "Wizard":
-          return level switch
-          {
-            2 => ArcanePerks,
-            4 => LeaderPerks,
-            6 => ArcanePerks,
-            8 => CommonPerks,
-            10 => ArcanePerks,
-            _ => null,
-          };
-        default: return CommonPerks;
-      }
-    }
+        {
+            switch (profession.Name)
+            {
+                case "Alchemist":
+                    return level switch
+                    {
+                        2 => AlchemistPerks,
+                        4 => LeaderPerks,
+                        6 => CombatPerks,
+                        8 => AlchemistPerks,
+                        10 => CommonPerks,
+                        _ => null,
+                    };
+                case "Barbarian":
+                    return level switch
+                    {
+                        2 => CombatPerks,
+                        4 => CommonPerks,
+                        6 => CombatPerks,
+                        8 => CommonPerks,
+                        10 => CombatPerks,
+                        _ => null,
+                    };
+                case "Ranger":
+                    return level switch
+                    {
+                        2 => CombatPerks,
+                        4 => CommonPerks,
+                        6 => CombatPerks,
+                        8 => CommonPerks,
+                        10 => CommonPerks,
+                        _ => null,
+                    };
+                case "Rogue":
+                    return level switch
+                    {
+                        2 => CombatPerks,
+                        4 => SneakyPerks,
+                        6 => CommonPerks,
+                        8 => CombatPerks,
+                        10 => SneakyPerks,
+                        _ => null,
+                    };
+                case "Thief":
+                    return level switch
+                    {
+                        2 => SneakyPerks,
+                        4 => CommonPerks,
+                        6 => SneakyPerks,
+                        8 => CombatPerks,
+                        10 => SneakyPerks,
+                        _ => null,
+                    };
+                case "Warrior":
+                    return level switch
+                    {
+                        2 => LeaderPerks,
+                        4 => CombatPerks,
+                        6 => CombatPerks,
+                        8 => CommonPerks,
+                        10 => CombatPerks,
+                        _ => null,
+                    };
+                case "Warrior Priest":
+                    return level switch
+                    {
+                        2 => FaithPerks,
+                        4 => LeaderPerks,
+                        6 => CombatPerks,
+                        8 => FaithPerks,
+                        10 => CommonPerks,
+                        _ => null,
+                    };
+                case "Wizard":
+                    return level switch
+                    {
+                        2 => ArcanePerks,
+                        4 => LeaderPerks,
+                        6 => ArcanePerks,
+                        8 => CommonPerks,
+                        10 => ArcanePerks,
+                        _ => null,
+                    };
+                default: return CommonPerks;
+            }
+        }
 
         public List<Perk> GetPerksByCategory(PerkCategory category)
         {
-          return Perks.Where(p => p.Category == category).ToList();
+            return Perks.Where(p => p.Category == category).ToList();
         }
 
         public Perk GetPerkByName(string name)
         {
-          return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
+            return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
         }
 
         public List<Species> GetSpecies()
-    {
-      return new List<Species>()
+        {
+            return new List<Species>()
             {
                 new Species() {
                     Name = "Dwarf",
@@ -1426,31 +1426,31 @@ namespace LoDCompanion.Services.GameData
                     BaseHitPoints =  5
                 }
             };
-    }
+        }
 
         public int GetDamageBonusFromSTR(int strength)
         {
-          return strength switch
-          {
-            < 60 => 0,
-            < 70 => 1,
-            < 80 => 2,
-            _ => 3,
-          };
+            return strength switch
+            {
+                < 60 => 0,
+                < 70 => 1,
+                < 80 => 2,
+                _ => 3,
+            };
         }
 
         public int GetNaturalArmourFromCON(int constitution)
-    {
-      return constitution switch
-      {
-        < 50 => 0,
-        < 55 => 1,
-        < 60 => 2,
-        < 65 => 3,
-        < 70 => 4,
-        _ => 5,
-      };
-    }
+        {
+            return constitution switch
+            {
+                < 50 => 0,
+                < 55 => 1,
+                < 60 => 2,
+                < 65 => 3,
+                < 70 => 4,
+                _ => 5,
+            };
+        }
 
         public int Get1HWeaponClass(int strength)
         {
@@ -1487,8 +1487,8 @@ namespace LoDCompanion.Services.GameData
         }
 
         public List<Profession> GetProfessions()
-    {
-      return new List<Profession>()
+        {
+            return new List<Profession>()
             {
                 new Profession {
                     Name = "Wizard",
@@ -1876,22 +1876,22 @@ namespace LoDCompanion.Services.GameData
                     }
                 }
             };
-    }
+        }
 
-    public enum DamageType
-    {
-        Mundane,
-        Silver,
-        Fire,
-        Water,
-        Lightning,
-        Acid,
-        Poison,
-        Magic
-    }
+        public enum DamageType
+        {
+            Mundane,
+            Silver,
+            Fire,
+            Water,
+            Lightning,
+            Acid,
+            Poison,
+            Magic
+        }
 
-      public class Prayer
-      {
+        public class Prayer
+        {
             public string Name { get; set; } = string.Empty;
             public int Level { get; set; }
             public int EnergyCost { get; set; } = 1;
@@ -1899,245 +1899,246 @@ namespace LoDCompanion.Services.GameData
             public string Duration { get; set; } = string.Empty;
             public string PrayerEffect { get; set; } = string.Empty;// This could be an enum or a more complex object if effects become varied.
 
-        // Constructor
-        public Prayer()
+            // Constructor
+            public Prayer()
+            {
+
+            }
+
+            public override string ToString()
+            {
+                return $"[{Name} (Lvl {Level})] Cost: {EnergyCost} Energy | Duration: {Duration} | Effect: {PrayerEffect}";
+            }
+
+            // Method to get the prayer effect description
+            // This method can be expanded to apply the effect in a game logic service.
+            public string GetPrayerEffectDescription()
+            {
+                return PrayerEffect;
+            }
+
+            // Example method for applying the prayer effect (logic would typically be in a service)
+            public void ApplyEffect(Hero hero)
+            {
+                // This is a placeholder. Real logic would depend on the 'PrayerEffect' string
+                // or if 'PrayerEffect' was an enum/interface.
+                Console.WriteLine($"{hero.Name} is affected by {Name}: {PrayerEffect}");
+                // Example: if PrayerName == "Heal" -> hero.HP += amount;
+            }
+        }
+
+        public enum TalentCategory
         {
+            Magic,
+            Physical,
+            Combat,
+            Faith,
+            Alchemist,
+            Common,
+            Sneaky,
+            Mental
+        }
+
+        public class Talent
+        {
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
+            public TalentCategory Category { get; set; }
+            // Physical Talents
+            public bool IsCatLike { get; set; }
+            public bool IsFast { get; set; }
+            public bool IsNightVision { get; set; }
+            public bool IsPerfectHearing { get; set; }
+            public bool IsResilient { get; set; }
+            public bool IsResistDisease { get; set; }
+            public bool IsResistPoison { get; set; }
+            public bool IsStrong { get; set; }
+            public bool IsStrongBuild { get; set; }
+            public bool IsTank { get; set; }
+
+            // Combat Talents
+            public bool IsAxeman { get; set; }
+            public bool IsBruiser { get; set; }
+            public bool IsDeathLament { get; set; }
+            public bool IsDisarm { get; set; }
+            public bool IsDualWield { get; set; }
+            public bool IsFastReload { get; set; }
+            public bool IsMarksman { get; set; }
+            public bool IsMightyBlow { get; set; }
+            public bool IsParryMaster { get; set; }
+            public bool IsPerfectShot { get; set; }
+            public bool IsRiposteMaster { get; set; }
+            public bool IsSniper { get; set; }
+            public bool IsSwordsman { get; set; }
+            public bool IsTightGrip { get; set; }
+            public bool IsTunnelFighter { get; set; }
+
+            // Faith Talents
+            public bool IsDevoted { get; set; }
+            public bool IsGodsChosen { get; set; }
+            public bool IsHealer { get; set; }
+            public bool IsMessiah { get; set; }
+            public bool IsPure { get; set; }
+            public bool IsReliquary { get; set; }
+
+            // Alchemist Talents
+            public bool IsGatherer { get; set; }
+            public bool IsHarvester { get; set; }
+            public bool IsKeenEye { get; set; }
+            public bool IsMasterHealer { get; set; }
+            public bool IsPerfectToss { get; set; }
+            public bool IsPoisoner { get; set; }
+            public bool IsPowerfulPotions { get; set; }
+
+            // Common Talents
+            public bool IsCharming { get; set; }
+            public bool IsDisciplined { get; set; }
+            public bool IsHunter { get; set; }
+            public bool IsLucky { get; set; }
+            public bool IsMasterCook { get; set; }
+            public bool IsNaturalLeader { get; set; }
+            public bool IsRingBearer { get; set; }
+            public bool IsSurvivalist { get; set; }
+            public bool IsSwiftLeader { get; set; }
+            public bool IsVeteran { get; set; }
+
+            // Magic Talents
+            public bool IsBloodMagic { get; set; }
+            public bool IsConjurer { get; set; }
+            public bool IsDivinator { get; set; }
+            public bool IsFastReflexes { get; set; }
+            public bool IsFocused { get; set; }
+            public bool IsRestorer { get; set; }
+            public bool IsMystic { get; set; }
+            public bool IsNecromancer { get; set; }
+            public bool IsPowerfulMissiles { get; set; }
+            public bool IsSummoner { get; set; }
+            public bool IsSustainer { get; set; }
+            public bool IsThrifty { get; set; }
+
+            // Sneaky Talents
+            public bool IsAssassin { get; set; }
+            public bool IsBackstabber { get; set; }
+            public bool IsCutpurse { get; set; }
+            public bool IsEvaluate { get; set; }
+            public bool IsLockPicker { get; set; }
+            public bool IsMechanicalGenius { get; set; }
+            public bool IsNimble { get; set; }
+            public bool IsQuickFingers { get; set; }
+            public bool IsSharpEyed { get; set; }
+            public bool IsSenseForGold { get; set; }
+            public bool IsStreetwise { get; set; }
+            public bool IsTrapFinder { get; set; }
+
+            // Mental Talents
+            public bool IsBraveheart { get; set; }
+            public bool IsConfident { get; set; }
+            public bool IsFearless { get; set; }
+            public bool IsHate { get; set; }
+            public bool IsStrongMinded { get; set; }
+            public bool IsWise { get; set; }
+
+            public Dictionary<string, int> GetInitialTalentBonus()
+            {
+                Dictionary<string, int> bonus = new Dictionary<string, int>();
+                if (IsCatLike)
+                {
+                    bonus.Add("DEX", 5);
+                }
+                if (IsResilient)
+                {
+                    bonus.Add("CON", 5);
+                }
+                if (IsNightVision)
+                {
+                    bonus.Add("PS", 10);
+                }
+                if (IsStrong)
+                {
+                    bonus.Add("STR", 5);
+                }
+                if (IsStrongBuild)
+                {
+                    bonus.Add("HP", 2);
+                }
+                if (IsMarksman)
+                {
+                    bonus.Add("RS", 5);
+                }
+                if (IsSniper)
+                {
+                    bonus.Add("RS", 10);
+                }
+                if (IsGodsChosen || IsLucky)
+                {
+                    bonus.Add("Luck", 1);
+                }
+                if (IsHunter)
+                {
+                    bonus.Add("FS", 10);
+                }
+                if (IsLockPicker)
+                {
+                    bonus.Add("PLS", 5);
+                }
+                if (IsConfident)
+                {
+                    bonus.Add("RES", 5);
+                }
+                if (IsStrongMinded)
+                {
+                    bonus.Add("Sanity", 1);
+                }
+                if (IsWise)
+                {
+                    bonus.Add("WIS", 5);
+                }
+                if (IsHate)
+                {
+                    new GameDataService().GetHateByName(null);
+                }
+
+                return bonus;
+            }
+
+            public override string ToString()
+            {
+                return $"{Name}: {Description}";
+            }
 
         }
 
-    public override string ToString()
-    {
-      return $"[{Name} (Lvl {Level})] Cost: {EnergyCost} Energy | Duration: {Duration} | Effect: {PrayerEffect}";
+        public enum PerkCategory
+        {
+            Leader,
+            Common,
+            Combat,
+            Sneaky,
+            Faith,
+            Arcane,
+            Alchemist
+        }
+
+        public class Perk
+        {
+            public string Name { get; set; } = string.Empty;
+            public PerkCategory Category { get; set; }
+            public string Effect { get; set; } = string.Empty;
+            public string? Comment { get; set; }
+
+            public Perk() { }
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                sb.Append($"{Name}: {Effect}");
+                if (!string.IsNullOrEmpty(Comment))
+                {
+                    sb.Append($" ({Comment})");
+                }
+                return sb.ToString();
+            }
+
+        }
     }
-
-    // Method to get the prayer effect description
-    // This method can be expanded to apply the effect in a game logic service.
-    public string GetPrayerEffectDescription()
-    {
-      return PrayerEffect;
-    }
-
-    // Example method for applying the prayer effect (logic would typically be in a service)
-    public void ApplyEffect(Hero hero)
-    {
-      // This is a placeholder. Real logic would depend on the 'PrayerEffect' string
-      // or if 'PrayerEffect' was an enum/interface.
-      Console.WriteLine($"{hero.Name} is affected by {Name}: {PrayerEffect}");
-      // Example: if PrayerName == "Heal" -> hero.HP += amount;
-    }
-  }
-
-  public enum TalentCategory
-  {
-    Magic,
-    Physical,
-    Combat,
-    Faith,
-    Alchemist,
-    Common,
-    Sneaky,
-    Mental
-  }
-
-  public class Talent
-  {
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public TalentCategory Category { get; set; }
-    // Physical Talents
-    public bool IsCatLike { get; set; }
-    public bool IsFast { get; set; }
-    public bool IsNightVision { get; set; }
-    public bool IsPerfectHearing { get; set; }
-    public bool IsResilient { get; set; }
-    public bool IsResistDisease { get; set; }
-    public bool IsResistPoison { get; set; }
-    public bool IsStrong { get; set; }
-    public bool IsStrongBuild { get; set; }
-    public bool IsTank { get; set; }
-
-    // Combat Talents
-    public bool IsAxeman { get; set; }
-    public bool IsBruiser { get; set; }
-    public bool IsDeathLament { get; set; }
-    public bool IsDisarm { get; set; }
-    public bool IsDualWield { get; set; }
-    public bool IsFastReload { get; set; }
-    public bool IsMarksman { get; set; }
-    public bool IsMightyBlow { get; set; }
-    public bool IsParryMaster { get; set; }
-    public bool IsPerfectShot { get; set; }
-    public bool IsRiposteMaster { get; set; }
-    public bool IsSniper { get; set; }
-    public bool IsSwordsman { get; set; }
-    public bool IsTightGrip { get; set; }
-    public bool IsTunnelFighter { get; set; }
-
-    // Faith Talents
-    public bool IsDevoted { get; set; }
-    public bool IsGodsChosen { get; set; }
-    public bool IsHealer { get; set; }
-    public bool IsMessiah { get; set; }
-    public bool IsPure { get; set; }
-    public bool IsReliquary { get; set; }
-
-    // Alchemist Talents
-    public bool IsGatherer { get; set; }
-    public bool IsHarvester { get; set; }
-    public bool IsKeenEye { get; set; }
-    public bool IsMasterHealer { get; set; }
-    public bool IsPerfectToss { get; set; }
-    public bool IsPoisoner { get; set; }
-    public bool IsPowerfulPotions { get; set; }
-
-    // Common Talents
-    public bool IsCharming { get; set; }
-    public bool IsDisciplined { get; set; }
-    public bool IsHunter { get; set; }
-    public bool IsLucky { get; set; }
-    public bool IsMasterCook { get; set; }
-    public bool IsNaturalLeader { get; set; }
-    public bool IsRingBearer { get; set; }
-    public bool IsSurvivalist { get; set; }
-    public bool IsSwiftLeader { get; set; }
-    public bool IsVeteran { get; set; }
-
-    // Magic Talents
-    public bool IsBloodMagic { get; set; }
-    public bool IsConjurer { get; set; }
-    public bool IsDivinator { get; set; }
-    public bool IsFastReflexes { get; set; }
-    public bool IsFocused { get; set; }
-    public bool IsRestorer { get; set; }
-    public bool IsMystic { get; set; }
-    public bool IsNecromancer { get; set; }
-    public bool IsPowerfulMissiles { get; set; }
-    public bool IsSummoner { get; set; }
-    public bool IsSustainer { get; set; }
-    public bool IsThrifty { get; set; }
-
-    // Sneaky Talents
-    public bool IsAssassin { get; set; }
-    public bool IsBackstabber { get; set; }
-    public bool IsCutpurse { get; set; }
-    public bool IsEvaluate { get; set; }
-    public bool IsLockPicker { get; set; }
-    public bool IsMechanicalGenius { get; set; }
-    public bool IsNimble { get; set; }
-    public bool IsQuickFingers { get; set; }
-    public bool IsSharpEyed { get; set; }
-    public bool IsSenseForGold { get; set; }
-    public bool IsStreetwise { get; set; }
-    public bool IsTrapFinder { get; set; }
-
-    // Mental Talents
-    public bool IsBraveheart { get; set; }
-    public bool IsConfident { get; set; }
-    public bool IsFearless { get; set; }
-    public bool IsHate { get; set; }
-    public bool IsStrongMinded { get; set; }
-    public bool IsWise { get; set; }
-
-    public Dictionary<string, int> GetInitialTalentBonus()
-    {
-      Dictionary<string, int> bonus = new Dictionary<string, int>();
-      if (IsCatLike)
-      {
-        bonus.Add("DEX", 5);
-      }
-      if (IsResilient)
-      {
-        bonus.Add("CON", 5);
-      }
-      if (IsNightVision)
-      {
-        bonus.Add("PS", 10);
-      }
-      if (IsStrong)
-      {
-        bonus.Add("STR", 5);
-      }
-      if (IsStrongBuild)
-      {
-        bonus.Add("HP", 2);
-      }
-      if (IsMarksman)
-      {
-        bonus.Add("RS", 5);
-      }
-      if (IsSniper)
-      {
-        bonus.Add("RS", 10);
-      }
-      if (IsGodsChosen || IsLucky)
-      {
-        bonus.Add("Luck", 1);
-      }
-      if (IsHunter)
-      {
-        bonus.Add("FS", 10);
-      }
-      if (IsLockPicker)
-      {
-        bonus.Add("PLS", 5);
-      }
-      if (IsConfident)
-      {
-        bonus.Add("RES", 5);
-      }
-      if (IsStrongMinded)
-      {
-        bonus.Add("Sanity", 1);
-      }
-      if (IsWise)
-      {
-        bonus.Add("WIS", 5);
-      }
-      if (IsHate)
-      {
-        new GameDataService().GetHateByName(null);
-      }
-
-      return bonus;
-    }
-
-    public override string ToString()
-    {
-      return $"{Name}: {Description}";
-    }
-
-  }
-
-  public enum PerkCategory
-  {
-    Leader,
-    Common,
-    Combat,
-    Sneaky,
-    Faith,
-    Arcane,
-    Alchemist
-  }
-
-  public class Perk
-  {
-    public string Name { get; set; } = string.Empty;
-    public PerkCategory Category { get; set; }
-    public string Effect { get; set; } = string.Empty;
-    public string? Comment { get; set; }
-
-    public Perk() { }
-
-    public override string ToString()
-    {
-      var sb = new StringBuilder();
-      sb.Append($"{Name}: {Effect}");
-      if (!string.IsNullOrEmpty(Comment))
-      {
-        sb.Append($" ({Comment})");
-      }
-      return sb.ToString();
-    }
-
-  }
 }

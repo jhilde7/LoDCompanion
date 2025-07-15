@@ -74,10 +74,24 @@ namespace LoDCompanion.Services.Game
                 hero.HasDodgedThisBattle = false;
 
                 if (!hero.Weapons.Any())
-                {
+                {                    
                     var availableWeapons = hero.Backpack.OfType<Weapon>()
                                                .Concat(hero.QuickSlots.OfType<Weapon>())
                                                .ToList();
+                    if (!availableWeapons.Any())
+                    {
+                        foreach (var item in hero.Backpack)
+                        {
+                            if (item is MeleeWeapon meleeWeapon)
+                            {
+                                availableWeapons.Add(meleeWeapon);
+                            }
+                            else if (item is RangedWeapon rangedWeapon)
+                            {
+                                availableWeapons.Add(rangedWeapon);
+                            }
+                        }
+                    }
 
                     if (availableWeapons.Any())
                     {
