@@ -7,6 +7,7 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace LoDCompanion.Services.Game
@@ -36,12 +37,6 @@ namespace LoDCompanion.Services.Game
 
                 // The main decision-making hub.
                 DecideAndPerformAction(monster, heroes, room);
-
-                // If no action was taken (e.g., no valid targets), end the turn to prevent an infinite loop.
-                if (monster.CurrentAP == apBeforeAction)
-                {
-                    monster.CurrentAP = 0;
-                }
             }
 
             // After all actions, ensure the monster faces the best direction.
@@ -84,18 +79,20 @@ namespace LoDCompanion.Services.Game
         {
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
-            if (distance > monster.Move)
+            if (distance > 1)
             {
-                MoveTowards(monster, target);
-            }
-            else if (distance > 1)
-            {
-                MonsterCombatService.PerformChargeAttack(monster, target);
-                monster.CurrentAP = 0;
+                if (distance < monster.Move && monster.CurrentAP >=2)
+                {                    
+                    MonsterCombatService.PerformChargeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target);
+                }
+                else
+                {
+                    MoveTowards(monster, target);
+                } 
             }
             else
             {
-                HandleAdjacentMeleeAttack(monster, target, heroes);
+                HandleAdjacentMeleeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target, heroes);
             }
         }
 
@@ -109,7 +106,7 @@ namespace LoDCompanion.Services.Game
             }
             else
             {
-                HandleAdjacentMeleeAttack(monster, target, heroes);
+                HandleAdjacentMeleeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target, heroes);
             }
         }
 
@@ -128,85 +125,102 @@ namespace LoDCompanion.Services.Game
                 {
                     case 1: EnterParryStance(monster); break;
                     case <= 4: MoveTowards(monster, target); break;
-                    default: 
-                        MonsterCombatService.PerformChargeAttack(monster, target);
-                        monster.CurrentAP = 0;
+                    default:
+                        if (monster.CurrentAP >= 2) MonsterCombatService.PerformChargeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target);
                         break;
                 }
             }
             else
             {
-                HandleAdjacentMeleeAttack(monster, target, heroes); 
+                HandleAdjacentMeleeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target, heroes); 
             }
         }
 
         private void ExecuteRangedBehavior(Monster monster, Hero target, List<Hero> heroes)
         {
             int distance = GridService.GetDistance(monster.Position, target.Position);
-            List<int> distances = new List<int>();
+            Dictionary<Hero, int> distances = new Dictionary<Hero, int>();
             RangedWeapon? missile = (RangedWeapon?)monster.Weapons.First(x => x.IsRanged);
             MeleeWeapon? melee = (MeleeWeapon?)monster.Weapons.First(x => x.IsMelee);
 
             foreach (Hero hero in heroes)
             {
-                GridService.GetDistance(monster.Position, hero.Position); 
+                distances.Add(hero, GridService.GetDistance(monster.Position, hero.Position)); 
             }
 
-            if (distances.First(i => i <= 2) > 0)
+            if (monster.Weapons.FirstOrDefault(w => w.IsRanged) is RangedWeapon weapon)
             {
-                MoveAwayFrom(monster, target);
-                if (missile != null && !missile.IsLoaded)
+                if (distances.Values.FirstOrDefault(i => i <= 2) > 0)
                 {
-                    missile.reloadAmmo();
-                }
-            }
-            else if (missile != null && !missile.IsLoaded)
-            {
-                missile.reloadAmmo();
-                monster.CurrentAP--;
-            }
-            else if(!GridService.HasLineOfSight(monster.Position, target.Position, _dungeon.DungeonGrid).CanShoot)
-            {
-                MoveToGetLineOfSight(monster, target);
-            }
-            else if(distance <= 1)
-            {
-                HandleAdjacentMeleeAttack(monster, target, heroes);
-            }
-            else
-            {
-                int actionRoll = RandomHelper.RollDie("D6");
-                if (actionRoll <= 4)
-                {
-                    int attackTypeRoll = RandomHelper.RollDie("D6");
-                    switch (attackTypeRoll)
+                    target = distances.FirstOrDefault(h => h.Value <= 2).Key;
+                    if(MoveAwayFrom(monster, target))
                     {
-                        case <= 2:
-                            if (monster.CombatStance != CombatStance.Aiming)
-                            {
-                                monster.CombatStance = CombatStance.Aiming;
-                                Console.WriteLine($"{monster.Name} starts aiming");
-                            }
-                            else MonsterCombatService.PerformStandardAttack(monster, target);
-                                break;
-                        default:
-                            MonsterCombatService.PerformStandardAttack(monster, target); break;
-                    }
-                    monster.CurrentAP--;
-                }
-                else
-                {
-                    List<SpecialActiveAbility> specialAttacks = _monsterSpecial.GetSpecialAttacks(monster.SpecialRules);
-                    if (specialAttacks.Count > 0)
-                    {
-                        specialAttacks.Shuffle();
-                        _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]);
+                        if (missile != null && !missile.IsLoaded)
+                        {
+                            missile.reloadAmmo();
+                            Console.Write(" and reloads");
+                        }
                     }
                     else
                     {
-                        MonsterCombatService.PerformStandardAttack(monster, target);
+                        if (GridService.GetDistance(monster.Position, target.Position) <= 1)
+                        {
+                            HandleAdjacentMeleeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target, heroes);
+                        }
+                        else
+                        {
+                            MonsterCombatService.PerformStandardAttack(monster, weapon, target);
+                        }
                     }
+                }
+                else if (missile != null && !missile.IsLoaded)
+                {
+                    missile.reloadAmmo();
                     monster.CurrentAP--;
+                }
+                else if(!GridService.HasLineOfSight(monster.Position, target.Position, _dungeon.DungeonGrid).CanShoot)
+                {
+                    MoveToGetLineOfSight(monster, target);
+                }
+                else if(distance <= 1)
+                {
+                    HandleAdjacentMeleeAttack(monster, monster.Weapons.FirstOrDefault(w => w.IsMelee), target, heroes);
+                }
+                else
+                {
+                int actionRoll = RandomHelper.RollDie("D6");
+                    if (actionRoll <= 4)
+                    {
+                        int attackTypeRoll = RandomHelper.RollDie("D6");
+                        switch (attackTypeRoll)
+                        {
+                            case <= 2:
+                                if (monster.CombatStance != CombatStance.Aiming)
+                                {
+                                    monster.CombatStance = CombatStance.Aiming;
+                                    Console.WriteLine($"{monster.Name} starts aiming");
+                                    monster.CurrentAP--;
+                                }
+                                else MonsterCombatService.PerformStandardAttack(monster, weapon, target);
+                                break;
+                            default:
+                                MonsterCombatService.PerformStandardAttack(monster, weapon, target); break;
+                        }
+                    }
+                    else
+                    {
+                        List<SpecialActiveAbility> specialAttacks = _monsterSpecial.GetSpecialAttacks(monster.SpecialRules);
+                        if (specialAttacks.Count > 0)
+                        {
+                            specialAttacks.Shuffle();
+                            _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]);
+                            monster.CurrentAP--;
+                        }
+                        else
+                        {
+                            MonsterCombatService.PerformStandardAttack(monster, weapon, target);
+                        }
+                    }
                 }
             }
         }
@@ -234,7 +248,7 @@ namespace LoDCompanion.Services.Game
                             spell.CastSpell(monster, targetPosition, _dungeon);
                         }
                         break;
-                    default: MonsterCombatService.PerformStandardAttack(monster, target); break;
+                    default: HandleAdjacentMeleeAttack(monster, monster.Weapons.FirstOrDefault(), target, heroes); break;
                 }
             }
             else if(losHeroes.Any())
@@ -285,8 +299,8 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        private void HandleAdjacentMeleeAttack(Monster monster, Hero target, List<Hero> heroes)
-        {
+        private void HandleAdjacentMeleeAttack(Monster monster, Weapon? weapon, Hero target, List<Hero> heroes)
+        {                
             bool isWounded = (monster.CurrentHP <= monster.MaxHP / 2);
             int actionRoll = RandomHelper.RollDie("D6");
             if (actionRoll <= 4)
@@ -298,38 +312,37 @@ namespace LoDCompanion.Services.Game
                         switch (attackTypeRoll)
                         {
                             case 1: EnterParryStance(monster); return;
-                            case <= 5: MonsterCombatService.PerformStandardAttack(monster, target); break;
+                            case <= 5: MonsterCombatService.PerformStandardAttack(monster, weapon, target); break;
                             default:
                                 if (isWounded) EnterParryStance(monster);
-                                else MonsterCombatService.PerformPowerAttack(monster, target); break;
+                                else MonsterCombatService.PerformPowerAttack(monster, weapon, target); break;
                         }
                         break;
                     case MonsterBehaviorType.Beast:
                         switch (attackTypeRoll)
                         {
                             case <= 4:
-                                if (isWounded) MonsterCombatService.PerformStandardAttack(monster, target);
-                                else MonsterCombatService.PerformPowerAttack(monster,target); break;
-                            default: MonsterCombatService.PerformStandardAttack(monster, target); break;
+                                if (isWounded) MonsterCombatService.PerformStandardAttack(monster, weapon, target);
+                                else MonsterCombatService.PerformPowerAttack(monster, weapon, target); break;
+                            default: MonsterCombatService.PerformStandardAttack(monster, weapon, target); break;
                         }
                         break;
                     case MonsterBehaviorType.LowerUndead:
                         switch (attackTypeRoll)
                         {
                             case <= 4:
-                                MonsterCombatService.PerformStandardAttack(monster, target); break;
-                            default: MonsterCombatService.PerformPowerAttack(monster, target); break;
+                                MonsterCombatService.PerformStandardAttack(monster, weapon, target); break;
+                            default: MonsterCombatService.PerformPowerAttack(monster, weapon, target); break;
                         }
                         break;
                     case MonsterBehaviorType.HigherUndead:
                         switch (attackTypeRoll)
                         {
-                            case <= 2: MonsterCombatService.PerformPowerAttack(monster, target); break;
-                            default: MonsterCombatService.PerformStandardAttack(monster, target); break;
+                            case <= 2: MonsterCombatService.PerformPowerAttack(monster, weapon, target); break;
+                            default: MonsterCombatService.PerformStandardAttack(monster, weapon, target); break;
                         }
                         break;
                 }
-                monster.CurrentAP--;
             }
             else
             {
@@ -337,13 +350,12 @@ namespace LoDCompanion.Services.Game
                 if (specialAttacks.Count > 0)
                 {
                     specialAttacks.Shuffle();
-                    _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]); 
+                    _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]);
                 }
                 else
                 {
-                    MonsterCombatService.PerformStandardAttack(monster, target);
+                    MonsterCombatService.PerformStandardAttack(monster, weapon, target);
                 }
-                monster.CurrentAP--;
             }
         }
 
@@ -356,20 +368,119 @@ namespace LoDCompanion.Services.Game
 
         private void EndTurnFacing(Monster monster, List<Hero> heroes)
         {
-            // An enemy will always end its turn with as few heroes as possible behind it.
-            // Logic to determine the best facing direction and update monster.Facing.
+            if (!heroes.Any(h => h.CurrentHP > 0)) return;
+
+            var facingScores = new Dictionary<FacingDirection, int>
+            {
+                { FacingDirection.North, 0 },
+                { FacingDirection.South, 0 },
+                { FacingDirection.East, 0 },
+                { FacingDirection.West, 0 }
+            };
+
+            var aliveHeroes = heroes.Where(h => h.CurrentHP > 0).ToList();
+
+            foreach (FacingDirection potentialFacing in Enum.GetValues(typeof(FacingDirection)))
+            {
+                int currentScore = 0;
+                foreach (var hero in aliveHeroes)
+                {
+                    var relativeDir = DirectionService.GetRelativeDirection(potentialFacing, monster.Position, hero.Position);
+
+                    int threat = relativeDir switch
+                    {
+                        RelativeDirection.Back => 10,
+                        RelativeDirection.BackLeft or RelativeDirection.BackRight => 5,
+
+                        RelativeDirection.Left or RelativeDirection.Right => 2,
+
+                        _ => 0
+                    };
+
+                    if (GridService.GetDistance(monster.Position, hero.Position) <= 1)
+                    {
+                        threat *= 2;
+                    }
+
+                    currentScore += threat;
+                }
+                facingScores[potentialFacing] = currentScore;
+            }
+
+            FacingDirection bestFacing = facingScores.OrderBy(kvp => kvp.Value).First().Key;
+
+            monster.Facing = bestFacing;
+
+            Console.WriteLine($"{monster.Name} ends their turn facing {monster.Facing.ToString()}");
         }
 
-        private void MoveTowards(Monster monster, Hero target)
+        private bool MoveTowards(Monster monster, Hero target)
         {
-            // Placeholder for pathfinding logic
+            if (monster.Position == null || target.Position == null || monster.CurrentAP < 1)
+            {
+                return false;
+            }
+
+            List<GridPosition> path = GridService.FindShortestPath(monster.Position, target.Position, _dungeon.DungeonGrid);
+
+            if (path == null || path.Count <= 1)
+            {
+                Console.WriteLine($"{monster.Name} has no valid path to {target.Name}.");
+                return false;
+            }
+
+            int stepsToTake = Math.Min(monster.Move, path.Count() - 1);
+
+            GridPosition finalDestination = path[stepsToTake];
+            GridService.MoveCharacter(monster, finalDestination, _dungeon.DungeonGrid);
+
+            Console.WriteLine($"{monster.Name} moves {stepsToTake} squares towards {target.Name}.");
+
             monster.CurrentAP--;
+            return true;
         }
 
-        private void MoveAwayFrom(Monster monster, Hero target)
+        private bool MoveAwayFrom(Monster monster, Hero target)
         {
-            // Placeholder for pathfinding logic
+            var allReachableSquares = GridService.GetAllWalkableSquares(monster.Room, monster, _dungeon.DungeonGrid);
+
+            if (!allReachableSquares.Any())
+            {
+                Console.WriteLine($"{monster.Name} is trapped and cannot move away!");
+                return false;
+            }
+
+            var idealSquares = allReachableSquares
+                .Where(pos => GridService.HasLineOfSight(pos, target.Position, _dungeon.DungeonGrid).CanShoot)
+                .OrderByDescending(pos => GridService.GetDistance(pos, target.Position))
+                .ToList();
+
+            GridPosition bestRetreatSpot;
+
+            if (idealSquares.Any())
+            {
+                bestRetreatSpot = idealSquares.First();
+            }
+            else
+            {
+                bestRetreatSpot = allReachableSquares
+                    .OrderByDescending(pos => GridService.GetDistance(pos, target.Position))
+                    .First();
+            }
+
+            var pathToRetreat = GridService.FindShortestPath(monster.Position, bestRetreatSpot, _dungeon.DungeonGrid);
+
+            if (pathToRetreat.Any())
+            {
+                int stepsToTake = Math.Min(monster.Move, pathToRetreat.Count() - 1);
+                GridPosition finalDestination = pathToRetreat[stepsToTake];
+
+                GridService.MoveCharacter(monster, finalDestination, _dungeon.DungeonGrid);
+                Console.WriteLine($"{monster.Name} retreats to {finalDestination} to keep its distance from {target.Name}.");
+            }
+
             monster.CurrentAP--;
+            return true;
         }
 
         private void MoveToGetLineOfSight(Monster monster, Hero target)

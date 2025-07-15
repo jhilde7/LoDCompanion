@@ -27,6 +27,7 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         public static AttackResult PerformPowerAttack(Monster attacker, Weapon? weapon, Hero target)
         {
+            if (attacker.CurrentAP <= 2) return PerformStandardAttack(attacker, weapon, target);
             var context = new CombatContext { IsPowerAttack = true };
             Console.WriteLine($"{attacker.Name} uses a Power Attack!");
             return ResolveAttack(attacker, weapon, target, context);
@@ -95,7 +96,16 @@ namespace LoDCompanion.Services.Combat
                 result.OutcomeMessage += $"\n{target.Name} takes no damage!";
             }
 
-            return result;
+            if (context.IsChargeAttack || context.IsPowerAttack)
+            { 
+                attacker.CurrentAP -= 2; 
+            }
+            else
+            {
+                attacker.CurrentAP --;
+            }
+
+                return result;
         }
 
         /// <summary>
