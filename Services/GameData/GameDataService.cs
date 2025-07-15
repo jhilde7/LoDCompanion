@@ -1518,7 +1518,7 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 2,
                     MaxMeleeWeaponType = 5,
                     TalentChoices = [GetTalentByName("Wise"), GetTalentByName("Charming")],
-                    StartingBackpackList = new List<Equipment>(){EquipmentService.GetMeleeWeaponByName("Staff")},
+                    StartingBackpackList = [EquipmentService.GetMeleeWeaponByName("Staff") as MeleeWeapon],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4 },
@@ -1562,7 +1562,7 @@ namespace LoDCompanion.Services.GameData
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Shortsword/Rapier"],
                     StartingBackpackList = [
-                        EquipmentService.GetArmourByName("Padded Jacket"),
+                        EquipmentService.GetArmourByName("Padded Jacket") as Armour,
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10),
                         EquipmentService.GetEquipmentByName("Backpack - Medium") ],
                     StartingTalentList = [ GetTalentByName("Backstabber"),
@@ -1617,7 +1617,7 @@ namespace LoDCompanion.Services.GameData
                     MaxMeleeWeaponType = 5,
                     TalentChoices = [GetTalentByName("Marksman"), GetTalentByName("Hunter")],
                     StartingBackpackList = [
-                        EquipmentService.GetRangedWeaponByName("Longbow"),
+                        EquipmentService.GetRangedWeaponByName("Longbow") as RangedWeapon,
                         EquipmentService.GetAmmoByNameSetQuantity("Arrow", 10) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
@@ -1756,7 +1756,7 @@ namespace LoDCompanion.Services.GameData
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of Choice"],
                     TalentChoices = [ GetTalentByName("Mighty Blow"), GetTalentByName("Braveheart")],
-                    StartingBackpackList = [EquipmentService.GetArmourByName("Leather Jacket") ],
+                    StartingBackpackList = [EquipmentService.GetArmourByName("Leather Jacket") as Armour ],
                     StartingTalentList = [GetTalentByName("Disciplined") ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
@@ -1805,7 +1805,7 @@ namespace LoDCompanion.Services.GameData
                     StartingBackpackList = [
                         EquipmentService.GetEquipmentByName("Alchemist Tool"),
                         EquipmentService.GetEquipmentByName("Alchemist Belt"),
-                        EquipmentService.GetMeleeWeaponByName("Shortsword"),
+                        EquipmentService.GetMeleeWeaponByName("Shortsword") as MeleeWeapon,
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0]
@@ -1853,7 +1853,7 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 2,
                     StartingBackpackList = [
-                        EquipmentService.GetMeleeWeaponByName("Dagger"),
+                        EquipmentService.GetMeleeWeaponByName("Dagger") as MeleeWeapon,
                         EquipmentService.GetEquipmentByName("Rope"),
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10) ],
                     StartingTalentList = [ GetTalentByName("Evaluate") ],
@@ -1876,7 +1876,6 @@ namespace LoDCompanion.Services.GameData
                     }
                 }
             };
-    }
     }
 
     public enum DamageType
