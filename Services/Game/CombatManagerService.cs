@@ -6,14 +6,12 @@ using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
-using System.Threading;
 using LoDCompanion.Models.Dungeon;
 
 namespace LoDCompanion.Services.Game
 {
     public class CombatManagerService
     {
-        private readonly GameDataService _gameData;
         private readonly InitiativeService _initiative;
         private readonly PlayerActionService _playerAction;
         private readonly MonsterAIService _monsterAI;
@@ -33,13 +31,11 @@ namespace LoDCompanion.Services.Game
             InitiativeService initiativeService,
             PlayerActionService playerActionService,
             MonsterAIService monsterAIService,
-            GameDataService gameData,
             DungeonState dungeonState)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
             _monsterAI = monsterAIService;
-            _gameData = gameData;
             _dungeon = dungeonState;
         }
 
