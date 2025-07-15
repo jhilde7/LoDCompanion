@@ -8,22 +8,15 @@
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
     {
-        @* Render clickable grid squares for movement *@
-        @foreach (var square in Room.Grid)
-        {
-            <div class="grid-background-square" style="@GetSquareStyle(square.Position)"
-                 @onclick="() => OnGridSquareClicked.InvokeAsync(square.Position)">
-            </div>
-        }
-
-        @* Render furniture as individual, interactive overlay squares *@
         @foreach (var furniture in Room.FurnitureList)
         {
             if (furniture.OccupiedSquares != null)
             {
                 @foreach (var square in furniture.OccupiedSquares)
                 {
-                    <div class="grid-item furniture-overlay-square" title="@furniture.Name" style="@GetSquareStyle(square)">
+                    <div class="grid-item furniture-overlay-square" title="@furniture.Name"
+                         style="@GetSquareStyle(square)"
+                         @onclick="() => OnGridSquareClicked.InvokeAsync(square)">
                     </div>
                 }
             }
