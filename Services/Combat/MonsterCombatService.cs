@@ -16,30 +16,30 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a monster's standard attack against a hero.
         /// </summary>
-        public static AttackResult PerformStandardAttack(Monster attacker, Hero target)
+        public static AttackResult PerformStandardAttack(Monster attacker, Weapon? weapon, Hero target)
         {
             var context = new CombatContext(); // Standard attack has a default context
-            return ResolveAttack(attacker, target, context);
+            return ResolveAttack(attacker, weapon, target, context);
         }
 
         /// <summary>
         /// Resolves a monster's Power Attack, which grants +20 CS.
         /// </summary>
-        public static AttackResult PerformPowerAttack(Monster attacker, Hero target)
+        public static AttackResult PerformPowerAttack(Monster attacker, Weapon? weapon, Hero target)
         {
             var context = new CombatContext { IsPowerAttack = true };
             Console.WriteLine($"{attacker.Name} uses a Power Attack!");
-            return ResolveAttack(attacker, target, context);
+            return ResolveAttack(attacker, weapon, target, context);
         }
 
         /// <summary>
         /// Resolves a monster's Charge Attack, which grants +10 CS.
         /// </summary>
-        public static AttackResult PerformChargeAttack(Monster attacker, Hero target)
+        public static AttackResult PerformChargeAttack(Monster attacker, Weapon? weapon, Hero target)
         {
             var context = new CombatContext { IsChargeAttack = true };
             Console.WriteLine($"{attacker.Name} charges {target.Name}!");
-            return ResolveAttack(attacker, target, context);
+            return ResolveAttack(attacker, weapon, target, context);
         }
 
         /// <summary>
@@ -48,13 +48,12 @@ namespace LoDCompanion.Services.Combat
         /// <param name="attacker">The attacking monster.</param>
         /// <param name="target">The hero being attacked.</param>
         /// <returns>An AttackResult object detailing the outcome.</returns>
-        public static AttackResult ResolveAttack(Monster attacker, Hero target, CombatContext context)
+        public static AttackResult ResolveAttack(Monster attacker, Weapon? weapon, Hero target, CombatContext context)
         {
             var result = new AttackResult();
-            var monsterWeapon = attacker.Weapons.First();
 
             // Calculate To-Hit Chance
-            int baseSkill = (monsterWeapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
+            int baseSkill = (weapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
             int situationalModifier = CalculateHitChanceModifier(attacker, target);
             result.ToHitChance = baseSkill + situationalModifier;
 
@@ -67,7 +66,7 @@ namespace LoDCompanion.Services.Combat
                 return result;
             }
 
-            int potentialDamage = CalculatePotentialDamage(attacker, monsterWeapon);
+            int potentialDamage = CalculatePotentialDamage(attacker, weapon);
 
             DefenseResult defenseResult = ResolveHeroDefense(target, potentialDamage);
             result.OutcomeMessage = defenseResult.OutcomeMessage;
@@ -78,7 +77,7 @@ namespace LoDCompanion.Services.Combat
             {
                 // If damage remains, determine hit location and apply armor.
                 HitLocation location = DetermineHitLocation();
-                int finalDamage = ApplyArmorToLocation(target, location, damageAfterDefense, monsterWeapon);
+                int finalDamage = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
 
                 target.TakeDamage(finalDamage);
                 result.DamageDealt = finalDamage;
