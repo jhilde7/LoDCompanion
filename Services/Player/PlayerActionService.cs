@@ -100,16 +100,14 @@ namespace LoDCompanion.Services.Player
                 case PlayerActionType.Move:
                     if (primaryTarget is GridPosition targetPosition)
                     {
-                        // Attempt to move the character using the grid service.
-                        if (_dungeonManager.DungeonState != null && GridService.MoveCharacter(hero, targetPosition, _dungeonManager.DungeonState.DungeonGrid))
+                        if (GridService.MoveCharacter(hero, targetPosition, dungeon.DungeonGrid))
                         {
                             hero.CurrentAP -= apCost;
                             resultMessage = $"{hero.Name} moves to {targetPosition}.";
                         }
                         else
                         {
-                            // If the move is invalid (blocked path, etc.), do not deduct AP.
-                            resultMessage = $"{hero.Name} cannot move to {targetPosition}. The path is blocked.";
+                            resultMessage = $"{hero.Name} cannot move there; the path is blocked.";
                         }
                     }
                     else
