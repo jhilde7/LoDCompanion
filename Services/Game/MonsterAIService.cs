@@ -38,11 +38,11 @@ namespace LoDCompanion.Services.Game
                 int apBeforeAction = monster.CurrentAP;
 
                 // The main decision-making hub.
-                actionResult += DecideAndPerformAction(monster, heroes, room);
+                actionResult += "\n" + DecideAndPerformAction(monster, heroes, room);
             }
 
             // After all actions, ensure the monster faces the best direction.
-            actionResult += EndTurnFacing(monster, heroes);
+            actionResult += "\n" + EndTurnFacing(monster, heroes);
             return actionResult;
         }
 
