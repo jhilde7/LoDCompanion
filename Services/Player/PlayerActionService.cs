@@ -30,7 +30,8 @@ namespace LoDCompanion.Services.Player
         ChargeAttack,
         Shove,
         CastSpell,
-        EndTurn
+        EndTurn,
+        Reload
 
     }
 
@@ -79,6 +80,7 @@ namespace LoDCompanion.Services.Player
             }
 
             string resultMessage = $"{hero.Name} performed {actionType}.";
+            bool actionWasSuccessful = true;
             // Execute the action logic
             switch (actionType)
             {
@@ -88,8 +90,8 @@ namespace LoDCompanion.Services.Player
                         if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
                         {
                             rangedWeapon.reloadAmmo();
-                            hero.CurrentAP -= apCost;
-                            resultMessage = $"Weapon had no ammo, {hero.Name} reloaded {rangedWeapon.Name}";
+                            apCost = 1;
+                            resultMessage = $"{hero.Name} spends a moment to reload their {rangedWeapon.Name}.";
                         }
 
                         var context = new CombatContext();
@@ -100,6 +102,7 @@ namespace LoDCompanion.Services.Player
                     else
                     {
                         resultMessage = "Invalid target or no weapon equipped for attack.";
+                        actionWasSuccessful = false;
                     }
                     break;
 
@@ -108,17 +111,18 @@ namespace LoDCompanion.Services.Player
                     {
                         if (GridService.MoveCharacter(hero, targetPosition, dungeon.DungeonGrid))
                         {
-                            hero.CurrentAP -= apCost;
                             resultMessage = $"{hero.Name} moves to {targetPosition}.";
                         }
                         else
                         {
                             resultMessage = $"{hero.Name} cannot move there; the path is blocked.";
+                            actionWasSuccessful = false;
                         }
                     }
                     else
                     {
                         resultMessage = "Invalid destination for move action.";
+                        actionWasSuccessful = false;
                     }
                     break;
 
@@ -126,32 +130,27 @@ namespace LoDCompanion.Services.Player
                     if (primaryTarget is DoorChest door)
                     {
                         _dungeonManager.InteractWithDoor(door, hero);
-                        hero.CurrentAP -= apCost;
                     }
                     break;
                 case PlayerActionType.HealSelf:
                     resultMessage = _healing.ApplyBandage(hero, hero);
-                    hero.CurrentAP -= apCost;
                     break;
                 case PlayerActionType.HealOther:
                     if (primaryTarget is Hero targetHero)
                     {
                         resultMessage = _healing.ApplyBandage(hero, targetHero);
-                        hero.CurrentAP -= apCost;
                     }
                     break;
                 case PlayerActionType.RearrangeGear:
                     if (primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
                     { 
                         resultMessage = _inventory.RearrangeItem(hero, item, slots.Item1, slots.Item2);
-                        hero.CurrentAP -= apCost;
                     }
                     break;
                 case PlayerActionType.IdentifyItem:
                     if (primaryTarget is Equipment itemToIdentify)
                     { 
                         resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
-                        hero.CurrentAP -= apCost;
                     }
                     break;
                 case PlayerActionType.SetOverwatch:
@@ -159,7 +158,6 @@ namespace LoDCompanion.Services.Player
                     if (equippedWeapon == null) return false;
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return false;
                     hero.Stance = CombatStance.Overwatch;
-                    hero.CurrentAP = 0; // End the hero's turn
                     resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
                     break;
                 case PlayerActionType.PowerAttack:
@@ -169,10 +167,8 @@ namespace LoDCompanion.Services.Player
                         var attackResult = _heroCombat.ResolveAttack(hero, monster1, weapon1, context, dungeon);
                         hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
-                        hero.CurrentAP -= apCost;
                     }
                     break;
-
                 case PlayerActionType.ChargeAttack:
                     if (primaryTarget is Monster monsterTarget && hero.Weapons.FirstOrDefault() is Weapon chargeWeapon)
                     {
@@ -180,21 +176,27 @@ namespace LoDCompanion.Services.Player
                         // TODO: Add movement logic before the attack
                         var attackResult = _heroCombat.ResolveAttack(hero, monsterTarget, chargeWeapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
-                        hero.CurrentAP -= apCost;
                     }
                     break;
-
                 case PlayerActionType.Shove:
                     if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
                     {
                         resultMessage = GridService.ShoveCharacter(hero, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
-                        hero.CurrentAP -= apCost;
                     }
+                    break;
+                case PlayerActionType.EndTurn:
+                    resultMessage = $"{hero.Name} ends their turn.";
+                    apCost = hero.CurrentAP; // Ending turn consumes all AP
                     break;
             }
 
+            if (actionWasSuccessful)
+            {
+                hero.CurrentAP -= apCost;
+            }
+
             Console.WriteLine($"{hero.Name} performed {actionType}, {resultMessage}. {hero.CurrentAP} AP remaining.");
-            return true;
+            return actionWasSuccessful;
         }
 
         /// <summary>
@@ -219,6 +221,7 @@ namespace LoDCompanion.Services.Player
                 PlayerActionType.HealSelf => 2,
                 PlayerActionType.RearrangeGear => 2,
                 PlayerActionType.IdentifyItem => 0,
+                PlayerActionType.Reload => 1,
                 _ => 1,
             };
         }
