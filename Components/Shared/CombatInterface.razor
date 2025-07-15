@@ -27,8 +27,6 @@
             }
 
             <div class="action-buttons">
-                <button class="action-button" @onclick="() => OnActionButtonClicked.InvokeAsync(PlayerActionType.StandardAttack)">Attack</button>
-                <button class="action-button" @onclick="() => OnActionButtonClicked.InvokeAsync(PlayerActionType.Move)">Move</button>
                 <button class="action-button end-turn" @onclick="() => OnActionButtonClicked.InvokeAsync(PlayerActionType.EndTurn)">End Turn</button>
             </div>
         </div>
