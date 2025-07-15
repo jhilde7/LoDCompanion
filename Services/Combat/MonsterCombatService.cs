@@ -97,7 +97,7 @@ namespace LoDCompanion.Services.Combat
                 {
                     result.DamageDealt = 0;
                     result.OutcomeMessage += $"\n{target.Name} takes no damage!";
-                    _toast.ShowToast("No Effect!", target.Position, "miss-toast");
+                    _floatingTextService.ShowText("No Effect!", target.Position, "miss-toast");
                 } 
             }
 
