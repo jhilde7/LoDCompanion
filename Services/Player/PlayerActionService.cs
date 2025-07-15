@@ -82,11 +82,16 @@ namespace LoDCompanion.Services.Player
 
             resultMessage = $"{hero.Name} performed {actionType}.";
             bool actionWasSuccessful = true;
+            Weapon? weapon = new Weapon();
+            if (hero.Weapons.FirstOrDefault() is Weapon w)
+            {
+                weapon = w;
+            }
             // Execute the action logic
             switch (actionType)
             {
                 case PlayerActionType.StandardAttack:
-                    if (primaryTarget is Monster monster && hero.Weapons.FirstOrDefault() is Weapon weapon)
+                    if (primaryTarget is Monster monster && weapon != null)
                     {
                         if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
                         {
@@ -113,6 +118,12 @@ namespace LoDCompanion.Services.Player
                         if (GridService.MoveCharacter(hero, targetPosition, dungeon.DungeonGrid))
                         {
                             resultMessage = $"{hero.Name} moves to {targetPosition}.";
+                            if (weapon != null && weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
+                            {
+                                rangedWeapon.reloadAmmo();
+                                resultMessage = $" and reloads their {rangedWeapon.Name}";
+                                break;
+                            }
                         }
                         else
                         {
