@@ -1877,8 +1877,9 @@ namespace LoDCompanion.Services.GameData
                 }
             };
         }
+    }
 
-        public enum DamageType
+    public enum DamageType
         {
             Mundane,
             Silver,
@@ -1890,7 +1891,7 @@ namespace LoDCompanion.Services.GameData
             Magic
         }
 
-        public class Prayer
+    public class Prayer
         {
             public string Name { get; set; } = string.Empty;
             public int Level { get; set; }
@@ -1927,7 +1928,7 @@ namespace LoDCompanion.Services.GameData
             }
         }
 
-        public enum TalentCategory
+    public enum TalentCategory
         {
             Magic,
             Physical,
@@ -1939,7 +1940,7 @@ namespace LoDCompanion.Services.GameData
             Mental
         }
 
-        public class Talent
+    public class Talent
         {
             public string Name { get; set; } = string.Empty;
             public string Description { get; set; } = string.Empty;
@@ -2108,7 +2109,7 @@ namespace LoDCompanion.Services.GameData
 
         }
 
-        public enum PerkCategory
+    public enum PerkCategory
         {
             Leader,
             Common,
@@ -2119,7 +2120,7 @@ namespace LoDCompanion.Services.GameData
             Alchemist
         }
 
-        public class Perk
+    public class Perk
         {
             public string Name { get; set; } = string.Empty;
             public PerkCategory Category { get; set; }
@@ -2140,5 +2141,4 @@ namespace LoDCompanion.Services.GameData
             }
 
         }
-    }
 }
