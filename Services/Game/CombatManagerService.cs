@@ -82,14 +82,8 @@ namespace LoDCompanion.Services.Game
                     {
                         foreach (var item in hero.Backpack)
                         {
-                            if (item is MeleeWeapon meleeWeapon)
-                            {
-                                availableWeapons.Add(meleeWeapon);
-                            }
-                            else if (item is RangedWeapon rangedWeapon)
-                            {
-                                availableWeapons.Add(rangedWeapon);
-                            }
+                            Weapon? weapon = EquipmentService.GetWeaponByName(item.Name);
+                            if(weapon != null) availableWeapons.Add(weapon);
                         }
                     }
 
