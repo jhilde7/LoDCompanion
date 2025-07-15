@@ -1,0 +1,31 @@
+﻿@using LoDCompanion.Models.Character
+@using LoDCompanion.Models.Dungeon
+@using LoDCompanion.Services.Player
+
+<div class="context-menu" style="@MenuStyle" @onclick:stopPropagation>
+    <div class="context-menu-header">@TargetName</div>
+    <ul class="context-menu-list">
+        @foreach (var action in AvailableActions)
+        {
+            <li class="context-menu-item" @onclick="() => OnActionSelected.InvokeAsync(action)">
+                @action.ActionType.ToString() (@action.ApCost AP)
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public List<PlayerActionInfo> AvailableActions { get; set; } = new();
+
+    [Parameter]
+    public Point Position { get; set; }
+
+    [Parameter]
+    public string TargetName { get; set; } = "Actions";
+
+    [Parameter]
+    public EventCallback<PlayerActionInfo> OnActionSelected { get; set; }
+
+    private string MenuStyle => $"left: {Position.X}px; top: {Position.Y}px;";
+}

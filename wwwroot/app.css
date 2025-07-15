@@ -176,3 +176,36 @@ h1:focus {
     .action-button.end-turn {
         background-color: #8b0000; /* DarkRed */
     }
+
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    min-width: 150px;
+    background-color: #332d25;
+    border: 2px solid #5a4d3a;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    color: #e6d8c0;
+}
+
+.context-menu-header {
+    padding: 8px 12px;
+    font-weight: bold;
+    border-bottom: 1px solid #5a4d3a;
+}
+
+.context-menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .context-menu-item:hover {
+        background-color: #7a6a53;
+    }
