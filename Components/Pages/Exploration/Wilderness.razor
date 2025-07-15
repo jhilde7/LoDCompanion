@@ -12,7 +12,7 @@
 @inject CombatManagerService CombatManager
 @inject RoomService RoomService
 
-<div class="wilderness-container">
+<div class="wilderness-container" @onclick="CloseContextMenu">
     @if (QuestService.IsQuestActive &&
       QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
       QuestService.ActiveEncounterRoom != null)
@@ -28,10 +28,17 @@
 
         <div class="game-area">
             <GridDisplay Room="QuestService.ActiveEncounterRoom"
-                         OnMonsterClicked="HandleMonsterClick"
-                         OnGridSquareClicked="HandleGridSquareClick"
+                         OnRightClick="ShowContextMenu"
                          OnHeroClicked="HandleHeroClick" />
         </div>
+
+        @if (_isContextMenuVisible && _contextMenuTarget != null)
+        {
+            <ContextMenu Position="_contextMenuPosition"
+                                  TargetName="_contextMenuTargetName"
+                                  AvailableActions="_availableActions"
+                                  OnActionSelected="ExecuteContextAction" />
+        }
 
         <div class="combat-ui">
             <CombatInterface FeedbackMessage="@_feedbackMessage"
@@ -54,6 +61,11 @@
         SelectingTarget,
         SelectingDestination
     }
+    private bool _isContextMenuVisible = false;
+    private object? _contextMenuTarget;
+    private string _contextMenuTargetName = "";
+    private GridPosition? _contextMenuPosition;
+    private List<PlayerActionInfo> _availableActions = new();
 
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
@@ -62,21 +74,40 @@
     {
         switch (actionType)
         {
-            case PlayerActionType.StandardAttack:
-                _currentInputState = InputState.SelectingTarget;
-                _feedbackMessage = "Select a target to attack.";
-                break;
-
-            case PlayerActionType.Move:
-                _currentInputState = InputState.SelectingDestination;
-                _feedbackMessage = "Select a destination square.";
-                break;
-
             case PlayerActionType.EndTurn:
                 CombatManager.HeroPerformsAction(PlayerActionType.EndTurn, null);
                 ResetInputState();
                 break;
         }
+    }
+
+    /// <summary>
+    /// Determines which actions are valid for a given target.
+    /// </summary>
+    private List<PlayerActionInfo> GetAvailableActionsForTarget(object target)
+    {
+        var actions = new List<PlayerActionInfo>();
+        var activeHero = CombatManager.ActiveHero;
+
+        if (activeHero == null) return actions;
+
+        if (target is Monster monster)
+        {
+            _contextMenuTargetName = monster.Name;
+            // You can only attack monsters.
+            actions.Add(new PlayerActionInfo { ActionType = PlayerActionType.StandardAttack, ApCost = 1, Target = monster });
+            // Add other valid attacks (Power, Charge) based on hero abilities and distance
+        }
+        else if (target is GridPosition position)
+        {
+            _contextMenuTargetName = $"Square ({position.X}, {position.Y})";
+            // You can only move to empty squares.
+            actions.Add(new PlayerActionInfo { ActionType = PlayerActionType.Move, ApCost = 1, Target = position });
+        }
+        // ... add cases for other target types like doors, other heroes, etc.
+
+        // Filter out actions the hero doesn't have enough AP for.
+        return actions.Where(a => activeHero.CurrentAP >= a.ApCost).ToList();
     }
 
     private void HandleMonsterClick(Monster monster)
@@ -95,6 +126,31 @@
             CombatManager.HeroPerformsAction(PlayerActionType.Move, position);
             ResetInputState();
         }
+    }
+
+    private void ShowContextMenu((object target, MouseEventArgs args) context)
+    {
+        _contextMenuTarget = context.target;
+        _contextMenuPosition = new GridPosition((int)context.args.ClientX, (int)context.args.ClientY, 0);
+
+        // This is the core logic: determine available actions based on the target.
+        _availableActions = GetAvailableActionsForTarget(context.target);
+
+        if (_availableActions.Any())
+        {
+            _isContextMenuVisible = true;
+        }
+    }
+
+    private void ExecuteContextAction(PlayerActionInfo actionInfo)
+    {
+        CombatManager.HeroPerformsAction(actionInfo.ActionType, actionInfo.Target);
+        CloseContextMenu();
+    }
+
+    private void CloseContextMenu()
+    {
+        _isContextMenuVisible = false;
     }
 
     private void HandleHeroClick(Hero hero)
