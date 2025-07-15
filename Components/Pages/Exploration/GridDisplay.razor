@@ -4,6 +4,7 @@
 @using LoDCompanion.Models.Character
 
 @inject RoomService RoomService
+@inject ToastService ToastService
 
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
@@ -44,6 +45,11 @@
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
                 </div>
             }
+        }
+        
+        @foreach (var toast in ToastService.ActiveToasts)
+        {
+            <Toast Toast="toast" Style="@GetItemStyleFromPosition(toast.Position)" />
         }
     }
 </div>
@@ -135,5 +141,24 @@
         // Use InvariantCulture to ensure '.' is used as the decimal separator in CSS, regardless of server culture.
         FormattableString style = $"position: absolute; left: {left}%; top: {top}%; width: {width}%; height: {height}%;";
         return style.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private string GetItemStyleFromPosition(GridPosition position)
+    {
+        if (Room == null) return "";
+        var localX = position.X - Room.GridOffset.X;
+        var localY = position.Y - Room.GridOffset.Y;
+        return GetPercentageStyle(localX, localY, 1, 1);
+    }
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to toast changes to re-render the grid
+        ToastService.OnToastsChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnToastsChanged -= StateHasChanged;
     }
 }
