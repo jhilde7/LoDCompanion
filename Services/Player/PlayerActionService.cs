@@ -70,16 +70,17 @@ namespace LoDCompanion.Services.Player
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public bool PerformAction(DungeonState dungeon, Hero hero, PlayerActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
+        public string PerformAction(DungeonState dungeon, Hero hero, PlayerActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
+            string resultMessage = "";
             int apCost = GetActionCost(actionType);
             if (hero.CurrentAP < apCost)
             {
-                Console.WriteLine($"{hero.Name} does not have enough AP for {actionType}.");
-                return false;
+                resultMessage = $"{hero.Name} does not have enough AP for {actionType}.";
+                return resultMessage;
             }
 
-            string resultMessage = $"{hero.Name} performed {actionType}.";
+            resultMessage = $"{hero.Name} performed {actionType}.";
             bool actionWasSuccessful = true;
             // Execute the action logic
             switch (actionType)
@@ -98,7 +99,6 @@ namespace LoDCompanion.Services.Player
                         var context = new CombatContext();
                         var attackResult = _heroCombat.ResolveAttack(hero, monster, weapon, context, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
-                        hero.CurrentAP -= apCost; 
                     }
                     else
                     {
@@ -197,7 +197,7 @@ namespace LoDCompanion.Services.Player
             }
 
             Console.WriteLine($"{hero.Name} performed {actionType}, {resultMessage}. {hero.CurrentAP} AP remaining.");
-            return actionWasSuccessful;
+            return resultMessage;
         }
 
         /// <summary>
