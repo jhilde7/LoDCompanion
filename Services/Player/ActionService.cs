@@ -5,6 +5,7 @@ using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
+using System.Threading;
 
 namespace LoDCompanion.Services.Player
 {
@@ -242,11 +243,21 @@ namespace LoDCompanion.Services.Player
                     if (equippedWeapon == null) return $"{character.Name} does not have a weapon equipped";
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{character.Name} needs to reload their weapon";
                     character.CombatStance = CombatStance.Overwatch;
+                    apCost = character.CurrentAP;
                     resultMessage = $"{character.Name} takes an Overwatch stance, ready to react.";
                     break;
                 case ActionType.EndTurn:
                     resultMessage = $"{character.Name} ends their turn.";
-                    apCost = character.CurrentAP; // Ending turn consumes all AP
+                    apCost = character.CurrentAP;
+                    break;
+                case ActionType.Parry:
+                    character.CombatStance = CombatStance.Parry;
+                    apCost = character.CurrentAP;
+                    resultMessage = $"{character.Name} entered parry stance";
+                    break;
+                case ActionType.Aim:
+                    character.CombatStance = CombatStance.Aiming;
+                    resultMessage = $"{character.Name} takes careful aim.";
                     break;
             }
 
@@ -281,6 +292,7 @@ namespace LoDCompanion.Services.Player
                 ActionType.RearrangeGear => 2,
                 ActionType.IdentifyItem => 0,
                 ActionType.Reload => 1,
+                ActionType.Aim => 1,
                 _ => 1,
             };
         }
