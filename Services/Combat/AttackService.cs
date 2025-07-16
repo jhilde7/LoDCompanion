@@ -39,7 +39,7 @@ namespace LoDCompanion.Services.Combat
             {
                 context = new CombatContext(); // Standard attack has a default context 
             }
-            return ResolveAttack(attacker, weapon, target, context, dungeon);
+            return ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace LoDCompanion.Services.Combat
             {
                 context = new CombatContext { IsPowerAttack = true };
             }
-            return ResolveAttack(attacker, weapon, target, context, dungeon);
+            return ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
         /// <summary>
@@ -63,10 +63,10 @@ namespace LoDCompanion.Services.Combat
             {
                 context =  new CombatContext { IsChargeAttack = true };
             }
-            return ResolveAttack(attacker, weapon, target, context, dungeon);
+            return ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
-        public AttackResult ResolveAttack(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState dungeon)
+        public AttackResult ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult();
 
@@ -80,7 +80,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast");
+                _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast").RunSynchronously();
             }
 
             result.IsHit = true;                        
@@ -115,11 +115,11 @@ namespace LoDCompanion.Services.Combat
                 target.TakeDamage(result.DamageDealt);
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
-                _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text");
+                _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text").RunSynchronously();
             }
             else
             {
-                _floatingText.ShowTextAsync("Blocked!", target.Position, "miss-text");
+                _floatingText.ShowTextAsync("Blocked!", target.Position, "miss-text").RunSynchronously();
             }
 
             if (context.IsChargeAttack)
@@ -139,7 +139,7 @@ namespace LoDCompanion.Services.Combat
             result.DamageDealt = finalDamage;
 
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
-            _floatingText.ShowTextAsync($"-{finalDamage}", target.Position, "damage-text");
+            _floatingText.ShowTextAsync($"-{finalDamage}", target.Position, "damage-text").RunSynchronously();
 
             if (context.IsChargeAttack)
             {
