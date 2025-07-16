@@ -33,6 +33,7 @@ namespace LoDCompanion.Services.Player
         CastSpell,
         EndTurn,
         Reload,
+        ReloadWhileMoving,
         Aim,
         Parry
 
@@ -83,6 +84,7 @@ namespace LoDCompanion.Services.Player
         public async Task<string> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
             string resultMessage = "";
+            int startingAP = character.CurrentAP;
             int apCost = GetActionCost(actionType);
             if (character.CurrentAP < apCost)
             {
@@ -103,16 +105,18 @@ namespace LoDCompanion.Services.Player
                 case ActionType.StandardAttack:
                     if (primaryTarget is Character standardAttackTarget && weapon != null)
                     {
-                        if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
-                        {
-                            rangedWeapon.reloadAmmo();
-                            apCost = GetActionCost(ActionType.Reload);
-                            resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}.";
-                            break;
-                        }
+                        resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
+                        if (character.CurrentAP <= 0) break;
 
                         AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, standardAttackTarget, dungeon);
-                        resultMessage = attackResult.OutcomeMessage;
+                        if (startingAP > character.CurrentAP)
+                        {
+                            resultMessage += "\n" + attackResult.OutcomeMessage; 
+                        }
+                        else
+                        {
+                            resultMessage = attackResult.OutcomeMessage;
+                        }
                     }
                     else
                     {
@@ -156,19 +160,13 @@ namespace LoDCompanion.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-
                 case ActionType.Move:
                     if (primaryTarget is GridPosition targetPosition)
                     {
                         if (GridService.MoveCharacter(character, targetPosition, dungeon.DungeonGrid))
                         {
                             resultMessage = $"{character.Name} moves to {targetPosition}.";
-                            if (weapon != null && weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
-                            {
-                                rangedWeapon.reloadAmmo();
-                                resultMessage = $" and reloads their {rangedWeapon.Name}";
-                                break;
-                            }
+                            resultMessage += await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
                         }
                         else
                         {
@@ -259,6 +257,37 @@ namespace LoDCompanion.Services.Player
                     character.CombatStance = CombatStance.Aiming;
                     resultMessage = $"{character.Name} takes careful aim.";
                     break;
+                case ActionType.Reload:
+                    if (weapon is RangedWeapon rangedWeapon)
+                    {
+                        if (!rangedWeapon.IsLoaded)
+                        {
+                            rangedWeapon.reloadAmmo();
+                            resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}."; 
+                        }
+                        else
+                        {
+                            resultMessage = $"{character.Name} weapon is already loaded";
+                            actionWasSuccessful = false;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = $"{character.Name} does not have a ranged weapon equipped";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case ActionType.ReloadWhileMoving:
+                    if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
+                    {
+                        rangedWeapon1.reloadAmmo();
+                        resultMessage = $" and reloads their {rangedWeapon1.Name}.";
+                    }
+                    else
+                    {
+                        resultMessage = string.Empty;
+                    }
+                    break;
             }
 
             if (actionWasSuccessful)
@@ -293,6 +322,7 @@ namespace LoDCompanion.Services.Player
                 ActionType.IdentifyItem => 0,
                 ActionType.Reload => 1,
                 ActionType.Aim => 1,
+                ActionType.ReloadWhileMoving => 0,
                 _ => 1,
             };
         }
