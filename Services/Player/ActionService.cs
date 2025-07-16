@@ -73,24 +73,24 @@ namespace LoDCompanion.Services.Player
         /// <summary>
         /// Attempts to perform an action for a hero, checking and deducting AP.
         /// </summary>
-        /// <param name="hero">The hero performing the action.</param>
+        /// <param name="character">The hero performing the action.</param>
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public async Task<string> PerformActionAsync(DungeonState dungeon, Hero hero, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
+        public async Task<string> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
             string resultMessage = "";
             int apCost = GetActionCost(actionType);
-            if (hero.CurrentAP < apCost)
+            if (character.CurrentAP < apCost)
             {
-                resultMessage = $"{hero.Name} does not have enough AP for {actionType}.";
+                resultMessage = $"{character.Name} does not have enough AP for {actionType}.";
                 return resultMessage;
             }
 
-            resultMessage = $"{hero.Name} performed {actionType}.";
+            resultMessage = $"{character.Name} performed {actionType}.";
             bool actionWasSuccessful = true;
             Weapon? weapon = new Weapon();
-            if (hero.Weapons.FirstOrDefault() is Weapon w)
+            if (character.Weapons.FirstOrDefault() is Weapon w)
             {
                 weapon = w;
             }
@@ -98,17 +98,17 @@ namespace LoDCompanion.Services.Player
             switch (actionType)
             {
                 case ActionType.StandardAttack:
-                    if (primaryTarget is Monster monster && weapon != null)
+                    if (primaryTarget is Character standardAttackTarget && weapon != null)
                     {
                         if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
                         {
                             rangedWeapon.reloadAmmo();
-                            apCost = GetActionCost(actionType);
-                            resultMessage = $"{hero.Name} spends a moment to reload their {rangedWeapon.Name}.";
+                            apCost = GetActionCost(ActionType.Reload);
+                            resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}.";
                             break;
                         }
 
-                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(hero, weapon, monster, dungeon);
+                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, standardAttackTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     else
@@ -117,13 +117,49 @@ namespace LoDCompanion.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case ActionType.PowerAttack:
+                    if (character.CurrentAP >= GetActionCost(actionType) && character.Weapons.FirstOrDefault(w => w.IsMelee) is MeleeWeapon meleeWeapon && primaryTarget is Character powerAttackTarget)
+                    {
+                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, meleeWeapon, powerAttackTarget, dungeon);
+                        character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
+                        resultMessage = attackResult.OutcomeMessage;
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case ActionType.ChargeAttack:
+                    if (character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget && character.Weapons.FirstOrDefault(w => w.IsMelee) is MeleeWeapon chargeWeapon)
+                    {
+                        AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, chargeWeapon, chargeAttackTarget, dungeon);
+                        resultMessage = attackResult.OutcomeMessage;
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case ActionType.Shove:
+                    if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
+                    {
+                        resultMessage = GridService.ShoveCharacter(character, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
+                    }
+                    break;
 
                 case ActionType.Move:
                     if (primaryTarget is GridPosition targetPosition)
                     {
-                        if (GridService.MoveCharacter(hero, targetPosition, dungeon.DungeonGrid))
+                        if (GridService.MoveCharacter(character, targetPosition, dungeon.DungeonGrid))
                         {
-                            resultMessage = $"{hero.Name} moves to {targetPosition}.";
+                            resultMessage = $"{character.Name} moves to {targetPosition}.";
                             if (weapon != null && weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
                             {
                                 rangedWeapon.reloadAmmo();
@@ -133,7 +169,7 @@ namespace LoDCompanion.Services.Player
                         }
                         else
                         {
-                            resultMessage = $"{hero.Name} cannot move there; the path is blocked.";
+                            resultMessage = $"{character.Name} cannot move there; the path is blocked.";
                             actionWasSuccessful = false;
                         }
                     }
@@ -147,70 +183,77 @@ namespace LoDCompanion.Services.Player
                 case ActionType.OpenDoor:
                     if (primaryTarget is DoorChest door)
                     {
-                        _dungeonManager.InteractWithDoor(door, hero);
+                        _dungeonManager.InteractWithDoor(door, character);
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
                     }
                     break;
                 case ActionType.HealSelf:
-                    resultMessage = _healing.ApplyBandage(hero, hero);
+                    if (character is Hero self)
+                    {
+                        resultMessage = _healing.ApplyBandage(self, self);
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
+                    }
                     break;
                 case ActionType.HealOther:
-                    if (primaryTarget is Hero targetHero)
+                    if (character is Hero actingHero && primaryTarget is Hero targetHero)
                     {
-                        resultMessage = _healing.ApplyBandage(hero, targetHero);
+                        resultMessage = _healing.ApplyBandage(actingHero, targetHero);
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
                     }
                     break;
                 case ActionType.RearrangeGear:
-                    if (primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
+                    if (character is Hero inventoryHero && primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
                     { 
-                        resultMessage = _inventory.RearrangeItem(hero, item, slots.Item1, slots.Item2);
+                        resultMessage = _inventory.RearrangeItem(inventoryHero, item, slots.Item1, slots.Item2);
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
                     }
                     break;
                 case ActionType.IdentifyItem:
-                    if (primaryTarget is Equipment itemToIdentify)
+                    if (character is Hero identifyingHero && primaryTarget is Equipment itemToIdentify)
                     { 
-                        resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
+                        resultMessage = _identification.IdentifyItem(identifyingHero, itemToIdentify);
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
                     }
                     break;
                 case ActionType.SetOverwatch:
-                    var equippedWeapon = hero.Weapons.FirstOrDefault();
-                    if (equippedWeapon == null) return $"{hero.Name} does not have a weapon equipped";
-                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{hero.Name} needs to reload their weapon";
-                    hero.CombatStance = CombatStance.Overwatch;
-                    resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
-                    break;
-                case ActionType.PowerAttack:
-                    if (primaryTarget is Monster monster1 && hero.Weapons.FirstOrDefault() is Weapon weapon1)
-                    {
-                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(hero, weapon1, monster1, dungeon);
-                        hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
-                        resultMessage = attackResult.OutcomeMessage;
-                    }
-                    break;
-                case ActionType.ChargeAttack:
-                    if (primaryTarget is Monster monsterTarget && hero.Weapons.FirstOrDefault() is Weapon chargeWeapon)
-                    {
-                        AttackResult attackResult =  await _attack.PerformChargeAttackAsync(hero, chargeWeapon, monsterTarget, dungeon);
-                        resultMessage = attackResult.OutcomeMessage;
-                    }
-                    break;
-                case ActionType.Shove:
-                    if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
-                    {
-                        resultMessage = GridService.ShoveCharacter(hero, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
-                    }
+                    var equippedWeapon = character.Weapons.FirstOrDefault();
+                    if (equippedWeapon == null) return $"{character.Name} does not have a weapon equipped";
+                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{character.Name} needs to reload their weapon";
+                    character.CombatStance = CombatStance.Overwatch;
+                    resultMessage = $"{character.Name} takes an Overwatch stance, ready to react.";
                     break;
                 case ActionType.EndTurn:
-                    resultMessage = $"{hero.Name} ends their turn.";
-                    apCost = hero.CurrentAP; // Ending turn consumes all AP
+                    resultMessage = $"{character.Name} ends their turn.";
+                    apCost = character.CurrentAP; // Ending turn consumes all AP
                     break;
             }
 
             if (actionWasSuccessful)
             {
-                hero.CurrentAP -= apCost;
+                character.CurrentAP -= apCost;
             }
 
-            return $"{hero.Name} performed {actionType}, {resultMessage}. {hero.CurrentAP} AP remaining.";
+            return $"{character.Name} performed {actionType}, {resultMessage}. {character.CurrentAP} AP remaining.";
         }
 
         /// <summary>
