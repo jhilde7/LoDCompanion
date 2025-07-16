@@ -98,6 +98,10 @@ namespace LoDCompanion.Services.Combat
                 result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, potentialDamage, weapon, context, dungeon);
             }
 
+            if(weapon is RangedWeapon rangedWeapon)
+            {
+                rangedWeapon.IsLoaded = false;
+            }
             return result;
         }
 
