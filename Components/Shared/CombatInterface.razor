@@ -27,7 +27,7 @@
             }
 
             <div class="action-buttons">
-                <button class="action-button end-turn" @onclick="() => OnActionButtonClicked.InvokeAsync(PlayerActionType.EndTurn)">End Turn</button>
+                <button class="action-button end-turn" @onclick="() => OnActionButtonClicked.InvokeAsync(ActionType.EndTurn)">End Turn</button>
             </div>
         </div>
     }
@@ -37,7 +37,7 @@
     [Parameter]
     public string FeedbackMessage { get; set; } = string.Empty;
     [Parameter]
-    public EventCallback<PlayerActionType> OnActionButtonClicked { get; set; }
+    public EventCallback<ActionType> OnActionButtonClicked { get; set; }
 
     protected override void OnInitialized()
     {

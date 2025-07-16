@@ -63,17 +63,17 @@
         SelectingTarget,
         SelectingDestination
     }
-    private List<PlayerActionInfo> _availableActions = new();
+    private List<ActionInfo> _availableActions = new();
 
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
 
-    private void HandleActionButtonClick(PlayerActionType actionType)
+    private void HandleActionButtonClick(PlayerType actionType)
     {
         switch (actionType)
         {
-            case PlayerActionType.EndTurn:
-                CombatManager.HeroPerformsAction(PlayerActionType.EndTurn);
+            case PlayerType.EndTurn:
+                CombatManager.HeroPerformsActionAsync(PlayerActionndTurn, null);
                 ResetInputState();
                 break;
         }
@@ -84,7 +84,7 @@
         // The clicked monster is passed in the Data property.
         if (args.Data is Monster targetMonster)
         {
-            CombatManager.HeroPerformsAction(PlayerActionType.StandardAttack, targetMonster);
+            CombatManager.HeroPerformsActionAsync(PlayerActionType.Standark, targetMonster);
         }
     }
 
@@ -92,8 +92,7 @@
     {
         if (args.Data is Monster target)
         {
-            CombatManager.HeroPerformsAction(PlayerActionType.PowerAttack, target);
-        }
+            CombatManager.HeroPerformsActionAsync(PlayerActionType.PowerAttack, target      }
     }
 
     private void HandleMoveClicked(ItemClickEventArgs args)
@@ -101,9 +100,8 @@
         // The clicked grid position is passed in the Data property.
         if (args.Data is GridPosition targetPosition)
         {
-            CombatManager.HeroPerformsAction(PlayerActionType.Move, targetPosition);
-        }
-    }
+            CombatManager.HeroPerformsActionAsync(PlayerActionType.Move, targetPosition);
+         }
 
     
     private void HandleMonsterClick(Monster monster)
@@ -115,8 +113,8 @@
     {
         if (_currentInputState == InputState.SelectingDestination)
         {
-            CombatManager.HeroPerformsAction(PlayerActionType.Move, position);
-            ResetInputState();
+            CombatManager.HeroPerformsActionAsync(PlayerActionType.Move, position);
+            ResetInputSta
         }
     }
 
@@ -138,7 +136,7 @@
     {
         if (firstRender)
         {
-            CombatManager.StartFirstTurn();
+            CombatManager.StartFirAsyncstTurn();
         }
     }
 

@@ -13,7 +13,7 @@ namespace LoDCompanion.Services.Game
     public class CombatManagerService
     {
         private readonly InitiativeService _initiative;
-        private readonly PlayerActionService _playerAction;
+        private readonly ActionService _playerAction;
         private readonly MonsterAIService _monsterAI;
         private readonly DungeonState _dungeon;
 
@@ -29,7 +29,7 @@ namespace LoDCompanion.Services.Game
 
         public CombatManagerService(
             InitiativeService initiativeService,
-            PlayerActionService playerActionService,
+            ActionService playerActionService,
             MonsterAIService monsterAIService,
             DungeonState dungeonState)
         {
@@ -135,16 +135,16 @@ namespace LoDCompanion.Services.Game
             }
         }
 
-        public void StartFirstTurn()
+        public async Task StartFirstTurnAsync()
         {
             CombatLog.Add("--- Turn 1 ---");
-            ProcessNextInInitiative();
+            await ProcessNextInInitiativeAsync();
         }
 
         /// <summary>
         /// Sets up a new turn by resetting AP and preparing the initiative bag.
         /// </summary>
-        private void StartNewTurn()
+        private async Task StartNewTurnAsync()
         {
             CombatLog.Add("--- New Turn ---");
             MonstersThatHaveActedThisTurn.Clear();
@@ -163,13 +163,13 @@ namespace LoDCompanion.Services.Game
             }
 
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
-            ProcessNextInInitiative();
+            await ProcessNextInInitiativeAsync();
         }
 
         /// <summary>
         /// Processes the next actor in the initiative order.
         /// </summary>
-        public void ProcessNextInInitiative()
+        public async Task ProcessNextInInitiativeAsync()
         {
             if (IsCombatOver())
             {
@@ -180,8 +180,7 @@ namespace LoDCompanion.Services.Game
 
             if (_initiative.IsTurnOver())
             {
-                StartNewTurn();
-                OnCombatStateChanged?.Invoke();
+                await StartNewTurnAsync();
                 return;
             }
 
@@ -199,7 +198,6 @@ namespace LoDCompanion.Services.Game
                     IsAwaitingHeroSelection = true;
                     ActiveHero = null; // Clear the previously active hero
                     CombatLog.Add("Hero's turn. Select an available hero to act.");
-                    OnCombatStateChanged?.Invoke(); // Notify the UI to update for selection mode
 
                     if (ActiveHero != null)
                     {
@@ -215,12 +213,13 @@ namespace LoDCompanion.Services.Game
                 {
                     // Log it and immediately process the next token in the bag.
                     CombatLog.Add("A hero action was drawn, but no heroes are able to act.");
-                    ProcessNextInInitiative(); // Immediately draw the next token
+                    await ProcessNextInInitiativeAsync(); // Immediately draw the next token
                 }
 
             }
             else // It's a Monster's turn
             {
+                IsAwaitingHeroSelection = false;
                 ActiveHero = null; 
                 CombatLog.Add("A monster acts!");
 
@@ -229,6 +228,7 @@ namespace LoDCompanion.Services.Game
                 {
                     monstersToAct.Remove(monster);
                 }
+
                 var monsterToAct = SelectMonsterToAct(monstersToAct, HeroesInCombat);
                 if (monsterToAct != null)
                 {
@@ -237,27 +237,13 @@ namespace LoDCompanion.Services.Game
                     CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
                     StatusEffectService.ProcessStatusEffects(monsterToAct);
                     MonstersThatHaveActedThisTurn.Add(monsterToAct);
-                    var interruptingHero = CheckForOverwatchInterrupt(monsterToAct);
 
-                    if (interruptingHero != null)
-                    {
-                        CombatLog.Add($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
-                        // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterToAct);
-                        interruptingHero.CombatStance = CombatStance.Normal; // Overwatch is used up
-                    }
-                    else
-                    {
-                        // No interruption, so the monster performs its turn using the AI.
-                        // The 'new RoomService' is a placeholder for the actual current room state.
-                        CombatLog.Add(_monsterAI.ExecuteMonsterTurn(monsterToAct, HeroesInCombat, monsterToAct.Room));
-                    }
-
-                    ProcessNextInInitiative(); // No valid monsters left to act
-                    return;
+                    CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
+                    OnCombatStateChanged?.Invoke();
                 }
 
                 // After the monster's turn is resolved, process the next actor in initiative.
-                ProcessNextInInitiative();
+                await ProcessNextInInitiativeAsync();
             }
 
             OnCombatStateChanged?.Invoke();
@@ -406,18 +392,18 @@ namespace LoDCompanion.Services.Game
         }
 
         // This method would be called by the UI when the player selects an action.
-        public void HeroPerformsAction(PlayerActionType action, object? target = null)
+        public async Task HeroPerformsActionAsync(ActionType action, object? target = null)
         {
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
-                CombatLog.Add(_playerAction.PerformAction(_dungeon, ActiveHero, action, target));
+                CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target));
 
                 OnCombatStateChanged?.Invoke();
 
                 if (ActiveHero.CurrentAP <= 0)
                 {
                     CombatLog.Add($"{ActiveHero.Name}'s turn is over.");
-                    ProcessNextInInitiative();
+                    await ProcessNextInInitiativeAsync();
                 }
             }
         }
