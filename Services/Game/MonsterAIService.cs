@@ -99,7 +99,7 @@ namespace LoDCompanion.Services.Game
                 }
                 else
                 {
-                    return MoveTowards(monster, target);
+                    return await MoveTowardsAsync(monster, target);
                 } 
             }
             else
@@ -116,7 +116,7 @@ namespace LoDCompanion.Services.Game
 
             if (distance >= monster.Move)
             {
-                return MoveTowards(monster, target);
+                return await MoveTowardsAsync(monster, target);
             }
             else
             {
@@ -132,7 +132,7 @@ namespace LoDCompanion.Services.Game
 
             if (distance > monster.Move)
             {
-                return MoveTowards(monster, target); 
+                return await MoveTowardsAsync(monster, target); 
             }
             else if (distance > 1 && distance <= monster.Move) 
             {
@@ -140,7 +140,7 @@ namespace LoDCompanion.Services.Game
                 switch (roll)
                 {
                     case 1: return await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry);
-                    case <= 4: return MoveTowards(monster, target); 
+                    case <= 4: return await MoveTowardsAsync(monster, target); 
                     default:
                         if (monster.CurrentAP >= 2) 
                         {
@@ -177,7 +177,7 @@ namespace LoDCompanion.Services.Game
                 if (distances.Values.FirstOrDefault(i => i <= 2) > 0)
                 {
                     target = distances.FirstOrDefault(h => h.Value <= 2).Key;
-                    if(MoveAwayFrom(monster, target))
+                    if(await MoveAwayFromAsync(monster, target))
                     {
                         return $"{monster.Name} retreats to {monster.Position} to keep its distance from {target.Name}";
                     }
@@ -197,7 +197,7 @@ namespace LoDCompanion.Services.Game
 
                 if(!GridService.HasLineOfSight(monster.Position, target.Position, _dungeon.DungeonGrid).CanShoot)
                 {
-                    return MoveToGetLineOfSight(monster, target);
+                    return await MoveToGetLineOfSightAsync(monster, target);
                 }
                 else if(distance <= 1)
                 {
@@ -273,7 +273,7 @@ namespace LoDCompanion.Services.Game
                 switch (roll)
                 {
                     case <= 2: 
-                        if(MoveAwayFrom(monster, target))
+                        if(await MoveAwayFromAsync(monster, target))
                         {
                             return $"{monster.Name} retreats to {monster.Position} to keep its distance from {target.Name}."; ;
                         }
@@ -333,7 +333,7 @@ namespace LoDCompanion.Services.Game
                 {
                     case <= 4:
                         Hero? closestHero = ChooseTarget(monster, heroes);
-                        if (closestHero != null) return MoveToGetLineOfSight(monster, closestHero);
+                        if (closestHero != null) return await MoveToGetLineOfSightAsync(monster, closestHero);
                         return $"{monster.Name} considers its next move."; 
                     default:
                         var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
@@ -467,7 +467,7 @@ namespace LoDCompanion.Services.Game
             return $"{monster.Name} ends their turn facing {monster.Facing.ToString()}";
         }
 
-        private string MoveTowards(Monster monster, Hero target)
+        private async Task<string> MoveTowardsAsync(Monster monster, Hero target)
         {
             if (monster.Position == null || target.Position == null || monster.CurrentAP < 1)
             {
@@ -484,13 +484,10 @@ namespace LoDCompanion.Services.Game
             int stepsToTake = Math.Min(monster.Move, path.Count() - 1);
 
             GridPosition finalDestination = path[stepsToTake];
-            GridService.MoveCharacter(monster, finalDestination, _dungeon.DungeonGrid);
-
-            monster.CurrentAP--;
-            return $"{monster.Name} moves {stepsToTake} squares towards {target.Name}.";
+            return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, finalDestination);
         }
 
-        private bool MoveAwayFrom(Monster monster, Hero target)
+        private async Task<bool> MoveAwayFromAsync(Monster monster, Hero target)
         {
             var allReachableSquares = GridService.GetAllWalkableSquares(monster.Room, monster, _dungeon.DungeonGrid);
 
@@ -526,15 +523,13 @@ namespace LoDCompanion.Services.Game
                     int stepsToTake = Math.Min(monster.Move, pathToRetreat.Count() - 1);
                     GridPosition finalDestination = pathToRetreat[stepsToTake];
 
-                    GridService.MoveCharacter(monster, finalDestination, _dungeon.DungeonGrid);                    
+                    await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, finalDestination);
                 }
             }
-
-            monster.CurrentAP--;
             return true;
         }
 
-        private string MoveToGetLineOfSight(Monster monster, Hero target)
+        private async Task<string> MoveToGetLineOfSightAsync(Monster monster, Hero target)
         {
             var allReachableSquares = GridService.GetAllWalkableSquares(monster.Room, monster, _dungeon.DungeonGrid);
 
@@ -544,8 +539,7 @@ namespace LoDCompanion.Services.Game
 
             if (!squaresWithLOS.Any())
             {
-                return MoveTowards(monster, target);
-                
+                return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, finalDestination);
             }
 
             var vantagePoints = squaresWithLOS
@@ -563,9 +557,7 @@ namespace LoDCompanion.Services.Game
                     .FirstOrDefault();
                 if (bestSpot != null)
                 {
-                    GridService.MoveCharacter(monster, bestSpot, _dungeon.DungeonGrid);
-                    monster.CurrentAP--;
-                    return $"{monster.Name} scrambles to a vantage point for a better shot!"; 
+                    return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, bestSpot);
                 }
             }
             else
@@ -575,12 +567,10 @@ namespace LoDCompanion.Services.Game
                     .FirstOrDefault();
                 if (bestSpot != null)
                 {
-                    GridService.MoveCharacter(monster, bestSpot, _dungeon.DungeonGrid);
-                    monster.CurrentAP--;
-                    return $"{monster.Name} moves to get a clear line of sight on {target.Name}.";
+                    return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, bestSpot);                    
                 }
             }
-            return MoveTowards(monster, target);
+            return await MoveTowardsAsync(monster, target);
         }
 
         private Hero? ChooseTarget(Monster monster, List<Hero> heroes, bool isRanged = false)
