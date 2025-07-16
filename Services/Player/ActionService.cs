@@ -319,7 +319,7 @@ namespace LoDCompanion.Services.Player
                 character.CurrentAP -= apCost;
             }
 
-            return $"{character.Name} performed {actionType}, {resultMessage}. {character.CurrentAP} AP remaining.";
+            return $"{character.Name} performed {actionType}, {resultMessage}.";
         }
 
         /// <summary>
