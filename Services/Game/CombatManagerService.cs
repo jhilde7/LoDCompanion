@@ -181,6 +181,7 @@ namespace LoDCompanion.Services.Game
             if (_initiative.IsTurnOver())
             {
                 await StartNewTurnAsync();
+                OnCombatStateChanged?.Invoke();
                 return;
             }
 
@@ -198,6 +199,7 @@ namespace LoDCompanion.Services.Game
                     IsAwaitingHeroSelection = true;
                     ActiveHero = null; // Clear the previously active hero
                     CombatLog.Add("Hero's turn. Select an available hero to act.");
+                    OnCombatStateChanged?.Invoke();
 
                     if (ActiveHero != null)
                     {
