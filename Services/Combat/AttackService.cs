@@ -33,40 +33,40 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a monster's standard attack against a hero.
         /// </summary>
-        public AttackResult PerformStandardAttack(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
+        public async Task<AttackResult> PerformStandardAttackAsync(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
         {
             if (context == null)
             {
                 context = new CombatContext(); // Standard attack has a default context 
             }
-            return ResolveAttackAsync(attacker, weapon, target, context, dungeon);
+            return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
         /// <summary>
         /// Resolves a monster's Power Attack, which grants +20 CS.
         /// </summary>
-        public AttackResult PerformPowerAttack(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
+        public async Task<AttackResult> PerformPowerAttackAsync(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
         {
             if (context == null)
             {
                 context = new CombatContext { IsPowerAttack = true };
             }
-            return ResolveAttackAsync(attacker, weapon, target, context, dungeon);
+            return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
         /// <summary>
         /// Resolves a Charge Attack, which grants +10 CS.
         /// </summary>
-        public AttackResult PerformChargeAttack(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
+        public async Task<AttackResult> PerformChargeAttackAsync(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
         {
             if (context == null)
             {
                 context =  new CombatContext { IsChargeAttack = true };
             }
-            return ResolveAttackAsync(attacker, weapon, target, context, dungeon);
+            return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
-        public AttackResult ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState dungeon)
+        public async Task<AttackResult> ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult();
 
@@ -80,7 +80,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast").RunSynchronously();
+                await _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast");
             }
 
             result.IsHit = true;                        
@@ -90,17 +90,17 @@ namespace LoDCompanion.Services.Combat
 
             if (target is Hero heroTarget)
             {
-                result = ResolveAttackAgainstHero(attacker, heroTarget, potentialDamage, weapon, context, dungeon);
+                result = await ResolveAttackAgainstHeroAsync(attacker, heroTarget, potentialDamage, weapon, context, dungeon);
             }
             else if (target is Monster monsterTarget)
             {
-                result = ResolveAttackAgainstMonster(attacker, monsterTarget, potentialDamage, weapon, context, dungeon);
+                result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, potentialDamage, weapon, context, dungeon);
             }
 
             return result;
         }
 
-        private AttackResult ResolveAttackAgainstHero(Character attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState dungeon)
+        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Character attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult { IsHit = true };
 
@@ -115,11 +115,11 @@ namespace LoDCompanion.Services.Combat
                 target.TakeDamage(result.DamageDealt);
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
-                _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text").RunSynchronously();
+                await _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
             {
-                _floatingText.ShowTextAsync("Blocked!", target.Position, "miss-text").RunSynchronously();
+                await _floatingText.ShowTextAsync("Blocked!", target.Position, "miss-text");
             }
 
             if (context.IsChargeAttack)
@@ -130,7 +130,7 @@ namespace LoDCompanion.Services.Combat
             return result;
         }
 
-        private AttackResult ResolveAttackAgainstMonster(Character attacker, Monster target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState dungeon)
+        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult { IsHit = true };
 
@@ -139,7 +139,7 @@ namespace LoDCompanion.Services.Combat
             result.DamageDealt = finalDamage;
 
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
-            _floatingText.ShowTextAsync($"-{finalDamage}", target.Position, "damage-text").RunSynchronously();
+            await _floatingText.ShowTextAsync($"-{finalDamage}", target.Position, "damage-text");
 
             if (context.IsChargeAttack)
             {
