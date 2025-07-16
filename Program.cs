@@ -61,7 +61,7 @@ builder.Services.AddSingleton<TrapService>();
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<InventoryService>();
-builder.Services.AddScoped<PlayerActionService>();
+builder.Services.AddScoped<ActionService>();
 builder.Services.AddScoped<PartyRestingService>();
 builder.Services.AddSingleton<HealingService>();
 builder.Services.AddSingleton<IdentificationService>();

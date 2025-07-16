@@ -35,7 +35,7 @@ namespace LoDCompanion.Services.Player
 
     }
 
-    public class PlayerActionInfo
+    public class ActionInfo
     {
         public ActionType ActionType { get; set; }
         public int ApCost { get; set; }
@@ -45,7 +45,7 @@ namespace LoDCompanion.Services.Player
     /// <summary>
     /// Handles the execution of actions performed by heroes.
     /// </summary>
-    public class PlayerActionService
+    public class ActionService
     {
         private readonly DungeonManagerService _dungeonManager;
         private readonly SearchService _search;
@@ -54,7 +54,7 @@ namespace LoDCompanion.Services.Player
         private readonly IdentificationService _identification;
         private readonly AttackService _attack;
 
-        public PlayerActionService(
+        public ActionService(
             DungeonManagerService dungeonManagerService, 
             SearchService searchService,
             HealingService healingService,
