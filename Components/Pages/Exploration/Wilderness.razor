@@ -14,8 +14,8 @@
 
 <div class="wilderness-container" >
     @if (QuestService.IsQuestActive &&
-      QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
-      QuestService.ActiveEncounterRoom != null)
+    QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
+    QuestService.ActiveEncounterRoom != null)
     {
         <div class="quest-header">
             <h1>@QuestService.ActiveQuest.Name</h1>
@@ -28,12 +28,12 @@
 
         <div class="game-area">
             <GridDisplay Room="QuestService.ActiveEncounterRoom"
-                         OnHeroClicked="HandleHeroClick" />
+            OnHeroClicked="HandleHeroClick" />
         </div>
 
         <div class="combat-ui">
             <CombatInterface FeedbackMessage="@_feedbackMessage"
-                             OnActionButtonClicked="HandleActionButtonClick" />
+            OnActionButtonClicked="HandleActionButtonClick" />
         </div>
     }
     else
@@ -68,53 +68,55 @@
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
 
-    private void HandleActionButtonClick(PlayerType actionType)
+    private async Task HandleActionButtonClick(ActionType actionType)
     {
         switch (actionType)
         {
-            case PlayerType.EndTurn:
-                CombatManager.HeroPerformsActionAsync(PlayerActionndTurn, null);
+            case ActionType.EndTurn:
+                await CombatManager.HeroPerformsActionAsync(actionType, null);
                 ResetInputState();
                 break;
         }
     }
 
-    private void HandleAttackClicked(ItemClickEventArgs args)
+    private async Task HandleAttackClicked(ItemClickEventArgs args)
     {
         // The clicked monster is passed in the Data property.
         if (args.Data is Monster targetMonster)
         {
-            CombatManager.HeroPerformsActionAsync(PlayerActionType.Standark, targetMonster);
+            await CombatManager.HeroPerformsActionAsync(ActionType.StandardAttack, targetMonster);
         }
     }
 
-    private void HandlePowerAttackClicked(ItemClickEventArgs args)
+    private async Task HandlePowerAttackClicked(ItemClickEventArgs args)
     {
         if (args.Data is Monster target)
         {
-            CombatManager.HeroPerformsActionAsync(PlayerActionType.PowerAttack, target      }
+            await CombatManager.HeroPerformsActionAsync(ActionType.PowerAttack, target);        
+        }
     }
 
-    private void HandleMoveClicked(ItemClickEventArgs args)
+    private async Task HandleMoveClicked(ItemClickEventArgs args)
     {
         // The clicked grid position is passed in the Data property.
         if (args.Data is GridPosition targetPosition)
         {
-            CombatManager.HeroPerformsActionAsync(PlayerActionType.Move, targetPosition);
-         }
+            await CombatManager.HeroPerformsActionAsync(ActionType.Move, targetPosition);
+        }
+    }
 
-    
+
     private void HandleMonsterClick(Monster monster)
     {
         //TODO: use this to display a box of information about the Monster clicked
     }
 
-    private void HandleGridSquareClick(GridPosition position)
+    private async Task HandleGridSquareClick(GridPosition position)
     {
         if (_currentInputState == InputState.SelectingDestination)
         {
-            CombatManager.HeroPerformsActionAsync(PlayerActionType.Move, position);
-            ResetInputSta
+            await CombatManager.HeroPerformsActionAsync(ActionType.Move, position);
+            ResetInputState();
         }
     }
 
@@ -136,7 +138,7 @@
     {
         if (firstRender)
         {
-            CombatManager.StartFirAsyncstTurn();
+            await CombatManager.StartFirstTurnAsync();
         }
     }
 
