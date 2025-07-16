@@ -319,7 +319,7 @@ namespace LoDCompanion.Services.Dungeon
             return new List<RoomInfo> {
                 new RoomInfo(){
                     Name = "Start Tile",
-                    ImagePath = "/Resources/start_tile.png",
+                    ImagePath = "/Resources/Rooms/start_tile.png",
                     Category = RoomCategory.Corridor,
                     Description = "This is the standard tile when entering a dungeon.",
                     Size = [ 2, 4 ],
@@ -337,7 +337,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                 new RoomInfo(){
                     Name = "Start Tile Ancient Lands",
-                    ImagePath = "/Resources/start_tile_ancient_lands.png",
+                    ImagePath = "/Resources/Rooms/start_tile_ancient_lands.png",
                     Category = RoomCategory.Corridor,
                     Description = "This is the standard tile when entering a dungeon.",
                     Size = [ 2, 4 ],
@@ -355,7 +355,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C1",
-                    ImagePath = "/Resources/C1.png",
+                    ImagePath = "/Resources/Rooms/C1.png",
                     Category = RoomCategory.Corridor,
                     Description = "The party enters a long corridor with a door at the other end.",
                     Size = [ 2, 6 ],
@@ -377,7 +377,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C2",
-                    ImagePath = "/Resources/C2.png",
+                    ImagePath = "/Resources/Rooms/C2.png",
                     Category = RoomCategory.Corridor,
                     Description = "In the middle of the corridor lies an old backpack. Maybe there is something useful inside?",
                     Size = [ 2, 6 ],
@@ -399,7 +399,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C3",
-                    ImagePath = "/Resources/C3.png",
+                    ImagePath = "/Resources/Rooms/C3.png",
                     Category = RoomCategory.Corridor,
                     Description = "The walls in this corridor are engraved with large skulls. They give an eerie feeling of vigilance, as if they are watching every step the adventurers take.",
                     ThreatLevelModifier = 1,
@@ -422,7 +422,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C4",
-                    ImagePath = "/Resources/C4.png",
+                    ImagePath = "/Resources/Rooms/C4.png",
                     Category = RoomCategory.Corridor,
                     Description = "Just another long-stretched corridor. Better hurry on forward!",
                     Size = [ 2, 6 ],
@@ -444,7 +444,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C5",
-                    ImagePath = "/Resources/C5.png",
+                    ImagePath = "/Resources/Rooms/C5.png",
                     Category = RoomCategory.Corridor,
                     Description = "The floor in this corridor is made of metal grates. By the look of it, the metal has seen better days and it's very rusty. The first step makes the metal creak and the tormented sound echoes through the corridor. Moving through this corridor is bound to attract some attention.",
                     SpecialRules = "See card for special rules.",
@@ -468,7 +468,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C6",
-                    ImagePath = "/Resources/C6.png",
+                    ImagePath = "/Resources/Rooms/C6.png",
                     Category = RoomCategory.Corridor,
                     Description = "This dank corridor seems to end with two doorways, each lit by a torch on the wall.",
                     Size = [ 2, 6 ],
@@ -490,7 +490,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C7",
-                    ImagePath = "/Resources/C7.png",
+                    ImagePath = "/Resources/Rooms/C7.png",
                     Category = RoomCategory.Corridor,
                     Description = "The blood spilt in this corridor has dried, but appears to only be one or two days old at most.",
                     ThreatLevelModifier = 1,
@@ -514,7 +514,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C8",
-                    ImagePath = "/Resources/C8.png",
+                    ImagePath = "/Resources/Rooms/C8.png",
                     Category = RoomCategory.Corridor,
                     Description = "A long corridor with three more doors to explore. It's completely empty apart from cobweb's covering the floor.",
                     Size = [ 2, 6 ],
@@ -536,7 +536,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C9",
-                    ImagePath = "/Resources/C9.png",
+                    ImagePath = "/Resources/Rooms/C9.png",
                     Category = RoomCategory.Corridor,
                     Description = "The party suddenly halts as they discover that the floor has given way in the middle of this corridor. Where the floor should be, there is now a large gaping hole with unknown depth.",
                     SpecialRules = "See card for special rules.",
@@ -558,7 +558,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C10",
-                    ImagePath = "/Resources/C10.png",
+                    ImagePath = "/Resources/Rooms/C10.png",
                     Category = RoomCategory.Corridor,
                     Description = "The corridor splits in two at a crossway, leaving three possible ways to go. There is nothing special to observe here.",
                     Size = [ 6, 6 ],
@@ -588,7 +588,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C11",
-                    ImagePath = "/Resources/C11.png",
+                    ImagePath = "/Resources/Rooms/C11.png",
                     Category = RoomCategory.Corridor,
                     Description = "The corridor splits in two.From the left there is a foul smell, and there seems to be far away noises coming from the right.",
                     Size = [ 4, 6 ],
@@ -614,7 +614,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C12",
-                    ImagePath = "/Resources/C12.png",
+                    ImagePath = "/Resources/Rooms/C12.png",
                     Category = RoomCategory.Corridor,
                     Description = "The corridor makes a sharp turn. In the corner, up against the wall sits a dead adventurer. By the look of it, they must have been there for a while since most of the flesh has been eaten away.",
                     Size = [ 4, 4 ],
@@ -636,7 +636,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C13",
-                    ImagePath = "/Resources/C13.png",
+                    ImagePath = "/Resources/Rooms/C13.png",
                     Category = RoomCategory.Corridor,
                     Description = "A short distance ahead is a bend in the corridor. Everything seems quiet, apart from the sound of water droplets hitting the floor.",
                     Size = [ 4, 4 ],
@@ -658,7 +658,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C14",
-                    ImagePath = "/Resources/C14.png",
+                    ImagePath = "/Resources/Rooms/C14.png",
                     Category = RoomCategory.Corridor,
                     Description = "The corridor makes a sharp turn. As the party enters the corridor there is a sudden sound of something dragging across the floor and shadows dancing on the wall before everything goes silent.",
                     ThreatLevelModifier = 1,
@@ -681,7 +681,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C15",
-                    ImagePath = "/Resources/C15.png",
+                    ImagePath = "/Resources/Rooms/C15.png",
                     Category = RoomCategory.Corridor,
                     Description = "The corridor in front of you has collapsed and there is no way you can get through without moving the debris blocking the path.",
                     SpecialRules = "See card for special rules.",
@@ -699,7 +699,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C15 Cleared",
-                    ImagePath = "/Resources/C15_cleared.png",
+                    ImagePath = "/Resources/Rooms/C15_cleared.png",
                     Category = RoomCategory.Corridor,
                     Description = "You have cleared the rubble, and can move to the next room.",
                     Size = [ 2, 4 ],
@@ -717,7 +717,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C16",
-                    ImagePath = "/Resources/C16.png",
+                    ImagePath = "/Resources/Rooms/C16.png",
                     Category = RoomCategory.Corridor,
                     Description = "The party comes across some stairs that lead upwards into darkness. The steps are slippery and worn. This must be a widely used passage.",
                     SpecialRules = "See card for special rules.",
@@ -737,7 +737,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C17",
-                    ImagePath = "/Resources/C17.png",
+                    ImagePath = "/Resources/Rooms/C17.png",
                     Category = RoomCategory.Corridor,
                     Description = "There are four different openings in this corridor, each covered by a heavy wooden door.",
                     Size = [ 2, 6 ],
@@ -759,7 +759,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C18",
-                    ImagePath = "/Resources/C18.png",
+                    ImagePath = "/Resources/Rooms/C18.png",
                     Category = RoomCategory.Corridor,
                     Description = "There are two different openings in this corridor, each covered by a heavy wooden door.",
                     Size = [ 2, 6 ],
@@ -781,7 +781,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C20",
-                    ImagePath = "/Resources/C20.png",
+                    ImagePath = "/Resources/Rooms/C20.png",
                     Category = RoomCategory.Corridor,
                     Description = "A long corridor with nothing but sand and stone. A closed door can be seen in the darkness ahead.",
                     Size = [ 2, 6 ],
@@ -803,7 +803,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C21",
-                    ImagePath = "/Resources/C21.png",
+                    ImagePath = "/Resources/Rooms/C21.png",
                     Category = RoomCategory.Corridor,
                     Description = "An old wooden bridge spans the canal passing through this corridor.",
                     Size = [ 2, 6 ],
@@ -825,7 +825,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C22",
-                    ImagePath = "/Resources/C22.png",
+                    ImagePath = "/Resources/Rooms/C22.png",
                     Category = RoomCategory.Corridor,
                     Description = "Two more doors can be seen further down this corridor. Even though they appear closed, there is a draft causing the sand on the floor to shift.",
                     Size = [ 2, 6 ],
@@ -847,7 +847,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C23",
-                    ImagePath = "/Resources/C23.png",
+                    ImagePath = "/Resources/Rooms/C23.png",
                     Category = RoomCategory.Corridor,
                     Description = "There is a dead adventurer in exotic clothing lying on the floor in a pool of blood. Their demise appears to have happened in the past few hours.",
                     ThreatLevelModifier = 2,
@@ -869,7 +869,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C24",
-                    ImagePath = "/Resources/C24.png",
+                    ImagePath = "/Resources/Rooms/C24.png",
                     Category = RoomCategory.Corridor,
                     Description = "The wall on one side of this corridor has collapsed, making the passageway even narrower",
                     SpecialRules = "The 2 center squares with stones cannot be entered.",
@@ -893,7 +893,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C25",
-                    ImagePath = "/Resources/C25.png",
+                    ImagePath = "/Resources/Rooms/C25.png",
                     Category = RoomCategory.Corridor,
                     Description = "In the darkness ahead, you see that this corridor makes a sharp turn.",
                     Size = [ 2, 6 ],
@@ -915,7 +915,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C26",
-                    ImagePath = "/Resources/C26.png",
+                    ImagePath = "/Resources/Rooms/C26.png",
                     Category = RoomCategory.Corridor,
                     Description = "In the center of this corridor is a huge plant, with brown green vines. The vines seem to sway slowly even though there is no wind.",
                     SpecialRules = "See card for special rules.",
@@ -944,7 +944,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C26 Cleared",
-                    ImagePath = "/Resources/C26_cleared.png",
+                    ImagePath = "/Resources/Rooms/C26_cleared.png",
                     Category = RoomCategory.Corridor,
                     Description = "The carnivorous plant that used to be here is no longer.",
                     SpecialRules = "See card for special rules.",
@@ -973,7 +973,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C27",
-                    ImagePath = "/Resources/C27.png",
+                    ImagePath = "/Resources/Rooms/C27.png",
                     Category = RoomCategory.Corridor,
                     Description = "The party enters an empty crossway with a foul smell. It's hard to tell from which passageway the smell is coming from.",
                     Size = [ 6, 6 ],
@@ -1003,7 +1003,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C28",
-                    ImagePath = "/Resources/C28.png",
+                    ImagePath = "/Resources/Rooms/C28.png",
                     Category = RoomCategory.Corridor,
                     Description = "A pole with a large number of blades is spinning around it's own axle as it moves back and forth across the hallway. Judging by the remains around the trap, this will require skill and timing to bypass.",
                     Size = [ 2, 6 ],
@@ -1026,7 +1026,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "C29",
-                    ImagePath = "/Resources/C29.png",
+                    ImagePath = "/Resources/Rooms/C29.png",
                     Category = RoomCategory.Corridor,
                     Description = "A large swarm of bats is disturbed as the adventurers enter this corridor. The air is filled with flapping black wings.",
                     SpecialRules = "See card for special rules.",
@@ -1057,7 +1057,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R1",
-                    ImagePath = "/Resources/R1.png",
+                    ImagePath = "/Resources/Rooms/R1.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 5, 5 ],
@@ -1083,7 +1083,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R2",
-                    ImagePath = "/Resources/R2.png",
+                    ImagePath = "/Resources/Rooms/R2.png",
                     Category = RoomCategory.Room,
                     ThreatLevelModifier = 1,
                     Size = [ 6, 6 ],
@@ -1129,7 +1129,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R3",
-                    ImagePath = "/Resources/R3.png",
+                    ImagePath = "/Resources/Rooms/R3.png",
                     Category = RoomCategory.Room,
                     PartyMoraleModifier = -4,
                     Size = [ 6, 6 ],
@@ -1175,7 +1175,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R4",
-                    ImagePath = "/Resources/R4.png",
+                    ImagePath = "/Resources/Rooms/R4.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1222,7 +1222,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R5",
-                    ImagePath = "/Resources/R5.png",
+                    ImagePath = "/Resources/Rooms/R5.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -1316,7 +1316,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R6",
-                    ImagePath = "/Resources/R6.png",
+                    ImagePath = "/Resources/Rooms/R6.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1363,7 +1363,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R7",
-                    ImagePath = "/Resources/R7.png",
+                    ImagePath = "/Resources/Rooms/R7.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1408,7 +1408,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R8",
-                    ImagePath = "/Resources/R8.png",
+                    ImagePath = "/Resources/Rooms/R8.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     FurnitureList = [
@@ -1432,7 +1432,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R9",
-                    ImagePath = "/Resources/R9.png",
+                    ImagePath = "/Resources/Rooms/R9.png",
                     Category = RoomCategory.Room,
                     ThreatLevelModifier = -2,
                     Size = [ 6, 6 ],
@@ -1469,7 +1469,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R10",
-                    ImagePath = "/Resources/R10.png",
+                    ImagePath = "/Resources/Rooms/R10.png",
                     Category = RoomCategory.Room,
                     Description = "Finally, a room worthy of your presence. Even though the stones are as dark and dank as the rest of the dungeon, there is a silver lining here. Alongside one wall there are three chests to be plundered.",
                     Size = [ 6, 6 ],
@@ -1506,7 +1506,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R11",
-                    ImagePath = "/Resources/R11.png",
+                    ImagePath = "/Resources/Rooms/R11.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "Levers can be pulled, check card of instructions.",
                     Size = [ 6, 6 ],
@@ -1549,7 +1549,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R12",
-                    ImagePath = "/Resources/R12.png",
+                    ImagePath = "/Resources/Rooms/R12.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     FurnitureList = [
@@ -1574,7 +1574,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R13",
-                    ImagePath = "/Resources/R13.png",
+                    ImagePath = "/Resources/Rooms/R13.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -1599,7 +1599,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R14",
-                    ImagePath = "/Resources/R14.png",
+                    ImagePath = "/Resources/Rooms/R14.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -1624,7 +1624,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R15",
-                    ImagePath = "/Resources/R15.png",
+                    ImagePath = "/Resources/Rooms/R15.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -1649,7 +1649,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R16",
-                    ImagePath = "/Resources/R16.png",
+                    ImagePath = "/Resources/Rooms/R16.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 4 ],
                     DoorCount = 1,
@@ -1678,7 +1678,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R17",
-                    ImagePath = "/Resources/R17.png",
+                    ImagePath = "/Resources/Rooms/R17.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -1725,7 +1725,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                       Name = "R18",
-                    ImagePath = "/Resources/R18.png",
+                    ImagePath = "/Resources/Rooms/R18.png",
                       Category = RoomCategory.Room,
                       Size = [ 12, 6 ],
                       DoorCount = 1,
@@ -1805,7 +1805,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R19",
-                    ImagePath = "/Resources/R19.png",
+                    ImagePath = "/Resources/Rooms/R19.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -1849,7 +1849,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R20",
-                    ImagePath = "/Resources/R20.png",
+                    ImagePath = "/Resources/Rooms/R20.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 12, 6 ],
@@ -1934,7 +1934,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R21",
-                    ImagePath = "/Resources/R21.png",
+                    ImagePath = "/Resources/Rooms/R21.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "Walls cannot be passed through and block LOS.",
                     Size = [ 12, 6 ],
@@ -2004,7 +2004,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R22",
-                    ImagePath = "/Resources/R22.png",
+                    ImagePath = "/Resources/Rooms/R22.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2055,7 +2055,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R23",
-                    ImagePath = "/Resources/R23.png",
+                    ImagePath = "/Resources/Rooms/R23.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     HasSpecial = true,
@@ -2107,7 +2107,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R24",
-                    ImagePath = "/Resources/R24.png",
+                    ImagePath = "/Resources/Rooms/R24.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2152,7 +2152,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R25",
-                    ImagePath = "/Resources/R25.png",
+                    ImagePath = "/Resources/Rooms/R25.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2199,7 +2199,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R26",
-                    ImagePath = "/Resources/R26.png",
+                    ImagePath = "/Resources/Rooms/R26.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -2224,7 +2224,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R27",
-                    ImagePath = "/Resources/R27.png",
+                    ImagePath = "/Resources/Rooms/R27.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2270,7 +2270,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R27_Triggered",
-                    ImagePath = "/Resources/R27_triggered.png",
+                    ImagePath = "/Resources/Rooms/R27_triggered.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2317,7 +2317,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R28",
-                    ImagePath = "/Resources/R28.png",
+                    ImagePath = "/Resources/Rooms/R28.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     HasSpecial = true,
@@ -2362,7 +2362,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R29",
-                    ImagePath = "/Resources/R29.png",
+                    ImagePath = "/Resources/Rooms/R29.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -2389,7 +2389,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R30",
-                    ImagePath = "/Resources/R30.png",
+                    ImagePath = "/Resources/Rooms/R30.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2442,7 +2442,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R31",
-                    ImagePath = "/Resources/R31.png",
+                    ImagePath = "/Resources/Rooms/R31.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2490,7 +2490,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R32",
-                    ImagePath = "/Resources/R32.png",
+                    ImagePath = "/Resources/Rooms/R32.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 0,
@@ -2528,7 +2528,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R33",
-                    ImagePath = "/Resources/R33.png",
+                    ImagePath = "/Resources/Rooms/R33.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2574,7 +2574,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R1B",
-                    ImagePath = "/Resources/R1B.png",
+                    ImagePath = "/Resources/Rooms/R1B.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     ThreatLevelModifier = 2,
@@ -2622,7 +2622,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R2B",
-                    ImagePath = "/Resources/R2B.png",
+                    ImagePath = "/Resources/Rooms/R2B.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "Threat level decreased by 2.",
                     ThreatLevelModifier = -2,
@@ -2668,7 +2668,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R3B",
-                    ImagePath = "/Resources/R3B.png",
+                    ImagePath = "/Resources/Rooms/R3B.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     HasSpecial = true,
@@ -2716,7 +2716,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R4B",
-                    ImagePath = "/Resources/R4B.png",
+                    ImagePath = "/Resources/Rooms/R4B.png",
                     Category = RoomCategory.Room,
                     Size = [ 6, 6 ],
                     DoorCount = 1,
@@ -2760,7 +2760,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R5B",
-                    ImagePath = "/Resources/R5B.png",
+                    ImagePath = "/Resources/Rooms/R5B.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -2844,7 +2844,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R6B",
-                    ImagePath = "/Resources/R6B.png",
+                    ImagePath = "/Resources/Rooms/R6B.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "Levers can be pulled, check card of instructions.",
                     HasLevers = true,
@@ -2892,7 +2892,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R7B",
-                    ImagePath = "/Resources/R7B.png",
+                    ImagePath = "/Resources/Rooms/R7B.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
@@ -2939,7 +2939,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "R8B",
-                    ImagePath = "/Resources/R8B.png",
+                    ImagePath = "/Resources/Rooms/R8B.png",
                     Category = RoomCategory.Room,
                     Size = [ 4, 4 ],
                     DoorCount = 1,
@@ -2964,7 +2964,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Great Crypt",
-                    ImagePath = "/Resources/great_crypt.png",
+                    ImagePath = "/Resources/Rooms/great_crypt.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3045,7 +3045,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Fountain Room",
-                    ImagePath = "/Resources/fountain_room.png",
+                    ImagePath = "/Resources/Rooms/fountain_room.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3126,7 +3126,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Throne Room",
-                    ImagePath = "/Resources/throne_room.png",
+                    ImagePath = "/Resources/Rooms/throne_room.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3209,7 +3209,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Lava River",
-                    ImagePath = "/Resources/lava_river.png",
+                    ImagePath = "/Resources/Rooms/lava_river.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3291,7 +3291,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Chamber of Reverence",
-                    ImagePath = "/Resources/chamber_of_reverence.png",
+                    ImagePath = "/Resources/Rooms/chamber_of_reverence.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3377,7 +3377,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Lone Tomb",
-                    ImagePath = "/Resources/lone_tomb.png",
+                    ImagePath = "/Resources/Rooms/lone_tomb.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3461,7 +3461,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Large Tomb",
-                    ImagePath = "/Resources/large_tomb.png",
+                    ImagePath = "/Resources/Rooms/large_tomb.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3548,7 +3548,7 @@ namespace LoDCompanion.Services.Dungeon
                   },
                   new RoomInfo(){
                     Name = "The Ancient Throne Room",
-                    ImagePath = "/Resources/ancient_throne_room.png",
+                    ImagePath = "/Resources/Rooms/ancient_throne_room.png",
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
@@ -3635,7 +3635,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Bandits Hideout",
-                      ImagePath = "/Resources/bandits_hideout.png",
+                      ImagePath = "/Resources/Rooms/bandits_hideout.png",
                       Category = RoomCategory.Room,
                       Size = [11, 12],
                     FurnitureList = [
@@ -3768,7 +3768,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Road With Stone",
-                      ImagePath = "/Resources/road_with_stone.png",
+                      ImagePath = "/Resources/Rooms/road_with_stone.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -3920,7 +3920,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Field With Trees And Stone",
-                      ImagePath = "/Resources/field_with_trees_and_stone.png",
+                      ImagePath = "/Resources/Rooms/field_with_trees_and_stone.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4074,7 +4074,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Pond",
-                      ImagePath = "/Resources/pond.png",
+                      ImagePath = "/Resources/Rooms/pond.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4227,7 +4227,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Broken Cart",
-                      ImagePath = "/Resources/broken_cart.png",
+                      ImagePath = "/Resources/Rooms/broken_cart.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4381,7 +4381,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Field With Trees",
-                      ImagePath = "/Resources/field_with_trees.png",
+                      ImagePath = "/Resources/Rooms/field_with_trees.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4534,7 +4534,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Rune Stone",
-                      ImagePath = "/Resources/rune_stone.png",
+                      ImagePath = "/Resources/Rooms/rune_stone.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4685,7 +4685,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Crypt Graveyard",
-                      ImagePath = "/Resources/crypt_graveyard.png",
+                      ImagePath = "/Resources/Rooms/crypt_graveyard.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4838,7 +4838,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "City Street",
-                      ImagePath = "/Resources/city_street.png",
+                      ImagePath = "/Resources/Rooms/city_street.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -4992,7 +4992,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Farm",
-                      ImagePath = "/Resources/farm.png",
+                      ImagePath = "/Resources/Rooms/farm.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5146,7 +5146,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Rest In Pieces",
-                      ImagePath = "/Resources/rest_in_pieces.png",
+                      ImagePath = "/Resources/Rooms/rest_in_pieces.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5299,7 +5299,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Farm Field",
-                      ImagePath = "/Resources/farm_field.png",
+                      ImagePath = "/Resources/Rooms/farm_field.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5452,7 +5452,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Sphinx",
-                      ImagePath = "/Resources/sphinx.png",
+                      ImagePath = "/Resources/Rooms/sphinx.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5602,7 +5602,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Ritual Site",
-                      ImagePath = "/Resources/ritual_site.png",
+                      ImagePath = "/Resources/Rooms/ritual_site.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5755,7 +5755,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Pyramid",
-                      ImagePath = "/Resources/pyramid.png",
+                      ImagePath = "/Resources/Rooms/pyramid.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -5908,7 +5908,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Barren Land",
-                      ImagePath = "/Resources/barren_land.png",
+                      ImagePath = "/Resources/Rooms/barren_land.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -6061,7 +6061,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Camp",
-                      ImagePath = "/Resources/camp.png",
+                      ImagePath = "/Resources/Rooms/camp.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -6215,7 +6215,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Fallen Tree",
-                      ImagePath = "/Resources/fallen_tree.png",
+                      ImagePath = "/Resources/Rooms/fallen_tree.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
@@ -6364,7 +6364,7 @@ namespace LoDCompanion.Services.Dungeon
                   new RoomInfo()
                   {
                       Name = "Cross Road",
-                      ImagePath = "/Resources/cross_road.png",
+                      ImagePath = "/Resources/Rooms/cross_road.png",
                       Category = RoomCategory.Wilderness,
                       Size = [12, 12],
                     FurnitureList = [
