@@ -47,7 +47,7 @@ namespace LoDCompanion.Models.Character
         public int Level { get; set; }
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
-        public CombatStance Stance { get; set; } = CombatStance.Normal;
+        public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public bool HasShield { get; set; } // Indicates if the monster has a shield
         public Room Room { get; set; } = new Room();
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
