@@ -81,6 +81,7 @@ namespace LoDCompanion.Services.Combat
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
                 await _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast");
+                return result;
             }
 
             result.IsHit = true;                        
