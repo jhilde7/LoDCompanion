@@ -15,6 +15,7 @@ namespace LoDCompanion.Services.Player
     public enum ActionType
     {
         StandardAttack,
+        StandardAttackWhileAiming,
         Move,
         SearchRoom,
         SearchFurniture,
@@ -117,6 +118,29 @@ namespace LoDCompanion.Services.Player
                         {
                             resultMessage = attackResult.OutcomeMessage;
                         }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target or no weapon equipped for attack.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case ActionType.StandardAttackWhileAiming:
+                    if (primaryTarget is Character standardAttackTarget1 && weapon != null)
+                    {
+                        resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
+                        if (character.CurrentAP <= 0) break;
+
+                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, standardAttackTarget1, dungeon, new CombatContext { HasAimed = true });
+                        if (startingAP > character.CurrentAP)
+                        {
+                            resultMessage += "\n" + attackResult.OutcomeMessage;
+                        }
+                        else
+                        {
+                            resultMessage = attackResult.OutcomeMessage;
+                        }
+                        character.CombatStance = CombatStance.Normal;
                     }
                     else
                     {
