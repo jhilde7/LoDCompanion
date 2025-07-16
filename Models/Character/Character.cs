@@ -6,6 +6,7 @@ using LoDCompanion.Services.Game;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
 using System.Text;
+using System.Threading;
 
 namespace LoDCompanion.Models.Character
 {
@@ -351,6 +352,16 @@ namespace LoDCompanion.Models.Character
             if (Spells.Any()) sb.AppendLine($"\n-- Spells --\n{string.Join(", ", Spells)}");
 
             return sb.ToString();
+        }
+
+        public Weapon? GetMeleeWeapon()
+        {
+            return Weapons.FirstOrDefault(w => w.IsMelee);
+        }
+
+        public Weapon? GetRangedWeapon()
+        {
+            return Weapons.FirstOrDefault(w => w.IsRanged);
         }
 
         /// <summary>
