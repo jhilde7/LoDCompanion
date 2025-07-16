@@ -52,19 +52,22 @@ namespace LoDCompanion.Services.Player
         private readonly HealingService _healing;
         private readonly InventoryService _inventory;
         private readonly IdentificationService _identification;
+        private readonly AttackService _attack;
 
         public PlayerActionService(
             DungeonManagerService dungeonManagerService, 
             SearchService searchService,
             HealingService healingService,
             InventoryService inventoryService,
-            IdentificationService identificationService)
+            IdentificationService identificationService,
+            AttackService attackService)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
             _healing = healingService;
             _inventory = inventoryService;
             _identification = identificationService;
+            _attack = attackService;
         }
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace LoDCompanion.Services.Player
                         }
 
                         var context = new CombatContext();
-                        var attackResult = HeroCombatService.ResolveAttack(hero, monster, weapon, context, dungeon);
+                        var attackResult = _attack.PerformStandardAttack(hero, weapon, monster, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     else
@@ -173,14 +176,13 @@ namespace LoDCompanion.Services.Player
                     var equippedWeapon = hero.Weapons.FirstOrDefault();
                     if (equippedWeapon == null) return $"{hero.Name} does not have a weapon equipped";
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{hero.Name} needs to reload their weapon";
-                    hero.Stance = CombatStance.Overwatch;
+                    hero.CombatStance = CombatStance.Overwatch;
                     resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
                     break;
                 case PlayerActionType.PowerAttack:
                     if (primaryTarget is Monster monster1 && hero.Weapons.FirstOrDefault() is Weapon weapon1)
                     {
-                        var context = new CombatContext { IsPowerAttack = true };
-                        var attackResult = HeroCombatService.ResolveAttack(hero, monster1, weapon1, context, dungeon);
+                        var attackResult = _attack.PerformPowerAttack(hero, weapon1, monster1, dungeon);
                         hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
                     }
@@ -188,9 +190,7 @@ namespace LoDCompanion.Services.Player
                 case PlayerActionType.ChargeAttack:
                     if (primaryTarget is Monster monsterTarget && hero.Weapons.FirstOrDefault() is Weapon chargeWeapon)
                     {
-                        var context = new CombatContext { IsChargeAttack = true };
-                        // TODO: Add movement logic before the attack
-                        var attackResult = HeroCombatService.ResolveAttack(hero, monsterTarget, chargeWeapon, context, dungeon);
+                        var attackResult = _attack.PerformChargeAttack(hero, chargeWeapon, monsterTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     break;

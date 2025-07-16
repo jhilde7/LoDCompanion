@@ -37,9 +37,9 @@ namespace LoDCompanion.Services.Combat
             }
 
             int dodgeSkill = hero.Dodge;
-            if (hero.Stance == CombatStance.Parry)
+            if (hero.CombatStance == CombatStance.Parry)
             {
-                dodgeSkill += 15; // Bonus for dodging from a Parry Stance
+                dodgeSkill += 15; // Bonus for dodging from a Parry CombatStance
             }
 
             int roll = RandomHelper.RollDie("D100");
@@ -62,9 +62,9 @@ namespace LoDCompanion.Services.Combat
         public static DefenseResult AttemptWeaponParry(Hero hero, Weapon weapon)
         {
             var result = new DefenseResult();
-            if (hero.Stance != CombatStance.Parry)
+            if (hero.CombatStance != CombatStance.Parry)
             {
-                result.OutcomeMessage = "Cannot parry with a weapon unless in a Parry Stance.";
+                result.OutcomeMessage = "Cannot parry with a weapon unless in a Parry CombatStance.";
                 return result;
             }
 
@@ -105,7 +105,7 @@ namespace LoDCompanion.Services.Combat
 
             int parrySkill = hero.CombatSkill;
 
-            if (hero.Stance == CombatStance.Parry)
+            if (hero.CombatStance == CombatStance.Parry)
             {
                 parrySkill += 15;
             }

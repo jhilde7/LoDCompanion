@@ -152,7 +152,7 @@ namespace LoDCompanion.Services.Game
             foreach (var hero in HeroesInCombat)
             {
                 hero.IsVulnerableAfterPowerAttack = false;
-                if (hero.Stance != CombatStance.Overwatch)
+                if (hero.CombatStance != CombatStance.Overwatch)
                 {
                     hero.CurrentAP = hero.MaxAP;
                 }
@@ -190,7 +190,7 @@ namespace LoDCompanion.Services.Game
             if (nextActorType == ActorType.Hero)
             {
                 var availableHeroes = HeroesInCombat
-                .Where(h => h.CurrentAP > 0 && h.Stance != CombatStance.Overwatch && h.CurrentHP > 0)
+                .Where(h => h.CurrentAP > 0 && h.CombatStance != CombatStance.Overwatch && h.CurrentHP > 0)
                 .ToList();
 
                 // Check if there are any heroes who can act.
@@ -243,7 +243,7 @@ namespace LoDCompanion.Services.Game
                     {
                         CombatLog.Add($"{interruptingHero.Name} on Overwatch interrupts {monsterToAct.Name}'s action!");
                         // _heroCombatService.ExecuteOverwatchAttack(interruptingHero, monsterToAct);
-                        interruptingHero.Stance = CombatStance.Normal; // Overwatch is used up
+                        interruptingHero.CombatStance = CombatStance.Normal; // Overwatch is used up
                     }
                     else
                     {
@@ -370,7 +370,7 @@ namespace LoDCompanion.Services.Game
         {
             // This requires game state knowledge (LOS, ZOC) which isn't available here yet.
             // This is a placeholder for that future logic.
-            foreach (var hero in HeroesInCombat.Where(h => h.Stance == CombatStance.Overwatch))
+            foreach (var hero in HeroesInCombat.Where(h => h.CombatStance == CombatStance.Overwatch))
             {
                 // TODO: Check if movingMonster is in LOS for ranged or ZOC for melee.
                 bool canInterrupt = true; // Assume true for this example

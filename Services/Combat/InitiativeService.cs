@@ -32,7 +32,7 @@ namespace LoDCompanion.Services.Combat
             // Add one token per hero, *unless* they are on Overwatch.
             foreach (var hero in heroes)
             {
-                if (hero.Stance != CombatStance.Overwatch)
+                if (hero.CombatStance != CombatStance.Overwatch)
                 {
                     _initiativeTokens.Add(ActorType.Hero);
                 }
