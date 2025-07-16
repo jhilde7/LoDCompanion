@@ -1016,6 +1016,7 @@ namespace LoDCompanion.Services.GameData
             Character? target = characterList.FirstOrDefault(c => c.Position == targetPosition);
 
             int damage = 0;
+            caster.CurrentAP--;
             switch (this.Name)
             {
                 case "Blind":
@@ -1187,7 +1188,8 @@ namespace LoDCompanion.Services.GameData
                         var demonToSummon = GetDemonToSummon(this.Name);
                         var newDemon = MonsterFactory.Create(demonToSummon);
                         GridService.MoveCharacter(newDemon, summonPos.Position, dungeon.DungeonGrid);
-                        dungeon.RevealedMonsters.Add(newDemon);
+                        dungeon.RevealedMonsters.Add(newDemon);                    
+                        caster.CurrentAP--;
                         return $"{caster.Name} summons a terrifying {newDemon.Name}!";
                     }
                     else
