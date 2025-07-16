@@ -46,6 +46,8 @@ namespace LoDCompanion.Models.Character
         public int Level { get; set; }
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
+        public CombatStance Stance { get; set; } = CombatStance.Normal;
+        public bool HasShield { get; set; } // Indicates if the monster has a shield
         public Room Room { get; set; } = new Room();
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
         public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
@@ -172,7 +174,6 @@ namespace LoDCompanion.Models.Character
         public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
 
-        public CombatStance Stance { get; set; } = CombatStance.Normal;
         public bool HasDodgedThisBattle { get; set; } = false;
         public List<Spell> Spells { get; set; } = new List<Spell>();
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
@@ -272,7 +273,7 @@ namespace LoDCompanion.Models.Character
         // Method to get current weapon for combat. HeroWeapon.cs had complex logic
         // This simplified approach assumes the first weapon in the list is the "active" one
         // or a dedicated 'EquippedWeapon' property would be better
-        public Equipment? GetEquippedWeapon()
+        public Weapon? GetEquippedWeapon()
         {
             if (Weapons.Count > 0)
             {
@@ -297,7 +298,6 @@ namespace LoDCompanion.Models.Character
     {
         public EncounterType? Type { get; set; }
         public int ArmourValue { get; set; }
-        public bool HasShield { get; set; } // Indicates if the monster has a shield
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public bool HasSpecialAttack { get; set; }
@@ -311,7 +311,6 @@ namespace LoDCompanion.Models.Character
         public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
         public Corpse Body { get; set; } = new Corpse(TreasureType.None);
         private TreasureType _treasureType = TreasureType.None;
-        public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public TreasureType TreasureType
         {
             get => _treasureType;
