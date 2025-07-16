@@ -31,7 +31,7 @@ namespace LoDCompanion.Services.Game
             OnTextChanged?.Invoke();
 
             // Wait for the delay without blocking the thread.
-            await Task.Delay(2000);
+            await Task.Delay(1000);
 
             // This code now runs after the delay on the same context.
             ActiveTexts.Remove(floatingText);
