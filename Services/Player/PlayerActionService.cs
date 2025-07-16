@@ -11,7 +11,7 @@ namespace LoDCompanion.Services.Player
     /// <summary>
     /// Defines the types of actions a player can take.
     /// </summary>
-    public enum PlayerActionType
+    public enum ActionType
     {
         StandardAttack,
         Move,
@@ -37,7 +37,7 @@ namespace LoDCompanion.Services.Player
 
     public class PlayerActionInfo
     {
-        public PlayerActionType ActionType { get; set; }
+        public ActionType ActionType { get; set; }
         public int ApCost { get; set; }
         public object? Target { get; set; }
     }
@@ -77,7 +77,7 @@ namespace LoDCompanion.Services.Player
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public string PerformAction(DungeonState dungeon, Hero hero, PlayerActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
+        public async Task<string> PerformActionAsync(DungeonState dungeon, Hero hero, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
             string resultMessage = "";
             int apCost = GetActionCost(actionType);
@@ -97,7 +97,7 @@ namespace LoDCompanion.Services.Player
             // Execute the action logic
             switch (actionType)
             {
-                case PlayerActionType.StandardAttack:
+                case ActionType.StandardAttack:
                     if (primaryTarget is Monster monster && weapon != null)
                     {
                         if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
@@ -108,8 +108,7 @@ namespace LoDCompanion.Services.Player
                             break;
                         }
 
-                        var context = new CombatContext();
-                        var attackResult = _attack.PerformStandardAttack(hero, weapon, monster, dungeon);
+                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(hero, weapon, monster, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     else
@@ -119,7 +118,7 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
 
-                case PlayerActionType.Move:
+                case ActionType.Move:
                     if (primaryTarget is GridPosition targetPosition)
                     {
                         if (GridService.MoveCharacter(hero, targetPosition, dungeon.DungeonGrid))
@@ -145,62 +144,62 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
 
-                case PlayerActionType.OpenDoor:
+                case ActionType.OpenDoor:
                     if (primaryTarget is DoorChest door)
                     {
                         _dungeonManager.InteractWithDoor(door, hero);
                     }
                     break;
-                case PlayerActionType.HealSelf:
+                case ActionType.HealSelf:
                     resultMessage = _healing.ApplyBandage(hero, hero);
                     break;
-                case PlayerActionType.HealOther:
+                case ActionType.HealOther:
                     if (primaryTarget is Hero targetHero)
                     {
                         resultMessage = _healing.ApplyBandage(hero, targetHero);
                     }
                     break;
-                case PlayerActionType.RearrangeGear:
+                case ActionType.RearrangeGear:
                     if (primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
                     { 
                         resultMessage = _inventory.RearrangeItem(hero, item, slots.Item1, slots.Item2);
                     }
                     break;
-                case PlayerActionType.IdentifyItem:
+                case ActionType.IdentifyItem:
                     if (primaryTarget is Equipment itemToIdentify)
                     { 
                         resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
                     }
                     break;
-                case PlayerActionType.SetOverwatch:
+                case ActionType.SetOverwatch:
                     var equippedWeapon = hero.Weapons.FirstOrDefault();
                     if (equippedWeapon == null) return $"{hero.Name} does not have a weapon equipped";
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{hero.Name} needs to reload their weapon";
                     hero.CombatStance = CombatStance.Overwatch;
                     resultMessage = $"{hero.Name} takes an Overwatch stance, ready to react.";
                     break;
-                case PlayerActionType.PowerAttack:
+                case ActionType.PowerAttack:
                     if (primaryTarget is Monster monster1 && hero.Weapons.FirstOrDefault() is Weapon weapon1)
                     {
-                        var attackResult = _attack.PerformPowerAttack(hero, weapon1, monster1, dungeon);
+                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(hero, weapon1, monster1, dungeon);
                         hero.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     break;
-                case PlayerActionType.ChargeAttack:
+                case ActionType.ChargeAttack:
                     if (primaryTarget is Monster monsterTarget && hero.Weapons.FirstOrDefault() is Weapon chargeWeapon)
                     {
-                        var attackResult = _attack.PerformChargeAttack(hero, chargeWeapon, monsterTarget, dungeon);
+                        AttackResult attackResult =  await _attack.PerformChargeAttackAsync(hero, chargeWeapon, monsterTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                     }
                     break;
-                case PlayerActionType.Shove:
+                case ActionType.Shove:
                     if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
                     {
                         resultMessage = GridService.ShoveCharacter(hero, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
                     }
                     break;
-                case PlayerActionType.EndTurn:
+                case ActionType.EndTurn:
                     resultMessage = $"{hero.Name} ends their turn.";
                     apCost = hero.CurrentAP; // Ending turn consumes all AP
                     break;
@@ -217,26 +216,26 @@ namespace LoDCompanion.Services.Player
         /// <summary>
         /// Gets the AP cost for a specific action type.
         /// </summary>
-        private int GetActionCost(PlayerActionType actionType)
+        private int GetActionCost(ActionType actionType)
         {
             return actionType switch
             {
-                PlayerActionType.StandardAttack => 1,
-                PlayerActionType.PowerAttack => 2,
-                PlayerActionType.ChargeAttack => 2,
-                PlayerActionType.Shove => 1,
-                PlayerActionType.Move => 1,
-                PlayerActionType.OpenDoor => 1,
-                PlayerActionType.PickLock => 2,
-                PlayerActionType.DisarmTrap => 2,
-                PlayerActionType.SearchRoom => 2,
-                PlayerActionType.SearchFurniture => 1,
-                PlayerActionType.SearchCorpse => 1,
-                PlayerActionType.HealOther => 1,
-                PlayerActionType.HealSelf => 2,
-                PlayerActionType.RearrangeGear => 2,
-                PlayerActionType.IdentifyItem => 0,
-                PlayerActionType.Reload => 1,
+                ActionType.StandardAttack => 1,
+                ActionType.PowerAttack => 2,
+                ActionType.ChargeAttack => 2,
+                ActionType.Shove => 1,
+                ActionType.Move => 1,
+                ActionType.OpenDoor => 1,
+                ActionType.PickLock => 2,
+                ActionType.DisarmTrap => 2,
+                ActionType.SearchRoom => 2,
+                ActionType.SearchFurniture => 1,
+                ActionType.SearchCorpse => 1,
+                ActionType.HealOther => 1,
+                ActionType.HealSelf => 2,
+                ActionType.RearrangeGear => 2,
+                ActionType.IdentifyItem => 0,
+                ActionType.Reload => 1,
                 _ => 1,
             };
         }
