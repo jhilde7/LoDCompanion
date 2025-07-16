@@ -48,6 +48,7 @@ namespace LoDCompanion.Models.Character
         public int NaturalArmour { get; set; }
         public int DamageBonus { get; set; }
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
+        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public bool HasShield { get; set; } // Indicates if the monster has a shield
         public Room Room { get; set; } = new Room();
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
@@ -169,7 +170,6 @@ namespace LoDCompanion.Models.Character
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
         public List<Perk> Perks { get; set; } = new List<Perk>();
-        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public List<Armour> Armours { get; set; } = new List<Armour>();
         public Shield? Shield { get; set; }
         public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
@@ -309,7 +309,6 @@ namespace LoDCompanion.Models.Character
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
         public bool IsUndead { get; set; }
         public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
-        public List<Weapon> Weapons { get; set; } = new List<Weapon>(); // List of Monster Weapon objects
         public Corpse Body { get; set; } = new Corpse(TreasureType.None);
         private TreasureType _treasureType = TreasureType.None;
         public TreasureType TreasureType
