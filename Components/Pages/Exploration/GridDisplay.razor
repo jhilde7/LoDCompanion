@@ -17,7 +17,7 @@
                 @foreach (var square in furniture.OccupiedSquares)
                 {
                     <ContextMenuTrigger MenuId="gridActionsMenu" Data="square" WrapperTag="div"
-                                        class="grid-background-square" style="@GetSquareStyle(square)">
+                                        class="grid-background-square" title="@furniture.ToString()" style="@GetSquareStyle(square)">
                     </ContextMenuTrigger>
                 }
             }
@@ -28,7 +28,7 @@
             @foreach (var monster in Room.MonstersInRoom)
             {
                 <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div"
-                                    class="grid-item monster-item" style="@GetItemStyle(monster)"
+                                    class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
                                     @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
@@ -47,11 +47,11 @@
                 </div>
             }
         }
-        
+
         @foreach (var text in FloatingTextService.ActiveTexts)
         {
-            <div class="floating-text @Text.CssClass" Style="@GetItemStyleFromPosition(text.Position)">
-                @Text.Text
+            <div class="floating-text @text.CssClass" style="@GetItemStyleFromPosition(text.Position)">
+                @text.Text
             </div>
         }
     }
@@ -66,6 +66,8 @@
     public EventCallback<Monster> OnMonsterClicked { get; set; }
     [Parameter]
     public EventCallback<Hero> OnHeroClicked { get; set; }
+
+    private Action? _onTextChangedHandler;
 
     private string GridStyle
     {
@@ -159,12 +161,14 @@
 
     protected override void OnInitialized()
     {
-        // Subscribe to text changes to re-render.
-        FloatingTextService.OnTextChanged += StateHasChanged;
+        // Store the handler in a field.
+        _onTextChangedHandler = () => InvokeAsync(StateHasChanged);
+        // Subscribe using the stored handler.
+        FloatingTextService.OnTextChanged += _onTextChangedHandler;
     }
 
     public void Dispose()
     {
-        FloatingTextService.OnTextChanged -= StateHasChanged;
+        FloatingTextService.OnTextChanged -= _onTextChangedHandler;
     }
 }
