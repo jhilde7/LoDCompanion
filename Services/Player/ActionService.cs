@@ -31,7 +31,9 @@ namespace LoDCompanion.Services.Player
         Shove,
         CastSpell,
         EndTurn,
-        Reload
+        Reload,
+        Aim,
+        Parry
 
     }
 
