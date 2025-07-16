@@ -80,7 +80,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+                _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast");
             }
 
             result.IsHit = true;                        
@@ -115,11 +115,11 @@ namespace LoDCompanion.Services.Combat
                 target.TakeDamage(result.DamageDealt);
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
-                _floatingText.ShowText($"-{result.DamageDealt}", target.Position, "damage-text");
+                _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
             {
-                _floatingText.ShowText("Blocked!", target.Position, "miss-text");
+                _floatingText.ShowTextAsync("Blocked!", target.Position, "miss-text");
             }
 
             if (context.IsChargeAttack)
@@ -139,7 +139,7 @@ namespace LoDCompanion.Services.Combat
             result.DamageDealt = finalDamage;
 
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
-            _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text");
+            _floatingText.ShowTextAsync($"-{finalDamage}", target.Position, "damage-text");
 
             if (context.IsChargeAttack)
             {
