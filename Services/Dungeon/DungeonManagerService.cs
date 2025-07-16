@@ -126,9 +126,9 @@ namespace LoDCompanion.Services.Dungeon
         /// This method follows the rules on page 87 of the PDF.
         /// </summary>
         /// <param name="door">The door or chest being opened.</param>
-        /// <param name="hero">The hero performing the action.</param>
+        /// <param name="character">The hero performing the action.</param>
         /// <returns>A string describing the result of the attempt.</returns>
-        public string InteractWithDoor(DoorChest door, Hero hero)
+        public string InteractWithDoor(DoorChest door, Character character)
         {
             if (door.IsOpen) return "The door is already open.";
 
@@ -146,21 +146,24 @@ namespace LoDCompanion.Services.Dungeon
                 }
 
                 // Step 3: Resolve Trap
-                if (!_trap.DetectTrap(hero, trap))
+                if (character is Hero hero)
                 {
-                    // Failed to detect, trap is sprung!
-                    door.IsTrapped = false;
-                    return _trap.TriggerTrap(hero, trap);
-                }
-                else
-                {
-                    // Trap detected. The UI would ask the player to disarm or trigger it.
-                    // For now, we assume they attempt to disarm.
-                    if (!_trap.DisarmTrap(hero, trap))
+                    if (!_trap.DetectTrap(hero, trap))
                     {
-                        return $"{hero.Name} failed to disarm the {trap.Name} and triggered it!";
+                        // Failed to detect, trap is sprung!
+                        door.IsTrapped = false;
+                        return _trap.TriggerTrap(hero, trap);
                     }
-                    // On success, the trap is gone, and we proceed.
+                    else
+                    {
+                        // Trap detected. The UI would ask the player to disarm or trigger it.
+                        // For now, we assume they attempt to disarm.
+                        if (!_trap.DisarmTrap(hero, trap))
+                        {
+                            return $"{hero.Name} failed to disarm the {trap.Name} and triggered it!";
+                        }
+                        // On success, the trap is gone, and we proceed.
+                    } 
                 }
             }
 
