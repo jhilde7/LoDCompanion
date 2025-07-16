@@ -539,7 +539,7 @@ namespace LoDCompanion.Services.Game
 
             if (!squaresWithLOS.Any())
             {
-                return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, finalDestination);
+                return await MoveTowardsAsync(monster, target);
             }
 
             var vantagePoints = squaresWithLOS
