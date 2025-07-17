@@ -16,6 +16,7 @@ namespace LoDCompanion.Models.Dungeon
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }
         public Queue<Room> ExplorationDeck { get; set; } = new Queue<Room>();
+        public List<Room> RoomsInDungeon { get; set; } = new List<Room>();
         public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
         public List<WanderingMonsterState> WanderingMonsters { get; set; } = new List<WanderingMonsterState>();
         public List<Monster> RevealedMonsters { get; set; } = new List<Monster>();
