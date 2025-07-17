@@ -165,7 +165,7 @@ namespace LoDCompanion.Services.Dungeon
                         room.HasLevers = true; // Update room state
                         break;
                     case int r when r >= 46 && r <= 50:
-                        room.SearchResults.Add(TreasureService.GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
+                        room.SearchResults.Add(TreasureService.GetTreasureAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
                         break;
                     case int r when r >= 91 && r <= 100:
                         room.SearchResults.Add("You've sprung a trap!");

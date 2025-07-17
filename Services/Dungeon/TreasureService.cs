@@ -47,11 +47,12 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public static string GetTreasure(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
+        public async Task<string> GetTreasureAsync(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
         {
-            Equipment item = CreateItem(itemName, durability, value, amount, description);
+            Equipment item = await CreateItemAsync(itemName, durability, value, amount, description);
             return $"{item.Quantity} {item.Name}";
         }
+
         public async Task<List<string>> SearchCorpseAsync(TreasureType type, Hero hero, int searchRoll)
         {
             List<string> rewards = new List<string>();
@@ -67,22 +68,23 @@ namespace LoDCompanion.Services.Dungeon
                 case TreasureType.T1:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
-                        searchRoll = RandomHelper.GetRandomNumber(1, 10);
+                        searchRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "1d10");
                     }
                     switch (searchRoll)
                     {
                         case 1:
-                            Equipment? equipmentFound = GetRandomWeapon(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4)));
-                            if (equipmentFound != null) rewards.Add(GetTreasure(equipmentFound.Name, equipmentFound.Durability));
+                            Equipment? equipmentFound = await GetRandomWeaponAsync(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4)));
+                            if (equipmentFound != null) rewards.Add(await GetTreasureAsync(equipmentFound.Name, equipmentFound.Durability));
                             break;
                         case 2:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 20));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 20));
                             break;
                         case 3:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 10));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 10));
                             break;
                         case 4:
-                            rewards.Add(GetTreasure("Bandage (old rags)", 1));
+                            rewards.Add(await GetTreasureAsync("Bandage (old rags)", 1));
                             break;
                         default:
                             rewards.Add("You found nothing.");
@@ -92,24 +94,25 @@ namespace LoDCompanion.Services.Dungeon
                 case TreasureType.T2:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
-                        searchRoll = RandomHelper.GetRandomNumber(1, 10);
+                        searchRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "1d10");
                     }
                     switch (searchRoll)
                     {
                         case 1:
-                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             break;
                         case 2:
-                            rewards.AddRange(FoundTreasure(TreasureType.Mundane, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
                             break;
                         case 3:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 50));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 50));
                             break;
                         case 4:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 40));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 40));
                             break;
                         case 5:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 20));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 20));
                             break;
                         default:
                             rewards.Add("You found nothing.");
@@ -119,26 +122,27 @@ namespace LoDCompanion.Services.Dungeon
                 case TreasureType.T3:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
-                        searchRoll = RandomHelper.GetRandomNumber(1, 10);
+                        searchRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "1d10");
                     }
                     switch (searchRoll)
                     {
                         case 1:
                         case 2:
-                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             break;
                         case 3:
                         case 4:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 100));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 100));
                             break;
                         case 5:
-                            rewards.AddRange(FoundTreasure(TreasureType.Mundane, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
                             break;
                         case 6:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 80));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 80));
                             break;
                         case 7:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 60));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 60));
                             break;
                         default:
                             rewards.Add("You found nothing.");
@@ -148,16 +152,17 @@ namespace LoDCompanion.Services.Dungeon
                 case TreasureType.T4:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
-                        searchRoll = RandomHelper.GetRandomNumber(1, 10);
+                        searchRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "1d10");
                     }
                     switch (searchRoll)
                     {
                         case 1:
-                            rewards.Add(GetTreasure("Grimoire"));
+                            rewards.Add(await GetTreasureAsync("Grimoire"));
                             break;
                         case 2:
                         case 3:
-                            rewards.Add(GetTreasure("Scroll"));
+                            rewards.Add(await GetTreasureAsync("Scroll"));
                             break;
                         case 4:
                             for (int i = 0; i < RandomHelper.GetRandomNumber(1, 2); i++)
@@ -167,10 +172,10 @@ namespace LoDCompanion.Services.Dungeon
                             }
                             break;
                         case 5:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 150));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 150));
                             break;
                         case 6:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 100));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 100));
                             break;
                         default:
                             rewards.Add("You found nothing.");
@@ -180,32 +185,33 @@ namespace LoDCompanion.Services.Dungeon
                 case TreasureType.T5:
                     if (searchRoll == 0 || searchRoll > 10)
                     {
-                        searchRoll = RandomHelper.GetRandomNumber(1, 10);
+                        searchRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "1d10");
                     }
                     switch (searchRoll)
                     {
                         case 1:
                         case 2:
-                            rewards.AddRange(FoundTreasure(TreasureType.Wonderful, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
                             count *= 2;
-                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             break;
                         case 3:
                         case 4:
                             count *= 2;
-                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
-                            rewards.Add(GetTreasure("Grimoire"));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                            rewards.Add(await GetTreasureAsync("Grimoire"));
                             break;
                         case 5:
                         case 6:
                         case 7:
                             count *= 3;
-                            rewards.AddRange(FoundTreasure(TreasureType.Fine, count));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             break;
                         case 8:
                         case 9:
                         case 10:
-                            rewards.Add(GetTreasure("Coin", 0, 1, 500));
+                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 500));
                             break;
                         default:
                             rewards.Add("You found nothing.");
@@ -215,11 +221,12 @@ namespace LoDCompanion.Services.Dungeon
                 case TreasureType.Part:
                     if (searchRoll == 0)
                     {
-                        searchRoll = RandomHelper.GetRandomNumber(1, 100);
+                        searchRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "1d100");
                     }
                     if (searchRoll <= hero.AlchemySkill)
                     {
-                        rewards.Add(GetTreasure("Part", 0, 0, 1, GetAlchemicalTreasureAsync(TreasureType.Part, 1, false)));
+                        rewards.Add(await GetTreasureAsync("Part", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, 1, false)));
                     }
                     else
                     {
@@ -227,11 +234,12 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     break;
                 case TreasureType.Turog:
-                    rewards.Add(GetTreasure("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 200)));
+                    rewards.Add(await GetTreasureAsync("Coin", 0, 1, await _diceRoll.RequestRollAsync(
+                        $"Roll for treasure", "2d100")));
                     rewards.Add("The Goblins Scimitar");
                     break;
                 case TreasureType.TheMasterLocksmith:
-                    rewards.AddRange(SearchCorpseAsync(TreasureType.T5, hero, searchRoll));
+                    rewards.AddRange(await SearchCorpseAsync(TreasureType.T5, hero, searchRoll));
                     rewards.Add("The Flames of Zul");
                     break;
                 default:
@@ -240,7 +248,7 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public static List<string> FoundTreasure(TreasureType type, int count)
+        public async Task<List<string>> FoundTreasureAsync(TreasureType type, int count)
         {
             List<string> rewards = new List<string>();
             for (int i = 0; i < count; i++)
@@ -249,15 +257,15 @@ namespace LoDCompanion.Services.Dungeon
                 switch (type)
                 {
                     case TreasureType.Mundane:
-                        item = GetMundaneTreasure();
+                        item = await GetMundaneTreasureAsync();
                         if (item != null) rewards.Add(item.Name);
                         break;
                     case TreasureType.Fine:
-                        item = GetFineTreasure();
+                        item = await GetFineTreasureAsync();
                         if (item != null) rewards.Add(item.Name);
                         break;
                     case TreasureType.Wonderful:
-                        item = GetWonderfulTreasureAsync();
+                        item = await GetWonderfulTreasureAsync();
                         if (item != null) rewards.Add(item.Name);
                         break;
                     default:
@@ -267,7 +275,7 @@ namespace LoDCompanion.Services.Dungeon
             return rewards;
         }
 
-        public static Equipment? GetMundaneTreasure()
+        public async Task<Equipment?> GetMundaneTreasureAsync()
         {
             int roll = RandomHelper.GetRandomNumber(1, 54);
             int defaultDurabilityDamageRoll = RandomHelper.GetRandomNumber(1, 4) + 1;
@@ -280,35 +288,36 @@ namespace LoDCompanion.Services.Dungeon
 
             switch (roll)
             {
-                case 1: treasure = CreateItem("Amulet"); break;
+                case 1: treasure = await CreateItemAsync("Amulet"); break;
                 case 2: treasure = EquipmentService.GetAmmoByNameSetQuantity("Arrow", 5); break;
                 case 3: treasure = EquipmentService.GetAmmoByNameSetQuantity("Arrow", 10); break;
-                case 4:
-                case 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bandage (old rags)", RandomHelper.GetRandomNumber(1, 3)); break;
+                case <= 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bandage (old rags)", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 6: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bandage (linen)", RandomHelper.GetRandomNumber(1, 2)); break;
                 case 7: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Bear Trap", (2 - (RandomHelper.GetRandomNumber(1, 2) - 1)), RandomHelper.GetRandomNumber(1, 3)); break;
-                case 8:
-                case 9: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bedroll", RandomHelper.GetRandomNumber(1, 3)); break;
+                case <= 9: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Bedroll", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 10: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Beef Jerky", RandomHelper.GetRandomNumber(1, 4)); break;
                 case 11: treasure = EquipmentService.GetAmmoByNameSetQuantity("Bolt", 5); break;
                 case 12: treasure = EquipmentService.GetShieldByNameSetDurability("Buckler", armourDurability); break;
-                case 13:
-                case 14: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 20)); break;
-                case 15: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 40)); break;
-                case 16:
-                case 17: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(3, 60)); break;
-                case 18: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 80)); break;
-                case 19: treasure = CreateItem("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 100)); break;
+                case <= 14: treasure = await CreateItemAsync("Coin", 0, 1, 
+                    await _diceRoll.RequestRollAsync($"You found coins!", "1d20")); break;
+                case 15: treasure = await CreateItemAsync("Coin", 0, 1, 
+                    await _diceRoll.RequestRollAsync($"You found coins!", "2d20")); break;
+                case  <= 17: treasure = await CreateItemAsync("Coin", 0, 1, 
+                    await _diceRoll.RequestRollAsync($"You found coins!", "3d20")); break;
+                case 18: treasure = await CreateItemAsync("Coin", 0, 1, 
+                    await _diceRoll.RequestRollAsync($"You found coins!", "4d20")); break;
+                case 19: treasure = await CreateItemAsync("Coin", 0, 1, 
+                    await _diceRoll.RequestRollAsync($"You found coins!", "1d100")); break;
                 case 20: treasure = EquipmentService.GetArmourByNameSetDurability("Cloak", armourDurability); break;
                 case 21: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Crowbar", (6 - defaultDurabilityDamageRoll), RandomHelper.GetRandomNumber(1, 6)); break;
                 case 22: treasure = EquipmentService.GetWeaponByNameSetDurability("Dagger", weaponDurability); break;
                 case 23: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Empty Bottle", RandomHelper.GetRandomNumber(1, 6)); break;
-                case 24: treasure = GetFineTreasure(); break;
-                case 25: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
+                case 24: treasure = await GetFineTreasureAsync(); break;
+                case 25: treasure = await CreateItemAsync("Ingredient", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
                 case 26: treasure = EquipmentService.GetWeaponByNameSetDurability("Javelin", weaponDurability); break;
                 case 27: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Lantern", RandomHelper.GetRandomNumber(1, 3)); break;
                 case 28:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found leather armour!", "1d6");
                     switch (roll)
                     {
                         case 1: itemName = "Leather Cap"; break;
@@ -324,7 +333,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 30: treasure = EquipmentService.GetEquipmentByName("Backpack - Medium"); break;
                 case 31: treasure = EquipmentService.GetEquipmentByName("Rope (old)"); break;
                 case 32:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found padded armour!", "1d6");
                     switch (roll)
                     {
                         case 1: itemName = "Padded Cap"; break;
@@ -336,12 +345,12 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, armourDurability);
                     break;
-                case 33: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
-                case 34: treasure = CreateItem("Part", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Part, 1)); break;
+                case 33: treasure = await CreateItemAsync("Part", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
+                case 34: treasure = await CreateItemAsync("Part", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, 1)); break;
                 case 35: treasure = EquipmentService.GetWeaponByNameSetDurability("Rapier", weaponDurability); break;
                 case 36: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 4)); break;
                 case 37: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.GetRandomNumber(1, 6)); break;
-                case 38: treasure = CreateItem("Potion Recipe - Weak"); break;
+                case 38: treasure = await CreateItemAsync("Potion Recipe - Weak"); break;
                 case 39:
                 case 40: treasure = EquipmentService.GetEquipmentByName("Ring"); break;
                 case 41: treasure = EquipmentService.GetEquipmentByName("Rope"); break;
@@ -355,11 +364,11 @@ namespace LoDCompanion.Services.Dungeon
                 case 49: treasure = EquipmentService.GetEquipmentByName("Torch"); break;
                 case 50: treasure = EquipmentService.GetEquipmentByName("Whetstone"); break;
                 case 51: treasure = EquipmentService.GetEquipmentByName("Wild game traps"); break;
-                case 52: treasure = CreateItem("Wolf Pelt", 0, 50, RandomHelper.GetRandomNumber(1, 3)); break;
-                case 53: treasure = GetWonderfulTreasureAsync(); break;
-                case 54: treasure = CreateItem("Ingredient", 0, 0, 1, GetAlchemicalTreasure(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
+                case 52: treasure = await CreateItemAsync("Wolf Pelt", 0, 50, RandomHelper.GetRandomNumber(1, 3)); break;
+                case 53: treasure = await GetWonderfulTreasureAsync(); break;
+                case 54: treasure = await CreateItemAsync("Ingredient", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
                 default:
-                    treasure = CreateItem("Unknown Mundane Item"); // Fallback for unexpected rolls
+                    treasure = await CreateItemAsync("Unknown Mundane Item"); // Fallback for unexpected rolls
                     break;
             }
 
@@ -380,7 +389,8 @@ namespace LoDCompanion.Services.Dungeon
                 case 2: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Alchemist Belt", 6 - RandomHelper.GetRandomNumber(1, 4)); break;
                 case 3: treasure = EquipmentService.GetEquipmentByName("Armour Repair Kit"); break;
                 case 4:
-                    roll = RandomHelper.GetRandomNumber(1, 3);
+                    roll = await _diceRoll.RequestRollAsync($"You found a weapon!", "1d6");
+                    roll = (int)Math.Ceiling(roll / 2d);
                     switch (roll)
                     {
                         case 1: itemName = "Battleaxe"; break;
@@ -397,7 +407,8 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 7: treasure = EquipmentService.GetEquipmentByName("Bedroll"); break;
                 case 8:
-                    roll = RandomHelper.GetRandomNumber(1, 2);
+                    roll = await _diceRoll.RequestRollAsync($"You found a weapon!", "1d4");
+                    roll = (int)Math.Ceiling(roll / 2d);
                     switch (roll)
                     {
                         case 1: itemName = "Morning Star"; break;
@@ -405,20 +416,24 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
                     break;
-                case 9: treasure = CreateItemAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(1, 100) + 40); break;
-                case 10: treasure = CreateItemAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(2, 200) + 20); break;
-                case 11: treasure = CreateItemAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(3, 300)); break;
+                case 9: treasure = await CreateItemAsync("Coin", 0, 1, 
+                    await _diceRoll.RequestRollAsync($"You found coins!", "1d100") + 40); break;
+                case 10: treasure = await CreateItemAsync("Coin", 0, 1,
+                    await _diceRoll.RequestRollAsync($"You found coins!", "2d100") + 20); break;
+                case 11: treasure = await CreateItemAsync("Coin", 0, 1,
+                    await _diceRoll.RequestRollAsync($"You found coins!", "3d100")); break;
                 case 12: treasure = EquipmentService.GetEquipmentByName("Door Mirror"); break;
-                case 13: treasure = CreateItemAsync("Lock Picks - Dwarven", 1, 0, RandomHelper.GetRandomNumber(1, 6)); break;
+                case 13: treasure = await CreateItemAsync("Lock Picks - Dwarven", 1, 0, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 14: treasure = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 2)))); break;
                 case 15: treasure = EquipmentService.GetEquipmentByName("Elven Skinning Knife"); break;
-                case 16: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasureAsync(TreasureType.Ingredient, 1)); break;
+                case 16: treasure = await CreateItemAsync("Ingredient - Exquisite", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Ingredient, 1)); break;
                 case 17: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", (6 - (RandomHelper.GetRandomNumber(1, 4)))); break;
                 case 18: treasure = EquipmentService.GetEquipmentByName("Fishing Gear"); break;
-                case 19: treasure = CreateItemAsync("Gemstone", 0, RandomHelper.GetRandomNumber(3, 300)); break;
-                case 20: treasure = CreateItemAsync("Gemstone", 0, 100, RandomHelper.GetRandomNumber(1, 6)); break;
+                case 19: treasure = await CreateItemAsync("Gemstone", 0, RandomHelper.GetRandomNumber(3, 300)); break;
+                case 20: treasure = await CreateItemAsync("Gemstone", 0, 100, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 21:
-                    roll = RandomHelper.GetRandomNumber(1, 2);
+                    roll = await _diceRoll.RequestRollAsync($"You found a weapon!", "1d4");
+                    roll = (int)Math.Ceiling(roll / 2d);
                     switch (roll)
                     {
                         case 1: itemName = "Battle Hammer"; break;
@@ -431,7 +446,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 24: treasure = EquipmentService.GetEquipmentByName("Backpack - Large"); break;
                 case 25:
                 case 26:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found some leather armour!", "1d6");
                     switch (roll)
                     {
                         case 1: itemName = "Leather Cap"; break;
@@ -443,10 +458,10 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
-                case 27: treasure = CreateItemAsync("Lute"); break;
+                case 27: treasure = await CreateItemAsync("Lute"); break;
                 case 28:
                 case 29:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found some mail armour!", "1d6");
                     switch (roll)
                     {
                         case 1: itemName = "Mail Coif"; break;
@@ -459,13 +474,13 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
                 case 30: treasure = EquipmentService.GetEquipmentByName("Necklace"); treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
-                case 31: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasureAsync(TreasureType.Part, 1)); break;
+                case 31: treasure = await CreateItemAsync("Part - Exquisite", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, 1)); break;
                 case 32: treasure = EquipmentService.GetEquipmentByName("Partial Map"); break;
                 case 33:
                 case 34: treasure = await _alchemy.GetPotionByStrengthAsync(PotionStrength.Standard); break;
                 case 35: treasure = AlchemyService.GetPotionByName("Potion of Health"); break;
                 case 36:
-                    roll = RandomHelper.GetRandomNumber(1, 4);
+                    roll = await _diceRoll.RequestRollAsync($"You found a ranged weapon!", "1d4");
                     switch (roll)
                     {
                         case 1: itemName = "Crossbow"; break;
@@ -475,10 +490,10 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
                     break;
-                case 37: treasure = CreateItemAsync("Relic"); break;
+                case 37: treasure = await CreateItemAsync("Relic"); break;
                 case 38: treasure = EquipmentService.GetEquipmentByName("Ring"); break;
-                case 39: treasure = CreateItemAsync("Scroll"); break;
-                case 40: treasure = CreateItemAsync("Scroll", 0, 100, RandomHelper.GetRandomNumber(1, 3)); break;
+                case 39: treasure = await CreateItemAsync("Scroll"); break;
+                case 40: treasure = await CreateItemAsync("Scroll", 0, 100, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 41:
                     treasure = EquipmentService.GetAmmoByNameSetQuantity("Silver Arrow", RandomHelper.GetRandomNumber(1, 10));
                     break;
@@ -487,7 +502,7 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 43:
                 case 44:
-                    roll = RandomHelper.GetRandomNumber(1, 8);
+                    roll = await _diceRoll.RequestRollAsync($"You found a weapon!", "1d8");
                     int durabilityDamageRoll = RandomHelper.GetRandomNumber(1, 3) - 1;
                     switch (roll)
                     {
@@ -505,7 +520,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 45: treasure = EquipmentService.GetAmmoByNameSetQuantity("Superior Sling Stone", RandomHelper.GetRandomNumber(1, 10)); break;
                 case 46: treasure = await _alchemy.GetPotionByStrengthAsync(PotionStrength.Supreme); break;
                 case 47:
-                    roll = RandomHelper.GetRandomNumber(1, 4);
+                    roll = await _diceRoll.RequestRollAsync($"You found a weapon!", "1d4");
                     switch (roll)
                     {
                         case 1: itemName = "Shortsword"; break;
@@ -519,11 +534,11 @@ namespace LoDCompanion.Services.Dungeon
                 case 49: treasure = EquipmentService.GetEquipmentByName("Trap Disarming Kit"); break;
                 case 50:
                 case 51:
-                case 52: treasure = GetWonderfulTreasureAsync(); break;
+                case 52: treasure = await GetWonderfulTreasureAsync(); break;
                 case 53: treasure = GetRandomWizardStaff(DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)); break;
                 case 54: treasure = EquipmentService.GetEquipmentByName("Dwarven Ale"); break;
                 default:
-                    treasure = CreateItemAsync("Unknown Fine Item");
+                    treasure = await CreateItemAsync("Unknown Fine Item");
                     break;
             }
             return treasure;
@@ -543,15 +558,13 @@ namespace LoDCompanion.Services.Dungeon
             switch (roll)
             {
                 case 1: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Aim Attachment", RandomHelper.GetRandomNumber(1, 3)); break;
-                case 2: treasure = CreateItemAsync("Talent Training Manual"); break;
+                case 2: treasure = await CreateItemAsync("Talent Training Manual"); break;
                 case 3: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Combat Harness", 6 - defaultDurabilityDamageRoll); break;
                 case 4:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found dragon scale armour!", "1d6");
                     switch (roll)
                     {
-                        case 1:
-                        case 2:
-                        case 3: itemName = "Dragon Scale Cap"; break;
+                        case <= 3: itemName = "Dragon Scale Cap"; break;
                         case 4: itemName = "Dragon Scale Breastplate"; break;
                         case 5: itemName = "Dragon Scale Pants"; break;
                         case 6: itemName = "Dragon Scale Bracers"; break;
@@ -561,23 +574,23 @@ namespace LoDCompanion.Services.Dungeon
                 case 5: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Superior Lock Picks", RandomHelper.GetRandomNumber(1, 6)); break;
                 case 6: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Dwarven Pickaxe", (6 - defaultDurabilityDamageRoll)); break;
                 case 7: treasure = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", DefaultWeaponDurability); break;
-                case 8: treasure = CreateItemAsync("Elven Bowstring"); break;
+                case 8: treasure = await CreateItemAsync("Elven Bowstring"); break;
                 case 9: treasure = AlchemyService.GetPotionByName("Potion of Restoration"); break;
-                case 10: treasure = CreateItemAsync("Relic - Epic"); break;
+                case 10: treasure = await CreateItemAsync("Relic - Epic"); break;
                 case 11: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Extended Battle Belt", 6); break;
-                case 12: treasure = CreateItemAsync("Set of Fine Clothes"); break;
-                case 13: treasure = CreateItemAsync("Flute"); break;
+                case 12: treasure = await CreateItemAsync("Set of Fine Clothes"); break;
+                case 13: treasure = await CreateItemAsync("Flute"); break;
                 case 14:
-                case 15: treasure = CreateItemAsync("Gemstone", 0, 100, RandomHelper.GetRandomNumber(1, 10)); break;
-                case 16: treasure = CreateItemAsync("Grimoire"); break;
-                case 17: treasure = CreateItemAsync("Harp"); break;
-                case 18: treasure = CreateItemAsync("Huge Backpack"); break;
-                case 19: treasure = CreateItem("Ingredient - Exquisite", 0, 0, 1, GetAlchemicalTreasureAsync(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
+                case 15: treasure = await CreateItemAsync("Gemstone", 0, 100, RandomHelper.GetRandomNumber(1, 10)); break;
+                case 16: treasure = await CreateItemAsync("Grimoire"); break;
+                case 17: treasure = await CreateItemAsync("Harp"); break;
+                case 18: treasure = await CreateItemAsync("Huge Backpack"); break;
+                case 19: treasure = await CreateItemAsync("Ingredient - Exquisite", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Ingredient, RandomHelper.GetRandomNumber(1, 3))); break;
                 case 20:
-                case 21: treasure = CreateItemAsync("Legendary"); break;
+                case 21: treasure = await CreateItemAsync("Legendary"); break;
                 case 22:
-                    string[] itemArray = GetMagicItem("Item");
-                    treasure = CreateItemAsync("Amulet", 0, 700, 1, itemArray[1]);
+                    string[] itemArray = await GetMagicItemAsync("Item");
+                    treasure = await CreateItemAsync("Amulet", 0, 700, 1, itemArray[1]);
                     treasure.Name = "Magic amulet of " + itemArray[0];
                     if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
                     {
@@ -585,7 +598,7 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     break;
                 case 23:
-                    itemArray = GetMagicItem("Armour");
+                    itemArray = await GetMagicItemAsync("Armour");
                     treasure = EquipmentService.GetArmourByNameSetDurability("Cloak", armourDurability);
                     treasure.Name = "Magic Cloak of " + itemArray[0];
                     treasure.Value = 300;
@@ -601,26 +614,24 @@ namespace LoDCompanion.Services.Dungeon
                 case 26:
                 case 27:
                 case 28:
-                    itemArray = GetMagicItem("Armour");
-                    roll = RandomHelper.GetRandomNumber(1, 25);
+                    roll = await _diceRoll.RequestRollAsync($"You found some magic armour!", "1d100");
+                    roll = (int)Math.Ceiling(roll / 4d);
+                    itemArray = await GetMagicItemAsync("Armour");
                     int value = 0;
                     switch (roll)
                     {
                         case 1: itemName = "Leather Cap"; value = 150; break;
-                        case 2:
-                        case 3: itemName = "Leather Vest"; value = 240; break;
+                        case <= 3: itemName = "Leather Vest"; value = 240; break;
                         case 4: itemName = "Leather Jacket"; value = 420; break;
                         case 5: itemName = "Leather Leggings"; value = 360; break;
                         case 6: itemName = "Leather Bracers"; value = 360; break;
                         case 7: itemName = "Mail Coif"; value = 600; break;
-                        case 8:
-                        case 9: itemName = "Mail Shirt"; value = 1800; break;
+                        case <= 9: itemName = "Mail Shirt"; value = 1800; break;
                         case 10: itemName = "Mail Coat"; value = 2250; break;
                         case 11: itemName = "Sleeved Mail Coat"; value = 3900; break;
                         case 12: itemName = "Mail Leggings"; value = 600; break;
                         case 13: itemName = "Padded Cap"; value = 90; break;
-                        case 14:
-                        case 15: itemName = "Padded Vest"; value = 180; break;
+                        case <= 15: itemName = "Padded Vest"; value = 180; break;
                         case 16: itemName = "Padded Jacket"; value = 360; break;
                         case 17: itemName = "Padded Pants"; value = 300; break;
                         case 18: itemName = "Padded Coat"; value = 150; break;
@@ -643,7 +654,7 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     break;
                 case 29:
-                    itemArray = GetMagicItem("Item");
+                    itemArray = await GetMagicItemAsync("Item");
                     treasure = EquipmentService.GetEquipmentByName("Ring");
                     treasure.Value = 700;
                     treasure.Name = "Magic ring of " + itemArray[0];
@@ -657,8 +668,8 @@ namespace LoDCompanion.Services.Dungeon
                 case 31:
                 case 32:
                 case 33:
-                    itemArray = GetMagicItem("Weapon");
                     roll = RandomHelper.GetRandomNumber(1, 15);
+                    itemArray = await GetMagicItemAsync("Weapon");
                     value = 0;
                     switch (roll)
                     {
@@ -690,7 +701,7 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case 34:
                 case 35:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found some mail armour!", "1d6");
                     switch (roll)
                     {
                         case 1: itemName = "Mail Coif"; break;
@@ -705,7 +716,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 36:
                 case 37:
                 case 38:
-                    roll = RandomHelper.GetRandomNumber(1, 10);
+                    roll = await _diceRoll.RequestRollAsync($"You found some mithril armour!", "1d10");
                     switch (roll)
                     {
                         case 1: itemName = "Mithril Mail Coif"; break;
@@ -727,7 +738,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 40:
                 case 41:
                 case 42:
-                    roll = RandomHelper.GetRandomNumber(1, 12);
+                    roll = await _diceRoll.RequestRollAsync($"You found a mithril weapon!", "1d12");
                     switch (roll)
                     {
                         case 1: itemName = "Mithril Longsword"; break;
@@ -746,12 +757,11 @@ namespace LoDCompanion.Services.Dungeon
                     treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, weaponDurability);
                     break;
                 case 43:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
+                    roll = await _diceRoll.RequestRollAsync($"You found some night stalker armour!", "1d6");
                     switch (roll)
                     {
                         case 1: itemName = "Night Stalker Cap"; break;
-                        case 2:
-                        case 3: itemName = "Night Stalker Vest"; break;
+                        case <= 3: itemName = "Night Stalker Vest"; break;
                         case 4: itemName = "Night Stalker Jacket"; break;
                         case 5: itemName = "Night Stalker Pants"; break;
                         case 6: itemName = "Night Stalker Bracers"; break;
@@ -760,9 +770,9 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, (8 - defaultDurabilityDamageRoll));
                     break;
-                case 44: treasure = CreateItem("Part - Exquisite", 0, 0, 1, GetAlchemicalTreasureAsync(TreasureType.Part, RandomHelper.GetRandomNumber(1, 3))); break;
+                case 44: treasure = await CreateItemAsync("Part - Exquisite", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, RandomHelper.GetRandomNumber(1, 3))); break;
                 case 45:
-                    roll = RandomHelper.GetRandomNumber(1, 4);
+                    roll = await _diceRoll.RequestRollAsync($"You found some plate armour!", "1d4");
                     switch (roll)
                     {
                         case 1: itemName = "Plate Helmet"; break;
@@ -776,12 +786,12 @@ namespace LoDCompanion.Services.Dungeon
                 case 47: treasure = await _alchemy.GetPotionByStrengthAsync(PotionStrength.Supreme); break;
                 case 48:
                 case 49:
-                case 50: treasure = CreateItemAsync("Power Stone", 0, 1000, RandomHelper.GetRandomNumber(1, 3)); break;
+                case 50: treasure = await CreateItemAsync("Power Stone", 0, 1000, RandomHelper.GetRandomNumber(1, 3)); break;
                 case 51:
                     treasure = EquipmentService.GetAmmoByNameSetQuantity("Silver Arrow", RandomHelper.GetRandomNumber(1, 10));
                     break;
                 case 52:
-                    roll = RandomHelper.GetRandomNumber(1, 4);
+                    roll = await _diceRoll.RequestRollAsync($"You found a silver weapon!", "1d4");
                     switch (roll)
                     {
                         case 1: itemName = "Silver Greatsword"; break;
@@ -794,7 +804,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 53: treasure = EquipmentService.GetShieldByNameSetDurability("Tower Shield", armourDurability); break;
                 case 54: treasure = EquipmentService.GetArmourByNameSetDurability("Wyvern Cloak", DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 2) - 1)); break;
                 default:
-                    treasure = CreateItemAsync("Unknown Wonderful Item");
+                    treasure = await CreateItemAsync("Unknown Wonderful Item");
                     break;
             }
             return treasure;
@@ -830,10 +840,10 @@ namespace LoDCompanion.Services.Dungeon
             return newStaff;
         }
 
-        public static string[] GetRelic(string type = "Standard") // as it refers to fixed data
+        public async Task<string[]> GetRelicAsync(string type = "Standard") // as it refers to fixed data
         {
             string[] relic = new string[2];
-            int roll = RandomHelper.GetRandomNumber(1, 6); // Use RandomHelper
+            int roll = await _diceRoll.RequestRollAsync($"You found a religious relic!", "1d6");
             switch (type)
             {
                 case "Standard":
@@ -867,10 +877,10 @@ namespace LoDCompanion.Services.Dungeon
             return relic;
         }
 
-        public static string[] GetPowerStone() // as it refers to fixed data
+        public async Task<string[]> GetPowerStoneAsync() // as it refers to fixed data
         {
             string[] stone = new string[2];
-            int roll = RandomHelper.GetRandomNumber(1, 20);
+            int roll = await _diceRoll.RequestRollAsync($"You found a powerstone!", "1d20");
             switch (roll)
             {
                 case 1: stone[0] = "DMG +2"; stone[1] = "This stone can be used to improve any weapon."; break;
@@ -898,10 +908,10 @@ namespace LoDCompanion.Services.Dungeon
             return stone;
         }
 
-        public static string[] GetMagicItem(string type)
+        public async Task<string[]> GetMagicItemAsync(string type)
         {
             string[] magic = new string[3];
-            int roll = RandomHelper.GetRandomNumber(1, 10);
+            int roll = await _diceRoll.RequestRollAsync($"Roll for the magical properties.", "1d10");
             if (roll == 10) // 10% chance to be cursed
             {
                 roll = RandomHelper.GetRandomNumber(1, 10);
@@ -1011,14 +1021,13 @@ namespace LoDCompanion.Services.Dungeon
             return magic;
         }
 
-        public static string GetLegendary() // as it refers to fixed data
+        public async Task<string> GetLegendaryAsync() // as it refers to fixed data
         {
             string item = "";
-            int roll = RandomHelper.GetRandomNumber(1, 6);
+            int roll = await _diceRoll.RequestRollAsync($"You found a legendary item!", "1d6");
             switch (roll)
             {
-                case 1:
-                case 2:
+                case <= 2:
                     roll = RandomHelper.GetRandomNumber(1, 10);
                     switch (roll)
                     {
@@ -1035,8 +1044,7 @@ namespace LoDCompanion.Services.Dungeon
                         default: break; // Should not happen
                     }
                     break;
-                case 3:
-                case 4:
+                case <= 4:
                     roll = RandomHelper.GetRandomNumber(1, 10);
                     switch (roll)
                     {
@@ -1053,8 +1061,7 @@ namespace LoDCompanion.Services.Dungeon
                         default: break; // Should not happen
                     }
                     break;
-                case 5:
-                case 6:
+                case <= 6:
                     roll = RandomHelper.GetRandomNumber(1, 10);
                     switch (roll)
                     {
@@ -1078,7 +1085,7 @@ namespace LoDCompanion.Services.Dungeon
             return item;
         }
 
-        public static List<Equipment> GetArmourPieces(int count, int durabilityWear = 0)
+        public async Task<List<Equipment>> GetArmourPiecesAsync(int count, int durabilityWear = 0)
         {
             List<Equipment> items = new List<Equipment>();
             if (durabilityWear == 0)
@@ -1087,12 +1094,12 @@ namespace LoDCompanion.Services.Dungeon
             }
             for (int i = 0; i < count; i++)
             {
-                items.Add(GetRandomArmour(DefaultArmourDurability - durabilityWear));
+                items.Add(await GetRandomArmourAsync(DefaultArmourDurability - durabilityWear));
             }
             return items;
         }
 
-        public static Equipment GetRandomArmour(int durability = DefaultArmourDurability)
+        public async Task<Equipment> GetRandomArmourAsync(int durability = DefaultArmourDurability)
         {
             Equipment armour;
             int roll = RandomHelper.GetRandomNumber(1, 20);
@@ -1119,13 +1126,13 @@ namespace LoDCompanion.Services.Dungeon
                 case 19: armour = EquipmentService.GetArmourByNameSetDurability("Plate Bracers", durability); break;
                 case 20: armour = EquipmentService.GetArmourByNameSetDurability("Plate Leggings", durability); break;
                 default:
-                    armour = CreateItem("Unknown Random Armour", durability); // Should not happen
+                    armour = await CreateItemAsync("Unknown Random Armour", durability); // Should not happen
                     break;
             }
             return armour;
         }
 
-        public static Equipment? GetRandomWeapon(int durability)
+        public async Task<Equipment?> GetRandomWeaponAsync(int durability)
         {
             Equipment? weapon;
             int roll = RandomHelper.GetRandomNumber(1, 22);
@@ -1154,7 +1161,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 21: weapon = EquipmentService.GetWeaponByNameSetDurability("Arbalest", durability); break;
                 case 22: weapon = EquipmentService.GetWeaponByNameSetDurability("Sling", durability); break;
                 default:
-                    weapon = CreateItem("Unknown Random Weapon", durability); // Should not happen
+                    weapon = await CreateItemAsync("Unknown Random Weapon", durability); // Should not happen
                     break;
             }
             return weapon;
@@ -1178,7 +1185,7 @@ namespace LoDCompanion.Services.Dungeon
                 case "Legendary":
                     newItem = new Equipment()
                     {
-                        Name = "Legendary item: " + GetLegendary(),
+                        Name = "Legendary item: " + GetLegendaryAsync(),
                         Encumbrance = 0,
                         Durability = 0, // Legendary items might not have durability
                         Value = 0,
@@ -1187,7 +1194,7 @@ namespace LoDCompanion.Services.Dungeon
                     break;
                 case "Relic":
                 case "Relic - Epic":
-                    string[] relicData = itemName == "Relic" ? GetRelic() : GetRelic("Epic");
+                    string[] relicData = itemName == "Relic" ? await GetRelicAsync() : await GetRelicAsync("Epic");
                     newItem = new Equipment
                     {
                         Name = relicData[0],
@@ -1240,7 +1247,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = "Lute", Encumbrance = 5, Durability = 0, Value = 100, Description = "May be used during a short rest, with a WIS test, to recover 1 sanity for all heroes.", MaxDurability = 0 };
                     break;
                 case "Power Stone":
-                    string[] stoneData = GetPowerStone();
+                    string[] stoneData = await GetPowerStoneAsync();
                     newItem = new Equipment { Name = stoneData[0], Encumbrance = 0, Durability = 0, Value = 1000, Description = stoneData[1], MaxDurability = 0 };
                     break;
                 case "Set of Fine Clothes":
