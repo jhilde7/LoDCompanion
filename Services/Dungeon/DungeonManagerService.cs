@@ -20,7 +20,9 @@ namespace LoDCompanion.Services.Dungeon
         private readonly PartyRestingService _partyResting;
         private readonly LeverService _lever;
         private readonly DungeonState _dungeonState;
-        
+
+        public event Action? OnDungeonStateChanged;
+
         public Party? HeroParty => _dungeonState.HeroParty;
         public Room? StartingRoom => _dungeonState.StartingRoom;
         public Room? CurrentRoom => _dungeonState.CurrentRoom;
@@ -92,6 +94,24 @@ namespace LoDCompanion.Services.Dungeon
                 _dungeonState.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
             }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
+        }
+
+        /// <summary>
+        /// Finds the room that contains a specific grid position.
+        /// </summary>
+        public Room? FindRoomAtPosition(GridPosition position)
+        {
+            // This method iterates through all known rooms to find which one contains the coordinate.
+            foreach (Room room in _dungeonState.RoomsInDungeon) // Assumes DungeonState can provide all rooms
+            {
+                // Check if the position is within the room's bounding box.
+                if (position.X >= room.GridOffset.X && position.X < room.GridOffset.X + room.Width &&
+                    position.Y >= room.GridOffset.Y && position.Y < room.GridOffset.Y + room.Height)
+                {
+                    return room;
+                }
+            }
+            return null; // Position is not in any known room.
         }
 
         public void ProcessTurn()
@@ -216,6 +236,7 @@ namespace LoDCompanion.Services.Dungeon
                     }
 
                     _dungeonState.CurrentRoom = newRoom;
+                    _dungeonState.RoomsInDungeon.Add(newRoom);
                     return CheckForEncounter(newRoom);
                 }
             }
