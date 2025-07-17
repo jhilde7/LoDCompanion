@@ -59,6 +59,7 @@ namespace LoDCompanion.Models.Character
         public bool IsLarge { get; set; }
         public bool IsVulnerableAfterPowerAttack { get; set; }
         public FacingDirection Facing { get; set; } = FacingDirection.North;
+        public event Action<Character>? OnDeath;
 
 
         // Constructor (optional, but good practice for initialization)
@@ -97,15 +98,26 @@ namespace LoDCompanion.Models.Character
         public virtual void TakeDamage(int damage)
         {
             CurrentHP -= damage;
-            if (CurrentHP < 0)
+            if (CurrentHP <= 0)
             {
                 CurrentHP = 0;
+                Die();
             }
+        }
+
+        /// <summary>
+        /// Handles the character's death, raising the OnDeath event.
+        /// </summary>
+        protected virtual void Die()
+        {
+            Console.WriteLine($"{Name} has been defeated!");
+            OnDeath?.Invoke(this);
         }
 
         public void ResetActionPoints()
         {
-            this.CurrentAP = MaxAP;
+            CurrentAP += MaxAP;
+            if(CurrentAP > MaxAP) CurrentAP = MaxAP;
         }
 
         public bool CanAct()
@@ -309,7 +321,7 @@ namespace LoDCompanion.Models.Character
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
         public bool IsUndead { get; set; }
         public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
-        public Corpse Body { get; set; } = new Corpse(TreasureType.None);
+        public Corpse Body { get; set; } = new Corpse("Corpse", TreasureType.None);
         private TreasureType _treasureType = TreasureType.None;
         public TreasureType TreasureType
         {
@@ -317,7 +329,7 @@ namespace LoDCompanion.Models.Character
             set
             {
                 _treasureType = value;
-                Body = new Corpse(_treasureType);
+                Body = new Corpse($"{Name} corpse", _treasureType);
             }
         }
         public List<string> Treasures { get; set; } = new List<string>();

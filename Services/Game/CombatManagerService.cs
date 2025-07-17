@@ -49,6 +49,12 @@ namespace LoDCompanion.Services.Game
             MonstersThatHaveActedThisTurn.Clear();
             ActiveHero = null;
             IsAwaitingHeroSelection = false;
+            List<Character> characters = [..heroes, ..monsters];
+
+            foreach (var character in characters)
+            {
+                character.OnDeath += HandleDeath;
+            }
 
             foreach (var hero in heroes)
             {
@@ -61,6 +67,24 @@ namespace LoDCompanion.Services.Game
             CombatLog.Add("The battle begins!");
 
             OnCombatStateChanged?.Invoke();
+        }
+
+        private void HandleDeath(Character deceasedCharacter)
+        {
+            if (deceasedCharacter is Monster deceasedMonster)
+            {
+                MonstersInCombat.Remove(deceasedMonster);
+                CombatLog.Add($"{deceasedMonster.Name} has been slain!");
+
+                Corpse corpse = deceasedMonster.Body;
+                corpse.Position = deceasedMonster.Position;
+                corpse.Room = deceasedMonster.Room;
+                corpse.UpdateOccupiedSquares();
+
+                deceasedMonster.OnDeath -= HandleDeath;
+
+                OnCombatStateChanged?.Invoke();
+            }
         }
 
         private void PrepareCharactersForCombat(List<Hero> heroes, List<Monster> monsters)

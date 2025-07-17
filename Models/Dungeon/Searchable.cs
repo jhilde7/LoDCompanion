@@ -17,6 +17,7 @@ namespace LoDCompanion.Models.Dungeon
         public Hero? HeroPerformingSearch { get; set; }
         public TreasureType TreasureType { get; set; } = TreasureType.None; // Default to empty string for safety
         public List<string> Treasures { get; set; }
+        public bool IsLarge { get; set; }
 
         public Searchable()
         {
@@ -24,12 +25,41 @@ namespace LoDCompanion.Models.Dungeon
             HasBeenSearched = false;
             Treasures = new List<string>();
         }
+
+        internal void UpdateOccupiedSquares()
+        {
+
+            OccupiedSquares.Clear();
+            int SizeX = 1;
+            int SizeY = 1;
+            int SizeZ = 1;
+
+            if (IsLarge)
+            {
+                SizeX = 2;
+                SizeY = 2;
+                SizeZ = 1;
+            }
+
+            for (int x = 0; x < SizeX; x++)
+            {
+                for (int y = 0; y < SizeY; y++)
+                {
+                    for (int z = 0; z < SizeZ; z++)
+                    {
+                        OccupiedSquares.Add(new GridPosition(Position.X + x, Position.Y + y, Position.Z + z));
+                    }
+                }
+            }
+        }
     }
 
     public class Corpse : Searchable
     {
-        public Corpse(TreasureType treasureType)
-        {            
+
+        public Corpse(string name, TreasureType treasureType)
+        {
+            Name = name;    
             TreasureType = treasureType;
             HasBeenSearched = false;
             Treasures = new List<string>();
