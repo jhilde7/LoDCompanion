@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using LoDCompanion.Services.Game
+@using LoDCompanion.Components.Shared
 @inject GameStateManagerService GameManager
 @inject NavigationManager NavManager
 
@@ -22,6 +23,8 @@
         </article>
     </main>
 </div>
+
+<DiceRollModal />
 
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)

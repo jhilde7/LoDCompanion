@@ -1,0 +1,52 @@
+﻿@using LoDCompanion.Services.Game
+@using LoDCompanion.Utilities
+
+@inject DiceRollService DiceRollService
+
+@if (DiceRollService.CurrentRequest != null)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <h3>@DiceRollService.CurrentRequest.Prompt</h3>
+            <p>Dice: @DiceRollService.CurrentRequest.DiceNotation</p>
+
+            <div class="manual-entry">
+                <label for="manualRoll">Enter Roll Result:</label>
+                <input id="manualRoll" type="number" @bind="_manualRollValue" />
+                <button class="btn-submit" @onclick="SubmitManualRoll" disabled="@(!_isManualRollValid)">Submit</button>
+            </div>
+
+            <div class="auto-roll">
+                <p>Or</p>
+                <button class="btn-auto-roll" @onclick="SubmitAutoRoll">Roll Automatically</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private int _manualRollValue;
+    private bool _isManualRollValid => _manualRollValue >= 1;
+
+    protected override void OnInitialized()
+    {
+        DiceRollService.OnRollRequested += StateHasChanged;
+    }
+
+    private void SubmitManualRoll()
+    {
+        DiceRollService.CompleteRoll(_manualRollValue);
+        _manualRollValue = 0; // Reset for next time
+    }
+
+    private void SubmitAutoRoll()
+    {
+        var result = RandomHelper.RollDice(DiceRollService.CurrentRequest?.DiceNotation ?? "1d100");
+        DiceRollService.CompleteRoll(result);
+    }
+
+    public void Dispose()
+    {
+        DiceRollService.OnRollRequested -= StateHasChanged;
+    }
+}

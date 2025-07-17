@@ -35,6 +35,24 @@ namespace LoDCompanion.Utilities
             return GetRandomNumber(1, GetDiceSides(die));
         }
 
+        public static int RollDice(string dice)
+        {
+            string[] diceCountAndType = dice.ToLower().Split('d');
+            string diceType = diceCountAndType[1].Insert(0, "D");
+            int diceCount = 0;
+            int roll = 0;
+
+            if (int.TryParse(diceCountAndType[0], out diceCount))
+            {
+                for (int i = 0; i < diceCount; i++)
+                {
+                    roll += RollDie(diceType);
+                } 
+            }
+
+            return roll;
+        }
+
         public static T GetRandomEnumValue<T>(int min = 0, int max = 0)
         {
             var v = Enum.GetValues(typeof(T));
