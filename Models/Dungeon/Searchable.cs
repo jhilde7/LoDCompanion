@@ -101,7 +101,7 @@ namespace LoDCompanion.Models.Dungeon
                 return new List<string>();
             }
 
-            TreasureService.SearchCorpse(TreasureType, hero, searchRoll);
+            TreasureService.SearchCorpseAsync(TreasureType, hero, searchRoll);
 
             HasBeenSearched = true;
             Console.WriteLine($"{hero.Name} found: {string.Join(", ", Treasures)}");

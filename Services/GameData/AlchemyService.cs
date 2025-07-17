@@ -5,23 +5,32 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.Xml.Linq;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.Services.GameData
 {
     public class AlchemyService
     {
+        private readonly DiceRollService _diceRoll;
+
+        public AlchemyService( DiceRollService diceRollService)
+        {
+            _diceRoll = diceRollService;
+        }
+
         public static List<Part> Parts => GetPartsList();
         public static List<Ingredient> Ingredients => GetIngredientsList();
         public static List<Potion> Potions => GetAllPotions();
         public static List<Potion> StandardPotions => GetStandardPotions();
 
-        public static string GetStandardPotion()
+        public async Task<string> GetStandardPotionAsync()
         {
             int roll = RandomHelper.GetRandomNumber(1, 3);
             switch (roll)
             {
                 case 1:
-                    roll = RandomHelper.RollDie("D10");
+                    roll = await _diceRoll.RequestRollAsync(
+                        $"Roll for standard potion", "1d10");
                     switch (roll)
                     {
                         case 1:
@@ -48,7 +57,8 @@ namespace LoDCompanion.Services.GameData
                             return "Acidic Bomb";
                     }
                 case 2:
-                    roll = RandomHelper.RollDie("D10");
+                    roll = await _diceRoll.RequestRollAsync(
+                        $"Roll for standard potion", "1d10" );
                     switch (roll)
                     {
                         case 1:
@@ -75,7 +85,8 @@ namespace LoDCompanion.Services.GameData
                             return "Weapons Oil";
                     }
                 case 3:
-                    roll = RandomHelper.RollDie("D8");
+                    roll = await _diceRoll.RequestRollAsync(
+                        $"Roll for standard potion", "1d8");
                     switch (roll)
                     {
                         case 1:
@@ -101,9 +112,10 @@ namespace LoDCompanion.Services.GameData
             }
         }
 
-        public static string GetNonStandardPotion()
+        public async Task<string> GetNonStandardPotionAsync()
         {
-            int roll = RandomHelper.RollDie("D12");
+            int roll = await _diceRoll.RequestRollAsync(
+                $"Roll for standard potion", "1d12");
             switch (roll)
             {
                 case 1:
@@ -135,7 +147,7 @@ namespace LoDCompanion.Services.GameData
             }
         }
 
-        public static Ingredient[] GetIngredients(int count)
+        public Ingredient[] GetIngredients(int count)
         {
             Ingredient[] ingredients = new Ingredient[count];
             for (int i = 0; i < count; i++)
@@ -145,13 +157,13 @@ namespace LoDCompanion.Services.GameData
             return ingredients;
         }
 
-        private static string GetIngredient()
+        private string GetIngredient()
         {
             int roll = RandomHelper.GetRandomNumber(0, Ingredients.Count - 1);
             return Ingredients[roll].Name;
         }
 
-        public static Part[] GetParts(int count, string? origin = null)
+        public async Task<Part[]> GetPartsAsync(int count, string? origin = null)
         {
             Part[] parts = new Part[count];
             for (int i = 0; i < count; i++)
@@ -162,21 +174,22 @@ namespace LoDCompanion.Services.GameData
                 }
                 else
                 {
-                    parts[i] = new Part() { Origin = GetOrigin(), Name = GetPart(), IsPart = true };
+                    parts[i] = new Part() { Origin = await GetOriginAsync(), Name = GetPart(), IsPart = true };
                 }
             }
             return parts;
         }
 
-        private static string GetPart()
+        private string GetPart()
         {
             int roll = RandomHelper.GetRandomNumber(0, Parts.Count - 1);
             return Parts[roll].Name;
         }
 
-        private static string GetOrigin()
+        private async Task<string> GetOriginAsync()
         {
-            int roll = RandomHelper.RollDie("D100");
+            int roll = await _diceRoll.RequestRollAsync(
+                $"Roll for standard potion", "1d100");
             return roll switch
             {
                 1 => "Banshee",
@@ -480,7 +493,7 @@ namespace LoDCompanion.Services.GameData
             return list.FirstOrDefault(x => x.Strength == strength) ?? throw new NullReferenceException();
         }
 
-        public static List<Potion> GetRandomPotions(int count, PotionStrength quality)
+        public async Task<List<Potion>> GetRandomPotions(int count, PotionStrength quality)
         {
             List<Potion> potions = new List<Potion>();
             for (int i = 0; i < count; i++)
@@ -489,19 +502,20 @@ namespace LoDCompanion.Services.GameData
                 {
                     case PotionStrength.Weak:
                     case PotionStrength.Supreme:
-                        potions.Add(GetPotionByNameStrength(AlchemyService.GetNonStandardPotion(), quality));
+                        potions.Add(GetPotionByNameStrength(await GetNonStandardPotionAsync(), quality));
                         break;
                     case PotionStrength.Standard:
-                        potions.Add(GetPotionByNameStrength(AlchemyService.GetStandardPotion(), quality));
+                        potions.Add(GetPotionByNameStrength(await GetStandardPotionAsync(), quality));
                         break;
                 }
             }
             return potions;
         }
 
-        public static Potion GetPotionByStrength(PotionStrength strength)
+        public async Task<Potion> GetPotionByStrengthAsync(PotionStrength strength)
         {
-            return GetRandomPotions(1, strength)[0];
+            var potions = await GetRandomPotions(1, strength);
+            return potions[0];
         }
 
         public static List<PotionStrength> GetPotionStrengths(Potion potion)

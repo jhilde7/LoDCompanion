@@ -10,6 +10,7 @@ using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Game;
 using System.Text.Json;
 using LoDCompanion.Services.Combat;
+using LoDCompanion.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,7 +72,8 @@ builder.Services.AddScoped<GameStateManagerService>();
 builder.Services.AddScoped<MonsterAIService>();
 builder.Services.AddScoped<WorldStateService>();
 builder.Services.AddScoped<PlacementService>();
-builder.Services.AddSingleton<FloatingTextService>();
+builder.Services.AddScoped<DiceRollService>();
+builder.Services.AddScoped<FloatingTextService>();
 
 //Package
 builder.Services.AddBlazoredLocalStorage();

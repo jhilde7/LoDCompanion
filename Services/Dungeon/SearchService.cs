@@ -112,7 +112,7 @@ namespace LoDCompanion.Services.Dungeon
 
             result.WasSuccessful = true;
             result.Message = $"{hero.Name} searches the remains...";
-            result.FoundItems = TreasureService.SearchCorpse(corpse.TreasureType, hero, 0); // Roll is handled inside
+            result.FoundItems = TreasureService.SearchCorpseAsync(corpse.TreasureType, hero, 0); // Roll is handled inside
 
             corpse.HasBeenSearched = true;
             return result;
