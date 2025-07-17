@@ -41,7 +41,18 @@ namespace LoDCompanion.Models.Dungeon
         public GridPosition GridOffset { get; set; } = new GridPosition(0, 0, 0);
         public List<Hero>? HeroesInRoom { get; set; }
         public List<Monster>? MonstersInRoom { get; set; }
+        public List<Corpse>? CorpsesInRoom { get; set; }
         public List<Character.Character> CharactersInRoom => GetInhabitants();
+        public List<Searchable> SearchablesInRoom => GetSearchableObjects();
+
+        private List<Searchable> GetSearchableObjects()
+        {
+            List<Searchable> returnList = new List<Searchable>();
+            returnList = [..FurnitureList.Where(f => f.IsSearchable)];
+            if (CorpsesInRoom != null) returnList.AddRange(CorpsesInRoom);
+
+            return returnList;
+        }
 
         private List<Character.Character> GetInhabitants()
         {

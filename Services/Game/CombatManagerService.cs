@@ -79,6 +79,8 @@ namespace LoDCompanion.Services.Game
                 Corpse corpse = deceasedMonster.Body;
                 corpse.Position = deceasedMonster.Position;
                 corpse.Room = deceasedMonster.Room;
+                corpse.Room.CorpsesInRoom ??= new List<Corpse> { corpse };
+                corpse.Room.CorpsesInRoom.Add(corpse);
                 corpse.UpdateOccupiedSquares();
 
                 deceasedMonster.OnDeath -= HandleDeath;
