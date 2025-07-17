@@ -31,10 +31,25 @@ namespace LoDCompanion.Services.Game
             OnTextChanged?.Invoke();
 
             // Wait for the delay without blocking the thread.
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
 
             // This code now runs after the delay on the same context.
-            ActiveTexts.Remove(floatingText);
+            //ActiveTexts.Remove(floatingText);
+            //OnTextChanged?.Invoke();
+            
+            
+            // Fire and forget a helper task to handle the removal after a delay.
+            _ = RemoveTextAfterDelay(floatingText);
+        }
+
+        /// <summary>
+        /// Private helper that waits for a delay and then removes the text.
+        /// </summary>
+        private async Task RemoveTextAfterDelay(FloatingText textToRemove)
+        {
+            await Task.Delay(500);
+
+            ActiveTexts.Remove(textToRemove);
             OnTextChanged?.Invoke();
         }
     }
