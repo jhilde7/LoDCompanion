@@ -166,6 +166,11 @@ namespace LoDCompanion.Services.Player
                     {
                         AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, chargeWeapon, chargeAttackTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
+                        Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
+                        if (room != null)
+                        {
+                            character.Room = room; 
+                        }
                     }
                     else
                     {
@@ -176,7 +181,13 @@ namespace LoDCompanion.Services.Player
                 case ActionType.Shove:
                     if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
                     {
-                        resultMessage = GridService.ShoveCharacter(character, targetToShove, targetToShove.Room, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
+                        resultMessage = GridService.ShoveCharacter(character, targetToShove, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
+
+                        Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
+                        if (room != null)
+                        {
+                            character.Room = room;
+                        }
                     }
                     else
                     {
@@ -191,6 +202,12 @@ namespace LoDCompanion.Services.Player
                         {
                             resultMessage = $"{character.Name} moves to {targetPosition}.";
                             resultMessage += await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
+
+                            Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
+                            if (room != null)
+                            {
+                                character.Room = room;
+                            }
                         }
                         else
                         {
