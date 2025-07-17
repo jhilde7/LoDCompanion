@@ -47,6 +47,10 @@ namespace LoDCompanion.Services.Dungeon
 
             // Furniture
             room.FurnitureList = roomInfo.FurnitureList ?? new List<Furniture>();
+            foreach(Furniture furniture in room.FurnitureList)
+            {
+                furniture.Room = room;
+            }
 
             // Encounters
             room.EncounterModifier = roomInfo.EncounterModifier;
