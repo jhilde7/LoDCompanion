@@ -10,7 +10,29 @@ namespace LoDCompanion.Models.Dungeon
     {
         public string Id { get; }
         public string Name { get; set; } = string.Empty;
-        public Room Room { get; set; } = new Room();
+        private Room? _room;
+        public Room Room
+        {
+            get => _room ??= new Room();
+            set
+            {
+                _room = value;
+
+                if (_room != null)
+                {
+                    if (this is Furniture newFurniture)
+                    {
+                        _room.FurnitureList ??= new List<Furniture>();
+                        _room.FurnitureList.Add(newFurniture);
+                    }
+                    else if (this is Corpse newCorpse)
+                    {
+                        _room.CorpsesInRoom ??= new List<Corpse>();
+                        _room.CorpsesInRoom.Add(newCorpse);
+                    }
+                }
+            }
+        }
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
         public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public bool HasBeenSearched { get; set; }

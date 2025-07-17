@@ -50,7 +50,41 @@ namespace LoDCompanion.Models.Character
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public bool HasShield { get; set; } // Indicates if the monster has a shield
-        public Room Room { get; set; } = new Room();
+        private Room? _room;
+        public Room Room 
+        {
+            get => _room ??= new Room();
+            set
+            {
+                if (_room != null)
+                {
+                    if (this is Hero oldHero)
+                    {
+                        _room.HeroesInRoom?.Remove(oldHero);
+                    }
+                    else if (this is Monster oldMonster)
+                    {
+                        _room.MonstersInRoom?.Remove(oldMonster);
+                    }
+                }
+
+                _room = value;
+
+                if (_room != null)
+                {
+                    if (this is Hero newHero)
+                    {
+                        _room.HeroesInRoom ??= new List<Hero>();
+                        _room.HeroesInRoom.Add(newHero);
+                    }
+                    else if (this is Monster newMonster)
+                    {
+                        _room.MonstersInRoom ??= new List<Monster>();
+                        _room.MonstersInRoom.Add(newMonster);
+                    }
+                }
+            }
+        }
         public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
         public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
