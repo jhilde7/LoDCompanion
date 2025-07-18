@@ -12,16 +12,12 @@ namespace LoDCompanion.Services.GameData
         /// <param name="newName">The new name for the modified weapon.</param>
         /// <param name="modifications">An action to apply custom changes to the new weapon.</param>
         /// <returns>A new, modified MeleeWeapon instance, or null if the base weapon doesn't exist.</returns>
-        public MeleeWeapon? CreateModifiedMeleeWeapon(
+        public MeleeWeapon CreateModifiedMeleeWeapon(
             string baseWeaponName,
             string newName,
             Action<MeleeWeapon> modifications)
         {
-            var template = EquipmentService.GetWeaponByName(baseWeaponName) as MeleeWeapon;
-            if (template == null)
-            {
-                return null; // Base weapon not found
-            }
+            var template = EquipmentService.GetWeaponByName(baseWeaponName) as MeleeWeapon ?? new MeleeWeapon();
 
             var newWeapon = new MeleeWeapon(template);
 
