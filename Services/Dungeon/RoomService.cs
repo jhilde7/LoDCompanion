@@ -45,10 +45,18 @@ namespace LoDCompanion.Services.Dungeon
             room.Height = room.Size[1];
 
             // Furniture
-            room.FurnitureList = roomInfo.FurnitureList ?? new List<Furniture>();
-            foreach(Furniture furniture in room.FurnitureList)
+            room.FurnitureList.Clear();
+            if (roomInfo.FurnitureList != null)
             {
-                furniture.Room = room;
+                foreach (var furnitureTemplate in roomInfo.FurnitureList)
+                {
+                    var newFurniture = furnitureTemplate;
+
+                    newFurniture.Room = room;
+
+                    // Add the new, unique instance to the room's list.
+                    room.FurnitureList.Add(newFurniture);
+                }
             }
 
             // Encounters
