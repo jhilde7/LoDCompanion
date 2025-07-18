@@ -304,6 +304,7 @@ namespace LoDCompanion.Services.Player
                         if (!rangedWeapon.IsLoaded)
                         {
                             rangedWeapon.reloadAmmo();
+                            if (character is Monster) rangedWeapon.IsLoaded = true;
                             resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}."; 
                         }
                         else
@@ -322,6 +323,7 @@ namespace LoDCompanion.Services.Player
                     if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
                     {
                         rangedWeapon1.reloadAmmo();
+                        if(character is Monster) rangedWeapon1.IsLoaded = true;
                         resultMessage = $" and reloads their {rangedWeapon1.Name}.";
                     }
                     else
