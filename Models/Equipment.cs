@@ -483,6 +483,23 @@ namespace LoDCompanion.Models
             
         }
 
+        public Armour(Armour template)
+        {
+            // Copy values from the template
+            this.Category = template.Category;
+            this.Shop = template.Shop;
+            this.Name = template.Name;
+            this.DefValue = template.DefValue;
+            this.Encumbrance = template.Encumbrance;
+            this.Value = template.Value;
+            this.Availability = template.Availability;
+            this.ArmourClass = template.ArmourClass;
+            this.Durability = template.Durability;
+
+            // Create a NEW dictionary instance with the same properties
+            this.Properties = template.Properties;
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -537,7 +554,7 @@ namespace LoDCompanion.Models
     public class Shield : Equipment
     {
         new int Durability { get; set; } = 6;
-        public int ArmourClass { get; set; }
+        public int WeaponClass { get; set; }
         public int DefValue { get; set; }
         private Dictionary<ShieldProperty, int> _properties = new Dictionary<ShieldProperty, int>();
 
@@ -552,15 +569,32 @@ namespace LoDCompanion.Models
         }
 
         public Shield() 
-        { 
-        
+        {
+
+        }
+
+        public Shield(Shield template)
+        {
+            // Copy values from the template
+            this.Category = template.Category;
+            this.Shop = template.Shop;
+            this.Name = template.Name;
+            this.DefValue = template.DefValue;
+            this.Encumbrance = template.Encumbrance;
+            this.Value = template.Value;
+            this.Availability = template.Availability;
+            this.WeaponClass = template.WeaponClass;
+            this.Durability = template.Durability;
+
+            // Create a NEW dictionary instance with the same properties
+            this.Properties = template.Properties;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
             sb.Append($"[{Category}] {Name} | ");
-            sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
+            sb.AppendLine($"Class: {WeaponClass} | DEF: {DefValue}");
             sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
             if (!string.IsNullOrEmpty(MagicEffect))
             {
