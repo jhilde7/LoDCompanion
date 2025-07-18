@@ -299,24 +299,6 @@ namespace LoDCompanion.Models.Character
             return (roll <= con);
         }
 
-        /// <summary>
-        /// Gets the current total armour class from equipped armours and shields.
-        /// </summary>
-        /// <returns>The total armour class.</returns>
-        public int GetTotalArmourClass()
-        {
-            int totalAC = 0;
-            foreach (var armour in Armours)
-            {
-                totalAC += armour.ArmourClass;
-            }
-            if (Shield != null)
-            {
-                totalAC += Shield.ArmourClass;
-            }
-            return totalAC;
-        }
-
         // Method to get current weapon for combat. HeroWeapon.cs had complex logic
         // This simplified approach assumes the first weapon in the list is the "active" one
         // or a dedicated 'EquippedWeapon' property would be better
