@@ -4,6 +4,8 @@ namespace LoDCompanion.Services.GameData
 {
     public class EquipmentService
     {
+        private readonly WeaponFactory _weaponFactory;
+
         private static string SilverWeaponDescription { get; set; } = "Can hurt ethereal, and does Increased DMG+1 to Undead";
 
         public static List<Equipment> Equipment => GetEquipment();
@@ -15,6 +17,11 @@ namespace LoDCompanion.Services.GameData
         public static List<Armour> Armour => GetArmour();
         public static List<Shield> Shields => GetShields();
         public static List<Equipment> Relics => GetRelics();
+
+        public EquipmentService(WeaponFactory weaponFactory) 
+        { 
+            _weaponFactory = weaponFactory;
+        }
 
         public static Equipment GetEquipmentByName(string name)
         {
@@ -769,6 +776,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Dagger",
                     MinDamage = 1,
                     MaxDamage = 6,
+                    DamageDice = "1d6",
                     Encumbrance = 5,
                     Class = 1,
                     Value = 10,
@@ -787,6 +795,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Shortsword",
                     MinDamage = 3,
                     MaxDamage = 8,
+                    DamageDice = "1d6",
+                    DamageBonus = 2,
                     Encumbrance = 7,
                     Class = 2,
                     Value = 70,
@@ -806,6 +816,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Rapier",
                     MinDamage = 2,
                     MaxDamage = 7,
+                    DamageDice = "1d6",
+                    DamageBonus = 1,
                     Encumbrance = 5,
                     Class = 1,
                     Value = 130,
@@ -826,6 +838,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Broadsword",
                     MinDamage = 3,
                     MaxDamage = 10,
+                    DamageDice = "1d8",
+                    DamageBonus = 2,
                     Encumbrance = 8,
                     Class = 3,
                     Value = 90,
@@ -846,6 +860,8 @@ namespace LoDCompanion.Services.GameData
                     //TODO: The wielder of this weapon gains the perk Frenzy
                     MinDamage = 3,
                     MaxDamage = 10,
+                    DamageDice = "1d8",
+                    DamageBonus = 2,
                     Encumbrance = 8,
                     Class = 3,
                     Value = 0,
@@ -866,6 +882,8 @@ namespace LoDCompanion.Services.GameData
                     //TODO: All DMG is causes is regarded as fir DMG.
                     MinDamage = 3,
                     MaxDamage = 10,
+                    DamageDice = "1d8",
+                    DamageBonus = 2,
                     Encumbrance = 8,
                     Class = 3,
                     Value = 0,
@@ -884,6 +902,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Longsword",
                     MinDamage = 1,
                     MaxDamage = 12,
+                    DamageDice = "1d12",
                     Encumbrance = 10,
                     Class = 4,
                     Value = 100,
@@ -902,6 +921,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Battleaxe",
                     MinDamage = 2,
                     MaxDamage = 11,
+                    DamageDice = "1d10",
+                    DamageBonus = 1,
                     Encumbrance = 10,
                     Class = 4,
                     ArmourPiercing = 1,
@@ -922,6 +943,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Battle Hammer",
                     MinDamage = 1,
                     MaxDamage = 10,
+                    DamageDice = "1d10",
                     Encumbrance = 10,
                     Class = 3,
                     Value = 100,
@@ -941,6 +963,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Morning Star",
                     MinDamage = 1,
                     MaxDamage = 8,
+                    DamageDice = "1d8",
                     Encumbrance = 10,
                     Class = 4,
                     Value = 150,
@@ -961,6 +984,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Flail",
                     MinDamage = 1,
                     MaxDamage = 10,
+                    DamageDice = "1d10",
                     Encumbrance = 20,
                     Class = 5,
                     Value = 150,
@@ -981,6 +1005,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Staff",
                     MinDamage = 1,
                     MaxDamage = 8,
+                    DamageDice = "1d8",
                     Encumbrance = 5,
                     Class = 2,
                     Value = 5,
@@ -999,6 +1024,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Javelin",
                     MinDamage = 1,
                     MaxDamage = 10,
+                    DamageDice = "1d10",
                     Encumbrance = 10,
                     Class = 2,
                     ArmourPiercing = 1,
@@ -1018,6 +1044,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Greatsword",
                     MinDamage = 2,
                     MaxDamage = 12,
+                    DamageDice = "2d6",
                     Encumbrance = 20,
                     Class = 5,
                     Value = 200,
@@ -1037,6 +1064,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Greataxe",
                     MinDamage = 3,
                     MaxDamage = 14,
+                    DamageDice = "1d12",
+                    DamageBonus = 2,
                     Encumbrance = 20,
                     Class = 5,
                     ArmourPiercing = 2,
@@ -1057,7 +1086,8 @@ namespace LoDCompanion.Services.GameData
                     Shop = ShopCategory.Weapons,
                     Name = "Warhammer",
                     MinDamage = 2,
-                    MaxDamage = 6,
+                    MaxDamage = 12,
+                    DamageDice = "2d6",
                     Encumbrance = 20,
                     Class = 5,
                     Value = 200,
@@ -1078,6 +1108,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Halberd",
                     MinDamage = 1,
                     MaxDamage = 12,
+                    DamageDice = "1d12",
                     Encumbrance = 20,
                     Class = 5,
                     ArmourPiercing = 1,
@@ -1112,6 +1143,7 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
                     MaxDamage = 6,
+                    DamageDice = "1d6",
                     Encumbrance = 5,
                     Class = 1,
                     Value = 75 ,
@@ -1131,6 +1163,8 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 3,
                     MaxDamage = 8,
+                    DamageDice = "1d6",
+                    DamageBonus = 2,
                     Encumbrance = 7,
                     Value = 105 ,
                     Availability = 0,
@@ -1150,6 +1184,8 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 2,
                     MaxDamage = 7,
+                    DamageDice = "1d6",
+                    DamageBonus = 1,
                     Encumbrance = 5,
                     Class = 1,
                     Value = 270,
@@ -1170,6 +1206,7 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
                     MaxDamage = 12,
+                    DamageDice = "1d12",
                     Encumbrance = 10,
                     Class = 4,
                     Value = 150,
@@ -1188,6 +1225,7 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
                     MaxDamage = 10,
+                    DamageDice = "1d10",
                     Encumbrance = 20,
                     Class = 5,
                     Value = 225 ,
@@ -1207,6 +1245,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Silver Greatsword",
                     MinDamage = 2,
                     MaxDamage = 12,
+                    DamageDice = "2d6",
                     Encumbrance = 20,
                     Class = 5,
                     Description = SilverWeaponDescription,
@@ -1227,6 +1266,8 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 3,
                     MaxDamage = 14,
+                    DamageDice = "1d12",
+                    DamageBonus = 2,
                     Encumbrance = 20,
                     Class = 5,
                     ArmourPiercing = 2,
@@ -1248,6 +1289,7 @@ namespace LoDCompanion.Services.GameData
                     Description = SilverWeaponDescription,
                     MinDamage = 1,
                     MaxDamage = 12,
+                    DamageDice = "1d12",
                     Encumbrance = 20,
                     Class = 5,
                     ArmourPiercing = 1,
@@ -1260,231 +1302,6 @@ namespace LoDCompanion.Services.GameData
                         { WeaponProperty.Silver, 1 }
                     }
                 },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Dagger",
-                    MinDamage = 1,
-                    MaxDamage = 6,
-                    Encumbrance = 5,
-                    Class = 1,
-                    Value = 50 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-
-                        { WeaponProperty.DualWield, 1 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Shortsword",
-                    MinDamage = 3,
-                    MaxDamage = 8,
-                    Encumbrance = 7,
-                    Value = 140 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-
-                        { WeaponProperty.DualWield, 2 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Rapier",
-                    MinDamage = 2,
-                    MaxDamage = 7,
-                    Encumbrance = 5,
-                    Class = 1,
-                    Value = 260,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Fast, 0 },
-                        { WeaponProperty.DualWield, 2 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Longsword",
-                    MinDamage = 1,
-                    MaxDamage = 12,
-                    Encumbrance = 10,
-                    Class = 4,
-                    Value = 200,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Flail",
-                    MinDamage = 1,
-                    MaxDamage = 10,
-                    Encumbrance = 20,
-                    Class = 5,
-                    Value = 300 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Unwieldly, 4 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Stun, 0 },
-                        { WeaponProperty.Blunt, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Greatsword",
-                    MinDamage = 2,
-                    MaxDamage = 12,
-                    Encumbrance = 20,
-                    Class = 5,
-                    Value = 400,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Slow, 0 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Greataxe",
-                    MinDamage = 3,
-                    MaxDamage = 14,
-                    Encumbrance = 20,
-                    Class = 5,
-                    ArmourPiercing = 2,
-                    Value = 400 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Slow, 0 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Axe, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Mithril Halberd",
-                    MinDamage = 1,
-                    MaxDamage = 12,
-                    Encumbrance = 20,
-                    Class = 5,
-                    ArmourPiercing = 1,
-                    Value = 300 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Reach, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon()
-                {
-                    Category = "Treasure",
-                    Name = "Mithril Warhammer",
-                    MinDamage = 2,
-                    MaxDamage = 6,
-                    Encumbrance = 20,
-                    Class = 5,
-                    Value = 400,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Slow, 0 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Stun, 0 },
-                        { WeaponProperty.Blunt, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon()
-                {
-                    Category = "Treasure",
-                    Name = "Mithril Battleaxe",
-                    MinDamage = 2,
-                    MaxDamage = 11,
-                    Encumbrance = 10,
-                    Class = 4,
-                    ArmourPiercing = 1,
-                    Value = 200,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Axe, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon()
-                {
-                    Category = "Treasure",
-                    Name = "Mithril Battle Hammer",
-                    MinDamage = 1,
-                    MaxDamage = 10,
-                    Encumbrance = 10,
-                    Class = 3,
-                    Value = 300,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Stun, 0 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Blunt, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                },
-                new MeleeWeapon()
-                {
-                    Category = "Treasure",
-                    Name = "Mithril Morning Star",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 10,
-                    Class = 4,
-                    Value = 300,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Unwieldly, 4 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Stun, 0 },
-                        { WeaponProperty.Blunt, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Mithril, 1 }
-                    }
-                }
             }
             ;
         }
@@ -1499,6 +1316,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Shortbow",
                     MinDamage = 1,
                     MaxDamage = 8,
+                    DamageDice = "1d8",
                     Encumbrance = 5,
                     Class = 6,
                     Value = 100,
@@ -1513,6 +1331,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Longbow",
                     MinDamage = 1,
                     MaxDamage = 10,
+                    DamageDice = "1d10",
                     Encumbrance = 10,
                     Class = 6,
                     ArmourPiercing = 1,
@@ -1528,6 +1347,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Elven bow",
                     MinDamage = 3,
                     MaxDamage = 12,
+                    DamageDice = "1d10",
+                    DamageBonus = 2,
                     Encumbrance = 7,
                     Class = 6,
                     ArmourPiercing = 1,
@@ -1544,6 +1365,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Crossbow Pistol",
                     MinDamage = 2,
                     MaxDamage = 9,
+                    DamageDice = "1d8",
+                    DamageBonus = 1,
                     Encumbrance = 5,
                     Class = 2,
                     IsSecondaryWeapon = true,
@@ -1559,6 +1382,8 @@ namespace LoDCompanion.Services.GameData
                     Name = "Crossbow",
                     MinDamage = 4,
                     MaxDamage = 13,
+                    DamageDice = "1d10",
+                    DamageBonus = 3,
                     Encumbrance = 15,
                     Class = 6,
                     ArmourPiercing = 1,
@@ -1573,7 +1398,8 @@ namespace LoDCompanion.Services.GameData
                     Shop = ShopCategory.Weapons,
                     Name = "Arbalest",
                     MinDamage = 3,
-                    MaxDamage = 6,
+                    MaxDamage = 18,
+                    DamageDice = "3d6",
                     Encumbrance = 20,
                     Class = 6,
                     ArmourPiercing = 2,
@@ -1589,6 +1415,7 @@ namespace LoDCompanion.Services.GameData
                     Name = "Sling",
                     MinDamage = 1,
                     MaxDamage = 8,
+                    DamageDice = "1d8",
                     Encumbrance = 1,
                     Class = 6,
                     Value = 40,
@@ -1600,11 +1427,11 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public static List<MagicStaff> GetMagicStaves()
+        public List<MagicStaff> GetMagicStaves()
         {
             return new List<MagicStaff>()
             {
-                new MagicStaff()
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Arcane Staff",
@@ -1612,21 +1439,12 @@ namespace LoDCompanion.Services.GameData
                     Value = 400,
                     Availability = 4,
                     StaffType = "StatBonus",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    },
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ArcaneArts, 5 }
                     }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Major Mana Staff",
@@ -1634,21 +1452,12 @@ namespace LoDCompanion.Services.GameData
                     Value = 800,
                     Availability = 2,
                     StaffType = "StatBonus",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    },
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ManaStorage, 30 }
                     }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Mana Staff",
@@ -1656,21 +1465,12 @@ namespace LoDCompanion.Services.GameData
                     Value = 500,
                     Availability = 3,
                     StaffType = "StatBonus",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    },
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ManaStorage, 20 }
                     }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Minor Mana Staff",
@@ -1678,21 +1478,12 @@ namespace LoDCompanion.Services.GameData
                     Value = 300,
                     Availability = 4,
                     StaffType = "StatBonus",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    },
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ManaStorage, 10 }
                     }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of the Heart",
@@ -1700,21 +1491,12 @@ namespace LoDCompanion.Services.GameData
                     Value = 350,
                     Availability = 4,
                     StaffType = "StatBonus",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    },
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.HitPointsBonus, 3 }
                     }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of Illumination",
@@ -1722,40 +1504,22 @@ namespace LoDCompanion.Services.GameData
                     Value = 300,
                     Availability = 4,
                     StaffType = "Illumination",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    },
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
-                        { MagicStaffProperty.Illumination, 1 } // Using 1 to signify 'on'
+                        { MagicStaffProperty.Illumination, 1 }
                     }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Fire Staff",
-                    Description = "This staff contains the Magic Flare spell.",
+                    Description = "This staff contains the magic spell: Flare.",
                     Value = 400,
                     Availability = 3,
                     StaffType = "Spell",
                     ContainedSpell = "Flare",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of Slow",
@@ -1764,17 +1528,8 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3,
                     StaffType = "Spell",
                     ContainedSpell = "Slow",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    }
-                },
-                new MagicStaff()
+                }),
+                _weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of the Bolt",
@@ -1783,16 +1538,7 @@ namespace LoDCompanion.Services.GameData
                     Availability = 3,
                     StaffType = "Spell",
                     ContainedSpell = "Magic Bolt",
-                    MinDamage = 1,
-                    MaxDamage = 8,
-                    Encumbrance = 5,
-                    Class = 2,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Defensive, 0 },
-                        { WeaponProperty.Blunt, 0 }
-                    }
-                }
+                })
             };
         }
 
