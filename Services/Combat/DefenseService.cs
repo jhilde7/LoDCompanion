@@ -2,6 +2,7 @@
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -60,18 +61,22 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a weapon.
         /// </summary>
-        public static async Task<DefenseResult> AttemptWeaponParry(Hero hero, Weapon weapon, DiceRollService diceRoll)
+        public static async Task<DefenseResult> AttemptWeaponParry(Hero hero, Weapon? weapon, DiceRollService diceRoll)
         {
             var result = new DefenseResult();
             if (hero.CombatStance != CombatStance.Parry)
             {
-                result.OutcomeMessage = "Cannot parry with a weapon unless in a Parry CombatStance.";
-                return result;
+                new DefenseResult { OutcomeMessage = "Cannot parry with a weapon unless in a Parry CombatStance." };
             }
 
             if (hero.IsVulnerableAfterPowerAttack)
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
+            }
+
+            if(weapon == null)
+            {
+                return new DefenseResult { OutcomeMessage = $"{hero.Name} does not have a melee weapon equipped." };
             }
 
             int roll = await diceRoll.RequestRollAsync("Attempt to parry the with your weapon.", "1d100");

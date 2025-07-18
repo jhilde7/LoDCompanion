@@ -114,7 +114,7 @@ namespace LoDCompanion.Services.Combat
 
             if(weapon is RangedWeapon rangedWeapon)
             {
-                rangedWeapon.IsLoaded = false;
+                rangedWeapon.ConsumeAmmo();
             }
             return result;
         }
@@ -248,6 +248,10 @@ namespace LoDCompanion.Services.Combat
             if (target.Shield != null)
             {
                 return await DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage, _diceRoll);
+            }
+            if (target.CombatStance == CombatStance.Parry)
+            {
+                return await DefenseService.AttemptWeaponParry(target, target.Weapons.FirstOrDefault(w => w.IsMelee), _diceRoll);
             }
             return new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
         }
