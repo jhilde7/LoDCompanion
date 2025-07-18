@@ -210,6 +210,7 @@ namespace LoDCompanion.Models
         public new int Durability { get; set; } = 6;
         public int Class { get; set; }
         public string? DamageDice { get; set; }
+        public int DamageBonus { get; set; }
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public int ArmourPiercing { get; set; }
