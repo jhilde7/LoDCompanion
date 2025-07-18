@@ -12,15 +12,17 @@ namespace LoDCompanion.Services.Dungeon
     // Represents a single room or corridor tile in the dungeon.
     public class RoomService
     {
-        private readonly GameDataService _gameData;
+        private readonly TreasureService _treasure;
+        private readonly DiceRollService _diceRoll;
 
         public List<RoomInfo> Rooms => GetRooms();
         public List<Furniture> Furniture => GetFurniture();
 
         // Constructor for creating a RoomCorridor instance
-        public RoomService(GameDataService gameData)
+        public RoomService(TreasureService treasure, DiceRollService diceRollService)
         {
-            _gameData = gameData;
+            _treasure = treasure;
+            _diceRoll = diceRollService;
         }
 
         /// <summary>
@@ -104,12 +106,12 @@ namespace LoDCompanion.Services.Dungeon
         /// This method encapsulates the original `SearchRoom` logic.
         /// The actual search roll and treasure generation would be performed by a service,
         /// which would then update the `SearchResults` of this room.
-        /// The TreasureService and RandomHelper (formerly Utilities) are injected/passed.
+        /// The _treasure and RandomHelper (formerly Utilities) are injected/passed.
         /// </summary>
         /// <param name="hero">The hero performing the search.</param>
         /// <param name="treasureService">The service for generating treasure.</param>
         /// <param name="randomHelper">A utility for random number generation.</param>
-        public void PerformSearch(Room room, Hero hero, bool isPartySearch = false)
+        public async Task PerformSearchAsync(Room room, Hero hero, bool isPartySearch = false)
         {
             if (room.HasBeenSearched)
             {
@@ -131,7 +133,7 @@ namespace LoDCompanion.Services.Dungeon
                 searchTarget += 10;
             }
 
-            int searchRoll = RandomHelper.GetRandomNumber(1, 100);
+            int searchRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100");
 
             if (room.Category == RoomCategory.Corridor)
             {
@@ -142,30 +144,30 @@ namespace LoDCompanion.Services.Dungeon
 
             if (searchRoll <= searchTarget)
             {
-                int treasureRoll = RandomHelper.GetRandomNumber(1, 100);
+                int treasureRoll = await _diceRoll.RequestRollAsync("Search successful, rool for treasure", "1d100");
                 // Original logic from SearchRoom(string type, bool isThief, int roll)
                 int count = hero.IsThief ? 2 : 1; // Assuming IsThief is a property on Hero
 
                 switch (treasureRoll)
                 {
                     case int r when r >= 1 && r <= 15:
-                        room.SearchResults.Add("You found a secret door leading to a small TreasureService chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
+                        room.SearchResults.Add("You found a secret door leading to a small _treasure chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
                         // Note: The logic for creating a new room/door (GetRoom, Instantiate)
                         // must be handled by DungeonManagerService. This just adds the text result.
                         // You'd have to signal back to the DungeonManagerService to create this room.
                         break;
                     case int r when r >= 16 && r <= 25:
-                        room.SearchResults.AddRange(TreasureService.FoundTreasure(TreasureType.Fine, count));
+                        room.SearchResults.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Fine, count));
                         break;
                     case int r when r >= 26 && r <= 40:
-                        room.SearchResults.AddRange(TreasureService.FoundTreasure(TreasureType.Mundane, count));
+                        room.SearchResults.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Mundane, count));
                         break;
                     case int r when r >= 41 && r <= 45:
                         room.SearchResults.Add("You found a set of levers. (Interaction handled by a LeverService)");
                         room.HasLevers = true; // Update room state
                         break;
                     case int r when r >= 46 && r <= 50:
-                        room.SearchResults.Add(TreasureService.GetTreasureAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
+                        room.SearchResults.Add(await _treasure.GetTreasureAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
                         break;
                     case int r when r >= 91 && r <= 100:
                         room.SearchResults.Add("You've sprung a trap!");

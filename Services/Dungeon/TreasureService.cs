@@ -43,18 +43,6 @@ namespace LoDCompanion.Services.Dungeon
             _armourFactory = armourFactory;
         }
 
-        public static List<string> GetTreasures(List<Equipment> itemsFound)
-        {
-            List<string> rewards = new List<string>();
-            foreach (Equipment item in itemsFound)
-            {
-                rewards.Add(item.Name);
-                // In a web project, you would not "BuildEquipmentWithParent" as there's no visual hierarchy
-                // You would simply add the item to the player's inventory or dungeon loot list
-            }
-            return rewards;
-        }
-
         public async Task<string> GetTreasureAsync(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
         {
             Equipment item = await CreateItemAsync(itemName, durability, value, amount, description);

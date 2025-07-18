@@ -93,7 +93,7 @@ namespace LoDCompanion.Models.Dungeon
         /// <param name="hero">The hero attempting to search.</param>
         /// <param name="searchRoll">The result of the hero's search roll.</param>
         /// <returns>A list of treasures found.</returns>
-        public List<string> SearchCorpse(Hero hero, int searchRoll)
+        public async Task<List<string>> SearchCorpseAsync(Hero hero, int searchRoll, TreasureService treasure)
         {
             if (HasBeenSearched)
             {
@@ -101,7 +101,7 @@ namespace LoDCompanion.Models.Dungeon
                 return new List<string>();
             }
 
-            TreasureService.SearchCorpseAsync(TreasureType, hero, searchRoll);
+            await treasure.SearchCorpseAsync(TreasureType, hero, searchRoll);
 
             HasBeenSearched = true;
             Console.WriteLine($"{hero.Name} found: {string.Join(", ", Treasures)}");
