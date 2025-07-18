@@ -39,6 +39,8 @@ builder.Services.AddScoped<Monster>();
 builder.Services.AddSingleton<GameDataService>();
 builder.Services.AddSingleton<EquipmentService>();
 builder.Services.AddSingleton<AlchemyService>();
+builder.Services.AddSingleton<WeaponFactory>();
+builder.Services.AddSingleton<ArmourFactory>();
 //Combat
 builder.Services.AddScoped<CombatManagerService>();
 builder.Services.AddScoped<InitiativeService>();
@@ -56,6 +58,7 @@ builder.Services.AddSingleton<EncounterService>();
 builder.Services.AddSingleton<LeverService>();
 builder.Services.AddSingleton<LockService>();
 builder.Services.AddSingleton<SearchService>();
+builder.Services.AddSingleton<TreasureService>();
 builder.Services.AddSingleton<ThreatService>();
 builder.Services.AddSingleton<TrapService>();
 //Party
@@ -72,8 +75,8 @@ builder.Services.AddScoped<GameStateManagerService>();
 builder.Services.AddScoped<MonsterAIService>();
 builder.Services.AddScoped<WorldStateService>();
 builder.Services.AddScoped<PlacementService>();
-builder.Services.AddScoped<DiceRollService>();
-builder.Services.AddScoped<FloatingTextService>();
+builder.Services.AddSingleton<FloatingTextService>();
+builder.Services.AddSingleton<DiceRollService>();
 
 //Package
 builder.Services.AddBlazoredLocalStorage();
