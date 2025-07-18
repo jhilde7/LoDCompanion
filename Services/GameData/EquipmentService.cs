@@ -4,9 +4,8 @@ namespace LoDCompanion.Services.GameData
 {
     public class EquipmentService
     {
-        private readonly WeaponFactory _weaponFactory;
 
-        private static string SilverWeaponDescription { get; set; } = "Can hurt ethereal, and does Increased DMG+1 to Undead";
+        public static string SilverWeaponDescription { get; set; } = "Can hurt ethereal, and does Increased DMG+1 to Undead";
 
         public static List<Equipment> Equipment => GetEquipment();
         public static List<MeleeWeapon> MeleeWeapons => GetMeleeWeapons();
@@ -18,9 +17,9 @@ namespace LoDCompanion.Services.GameData
         public static List<Shield> Shields => GetShields();
         public static List<Equipment> Relics => GetRelics();
 
-        public EquipmentService(WeaponFactory weaponFactory) 
+        public EquipmentService() 
         { 
-            _weaponFactory = weaponFactory;
+            
         }
 
         public static Equipment GetEquipmentByName(string name)
@@ -1137,173 +1136,7 @@ namespace LoDCompanion.Services.GameData
                         { WeaponProperty.Ensnare, 0 }
                     }
                 },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Dagger",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 1,
-                    MaxDamage = 6,
-                    DamageDice = "1d6",
-                    Encumbrance = 5,
-                    Class = 1,
-                    Value = 75 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-
-                        { WeaponProperty.DualWield, 1 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Shortsword",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 3,
-                    MaxDamage = 8,
-                    DamageDice = "1d6",
-                    DamageBonus = 2,
-                    Encumbrance = 7,
-                    Value = 105 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-
-                        { WeaponProperty.DualWield, 2 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Rapier",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 2,
-                    MaxDamage = 7,
-                    DamageDice = "1d6",
-                    DamageBonus = 1,
-                    Encumbrance = 5,
-                    Class = 1,
-                    Value = 270,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Fast, 0 },
-                        { WeaponProperty.DualWield, 2 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Longsword",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 1,
-                    MaxDamage = 12,
-                    DamageDice = "1d12",
-                    Encumbrance = 10,
-                    Class = 4,
-                    Value = 150,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Flail",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 1,
-                    MaxDamage = 10,
-                    DamageDice = "1d10",
-                    Encumbrance = 20,
-                    Class = 5,
-                    Value = 225 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Unwieldly, 4 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Stun, 0 },
-                        { WeaponProperty.Blunt, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Greatsword",
-                    MinDamage = 2,
-                    MaxDamage = 12,
-                    DamageDice = "2d6",
-                    Encumbrance = 20,
-                    Class = 5,
-                    Description = SilverWeaponDescription,
-                    Value = 300,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Slow, 0 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Greataxe",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 3,
-                    MaxDamage = 14,
-                    DamageDice = "1d12",
-                    DamageBonus = 2,
-                    Encumbrance = 20,
-                    Class = 5,
-                    ArmourPiercing = 2,
-                    Value = 300 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Slow, 0 },
-                        { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Axe, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-                new MeleeWeapon(){
-                    Category = "Treasure",
-                    Name = "Silver Halberd",
-                    Description = SilverWeaponDescription,
-                    MinDamage = 1,
-                    MaxDamage = 12,
-                    DamageDice = "1d12",
-                    Encumbrance = 20,
-                    Class = 5,
-                    ArmourPiercing = 1,
-                    Value = 225 ,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Reach, 0 },
-                        { WeaponProperty.Metal, 0 },
-                        { WeaponProperty.Silver, 1 }
-                    }
-                },
-            }
-            ;
+            };
         }
 
         public static List<RangedWeapon> GetRangedWeapons()
@@ -1427,11 +1260,12 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public List<MagicStaff> GetMagicStaves()
+        public static List<MagicStaff> GetMagicStaves()
         {
+            WeaponFactory weaponFactory = new WeaponFactory();
             return new List<MagicStaff>()
             {
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Arcane Staff",
@@ -1444,7 +1278,7 @@ namespace LoDCompanion.Services.GameData
                         { MagicStaffProperty.ArcaneArts, 5 }
                     }
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Major Mana Staff",
@@ -1457,7 +1291,7 @@ namespace LoDCompanion.Services.GameData
                         { MagicStaffProperty.ManaStorage, 30 }
                     }
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Mana Staff",
@@ -1470,7 +1304,7 @@ namespace LoDCompanion.Services.GameData
                         { MagicStaffProperty.ManaStorage, 20 }
                     }
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Minor Mana Staff",
@@ -1483,7 +1317,7 @@ namespace LoDCompanion.Services.GameData
                         { MagicStaffProperty.ManaStorage, 10 }
                     }
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of the Heart",
@@ -1496,7 +1330,7 @@ namespace LoDCompanion.Services.GameData
                         { MagicStaffProperty.HitPointsBonus, 3 }
                     }
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of Illumination",
@@ -1509,7 +1343,7 @@ namespace LoDCompanion.Services.GameData
                         { MagicStaffProperty.Illumination, 1 }
                     }
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Fire Staff",
@@ -1519,7 +1353,7 @@ namespace LoDCompanion.Services.GameData
                     StaffType = "Spell",
                     ContainedSpell = "Flare",
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of Slow",
@@ -1529,7 +1363,7 @@ namespace LoDCompanion.Services.GameData
                     StaffType = "Spell",
                     ContainedSpell = "Slow",
                 }),
-                _weaponFactory.CreateMagicStaff(new MagicStaff()
+                weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
                     Category = "Wizards Guild",
                     Name = "Staff of the Bolt",
@@ -1730,56 +1564,6 @@ namespace LoDCompanion.Services.GameData
                     Shop = ShopCategory.Armour, Name = "Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 700, Availability = 3, ArmourClass = 4, Durability = 6,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 } }
                 },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Mail Coif", DefValue = 4, Encumbrance = 4, Value = 400, Availability = 3, ArmourClass = 3, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Mail Shirt", DefValue = 4, Encumbrance = 6, Value = 1200, Availability = 3, ArmourClass = 3, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Sleeved Mail Shirt", DefValue = 4, Encumbrance = 7, Value = 1900, Availability = 3, ArmourClass = 3, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Mail Coat", DefValue = 4, Encumbrance = 8, Value = 1500, Availability = 3, ArmourClass = 3, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Sleeved Mail Coat", DefValue = 4, Encumbrance = 10, Value = 2600, Availability = 3, ArmourClass = 3, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Mail Leggings", DefValue = 4, Encumbrance = 5, Value = 400, Availability = 2, ArmourClass = 3, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Helmet", DefValue = 5, Encumbrance = 5, Value = 600, Availability = 3, ArmourClass = 4, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Breastplate", DefValue = 5, Encumbrance = 7, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Plate Bracers", DefValue = 5, Encumbrance = 4, Value = 1200, Availability = 3, ArmourClass = 4, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
-                new Armour()
-                {
-                    Category = "Treasure", Name = "Mithril Plate Leggings", DefValue = 5, Encumbrance = 6, Value = 1400, Availability = 3, ArmourClass = 4, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.Clunky, 0 }, { ArmourProperty.Stackable, 0 }, { ArmourProperty.Metal, 0 }, { ArmourProperty.Mithril, 1 } }
-                },
                 // --- DARK GUILD ARMOUR ---
                 new Armour()
                 {
@@ -1852,7 +1636,7 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 4,
                     Value = 20,
                     Availability = 4,
-                    ArmourClass = 2,
+                    WeaponClass = 1,
                     Durability = 6,
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 } }
                   },
@@ -1864,7 +1648,7 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 10,
                     Value = 100,
                     Availability = 3,
-                    ArmourClass = 3,
+                    WeaponClass = 3,
                     Durability = 6,
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 } }
                   },
@@ -1876,43 +1660,10 @@ namespace LoDCompanion.Services.GameData
                     Encumbrance = 15,
                     Value = 200,
                     Availability = 2,
-                    ArmourClass = 4,
+                    WeaponClass = 5,
                     Durability = 6,
                     Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Huge, 0 } }
                   },
-                  new Shield(){
-                    Category = "Treasure",
-                    Name = "Mithril Buckler",
-                    DefValue = 4,
-                    Encumbrance = 4,
-                    Value = 40,
-                    Availability = 4,
-                    ArmourClass = 2,
-                    Durability = 6,
-                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Mithril, 1 } }
-                  },
-                  new Shield(){
-                    Category = "Treasure",
-                    Name = "Mithril Heater Shield",
-                    DefValue = 6,
-                    Encumbrance = 10,
-                    Value = 200,
-                    Availability = 3,
-                    ArmourClass = 3,
-                    Durability = 6,
-                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Mithril, 1 } }
-                  },
-                  new Shield(){
-                    Category = "Treasure",
-                    Name = "Mithril Tower Shield",
-                    DefValue = 8,
-                    Encumbrance = 15,
-                    Value = 400,
-                    Availability = 2,
-                    ArmourClass = 4,
-                    Durability = 6,
-                    Properties = new Dictionary<ShieldProperty, int> { { ShieldProperty.Metal, 0 }, { ShieldProperty.Huge, 0 }, { ShieldProperty.Mithril, 1 } }
-                  }
             };
         }
 
