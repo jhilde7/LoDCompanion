@@ -99,17 +99,17 @@ namespace LoDCompanion.Services.Combat
             }
 
             result.IsHit = true;                        
-            int potentialDamage = (weapon != null)
-                ? CalculateWeaponPotentialDamage(weapon)
-                : (attacker is Monster m) ? CalculateMonsterPotentialDamage(m) : 0;
 
             if (target is Hero heroTarget)
             {
+                int potentialDamage = (weapon != null)
+                    ? CalculateWeaponPotentialDamage(weapon)
+                    : (attacker is Monster m) ? CalculateMonsterPotentialDamage(m) : 0;
                 result = await ResolveAttackAgainstHeroAsync(attacker, heroTarget, potentialDamage, weapon, context, dungeon);
             }
             else if (target is Monster monsterTarget && weapon != null)
             {
-                result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, potentialDamage, weapon, context, dungeon);
+                result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, weapon, context, dungeon);
             }
 
             if(weapon is RangedWeapon rangedWeapon)
@@ -150,7 +150,7 @@ namespace LoDCompanion.Services.Combat
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, int potentialDamage, Weapon weapon, CombatContext context, DungeonState dungeon)
+        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult { IsHit = true };
             int finalDamage = await CalculateHeroDamageAsync(attacker, target, weapon, context);
