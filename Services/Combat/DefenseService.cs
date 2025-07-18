@@ -23,7 +23,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's dodge attempt against an incoming attack.
         /// </summary>
-        public static DefenseResult AttemptDodge(Hero hero)
+        public static async Task<DefenseResult> AttemptDodge(Hero hero, DiceRollService diceRoll)
         {
             var result = new DefenseResult();
             if (hero.HasDodgedThisBattle)
@@ -43,7 +43,7 @@ namespace LoDCompanion.Services.Combat
                 dodgeSkill += 15; // Bonus for dodging from a Parry CombatStance
             }
 
-            int roll = RandomHelper.RollDie("D100");
+            int roll = await diceRoll.RequestRollAsync("Attempt to dodge the attack.", "1d100");
             if (roll <= dodgeSkill)
             {
                 result.WasSuccessful = true;
@@ -60,7 +60,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a weapon.
         /// </summary>
-        public static DefenseResult AttemptWeaponParry(Hero hero, Weapon weapon)
+        public static async Task<DefenseResult> AttemptWeaponParry(Hero hero, Weapon weapon, DiceRollService diceRoll)
         {
             var result = new DefenseResult();
             if (hero.CombatStance != CombatStance.Parry)
@@ -74,7 +74,7 @@ namespace LoDCompanion.Services.Combat
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
             }
 
-            int roll = RandomHelper.RollDie("D100");
+            int roll = await diceRoll.RequestRollAsync("Attempt to parry the with your weapon.", "1d100");
             if (roll >= 95) // Fumble on 95-100
             {
                 result.WeaponDamaged = true;
