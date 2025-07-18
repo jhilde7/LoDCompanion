@@ -214,7 +214,7 @@ namespace LoDCompanion.Models
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public int ArmourPiercing { get; set; }
-        public Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
+        public virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
 
         public virtual int RollDamage()
         {
@@ -226,12 +226,47 @@ namespace LoDCompanion.Models
     public class MeleeWeapon : Weapon
     {
         private bool HasAppliedSlayerModifier { get; set; }
-        
+        private Dictionary<WeaponProperty, int> _properties = new Dictionary<WeaponProperty, int>();
+
+        public override Dictionary<WeaponProperty, int> Properties
+        {
+            get => _properties;
+            set
+            {
+                _properties = value;
+                SetMithrilModifier();
+            }
+        }
+
         public MeleeWeapon() 
         {
             IsMelee = true;
-            SetMithrilModifier();
         } 
+
+        public MeleeWeapon(MeleeWeapon baseWeapon)
+        {
+            IsMelee = true;
+            // --- Properties from Searchable ---
+            this.Name = baseWeapon.Name;
+
+            // --- Properties from Equipment ---
+            this.Description = baseWeapon.Description;
+            this.Class = baseWeapon.Class;
+            this.Durability = baseWeapon.Durability;
+            this.Encumbrance = baseWeapon.Encumbrance;
+            this.Value = baseWeapon.Value;
+
+            // --- Properties from Weapon ---
+            this.MinDamage = baseWeapon.MinDamage;
+            this.MaxDamage = baseWeapon.MaxDamage;
+            this.DamageDice = baseWeapon.DamageDice;
+            this.DamageBonus = baseWeapon.DamageBonus;
+            this.ArmourPiercing = baseWeapon.ArmourPiercing;
+
+            // IMPORTANT: Create a new list for reference types
+            // to prevent both weapons from sharing the same list.
+            this.Properties = baseWeapon.Properties;
+        }
 
         public override string ToString()
         {
@@ -261,12 +296,13 @@ namespace LoDCompanion.Models
             return sb.ToString();
         }
 
-        public void SetMithrilModifier()
+        private void SetMithrilModifier()
         {
             if(HasProperty(WeaponProperty.Mithril))
             {
                 MinDamage += 1;
                 MaxDamage += 1;
+                DamageBonus += 1;
                 Encumbrance -= 2;
             }
         }
@@ -277,6 +313,7 @@ namespace LoDCompanion.Models
             {
                 MinDamage += 1;
                 MaxDamage += 1;
+                DamageBonus += 1;
                 HasAppliedSlayerModifier = true;
             }
         }
@@ -376,11 +413,11 @@ namespace LoDCompanion.Models
             return false;
         }
 
-        // You might add methods specific to ranged weapons here, e.g., to consume ammo
         public bool ConsumeAmmo(int quantity = 1)
         {
             if (IsSlingUsingNormalAmmo())
             {
+                IsLoaded = false;
                 return false;
             }
 
@@ -390,7 +427,11 @@ namespace LoDCompanion.Models
                 IsLoaded = false;
                 return true;
             }
-            return false;
+            else
+            {
+                IsLoaded = false;
+                return true;
+            }
         }
 
         public void reloadAmmo()
@@ -425,11 +466,21 @@ namespace LoDCompanion.Models
         new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
-        public Dictionary<ArmourProperty, int> Properties { get; set; } = new Dictionary<ArmourProperty, int>();
+        private Dictionary<ArmourProperty, int> _properties = new Dictionary<ArmourProperty, int>();
+
+        public Dictionary<ArmourProperty, int> Properties
+        {
+            get => _properties;
+            set
+            {
+                _properties = value;
+                SetMithrilModifier();
+            }
+        }
 
         public Armour()
         {
-            SetMithrilModifier();
+            
         }
 
         public override string ToString()
@@ -488,7 +539,17 @@ namespace LoDCompanion.Models
         new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
-        public Dictionary<ShieldProperty, int> Properties { get; set; } = new Dictionary<ShieldProperty, int>();
+        private Dictionary<ShieldProperty, int> _properties = new Dictionary<ShieldProperty, int>();
+
+        public Dictionary<ShieldProperty, int> Properties
+        {
+            get => _properties;
+            set
+            {
+                _properties = value;
+                SetMithrilModifier();
+            }
+        }
 
         public Shield() 
         { 
