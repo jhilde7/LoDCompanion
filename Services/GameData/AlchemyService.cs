@@ -147,7 +147,7 @@ namespace LoDCompanion.Services.GameData
             }
         }
 
-        public Ingredient[] GetIngredients(int count)
+        public static Ingredient[] GetIngredients(int count)
         {
             Ingredient[] ingredients = new Ingredient[count];
             for (int i = 0; i < count; i++)
@@ -157,7 +157,7 @@ namespace LoDCompanion.Services.GameData
             return ingredients;
         }
 
-        private string GetIngredient()
+        private static string GetIngredient()
         {
             int roll = RandomHelper.GetRandomNumber(0, Ingredients.Count - 1);
             return Ingredients[roll].Name;

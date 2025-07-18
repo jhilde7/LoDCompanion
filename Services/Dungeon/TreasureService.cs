@@ -846,7 +846,7 @@ namespace LoDCompanion.Services.Dungeon
             List<string> items = new List<string>();
             if (type == TreasureType.Ingredient)
             {
-                foreach (AlchemyItem itemName in _alchemy.GetIngredients(amount))
+                foreach (AlchemyItem itemName in AlchemyService.GetIngredients(amount))
                 {
                     items.Add(itemName.Name);
                 }
