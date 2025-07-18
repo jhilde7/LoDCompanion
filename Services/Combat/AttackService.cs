@@ -24,10 +24,12 @@ namespace LoDCompanion.Services.Combat
     public class AttackService
     {
         private readonly FloatingTextService _floatingText;
+        private readonly DiceRollService _diceRoll;
 
-        public AttackService(FloatingTextService floatingTextService)
+        public AttackService(FloatingTextService floatingTextService, DiceRollService diceRollService)
         {
             _floatingText = floatingTextService;
+            _diceRoll = diceRollService;
         }
 
         /// <summary>
@@ -74,7 +76,19 @@ namespace LoDCompanion.Services.Combat
             int baseSkill = (weapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
             int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
-            result.AttackRoll = RandomHelper.RollDie("D100");
+            if (attacker is Hero)
+            {
+                if(weapon == null) 
+                {
+                    result.OutcomeMessage = "The hero does not have a weapon equipped!"; 
+                    return result; 
+                }
+                result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100"); 
+            }
+            else
+            {
+                result.AttackRoll = RandomHelper.RollDie("D100");
+            }
 
             if (result.AttackRoll > result.ToHitChance)
             {
@@ -93,7 +107,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result = await ResolveAttackAgainstHeroAsync(attacker, heroTarget, potentialDamage, weapon, context, dungeon);
             }
-            else if (target is Monster monsterTarget)
+            else if (target is Monster monsterTarget && weapon != null)
             {
                 result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, potentialDamage, weapon, context, dungeon);
             }
@@ -109,17 +123,18 @@ namespace LoDCompanion.Services.Combat
         {
             var result = new AttackResult { IsHit = true };
 
-            DefenseResult defenseResult = ResolveHeroDefense(target, potentialDamage);
+            DefenseResult defenseResult = await ResolveHeroDefenseAsync(target, potentialDamage);
             int damageAfterDefense = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
             result.OutcomeMessage = defenseResult.OutcomeMessage;
 
             if (damageAfterDefense > 0)
             {
-                HitLocation location = DetermineHitLocation();
+                HitLocation location = await DetermineHitLocationAsync();
                 result.DamageDealt = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
                 target.TakeDamage(result.DamageDealt);
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
+                result.OutcomeMessage += CheckForQuickSlotDamageAsync(target);
                 await _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
@@ -129,17 +144,16 @@ namespace LoDCompanion.Services.Combat
 
             if (context.IsChargeAttack)
             {
-                result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, target.Room, dungeon.DungeonGrid);
+                result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, dungeon.DungeonGrid);
             }
 
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState dungeon)
+        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, int potentialDamage, Weapon weapon, CombatContext context, DungeonState dungeon)
         {
             var result = new AttackResult { IsHit = true };
-
-            int finalDamage = Math.Max(0, potentialDamage - (target.ArmourValue + target.NaturalArmour));
+            int finalDamage = await CalculateHeroDamageAsync(attacker, target, weapon, context);
             target.TakeDamage(finalDamage);
             result.DamageDealt = finalDamage;
 
@@ -148,7 +162,7 @@ namespace LoDCompanion.Services.Combat
 
             if (context.IsChargeAttack)
             {
-                result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, target.Room, dungeon.DungeonGrid);
+                result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, dungeon.DungeonGrid);
             }
 
             return result;
@@ -229,18 +243,18 @@ namespace LoDCompanion.Services.Combat
             return RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage) + monster.DamageBonus;
         }
 
-        private DefenseResult ResolveHeroDefense(Hero target, int incomingDamage)
+        private async Task<DefenseResult> ResolveHeroDefenseAsync(Hero target, int incomingDamage)
         {
             if (target.Shield != null)
             {
-                return DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage);
+                return await DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage, _diceRoll);
             }
             return new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
         }
 
-        private HitLocation DetermineHitLocation()
+        private async Task<HitLocation> DetermineHitLocationAsync()
         {
-            int roll = RandomHelper.RollDie("D6");
+            int roll = await _diceRoll.RequestRollAsync("Roll for the location you were hit at.", "1d6");
             return roll switch
             {
                 1 => HitLocation.Head,
@@ -282,9 +296,10 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// On a torso hit, rolls to see if an item in a quick slot is damaged.
         /// </summary>
-        private string CheckForQuickSlotDamage(Hero target)
+        private async Task<string> CheckForQuickSlotDamageAsync(Hero target)
         {
-            int slotRoll = RandomHelper.RollDie("D10");
+            int slotRoll = await _diceRoll.RequestRollAsync(
+                $"You were hit in the torso, check for damage to the items in your quick slots ", "1d10");
             if (slotRoll <= target.QuickSlots.Count)
             {
                 var item = target.QuickSlots[slotRoll - 1]; // -1 for 0-based index
@@ -298,9 +313,18 @@ namespace LoDCompanion.Services.Combat
         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
         /// This method now incorporates the logic from the previous bonus calculation methods.
         /// </summary>
-        private int CalculateHeroDamage(Character attacker, Character target, Weapon weapon, CombatContext context)
+        private async Task<int> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context)
         {
-            int damage = weapon.RollDamage();
+            string? dice = weapon.DamageDice;
+            int damage = 0;
+            if(dice != null)
+            {
+                damage = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", dice);
+            }
+            else
+            {
+                damage = weapon.RollDamage();
+            }
             damage += attacker.DamageBonus;
 
             if (weapon is MeleeWeapon meleeWeapon && attacker is Hero hero)

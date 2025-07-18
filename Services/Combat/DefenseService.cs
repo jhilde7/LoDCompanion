@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -94,7 +95,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a shield.
         /// </summary>
-        public static DefenseResult AttemptShieldParry(Hero hero, Shield shield, int incomingDamage)
+        public static async Task<DefenseResult> AttemptShieldParry(Hero hero, Shield shield, int incomingDamage, DiceRollService diceRoll)
         {
             var result = new DefenseResult();
 
@@ -114,7 +115,7 @@ namespace LoDCompanion.Services.Combat
                 parrySkill -= 15; // Penalty for parrying with a shield from a normal stance
             }
 
-            int roll = RandomHelper.RollDie("D100");
+            int roll = await diceRoll.RequestRollAsync("Attempt to parry the blow with your shield", "1d100");
             if (roll <= parrySkill)
             {
                 result.WasSuccessful = true;
