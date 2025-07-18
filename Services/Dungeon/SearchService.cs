@@ -19,50 +19,100 @@ namespace LoDCompanion.Services.Dungeon
     /// </summary>
     public class SearchService
     {
+        private readonly DiceRollService _diceRoll;
+        private readonly TreasureService _treasure;
 
-        public SearchService()
+        public SearchService(DiceRollService diceRollService, TreasureService treasure)
         {
-            
+            _diceRoll = diceRollService;
+            _treasure = treasure;
         }
 
+
         /// <summary>
-        /// Performs a search of an entire room or corridor.
+        /// This method encapsulates the original `SearchRoom` logic.
+        /// The actual search roll and treasure generation would be performed by a service,
+        /// which would then update the `SearchResults` of this room.
+        /// The _treasure and RandomHelper (formerly Utilities) are injected/passed.
         /// </summary>
-        /// <param name="primaryHero">The hero leading the search.</param>
-        /// <param name="assistingHeroes">A list of other heroes helping with the search.</param>
-        /// <param name="room">The room being searched.</param>
-        /// <returns>A SearchResult object detailing the outcome.</returns>
-        public SearchResult SearchRoom(Hero primaryHero, List<Hero> assistingHeroes, Room room)
+        /// <param name="hero">The hero performing the search.</param>
+        /// <param name="treasureService">The service for generating treasure.</param>
+        /// <param name="randomHelper">A utility for random number generation.</param>
+        public async Task SearchRoomAsync(Room room, Hero hero, bool isPartySearch = false)
         {
-            var result = new SearchResult();
             if (room.HasBeenSearched)
             {
-                result.Message = "This area has already been thoroughly searched.";
-                return result;
+                room.SearchResults.Add("This room has already been searched.");
+                return;
             }
 
-            int perceptionBonus = 0;
-            if (assistingHeroes.Any())
+            int searchTarget = hero.PerceptionSkill;
+            if (isPartySearch)
             {
-                perceptionBonus += 10; // +10 for the first helper
-                perceptionBonus += (assistingHeroes.Count - 1) * 5; // +5 for each subsequent helper
+                searchTarget += 20;
+            }
+            if (hero.HasTorch)
+            {
+                searchTarget += 5;
+            }
+            if (hero.HasLantern)
+            {
+                searchTarget += 10;
             }
 
-            int searchRoll = RandomHelper.RollDie("D100");
-            if (searchRoll <= primaryHero.PerceptionSkill + perceptionBonus)
+            int searchRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100");
+
+            if (room.Category == RoomCategory.Corridor)
             {
-                result.WasSuccessful = true;
-                result.Message = "The party's thorough search paid off!";
-                // The PDF on page 85 implies a general treasure roll. We'll use the TreasureService for this.
-                result.FoundItems = TreasureService.FoundTreasure(TreasureType.Mundane, 1);
+                searchRoll += 10;
+            }
+
+            room.SearchResults.Clear();
+
+            if (searchRoll <= searchTarget)
+            {
+                int treasureRoll = await _diceRoll.RequestRollAsync("Search successful, rool for treasure", "1d100");
+                // Original logic from SearchRoom(string type, bool isThief, int roll)
+                int count = hero.IsThief ? 2 : 1;
+
+                switch (treasureRoll)
+                {
+                    case int r when r >= 1 && r <= 15:
+                        room.SearchResults.Add("You found a secret door leading to a small _treasure chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
+                        // Note: The logic for creating a new room/door (GetRoom, Instantiate)
+                        // must be handled by DungeonManagerService. This just adds the text result.
+                        // You'd have to signal back to the DungeonManagerService to create this room.
+                        break;
+                    case int r when r >= 16 && r <= 25:
+                        room.SearchResults.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Fine, count));
+                        break;
+                    case int r when r >= 26 && r <= 40:
+                        room.SearchResults.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Mundane, count));
+                        break;
+                    case int r when r >= 41 && r <= 45:
+                        room.SearchResults.Add("You found a set of levers. (Interaction handled by a LeverService)");
+                        room.HasLevers = true; // Update room state
+                        break;
+                    case int r when r >= 46 && r <= 50:
+                        room.SearchResults.Add(await _treasure.GetTreasureAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
+                        break;
+                    case int r when r >= 91 && r <= 100:
+                        room.SearchResults.Add("You've sprung a trap!");
+                        // A TrapService or DungeonManagerService would handle the trap instantiation/effect.
+                        // You might set a flag here or return a Trap object.
+                        // CurrentTrap = newTrap; // Example: if Trap is a simple data class.
+                        break;
+                    default:
+                        room.SearchResults.Add("You found Nothing");
+                        break;
+                }
             }
             else
             {
-                result.Message = "The party searches the area but finds nothing of interest.";
+                room.SearchResults.Add("Search Failed");
             }
-
+            room.SearchRoomTrigger = false; // Reset trigger
             room.HasBeenSearched = true;
-            return result;
         }
 
         /// <summary>
@@ -70,7 +120,7 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         /// <param name="furniture">The furniture being searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public SearchResult SearchFurniture(Furniture furniture)
+        public async Task<SearchResult> SearchFurnitureAsync(Furniture furniture)
         {
             var result = new SearchResult();
             if (furniture.HasBeenSearched)
@@ -85,11 +135,9 @@ namespace LoDCompanion.Services.Dungeon
                 return result;
             }
 
-            // As per PDF page 85, roll on the Furniture Treasure Table.
-            // We'll use the TreasureService to handle this roll.
             result.WasSuccessful = true;
             result.Message = $"You search the {furniture.Name}...";
-            result.FoundItems = TreasureService.FoundTreasure(TreasureType.Mundane, 1); // Assuming a mundane find
+            result.FoundItems = await _treasure.FoundTreasureAsync(TreasureType.Mundane, 1); // TODO: need to get specific treasure table for furniture
 
             furniture.HasBeenSearched = true;
             return result;
@@ -101,7 +149,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <param name="hero">The hero searching the corpse.</param>
         /// <param name="corpse">The corpse to be searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public SearchResult SearchCorpse(Hero hero, Corpse corpse)
+        public async Task<SearchResult> SearchCorpseAsync(Hero hero, Corpse corpse)
         {
             var result = new SearchResult();
             if (corpse.HasBeenSearched)
@@ -112,7 +160,7 @@ namespace LoDCompanion.Services.Dungeon
 
             result.WasSuccessful = true;
             result.Message = $"{hero.Name} searches the remains...";
-            result.FoundItems = TreasureService.SearchCorpseAsync(corpse.TreasureType, hero, 0); // Roll is handled inside
+            result.FoundItems = await _treasure.SearchCorpseAsync(corpse.TreasureType, hero, 0);
 
             corpse.HasBeenSearched = true;
             return result;
