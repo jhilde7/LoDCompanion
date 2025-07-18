@@ -28,11 +28,16 @@ namespace LoDCompanion.Services.Dungeon
         private const int DefaultWeaponDurability = 6;
         private readonly AlchemyService _alchemy;
         private readonly DiceRollService _diceRoll;
+        private readonly WeaponFactory _weaponFactory;
 
-        public TreasureService(AlchemyService alchemyService, DiceRollService diceRollService)
+        public TreasureService(
+            AlchemyService alchemyService, 
+            DiceRollService diceRollService,
+            WeaponFactory weaponFactory)
         {
             _alchemy = alchemyService;
             _diceRoll = diceRollService;
+            _weaponFactory = weaponFactory;
         }
 
         public static List<string> GetTreasures(List<Equipment> itemsFound)
@@ -739,22 +744,31 @@ namespace LoDCompanion.Services.Dungeon
                 case 41:
                 case 42:
                     roll = await _diceRoll.RequestRollAsync($"You found a mithril weapon!", "1d12");
+                    value = 0;
                     switch (roll)
                     {
-                        case 1: itemName = "Mithril Longsword"; break;
-                        case 2: itemName = "Mithril Warhammer"; break;
-                        case 3: itemName = "Mithril Battle Hammer"; break;
-                        case 4: itemName = "Mithril Morning Star"; break;
-                        case 5: itemName = "Mithril Battleaxe"; break;
-                        case 6: itemName = "Mithril Dagger"; break;
-                        case 7: itemName = "Mithril Shortsword"; break;
-                        case 8: itemName = "Mithril Rapier"; break;
-                        case 9: itemName = "Mithril Greatsword"; break;
-                        case 10: itemName = "Mithril Greataxe"; break;
-                        case 11: itemName = "Mithril Flail"; break;
-                        case 12: itemName = "Mithril Halberd"; break;
+                        case 1: itemName = "Longsword"; value = 200; break;
+                        case 2: itemName = "Warhammer"; value = 400; break;
+                        case 3: itemName = "Battle Hammer"; value = 300; break;
+                        case 4: itemName = "Morning Star"; value = 300; break;
+                        case 5: itemName = "Battleaxe"; value = 200; break;
+                        case 6: itemName = "Dagger"; value = 50; break;
+                        case 7: itemName = "Shortsword"; value = 140; break;
+                        case 8: itemName = "Rapier"; value = 260; break;
+                        case 9: itemName = "Greatsword"; value = 400; break;
+                        case 10: itemName = "Greataxe"; value = 400; break;
+                        case 11: itemName = "Flail"; value = 300; break;
+                        case 12: itemName = "Halberd"; value = 300; break;
                     }
-                    treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, weaponDurability);
+                    treasure = _weaponFactory.CreateModifiedMeleeWeapon(
+                        itemName, $"Mithril {itemName}",
+                        weapon =>
+                        {
+                            weapon.Category = "Treasure";
+                            weapon.Value = value;
+                            weapon.Durability = weaponDurability;
+                            weapon.Properties[WeaponProperty.Mithril] = 1;
+                        });
                     break;
                 case 43:
                     roll = await _diceRoll.RequestRollAsync($"You found some night stalker armour!", "1d6");
