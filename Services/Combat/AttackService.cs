@@ -135,7 +135,7 @@ namespace LoDCompanion.Services.Combat
                 target.TakeDamage(result.DamageDealt);
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
-                result.OutcomeMessage += CheckForQuickSlotDamageAsync(target);
+                result.OutcomeMessage += await CheckForQuickSlotDamageAsync(target);
                 _floatingText.ShowText($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
