@@ -431,8 +431,8 @@ namespace LoDCompanion.Services.Game
                     {
                         threat = relativeDir switch
                         {
-                            RelativeDirection.Back => 100,
-                            RelativeDirection.BackLeft or RelativeDirection.BackRight => 50,
+                            RelativeDirection.Front => 100,
+                            RelativeDirection.FrontLeft or RelativeDirection.FrontRight => 50,
                             RelativeDirection.Left or RelativeDirection.Right => 20,
                             _ => 0,
                         };
@@ -441,8 +441,8 @@ namespace LoDCompanion.Services.Game
                     {
                         threat = relativeDir switch
                         {
-                            RelativeDirection.Back => 10,
-                            RelativeDirection.BackLeft or RelativeDirection.BackRight => 5,
+                            RelativeDirection.Front => 10,
+                            RelativeDirection.FrontLeft or RelativeDirection.FrontRight => 5,
                             RelativeDirection.Left or RelativeDirection.Right => 2,
                             _ => 0,
                         };
