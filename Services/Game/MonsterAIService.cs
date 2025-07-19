@@ -454,15 +454,50 @@ namespace LoDCompanion.Services.Game
             }
 
             // Debug: Output threat scores for each direction (optional)
-            // foreach (var kvp in facingScores)
-            //     Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+            Console.WriteLine($"{monster.Name} current position: {monster.Position}");
+            foreach (var kvp in facingScores) Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+            foreach (var hero in aliveHeroes)
+            {
+                Console.WriteLine($"{hero.Name} at {hero.Position}");
+            }
 
-            var bestFacing = facingScores
-                .OrderBy(kvp => kvp.Value)
-                .ThenBy(kvp => RandomHelper.GetRandomNumber(0, 100))
-                .First().Key;
+            // Order the directions by their threat score, from highest to lowest.
+            var orderedFacings = facingScores.OrderByDescending(kvp => kvp.Value).ToList();
 
-            monster.Facing = bestFacing;
+            var topScore = orderedFacings.First().Value;
+            var bestDirections = orderedFacings.Where(kvp => kvp.Value == topScore).ToList();
+
+            FacingDirection finalFacing;
+
+            // Analyze the best directions to handle ties.
+            if (bestDirections.Count > 1)
+            {
+                var firstBest = bestDirections[0].Key;
+                var secondBest = bestDirections[1].Key;
+
+                // Check if the tie is between two opposite directions.
+                if (DirectionService.GetOpposite(firstBest) == secondBest)
+                {
+                    // The monster is caught between two equal threats.
+                    // Find the next best direction that is NOT one of the opposites.
+                    var nextBestOption = orderedFacings.FirstOrDefault(kvp => kvp.Key != firstBest && kvp.Key != secondBest);
+
+                    finalFacing = nextBestOption.Key;
+                    Console.WriteLine($"Opposite tie detected! Choosing next best: {finalFacing}");
+                }
+                else
+                {
+                    // It's a tie, but not between opposites (e.g., North and East).
+                    // Pick one randomly from the tied top scores.
+                    finalFacing = bestDirections[RandomHelper.GetRandomNumber(0, bestDirections.Count - 1)].Key;
+                }
+            }
+            else
+            {
+                finalFacing = bestDirections.First().Key;
+            }
+
+            monster.Facing = finalFacing;
 
             return $"{monster.Name} ends their turn facing {monster.Facing}";
         }
