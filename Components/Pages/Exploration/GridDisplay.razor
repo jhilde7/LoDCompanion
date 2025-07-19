@@ -70,6 +70,17 @@
     .hero-item .hp-bar {
         background-color: #198754; /* Override with green for hero HP */
     }
+
+    .facing-arrow {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent; /* Adjust size as needed */
+        border-right: 6px solid transparent;
+        border-bottom: 10px solid rgba(255, 255, 255, 0.8); /* A semi-transparent white */
+        /* The transition makes the rotation smooth if the facing changes */
+        transition: transform 0.3s ease-in-out;
+    }
 </style>
 
 <div class="grid-container" style="@GridStyle">
@@ -95,6 +106,7 @@
                 <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div"
                 class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
                 @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
+                    <div class="facing-arrow" style="@GetFacingStyle(monster.Facing)"></div>
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
                 </ContextMenuTrigger>
@@ -106,7 +118,8 @@
             @foreach (var hero in Room.HeroesInRoom)
             {
                 <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
-                @onclick="() => OnHeroClicked.InvokeAsync(hero)">
+                     @onclick="() => OnHeroClicked.InvokeAsync(hero)">
+                    <div class="facing-arrow" style="@GetFacingStyle(hero.Facing)"></div>
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
                 </div>
@@ -228,6 +241,18 @@
         var localX = position.X - (Room?.GridOffset.X ?? 0);
         var localY = position.Y - (Room?.GridOffset.Y ?? 0);
         return GetPercentageStyle(localX, localY, 1, 1);
+    }
+
+    private string GetFacingStyle(FacingDirection facing)
+    {
+        return facing switch
+        {
+            FacingDirection.North => "transform: rotate(0deg); top: 2px; left: 50%; ",
+            FacingDirection.East => "transform: rotate(90deg); right: 2px; top: 50%; ",
+            FacingDirection.South => "transform: rotate(180deg); bottom: 2px; left: 50%; ",
+            FacingDirection.West => "transform: rotate(270deg); left: 2px; top: 50%; ",
+            _ => ""
+        };
     }
 
     protected override void OnInitialized()
