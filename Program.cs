@@ -46,6 +46,7 @@ builder.Services.AddScoped<CombatManagerService>();
 builder.Services.AddScoped<InitiativeService>();
 builder.Services.AddSingleton<MonsterSpecialService>();
 builder.Services.AddSingleton<AttackService>();
+builder.Services.AddSingleton<FacingDirectionService>();
 //Dungeon
 builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();

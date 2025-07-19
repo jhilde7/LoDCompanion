@@ -6,47 +6,44 @@
 @inject AttackService AttackService
 
 <style>
+
+
     .modal-backdrop {
-    /* Make the backdrop cover the entire screen */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-
-    /* Semi-transparent black background */
-    background-color: rgba(0, 0, 0, 0.6);
-
-    /* Use flexbox to center the modal content */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    /* Ensure it's on top of all other content */
-    z-index: 1050;
+        /* Make the backdrop cover the entire screen */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        /* Semi-transparent black background */
+        background-color: rgba(0, 0, 0, 0.6);
+        /* Use flexbox to center the modal content */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Ensure it's on top of all other content */
+        z-index: 1050;
     }
 
     .modal-content {
-    /* Style the actual pop-up window */
-    background-color: #332d25; /* A dark, thematic background */
-    color: #e6d8c0;
-    padding: 2rem;
-    border-radius: 8px;
-    border: 3px solid #5a4d3a;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-
-    /* Set a max-width to keep it from getting too large */
-    width: 90%;
-    max-width: 500px;
-
-    /* Animation for appearing */
-    animation: fadeIn 0.3s ease-out;
+        /* Style the actual pop-up window */
+        background-color: #332d25; /* A dark, thematic background */
+        color: #e6d8c0;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 3px solid #5a4d3a;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        /* Set a max-width to keep it from getting too large */
+        width: 90%;
+        max-width: 500px;
+        /* Animation for appearing */
+        animation: fadeIn 0.3s ease-out;
     }
 
-    .modal-content h3 {
-    margin-top: 0;
-    text-align: center;
-    }
+        .modal-content h3 {
+            margin-top: 0;
+            text-align: center;
+        }
 
     .manual-entry, .auto-roll {
     display: flex;

@@ -16,6 +16,7 @@ namespace LoDCompanion.Services.Game
         private readonly ActionService _playerAction;
         private readonly MonsterAIService _monsterAI;
         private readonly DungeonState _dungeon;
+        private readonly FacingDirectionService _facing;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
@@ -31,12 +32,14 @@ namespace LoDCompanion.Services.Game
             InitiativeService initiativeService,
             ActionService playerActionService,
             MonsterAIService monsterAIService,
-            DungeonState dungeonState)
+            DungeonState dungeonState,
+            FacingDirectionService facingDirectionService)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
             _monsterAI = monsterAIService;
             _dungeon = dungeonState;
+            _facing = facingDirectionService;
         }
 
 
@@ -429,6 +432,8 @@ namespace LoDCompanion.Services.Game
                 if (ActiveHero.CurrentAP <= 0)
                 {
                     CombatLog.Add($"{ActiveHero.Name}'s turn is over.");
+                    ActiveHero.Facing = await _facing.RequestFacingDirectionAsync(ActiveHero);
+                    await Task.Yield(); // Allow UI to process modal closing
                     await ProcessNextInInitiativeAsync();
                 }
             }
