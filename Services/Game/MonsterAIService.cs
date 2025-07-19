@@ -7,11 +7,6 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace LoDCompanion.Services.Game
 {
@@ -418,35 +413,39 @@ namespace LoDCompanion.Services.Game
             var aliveHeroes = heroes.Where(h => h.CurrentHP > 0).ToList();
             if (!aliveHeroes.Any())
             {
-                // No heroes left, no need to change facing.
                 return $"{monster.Name} stands triumphantly.";
             }
 
-            // Best practice: Store the results in a way that's easy to debug.
             var facingScores = new Dictionary<FacingDirection, int>();
 
-            // Iterate through all possible directions the monster could face.
             foreach (FacingDirection potentialFacing in Enum.GetValues(typeof(FacingDirection)))
             {
                 int totalThreatScore = 0;
                 foreach (var hero in aliveHeroes)
                 {
-                    // Determine where the hero would be relative to this potential new facing.
                     RelativeDirection relativeDir = DirectionService.GetRelativeDirection(potentialFacing, monster.Position, hero.Position);
+                    bool isAdjacent = GridService.GetDistance(monster.Position, hero.Position) <= 1;
 
-                    // Assign a threat score. Higher is worse.
-                    // A hero directly behind is the highest threat.
-                    int threat = relativeDir switch
+                    int threat = 0;
+                    if (isAdjacent)
                     {
-                        RelativeDirection.Back => 8,
-                        RelativeDirection.BackLeft or RelativeDirection.BackRight => 4,
-                        RelativeDirection.Left or RelativeDirection.Right => 1,
-                        _ => 0, // Front, FrontLeft, and FrontRight are 0 threat.
-                    };
-
-                    if (GridService.GetDistance(monster.Position, hero.Position) <= 1)
+                        threat = relativeDir switch
+                        {
+                            RelativeDirection.Back => 100,
+                            RelativeDirection.BackLeft or RelativeDirection.BackRight => 50,
+                            RelativeDirection.Left or RelativeDirection.Right => 20,
+                            _ => 0,
+                        };
+                    }
+                    else
                     {
-                        threat *= 2;
+                        threat = relativeDir switch
+                        {
+                            RelativeDirection.Back => 10,
+                            RelativeDirection.BackLeft or RelativeDirection.BackRight => 5,
+                            RelativeDirection.Left or RelativeDirection.Right => 2,
+                            _ => 0,
+                        };
                     }
 
                     totalThreatScore += threat;
@@ -454,17 +453,18 @@ namespace LoDCompanion.Services.Game
                 facingScores[potentialFacing] = totalThreatScore;
             }
 
-            // Find the direction with the LOWEST total threat score.
-            // If there's a tie, OrderBy will preserve the original order, so we can add a secondary
-            // random shuffle to make the choice less predictable in a tie.
+            // Debug: Output threat scores for each direction (optional)
+            // foreach (var kvp in facingScores)
+            //     Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+
             var bestFacing = facingScores
                 .OrderBy(kvp => kvp.Value)
-                .ThenBy(kvp => RandomHelper.GetRandomNumber(0, 100)) // Randomize ties
+                .ThenBy(kvp => RandomHelper.GetRandomNumber(0, 100))
                 .First().Key;
 
             monster.Facing = bestFacing;
 
-            return $"{monster.Name} ends their turn facing {monster.Facing.ToString()}";
+            return $"{monster.Name} ends their turn facing {monster.Facing}";
         }
 
         private async Task<string> MoveTowardsAsync(Monster monster, Hero target)
