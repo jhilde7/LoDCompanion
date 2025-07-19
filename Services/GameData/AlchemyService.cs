@@ -31,6 +31,7 @@ namespace LoDCompanion.Services.GameData
                 case 1:
                     roll = await _diceRoll.RequestRollAsync(
                         $"Roll for standard potion", "1d10");
+                    await Task.Yield();
                     switch (roll)
                     {
                         case 1:
@@ -59,6 +60,7 @@ namespace LoDCompanion.Services.GameData
                 case 2:
                     roll = await _diceRoll.RequestRollAsync(
                         $"Roll for standard potion", "1d10" );
+                    await Task.Yield();
                     switch (roll)
                     {
                         case 1:
@@ -87,6 +89,7 @@ namespace LoDCompanion.Services.GameData
                 case 3:
                     roll = await _diceRoll.RequestRollAsync(
                         $"Roll for standard potion", "1d8");
+                    await Task.Yield();
                     switch (roll)
                     {
                         case 1:
@@ -116,6 +119,7 @@ namespace LoDCompanion.Services.GameData
         {
             int roll = await _diceRoll.RequestRollAsync(
                 $"Roll for standard potion", "1d12");
+            await Task.Yield();
             switch (roll)
             {
                 case 1:
@@ -190,6 +194,7 @@ namespace LoDCompanion.Services.GameData
         {
             int roll = await _diceRoll.RequestRollAsync(
                 $"Roll for standard potion", "1d100");
+            await Task.Yield();
             return roll switch
             {
                 1 => "Banshee",

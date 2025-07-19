@@ -41,5 +41,12 @@
                 OnRollRequested?.Invoke(); // Hides the modal
             }
         }
+
+        public async Task<int> RollDice(string prompt, string diceNotation = "1d100")
+        {
+            int i = await RequestRollAsync(prompt, diceNotation);
+            await Task.Yield();
+            return i;
+        }
     }
 }
