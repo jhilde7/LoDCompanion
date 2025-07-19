@@ -18,7 +18,7 @@ namespace LoDCompanion.Services.Game
         /// <summary>
         /// Shows a text message at a specific grid position that fades out after a delay.
         /// </summary>
-        public async Task ShowTextAsync(string text, GridPosition position, string cssClass = "info-text")
+        public void ShowText(string text, GridPosition position, string cssClass = "info-text")
         {
             var floatingText = new FloatingText
             {
@@ -29,13 +29,6 @@ namespace LoDCompanion.Services.Game
 
             ActiveTexts.Add(floatingText);
             OnTextChanged?.Invoke();
-
-            // Wait for the delay without blocking the thread.
-            //await Task.Delay(1000);
-
-            // This code now runs after the delay on the same context.
-            //ActiveTexts.Remove(floatingText);
-            //OnTextChanged?.Invoke();
             
             
             // Fire and forget a helper task to handle the removal after a delay.
