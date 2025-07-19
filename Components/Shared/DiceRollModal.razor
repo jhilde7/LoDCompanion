@@ -1,7 +1,64 @@
 ﻿@using LoDCompanion.Services.Game
 @using LoDCompanion.Utilities
+@using LoDCompanion.Services.Combat
 
 @inject DiceRollService DiceRollService
+@inject AttackService AttackService
+
+<style>
+    .modal-backdrop {
+    /* Make the backdrop cover the entire screen */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    /* Semi-transparent black background */
+    background-color: rgba(0, 0, 0, 0.6);
+
+    /* Use flexbox to center the modal content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Ensure it's on top of all other content */
+    z-index: 1050;
+    }
+
+    .modal-content {
+    /* Style the actual pop-up window */
+    background-color: #332d25; /* A dark, thematic background */
+    color: #e6d8c0;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 3px solid #5a4d3a;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+
+    /* Set a max-width to keep it from getting too large */
+    width: 90%;
+    max-width: 500px;
+
+    /* Animation for appearing */
+    animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content h3 {
+    margin-top: 0;
+    text-align: center;
+    }
+
+    .manual-entry, .auto-roll {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    }
+
+    .auto-roll p {
+    margin: 0 1rem;
+    }
+</style>
 
 @if (DiceRollService.CurrentRequest != null)
 {
@@ -12,7 +69,7 @@
 
             <div class="manual-entry">
                 <label for="manualRoll">Enter Roll Result:</label>
-                <input id="manualRoll" type="number" @bind="_manualRollValue" />
+                <input id="manualRoll" type="number" @bind="_manualRollValue" @bind:event="oninput" />
                 <button class="btn-submit" @onclick="SubmitManualRoll" disabled="@(!_isManualRollValid)">Submit</button>
             </div>
 
@@ -28,11 +85,6 @@
     private int _manualRollValue;
     private bool _isManualRollValid => _manualRollValue >= 1;
 
-    protected override void OnInitialized()
-    {
-        DiceRollService.OnRollRequested += StateHasChanged;
-    }
-
     private void SubmitManualRoll()
     {
         DiceRollService.CompleteRoll(_manualRollValue);
@@ -43,10 +95,5 @@
     {
         var result = RandomHelper.RollDice(DiceRollService.CurrentRequest?.DiceNotation ?? "1d100");
         DiceRollService.CompleteRoll(result);
-    }
-
-    public void Dispose()
-    {
-        DiceRollService.OnRollRequested -= StateHasChanged;
     }
 }

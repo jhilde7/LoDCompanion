@@ -1,11 +1,13 @@
 ﻿@using LoDCompanion.Models.Dungeon
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
+@using LoDCompanion.Utilities
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Components.Shared
 
 @inject RoomService RoomService
 @inject FloatingTextService FloatingTextService
+@inject DiceRollService DiceRollService
 
 <style>
 
@@ -118,7 +120,10 @@
             </div>
         }
 
-        <DiceRollModal />
+        @if (DiceRollService.CurrentRequest != null)
+        {
+            <DiceRollModal />
+        }
     }
 </div>
 
@@ -229,12 +234,15 @@
     {
         // Store the handler in a field.
         _onTextChangedHandler = () => InvokeAsync(StateHasChanged);
+        _onDiceRolledHandler = () => InvokeAsync(StateHasChanged);
         // Subscribe using the stored handler.
         FloatingTextService.OnTextChanged += _onTextChangedHandler;
+		DiceRollService.OnRollRequested += _onDiceRolledHandler;
     }
 
     public void Dispose()
     {
         FloatingTextService.OnTextChanged -= _onTextChangedHandler;
+        DiceRollService.OnRollRequested -= _onDiceRolledHandler;
     }
 }

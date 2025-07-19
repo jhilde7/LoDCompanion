@@ -2,9 +2,9 @@
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Models;
-using LoDCompanion.Services.Game;
 using LoDCompanion.Utilities;
 using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.Game;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -83,7 +83,8 @@ namespace LoDCompanion.Services.Combat
                     result.OutcomeMessage = "The hero does not have a weapon equipped!"; 
                     return result; 
                 }
-                result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100"); 
+                result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
+                await Task.Yield();
             }
             else
             {
@@ -94,7 +95,7 @@ namespace LoDCompanion.Services.Combat
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                await _floatingText.ShowTextAsync("Miss!", target.Position, "miss-toast");
+                _floatingText.ShowText("Miss!", target.Position, "miss-toast");
                 return result;
             }
 
@@ -135,11 +136,11 @@ namespace LoDCompanion.Services.Combat
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 result.OutcomeMessage += CheckForQuickSlotDamageAsync(target);
-                await _floatingText.ShowTextAsync($"-{result.DamageDealt}", target.Position, "damage-text");
+                _floatingText.ShowText($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
             {
-                await _floatingText.ShowTextAsync("Blocked!", target.Position, "miss-text");
+                _floatingText.ShowText("Blocked!", target.Position, "miss-text");
             }
 
             if (context.IsChargeAttack)
@@ -158,7 +159,7 @@ namespace LoDCompanion.Services.Combat
             result.DamageDealt = finalDamage;
 
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
-            await _floatingText.ShowTextAsync($"-{finalDamage}", target.Position, "damage-text");
+            _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text");
 
             if (context.IsChargeAttack)
             {
@@ -259,6 +260,7 @@ namespace LoDCompanion.Services.Combat
         private async Task<HitLocation> DetermineHitLocationAsync()
         {
             int roll = await _diceRoll.RequestRollAsync("Roll for the location you were hit at.", "1d6");
+            await Task.Yield();
             return roll switch
             {
                 1 => HitLocation.Head,
@@ -304,6 +306,7 @@ namespace LoDCompanion.Services.Combat
         {
             int slotRoll = await _diceRoll.RequestRollAsync(
                 $"You were hit in the torso, check for damage to the items in your quick slots ", "1d10");
+            await Task.Yield();
             if (slotRoll <= target.QuickSlots.Count)
             {
                 var item = target.QuickSlots[slotRoll - 1]; // -1 for 0-based index
@@ -324,6 +327,7 @@ namespace LoDCompanion.Services.Combat
             if(dice != null)
             {
                 damage = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", dice);
+                await Task.Yield();
             }
             else
             {
