@@ -130,12 +130,12 @@ namespace LoDCompanion.Services.Combat
 
             if (damageAfterDefense > 0)
             {
-                HitLocation location = await DetermineHitLocationAsync();
+                HitLocation location = DetermineHitLocation();
                 result.DamageDealt = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
                 target.TakeDamage(result.DamageDealt);
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
-                result.OutcomeMessage += await CheckForQuickSlotDamageAsync(target);
+                result.OutcomeMessage += CheckForQuickSlotDamage(target);
                 _floatingText.ShowText($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
@@ -257,9 +257,9 @@ namespace LoDCompanion.Services.Combat
             return new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
         }
 
-        private async Task<HitLocation> DetermineHitLocationAsync()
+        private HitLocation DetermineHitLocation()
         {
-            int roll = await _diceRoll.RollDice("Roll for the location you were hit at.", "1d6");
+            int roll = RandomHelper.RollDie("D6");
             return roll switch
             {
                 1 => HitLocation.Head,
@@ -301,10 +301,9 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// On a torso hit, rolls to see if an item in a quick slot is damaged.
         /// </summary>
-        private async Task<string> CheckForQuickSlotDamageAsync(Hero target)
+        private string CheckForQuickSlotDamage(Hero target)
         {
-            int slotRoll = await _diceRoll.RollDice(
-                $"You were hit in the torso, check for damage to the items in your quick slots ", "1d10");
+            int slotRoll = RandomHelper.RollDie("D10");
             if (slotRoll <= target.QuickSlots.Count)
             {
                 var item = target.QuickSlots[slotRoll - 1]; // -1 for 0-based index
