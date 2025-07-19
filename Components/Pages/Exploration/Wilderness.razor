@@ -12,6 +12,22 @@
 @inject CombatManagerService CombatManager
 @inject RoomService RoomService
 
+<style>
+.wilderness-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        max-height: 100vh;
+    }
+
+    .game-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+</style>
+
 <div class="wilderness-container" >
     @if (QuestService.IsQuestActive &&
     QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&

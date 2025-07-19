@@ -7,6 +7,69 @@
 @inject RoomService RoomService
 @inject FloatingTextService FloatingTextService
 
+<style>
+
+    .grid-container {
+        position: relative;
+        border: 2px solid #5a4d3a;
+        background-image: url('/images/backgrounds/grass_tile.png'); /* Example background */
+        background-size: 128px 128px;
+    }
+
+    .grid-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+        color: white;
+        text-shadow: 1px 1px 2px black;
+    }
+
+    .furniture-item {
+        background-color: rgba(139, 69, 19, 0.5); /* Brownish, semi-transparent */
+        border: 1px dashed #654321;
+    }
+
+    .monster-item, .hero-item {
+        /* Flexbox helps arrange the name and HP bar vertically */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* Pushes name to top, hp to bottom */
+        align-items: center;
+        /* Visuals */
+        border: 1px solid #1a1a1a;
+        box-sizing: border-box;
+        color: white;
+        text-shadow: 1px 1px 2px black; /* Makes text more readable */
+        font-weight: bold;
+        overflow: hidden; /* Ensures content doesn't spill out */
+    }
+
+    .monster-item {
+        background-color: rgba(178, 34, 34, 0.85); /* A semi-transparent red (Firebrick) */
+    }
+
+    .hero-item {
+        background-color: rgba(46, 139, 87, 0.85); /* A semi-transparent green (Seagreen) */
+    }
+
+    .item-label {
+        padding-top: 4px; /* Give the name some space from the top edge */
+    }
+
+    .hp-bar {
+        height: 6px;
+        background-color: #dc3545; /* Default red for monster HP */
+        border-top: 1px solid #1a1a1a;
+        align-self: stretch; /* Makes the bar span the full width */
+    }
+
+    .hero-item .hp-bar {
+        background-color: #198754; /* Override with green for hero HP */
+    }
+</style>
+
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
     {
@@ -17,7 +80,7 @@
                 @foreach (var square in furniture.OccupiedSquares)
                 {
                     <ContextMenuTrigger MenuId="gridActionsMenu" Data="square" WrapperTag="div"
-                                        class="grid-background-square" title="@furniture.ToString()" style="@GetSquareStyle(square)">
+                    class="grid-background-square" title="@furniture.ToString()" style="@GetSquareStyle(square)">
                     </ContextMenuTrigger>
                 }
             }
@@ -28,8 +91,8 @@
             @foreach (var monster in Room.MonstersInRoom)
             {
                 <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div"
-                                    class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
-                                    @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
+                class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
+                @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
                 </ContextMenuTrigger>
@@ -41,7 +104,7 @@
             @foreach (var hero in Room.HeroesInRoom)
             {
                 <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
-                     @onclick="() => OnHeroClicked.InvokeAsync(hero)">
+                @onclick="() => OnHeroClicked.InvokeAsync(hero)">
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
                 </div>
@@ -70,6 +133,7 @@
     public EventCallback<Hero> OnHeroClicked { get; set; }
 
     private Action? _onTextChangedHandler;
+    private Action? _onDiceRolledHandler;
 
     private string GridStyle
     {
