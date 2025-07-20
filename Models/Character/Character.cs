@@ -4,6 +4,7 @@ using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
 using System.Text;
 using System.Threading;
@@ -35,7 +36,7 @@ namespace LoDCompanion.Models.Character
                 CurrentHP = _maxHP;
             }
         }
-        public int Strength { get; set; }
+        public virtual int Strength { get; set; }
         public int Constitution { get; set; }
         public int Dexterity { get; set; }
         public int Wisdom { get; set; }
@@ -45,8 +46,8 @@ namespace LoDCompanion.Models.Character
         public int Dodge { get; set; }
         public int Move { get; set; }
         public int Level { get; set; }
-        public int NaturalArmour { get; set; }
-        public int DamageBonus { get; set; }
+        public virtual int NaturalArmour { get; set; }
+        public virtual int DamageBonus { get; set; }
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public bool HasShield { get; set; } // Indicates if the monster has a shield
@@ -195,6 +196,23 @@ namespace LoDCompanion.Models.Character
         public int? CurrentMana { get; set; }
         public int MaxSanity { get; set; } = 10;
         public int CurrentSanity { get; set; } = 10;
+        private int _strength;
+
+        public override int Strength
+        {
+            get => _strength;
+            set
+            {
+                if (_strength != value)
+                {
+                    _strength = value;
+                    // Whenever Strength changes, check if equipped weapons are still valid.
+                    CheckWeaponRequirements();
+                }
+            }
+        }
+        public override int NaturalArmour => GetNaturalArmourFromCON();
+        public override int DamageBonus => GetDamageBonusFromSTR();
 
         // Skills (could be part of a separate Skill collection if complex, but keeping here for now)
         public int PickLocksSkill { get; set; }
@@ -212,6 +230,8 @@ namespace LoDCompanion.Models.Character
         public bool HasLantern { get; set; }
         public bool HasTorch { get; set; }
         public bool IsWeShaltNotFalter { get; set; } // Specific buff/debuff
+        public int OneHandedWeaponClass => Get1HWeaponClass();
+        public int TwoHandedWeaponClass => Get2HWeaponClass();
 
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
@@ -231,7 +251,7 @@ namespace LoDCompanion.Models.Character
         // Constructor
         public Hero() : base()
         {
-
+            Strength = base.Strength;
         }
 
         public override string ToString()
@@ -299,16 +319,90 @@ namespace LoDCompanion.Models.Character
             return (roll <= con);
         }
 
-        // Method to get current weapon for combat. HeroWeapon.cs had complex logic
-        // This simplified approach assumes the first weapon in the list is the "active" one
-        // or a dedicated 'EquippedWeapon' property would be better
-        public Weapon? GetEquippedWeapon()
+        public int GetDamageBonusFromSTR()
         {
-            if (Weapons.Count > 0)
+            return Strength switch
             {
-                return Weapons[0]; // Simple, assumes the primary equipped weapon is at index 0
+                < 60 => 0,
+                < 70 => 1,
+                < 80 => 2,
+                _ => 3,
+            };
+        }
+
+        public int GetNaturalArmourFromCON()
+        {
+            return Constitution switch
+            {
+                < 50 => 0,
+                < 55 => 1,
+                < 60 => 2,
+                < 65 => 3,
+                < 70 => 4,
+                _ => 5,
+            };
+        }
+
+        public int Get1HWeaponClass()
+        {
+            return Strength switch
+            {
+                < 40 => 2,
+                < 50 => 3,
+                >= 50 => 4
+            };
+        }
+
+        public int Get2HWeaponClass()
+        {
+            return Strength switch
+            {
+                < 30 => 2,
+                < 40 => 3,
+                < 55 => 4,
+                >= 55 => 5
+            };
+        }
+
+        public string GetWieldStatus(Weapon weapon)
+        {
+            if (weapon.Class != 6 && Get2HWeaponClass() < weapon.Class)
+            {
+                return "(Too weak to wield)";
             }
-            return null; // No weapon equipped
+            if (Get1HWeaponClass() >= weapon.Class && !weapon.Properties.ContainsKey(WeaponProperty.BFO))
+            {
+                return "(1-Handed)";
+            }
+            return "(2-Handed)";
+        }
+
+        /// <summary>
+        /// Checks equipped weapons against the hero's current strength and unequips any
+        /// that they are too weak to wield.
+        /// </summary>
+        private void CheckWeaponRequirements()
+        {
+            // This requires an instance of the InventoryService to move items.
+            // In a real app, you would get this via dependency injection.
+            // For this example, we'll assume a static accessor or new instance.
+            var inventoryService = new InventoryService();
+
+            // We need to check a copy of the list, as we might be modifying it.
+            var equippedWeapons = new List<Weapon>(this.Weapons);
+
+            foreach (var weapon in equippedWeapons)
+            {
+                // Use the GameDataService to check if the weapon is usable.
+                if (GetWieldStatus(weapon) == "(Too weak to wield)")
+                {
+                    // If not, unequip it.
+                    inventoryService.UnequipItem(this, weapon);
+
+                    // You could add a log message here to inform the player.
+                    Console.WriteLine($"{this.Name} is no longer strong enough to wield the {weapon.Name} and has unequipped it.");
+                }
+            }
         }
     }
 
