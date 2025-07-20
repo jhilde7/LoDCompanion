@@ -206,7 +206,8 @@ namespace LoDCompanion.Models
         Sword,
         Blunt,
         Metal,
-        Magic
+        Magic,
+        SecondaryWeapon
     }
 
     public class Weapon : Equipment
