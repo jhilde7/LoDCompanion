@@ -29,7 +29,7 @@ namespace LoDCompanion.Services.Player
         /// <summary>
         /// Equips an item from a hero's backpack.
         /// </summary>
-        public void EquipItem(Hero hero, Equipment item)
+        public static void EquipItem(Hero hero, Equipment item)
         {
             if (!hero.Backpack.Contains(item)) return;
 
@@ -55,7 +55,7 @@ namespace LoDCompanion.Services.Player
         /// <summary>
         /// Unequips an item and moves it back to the hero's backpack.
         /// </summary>
-        public void UnequipItem(Hero hero, Equipment item)
+        public static void UnequipItem(Hero hero, Equipment item)
         {
             if (item is Weapon weapon && hero.Weapons.Contains(weapon))
             {
