@@ -1618,7 +1618,7 @@ namespace LoDCompanion.Services.GameData
                 new Armour
                 {
                     Category = "Treasure", Name = "Wyvern Cloak", Encumbrance = 2, Value = 1200, Description = "Def:3 against attacks from behind", Availability = 0, ArmourClass = 1, DefValue = 3, MaxDurability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Cloak, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Cloak, 0 },  { ArmourProperty.Stackable, 0 } }
                 }
             }
             ;
