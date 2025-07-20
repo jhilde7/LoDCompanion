@@ -1202,12 +1202,12 @@ namespace LoDCompanion.Services.GameData
                     DamageBonus = 1,
                     Encumbrance = 5,
                     Class = 2,
-                    IsSecondaryWeapon = true,
                     Value = 350,
                     Availability = 2,
                     ReloadTime = 2,
                     Description = "",
-                    AmmoType = AmmoType.Bolt
+                    AmmoType = AmmoType.Bolt,
+                    Properties = new Dictionary<WeaponProperty, int>() { { WeaponProperty.SecondaryWeapon, 0 } }
                   },
                   new RangedWeapon(){
                     Category = "Common",
