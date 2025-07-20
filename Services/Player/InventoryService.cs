@@ -12,7 +12,11 @@ namespace LoDCompanion.Services.Player
         Backpack,
         QuickSlot,
         EquippedWeapon,
-        EquippedArmour
+        EquippedArmour,
+        DualWield,
+        Shield,
+        Torch,
+        Lantern
     }
 
     /// <summary>
@@ -21,6 +25,50 @@ namespace LoDCompanion.Services.Player
     public class InventoryService
     {
         public InventoryService() { }
+
+        /// <summary>
+        /// Equips an item from a hero's backpack.
+        /// </summary>
+        public void EquipItem(Hero hero, Equipment item)
+        {
+            if (!hero.Backpack.Contains(item)) return;
+
+            if (item is Weapon weapon)
+            {
+                // Simple logic: unequip the current weapon and equip the new one.
+                // A more complex system could handle dual-wielding.
+                if (hero.Weapons.Any())
+                {
+                    UnequipItem(hero, hero.Weapons.First());
+                }
+                hero.Weapons.Add(weapon);
+                BackpackHelper.RemoveItem(hero.Backpack, item);
+            }
+            else if (item is Armour armour)
+            {
+                // Handle equipping armor, potentially swapping with an existing piece.
+                // This would involve checking the armor's slot (Head, Torso, etc.).
+            }
+            // Add logic for other equippable item types here...
+        }
+
+        /// <summary>
+        /// Unequips an item and moves it back to the hero's backpack.
+        /// </summary>
+        public void UnequipItem(Hero hero, Equipment item)
+        {
+            if (item is Weapon weapon && hero.Weapons.Contains(weapon))
+            {
+                hero.Weapons.Remove(weapon);
+                BackpackHelper.AddItem(hero.Backpack, item);
+            }
+            else if (item is Armour armour && hero.Armours.Contains(armour))
+            {
+                hero.Armours.Remove(armour);
+                BackpackHelper.AddItem(hero.Backpack, item);
+            }
+            // Add logic for other equippable item types here...
+        }
 
         /// <summary>
         /// Moves an item from one slot to another for a hero.
