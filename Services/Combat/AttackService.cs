@@ -176,7 +176,7 @@ namespace LoDCompanion.Services.Combat
             Weapon? monsterWeapon = null;
             if (target is Hero hero)
             {
-                heroWeapon = hero.GetEquippedWeapon(); 
+                heroWeapon = (Weapon?)hero.Backpack.FirstOrDefault(w => w.ItemSlot == Player.ItemSlot.EquippedWeapon); 
             }
             if(target is Monster monster)
             {
