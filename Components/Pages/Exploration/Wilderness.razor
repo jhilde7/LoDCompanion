@@ -11,6 +11,7 @@
 @inject QuestService QuestService
 @inject CombatManagerService CombatManager
 @inject RoomService RoomService
+@inject PartyManagerService PartyManager
 
 <style>
 .wilderness-container {
@@ -140,6 +141,7 @@
     {
         if (CombatManager.IsAwaitingHeroSelection)
         {
+            PartyManager.SelectedHero = PartyManager.Party?.Heroes.FirstOrDefault(h => h == hero);
             CombatManager.SelectHeroToAction(hero);
         }
     }

@@ -8,6 +8,22 @@ namespace LoDCompanion.Services.Player
     {
         private readonly GameStateManagerService _gameStateManager;
         public Party? Party => _gameStateManager.GameState.CurrentParty;
+        public Action? OnPartyChanged;
+        private Hero? _selectedHero;
+        public Hero? SelectedHero
+        {
+            get => _selectedHero;
+            set
+            {
+                if (_selectedHero != value)
+                {
+                    _selectedHero = value;
+                    OnSelectedHeroChanged?.Invoke(_selectedHero);
+                }
+            }
+        }
+        public event Action<Hero?>? OnSelectedHeroChanged;
+
 
         // Inject the state into the service's constructor
         public PartyManagerService(GameStateManagerService gameStateManagerService)
