@@ -403,7 +403,6 @@ namespace LoDCompanion.Models
         public Ammo Ammo { get; set; } = new Ammo();
         public bool ElvenBowstring { get; set; }
         public bool AimAttachment { get; set; }
-        public bool IsSecondaryWeapon { get; set; }
         public int ReloadTime { get; set; } = 1;
         public bool IsLoaded { get; set; } = false;
 
