@@ -6,6 +6,7 @@ using LoDCompanion.Services.Game;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
@@ -227,8 +228,6 @@ namespace LoDCompanion.Models.Character
         // Hero-specific States and Flags
         public int MaxArmour { get; set; }
         public bool IsThief { get; set; } // Indicates if profession is Thief
-        public bool HasLantern { get; set; }
-        public bool HasTorch { get; set; }
         public bool IsWeShaltNotFalter { get; set; } // Specific buff/debuff
         public int OneHandedWeaponClass => Get1HWeaponClass(Strength);
         public int TwoHandedWeaponClass => Get2HWeaponClass(Strength);
@@ -236,10 +235,15 @@ namespace LoDCompanion.Models.Character
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
         public List<Perk> Perks { get; set; } = new List<Perk>();
-        public List<Armour> Armours { get; set; } = new List<Armour>();
-        public Shield? Shield { get; set; }
-        public List<Equipment> QuickSlots { get; set; } = new List<Equipment>();
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
+        public List<Armour> EquippedArmour => (List<Armour>) Backpack.Where(e => e.ItemSlot == ItemSlot.EquippedArmour);
+        public Shield? EquippedShield => (Shield?)Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Shield);
+        public Weapon? EquippedWeapon => (Weapon?)Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.EquippedWeapon);
+        public List<Equipment> QuickSlots => Backpack.Where(e => e.ItemSlot == ItemSlot.QuickSlot).ToList();
+        public Ammo? Quiver => (Ammo?)Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Quiver);
+        public Equipment? EquippedLantern => Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Lantern);
+        public Equipment? EquippedTorch => Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Torch);
+        public int DualWieldBonus => GetDualWieldBonus();
 
         public bool HasDodgedThisBattle { get; set; } = false;
         public List<Spell> Spells { get; set; } = new List<Spell>();
@@ -394,6 +398,16 @@ namespace LoDCompanion.Models.Character
                     Console.WriteLine($"{this.Name} is no longer strong enough to wield the {weapon.Name} and has unequipped it.");
                 }
             }
+        }
+
+        private int GetDualWieldBonus()
+        {
+            MeleeWeapon? dualWieldWeapon = (MeleeWeapon?)Backpack.FirstOrDefault(w => w.ItemSlot == ItemSlot.DualWield);
+            if (dualWieldWeapon == null) return 0;
+            
+            if (dualWieldWeapon.HasProperty(WeaponProperty.DualWield))
+                return dualWieldWeapon.GetPropertyValue(WeaponProperty.DualWield);
+            return 0; // No dual wield bonus if the weapon doesn't have the property
         }
     }
 
