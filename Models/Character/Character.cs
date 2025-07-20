@@ -230,8 +230,8 @@ namespace LoDCompanion.Models.Character
         public bool HasLantern { get; set; }
         public bool HasTorch { get; set; }
         public bool IsWeShaltNotFalter { get; set; } // Specific buff/debuff
-        public int OneHandedWeaponClass => Get1HWeaponClass();
-        public int TwoHandedWeaponClass => Get2HWeaponClass();
+        public int OneHandedWeaponClass => Get1HWeaponClass(Strength);
+        public int TwoHandedWeaponClass => Get2HWeaponClass(Strength);
 
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
@@ -343,9 +343,9 @@ namespace LoDCompanion.Models.Character
             };
         }
 
-        public int Get1HWeaponClass()
+        public static int Get1HWeaponClass(int str)
         {
-            return Strength switch
+            return str switch
             {
                 < 40 => 2,
                 < 50 => 3,
@@ -353,9 +353,9 @@ namespace LoDCompanion.Models.Character
             };
         }
 
-        public int Get2HWeaponClass()
+        public static int Get2HWeaponClass(int str)
         {
-            return Strength switch
+            return str switch
             {
                 < 30 => 2,
                 < 40 => 3,
@@ -364,13 +364,13 @@ namespace LoDCompanion.Models.Character
             };
         }
 
-        public string GetWieldStatus(Weapon weapon)
+        public static string GetWieldStatus(int str, Weapon weapon)
         {
-            if (weapon.Class != 6 && Get2HWeaponClass() < weapon.Class)
+            if (weapon.Class != 6 && Get2HWeaponClass(str) < weapon.Class)
             {
                 return "(Too weak to wield)";
             }
-            if (Get1HWeaponClass() >= weapon.Class && !weapon.Properties.ContainsKey(WeaponProperty.BFO))
+            if (Get1HWeaponClass(str) >= weapon.Class && !weapon.Properties.ContainsKey(WeaponProperty.BFO))
             {
                 return "(1-Handed)";
             }
@@ -383,23 +383,14 @@ namespace LoDCompanion.Models.Character
         /// </summary>
         private void CheckWeaponRequirements()
         {
-            // This requires an instance of the InventoryService to move items.
-            // In a real app, you would get this via dependency injection.
-            // For this example, we'll assume a static accessor or new instance.
-            var inventoryService = new InventoryService();
-
-            // We need to check a copy of the list, as we might be modifying it.
             var equippedWeapons = new List<Weapon>(this.Weapons);
 
             foreach (var weapon in equippedWeapons)
             {
-                // Use the GameDataService to check if the weapon is usable.
-                if (GetWieldStatus(weapon) == "(Too weak to wield)")
+                if (GetWieldStatus(Strength, weapon) == "(Too weak to wield)")
                 {
-                    // If not, unequip it.
-                    inventoryService.UnequipItem(this, weapon);
+                    InventoryService.UnequipItem(this, weapon);
 
-                    // You could add a log message here to inform the player.
                     Console.WriteLine($"{this.Name} is no longer strong enough to wield the {weapon.Name} and has unequipped it.");
                 }
             }
