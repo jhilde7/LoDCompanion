@@ -27,8 +27,8 @@ namespace LoDCompanion.Models
         public int MaxDurability { get; set; } = 6;
         public int Durability { get; set; } = 1;
         public double Value { get; set; } = 0; 
-        public int SellValue { get; private set; } 
-        public int RepairCost { get; private set; } 
+        public int SellValue => CalculateSalePrice();
+        public int RepairCost => CalculateInitialRepairCosts();
         public int Availability { get; set; } = 4;
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
@@ -37,6 +37,22 @@ namespace LoDCompanion.Models
         public Equipment() 
         {
 
+        }
+
+        public Equipment(Equipment template)
+        {
+            // Copy values from the template
+            this.Category = template.Category;
+            this.Shop = template.Shop;
+            this.Name = template.Name;
+            this.Encumbrance = template.Encumbrance;
+            this.Value = template.Value;
+            this.Availability = template.Availability;
+            this.MaxDurability = template.MaxDurability;
+            this.Durability = template.Durability;
+            this.Quantity = template.Quantity;
+            this.Description = template.Description;
+            this.MagicEffect = template.MagicEffect;
         }
 
         public override string ToString()
@@ -60,49 +76,25 @@ namespace LoDCompanion.Models
             return Name;
         }
 
-        // Method to calculate sale price and repair cost, called when relevant properties change
-        // This replaces the logic previously in Unity's Update() and Start()
-        public void CalculateInitialRepairCosts()
+        public int CalculateInitialRepairCosts()
         {
-            // Initial repair cost calculation (from original Update logic)
-            // Only calculate if not already set or explicitly needed.
-            if (RepairCost == 0 && Value > 0)
+            if (Value > 0)
             {
-                RepairCost = (int)Math.Floor(Value * 0.2f);
+                return (int)Math.Floor(Value * 0.2f);
             }
-
-            CalculateSalePrice();
+            else
+            {
+                return 0;
+            }
         }
 
-        // Method to calculate the sell value of the equipment
-        // Removed Unity's GetComponent and direct references to other classes.
-        // Logic for specific item names like "Nightstalker" or "Dragon Scale" determining maxDurability
-        // should ideally be handled at the point of item creation or in a more structured way,
-        // but for now, it's adapted from the original `CalculateSalePrice`.
-        public void CalculateSalePrice()
+        public int CalculateSalePrice()
         {
-            int currentMaxDurability = MaxDurability; // Use the property that might be set by subclasses
+            int currentMaxDurability = MaxDurability;
 
-            // Adapt specific item name logic here if needed, or better, in specific item classes.
-            // This part is derived directly from the original logic for `maxDurability` in `Equipment.cs`.
-            if (Name != null) // Null check for safety
-            {
-                if (Name.Contains("Nightstalker"))
-                {
-                    currentMaxDurability = 8;
-                }
-                else if (Name.Contains("Dragon Scale"))
-                {
-                    currentMaxDurability = 10;
-                }
-            }
-
-
-            // If quantity is 0 or less, or if durability is 0, or value is too low, it's worthless.
             if (Quantity <= 0 || Durability <= 0 || Value <= 10)
             {
-                SellValue = 0;
-                return;
+                return 0;
             }
 
             // Calculate sale value based on durability remaining
@@ -111,23 +103,17 @@ namespace LoDCompanion.Models
             switch (durabilityDifference)
             {
                 case 0:
-                    SellValue = (int)Math.Floor(Value * 0.7f);
-                    break;
+                    return (int)Math.Floor(Value * 0.7f);
                 case 1:
-                    SellValue = (int)Math.Floor(Value * 0.6f);
-                    break;
+                    return (int)Math.Floor(Value * 0.6f);
                 case 2:
-                    SellValue = (int)Math.Floor(Value * 0.5f);
-                    break;
+                    return (int)Math.Floor(Value * 0.5f);
                 case 3:
-                    SellValue = (int)Math.Floor(Value * 0.4f);
-                    break;
+                    return (int)Math.Floor(Value * 0.4f);
                 case 4:
-                    SellValue = (int)Math.Floor(Value * 0.3f);
-                    break;
+                    return (int)Math.Floor(Value * 0.3f);
                 default:
-                    SellValue = (int)Math.Floor(Value * 0.2f);
-                    break;
+                    return (int)Math.Floor(Value * 0.2f);
             }
         }
     }
@@ -265,9 +251,7 @@ namespace LoDCompanion.Models
             this.DamageBonus = baseWeapon.DamageBonus;
             this.ArmourPiercing = baseWeapon.ArmourPiercing;
 
-            // IMPORTANT: Create a new list for reference types
-            // to prevent both weapons from sharing the same list.
-            this.Properties = baseWeapon.Properties;
+            this.Properties = new Dictionary<WeaponProperty, int>(baseWeapon.Properties);
         }
 
         public override string ToString()
@@ -347,6 +331,27 @@ namespace LoDCompanion.Models
 
         public MagicStaff() { }
 
+        public MagicStaff(MagicStaff template)
+        {
+            // Copy values from the template
+            this.Category = template.Category;
+            this.Shop = template.Shop;
+            this.Name = template.Name;
+            this.Class = template.Class;
+            this.MinDamage = template.MinDamage;
+            this.MaxDamage = template.MaxDamage;
+            this.ArmourPiercing = template.ArmourPiercing;
+            this.Value = template.Value;
+            this.Encumbrance = template.Encumbrance;
+            this.Durability = template.Durability;
+            this.MagicEffect = template.MagicEffect;
+            // Create a NEW dictionary instance with the same properties
+            this.Properties = new Dictionary<WeaponProperty, int>(template.Properties);
+            this.StaffType = template.StaffType;
+            this.ContainedSpell = template.ContainedSpell;
+            this.MagicStaffProperties = new Dictionary<MagicStaffProperty, int>(template.MagicStaffProperties);
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder(base.ToString());
@@ -390,6 +395,32 @@ namespace LoDCompanion.Models
         {
             IsRanged = true;
         } 
+
+        public RangedWeapon(RangedWeapon template)
+        {
+            IsRanged = true;
+            // --- Properties from Searchable ---
+            this.Name = template.Name;
+            // --- Properties from Equipment ---
+            this.Description = template.Description;
+            this.Class = template.Class;
+            this.Durability = template.Durability;
+            this.Encumbrance = template.Encumbrance;
+            this.Value = template.Value;
+            // --- Properties from Weapon ---
+            this.MinDamage = template.MinDamage;
+            this.MaxDamage = template.MaxDamage;
+            this.DamageDice = template.DamageDice;
+            this.DamageBonus = template.DamageBonus;
+            this.ArmourPiercing = template.ArmourPiercing;
+            // --- Properties from RangedWeapon ---
+            this.AmmoType = template.AmmoType;
+            this.Ammo = template.Ammo;
+            this.ElvenBowstring = template.ElvenBowstring;
+            this.AimAttachment = template.AimAttachment;
+            this.IsSecondaryWeapon = template.IsSecondaryWeapon;
+            this.ReloadTime = template.ReloadTime;
+        }
 
         public override string ToString()
         {
