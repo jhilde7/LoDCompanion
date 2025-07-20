@@ -697,7 +697,7 @@ else
                     {
                         // We only need to check MeleeWeapons for this logic
                         var meleeWeapon = weapon as MeleeWeapon;
-                        var wieldStatus = meleeWeapon != null ? GameData.GetWieldStatus(State.Strength, meleeWeapon) : "(2-Handed)";
+                        var wieldStatus = meleeWeapon != null ? Hero.GetWieldStatus(State.Strength, meleeWeapon) : "(2-Handed)";
                         bool canWield = wieldStatus != "(Too weak to wield)";
 
                         <label class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(State.SelectedWeapon == weapon.Name ? "active" : "")">

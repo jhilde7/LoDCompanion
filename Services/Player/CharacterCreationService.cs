@@ -453,8 +453,6 @@ namespace LoDCompanion.Services.CharacterCreation
                 ForagingSkill = State.Foraging,
                 ArcaneArtsSkill = State.ArcaneArts,
                 BattlePrayersSkill = State.BattlePrayers,
-                DamageBonus = _gameData.GetDamageBonusFromSTR(State.Strength),
-                NaturalArmour = _gameData.GetNaturalArmourFromCON(State.Constitution),
                 MaxArmour = State.MaxArmour,
                 Talents = State.TalentList,
                 Perks = State.PerkList,
