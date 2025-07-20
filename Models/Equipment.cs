@@ -1,4 +1,5 @@
-﻿using LoDCompanion.Utilities;
+﻿using LoDCompanion.Services.Player;
+using LoDCompanion.Utilities;
 using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using System.Text;
@@ -20,6 +21,7 @@ namespace LoDCompanion.Models
     {
         public string Category { get; set; } = "Common";
         public ShopCategory Shop { get; set; } = ShopCategory.General;
+        public ItemSlot? ItemSlot { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
