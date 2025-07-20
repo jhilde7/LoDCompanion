@@ -16,7 +16,8 @@ namespace LoDCompanion.Services.Player
         DualWield,
         Shield,
         Torch,
-        Lantern
+        Lantern,
+        Quiver
     }
 
     /// <summary>
@@ -70,65 +71,30 @@ namespace LoDCompanion.Services.Player
             // Add logic for other equippable item types here...
         }
 
-        /// <summary>
-        /// Moves an item from one slot to another for a hero.
-        /// </summary>
-        public string RearrangeItem(Hero hero, Equipment itemToMove, ItemSlot fromSlot, ItemSlot toSlot)
+
+        public List<Equipment>? GetListFromSlot(Hero hero, ItemSlot slot)
         {
-            // Moving to the same slot does nothing.
-            if (fromSlot == toSlot) return "Cannot move an item to the same slot.";
+            return hero.Backpack.Where(i => i.ItemSlot == slot).ToList();
+        }
 
-            var sourceList = GetListFromSlot(hero, fromSlot);
-            var destinationList = GetListFromSlot(hero, toSlot);
-
-            if (sourceList == null || destinationList == null)
+        private bool AddItemToSlot(Hero hero, Equipment item, ItemSlot slot)
+        {
+            var sourceList = GetListFromSlot(hero, slot);
+            if (sourceList == null) return false;
+            // Check if the item already exists in the slot
+            var existingItem = sourceList.FirstOrDefault(i => i.Name == item.Name);
+            if (existingItem != null)
             {
-                return "Invalid item slot specified.";
+                // If it exists, increase the quantity
+                existingItem.Quantity += item.Quantity;
             }
-
-            // --- Handle the four movement scenarios ---
-
-            // 1. Moving FROM Backpack TO a Slot (Unstacking)
-            if (fromSlot == ItemSlot.Backpack && toSlot != ItemSlot.Backpack)
+            else
             {
-                // Check if the destination slot is already occupied.
-                // A more complex implementation could check for max quick slots.
-                if (destinationList.Any())
-                {
-                    return $"The {toSlot} is already full.";
-                }
-
-                var itemInstanceToAdd = CreateSingleInstanceOfItem(itemToMove);
-                destinationList.Add(itemInstanceToAdd);
-                BackpackHelper.RemoveItem(sourceList, itemToMove); // Use helper to de-stack from backpack
-
-                return $"{hero.Name} moved a {itemToMove.Name} from their backpack to their {toSlot}.";
+                // If it doesn't exist, create a new instance with quantity 1
+                var newItem = CreateSingleInstanceOfItem(item);
+                sourceList.Add(newItem);
             }
-
-            // 2. Moving FROM a Slot TO Backpack (Stacking)
-            if (fromSlot != ItemSlot.Backpack && toSlot == ItemSlot.Backpack)
-            {
-                sourceList.Remove(itemToMove);
-                BackpackHelper.AddItem(destinationList, itemToMove); // Use helper to stack in backpack
-
-                return $"{hero.Name} stored their {itemToMove.Name} in their backpack.";
-            }
-
-            // 3. Moving FROM a Slot TO another Slot (Swapping)
-            if (fromSlot != ItemSlot.Backpack && toSlot != ItemSlot.Backpack)
-            {
-                // This is a swap. We'll assume for now the destination is empty.
-                if (destinationList.Any())
-                {
-                    return $"Cannot move {itemToMove.Name}, the {toSlot} is already occupied.";
-                }
-                sourceList.Remove(itemToMove);
-                destinationList.Add(itemToMove);
-
-                return $"{hero.Name} moved their {itemToMove.Name} from {fromSlot} to {toSlot}.";
-            }
-
-            return "Invalid inventory operation.";
+            return true;
         }
 
         private bool RemoveItemFromSlot(Hero hero, Equipment item, ItemSlot slot)
@@ -168,23 +134,6 @@ namespace LoDCompanion.Services.Player
             // This would need to be expanded to handle specific weapon/armour properties
             // if you were moving those types.
             return newItem;
-        }
-
-        private List<Equipment>? GetListFromSlot(Hero hero, ItemSlot slot)
-        {
-            switch (slot)
-            {
-                case ItemSlot.Backpack:
-                    return hero.Backpack;
-                case ItemSlot.QuickSlot:
-                    return hero.QuickSlots;
-                case ItemSlot.EquippedWeapon:
-                    return hero.Weapons.Cast<Equipment>().ToList();
-                case ItemSlot.EquippedArmour:
-                    return hero.Armours.Cast<Equipment>().ToList();
-                default:
-                    return null;
-            }
         }
     }
 }
