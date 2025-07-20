@@ -1,0 +1,133 @@
+﻿@using LoDCompanion.Models
+@using LoDCompanion.Services.Player
+@using LoDCompanion.Services.Game
+
+@inject UIService UIService
+@inject PartyManagerService PartyManager
+@inject InventoryService Inventory
+<style>
+    .inventory-slot {
+        width: 80px;
+        height: 80px;
+        border: 2px solid #5a4d3a;
+        background-color: #4a3f30;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+        font-size: 12px;
+        padding: 4px;
+        position: relative;
+    }
+
+    .empty-slot {
+        background-color: #3e3529;
+    }
+
+    .item-name {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .slot-action-button {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #1a1a1a;
+        border-radius: 50%;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .equip {
+        background-color: #198754;
+    }
+    /* Green */
+    .unequip {
+        background-color: #dc3545;
+    }
+    /* Red */
+</style>
+
+@if (UIService.IsInventoryVisible && PartyManager.SelectedHero != null)
+{
+    var hero = PartyManager.SelectedHero;
+
+    <div class="inventory-backdrop" @onclick="UIService.HideInventory">
+        <div class="inventory-container" @onclick:stopPropagation>
+            <h3>@hero.Name's Inventory</h3>
+
+            <div class="inventory-layout">
+                <div class="equipped-section">
+                    <h4>Equipped Weapon</h4>
+                    @if (hero.Weapons.Any())
+                    {
+                        <InventorySlotComponent Item="hero.Weapons.First()" SlotType="Weapon" OnUnequip="UnequipItem" />
+                    }
+                    else
+                    {
+                        <div class="inventory-slot empty-slot"><span>None</span></div>
+                    }
+
+                    <h4>Equipped Armour</h4>
+                    @* This would be a loop for each armor slot (head, torso, etc.) *@
+                    @if (hero.Armours.Any())
+                    {
+                         <InventorySlotComponent Item="hero.Armours.First()" SlotType="Armour" OnUnequip="UnequipItem" />
+                    }
+                    else
+                    {
+                         <div class="inventory-slot empty-slot"><span>None</span></div>
+                    }
+                </div>
+
+                <div class="backpack-section">
+                    <h4>Backpack</h4>
+                    <div class="backpack-grid">
+                        @foreach (var item in hero.Backpack)
+                        {
+                            <InventorySlotComponent Item="item" SlotType="Backpack" OnEquip="EquipItem" />
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <button class="close-button" @onclick="UIService.HideInventory">Close</button>
+        </div>
+    </div>
+}
+
+@code {
+    private void EquipItem(Equipment item)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            Inventory.EquipItem(PartyManager.SelectedHero, item);
+        }
+    }
+
+    private void UnequipItem(Equipment item)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            Inventory.UnequipItem(PartyManager.SelectedHero, item);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        UIService.OnStateChanged += StateHasChanged;
+        PartyManager.OnPartyChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UIService.OnStateChanged -= StateHasChanged;
+        PartyManager.OnPartyChanged -= StateHasChanged;
+    }
+}
