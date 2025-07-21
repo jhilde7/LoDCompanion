@@ -47,7 +47,7 @@ namespace LoDCompanion.Utilities
                     melee.Quantity -= 1;
                     if (melee.Quantity <= 0)
                     {
-                        backpack.Remove(meleeWeapon);
+                        backpack.Remove(melee);
                     }
                     return meleeWeapon;
                 }
@@ -57,7 +57,7 @@ namespace LoDCompanion.Utilities
                     ranged.Quantity -= 1;
                     if (ranged.Quantity <= 0)
                     {
-                        backpack.Remove(rangedWeapon);
+                        backpack.Remove(ranged);
                     }
                     return rangedWeapon;
                 }
@@ -67,7 +67,7 @@ namespace LoDCompanion.Utilities
                     armour.Quantity -= 1;
                     if (armour.Quantity <= 0)
                     {
-                        backpack.Remove(armourItem);
+                        backpack.Remove(armour);
                     }
                     return armourItem;
                 }
@@ -77,7 +77,7 @@ namespace LoDCompanion.Utilities
                     shield.Quantity -= 1;
                     if (shield.Quantity <= 0)
                     {
-                        backpack.Remove(shieldItem);
+                        backpack.Remove(shield);
                     }
                     return shieldItem;
                 }
@@ -87,7 +87,7 @@ namespace LoDCompanion.Utilities
                     ammo.Quantity -= 1;
                     if (ammo.Quantity <= 0)
                     {
-                        backpack.Remove(ammoItem);
+                        backpack.Remove(ammo);
                     }
                     return ammoItem;
                 }
@@ -97,7 +97,7 @@ namespace LoDCompanion.Utilities
                     mStaff.Quantity -= 1;
                     if (mStaff.Quantity <= 0)
                     {
-                        backpack.Remove(staff);
+                        backpack.Remove(mStaff);
                     }
                     return staff;
                 }
@@ -107,7 +107,7 @@ namespace LoDCompanion.Utilities
                     itemInBackPack.Quantity -= 1;
                     if (itemInBackPack.Quantity <= 0)
                     {
-                        backpack.Remove(singleItem);
+                        backpack.Remove(itemInBackPack);
                     }
                     return singleItem;
                 }
