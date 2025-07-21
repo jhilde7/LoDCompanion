@@ -386,7 +386,7 @@ namespace LoDCompanion.Models.Character
             {
                 if (GetWieldStatus(Strength, weapon) == "(Too weak to wield)")
                 {
-                    InventoryService.UnequipItem(this, weapon);
+                    new InventoryService().UnequipItem(this, weapon);
 
                     Console.WriteLine($"{this.Name} is no longer strong enough to wield the {weapon.Name} and has unequipped it.");
                 }
@@ -395,7 +395,7 @@ namespace LoDCompanion.Models.Character
 
         private int GetDualWieldBonus()
         {
-            MeleeWeapon? dualWieldWeapon = (MeleeWeapon?)Backpack.FirstOrDefault(w => w.ItemSlot == ItemSlot.DualWield);
+            MeleeWeapon? dualWieldWeapon = (MeleeWeapon?)Inventory.OffHand;
             if (dualWieldWeapon == null) return 0;
             
             if (dualWieldWeapon.HasProperty(WeaponProperty.DualWield))
