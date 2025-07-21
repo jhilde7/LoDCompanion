@@ -21,7 +21,6 @@ namespace LoDCompanion.Models
     {
         public string Category { get; set; } = "Common";
         public ShopCategory Shop { get; set; } = ShopCategory.General;
-        public ItemSlot? ItemSlot { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
@@ -33,8 +32,8 @@ namespace LoDCompanion.Models
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
         public string MagicEffect { get; set; } = string.Empty;
-        public bool isLanternItem { get; set; }
-        public bool isTorchItem { get; set; }
+        public bool IsLanternItem { get; set; }
+        public bool IsTorchItem { get; set; }
 
         public Equipment() 
         {
