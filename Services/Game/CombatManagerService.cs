@@ -98,12 +98,12 @@ namespace LoDCompanion.Services.Game
 
                 if (!hero.Weapons.Any())
                 {                    
-                    var availableWeapons = hero.Backpack.OfType<Weapon>()
-                                               .Concat(hero.QuickSlots.OfType<Weapon>())
+                    var availableWeapons = hero.Inventory.Backpack.OfType<Weapon>()
+                                               .Concat(hero.Inventory.QuickSlots.OfType<Weapon>())
                                                .ToList();
                     if (!availableWeapons.Any())
                     {
-                        foreach (var item in hero.Backpack)
+                        foreach (var item in hero.Inventory.Backpack)
                         {
                             Weapon? weapon = EquipmentService.GetWeaponByName(item.Name);
                             if(weapon != null) availableWeapons.Add(weapon);
