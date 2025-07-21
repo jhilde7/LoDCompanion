@@ -1475,7 +1475,7 @@ namespace LoDCompanion.Services.GameData
                 {
                     Category = "Common",
                     Shop = ShopCategory.Armour, Name = "Cloak", DefValue = 1, Encumbrance = 1, Value = 50, Availability = 4, Durability = 6,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.Cloak, 0 }, { ArmourProperty.Stackable, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Cloak, 0 }, { ArmourProperty.Stackable, 0 } }
                 },
                 new Armour()
                 {
