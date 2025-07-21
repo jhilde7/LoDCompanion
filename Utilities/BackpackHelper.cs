@@ -21,13 +21,13 @@ namespace LoDCompanion.Utilities
             }
         }
 
-        public static void RemoveItem(List<Equipment> backpack, Equipment itemToRemove)
+        public static void RemoveSingleItem(List<Equipment> backpack, Equipment itemToRemove)
         {
             var existingItem = backpack.FirstOrDefault(item => item == itemToRemove);
 
             if(existingItem != null && existingItem.Quantity > 1)
             {
-                existingItem.Quantity -= existingItem.Quantity;
+                existingItem.Quantity -= 1;
             }
             else
             {
