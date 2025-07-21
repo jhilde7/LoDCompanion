@@ -176,7 +176,7 @@ namespace LoDCompanion.Services.Combat
             Weapon? monsterWeapon = null;
             if (target is Hero hero)
             {
-                heroWeapon = (Weapon?)hero.Backpack.FirstOrDefault(w => w.ItemSlot == Player.ItemSlot.EquippedWeapon); 
+                heroWeapon = hero.Inventory.EquippedWeapon;
             }
             if(target is Monster monster)
             {
@@ -246,9 +246,9 @@ namespace LoDCompanion.Services.Combat
 
         private async Task<DefenseResult> ResolveHeroDefenseAsync(Hero target, int incomingDamage)
         {
-            if (target.Shield != null)
+            if (target.Inventory.OffHand != null && target.Inventory.OffHand is Shield shield)
             {
-                return await DefenseService.AttemptShieldParry(target, target.Shield, incomingDamage, _diceRoll);
+                return await DefenseService.AttemptShieldParry(target, shield, incomingDamage, _diceRoll);
             }
             if (target.CombatStance == CombatStance.Parry)
             {
@@ -274,7 +274,7 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         private int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, Weapon? weapon)
         {
-            var relevantArmor = target.Armours.Where(a => DoesArmorCoverLocation(a, location)).ToList();
+            var relevantArmor = target.Inventory.EquippedArmour.Where(a => DoesArmorCoverLocation(a, location)).ToList();
             int totalArmorValue = relevantArmor.Sum(a => a.DefValue);
 
             int armourPiercing = weapon?.ArmourPiercing ?? 0;
@@ -304,9 +304,9 @@ namespace LoDCompanion.Services.Combat
         private string CheckForQuickSlotDamage(Hero target)
         {
             int slotRoll = RandomHelper.RollDie("D10");
-            if (slotRoll <= target.QuickSlots.Count)
+            if (slotRoll <= target.Inventory.QuickSlots.Count)
             {
-                var item = target.QuickSlots[slotRoll - 1]; // -1 for 0-based index
+                var item = target.Inventory.QuickSlots[slotRoll - 1]; // -1 for 0-based index
                 item.Durability--;
                 return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged.";
             }
