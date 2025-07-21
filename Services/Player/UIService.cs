@@ -1,21 +1,38 @@
-﻿namespace LoDCompanion.Services.Player
+﻿
+namespace LoDCompanion.Services.Player
 {
     public class UIService
     {
-        public event Action? OnStateChanged;
+        public event Func<Task>? OnStateChanged;
 
         public bool IsInventoryVisible { get; private set; } = false;
 
-        public void ShowInventory()
+        public async Task ShowInventoryAsync()
         {
             IsInventoryVisible = true;
-            OnStateChanged?.Invoke();
+            await NotifyStateChanged();
         }
 
-        public void HideInventory()
+        public async Task HideInventoryAsync()
         {
             IsInventoryVisible = false;
-            OnStateChanged?.Invoke();
+            await NotifyStateChanged();
+        }
+
+        private async Task NotifyStateChanged()
+        {
+            // If there are any subscribers to the event...
+            if (OnStateChanged != null)
+            {
+                // Get each subscriber (delegate) in the event's invocation list.
+                // Invoke them and collect all the returned Tasks.
+                var tasks = OnStateChanged.GetInvocationList()
+                    .Select(subscriber => ((Func<Task>)subscriber)());
+
+                // Await for all of the tasks to complete.
+                await Task.WhenAll(tasks);
+            }
         }
     }
 }
+
