@@ -213,14 +213,8 @@
         if (CurrentHero != null)
         {
             // Add coins back to the party
-            Party.Coins += GetSellPrice(item);
-            BackpackHelper.ReSinglemoveItem(CurrentHero.Inventory.Backpack, item);
+            Party.Coins += item.SellValue;
+            BackpackHelper.RemoveSingleItem(CurrentHero.Inventory.Backpack, item);
         }
-    }
-
-    private int GetSellPrice(Equipment item)
-    {
-        item.CalculateSalePrice();
-        return item.SellValue;
     }
 }
