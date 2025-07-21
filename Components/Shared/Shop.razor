@@ -217,7 +217,11 @@
         if (purchasingCharacter != null && Party.Coins >= item.Value)
         {
             Party.Coins -= (int)item.Value;
-            BackpackHelper.AddItem(purchasingCharacter.Inventory.Backpack, item);
+            var itemToAdd = EquipmentService.GetAnyEquipmentByName(item.Name);
+            if(itemToAdd != null)
+            {
+                BackpackHelper.AddItem(purchasingCharacter.Inventory.Backpack, itemToAdd);
+            }
             StateHasChanged(); // This call is correct!
         }
     }
