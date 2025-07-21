@@ -236,10 +236,8 @@ namespace LoDCompanion.Services.Player
             ArmourProperty.Cloak
         };
 
-        private bool EquipArmour(Hero hero, Armour armour)
+        private bool EquipArmour(Hero hero, Armour armourToEquip)
         {
-            Armour? armourToEquip = (Armour?)BackpackHelper.TakeOneItem(hero.Inventory.Backpack, armour);
-            if (armourToEquip == null) return false;
             var slotToOccupy = armourToEquip.Properties.Keys.FirstOrDefault(p => _bodySlots.Contains(p));
             if (slotToOccupy == default)
             {
