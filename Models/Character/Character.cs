@@ -237,6 +237,7 @@ namespace LoDCompanion.Models.Character
         public List<Perk> Perks { get; set; } = new List<Perk>();
         public Inventory Inventory { get; set; } = new Inventory();
         public int DualWieldBonus => GetDualWieldBonus();
+        public Dictionary<ArmourProperty, int> ArmourDefValues => GetDefValues();
 
         public bool HasDodgedThisBattle { get; set; } = false;
         public List<Spell> Spells { get; set; } = new List<Spell>();
@@ -401,6 +402,43 @@ namespace LoDCompanion.Models.Character
             if (dualWieldWeapon.HasProperty(WeaponProperty.DualWield))
                 return dualWieldWeapon.GetPropertyValue(WeaponProperty.DualWield);
             return 0; // No dual wield bonus if the weapon doesn't have the property
+        }
+
+        private Dictionary<ArmourProperty, int> GetDefValues()
+        {
+            int head = 0;
+            int torso = 0;
+            int arms = 0;
+            int legs = 0;
+            foreach(var armour in Inventory.EquippedArmour)
+            {
+                foreach (var property in armour.Properties)
+                {
+                    switch (property.Key)
+                    {
+                        case ArmourProperty.Head:
+                            head += armour.DefValue;
+                            break;
+                        case ArmourProperty.Torso:
+                            torso += armour.DefValue;
+                            break;
+                        case ArmourProperty.Arms:
+                            arms += armour.DefValue;
+                            break;
+                        case ArmourProperty.Legs:
+                            legs += armour.DefValue;
+                            break;
+                    } 
+                }
+            }
+
+            return new Dictionary<ArmourProperty, int>
+            {
+                { ArmourProperty.Head, head },
+                { ArmourProperty.Torso, torso },
+                { ArmourProperty.Arms, arms },
+                { ArmourProperty.Legs, legs }
+            };
         }
     }
 
