@@ -235,14 +235,7 @@ namespace LoDCompanion.Models.Character
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
         public List<Perk> Perks { get; set; } = new List<Perk>();
-        public List<Equipment> Backpack { get; set; } = new List<Equipment>();
-        public List<Armour> EquippedArmour => (List<Armour>) Backpack.Where(e => e.ItemSlot == ItemSlot.EquippedArmour);
-        public Shield? EquippedShield => (Shield?)Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Shield);
-        public Weapon? EquippedWeapon => (Weapon?)Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.EquippedWeapon);
-        public List<Equipment> QuickSlots => Backpack.Where(e => e.ItemSlot == ItemSlot.QuickSlot).ToList();
-        public Ammo? Quiver => (Ammo?)Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Quiver);
-        public Equipment? EquippedLantern => Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Lantern);
-        public Equipment? EquippedTorch => Backpack.FirstOrDefault(e => e.ItemSlot == ItemSlot.Torch);
+        public Inventory Inventory { get; set; } = new Inventory();
         public int DualWieldBonus => GetDualWieldBonus();
 
         public bool HasDodgedThisBattle { get; set; } = false;
@@ -278,7 +271,7 @@ namespace LoDCompanion.Models.Character
             if (Perks.Any()) sb.AppendLine($"\n-- Perks --\n{string.Join(", ", Perks.Select(p => p.Name))}");
             if (Spells.Any()) sb.AppendLine($"\n-- Spells --\n{string.Join(", ", Spells.Select(s => s.Name))}");
             if (Prayers.Any()) sb.AppendLine($"\n-- Prayers --\n{string.Join(", ", Prayers.Select(p => p.Name))}");
-            if (Backpack.Any()) sb.AppendLine($"\n-- Backpack --\n{string.Join(", ", Backpack.Select(e => e.Name))}");
+            if (Inventory.Backpack.Any()) sb.AppendLine($"\n-- Backpack --\n{string.Join(", ", Inventory.Backpack.Select(e => e.Name))}");
 
             return sb.ToString();
         }
