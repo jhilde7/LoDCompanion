@@ -19,8 +19,16 @@ namespace LoDCompanion.Services.Player
         // Carried Items
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
         public List<Equipment> QuickSlots { get; set; } = [.. new Equipment[3]];
-
-        public int MaxQuickSlots { get; set; } = 3;
+        private int _maxQuickSlots;
+        public int MaxQuickSlots
+        {
+            get => _maxQuickSlots;
+            set
+            {
+                _maxQuickSlots = value;
+                QuickSlots = [.. new Equipment[_maxQuickSlots]];
+            }
+        }
 
         public Inventory() { }
     }
