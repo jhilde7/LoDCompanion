@@ -64,16 +64,16 @@ namespace LoDCompanion.Services.Player
 
         public bool EquipItem(Hero hero, Equipment item)
         {
+            bool success = false;
+            if (item is Ammo ammo) success = EquipAmmo(hero, ammo);
+
             // Take a single instance of the item from the backpack stack.
             Equipment? itemToEquip = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, item);
             if (itemToEquip == null) return false;
-
-            bool success = false;
             // Route to the correct handler based on the item's type.
             if (itemToEquip is Weapon weapon) success = EquipWeapon(hero, weapon);
             else if (itemToEquip is Armour armour) success = EquipArmour(hero, armour);
             else if (itemToEquip is Shield shield) success = EquipOffHand(hero, shield);
-            else if (itemToEquip is Ammo ammo) success = EquipAmmo(hero, ammo);
             else if (itemToEquip.HasProperty(EquipmentProperty.Lantern) || itemToEquip.HasProperty(EquipmentProperty.Torch))
             {
                 success = EquipOffHand(hero, itemToEquip);
@@ -123,12 +123,16 @@ namespace LoDCompanion.Services.Player
         private bool EquipAmmo(Hero hero, Ammo ammoToEquip)
         {
             EmptyQuiver(hero, hero.Inventory);
-            int quantityToMove = Math.Min(10, ammoToEquip.Quantity);
-            var quiverStack = new Ammo(ammoToEquip) { Quantity = quantityToMove };
-            ammoToEquip.Quantity -= quantityToMove;
-
-            hero.Inventory.EquippedQuiver = quiverStack;
-            Console.WriteLine($"{hero.Name}'s quiver was loaded with {quantityToMove} {ammoToEquip.Name}s.");
+            var backpackStack = (Ammo?)hero.Inventory.Backpack.FirstOrDefault(a => a.Name == ammoToEquip.Name);
+            if (backpackStack != null)
+            {
+                int quantityToMove = Math.Min(10, backpackStack.Quantity);
+                var quiverStack = new Ammo(backpackStack) { Quantity = quantityToMove };
+                backpackStack.Quantity -= quantityToMove; 
+                hero.Inventory.EquippedQuiver = quiverStack;
+                Console.WriteLine($"{hero.Name}'s quiver was loaded with {quantityToMove} {ammoToEquip.Name}s.");
+                return true;
+            }
             return false;
         }
 
