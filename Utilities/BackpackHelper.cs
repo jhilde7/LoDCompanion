@@ -34,5 +34,61 @@ namespace LoDCompanion.Utilities
                 backpack.Remove(itemToRemove);
             }
         }
+
+        internal static Equipment? TakeOneItem(List<Equipment> backpack, Equipment item)
+        {
+            var itemInBackPack = backpack.FirstOrDefault(i => i.Name == item.Name);
+            if (itemInBackPack != null && itemInBackPack.Quantity == 1)
+            {
+                return itemInBackPack;
+            }
+
+            if (itemInBackPack != null)
+            {
+                if (itemInBackPack is MeleeWeapon melee)
+                {
+                    var meleeWeapon = new MeleeWeapon(melee);
+                    melee.Quantity -= 1;
+                    return meleeWeapon;
+                }
+                else if (itemInBackPack is RangedWeapon ranged)
+                {
+                    var rangedWeapon = new RangedWeapon(ranged);
+                    ranged.Quantity -= 1;
+                    return rangedWeapon;
+                }
+                else if (itemInBackPack is Armour armour)
+                {
+                    var armourItem = new Armour(armour);
+                    armour.Quantity -= 1;
+                    return armourItem;
+                }
+                else if (itemInBackPack is Shield shield)
+                {
+                    var shieldItem = new Shield(shield);
+                    shield.Quantity -= 1;
+                    return shieldItem;
+                }
+                else if (itemInBackPack is Ammo ammo)
+                {
+                    var ammoItem = new Ammo(ammo);
+                    ammo.Quantity -= 1;
+                    return ammoItem;
+                }
+                else if (itemInBackPack is MagicStaff mStaff)
+                {
+                    var staff = new MagicStaff(mStaff);
+                    mStaff.Quantity -= 1;
+                    return staff;
+                }
+                else
+                {
+                    var singleItem = new Equipment(itemInBackPack);
+                    itemInBackPack.Quantity -= 1;
+                    return singleItem;
+                }
+            }
+            return null;
+        }
     }
 }
