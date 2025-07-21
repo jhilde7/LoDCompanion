@@ -483,18 +483,18 @@ namespace LoDCompanion.Services.CharacterCreation
             // Add starting backpack items
             foreach (Equipment item in State.StartingEquipment)
             {
-                BackpackHelper.AddItem(State.Hero.Backpack, item);
+                BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
             }
 
             if (State.SelectedProfession.StartingBackpackList != null)
             {
                 foreach (Equipment item in State.SelectedProfession.StartingBackpackList)
                 {
-                    BackpackHelper.AddItem(State.Hero.Backpack, item);
+                    BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
                 } 
             }
 
-            foreach(Equipment equipment in State.Hero.Backpack)
+            foreach(Equipment equipment in State.Hero.Inventory.Backpack)
             {
                 if (equipment is MeleeWeapon || equipment is RangedWeapon || equipment is Armour)
                 {

@@ -16,7 +16,7 @@ namespace LoDCompanion.Services.Player
         public string ApplyBandage(Hero healer, Hero target)
         {
             // Find a bandage in the healer's quick slots.
-            var bandage = healer.QuickSlots.FirstOrDefault(i => i.Name.Contains("Bandage"));
+            var bandage = healer.Inventory.QuickSlots.FirstOrDefault(i => i.Name.Contains("Bandage"));
             if (bandage == null)
             {
                 return $"{healer.Name} has no bandages in their quick slots.";
@@ -26,7 +26,7 @@ namespace LoDCompanion.Services.Player
             bandage.Quantity--;
             if (bandage.Quantity <= 0)
             {
-                healer.QuickSlots.Remove(bandage);
+                healer.Inventory.QuickSlots.Remove(bandage);
             }
 
             // Perform a Heal skill check.

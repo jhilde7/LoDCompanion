@@ -918,11 +918,11 @@ else
                     </p>
                 }
 
-                @if (currentHero.Backpack.Any())
+                @if (currentHero.Inventory.Backpack.Any())
                 {
                     <p><strong>Equipment:</strong></p>
                     <p>
-                    @foreach(var item in currentHero.Backpack)
+                    @foreach(var item in currentHero.Inventory.Backpack)
                         {
                             <span class="badge badge-pill badge-primary">
                                 <span title="@item.ToString()">

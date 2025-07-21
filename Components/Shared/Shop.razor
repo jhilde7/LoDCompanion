@@ -42,9 +42,9 @@
                         }
                     </div>
                     <ul class="list-group list-group-flush">
-                        @if (CurrentHero != null && CurrentHero.Backpack.Any())
+                        @if (CurrentHero != null && CurrentHero.Inventory.Backpack.Any())
                         {
-                            @foreach (var item in CurrentHero.Backpack)
+                            @foreach (var item in CurrentHero.Inventory.Backpack)
                             {
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span title="@item.ToString()">@item.Name</span>
@@ -203,7 +203,7 @@
         if (purchasingCharacter != null && Party.Coins >= item.Value)
         {
             Party.Coins -= (int)item.Value;
-            BackpackHelper.AddItem(purchasingCharacter.Backpack, item);
+            BackpackHelper.AddItem(purchasingCharacter.Inventory.Backpack, item);
             StateHasChanged(); // This call is correct!
         }
     }
@@ -214,7 +214,7 @@
         {
             // Add coins back to the party
             Party.Coins += GetSellPrice(item);
-            BackpackHelper.RemoveItem(CurrentHero.Backpack, item);
+            BackpackHelper.RemoveItem(CurrentHero.Inventory.Backpack, item);
         }
     }
 

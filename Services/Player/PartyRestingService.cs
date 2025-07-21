@@ -58,7 +58,7 @@ namespace LoDCompanion.Services.Player
             }
 
             // Step 1: Check for Rations
-            var ration = party.Heroes.SelectMany(h => h.Backpack).First(i => i.Name == "Ration");
+            var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i.Name == "Ration");
             if (ration == null || ration.Quantity <= 0)
             {
                 result.Message = "The party has no rations and cannot rest.";

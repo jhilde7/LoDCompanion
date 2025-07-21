@@ -278,7 +278,7 @@ namespace LoDCompanion.Services.Player
                         if (_inventory.EquipItem(inventoryHero1, item1)) resultMessage = $"{item1.Name} was equipped";
                         else
                         {
-                            resultMessage = $"{item.Name} could not be equipped";
+                            resultMessage = $"{item1.Name} could not be equipped";
                             actionWasSuccessful = false;
                         }
                     }

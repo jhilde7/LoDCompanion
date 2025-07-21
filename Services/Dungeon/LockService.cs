@@ -27,7 +27,7 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             // Check if hero has lock picks
-            var lockPicks = hero.Backpack.Find(item => item.Name == "Lock Picks");
+            var lockPicks = hero.Inventory.Backpack.Find(item => item.Name == "Lock Picks");
             if (lockPicks == null || lockPicks.Quantity <= 0)
             {
                 Console.WriteLine($"{hero.Name} has no Lock Picks!");
@@ -91,7 +91,7 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             // Check for crowbar in backpack
-            var crowbar = hero.Backpack.Find(item => item.Name == "Crowbar");
+            var crowbar = hero.Inventory.Backpack.Find(item => item.Name == "Crowbar");
             if (crowbar != null)
             {
                 damageToLock = (int)(damageToLock * 1.5); // 50% bonus from crowbar
