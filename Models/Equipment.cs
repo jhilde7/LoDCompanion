@@ -583,15 +583,14 @@ namespace LoDCompanion.Models
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
             }
 
-            var coveredAreas = new List<string>();
-            if (HasProperty(ArmourProperty.Head)) coveredAreas.Add("Head");
-            if (HasProperty(ArmourProperty.Torso)) coveredAreas.Add("Torso");
-            if (HasProperty(ArmourProperty.Arms)) coveredAreas.Add("Arms");
-            if (HasProperty(ArmourProperty.Legs)) coveredAreas.Add("Legs");
-            if (HasProperty(ArmourProperty.Cloak)) coveredAreas.Add("Back");
-            if (coveredAreas.Any())
+            if (Properties.Any())
             {
-                sb.AppendLine($"Covers: {string.Join(", ", coveredAreas)}");
+                var propsAsStrings = new List<string>();
+                foreach (var prop in Properties)
+                {
+                    propsAsStrings.Add(prop.Key.ToString());                    
+                }
+                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
             }
             return sb.ToString();
         }
