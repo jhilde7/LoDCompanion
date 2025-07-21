@@ -51,11 +51,11 @@ namespace LoDCompanion.Services.Dungeon
             {
                 searchTarget += 20;
             }
-            if (hero.HasTorch)
+            if (hero.Inventory.OffHand != null && hero.Inventory.OffHand.HasProperty(Models.EquipmentProperty.Torch))
             {
                 searchTarget += 5;
             }
-            if (hero.HasLantern)
+            if (hero.Inventory.OffHand != null && hero.Inventory.OffHand.HasProperty(Models.EquipmentProperty.Lantern))
             {
                 searchTarget += 10;
             }
