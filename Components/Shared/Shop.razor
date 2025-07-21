@@ -214,7 +214,7 @@
         {
             // Add coins back to the party
             Party.Coins += GetSellPrice(item);
-            BackpackHelper.RemoveItem(CurrentHero.Inventory.Backpack, item);
+            BackpackHelper.ReSinglemoveItem(CurrentHero.Inventory.Backpack, item);
         }
     }
 
