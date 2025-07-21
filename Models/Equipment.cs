@@ -27,6 +27,12 @@ namespace LoDCompanion.Models
         Lockpick,
     }
 
+    [JsonDerivedType(typeof(Weapon), typeDiscriminator: "Weapon")]
+    [JsonDerivedType(typeof(MeleeWeapon), typeDiscriminator: "MeleeWeapon")]
+    [JsonDerivedType(typeof(RangedWeapon), typeDiscriminator: "RangedWeapon")]
+    [JsonDerivedType(typeof(Armour), typeDiscriminator: "Armour")]
+    [JsonDerivedType(typeof(Shield), typeDiscriminator: "Shield")]
+    [JsonDerivedType(typeof(Ammo), typeDiscriminator: "Ammo")]
     public class Equipment
     {
         public string Category { get; set; } = "Common";
