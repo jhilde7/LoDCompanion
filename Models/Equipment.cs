@@ -17,6 +17,16 @@ namespace LoDCompanion.Models
         Potions,
     }
 
+    public enum EquipmentProperty
+    {
+        Lantern,
+        Torch,
+        Backpack,
+        Consumable,
+        Restorative,
+        Lockpick,
+    }
+
     public class Equipment
     {
         public string Category { get; set; } = "Common";
@@ -32,8 +42,7 @@ namespace LoDCompanion.Models
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
         public string MagicEffect { get; set; } = string.Empty;
-        public bool IsLanternItem { get; set; }
-        public bool IsTorchItem { get; set; }
+        public Dictionary<EquipmentProperty, int> Properties { get; set; } = new Dictionary<EquipmentProperty, int>();
 
         public Equipment() 
         {
@@ -117,6 +126,16 @@ namespace LoDCompanion.Models
                     return (int)Math.Floor(Value * 0.2f);
             }
         }
+
+        public bool HasProperty(EquipmentProperty property)
+        {
+            return Properties.ContainsKey(property);
+        }
+
+        public int GetPropertyValue(EquipmentProperty property)
+        {
+            return Properties.GetValueOrDefault(property, 0);
+        }
     }
 
     public enum AmmoType
@@ -137,7 +156,7 @@ namespace LoDCompanion.Models
     public class Ammo : Equipment
     {
         public AmmoType AmmoType { get; set; } = AmmoType.Arrow; // Default ammo type, can be set in constructor
-        public Dictionary<AmmoProperty, int> Properties { get; set; } = new Dictionary<AmmoProperty, int>();
+        public new Dictionary<AmmoProperty, int> Properties { get; set; } = new Dictionary<AmmoProperty, int>();
 
         public Ammo() { } // Default constructor
 
@@ -222,7 +241,7 @@ namespace LoDCompanion.Models
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public int ArmourPiercing { get; set; }
-        public virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
+        public new virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
 
         public virtual int RollDamage()
         {
@@ -516,7 +535,7 @@ namespace LoDCompanion.Models
         public int DefValue { get; set; }
         private Dictionary<ArmourProperty, int> _properties = new Dictionary<ArmourProperty, int>();
 
-        public Dictionary<ArmourProperty, int> Properties
+        public new Dictionary<ArmourProperty, int> Properties
         {
             get => _properties;
             set
@@ -605,7 +624,7 @@ namespace LoDCompanion.Models
         public int DefValue { get; set; }
         private Dictionary<ShieldProperty, int> _properties = new Dictionary<ShieldProperty, int>();
 
-        public Dictionary<ShieldProperty, int> Properties
+        public new Dictionary<ShieldProperty, int> Properties
         {
             get => _properties;
             set
