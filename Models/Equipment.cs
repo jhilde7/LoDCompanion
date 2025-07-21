@@ -33,6 +33,8 @@ namespace LoDCompanion.Models
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
         public string MagicEffect { get; set; } = string.Empty;
+        public bool isLanternItem { get; set; }
+        public bool isTorchItem { get; set; }
 
         public Equipment() 
         {
@@ -433,7 +435,6 @@ namespace LoDCompanion.Models
             this.Ammo = template.Ammo;
             this.ElvenBowstring = template.ElvenBowstring;
             this.AimAttachment = template.AimAttachment;
-            this.IsSecondaryWeapon = template.IsSecondaryWeapon;
             this.ReloadTime = template.ReloadTime;
         }
 
