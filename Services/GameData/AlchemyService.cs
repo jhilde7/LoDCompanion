@@ -545,7 +545,7 @@ namespace LoDCompanion.Services.GameData
             // 1. Check if the alchemist has the required components in their backpack
             foreach (var component in recipe.Components)
             {
-                var requiredItem = alchemist.Backpack.FirstOrDefault(item => item.Name == component.Name && item.Quantity > 0);
+                var requiredItem = alchemist.Inventory.Backpack.FirstOrDefault(item => item.Name == component.Name && item.Quantity > 0);
                 if (requiredItem == null)
                 {
                     return $"Brewing failed: Missing component - {component.Name}.";
@@ -555,11 +555,11 @@ namespace LoDCompanion.Services.GameData
             // 2. Consume the components
             foreach (var component in recipe.Components)
             {
-                var itemInBackpack = alchemist.Backpack.First(item => item.Name == component.Name);
+                var itemInBackpack = alchemist.Inventory.Backpack.First(item => item.Name == component.Name);
                 itemInBackpack.Quantity--;
                 if (itemInBackpack.Quantity <= 0)
                 {
-                    alchemist.Backpack.Remove(itemInBackpack);
+                    alchemist.Inventory.Backpack.Remove(itemInBackpack);
                 }
             }
 
@@ -574,7 +574,7 @@ namespace LoDCompanion.Services.GameData
             };
 
             // 4. Add the new potion to the alchemist's backpack
-            BackpackHelper.AddItem(alchemist.Backpack, newPotion);
+            BackpackHelper.AddItem(alchemist.Inventory.Backpack, newPotion);
 
             return $"Successfully brewed: {newPotion.Strength} {newPotion.Name}.";
         }
