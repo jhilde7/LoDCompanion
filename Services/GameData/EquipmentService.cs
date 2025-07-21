@@ -22,14 +22,21 @@ namespace LoDCompanion.Services.GameData
             
         }
 
+        public static Equipment? GetAnyEquipmentByName(string name)
+        {
+            return (Equipment?)GetMeleeWeaponByName(name)
+                ?? (Equipment?)GetRangedWeaponByName(name)
+                ?? (Equipment?)GetMagicStaffByName(name)
+                ?? (Equipment?)GetArmourByName(name)
+                ?? (Equipment?)GetShieldByName(name)
+                ?? (Equipment?)GetAmmoByName(name)
+                ?? GetRelicByName(name); // The last item doesn't need a cast
+        }
+
         public static Equipment? GetEquipmentByName(string name)
         {
-            var masterItem = Equipment.First(x => x.Name == name);
-            if(masterItem != null)
-            {
-                return new Equipment(masterItem);
-            }
-            return null;
+            var masterItem = Equipment.FirstOrDefault(x => x.Name == name);
+            return masterItem != null ? new Equipment(masterItem) : null;
         }
 
         public static Equipment GetEquipmentByNameSetQuantity(string name, int qty)
@@ -58,7 +65,7 @@ namespace LoDCompanion.Services.GameData
 
         public static Ammo? GetAmmoByName(string name)
         {
-            var masterItem = Ammo.First(x => x.Name == name);
+            var masterItem = Ammo.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new Ammo(masterItem) : null;
         }
 
@@ -81,13 +88,13 @@ namespace LoDCompanion.Services.GameData
 
         public static MeleeWeapon? GetMeleeWeaponByName(string name)
         {
-            var masterItem = MeleeWeapons.First(x => x.Name == name);
+            var masterItem = MeleeWeapons.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new MeleeWeapon(masterItem) : null;
         }
 
         public static RangedWeapon? GetRangedWeaponByName(string name)
         {
-            var masterItem = RangedWeapons.First(x => x.Name == name);
+            var masterItem = RangedWeapons.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new RangedWeapon(masterItem) : null;
         }
 
@@ -116,13 +123,13 @@ namespace LoDCompanion.Services.GameData
 
         public static MagicStaff? GetMagicStaffByName(string name)
         {
-            var masterItem = MagicStaves.First(x => x.Name == name);
+            var masterItem = MagicStaves.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new MagicStaff(masterItem) : null;
         }
 
         public static Armour? GetArmourByName(string name)
         {
-            var masterItem = Armour.First(x => x.Name == name);
+            var masterItem = Armour.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new Armour(masterItem) : null;
         }
         public static Armour GetArmourByNameSetDurability(string name, int durability)
@@ -141,7 +148,7 @@ namespace LoDCompanion.Services.GameData
 
         public static Shield? GetShieldByName(string name)
         {
-            var masterItem = Shields.First(x => x.Name == name);
+            var masterItem = Shields.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new Shield(masterItem) : null;
         }
 
@@ -161,7 +168,7 @@ namespace LoDCompanion.Services.GameData
 
         public static Equipment? GetRelicByName(string name)
         {
-            var masterItem = Relics.First(x => x.Name == name);
+            var masterItem = Relics.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? new Equipment(masterItem) : null;
         }
 
