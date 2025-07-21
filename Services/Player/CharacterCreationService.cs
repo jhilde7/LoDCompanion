@@ -410,12 +410,20 @@ namespace LoDCompanion.Services.CharacterCreation
         {
             if (State.SelectedWeapon != null)
             {
-                Weapon weapon = EquipmentService.GetWeaponByName(State.SelectedWeapon) ?? new Weapon();
-                State.StartingEquipment.Add(weapon);
+                Weapon? weapon = EquipmentService.GetWeaponByName(State.SelectedWeapon);
+                if (weapon != null)
+                {
+                    State.StartingEquipment.Add(weapon); 
+                }
             }
-            if(State.SelectedRelic != null) 
+
+            if (State.SelectedRelic != null)
             {
-                State.StartingEquipment.Add(EquipmentService.GetRelicByName(State.SelectedRelic));
+                var relicChoice = EquipmentService.GetRelicByName(State.SelectedRelic);
+                if (State.SelectedRelic != null && relicChoice != null)
+                {
+                    State.StartingEquipment.Add(relicChoice);
+                } 
             }
 
             if (State.SelectedSpecies == null)
