@@ -37,18 +37,21 @@
     height: 80px;
     border: 2px solid #5a4d3a;
     background-color: #4a3f30;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Center content vertically */
-    align-items: center;
-    text-align: center;
-    font-size: 12px;
     padding: 4px;
     position: relative;
     color: #f0e6d2;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
+    }
+
+    .slot-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
     }
 
     .empty-slot {
@@ -118,6 +121,21 @@
     border: 1px solid #5a4d3a;
     }
 
+    .slot-icon {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        font-size: 16px;
+        line-height: 1;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+
+    img.slot-icon {
+        width: 20px;
+        height: 20px;
+        object-fit: contain; /* Ensures the image scales nicely */
+    }
+
 </style>
 
 @if (UIService.IsInventoryVisible && PartyManager.SelectedHero != null)
@@ -137,11 +155,51 @@
                 {
 					@RenderEquippedSlot(item, "Quick Slot")
                 }
-                @RenderEquippedSlot(GetEquippedArmourBySlot(hero, ArmourProperty.Cloak), "Cloak")
-                @RenderEquippedSlot(GetEquippedArmourBySlot(hero, ArmourProperty.Head), "Head")
-                @RenderEquippedSlot(GetEquippedArmourBySlot(hero, ArmourProperty.Torso), "Torso")
-                @RenderEquippedSlot(GetEquippedArmourBySlot(hero, ArmourProperty.Arms), "Arms")
-                @RenderEquippedSlot(GetEquippedArmourBySlot(hero, ArmourProperty.Legs), "Legs")
+                
+                @{
+                    var cloakItems = GetEquippedArmourBySlot(hero, ArmourProperty.Cloak);
+                }
+                @if (cloakItems != null)
+                {
+                    @RenderEquippedSlot(cloakItems.FirstOrDefault(), "Cloak", ArmourProperty.Cloak)
+                    @RenderEquippedSlot(cloakItems.Skip(1).FirstOrDefault(), "Cloak", ArmourProperty.Cloak)
+                }
+
+                @{
+                    var headItems = GetEquippedArmourBySlot(hero, ArmourProperty.Head);
+                }
+                @if (headItems != null)
+                {
+                    @RenderEquippedSlot(headItems.FirstOrDefault(), "Head", ArmourProperty.Head)
+                    @RenderEquippedSlot(headItems.Skip(1).FirstOrDefault(), "Head", ArmourProperty.Head)
+                }
+
+                @{
+                    var torsoItems = GetEquippedArmourBySlot(hero, ArmourProperty.Torso);
+                }
+                @if (torsoItems != null)
+                {
+                    @RenderEquippedSlot(torsoItems.FirstOrDefault(), "Torso", ArmourProperty.Torso)
+                    @RenderEquippedSlot(torsoItems.Skip(1).FirstOrDefault(), "Torso", ArmourProperty.Torso)
+                }
+
+                @{
+                    var armItems = GetEquippedArmourBySlot(hero, ArmourProperty.Arms);
+                }
+                @if (armItems != null)
+                {
+                    @RenderEquippedSlot(armItems.FirstOrDefault(), "Arms", ArmourProperty.Arms)
+                    @RenderEquippedSlot(armItems.Skip(1).FirstOrDefault(), "Arms", ArmourProperty.Arms)
+                }
+
+                @{
+                    var legItems = GetEquippedArmourBySlot(hero, ArmourProperty.Legs);
+                }
+                @if (legItems != null)
+                {
+                    @RenderEquippedSlot(legItems.FirstOrDefault(), "Legs", ArmourProperty.Legs)
+                    @RenderEquippedSlot(legItems.Skip(1).FirstOrDefault(), "Legs", ArmourProperty.Legs)
+                }
             </div>
 
             <h4>Backpack</h4>
@@ -171,41 +229,64 @@
     /// </summary>
     /// <param name="item">The equipment to display, which can be null.</param>
     /// <param name="slotName">The name of the slot to display if it's empty.</param>
-    private RenderFragment RenderEquippedSlot(Equipment? item, string slotName) => builder =>
+    private RenderFragment RenderEquippedSlot(Equipment? item, string slotName, ArmourProperty? slotContext = null) => builder =>
     {
         if (item != null)
         {
-            // If the slot is filled, show the item and an 'unequip' button.
             builder.OpenElement(0, "div");
             builder.AddAttribute(1, "class", "inventory-slot");
+            builder.AddAttribute(2, "title", $"{item.ToString()}");
 
-            builder.OpenElement(2, "button");
-            builder.AddAttribute(3, "class", "slot-action-button unequip");
-            builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => UnequipItem(item)));
-            builder.AddContent(5, "-");
-            builder.CloseElement(); // button
+            // --- All absolutely positioned items go here ---
 
-            builder.OpenElement(6, "div");
-            builder.AddAttribute(7, "class", "item-name");
-            builder.AddContent(8, item.Name);
-            builder.CloseElement(); // item-name
+            if (slotContext.HasValue && item is Armour)
+            {
+                // Get the icon for the specific slot being rendered
+                var icon = GetIconForSlot(slotContext.Value);
 
+                if (!string.IsNullOrEmpty(icon))
+                {
+                    builder.OpenElement(2, "img");
+                    builder.AddAttribute(3, "class", "slot-icon");
+                    builder.AddAttribute(4, "src", icon);
+                    builder.CloseElement();
+                }
+            }
+
+            // Unequip Button (Upper-Right)
+            builder.OpenElement(5, "button");
+            builder.AddAttribute(6, "class", "slot-action-button unequip");
+            builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, () => UnequipItem(item)));
+            builder.AddContent(8, "-");
+            builder.CloseElement();
+
+            // Quantity (Lower-Right)
             if (item.Quantity > 1)
             {
                 builder.OpenElement(9, "div");
                 builder.AddAttribute(10, "class", "item-quantity");
-                builder.AddContent(11, $"x{item.Quantity}");
-                builder.CloseElement(); // item-quantity
+                builder.AddContent(11, $"x {item.Quantity}");
+                builder.CloseElement();
             }
 
+            // --- Wrapper for the centered content ---
+            builder.OpenElement(12, "div");
+            builder.AddAttribute(13, "class", "slot-content");
+
+            builder.OpenElement(14, "div");
+            builder.AddAttribute(15, "class", "item-name");
+            builder.AddContent(16, item.Name);
+            builder.CloseElement(); // item-name
+
+            builder.CloseElement(); // slot-content
             builder.CloseElement(); // inventory-slot
         }
         else
         {
             // If the slot is empty, show its name.
-            builder.OpenElement(12, "div");
-            builder.AddAttribute(13, "class", "inventory-slot empty-slot");
-            builder.AddContent(14, slotName);
+            builder.OpenElement(17, "div");
+            builder.AddAttribute(18, "class", "inventory-slot empty-slot");
+            builder.AddContent(19, slotName);
             builder.CloseElement();
         }
     };
@@ -216,9 +297,22 @@
     /// <param name="hero">The hero whose armor to check.</param>
     /// <param name="slot">The ArmourProperty representing the body slot (e.g., Head, Torso).</param>
     /// <returns>The equipped Armour object or null if no item is in that slot.</returns>
-    private Armour? GetEquippedArmourBySlot(Hero hero, ArmourProperty slot)
+    private List<Armour>? GetEquippedArmourBySlot(Hero hero, ArmourProperty slot)
     {
-        return hero.Inventory.EquippedArmour.FirstOrDefault(a => a.HasProperty(slot));
+        return hero.Inventory.EquippedArmour.Where(a => a.HasProperty(slot)).ToList();
+    }
+
+    private string GetIconForSlot(ArmourProperty slot)
+    {
+        switch (slot)
+        {
+            case ArmourProperty.Head: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_helm.png";
+            case ArmourProperty.Torso: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_chest.png";
+            case ArmourProperty.Legs: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_pants.png";
+            case ArmourProperty.Arms: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_bracers.png";
+            case ArmourProperty.Cloak: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_back.png";
+            default: return string.Empty; // Return nothing if no specific icon is found
+        }
     }
 
     private void EquipItem(Equipment item)
