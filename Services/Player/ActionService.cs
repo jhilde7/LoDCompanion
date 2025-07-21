@@ -25,7 +25,8 @@ namespace LoDCompanion.Services.Player
         DisarmTrap,
         HealSelf,
         HealOther,
-        RearrangeGear,
+        EquipGear,
+        AddItemToQuickSlot,
         IdentifyItem,
         SetOverwatch,
         PowerAttack,
@@ -255,10 +256,31 @@ namespace LoDCompanion.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.RearrangeGear:
-                    if (character is Hero inventoryHero && primaryTarget is Equipment item && secondaryTarget is ValueTuple<ItemSlot, ItemSlot> slots)
+                case ActionType.EquipGear:
+                    if (character is Hero inventoryHero && primaryTarget is Equipment item)
                     { 
-                        resultMessage = _inventory.RearrangeItem(inventoryHero, item, slots.Item1, slots.Item2);
+                        if(_inventory.EquipItem(inventoryHero, item)) resultMessage = $"{item.Name} was equipped";
+                        else 
+                        { 
+                            resultMessage = $"{item.Name} could not be equipped";
+                            actionWasSuccessful = false;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Action was unsuccessful";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case ActionType.AddItemToQuickSlot:
+                    if (character is Hero inventoryHero1 && primaryTarget is Equipment item1)
+                    {
+                        if (_inventory.EquipItem(inventoryHero1, item1)) resultMessage = $"{item1.Name} was equipped";
+                        else
+                        {
+                            resultMessage = $"{item.Name} could not be equipped";
+                            actionWasSuccessful = false;
+                        }
                     }
                     else
                     {
@@ -361,7 +383,8 @@ namespace LoDCompanion.Services.Player
                 ActionType.SearchCorpse => 1,
                 ActionType.HealOther => 1,
                 ActionType.HealSelf => 2,
-                ActionType.RearrangeGear => 2,
+                ActionType.EquipGear => 2,
+                ActionType.AddItemToQuickSlot => 2,
                 ActionType.IdentifyItem => 0,
                 ActionType.Reload => 1,
                 ActionType.Aim => 1,
