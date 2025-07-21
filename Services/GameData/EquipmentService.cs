@@ -22,14 +22,19 @@ namespace LoDCompanion.Services.GameData
             
         }
 
-        public static Equipment GetEquipmentByName(string name)
+        public static Equipment? GetEquipmentByName(string name)
         {
-            return Equipment.First(x => x.Name == name) ?? throw new NullReferenceException();
+            var masterItem = Equipment.First(x => x.Name == name);
+            if(masterItem != null)
+            {
+                return new Equipment(masterItem);
+            }
+            return null;
         }
 
         public static Equipment GetEquipmentByNameSetQuantity(string name, int qty)
         {
-            Equipment item = GetEquipmentByName(name);
+            Equipment? item = GetEquipmentByName(name);
             if (item == null) throw new NullReferenceException();
             item.Quantity = qty;
             return item;
@@ -37,7 +42,7 @@ namespace LoDCompanion.Services.GameData
 
         public static Equipment GetEquipmentByNameSetDurabilitySetQuantity(string name, int durability, int qty = 1)
         {
-            Equipment item = GetEquipmentByName(name);
+            Equipment? item = GetEquipmentByName(name);
             if (item == null) throw new NullReferenceException();
             item.Quantity = qty;
             item.Durability = durability;
@@ -53,7 +58,8 @@ namespace LoDCompanion.Services.GameData
 
         public static Ammo? GetAmmoByName(string name)
         {
-            return Ammo.FirstOrDefault(x => x.Name == name);
+            var masterItem = Ammo.First(x => x.Name == name);
+            return masterItem != null ? new Ammo(masterItem) : null;
         }
 
         public static Ammo? GetAmmoByNameSetQuantity(string name, int qty)
@@ -75,18 +81,19 @@ namespace LoDCompanion.Services.GameData
 
         public static MeleeWeapon? GetMeleeWeaponByName(string name)
         {
-            return MeleeWeapons.FirstOrDefault(x => x.Name == name);
+            var masterItem = MeleeWeapons.First(x => x.Name == name);
+            return masterItem != null ? new MeleeWeapon(masterItem) : null;
         }
 
         public static RangedWeapon? GetRangedWeaponByName(string name)
         {
-            return RangedWeapons.FirstOrDefault(x => x.Name == name);
+            var masterItem = RangedWeapons.First(x => x.Name == name);
+            return masterItem != null ? new RangedWeapon(masterItem) : null;
         }
 
         public static Weapon? GetWeaponByName(string name)
         {
-            return (Weapon?)GetMeleeWeaponByName(name) ?? 
-                (Weapon?)GetRangedWeaponByName(name);
+            return (Weapon?)GetMeleeWeaponByName(name) ?? GetRangedWeaponByName(name);
         }
 
         public static Weapon? GetWeaponByNameSetDurability(string name, int durability)
@@ -107,14 +114,16 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static MagicStaff GetMagicStaffByName(string name)
+        public static MagicStaff? GetMagicStaffByName(string name)
         {
-            return MagicStaves.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            var masterItem = MagicStaves.First(x => x.Name == name);
+            return masterItem != null ? new MagicStaff(masterItem) : null;
         }
 
-        public static Armour GetArmourByName(string name)
+        public static Armour? GetArmourByName(string name)
         {
-            return Armour.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            var masterItem = Armour.First(x => x.Name == name);
+            return masterItem != null ? new Armour(masterItem) : null;
         }
         public static Armour GetArmourByNameSetDurability(string name, int durability)
         {
@@ -130,9 +139,10 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static Shield GetShieldByName(string name)
+        public static Shield? GetShieldByName(string name)
         {
-            return Shields.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            var masterItem = Shields.First(x => x.Name == name);
+            return masterItem != null ? new Shield(masterItem) : null;
         }
 
         public static Shield GetShieldByNameSetDurability(string name, int durability)
@@ -149,9 +159,10 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static Equipment GetRelicByName(string name)
+        public static Equipment? GetRelicByName(string name)
         {
-            return Relics.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
+            var masterItem = Relics.First(x => x.Name == name);
+            return masterItem != null ? new Equipment(masterItem) : null;
         }
 
         public static List<Equipment> GetShopInventory(bool useAvailability = false)
