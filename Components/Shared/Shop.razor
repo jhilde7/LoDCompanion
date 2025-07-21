@@ -111,6 +111,12 @@
                                                         Unusable by @CurrentHero.ProfessionName
                                                     </span>
                                                 }
+                                                @if(Armour.HasProperty(ArmourProperty.Stackable))
+                                                {
+                                                    <div class="badge badge-pill badge-warning">
+														Stackable
+                                                    </div>
+                                                }
                                             }
                                             <p class="card-text flex-grow-1">@item.Description</p>
                                             <div class="mt-auto">
@@ -186,16 +192,6 @@
             "(2-Handed)" => "badge-warning", 
             _ => "badge-danger"             
         };
-    }
-
-    private string GetArmourUseStatus(bool canUse)
-    {
-        return canUse switch
-        {
-            true => "badge-success", 
-            false => "badge-warning"
-        };
-
     }
 
     private void SelectCategory(ShopCategory category)
