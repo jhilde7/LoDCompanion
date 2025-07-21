@@ -20,6 +20,8 @@ namespace LoDCompanion.Services.Player
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
         public List<Equipment> QuickSlots { get; set; } = [.. new Equipment[3]];
 
+        public int MaxQuickSlots { get; set; } = 3;
+
         public Inventory() { }
     }
 
@@ -33,9 +35,25 @@ namespace LoDCompanion.Services.Player
            
         }
 
-        /// <summary>
-        /// Equips an item from a hero's backpack.
-        /// </summary>
+        public bool AddItemToQuickSlot(Hero hero, Equipment item)
+        {
+            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i.Name == item.Name);
+            if (itemInBackpack != null)
+            {
+                var itemToMove = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemInBackpack);
+                if(itemToMove != null)
+                {
+                    hero.Inventory.QuickSlots.Add(itemToMove);
+                    if(hero.Inventory.QuickSlots.Count > hero.Inventory.MaxQuickSlots)
+                    {
+                        hero.Inventory.QuickSlots.RemoveAt(0);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public bool EquipItem(Hero hero, Equipment item)
         {
             // Take a single instance of the item from the backpack stack.
