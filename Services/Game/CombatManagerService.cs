@@ -367,23 +367,62 @@ namespace LoDCompanion.Services.Game
         }
 
         /// <summary>
-        /// Checks if any hero on Overwatch can interrupt a moving monster.
+        /// Checks if any hero on Overwatch can interrupt a monster moving along a specific path.
         /// </summary>
         /// <param name="movingMonster">The monster that is taking its turn.</param>
+        /// <param name="path">The sequence of GridPositions the monster intends to move through.</param>
         /// <returns>The hero that can interrupt, or null if none can.</returns>
-        private Hero? CheckForOverwatchInterrupt(Monster movingMonster)
+        private Hero? CheckForOverwatchInterrupt(Monster movingMonster, List<GridPosition> path)
         {
-            // This requires game state knowledge (LOS, ZOC) which isn't available here yet.
-            // This is a placeholder for that future logic.
-            foreach (var hero in HeroesInCombat.Where(h => h.CombatStance == CombatStance.Overwatch))
+            // Get all heroes currently on Overwatch who are able to act.
+            var overwatchHeroes = HeroesInCombat
+                .Where(h => h.CombatStance == CombatStance.Overwatch && h.CurrentHP > 0)
+                .ToList();
+
+            if (!overwatchHeroes.Any())
             {
-                // TODO: Check if movingMonster is in LOS for ranged or ZOC for melee.
-                bool canInterrupt = true; // Assume true for this example
-                if (canInterrupt)
+                return null; // No one is on overwatch, so no interrupt is possible.
+            }
+
+            // We check each square in the monster's path (excluding its starting square).
+            foreach (var pathSquare in path.Skip(1))
+            {
+                // Check each hero on overwatch to see if they can interrupt at this square.
+                foreach (var hero in overwatchHeroes)
                 {
-                    return hero;
+                    var weapon = hero.Weapons.FirstOrDefault();
+                    if (weapon == null) continue; // Hero has no weapon to attack with.
+
+                    // Ranged Overwatch Check: Can the hero see the square?
+                    // According to the rules, a ranged weapon cannot be used if an enemy is adjacent.
+                    if (weapon.IsRanged)
+                    {
+                        // Check for adjacent enemies
+                        bool isEnemyAdjacent = HeroesInCombat.Any(h => GridService.GetDistance(hero.Position, h.Position) <= 1);
+                        if (isEnemyAdjacent) continue;
+
+                        var losResult = GridService.HasLineOfSight(hero.Position, pathSquare, _dungeon.DungeonGrid);
+                        if (losResult.CanShoot)
+                        {
+                            // This hero has a clear shot and can interrupt.
+                            return hero;
+                        }
+                    }
+                    // Melee Overwatch Check: Did the monster enter the hero's Zone of Control?
+                    // Dodging and parrying can only be done if the attack comes through the hero's ZOC
+            // It is implied that Overwatch follows the same principle.
+            else
+                    {
+                        if (DirectionService.IsInZoneOfControl(pathSquare, hero))
+                        {
+                            // This hero can make a melee attack and can interrupt.
+                            return hero;
+                        }
+                    }
                 }
             }
+
+            // If we've checked every square and no hero could interrupt.
             return null;
         }
 
