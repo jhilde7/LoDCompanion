@@ -222,16 +222,6 @@ namespace LoDCompanion.Services.Game
                         ActiveHero = null; // Clear the previously active hero
                         CombatLog.Add("Hero's turn. Select an available hero to act.");
                         OnCombatStateChanged?.Invoke();
-
-                        if (ActiveHero != null)
-                        {
-                            ActiveHero.IsVulnerableAfterPowerAttack = false;
-
-                            // Process status effects at the start of the hero's turn
-                            StatusEffectService.ProcessStatusEffects(ActiveHero);
-                            CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
-                            // The game now waits for UI input to call HeroPerformsAction(...).
-                        }
                     }
                     else
                     {
