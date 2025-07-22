@@ -5,6 +5,7 @@
 @using LoDCompanion.Utilities
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Components.Shared
+@implements IDisposable
 
 @inject RoomService RoomService
 @inject FloatingTextService FloatingTextService
@@ -12,76 +13,95 @@
 @inject FacingDirectionService FacingService
 
 <style>
-
     .grid-container {
-    position: relative;
-    border: 2px solid #5a4d3a;
-    background-image: url('/images/backgrounds/grass_tile.png'); /* Example background */
-    background-size: 128px 128px;
+        position: relative;
+        border: 2px solid #5a4d3a;
+        background-image: url('/images/backgrounds/grass_tile.png');
+        /* Example background */
+        background-size: 128px 128px;
     }
 
     .grid-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
-    color: white;
-    text-shadow: 1px 1px 2px black;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        /* Ensures padding and border are included in the element's total width and height */
+        color: white;
+        text-shadow: 1px 1px 2px black;
     }
 
     .furniture-item {
-    background-color: rgba(139, 69, 19, 0.5); /* Brownish, semi-transparent */
-    border: 1px dashed #654321;
+        background-color: rgba(139, 69, 19, 0.5);
+        /* Brownish, semi-transparent */
+        border: 1px dashed #654321;
     }
 
-    .monster-item, .hero-item {
-    /* Flexbox helps arrange the name and HP bar vertically */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Pushes name to top, hp to bottom */
-    align-items: center;
-    /* Visuals */
-    border: 1px solid #1a1a1a;
-    box-sizing: border-box;
-    color: white;
-    text-shadow: 1px 1px 2px black; /* Makes text more readable */
-    font-weight: bold;
-    overflow: hidden; /* Ensures content doesn't spill out */
+    .monster-item,
+    .hero-item {
+        /* Flexbox helps arrange the name and HP bar vertically */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        /* Pushes name to top, hp to bottom */
+        align-items: center;
+        /* Visuals */
+        border: 1px solid #1a1a1a;
+        box-sizing: border-box;
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        /* Makes text more readable */
+        font-weight: bold;
+        overflow: hidden;
+        /* Ensures content doesn't spill out */
     }
 
     .monster-item {
-    background-color: rgba(178, 34, 34, 0.85); /* A semi-transparent red (Firebrick) */
+        background-color: rgba(178, 34, 34, 0.85);
+        /* A semi-transparent red (Firebrick) */
     }
 
     .hero-item {
-    background-color: rgba(46, 139, 87, 0.85); /* A semi-transparent green (Seagreen) */
+        background-color: rgba(46, 139, 87, 0.85);
+        /* A semi-transparent green (Seagreen) */
+    }
+
+    .corpse-item {
+        background-colrgba(200, 200, 20, 0.65);
+        /* A semi-transparent mustard yellow */
     }
 
     .item-label {
-    padding-top: 4px; /* Give the name some space from the top edge */
+        padding-top: 4px;
+        /* Give the name some space from the top edge */
     }
 
     .hp-bar {
-    height: 6px;
-    background-color: #dc3545; /* Default red for monster HP */
-    border-top: 1px solid #1a1a1a;
-    align-self: stretch; /* Makes the bar span the full width */
+        height: 6px;
+        background-color: #dc3545;
+        /* Default red for monster HP */
+        border-top: 1px solid #1a1a1a;
+        align-self: stretch;
+        /* Makes the bar span the full width */
     }
 
     .hero-item .hp-bar {
-    background-color: #198754; /* Override with green for hero HP */
+        background-color: #198754;
+        /* Override with green for hero HP */
     }
 
     .facing-arrow {
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent; /* Adjust size as needed */
-    border-right: 6px solid transparent;
-    border-bottom: 10px solid rgba(255, 255, 255, 0.8); /* A semi-transparent white */
-    /* The transition makes the rotation smooth if the facing changes */
-    transition: transform 0.3s ease-in-out;
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        /* Adjust size as needed */
+        border-right: 6px solid transparent;
+        border-bottom: 10px solid rgba(255, 255, 255, 0.8);
+        /* A semi-transparent white */
+        /* The transition makes the rotation smooth if the facing changes */
+        transition: transform 0.3s ease-in-out;
     }
 </style>
 
@@ -94,8 +114,8 @@
             {
                 @foreach (var square in furniture.OccupiedSquares)
                 {
-                    <ContextMenuTrigger MenuId="gridActionsMenu" Data="square" WrapperTag="div"
-                    class="grid-background-square" title="@furniture.ToString()" style="@GetSquareStyle(square)">
+                    <ContextMenuTrigger MenuId="gridActionsMenu" Data="square" WrapperTag="div" class="grid-background-square"
+                        title="@furniture.ToString()" style="@GetSquareStyle(square)">
                     </ContextMenuTrigger>
                 }
             }
@@ -105,9 +125,9 @@
         {
             @foreach (var monster in Room.MonstersInRoom)
             {
-                <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div"
-                class="grid-item monster-item" title="@monster.ToString()" style="@GetItemStyle(monster)"
-                @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
+                <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div" class="grid-item monster-item"
+                    title="@monster.ToString()" style="@GetItemStyle(monster)"
+                    @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="facing-arrow" style="@GetFacingStyle(monster.Facing)"></div>
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
@@ -120,7 +140,7 @@
             @foreach (var hero in Room.HeroesInRoom)
             {
                 <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
-                @onclick="() => OnHeroClicked.InvokeAsync(hero)">
+                    @onclick="() => OnHeroClicked.InvokeAsync(hero)">
                     <div class="facing-arrow" style="@GetFacingStyle(hero.Facing)"></div>
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
@@ -128,9 +148,20 @@
             }
         }
 
+        @if (Room.CorpsesInRoom != null)
+        {
+            @foreach (var corpse in Room.CorpsesInRoom)
+            {
+                <div class="grid-item corpse-item" title="@corpse.ToString()" style="@GetItemStyle(corpse)"
+                    @onclick="() => OnCorpseClicked.InvokeAsync(corpse)">
+                    <div class="item-label">@corpse.Name</div>
+                </div>
+            }
+        }
+
         @foreach (var text in FloatingTextService.ActiveTexts)
         {
-            <div class="floating-text @text.CssClass" style="@GetItemStyleFromPosition(text.Position)">
+            <div class="floating-text @text.CssClass" style="@GetSquareStyle(text.Position)">
                 @text.Text
             </div>
         }
@@ -154,6 +185,8 @@
     [Parameter]
     public EventCallback<Monster> OnMonsterClicked { get; set; }
     [Parameter]
+    public EventCallback<Corpse> OnCorpseClicked { get; set; }
+    [Parameter]
     public EventCallback<Hero> OnHeroClicked { get; set; }
 
     private Action? _onTextChangedHandler;
@@ -176,48 +209,45 @@
 
     private string GetItemStyle(IGameEntity entity)
     {
-        if (Room == null)
-        {
-            return "";
-        }
-
+        // Handle multi-square entities like large monsters or furniture.
         if (entity.OccupiedSquares != null && entity.OccupiedSquares.Any())
         {
-            // The entity's OccupiedSquares are in WORLD coordinates.
-            // Convert them to LOCAL coordinates for rendering.
             var minWorldX = entity.OccupiedSquares.Min(p => p.X);
             var minWorldY = entity.OccupiedSquares.Min(p => p.Y);
-            var localX = minWorldX - Room.GridOffset.X;
-            var localY = minWorldY - Room.GridOffset.Y;
+            var worldPosition = new GridPosition(minWorldX, minWorldY, entity.Position.Z);
 
-            // Calculate the bounding box size in grid units.
             var maxWorldX = entity.OccupiedSquares.Max(p => p.X);
             var maxWorldY = entity.OccupiedSquares.Max(p => p.Y);
             var widthInTiles = (maxWorldX - minWorldX) + 1;
             var heightInTiles = (maxWorldY - minWorldY) + 1;
 
-            return GetPercentageStyle(localX, localY, widthInTiles, heightInTiles);
+            return GetStyleFromWorldPosition(worldPosition, widthInTiles, heightInTiles);
         }
 
-        // If OccupiedSquares is empty, try using the entity's single anchor position.
+        // Handle single-square entities.
         if (entity.Position != null)
         {
-            return GetSquareStyle(entity.Position);
+            return GetStyleFromWorldPosition(entity.Position, 1, 1);
         }
 
-        // If both checks fail, return an empty style.
+        // If no position data is available, return an empty style.
         return "";
     }
 
     private string GetSquareStyle(GridPosition position)
     {
+        return GetStyleFromWorldPosition(position, 1, 1);
+    }
+
+    private string GetStyleFromWorldPosition(GridPosition worldPosition, int widthInTiles, int heightInTiles)
+    {
         if (Room == null) return "";
 
-        // Calculate position and size as percentages for a single square.
-        // The position is in WORLD coordinates. Convert to LOCAL for rendering.
-        var localX = position.X - Room.GridOffset.X;
-        var localY = position.Y - Room.GridOffset.Y;
-        return GetPercentageStyle(localX, localY, 1, 1);
+        // Convert world coordinates to local coordinates for rendering.
+        var localX = worldPosition.X - Room.GridOffset.X;
+        var localY = worldPosition.Y - Room.GridOffset.Y;
+
+        return GetPercentageStyle(localX, localY, widthInTiles, heightInTiles);
     }
 
     private string GetPercentageStyle(int x, int y, int widthInTiles, int heightInTiles)
@@ -267,7 +297,7 @@
         // Store the handler in a field.
         _onTextChangedHandler = () => InvokeAsync(StateHasChanged);
         _onDiceRolledHandler = () => InvokeAsync(StateHasChanged);
-		_onFacingDirectionChangeHandler = () => InvokeAsync(StateHasChanged);
+        _onFacingDirectionChangeHandler = () => InvokeAsync(StateHasChanged);
         // Subscribe using the stored handler.
         FloatingTextService.OnTextChanged += _onTextChangedHandler;
         DiceRollService.OnRollRequested += _onDiceRolledHandler;
