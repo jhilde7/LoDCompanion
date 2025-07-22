@@ -155,7 +155,7 @@ namespace LoDCompanion.Services.Game
             }
             else
             {
-                attackResult = HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes).Result;
+                attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                 return attackResult.OutcomeMessage;
             }
             return $"{monster.Name} hesitates.";
@@ -203,7 +203,7 @@ namespace LoDCompanion.Services.Game
                 }
                 else if(distance <= 1)
                 {
-                    attackResult = HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes).Result;
+                    attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                     return attackResult.OutcomeMessage;
                 }
                 else
