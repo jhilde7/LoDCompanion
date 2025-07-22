@@ -42,6 +42,13 @@ namespace LoDCompanion.Services.Game
 
                 // The main decision-making hub.
                 actionResult += "\n" + await DecideAndPerformAction(monster, heroes, room);
+
+                // Failsafe check
+                if (monster.CurrentAP == apBeforeAction)
+                {
+                    actionResult += $"\n{monster.Name} hesitates and ends its turn.";
+                    monster.CurrentAP = 0; // Force end of turn
+                }
             }
 
             // After all actions, ensure the monster faces the best direction.
