@@ -47,7 +47,7 @@ namespace LoDCompanion.Services.Game
                 if (monster.CurrentAP == apBeforeAction)
                 {
                     actionResult += $"\n{monster.Name} hesitates and ends its turn.";
-                    monster.CurrentAP = 0; // Force end of turn
+                    monster.CurrentAP --; // Force end of turn
                 }
             }
 
