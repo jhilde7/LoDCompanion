@@ -26,7 +26,7 @@ namespace LoDCompanion.Services.Game
         public List<string> CombatLog { get; set; } = new List<string>();
         public event Action? OnCombatStateChanged;
         public Hero? ActiveHero { get; private set; }
-        private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();        
+        private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();
 
         public CombatManagerService(
             InitiativeService initiativeService,
@@ -52,7 +52,7 @@ namespace LoDCompanion.Services.Game
             MonstersThatHaveActedThisTurn.Clear();
             ActiveHero = null;
             IsAwaitingHeroSelection = false;
-            List<Character> characters = [..heroes, ..monsters];
+            List<Character> characters = [.. heroes, .. monsters];
 
             foreach (var character in characters)
             {
@@ -97,16 +97,16 @@ namespace LoDCompanion.Services.Game
                 hero.HasDodgedThisBattle = false;
 
                 if (!hero.Weapons.Any())
-                {                    
+                {
                     var availableWeapons = hero.Inventory.Backpack.OfType<Weapon>()
-                                               .Concat(hero.Inventory.QuickSlots.OfType<Weapon>())
-                                               .ToList();
+                                                                  .Concat(hero.Inventory.QuickSlots.OfType<Weapon>())
+                                                                  .ToList();
                     if (!availableWeapons.Any())
                     {
                         foreach (var item in hero.Inventory.Backpack)
                         {
                             Weapon? weapon = EquipmentService.GetWeaponByName(item.Name);
-                            if(weapon != null) availableWeapons.Add(weapon);
+                            if (weapon != null) availableWeapons.Add(weapon);
                         }
                     }
 
@@ -249,7 +249,7 @@ namespace LoDCompanion.Services.Game
             else // It's a Monster's turn
             {
                 IsAwaitingHeroSelection = false;
-                ActiveHero = null; 
+                ActiveHero = null;
                 CombatLog.Add("A monster acts!");
 
                 var monstersToAct = MonstersInCombat.Except(MonstersThatHaveActedThisTurn).ToList();
