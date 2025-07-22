@@ -198,84 +198,84 @@ namespace LoDCompanion.Services.Game
         /// </summary>
         public async Task ProcessNextInInitiativeAsync()
         {
+            while (!IsCombatOver())
+            {
+                if (_initiative.IsTurnOver())
+                {
+                    await StartNewTurnAsync();
+                    OnCombatStateChanged?.Invoke();
+                    return;
+                }
+
+                var nextActorType = _initiative.DrawNextToken();
+
+                if (nextActorType == ActorType.Hero)
+                {
+                    var availableHeroes = HeroesInCombat
+                    .Where(h => h.CurrentAP > 0 && h.CombatStance != CombatStance.Overwatch && h.CurrentHP > 0)
+                    .ToList();
+
+                    // Check if there are any heroes who can act.
+                    if (availableHeroes.Any())
+                    {
+                        IsAwaitingHeroSelection = true;
+                        ActiveHero = null; // Clear the previously active hero
+                        CombatLog.Add("Hero's turn. Select an available hero to act.");
+                        OnCombatStateChanged?.Invoke();
+
+                        if (ActiveHero != null)
+                        {
+                            ActiveHero.IsVulnerableAfterPowerAttack = false;
+
+                            // Process status effects at the start of the hero's turn
+                            StatusEffectService.ProcessStatusEffects(ActiveHero);
+                            CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
+                            // The game now waits for UI input to call HeroPerformsAction(...).
+                        }
+                    }
+                    else
+                    {
+                        // Log it and immediately process the next token in the bag.
+                        CombatLog.Add("A hero action was drawn, but no heroes are able to act.");
+                        await ProcessNextInInitiativeAsync(); // Immediately draw the next token
+                    }
+
+                }
+                else // It's a Monster's turn
+                {
+                    IsAwaitingHeroSelection = false;
+                    ActiveHero = null;
+                    CombatLog.Add("A monster acts!");
+
+                    var monstersToAct = MonstersInCombat.Except(MonstersThatHaveActedThisTurn).ToList();
+                    foreach (var monster in MonstersThatHaveActedThisTurn)
+                    {
+                        monstersToAct.Remove(monster);
+                    }
+
+                    var monsterToAct = SelectMonsterToAct(monstersToAct, HeroesInCombat);
+                    if (monsterToAct != null)
+                    {
+                        monsterToAct.IsVulnerableAfterPowerAttack = false;
+
+                        CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
+                        StatusEffectService.ProcessStatusEffects(monsterToAct);
+                        MonstersThatHaveActedThisTurn.Add(monsterToAct);
+
+                        CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
+                        OnCombatStateChanged?.Invoke();
+                    }
+                }
+
+                OnCombatStateChanged?.Invoke(); 
+            }
+
             if (IsCombatOver())
             {
                 CombatLog.Add("Combat is over!");
                 OnCombatStateChanged?.Invoke();
                 return;
             }
-
-            if (_initiative.IsTurnOver())
-            {
-                await StartNewTurnAsync();
-                OnCombatStateChanged?.Invoke();
-                return;
-            }
-
-            var nextActorType = _initiative.DrawNextToken();
-
-            if (nextActorType == ActorType.Hero)
-            {
-                var availableHeroes = HeroesInCombat
-                .Where(h => h.CurrentAP > 0 && h.CombatStance != CombatStance.Overwatch && h.CurrentHP > 0)
-                .ToList();
-
-                // Check if there are any heroes who can act.
-                if (availableHeroes.Any())
-                {
-                    IsAwaitingHeroSelection = true;
-                    ActiveHero = null; // Clear the previously active hero
-                    CombatLog.Add("Hero's turn. Select an available hero to act.");
-                    OnCombatStateChanged?.Invoke();
-
-                    if (ActiveHero != null)
-                    {
-                        ActiveHero.IsVulnerableAfterPowerAttack = false;
-
-                        // Process status effects at the start of the hero's turn
-                        StatusEffectService.ProcessStatusEffects(ActiveHero);
-                        CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
-                        // The game now waits for UI input to call HeroPerformsAction(...).
-                    }
-                }
-                else
-                {
-                    // Log it and immediately process the next token in the bag.
-                    CombatLog.Add("A hero action was drawn, but no heroes are able to act.");
-                    await ProcessNextInInitiativeAsync(); // Immediately draw the next token
-                }
-
-            }
-            else // It's a Monster's turn
-            {
-                IsAwaitingHeroSelection = false;
-                ActiveHero = null;
-                CombatLog.Add("A monster acts!");
-
-                var monstersToAct = MonstersInCombat.Except(MonstersThatHaveActedThisTurn).ToList();
-                foreach (var monster in MonstersThatHaveActedThisTurn)
-                {
-                    monstersToAct.Remove(monster);
-                }
-
-                var monsterToAct = SelectMonsterToAct(monstersToAct, HeroesInCombat);
-                if (monsterToAct != null)
-                {
-                    monsterToAct.IsVulnerableAfterPowerAttack = false;
-
-                    CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
-                    StatusEffectService.ProcessStatusEffects(monsterToAct);
-                    MonstersThatHaveActedThisTurn.Add(monsterToAct);
-
-                    CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
-                    OnCombatStateChanged?.Invoke();
-                }
-
-                // After the monster's turn is resolved, process the next actor in initiative.
-                await ProcessNextInInitiativeAsync();
-            }
-
-            OnCombatStateChanged?.Invoke();
         }
 
         private Monster? SelectMonsterToAct(List<Monster> availableMonsters, List<Hero> heroes)
