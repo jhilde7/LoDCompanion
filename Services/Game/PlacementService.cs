@@ -91,6 +91,10 @@ namespace LoDCompanion.Services.Game
                 {
                     if (AttemptFinalPlacement(entity, position, _dungeon))
                     {
+                        if (entity is Character character)
+                        {
+                            character.Room = room;
+                        }
                         return;
                     }
                 }
