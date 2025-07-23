@@ -212,8 +212,8 @@ namespace LoDCompanion.Services.Game
                 if (nextActorType == ActorType.Hero)
                 {
                     var availableHeroes = HeroesInCombat
-                    .Where(h => h.CurrentAP > 0 && h.CombatStance != CombatStance.Overwatch && h.CurrentHP > 0)
-                    .ToList();
+                        .Where(h => h.CurrentAP > 0 && h.CombatStance != CombatStance.Overwatch && h.CurrentHP > 0)
+                        .ToList();
 
                     // Check if there are any heroes who can act.
                     if (availableHeroes.Any())
@@ -222,12 +222,14 @@ namespace LoDCompanion.Services.Game
                         ActiveHero = null; // Clear the previously active hero
                         CombatLog.Add("Hero's turn. Select an available hero to act.");
                         OnCombatStateChanged?.Invoke();
+                        return;
                     }
                     else
                     {
                         // Log it and immediately process the next token in the bag.
                         CombatLog.Add("A hero action was drawn, but no heroes are able to act.");
-                        await ProcessNextInInitiativeAsync(); // Immediately draw the next token
+                        OnCombatStateChanged?.Invoke();
+                        continue;
                     }
 
                 }
