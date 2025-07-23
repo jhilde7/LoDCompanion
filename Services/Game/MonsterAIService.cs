@@ -171,7 +171,7 @@ namespace LoDCompanion.Services.Game
 
             foreach (Hero hero in heroes)
             {
-                distances.Add(hero, GridService.GetDistance(monster.Position, hero.Position)); 
+                distances.TryAdd(hero, GridService.GetDistance(monster.Position, hero.Position)); 
             }
 
             if (monster.Weapons.FirstOrDefault(w => w.IsRanged) is RangedWeapon weapon)
