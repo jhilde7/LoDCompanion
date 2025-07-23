@@ -58,6 +58,9 @@ namespace LoDCompanion.Models.Character
             get => _room ??= new Room();
             set
             {
+
+                _room = value;
+
                 if (_room != null)
                 {
                     if (this is Hero oldHero)
@@ -69,8 +72,6 @@ namespace LoDCompanion.Models.Character
                         _room.MonstersInRoom?.Remove(oldMonster);
                     }
                 }
-
-                _room = value;
 
                 if (_room != null)
                 {
