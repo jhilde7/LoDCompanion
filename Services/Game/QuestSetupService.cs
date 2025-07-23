@@ -73,11 +73,10 @@ namespace LoDCompanion.Services.Game
                 case QuestSetupActionType.PlaceHeroes:
                     if (_party.Party != null)
                     {
-                        room.HeroesInRoom = new List<Hero>();
+                        room.HeroesInRoom ??= new List<Hero>();
                         foreach (Hero hero in _party.Party.Heroes)
                         {
                             _placement.PlaceEntity(hero, room, action.Parameters);
-                            room.HeroesInRoom.Add(hero);
                         } 
                     }
                     break;
@@ -85,11 +84,10 @@ namespace LoDCompanion.Services.Game
 
                     List<Monster> spawnMonsters = _encounter.GetEncounterByParams(action.Parameters);
 
-                    if (room.MonstersInRoom == null) room.MonstersInRoom = new List<Monster>();
+                    room.MonstersInRoom ??= new List<Monster>();
                     foreach (Monster monster in spawnMonsters)
                     {
                         _placement.PlaceEntity(monster, room, action.Parameters); 
-                        room.MonstersInRoom.Add(monster);
                     }
                     break;
                 case QuestSetupActionType.SpawnFromChart:
@@ -123,11 +121,10 @@ namespace LoDCompanion.Services.Game
                     }
                     List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(type);
 
-                    if (room.MonstersInRoom == null) room.MonstersInRoom = new List<Monster>();
+                    room.MonstersInRoom ??= new List<Monster>();
                     foreach (Monster monster in chartMonsters)
                     {
                         _placement.PlaceEntity(monster, room, action.Parameters);
-                        room.MonstersInRoom.Add(monster);
                     }
                     break;
                 case QuestSetupActionType.SetTurnOrder:
