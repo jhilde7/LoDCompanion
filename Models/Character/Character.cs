@@ -45,7 +45,7 @@ namespace LoDCompanion.Models.Character
         public int CombatSkill { get; set; }
         public int RangedSkill { get; set; }
         public int Dodge { get; set; }
-        public int Move { get; set; }
+        public int Move { get; set; } = 4;
         public int Level { get; set; }
         public virtual int NaturalArmour { get; set; }
         public virtual int DamageBonus { get; set; }
