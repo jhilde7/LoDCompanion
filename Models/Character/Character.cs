@@ -59,31 +59,34 @@ namespace LoDCompanion.Models.Character
             set
             {
 
-                _room = value;
-
+                // If the character was in a room before, remove it from that room's list.
                 if (_room != null)
                 {
-                    if (this is Hero oldHero)
-                    {
-                        _room.HeroesInRoom?.Remove(oldHero);
-                    }
-                    else if (this is Monster oldMonster)
-                    {
-                        _room.MonstersInRoom?.Remove(oldMonster);
-                    }
+                    if (this is Hero hero) _room.HeroesInRoom?.Remove(hero);
+                    else if (this is Monster monster) _room.MonstersInRoom?.Remove(monster);
                 }
 
+                // Assign the new room.
+                _room = value;
+
+                // If the new room isn't null, add the character to the new room.
                 if (_room != null)
                 {
-                    if (this is Hero newHero)
+                    if (this is Hero hero)
                     {
                         _room.HeroesInRoom ??= new List<Hero>();
-                        _room.HeroesInRoom.Add(newHero);
+                        if (!_room.HeroesInRoom.Contains(hero))
+                        {
+                            _room.HeroesInRoom.Add(hero);
+                        }
                     }
-                    else if (this is Monster newMonster)
+                    else if (this is Monster monster)
                     {
                         _room.MonstersInRoom ??= new List<Monster>();
-                        _room.MonstersInRoom.Add(newMonster);
+                        if (!_room.MonstersInRoom.Contains(monster))
+                        {
+                            _room.MonstersInRoom.Add(monster);
+                        }
                     }
                 }
             }
@@ -103,6 +106,42 @@ namespace LoDCompanion.Models.Character
         public Character()
         {
             Id = Guid.NewGuid().ToString();
+        }
+
+
+        public override bool Equals(object? obj)
+        {
+            // Check if the object is a Character and then use the type-safe Equals method.
+            return Equals(obj as Character);
+        }
+
+        public bool Equals(Character? other)
+        {
+            // If the other object is null, they are not equal.
+            if (other is null) return false;
+
+            // Two characters are the same if they have the same ID.
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            // The hash code should be based on the unique identifier.
+            return Id.GetHashCode();
+        }
+
+        public static bool operator ==(Character? left, Character? right)
+        {
+            if (left is null)
+            {
+                return right is null;
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Character? left, Character? right)
+        {
+            return !(left == right);
         }
 
         public void UpdateOccupiedSquares()
