@@ -108,9 +108,92 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
+        /// Moves a character along a given path, one square at a time, consuming movement points.
+        /// The character will stop if they run out of movement, the path is blocked, or an event interrupts them.
+        /// </summary>
+        /// <param name="character">The character to move.</param>
+        /// <param name="path">The list of GridPositions to follow.</param>
+        /// <param name="grid">The main dungeon grid.</param>
+        /// <param name="enemies">A list of enemies in the room, used for ZOC calculations.</param>
+        /// <returns>True if the character moved at least one square, false otherwise.</returns>
+        public static bool MoveCharacter(Character character, List<GridPosition> path, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
+        {
+            if (path == null || path.Count <= 1)
+            {
+                return false; // No path to move along.
+            }
+
+            int movementPointsSpent = 0;
+            var originalPosition = character.Position;
+
+            // Start from the second square in the path, as the first is the character's current location.
+            foreach (var nextPos in path.Skip(1))
+            {
+                var nextSquare = GetSquareAt(nextPos, grid);
+
+                // --- Pre-move validation ---
+                // Stop if the next square is invalid, blocked, or occupied.
+                if (nextSquare == null || nextSquare.MovementBlocked || nextSquare.IsOccupied)
+                {
+                    break; // End movement here.
+                }
+
+                // --- Calculate Movement Cost for the next square ---
+                int costForThisSquare = 1;
+
+                // Rule: Moving through climbable furniture costs double.
+                if (nextSquare.DoubleMoveCost)
+                {
+                    costForThisSquare = 2;
+                }
+
+                // Rule: Moving through an enemy's ZOC costs 2 movement points.
+                // This check overrides the climbing cost if it's higher.
+                foreach (var enemy in enemies)
+                {
+                    if (DirectionService.IsInZoneOfControl(nextPos, enemy))
+                    {
+                        costForThisSquare = 2;
+                        break; // ZOC penalty is applied once per square.
+                    }
+                }
+
+                // --- Check if the character can afford to move ---
+                if (movementPointsSpent + costForThisSquare > character.Move)
+                {
+                    break; // Not enough movement points to enter the next square.
+                }
+
+                // --- Commit the move for this step ---
+                movementPointsSpent += costForThisSquare;
+
+                // Vacate the old square(s)
+                foreach (var oldSquarePos in character.OccupiedSquares)
+                {
+                    var oldSquare = GetSquareAt(oldSquarePos, grid);
+                    if (oldSquare != null) oldSquare.OccupyingCharacterId = null;
+                }
+
+                // Update character's position and occupy the new square(s)
+                character.Position = nextPos;
+                character.UpdateOccupiedSquares();
+                foreach (var newSquarePos in character.OccupiedSquares)
+                {
+                    var newSquare = GetSquareAt(newSquarePos, grid);
+                    if (newSquare != null) newSquare.OccupyingCharacterId = character.Id;
+                }
+
+                // TODO: Add logic here to trigger traps if the new square has one.
+            }
+
+            // Return true if the character's position has changed.
+            return !character.Position.Equals(originalPosition);
+        }
+
+        /// <summary>
         /// Moves a character to a new position on the global dungeon grid.
         /// </summary>
-        public static bool MoveCharacter(Character character, GridPosition newPosition, Dictionary<GridPosition, GridSquare> grid)
+        public static bool MoveCharacterToPosition(Character character, GridPosition newPosition, Dictionary<GridPosition, GridSquare> grid)
         {
             var targetSquare = GetSquareAt(newPosition, grid);
             // The check is now much cleaner!
@@ -228,7 +311,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (pushbackSquare != null && !pushbackSquare.MovementBlocked && !pushbackSquare.IsOccupied)
             {
-                MoveCharacter(target, pushbackPosition, grid);
+                MoveCharacterToPosition(target, pushbackPosition, grid);
                 return $"{shover.Name} successfully shoves {target.Name} back!";
             }
             else

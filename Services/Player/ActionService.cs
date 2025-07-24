@@ -197,22 +197,40 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case ActionType.Move:
-                    if (primaryTarget is GridPosition targetPosition)
+                    if (primaryTarget is GridPosition targetPosition && character.Room != null)
                     {
-                        if (GridService.MoveCharacter(character, targetPosition, dungeon.DungeonGrid))
+                        List<GridPosition> path = GridService.FindShortestPath(character.Position, targetPosition, dungeon.DungeonGrid);
+                        List<Character> enemies = new List<Character>();
+                        if (_dungeonManager.DungeonState != null)
                         {
-                            resultMessage = $"{character.Name} moves to {targetPosition}.";
-                            resultMessage += await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
-
-                            Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
-                            if (room != null)
+                            if (character is Hero)
                             {
-                                character.Room = room;
+                                enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
+                                if(enemies.Count <= 0 && character.Room.MonstersInRoom != null)
+                                {
+                                    enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
+                                }
                             }
+                            else if (character is Monster)
+                            {
+                                if (_dungeonManager.DungeonState.HeroParty != null)
+                                {
+                                    enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList(); 
+                                }
+                                if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
+                                {
+                                    enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
+                                }
+                            } 
+                        }
+
+                        if (GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies))
+                        {
+                            resultMessage = $"{character.Name} moves to {character.Position}.";
                         }
                         else
                         {
-                            resultMessage = $"{character.Name} cannot move there; the path is blocked.";
+                            resultMessage = $"{character.Name} cannot move there.";
                             actionWasSuccessful = false;
                         }
                     }
