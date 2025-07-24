@@ -159,9 +159,10 @@
                     @RenderEquippedSlot(hero.Inventory.EquippedWeapon, "Off-Hand")
                 }
                 @RenderEquippedSlot(hero.Inventory.EquippedQuiver, "Quiver")
-                @for(int i = 0; i < hero.Inventory.QuickSlots.Count; i++)
+                @for(int i = 0; i < hero.Inventory.MaxQuickSlots; i++)
                 {
-					@RenderEquippedSlot(hero.Inventory.QuickSlots[i], "Quick Slot")
+                    var item = i < hero.Inventory.QuickSlots.Count ? hero.Inventory.QuickSlots[i] : null;
+                    @RenderEquippedSlot(item, $"Quick Slot {i + 1}")
                 }
 
                 @if (hero.ProfessionName == "Warrior Priest")
@@ -226,6 +227,17 @@
                         {
                             <div class="item-quantity">x @item.Quantity</div>
                         }
+                        <div class="quick-slot-actions">
+                            @for (int i = 0; i < hero.Inventory.MaxQuickSlots; i++)
+                            {
+                                int slotIndex = i; // Capture the loop variable
+                                <button class="quick-slot-button"
+                                        title="Move to Quick Slot @(slotIndex + 1)"
+                                        @onclick="() => AssignItemToQuickSlot(item, slotIndex)">
+                                    @(slotIndex + 1)
+                                </button>
+                            }
+                        </div>
                     </div>
                 }
             </div>
@@ -325,6 +337,14 @@
             case ArmourProperty.Arms: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_bracers.png";
             case ArmourProperty.Cloak: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_back.png";
             default: return string.Empty; // Return nothing if no specific icon is found
+        }
+    }
+
+    private void AssignItemToQuickSlot(Equipment item, int slotIndex)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            Inventory.AssignItemToQuickSlot(PartyManager.SelectedHero, item, slotIndex);
         }
     }
 
