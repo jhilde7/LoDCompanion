@@ -15,6 +15,7 @@ namespace LoDCompanion.Services.Player
         public List<Armour> EquippedArmour { get; set; } = new List<Armour>();
         public Ammo? EquippedQuiver { get; set; }
         public Equipment? OffHand { get; set; }
+        public Equipment? EquippedRelic { get; set; }
 
         // Carried Items
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
@@ -78,6 +79,9 @@ namespace LoDCompanion.Services.Player
             {
                 success = EquipOffHand(hero, itemToEquip);
             }
+            else if (hero.ProfessionName == "Warrior Priest" 
+                && itemToEquip.Name.Contains("Relic")) success = EquipRelic(hero, itemToEquip);
+            
 
             // If equipping failed for any reason, put the item back in the backpack.
             if (!success)
@@ -117,6 +121,18 @@ namespace LoDCompanion.Services.Player
                 UnequipItem(hero, hero.Inventory.OffHand);
                 Console.WriteLine($"Unequipped {hero.Inventory.OffHand.Name} from {hero.Name}'s off-hand.");
             }
+            return true;
+        }
+
+        private bool EquipRelic(Hero hero, Equipment relicToEquip)
+        {
+            if (hero.Inventory.EquippedRelic != null)
+            {
+                UnequipItem(hero, hero.Inventory.EquippedRelic);
+                Console.WriteLine($"Unequipped {hero.Inventory.EquippedRelic.Name} from {hero.Name}'s relic slot.");
+            }
+            hero.Inventory.EquippedRelic = relicToEquip;
+            Console.WriteLine($"Equipped {relicToEquip.Name} to {hero.Name}'s relic slot.");
             return true;
         }
 
