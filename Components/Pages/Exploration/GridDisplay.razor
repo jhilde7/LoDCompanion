@@ -68,7 +68,7 @@
     }
 
     .corpse-item {
-        background-colrgba(200, 200, 20, 0.65);
+        background-color: rgba(200, 200, 20, 0.65);
         /* A semi-transparent mustard yellow */
     }
 
@@ -130,7 +130,7 @@
                     @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="facing-arrow" style="@GetFacingStyle(monster.Facing)"></div>
                     <div class="item-label">@monster.Name</div>
-                    <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.MaxHP)%"></div>
+                    <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.GetStat(BasicStat.HitPoints))%"></div>
                 </ContextMenuTrigger>
             }
         }
@@ -143,7 +143,7 @@
                     @onclick="() => OnHeroClicked.InvokeAsync(hero)">
                     <div class="facing-arrow" style="@GetFacingStyle(hero.Facing)"></div>
                     <div class="item-label">@hero.Name</div>
-                    <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.MaxHP)%"></div>
+                    <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.GetStat(BasicStat.HitPoints))%"></div>
                 </div>
             }
         }
