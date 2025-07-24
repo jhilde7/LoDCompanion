@@ -135,7 +135,7 @@ else
                         @foreach (var hero in PartyManager.Party.Heroes)
                         {
                             <button type="button" class="list-group-item list-group-item-action text-start" @onclick="() => ShowCharacterSheet(hero)">
-                                @hero.Name <br /><small class="text-muted">@hero.SpeciesName @hero.ProfessionName</small>
+                                @hero.Name <br /><small class="text-muted">@hero.Species?.Name @hero.Profession?.Name</small>
                             </button>
                         }
                     }
@@ -886,8 +886,8 @@ else
                 </h4>
             </div>
             <div class="card-body">
-                <p><strong>Species:</strong> @currentHero.SpeciesName</p>
-                <p><strong>Profession:</strong> @currentHero.ProfessionName</p>
+                <p><strong>Species:</strong> @currentHero.Species?.Name</p>
+                <p><strong>Profession:</strong> @currentHero.Profession?.Name</p>
 
                 @if (currentHero.Talents.Any())
                 {

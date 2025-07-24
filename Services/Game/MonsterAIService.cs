@@ -95,7 +95,7 @@ namespace LoDCompanion.Services.Game
 
             if (distance > 1)
             {
-                if (distance < monster.Move && monster.CurrentAP >=2)
+                if (distance < monster.GetStat(BasicStat.Move) && monster.CurrentAP >=2)
                 {
                     return await _action.PerformActionAsync(_dungeon, monster, ActionType.ChargeAttack, target);
                 }
@@ -116,7 +116,7 @@ namespace LoDCompanion.Services.Game
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
-            if (distance >= monster.Move)
+            if (distance >= monster.GetStat(BasicStat.Move))
             {
                 return await MoveTowardsAsync(monster, target);
             }
@@ -132,11 +132,11 @@ namespace LoDCompanion.Services.Game
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
-            if (distance > monster.Move)
+            if (distance > monster.GetStat(BasicStat.Move))
             {
                 return await MoveTowardsAsync(monster, target); 
             }
-            else if (distance > 1 && distance <= monster.Move) 
+            else if (distance > 1 && distance <= monster.GetStat(BasicStat.Move)) 
             {
                 int roll = RandomHelper.RollDie("D6");
                 switch (roll)
@@ -356,7 +356,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<AttackResult> HandleAdjacentMeleeAttackAsync(Monster monster, Weapon? weapon, Hero target, List<Hero> heroes)
         {                
-            bool isWounded = (monster.CurrentHP <= monster.MaxHP / 2);
+            bool isWounded = (monster.CurrentHP <= monster.GetStat(BasicStat.HitPoints) / 2);
             int actionRoll = RandomHelper.RollDie("D6");
             if (actionRoll <= 4)
             {
@@ -523,7 +523,7 @@ namespace LoDCompanion.Services.Game
                 return $"{monster.Name} has no valid path to {target.Name}.";
             }
 
-            int stepsToTake = Math.Min(monster.Move, path.Count() - 1);
+            int stepsToTake = Math.Min(monster.GetStat(BasicStat.Move), path.Count() - 1);
 
             GridPosition finalDestination = path[stepsToTake];
             return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, finalDestination);
@@ -562,7 +562,7 @@ namespace LoDCompanion.Services.Game
 
                 if (pathToRetreat.Any())
                 {
-                    int stepsToTake = Math.Min(monster.Move, pathToRetreat.Count() - 1);
+                    int stepsToTake = Math.Min(monster.GetStat(BasicStat.Move), pathToRetreat.Count() - 1);
                     GridPosition finalDestination = pathToRetreat[stepsToTake];
 
                     await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, finalDestination);
@@ -676,7 +676,7 @@ namespace LoDCompanion.Services.Game
                     else
                     {
                         // Find a hero who is a magic user (e.g., has Arcane Arts skill > 0)
-                        var magicHero = targetableHeroes.FirstOrDefault(h => h.ArcaneArtsSkill > 0);
+                        var magicHero = targetableHeroes.FirstOrDefault(h => h.GetSkill(Skill.ArcaneArts) > 0);
                         // If a magic hero exists, target them. Otherwise, fall back to the closest.
                         return magicHero ?? targetableHeroes.OrderBy(h => GridService.GetDistance(monster.Position, h.Position!)).FirstOrDefault();
                     }
@@ -718,10 +718,10 @@ namespace LoDCompanion.Services.Game
                     break;
 
                     case AiTargetHints.TargetHighestCombatSkillHero:
-                        var strongestHero = losHeroes.OrderByDescending(h => h.CombatSkill).FirstOrDefault();
+                        var strongestHero = losHeroes.OrderByDescending(h => h.GetSkill(Skill.CombatSkill)).FirstOrDefault();
                         if (strongestHero != null)
                         {
-                            choices.Add(new SpellChoice { Spell = spell, Target = strongestHero.Position, Score = 15 + (strongestHero.CombatSkill / 10.0) });
+                            choices.Add(new SpellChoice { Spell = spell, Target = strongestHero.Position, Score = 15 + (strongestHero.GetSkill(Skill.CombatSkill) / 10.0) });
                         }
                         break;
 
@@ -745,19 +745,19 @@ namespace LoDCompanion.Services.Game
 
                     // --- SUPPORT & HEALING SPELLS ---
                     case AiTargetHints.HealLowestHealthAlly:
-                        var mostWoundedAlly = allies.OrderBy(a => (double)a.CurrentHP / a.MaxHP).FirstOrDefault();
-                        if (mostWoundedAlly != null && mostWoundedAlly.CurrentHP < mostWoundedAlly.MaxHP)
+                        var mostWoundedAlly = allies.OrderBy(a => (double)a.CurrentHP / a.GetStat(BasicStat.HitPoints)).FirstOrDefault();
+                        if (mostWoundedAlly != null && mostWoundedAlly.CurrentHP < mostWoundedAlly.GetStat(BasicStat.HitPoints))
                         {
-                            double missingHealthPercent = 1.0 - ((double)mostWoundedAlly.CurrentHP / mostWoundedAlly.MaxHP);
+                            double missingHealthPercent = 1.0 - ((double)mostWoundedAlly.CurrentHP / mostWoundedAlly.GetStat(BasicStat.HitPoints));
                             choices.Add(new SpellChoice { Spell = spell, Target = mostWoundedAlly.Position, Score = 15 + (missingHealthPercent * 20) });
                         }
                         break;
 
                     case AiTargetHints.HealLowestHealthAdjacentAlly:
-                        var mostWoundedAdjacent = adjacentAllies.OrderBy(a => (double)a.CurrentHP / a.MaxHP).FirstOrDefault();
-                        if (mostWoundedAdjacent != null && mostWoundedAdjacent.CurrentHP < mostWoundedAdjacent.MaxHP)
+                        var mostWoundedAdjacent = adjacentAllies.OrderBy(a => (double)a.CurrentHP / a.GetStat(BasicStat.HitPoints)).FirstOrDefault();
+                        if (mostWoundedAdjacent != null && mostWoundedAdjacent.CurrentHP < mostWoundedAdjacent.GetStat(BasicStat.HitPoints))
                         {
-                            double missingHealthPercent = 1.0 - ((double)mostWoundedAdjacent.CurrentHP / mostWoundedAdjacent.MaxHP);
+                            double missingHealthPercent = 1.0 - ((double)mostWoundedAdjacent.CurrentHP / mostWoundedAdjacent.GetStat(BasicStat.HitPoints));
                             choices.Add(new SpellChoice { Spell = spell, Target = mostWoundedAdjacent.Position, Score = 16 + (missingHealthPercent * 20) });
                         }
                         break;
@@ -772,7 +772,7 @@ namespace LoDCompanion.Services.Game
                         }
                         else
                         {
-                            var woundedUndead = undeadAllies.Where(a => a.CurrentHP < a.MaxHP).OrderBy(a => a.MaxHP - a.CurrentHP);
+                            var woundedUndead = undeadAllies.Where(a => a.CurrentHP < a.GetStat(BasicStat.HitPoints)).OrderBy(a => a.GetStat(BasicStat.HitPoints) - a.CurrentHP);
                             if (woundedUndead != null)
                             {
                                 choices.Add(new SpellChoice { Spell = spell, Target = woundedUndead.First().Position, Score = 15 });
@@ -783,7 +783,7 @@ namespace LoDCompanion.Services.Game
                     // --- BUFF & DEBUFF SPELLS ---
                     case AiTargetHints.BuffHighestCombatSkillAlly:
                         var allyToBuff = allies.Where(a => !a.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Frenzy)))
-                                               .OrderByDescending(a => a.CombatSkill).FirstOrDefault();
+                                               .OrderByDescending(a => a.GetSkill(Skill.CombatSkill)).FirstOrDefault();
                         if (allyToBuff != null)
                         {
                             choices.Add(new SpellChoice { Spell = spell, Target = allyToBuff.Position, Score = 12 });
@@ -800,7 +800,7 @@ namespace LoDCompanion.Services.Game
                         break;
 
                     case AiTargetHints.DebuffEnemyCaster:
-                        var enemyCaster = losHeroes.FirstOrDefault(h => h.ProfessionName == "Wizard" || h.ProfessionName == "Warrior Priest");
+                        var enemyCaster = losHeroes.FirstOrDefault(h => h.Profession?.Name == "Wizard" || h.Profession?.Name == "Warrior Priest");
                         if (enemyCaster != null)
                         {
                             choices.Add(new SpellChoice { Spell = spell, Target = enemyCaster.Position, Score = 16 });
@@ -818,7 +818,7 @@ namespace LoDCompanion.Services.Game
 
                     // --- UTILITY & SELF SPELLS ---
                     case AiTargetHints.SelfPreservation:
-                        bool isLowHealth = (double)caster.CurrentHP / caster.MaxHP < 0.4;
+                        bool isLowHealth = (double)caster.CurrentHP / caster.GetStat(BasicStat.HitPoints) < 0.4;
                         if (isLowHealth)
                         {
                             choices.Add(new SpellChoice { Spell = spell, Target = caster.Position, Score = 25 }); // High priority to escape danger

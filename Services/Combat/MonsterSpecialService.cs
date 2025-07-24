@@ -90,7 +90,7 @@ namespace LoDCompanion.Services.Combat
             foreach (var hero in heroes)
             {
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < hero.Resolve) // Assuming lower is better for Resolve check
+                if (resolveRoll < hero.GetStat(BasicStat.Resolve)) // Assuming lower is better for Resolve check
                 {
                     StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned)); // Assuming Status is a List<string> or similar
                     outcome += $"{hero.Name} is stunned by the roar!\n";
@@ -133,7 +133,7 @@ namespace LoDCompanion.Services.Combat
             foreach (var hero in heroes)
             {
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < (hero.Resolve * 2)) // Example check for fear/sanity loss
+                if (resolveRoll < (hero.GetStat(BasicStat.Resolve) * 2)) // Example check for fear/sanity loss
                 {
                     hero.CurrentSanity -= 1; // Assuming Sanity exists and can be reduced
                     outcome += $"{hero.Name} loses 1 Sanity.\n";
@@ -181,7 +181,7 @@ namespace LoDCompanion.Services.Combat
                     var target = heroes[RandomHelper.GetRandomNumber(0, heroes.Count - 1)]; // Target a random hero
                     // This would call the regular attack logic from MonsterCombatService
                     // For example: monsterCombatService.ProcessPhysicalAttack(monster, target, monster.Weapons[0]);
-                    int damage = RandomHelper.GetRandomNumber(1, 6) + monster.DamageBonus; // Simplified damage
+                    int damage = RandomHelper.GetRandomNumber(1, 6) + monster.GetStat(BasicStat.DamageBonus); // Simplified damage
                     target.TakeDamage(damage);
                     outcome += $"  Attack {i + 1}: {monster.Name} hits {target.Name} for {damage} damage.\n";
                 }
@@ -195,7 +195,7 @@ namespace LoDCompanion.Services.Combat
             foreach (var hero in heroes)
             {
                 int conRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (conRoll < hero.Constitution) // Example: Constitution check to resist petrification
+                if (conRoll < hero.GetStat(BasicStat.Constitution)) // Example: Constitution check to resist petrification
                 {
                     StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Petrified));
                     outcome += $"{hero.Name} is turned to stone!\n";
@@ -226,7 +226,7 @@ namespace LoDCompanion.Services.Combat
         {
             int regenAmount = RandomHelper.GetRandomNumber(1, 6); // Example regeneration amount
             monster.CurrentHP += regenAmount;
-            if (monster.CurrentHP > monster.MaxHP) monster.CurrentHP = monster.MaxHP;
+            if (monster.CurrentHP > monster.GetStat(BasicStat.HitPoints)) monster.CurrentHP = monster.GetStat(BasicStat.HitPoints);
             return $"{monster.Name} regenerates {regenAmount} HP!\n";
         }
 
@@ -245,7 +245,7 @@ namespace LoDCompanion.Services.Combat
             foreach (var hero in heroes)
             {
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < hero.Resolve) // Example: Resolve check to resist charm
+                if (resolveRoll < hero.GetStat(BasicStat.Resolve)) // Example: Resolve check to resist charm
                 {
                     //hero.ActiveStatusEffect.Add("Charmed"); // Or some other effect
                     outcome += $"{hero.Name} is charmed by {monster.Name}!\n";
@@ -295,7 +295,7 @@ namespace LoDCompanion.Services.Combat
                 var target = heroes[0]; // Assume single target
                 // This would involve a grapple/strength check and potentially instant death or heavy damage
                 int swallowRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (swallowRoll > target.Dexterity) // Example: Dexterity check to avoid being swallowed
+                if (swallowRoll > target.GetStat(BasicStat.Dexterity)) // Example: Dexterity check to avoid being swallowed
                 {
                     StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.BeingSwallowed)); // Apply swallowed status (e.g., for ongoing damage)
                     outcome += $"{target.Name} is swallowed by {monster.Name}!\n";
@@ -327,7 +327,7 @@ namespace LoDCompanion.Services.Combat
             foreach (var hero in heroes)
             {
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < (hero.Resolve - fearLevel)) // Example: Resolve vs. FearLevel
+                if (resolveRoll < (hero.GetStat(BasicStat.Resolve) - fearLevel)) // Example: Resolve vs. FearLevel
                 {
                     StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Fear));
                     outcome += $"{hero.Name} is gripped by fear!\n";
@@ -347,7 +347,7 @@ namespace LoDCompanion.Services.Combat
             foreach (var hero in heroes)
             {
                 int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < (hero.Resolve - terrorLevel)) // Example: Resolve vs. TerrorLevel
+                if (resolveRoll < (hero.GetStat(BasicStat.Resolve) - terrorLevel)) // Example: Resolve vs. TerrorLevel
                 {
                     StatusEffectService.AttemptToApplyStatus(hero, StatusEffectService.GetStatusEffectByType(StatusEffectType.Terror));
                     outcome += $"{hero.Name} is terrified and tries to flee!\n";

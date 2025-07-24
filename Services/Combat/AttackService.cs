@@ -73,7 +73,7 @@ namespace LoDCompanion.Services.Combat
             var result = new AttackResult();
 
             // Calculate To-Hit Chance
-            int baseSkill = (weapon?.IsRanged ?? false) ? attacker.RangedSkill : attacker.CombatSkill;
+            int baseSkill = (weapon?.IsRanged ?? false) ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
             int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
             if (attacker is Hero)
@@ -244,7 +244,7 @@ namespace LoDCompanion.Services.Combat
 
         public int CalculateMonsterPotentialDamage(Monster monster)
         {
-            return RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage) + monster.DamageBonus;
+            return RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage) + monster.GetStat(BasicStat.DamageBonus);
         }
 
         private async Task<DefenseResult> ResolveHeroDefenseAsync(Hero target, int incomingDamage)
@@ -310,8 +310,11 @@ namespace LoDCompanion.Services.Combat
             if (slotRoll <= target.Inventory.QuickSlots.Count)
             {
                 var item = target.Inventory.QuickSlots[slotRoll - 1]; // -1 for 0-based index
-                item.Durability--;
-                return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged.";
+                if (item != null)
+                {
+                    item.Durability--;
+                    return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged."; 
+                }
             }
             return "The hero's gear was spared from the impact.";
         }
@@ -332,7 +335,7 @@ namespace LoDCompanion.Services.Combat
             {
                 damage = weapon.RollDamage();
             }
-            damage += attacker.DamageBonus;
+            damage += attacker.GetStat(BasicStat.DamageBonus);
 
             if (weapon is MeleeWeapon meleeWeapon && attacker is Hero hero)
             {
@@ -363,7 +366,7 @@ namespace LoDCompanion.Services.Combat
             if (target is Monster monster)
             {
                 targetArmor = monster.ArmourValue;
-                targetNaturalArmor = monster.NaturalArmour;
+                targetNaturalArmor = monster.GetStat(BasicStat.NaturalArmour);
             }
 
             // Apply Armour Piercing from the context

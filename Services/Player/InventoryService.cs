@@ -131,7 +131,7 @@ namespace LoDCompanion.Services.Player
             {
                 success = EquipOffHand(hero, itemToEquip);
             }
-            else if (hero.ProfessionName == "Warrior Priest" 
+            else if (hero.Profession?.Name == "Warrior Priest" 
                 && itemToEquip.Name.Contains("Relic")) success = EquipRelic(hero, itemToEquip);
             else if (item.Storage != null)
             {

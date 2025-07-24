@@ -36,7 +36,7 @@ namespace LoDCompanion.Services.Dungeon
 
             // Original logic: "LockPicksSkill - PickLockSkillModifier" looks like a typo, assuming it means hero's PickLocksSkill
             // Assuming Hero has a PickLocksSkill property or it's part of Dexterity/Profession
-            int skill = hero.PickLocksSkill; // Example: sum of Dex and profession/talent bonus
+            int skill = hero.GetSkill(Skill.PickLocks); // Example: sum of Dex and profession/talent bonus
 
             int pickLockRoll = RandomHelper.GetRandomNumber(1, 100); // Roll a d100
 
@@ -73,8 +73,7 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             int damageToLock = 0;
-            // Assuming "HeroStrength" directly from hero.Strength, and "DamageBonus" is a hero property
-            int baseDamage = hero.Strength + hero.DamageBonus; // Adjust DamageBonus source as needed
+            int baseDamage = hero.GetStat(BasicStat.Strength) + hero.GetStat(BasicStat.DamageBonus); // Adjust DamageBonus source as needed
 
             if (weapon != null)
             {

@@ -17,7 +17,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             int perceptionRoll = RandomHelper.RollDie("D100");
             // The PDF mentions a modifier on the card next to the eye; we use the trap's SkillModifier for this.
-            return perceptionRoll <= (hero.PerceptionSkill + trap.SkillModifier);
+            return perceptionRoll <= (hero.GetSkill(Skill.Perception) + trap.SkillModifier);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace LoDCompanion.Services.Dungeon
             // Disarming uses the Pick Lock Skill, as per the PDF.
             // The modifier next to the cogs on the card corresponds to the trap's DisarmModifier.
             int disarmRoll = RandomHelper.RollDie("D100");
-            if (disarmRoll <= (hero.PickLocksSkill + trap.DisarmModifier))
+            if (disarmRoll <= (hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier))
             {
                 trap.IsDisarmed = true;
                 trap.IsTrapped = false;

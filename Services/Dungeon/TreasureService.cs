@@ -220,7 +220,7 @@ namespace LoDCompanion.Services.Dungeon
                         searchRoll = await _diceRoll.RollDice(
                         $"Roll for treasure", "1d100");
                     }
-                    if (searchRoll <= hero.AlchemySkill)
+                    if (searchRoll <= hero.GetSkill(Skill.Alchemy))
                     {
                         rewards.Add(await GetTreasureAsync("Part", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, 1, false)));
                     }
@@ -461,7 +461,7 @@ namespace LoDCompanion.Services.Dungeon
                     }
                     treasure = EquipmentService.GetArmourByNameSetDurability(itemName, DefaultArmourDurability - (RandomHelper.GetRandomNumber(1, 4)));
                     break;
-                case 30: treasure = EquipmentService.GetEquipmentByName("Necklace"); treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
+                case 30: treasure = EquipmentService.GetEquipmentByName("Necklace"); if(treasure != null)treasure.Value = RandomHelper.GetRandomNumber(3, 300); break;
                 case 31: treasure = await CreateItemAsync("Part - Exquisite", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, 1)); break;
                 case 32: treasure = EquipmentService.GetEquipmentByName("Partial Map"); break;
                 case <= 34: treasure = await _alchemy.GetPotionByStrengthAsync(PotionStrength.Standard); break;
@@ -643,12 +643,15 @@ namespace LoDCompanion.Services.Dungeon
                 case 29:
                     itemArray = await GetMagicItemAsync("Item");
                     treasure = EquipmentService.GetEquipmentByName("Ring");
-                    treasure.Value = 700;
-                    treasure.Name = "Magic ring of " + itemArray[0];
-                    treasure.Description = itemArray[1];
-                    if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
+                    if (treasure != null)
                     {
-                        treasure.Description += " Cursed: " + itemArray[2];
+                        treasure.Value = 700;
+                        treasure.Name = "Magic ring of " + itemArray[0];
+                        treasure.Description = itemArray[1];
+                        if (itemArray.Length > 2 && !string.IsNullOrEmpty(itemArray[2]))
+                        {
+                            treasure.Description += " Cursed: " + itemArray[2];
+                        }
                     }
                     break;
                 case 30:

@@ -15,8 +15,12 @@ namespace LoDCompanion.Services.Player
         /// <returns>A string describing the outcome.</returns>
         public string ApplyBandage(Hero healer, Hero target)
         {
-            // Find a bandage in the healer's quick slots.
-            var bandage = healer.Inventory.QuickSlots.FirstOrDefault(i => i.Name.Contains("Bandage"));
+            Models.Equipment? bandage = null;
+            if (!healer.Inventory.QuickSlots.Any())
+            {
+                bandage = healer.Inventory.Backpack.FirstOrDefault(i => i.Name.Contains("Bandage"));
+            }
+            
             if (bandage == null)
             {
                 return $"{healer.Name} has no bandages in their quick slots.";
@@ -31,7 +35,7 @@ namespace LoDCompanion.Services.Player
 
             // Perform a Heal skill check.
             int healRoll = RandomHelper.RollDie("D100");
-            if (healRoll > healer.HealSkill)
+            if (healRoll > healer.GetSkill(Skill.Heal))
             {
                 return $"{healer.Name}'s attempt to heal {target.Name} failed, and the bandage was wasted.";
             }
@@ -43,7 +47,7 @@ namespace LoDCompanion.Services.Player
             else if (bandage.Name.Contains("Herbal wrap")) hpGained = RandomHelper.RollDie("D10");
 
             // Apply healing to the target.
-            target.CurrentHP = Math.Min(target.MaxHP, target.CurrentHP + hpGained);
+            target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + hpGained);
 
             return $"{healer.Name} successfully heals {target.Name} for {hpGained} HP.";
         }

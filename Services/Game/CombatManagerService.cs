@@ -112,7 +112,7 @@ namespace LoDCompanion.Services.Game
 
                     if (availableWeapons.Any())
                     {
-                        bool isMeleeFocused = hero.CombatSkill >= hero.RangedSkill;
+                        bool isMeleeFocused = hero.GetSkill(Skill.CombatSkill) >= hero.GetSkill(Skill.RangedSkill);
 
                         List<Weapon> suitableWeapons;
                         if (isMeleeFocused)
@@ -181,12 +181,12 @@ namespace LoDCompanion.Services.Game
                 hero.IsVulnerableAfterPowerAttack = false;
                 if (hero.CombatStance != CombatStance.Overwatch)
                 {
-                    hero.CurrentAP = hero.MaxAP;
+                    hero.ResetActionPoints();
                 }
             }
             foreach (var monster in MonstersInCombat)
             {
-                monster.CurrentAP = monster.MaxAP;
+                monster.ResetActionPoints();
             }
 
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
@@ -298,7 +298,7 @@ namespace LoDCompanion.Services.Game
 
             // 5. Can move its full movement
             var canMoveFull = availableMonsters
-                .OrderByDescending(m => m.Move) // Prioritize faster monsters
+                .OrderByDescending(m => m.GetStat(BasicStat.Move)) // Prioritize faster monsters
                 .FirstOrDefault(m => CanMoveFullPath(m));
             if (canMoveFull != null) return canMoveFull;
 
@@ -323,7 +323,7 @@ namespace LoDCompanion.Services.Game
             if (target == null || monster.Position == null || target.Position == null) return false;
 
             int distance = GridService.GetDistance(monster.Position, target.Position);
-            return distance > 1 && distance <= monster.Move && GridService.HasClearPath(monster.Position, target.Position, _dungeon.DungeonGrid);
+            return distance > 1 && distance <= monster.GetStat(BasicStat.Move) && GridService.HasClearPath(monster.Position, target.Position, _dungeon.DungeonGrid);
         }
 
         private bool CanMoveFullPath(Monster monster)

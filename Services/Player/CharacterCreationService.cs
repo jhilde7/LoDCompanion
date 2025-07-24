@@ -441,49 +441,44 @@ namespace LoDCompanion.Services.CharacterCreation
             State.Hero = new Hero
             {
                 Name = State.Name,
-                SpeciesName = State.SelectedSpecies.Name,
-                ProfessionName = State.SelectedProfession.Name,
-                Strength = State.Strength,
-                Constitution = State.Constitution,
-                Dexterity = State.Dexterity,
-                Wisdom = State.Wisdom,
-                Resolve = State.Resolve,
-                MaxHP = State.MaxHP,
-                CurrentHP = State.MaxHP,
-                CombatSkill = State.CombatSkill,
-                RangedSkill = State.RangedSkill,
-                Dodge = State.Dodge,
-                PickLocksSkill = State.PickLocks,
-                BarterSkill = State.Barter,
-                HealSkill = State.Heal,
-                AlchemySkill = State.Alchemy,
-                PerceptionSkill = State.Perception,
-                ForagingSkill = State.Foraging,
-                ArcaneArtsSkill = State.ArcaneArts,
-                BattlePrayersSkill = State.BattlePrayers,
-                MaxArmour = State.MaxArmour,
+                Species = State.SelectedSpecies,
+                Profession = State.SelectedProfession,
                 Talents = State.TalentList,
                 Perks = State.PerkList,
-                Level = 1,
-                Experience = 0,
-                MaxMana = State.SelectedProfession.Name == "Wizard" ? State.Wisdom : null,
-                CurrentMana = State.SelectedProfession.Name == "Wizard" ? State.Wisdom : null,
-                CurrentEnergy = 1,
-                MaxEnergy = 1,
-                CurrentSanity = 10,
-                MaxSanity = 10,
             };
+            State.Hero.SetStat(BasicStat.Strength, State.Strength);
+            State.Hero.SetStat(BasicStat.Constitution, State.Constitution);
+            State.Hero.SetStat(BasicStat.Dexterity, State.Dexterity);
+            State.Hero.SetStat(BasicStat.Wisdom, State.Wisdom);
+            State.Hero.SetStat(BasicStat.Resolve, State.Resolve);
+            State.Hero.SetStat(BasicStat.HitPoints, State.MaxHP);
+            State.Hero.SetStat(BasicStat.Level, 1);
+            State.Hero.SetStat(BasicStat.Experience, 0);
+            State.Hero.SetStat(BasicStat.Energy, 1);
+            State.Hero.SetStat(BasicStat.Sanity, 10);
+            State.Hero.SetStat(BasicStat.Move, 4);
+            State.Hero.SetSkill(Skill.CombatSkill, State.CombatSkill);
+            State.Hero.SetSkill(Skill.RangedSkill, State.RangedSkill);
+            State.Hero.SetSkill(Skill.Dodge, State.Dodge);
+            State.Hero.SetSkill(Skill.PickLocks, State.PickLocks);
+            State.Hero.SetSkill(Skill.Barter, State.Barter);
+            State.Hero.SetSkill(Skill.Heal, State.Heal);
+            State.Hero.SetSkill(Skill.Alchemy, State.Alchemy);
+            State.Hero.SetSkill(Skill.Perception, State.Perception);
+            State.Hero.SetSkill(Skill.Foraging, State.Foraging);
+            State.Hero.SetSkill(Skill.ArcaneArts, State.ArcaneArts);
+            State.Hero.SetSkill(Skill.BattlePrayers, State.BattlePrayers);
 
             // Populate Hero's Talents and Perks lists with actual Talent/Perk objects if they exist
             State.Hero.Talents = State.TalentList;
             State.Hero.Perks = State.PerkList;
 
             // Add starting spells and prayers
-            if (State.Hero.ProfessionName == "Wizard")
+            if (State.Hero.Profession?.Name == "Wizard")
             {
                 State.Hero.Spells = GetStartingSpells();
             }
-            else if (State.Hero.ProfessionName == "Warrior Priest")
+            else if (State.Hero.Profession?.Name == "Warrior Priest")
             {
                 State.Hero.Prayers = GetStartingPrayers();
             }

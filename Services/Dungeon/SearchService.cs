@@ -46,7 +46,7 @@ namespace LoDCompanion.Services.Dungeon
                 return;
             }
 
-            int searchTarget = hero.PerceptionSkill;
+            int searchTarget = hero.GetSkill(Skill.Perception);
             if (isPartySearch)
             {
                 searchTarget += 20;

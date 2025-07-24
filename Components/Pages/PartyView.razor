@@ -1,5 +1,6 @@
 ﻿@page "/party"
 @using LoDCompanion.Services.Player
+@using LoDCompanion.Models.Character
 @inject PartyManagerService PartyManager
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
@@ -21,9 +22,9 @@
                         <strong>@hero.Name</strong>
                     </div>
                     <div class="card-body">
-                        <p class="card-text">@hero.SpeciesName @hero.ProfessionName</p>
-                        <p class="card-text">Level: @hero.Level</p>
-                        <p class="card-text">HP: @hero.CurrentHP / @hero.MaxHP</p>
+                        <p class="card-text">@hero.Species?.Name @hero.Profession?.Name</p>
+                        <p class="card-text">Level: @hero.GetStat(BasicStat.Experience)</p>
+                        <p class="card-text">HP: @hero.CurrentHP / @hero.GetStat(BasicStat.HitPoints)</p>
                     </div>
                 </div>
             </div>

@@ -38,7 +38,7 @@ namespace LoDCompanion.Services.Combat
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot dodge!" };
             }
 
-            int dodgeSkill = hero.Dodge;
+            int dodgeSkill = hero.GetSkill(Skill.Dodge);
             if (hero.CombatStance == CombatStance.Parry)
             {
                 dodgeSkill += 15; // Bonus for dodging from a Parry CombatStance
@@ -85,7 +85,7 @@ namespace LoDCompanion.Services.Combat
                 result.WeaponDamaged = true;
                 result.OutcomeMessage = $"{hero.Name}'s parry fails and their {weapon.Name} is damaged!";
             }
-            else if (roll <= hero.CombatSkill)
+            else if (roll <= hero.GetSkill(Skill.CombatSkill))
             {
                 result.WasSuccessful = true;
                 result.OutcomeMessage = $"{hero.Name} masterfully parries the blow with their {weapon.Name}!";
@@ -109,7 +109,7 @@ namespace LoDCompanion.Services.Combat
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
             }
 
-            int parrySkill = hero.CombatSkill;
+            int parrySkill = hero.GetSkill(Skill.CombatSkill);
 
             if (hero.CombatStance == CombatStance.Parry)
             {

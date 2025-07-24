@@ -98,17 +98,17 @@ namespace LoDCompanion.Services.Player
             {
                 // Restore HP
                 int hpGained = RandomHelper.RollDie("D6");
-                hero.CurrentHP = Math.Min(hero.MaxHP, hero.CurrentHP + hpGained);
+                hero.CurrentHP = Math.Min(hero.GetStat(BasicStat.HitPoints), hero.CurrentHP + hpGained);
 
                 // Restore Energy
-                int energyToRestore = hero.MaxEnergy - hero.CurrentEnergy;
+                int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
                 for (int i = 0; i < energyToRestore; i++)
                 {
                     if (RandomHelper.RollDie("D6") <= 3) hero.CurrentEnergy++;
                 }
 
                 // Restore Mana for Wizards
-                if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.MaxMana;
+                if (hero.Profession?.Name == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
 
                 // Handle Bleeding Out and Poison
                 // (Logic remains the same as before)

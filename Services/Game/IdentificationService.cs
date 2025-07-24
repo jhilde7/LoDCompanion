@@ -19,12 +19,12 @@ namespace LoDCompanion.Services.Game
 
             if (item is Potion)
             {
-                skillValue = hero.AlchemySkill;
+                skillValue = hero.GetSkill(Skill.Alchemy);
                 skillUsed = "Alchemy";
             }
             else if (!string.IsNullOrEmpty(item.MagicEffect))
             {
-                skillValue = hero.ArcaneArtsSkill;
+                skillValue = hero.GetSkill(Skill.ArcaneArts);
                 skillUsed = "Arcane Arts";
             }
             else

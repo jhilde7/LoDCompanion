@@ -25,7 +25,7 @@ namespace LoDCompanion.Services.Combat
             else
             {
                 // Monsters might have a simpler resistance check
-                resisted = RandomHelper.RollDie("D100") <= target.Constitution;
+                resisted = RandomHelper.RollDie("D100") <= target.GetStat(BasicStat.Constitution);
             }
 
             if (!resisted)

@@ -1128,7 +1128,7 @@ namespace LoDCompanion.Services.GameData
                     if (target == null) break;
                     damage = RandomHelper.RollDie("D10");
                     //TODO: ProcessSpellDamage(damage); // No armour save
-                    caster.CurrentHP = Math.Min(caster.MaxHP, caster.CurrentHP + damage);
+                    caster.CurrentHP = Math.Min(caster.GetStat(BasicStat.HitPoints), caster.CurrentHP + damage);
                     return $"{caster.Name} drains {damage} life from {target.Name}, healing itself.";
 
                 // --- SUPPORT SPELLS ---
@@ -1140,13 +1140,13 @@ namespace LoDCompanion.Services.GameData
                 case "Healing":
                     if (target == null) break;
                     int healAmount = RandomHelper.RollDie("D10");
-                    target.CurrentHP = Math.Min(target.MaxHP, target.CurrentHP + healAmount);
+                    target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + healAmount);
                     return $"{caster.Name} casts a healing spell on {target.Name}, recovering {healAmount} HP.";
 
                 case "Healing hand":
                     if (target == null) break;
                     healAmount = RandomHelper.RollDie("D10");
-                    target.CurrentHP = Math.Min(target.MaxHP, target.CurrentHP + healAmount);
+                    target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + healAmount);
                     return $"{caster.Name} lays a healing hand on {target.Name}, recovering {healAmount} HP.";
 
                 case "Mute":
@@ -1157,16 +1157,16 @@ namespace LoDCompanion.Services.GameData
                     var fallenUndead = dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
                     if (fallenUndead != null)
                     {
-                        fallenUndead.CurrentHP = fallenUndead.MaxHP;
+                        fallenUndead.CurrentHP = fallenUndead.GetStat(BasicStat.HitPoints);
                         return $"{caster.Name} raises {fallenUndead.Name} from the dead!";
                     }
                     else
                     {
-                        var woundedUndead = dungeon.RevealedMonsters.Where(m => m.IsUndead && m.CurrentHP < m.MaxHP).FirstOrDefault();
+                        var woundedUndead = dungeon.RevealedMonsters.Where(m => m.IsUndead && m.CurrentHP < m.GetStat(BasicStat.HitPoints)).FirstOrDefault();
                         if (woundedUndead != null)
                         {
                             healAmount = RandomHelper.RollDie("D6");
-                            woundedUndead.CurrentHP = Math.Min(woundedUndead.MaxHP, woundedUndead.CurrentHP + healAmount);
+                            woundedUndead.CurrentHP = Math.Min(woundedUndead.GetStat(BasicStat.HitPoints), woundedUndead.CurrentHP + healAmount);
                             return $"{caster.Name} channels dark energy, healing {woundedUndead.Name} for {healAmount} HP.";
                         }
                     }

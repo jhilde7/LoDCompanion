@@ -159,7 +159,7 @@ namespace LoDCompanion.Services.Dungeon
                 }
 
                 // --- Check if the character can afford to move ---
-                if (movementPointsSpent + costForThisSquare > character.Move)
+                if (movementPointsSpent + costForThisSquare > character.GetStat(BasicStat.Move))
                 {
                     break; // Not enough movement points to enter the next square.
                 }
@@ -273,9 +273,9 @@ namespace LoDCompanion.Services.Dungeon
             if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
 
             int shoveRoll = RandomHelper.RollDie("D100");
-            int shoveBonus = shover.DamageBonus * 10;
+            int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;
 
-            if (shoveRoll > target.Dexterity + shoveBonus)
+            if (shoveRoll > target.GetStat(BasicStat.Dexterity) + shoveBonus)
             {
                 return $"{shover.Name}'s shove attempt fails.";
             }
@@ -604,7 +604,7 @@ namespace LoDCompanion.Services.Dungeon
 
                     int newCost = currentCost + movementCost;
 
-                    if (entity is Character character && newCost <= character.Move)
+                    if (entity is Character character && newCost <= character.GetStat(BasicStat.Move))
                     {
                         // ...and we haven't found a cheaper path to this square already...
                         if (!visited.ContainsKey(neighborPos) || newCost < visited[neighborPos])

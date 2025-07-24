@@ -92,23 +92,23 @@
                                             <h5 class="card-title" title=@item.ToString()>@item.Name</h5>
                                             @if (item is Weapon Weapon && CurrentHero != null)
                                             {
-                                                var wieldStatus = Hero.GetWieldStatus(CurrentHero.Strength, Weapon);
+                                                var wieldStatus = Hero.GetWieldStatus(CurrentHero.GetStat(BasicStat.Strength), Weapon);
                                                 <span class="badge rounded-pill @GetWeaponWieldStatusClass(wieldStatus)">
                                                     @wieldStatus
                                                 </span>
                                             }
                                             @if (item is Armour Armour && CurrentHero != null)
                                             {
-                                                @if(CurrentHero.MaxArmour >= ((Armour)item).ArmourClass)
+                                                @if(CurrentHero.MaxArmourType >= ((Armour)item).ArmourClass)
                                                 {
                                                     <span class="badge badge-pill badge-success">
-                                                        Usable by @CurrentHero.ProfessionName
+                                                        Usable by @CurrentHero.Profession?.Name
                                                     </span>
                                                 }
                                                 else 
                                                 {
                                                     <span class="badge badge-pill badge-danger">
-                                                        Unusable by @CurrentHero.ProfessionName
+                                                        Unusable by @CurrentHero.Profession?.Name
                                                     </span>
                                                 }
                                                 @if(Armour.HasProperty(ArmourProperty.Stackable))
