@@ -149,7 +149,8 @@
             <h4>Equipped</h4>
             <div class="inventory-grid equipped-grid">
                 @RenderEquippedSlot(hero.Inventory.EquippedWeapon, "Weapon")
-                @if (hero.Inventory.EquippedWeapon != null && hero.Inventory.EquippedWeapon.Class <= hero.OneHandedWeaponClass)
+                @if ((hero.Inventory.EquippedWeapon != null && hero.Inventory.EquippedWeapon.Class <= hero.OneHandedWeaponClass)
+                    || hero.Inventory.OffHand != null)
                 {
                     @RenderEquippedSlot(hero.Inventory.OffHand, "Off-Hand")
                 }
@@ -158,9 +159,14 @@
                     @RenderEquippedSlot(hero.Inventory.EquippedWeapon, "Off-Hand")
                 }
                 @RenderEquippedSlot(hero.Inventory.EquippedQuiver, "Quiver")
-                @foreach(var item in hero.Inventory.QuickSlots)
+                @for(int i = 0; i < hero.Inventory.QuickSlots.Count; i++)
                 {
-					@RenderEquippedSlot(item, "Quick Slot")
+					@RenderEquippedSlot(hero.Inventory.QuickSlots[i], "Quick Slot")
+                }
+
+                @if (hero.ProfessionName == "Warrior Priest")
+                {
+                    @RenderEquippedSlot(hero.Inventory.EquippedRelic, "Religious Relic")
                 }
                 
                 @{
