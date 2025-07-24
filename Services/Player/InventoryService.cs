@@ -16,6 +16,7 @@ namespace LoDCompanion.Services.Player
         public Ammo? EquippedQuiver { get; set; }
         public Equipment? OffHand { get; set; }
         public Equipment? EquippedRelic { get; set; }
+        public Equipment? EquippedStorage { get; set; }
 
         // Carried Items
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
@@ -57,7 +58,7 @@ namespace LoDCompanion.Services.Player
             }
 
             // Ensure the item exists in the backpack
-            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i.Id == itemToSlot.Id);
+            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i == itemToSlot);
             if (itemInBackpack == null)
             {
                 Console.WriteLine("Item not found in backpack.");
@@ -88,12 +89,13 @@ namespace LoDCompanion.Services.Player
         public bool AssignItemToEquipmentQuickSlot(Hero hero, Equipment itemToSlot, Equipment container, int slotIndex)
         {
             // Ensure the target container actually has storage.
-            if (container.Storage == null || slotIndex < 0 || slotIndex >= container.Storage.MaxQuickSlots)
+            if (container != hero.Inventory.EquippedStorage ||
+                container.Storage == null || slotIndex < 0 || slotIndex >= container.Storage.MaxQuickSlots)
             {
                 return false; // Invalid container or slot index.
             }
 
-            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i.Name == itemToSlot.Name);
+            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i == itemToSlot);
             if (itemInBackpack == null) return false; // Item not in backpack.
 
             var movedItem = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemInBackpack);
