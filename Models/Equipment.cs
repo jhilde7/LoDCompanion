@@ -35,6 +35,7 @@ namespace LoDCompanion.Models
     [JsonDerivedType(typeof(Ammo), typeDiscriminator: "Ammo")]
     public class Equipment
     {
+        public string Id { get; } = Guid.NewGuid().ToString();
         public string Category { get; set; } = "Common";
         public ShopCategory Shop { get; set; } = ShopCategory.General;
         public string Name { get; set; } = string.Empty;
