@@ -197,358 +197,364 @@ namespace LoDCompanion.Services.GameData
             return new List<Equipment>
             {
                 new Equipment(){
-                    Category = "Common",
-                    Name = "Alchemist Belt",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "This lets you store 6 potions or vials in ready slots, on top of the ordinary ready slots. Any hit that strikes a potion in the belt will also damage the belt with 1 point.",
-                    Value = 300,
-                    Availability = 3
+                        Category = "Common",
+                        Name = "Alchemist Belt",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "This lets you store 6 potions or vials in ready slots, on top of the ordinary ready slots. Any hit that strikes a potion in the belt will also damage the belt with 1 point.",
+                        Value = 300,
+                        Availability = 3,
+                        Storage = new Player.Inventory(6)
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Alchemist Tool",
-                    Encumbrance = 5,
-                    Durability = 6,
-                    Description = "Necessary to harvest parts and ingredients.",
-                    Value = 200,
-                    Availability = 3
+                        Name = "Alchemist Tool",
+                        Encumbrance = 5,
+                        Durability = 6,
+                        Description = "Necessary to harvest parts and ingredients.",
+                        Value = 200,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Armour Repair Kit",
-                    Encumbrance = 5,
-                    Durability = 1,
-                    Description = "This kit can be used to repair armour during a short rest. It will repair 1d3 durability of each of your hero's equipped pieces of armour. Roll separately. Once done, the kit is exhausted and removed.",
-                    Value = 200,
-                    Availability = 4
+                        Name = "Armour Repair Kit",
+                        Encumbrance = 5,
+                        Durability = 1,
+                        Description = "This kit can be used to repair armour during a short rest. It will repair 1d3 durability of each of your hero's equipped pieces of armour. Roll separately. Once done, the kit is exhausted and removed.",
+                        Value = 200,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Backpack - Medium",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "This backpack increases the carrying capacity of a hero with 10 ENC points, but decreases DEX with -5.",
-                    Value = 350,
-                    Availability = 4
+                        Name = "Backpack - Medium",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "This backpack increases the carrying capacity of a hero with 10 ENC points, but decreases DEX with -5.",
+                        Value = 350,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Backpack - Large",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "This backpack increases the carrying capacity of a hero with 25 ENC points, but decreases DEX with -10.",
-                    Value = 600,
-                    Availability = 3
+                        Name = "Backpack - Large",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "This backpack increases the carrying capacity of a hero with 25 ENC points, but decreases DEX with -10.",
+                        Value = 600,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Bandage (old rags)",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "Necessary when using the Heal Skill. Heals 1d4 Hit Points. This is a bundle with enough rags to bandage 3 times.",
-                    Value = 15,
-                    Availability = 5,
-                    Quantity = 3
+                        Name = "Bandage (old rags)",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "Necessary when using the Heal Skill. Heals 1d4 Hit Points. This is a bundle with enough rags to bandage 3 times.",
+                        Value = 15,
+                        Availability = 5,
+                        Quantity = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Bandage (linen)",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "Necessary when using the Heal Skill. Heals 1d8 Hit Points.",
-                    Value = 25,
-                    Availability = 4
+                        Name = "Bandage (linen)",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "Necessary when using the Heal Skill. Heals 1d8 Hit Points.",
+                        Value = 25,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Bandage (Herbal wrap)",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "Necessary when using the Heal Skill. Gives Heal skill +15 and heals 1d10 Hit Points.",
-                    Value = 50,
-                    Availability = 4
+                        Name = "Bandage (Herbal wrap)",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "Necessary when using the Heal Skill. Gives Heal skill +15 and heals 1d10 Hit Points.",
+                        Value = 50,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Bed Roll",
-                    Encumbrance = 5,
-                    Durability = 6,
-                    Description = "The short rests you take are way more comfortable with a bed roll. You automatically regain all Energy Points.",
-                    Value = 200,
-                    Availability = 3
+                        Name = "Bed Roll",
+                        Encumbrance = 5,
+                        Durability = 6,
+                        Description = "The short rests you take are way more comfortable with a bed roll. You automatically regain all Energy Points.",
+                        Value = 200,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Beef Jerky",
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "Eating a snack like this takes 1 AP and will heal 1 HP.",
-                    Value = 10,
-                    Availability = 5
+                        Name = "Beef Jerky",
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "Eating a snack like this takes 1 AP and will heal 1 HP.",
+                        Value = 10,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Cooking Gear",
-                    Encumbrance = 3,
-                    Durability = 6,
-                    Description = "Cooking gear will help make those rations a bit tastier. Rations cooked using this will heal a further +3 HP. One set of cooking gear is enough for the entire party.",
-                    Value = 100,
-                    Availability = 4
+                        Name = "Cooking Gear",
+                        Encumbrance = 3,
+                        Durability = 6,
+                        Description = "Cooking gear will help make those rations a bit tastier. Rations cooked using this will heal a further +3 HP. One set of cooking gear is enough for the entire party.",
+                        Value = 100,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Crowbar",
-                    Encumbrance = 10,
-                    Durability = 6,
-                    Description = "Inflicts 8+DB Hit Points when breaking down a door, and only increases Threat Level +1.",
-                    Value = 55,
-                    Availability = 3
+                        Name = "Crowbar",
+                        Encumbrance = 10,
+                        Durability = 6,
+                        Description = "Inflicts 8+DB Hit Points when breaking down a door, and only increases Threat Level +1.",
+                        Value = 55,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Combat Harness",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "This increases your Quick Slots from 3 to 5. Any hit that damages a piece of equipment in the harness will also damage the harness.",
-                    Value = 500,
-                    Availability = 2
+                        Name = "Combat Harness",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "This increases your Quick Slots from 3 to 5. Any hit that damages a piece of equipment in the harness will also damage the harness.",
+                        Value = 500,
+                        Availability = 2,
+                        Storage = new Player.Inventory(2)
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Dwarven Ale",
-                    Encumbrance = 2,
-                    Durability = 1,
-                    Description = "Famous liquid courage. If your hero drinks this, all stat and skill tests are at -10, except RES that are at +20 for the rest of the quest.",
-                    Value = 100,
-                    Availability = 2
+                        Name = "Dwarven Ale",
+                        Encumbrance = 2,
+                        Durability = 1,
+                        Description = "Famous liquid courage. If your hero drinks this, all stat and skill tests are at -10, except RES that are at +20 for the rest of the quest.",
+                        Value = 100,
+                        Availability = 2
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Dwarven Pickaxe",
-                    Encumbrance = 8,
-                    Durability = 6,
-                    Description = "A finely crafted pickaxe. Lighter, yet stronger than ordinary pickaxes.",
-                    Value = 225,
-                    Availability = 2
+                        Name = "Dwarven Pickaxe",
+                        Encumbrance = 8,
+                        Durability = 6,
+                        Description = "A finely crafted pickaxe. Lighter, yet stronger than ordinary pickaxes.",
+                        Value = 225,
+                        Availability = 2
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Empty Bottle",
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "Necessary if you want to mix new potions.",
-                    Value = 25,
-                    Availability = 5
+                        Name = "Empty Bottle",
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "Necessary if you want to mix new potions.",
+                        Value = 25,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Extended Battle Belt",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "This increases your Quick Slots from 3 to 4. Any hit that damages a piece of equipment in the belt will also damage the belt.",
-                    Value = 300,
-                    Availability = 3
+                        Name = "Extended Battle Belt",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "This increases your Quick Slots from 3 to 4. Any hit that damages a piece of equipment in the belt will also damage the belt.",
+                        Value = 300,
+                        Availability = 3,
+                        Storage = new Player.Inventory(1)
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Fishing Gear",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "A good fishing rod always makes life better. With this, a hero's Foraging Skill increases with +5.",
-                    Value = 40,
-                    Availability = 5
+                        Name = "Fishing Gear",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "A good fishing rod always makes life better. With this, a hero's Foraging Skill increases with +5.",
+                        Value = 40,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Iron Wedge",
-                    Encumbrance = 4,
-                    Durability = 6,
-                    Description = "These can be used to block a door and takes 1 AP, plus the action to close the door. A Wandering Monster (or a monster already revealed) will stop at this door and have to roll 1d6: 4-6 next turn to pass through. Enough for 2 doors.",
-                    Value = 50,
-                    Availability = 4
+                        Name = "Iron Wedge",
+                        Encumbrance = 4,
+                        Durability = 6,
+                        Description = "These can be used to block a door and takes 1 AP, plus the action to close the door. A Wandering Monster (or a monster already revealed) will stop at this door and have to roll 1d6: 4-6 next turn to pass through. Enough for 2 doors.",
+                        Value = 50,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Lamp Oil",
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "Enough oil to refill a lantern once.",
-                    Value = 15,
-                    Availability = 5
+                        Name = "Lamp Oil",
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "Enough oil to refill a lantern once.",
+                        Value = 15,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Lantern",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "The light projected by the lantern helps strengthen the resolve of your party. See separate note on lantern.",
-                    Value = 100,
-                    Availability = 3
+                        Name = "Lantern",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "The light projected by the lantern helps strengthen the resolve of your party. See separate note on lantern.",
+                        Value = 100,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Lock Picks",
-                    Quantity = 5,
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "Necessary to use the Pick Lock Skill, but can also be used to disarm traps. If damaged, only 1 pick will be destroyed.",
-                    Value = 30,
-                    Availability = 3
+                        Name = "Lock Picks",
+                        Quantity = 5,
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "Necessary to use the Pick Lock Skill, but can also be used to disarm traps. If damaged, only 1 pick will be destroyed.",
+                        Value = 30,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Necklace",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "Can be enchanted.",
-                    Value = 150,
-                    Availability = 4
+                        Name = "Necklace",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "Can be enchanted.",
+                        Value = 150,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Parchment",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "Necessary to make magic scrolls.",
-                    Value = 50,
-                    Availability = 4
+                        Name = "Parchment",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "Necessary to make magic scrolls.",
+                        Value = 50,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Partial Map",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "See separate description.",
-                    Value = 75,
-                    Availability = 4
+                        Name = "Partial Map",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "See separate description.",
+                        Value = 75,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Pickaxe",
-                    Encumbrance = 10,
-                    Durability = 6,
-                    Description = "Can be used to remove rubble.",
-                    Value = 175,
-                    Availability = 3
+                        Name = "Pickaxe",
+                        Encumbrance = 10,
+                        Durability = 6,
+                        Description = "Can be used to remove rubble.",
+                        Value = 175,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Ration",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "Rations are used during overland travel and during short rests. 1 Ration can sustain the entire party for one day or one rest.",
-                    Value = 5,
-                    Availability = 5
+                        Name = "Ration",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "Rations are used during overland travel and during short rests. 1 Ration can sustain the entire party for one day or one rest.",
+                        Value = 5,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Ring",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "Can be enchanted.",
-                    Value = 150,
-                    Availability = 4
+                        Name = "Ring",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "Can be enchanted.",
+                        Value = 150,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Rope (old)",
-                    Encumbrance = 2,
-                    Durability = 1,
-                    Description = "A piece of rope may help you out of that pit you happened to trip into. When used, roll 1d6. On a result of 5-6, the rope breaks and the hero falls down taking 1d6 wounds.",
-                    Value = 20,
-                    Availability = 5
+                        Name = "Rope (old)",
+                        Encumbrance = 2,
+                        Durability = 1,
+                        Description = "A piece of rope may help you out of that pit you happened to trip into. When used, roll 1d6. On a result of 5-6, the rope breaks and the hero falls down taking 1d6 wounds.",
+                        Value = 20,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Rope",
-                    Encumbrance = 2,
-                    Durability = 1,
-                    Description = "A piece of rope may help you out of that pit you happened to trip into.",
-                    Value = 50,
-                    Availability = 4
+                        Name = "Rope",
+                        Encumbrance = 2,
+                        Durability = 1,
+                        Description = "A piece of rope may help you out of that pit you happened to trip into.",
+                        Value = 50,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Tobacco",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "Tobacco will help calm the nerves, but there is always the risk of becoming addicted. See separate note on tobacco.",
-                    Value = 50,
-                    Availability = 4
+                        Name = "Tobacco",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "Tobacco will help calm the nerves, but there is always the risk of becoming addicted. See separate note on tobacco.",
+                        Value = 50,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Torch",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "The light projected by a torch helps strengthen the resolve of your party. See separate note on torch.",
-                    Value = 15,
-                    Availability = 5
+                        Name = "Torch",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "The light projected by a torch helps strengthen the resolve of your party. See separate note on torch.",
+                        Value = 15,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Trap Disarming Kit",
-                    Encumbrance = 5,
-                    Durability = 6,
-                    Description = "+10 when disarming traps.",
-                    Value = 200,
-                    Availability = 3
+                        Name = "Trap Disarming Kit",
+                        Encumbrance = 5,
+                        Durability = 6,
+                        Description = "+10 when disarming traps.",
+                        Value = 200,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Whetstone",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "During a short rest, you will be able to touch up your weapon. Repair close-combat weapons with 1d3 Points of Durability. 3 uses per stone.",
-                    Value = 100,
-                    Availability = 4,
-                    Quantity = 3
+                        Name = "Whetstone",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "During a short rest, you will be able to touch up your weapon. Repair close-combat weapons with 1d3 Points of Durability. 3 uses per stone.",
+                        Value = 100,
+                        Availability = 4,
+                        Quantity = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Horse",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "A horse will increase the travel speed for the party if all heroes have one. See 'Travelling and Skirmishes'.",
-                    Value = 1000,
-                    Availability = 4
+                        Name = "Horse",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "A horse will increase the travel speed for the party if all heroes have one. See 'Travelling and Skirmishes'.",
+                        Value = 1000,
+                        Availability = 4
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Camel",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "A camel provides the same advantages as a horse, but with increased speed in the desert. Can only be bought in the outpost. Price and availability listed here is not changed by the Outpost modifiers.",
-                    Value = 1250,
-                    Availability = 3
+                        Name = "Camel",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "A camel provides the same advantages as a horse, but with increased speed in the desert. Can only be bought in the outpost. Price and availability listed here is not changed by the Outpost modifiers.",
+                        Value = 1250,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Saddlebags",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "Saddlebags will let you store 10 Encumbrance Points on your horse or camel. This equipment may be left on the mount during quests, but cannot be accessed until after the quest.",
-                    Value = 250,
-                    Availability = 4
+                        Name = "Saddlebags",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "Saddlebags will let you store 10 Encumbrance Points on your horse or camel. This equipment may be left on the mount during quests, but cannot be accessed until after the quest.",
+                        Value = 250,
+                        Availability = 4,
+                        Storage = new Player.Inventory()
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Mule",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "A mule will let you store 100 Encumbrance Points. This equipment can be left on the mule during quests, but cannot be accessed until after the dungeon.",
-                    Value = 800,
-                    Availability = 4
+                        Name = "Mule",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "A mule will let you store 100 Encumbrance Points. This equipment can be left on the mule during quests, but cannot be accessed until after the dungeon.",
+                        Value = 800,
+                        Availability = 4,
+                        Storage = new Player.Inventory()
                     },
                     new Equipment(){
                         Category = "Common",
-                    Name = "Wagon",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "Requires a horse. It lets you store 500 Encumbrance Points. This equipment can be left in the wagon during quests, but cannot be accessed until after the dungeon.",
-                    Value = 1500,
-                    Availability = 3
+                        Name = "Wagon",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "Requires a horse. It lets you store 500 Encumbrance Points. This equipment can be left in the wagon during quests, but cannot be accessed until after the dungeon.",
+                        Value = 1500,
+                        Availability = 3,
+                        Storage = new Player.Inventory()
                     },
                     new Equipment(){
                         Category = "Common",
@@ -561,112 +567,112 @@ namespace LoDCompanion.Services.GameData
                     },
                     new Equipment(){
                         Category = "Dark Guild",
-                    Name = "Bear Trap",
-                    Encumbrance = 5,
-                    Durability = 2,
-                    Description = "See Special Note (Implies a detailed rule beyond the table).",
-                    Value = 200,
-                    Availability = -1
+                        Name = "Bear Trap",
+                        Encumbrance = 5,
+                        Durability = 2,
+                        Description = "See Special Note (Implies a detailed rule beyond the table).",
+                        Value = 200,
+                        Availability = -1
                     },
                     new Equipment(){
                         Category = "Dark Guild",
-                    Name = "Caltrops Trap",
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "These small metal pyramids can be thrown on the floor and the unsuspecting enemy will walk on them. They cause immense pain and will disrupt the movement for anyone walking over them. (Almost like Lego). The Caltrops can be thrown in a square up to 2 squares away from the hero. Throwing them takes 1 AP and this can be done as long as there is no enemy adjacent to the thrower. Any enemy walking over the square with no armour will suffer 1d4 Points of Damage and will stop its turn immediately.",
-                    Value = 50,
-                    Availability = -1
+                        Name = "Caltrops Trap",
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "These small metal pyramids can be thrown on the floor and the unsuspecting enemy will walk on them. They cause immense pain and will disrupt the movement for anyone walking over them. (Almost like Lego). The Caltrops can be thrown in a square up to 2 squares away from the hero. Throwing them takes 1 AP and this can be done as long as there is no enemy adjacent to the thrower. Any enemy walking over the square with no armour will suffer 1d4 Points of Damage and will stop its turn immediately.",
+                        Value = 50,
+                        Availability = -1
                     },
                     new Equipment(){
                         Category = "Dark Guild",
-                    Name = "Door Mirror",
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "By spending 1 turn before opening a door, you can slide the mirror underneath the door and get a grip of the room on the other side. You may draw the Exploration Card and roll for an Encounter before opening the door. The party may add 2 hero initiative tokens to the bag if there is an encounter behind the door.",
-                    Value = 300,
-                    Availability = -1
+                        Name = "Door Mirror",
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "By spending 1 turn before opening a door, you can slide the mirror underneath the door and get a grip of the room on the other side. You may draw the Exploration Card and roll for an Encounter before opening the door. The party may add 2 hero initiative tokens to the bag if there is an encounter behind the door.",
+                        Value = 300,
+                        Availability = -1
                     },
                     new Equipment(){
                         Category = "Dark Guild",
-                    Name = "Superior Lock Picks",
-                    Quantity = 5,
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "These lock picks are Dwarven-made with extreme precision. They give +5 Lock picking skill.",
-                    Value = 75,
-                    Availability = -1
+                        Name = "Superior Lock Picks",
+                        Quantity = 5,
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "These lock picks are Dwarven-made with extreme precision. They give +5 Lock picking skill.",
+                        Value = 75,
+                        Availability = -1
                     },
                     new Equipment(){
                         Category = "Dark Guild",
-                    Name = "Superior Trap Disarming Kit",
-                    Encumbrance = 4,
-                    Durability = 6,
-                    Description = "A Dwarven-made kit with perfect tolerances and smooth surfaces. Gives a +15 modifier to any attempt to disarm a trap.",
-                    Value = 250,
-                    Availability = -1
+                        Name = "Superior Trap Disarming Kit",
+                        Encumbrance = 4,
+                        Durability = 6,
+                        Description = "A Dwarven-made kit with perfect tolerances and smooth surfaces. Gives a +15 modifier to any attempt to disarm a trap.",
+                        Value = 250,
+                        Availability = -1
                     },
                     new Equipment(){
                         Category = "Dark Guild",
-                    Name = "Tripwire with Darts Trap",
-                    Encumbrance = 2,
-                    Durability = 1,
-                    Description = "See Special Note (Implies a detailed rule beyond the table, specifically for Wandering Monsters).",
-                    Value = 150,
-                    Availability = -1
+                        Name = "Tripwire with Darts Trap",
+                        Encumbrance = 2,
+                        Durability = 1,
+                        Description = "See Special Note (Implies a detailed rule beyond the table, specifically for Wandering Monsters).",
+                        Value = 150,
+                        Availability = -1
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
-                    Name = "Aim Attachment",
-                    Encumbrance = 0,
-                    Durability = 6,
-                    Description = "This can be added to a shortbow, bow, or any form of crossbow to make it easier to aim. When using an Aim Action, you get +15 instead of +10.",
-                    Value = 200,
-                    Availability = 3
+                        Name = "Aim Attachment",
+                        Encumbrance = 0,
+                        Durability = 6,
+                        Description = "This can be added to a shortbow, bow, or any form of crossbow to make it easier to aim. When using an Aim Action, you get +15 instead of +10.",
+                        Value = 200,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
-                    Name = "Compass",
-                    Encumbrance = 0,
-                    Durability = 1,
-                    Description = "This rather unique item will allow the party to reroll one Travel Event per travel. It must be carried in a Quick Slot.",
-                    Value = 300,
-                    Availability = 3
+                        Name = "Compass",
+                        Encumbrance = 0,
+                        Durability = 1,
+                        Description = "This rather unique item will allow the party to reroll one Travel Event per travel. It must be carried in a Quick Slot.",
+                        Value = 300,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
-                    Name = "Elven Skinning Knife",
-                    Encumbrance = 1,
-                    Durability = 6,
-                    Description = "This slender blade is razor sharp and will make the skinning process much easier. It grants a +10 modifier to Foraging whilst skinning only. Can be kept in the backpack all the time.",
-                    Value = 250,
-                    Availability = 3
+                        Name = "Elven Skinning Knife",
+                        Encumbrance = 1,
+                        Durability = 6,
+                        Description = "This slender blade is razor sharp and will make the skinning process much easier. It grants a +10 modifier to Foraging whilst skinning only. Can be kept in the backpack all the time.",
+                        Value = 250,
+                        Availability = 3
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
-                    Name = "Skinning Knife",
-                    Encumbrance = 1,
-                    Durability = 6,
-                    Description = "This will allow a Ranger to skin animals. Can be kept in the backpack all the time.",
-                    Value = 100,
-                    Availability = 5
+                        Name = "Skinning Knife",
+                        Encumbrance = 1,
+                        Durability = 6,
+                        Description = "This will allow a Ranger to skin animals. Can be kept in the backpack all the time.",
+                        Value = 100,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
-                    Name = "Wild game traps",
-                    Encumbrance = 3,
-                    Durability = 6,
-                    Description = "These traps will make catching animals much easier and confers a +10 modifier when rolling a Foraging roll to catch animals. Can be kept in the backpack all the time.",
-                    Value = 150,
-                    Availability = 5
+                        Name = "Wild game traps",
+                        Encumbrance = 3,
+                        Durability = 6,
+                        Description = "These traps will make catching animals much easier and confers a +10 modifier when rolling a Foraging roll to catch animals. Can be kept in the backpack all the time.",
+                        Value = 150,
+                        Availability = 5
                     },
                     new Equipment(){
                         Category = "The Inner Sanctum",
-                    Name = "Incense",
-                    Encumbrance = 1,
-                    Durability = 1,
-                    Description = "Increases the Prayer skill with +5. Enough for 1 skirmish or 1 dungeon. May be lit in a quick slot during skirmish setup or before entering a dungeon.",
-                    Value = 40,
-                    Availability = 4
+                        Name = "Incense",
+                        Encumbrance = 1,
+                        Durability = 1,
+                        Description = "Increases the Prayer skill with +5. Enough for 1 skirmish or 1 dungeon. May be lit in a quick slot during skirmish setup or before entering a dungeon.",
+                        Value = 40,
+                        Availability = 4
                     },
                     new Equipment()
                     {
