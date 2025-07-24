@@ -592,7 +592,56 @@ namespace LoDCompanion.Models.Character
 
         public Monster()
         {
-            
+
+        }
+
+        /// <summary>
+        /// Copy constructor to create a new monster instance from an existing one.
+        /// </summary>
+        /// <param name="other">The monster to copy.</param>
+        public Monster(Monster other) : base() // Calling base() gives the new monster a unique ID.
+        {
+            // --- Copy Base Character Properties ---
+            this.Name = other.Name;
+            this.IsLarge = other.IsLarge;
+            this.HasShield = other.HasShield;
+            // Note: Room, Position, and ActiveStatusEffects are not copied as they relate to a specific game state.
+
+            // --- Copy Monster-Specific Properties ---
+            this.Type = other.Type;
+            this.ArmourValue = other.ArmourValue;
+            this.MinDamage = other.MinDamage;
+            this.MaxDamage = other.MaxDamage;
+            this.HasSpecialAttack = other.HasSpecialAttack;
+            this.IsGhost = other.IsGhost;
+            this.ToHitPenalty = other.ToHitPenalty;
+            this.XP = other.XP;
+            this.IsUndead = other.IsUndead;
+            this.Behavior = other.Behavior;
+            this.TreasureType = other.TreasureType; // This will also update the Body property
+
+            // --- Copy Stats and Skills using SetStat/SetSkill ---
+            // This ensures any logic within the SetStat method (like setting CurrentHP) is triggered.
+            foreach (var statEntry in other.BasicStats)
+            {
+                this.SetStat(statEntry.Key, statEntry.Value);
+            }
+
+            foreach (var skillEntry in other.SkillStats)
+            {
+                this.SetSkill(skillEntry.Key, skillEntry.Value);
+            }
+
+            // --- Copy Collections (Deep Copy for Lists) ---
+            // Creates new lists to prevent the copy and original from sharing the same list instance.
+            this.Weapons = new List<Weapon>(other.Weapons);
+            this.SpecialRules = new List<string>(other.SpecialRules);
+            this.Spells = new List<MonsterSpell>(other.Spells);
+            this.Treasures = new List<string>(other.Treasures);
+
+            // --- Final Setup ---
+            // Re-build the rule descriptions for the new monster instance.
+            this.BuildSpecialRuleDescriptions();
         }
 
         public override string ToString()

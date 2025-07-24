@@ -5236,9 +5236,9 @@ namespace LoDCompanion.Services.Dungeon
             };
         }
 
-        public Monster GetMonsterByName(string name)
+        private Monster GetMonsterByName(string name)
         {
-            return Monsters.First(m => m.Name == name);
+            return new Monster(Monsters.First(m => m.Name == name));
         }
 
         /// <summary>
