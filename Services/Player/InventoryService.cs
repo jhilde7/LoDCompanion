@@ -20,18 +20,14 @@ namespace LoDCompanion.Services.Player
         // Carried Items
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
         public List<Equipment> QuickSlots { get; set; } = [.. new Equipment[3]];
-        private int _maxQuickSlots;
-        public int MaxQuickSlots
-        {
-            get => _maxQuickSlots;
-            set
-            {
-                _maxQuickSlots = value;
-                QuickSlots = [.. new Equipment[_maxQuickSlots]];
-            }
-        }
+        public int MaxQuickSlots => QuickSlots.Count;
 
         public Inventory() { }
+
+        public Inventory(int slots)
+        {
+            QuickSlots = [.. new Equipment?[slots]];
+        }
     }
 
     /// <summary>
@@ -44,23 +40,75 @@ namespace LoDCompanion.Services.Player
            
         }
 
-        public bool AddItemToQuickSlot(Hero hero, Equipment item)
+        /// <summary>
+        /// Assigns an item from the backpack to a specific quick slot.
+        /// </summary>
+        /// <param name="hero">The hero whose inventory is being modified.</param>
+        /// <param name="itemToSlot">The item to be moved to the quick slot.</param>
+        /// <param name="slotIndex">The 0-based index of the quick slot to use.</param>
+        /// <returns>True if the item was successfully slotted.</returns>
+        public bool AssignItemToQuickSlot(Hero hero, Equipment itemToSlot, int slotIndex)
         {
-            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i.Name == item.Name);
-            if (itemInBackpack != null)
+            // Validate the slot index
+            if (slotIndex < 0 || slotIndex >= hero.Inventory.MaxQuickSlots)
             {
-                var itemToMove = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemInBackpack);
-                if(itemToMove != null)
-                {
-                    hero.Inventory.QuickSlots.Add(itemToMove);
-                    if(hero.Inventory.QuickSlots.Count > hero.Inventory.MaxQuickSlots)
-                    {
-                        hero.Inventory.QuickSlots.RemoveAt(0);
-                    }
-                    return true;
-                }
+                Console.WriteLine("Invalid quick slot index.");
+                return false;
             }
-            return false;
+
+            // Ensure the item exists in the backpack
+            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i.Id == itemToSlot.Id);
+            if (itemInBackpack == null)
+            {
+                Console.WriteLine("Item not found in backpack.");
+                return false;
+            }
+
+            // Take one item from the backpack stack
+            var movedItem = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemInBackpack);
+            if (movedItem == null) return false;
+
+            // If an item is already in the target slot, move it back to the backpack
+            var existingItem = hero.Inventory.QuickSlots[slotIndex];
+            if (existingItem != null)
+            {
+                BackpackHelper.AddItem(hero.Inventory.Backpack, existingItem);
+                Console.WriteLine($"Moved {existingItem.Name} from quick slot back to backpack.");
+            }
+
+            // Place the new item in the specified quick slot
+            hero.Inventory.QuickSlots[slotIndex] = movedItem;
+            Console.WriteLine($"Assigned {movedItem.Name} to quick slot {slotIndex + 1}.");
+            return true;
+        }
+
+        /// <summary>
+        /// Assigns an item from the backpack to a specific slot within a container.
+        /// </summary>
+        public bool AssignItemToEquipmentQuickSlot(Hero hero, Equipment itemToSlot, Equipment container, int slotIndex)
+        {
+            // Ensure the target container actually has storage.
+            if (container.Storage == null || slotIndex < 0 || slotIndex >= container.Storage.MaxQuickSlots)
+            {
+                return false; // Invalid container or slot index.
+            }
+
+            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i.Name == itemToSlot.Name);
+            if (itemInBackpack == null) return false; // Item not in backpack.
+
+            var movedItem = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemInBackpack);
+            if (movedItem == null) return false;
+
+            // If a different item is in the target slot, move it back to the backpack.
+            var existingItem = container.Storage.QuickSlots[slotIndex];
+            if (existingItem != null)
+            {
+                BackpackHelper.AddItem(hero.Inventory.Backpack, existingItem);
+            }
+
+            // Place the new item in the container's slot.
+            container.Storage.QuickSlots[slotIndex] = movedItem;
+            return true;
         }
 
         public bool EquipItem(Hero hero, Equipment item)
@@ -94,6 +142,21 @@ namespace LoDCompanion.Services.Player
 
         public bool UnequipItem(Hero hero, Equipment itemToUnequip)
         {
+            if (itemToUnequip.Storage != null)
+            {
+                // Get all items that are not null from the container's storage.
+                var itemsToMove = itemToUnequip.Storage.QuickSlots.Where(item => item != null).ToList();
+
+                foreach (var item in itemsToMove)
+                {
+                    // Add each item back to the hero's main backpack.
+                    BackpackHelper.AddItem(hero.Inventory.Backpack, item!);
+                }
+                // Clear the container's storage.
+                itemToUnequip.Storage.QuickSlots.Clear();
+                Console.WriteLine($"Emptied contents of {itemToUnequip.Name} into backpack.");
+            }
+
             bool removed = false;
             if (hero.Inventory.EquippedWeapon == itemToUnequip) { hero.Inventory.EquippedWeapon = null; removed = true; }
             else if (hero.Inventory.OffHand == itemToUnequip) { hero.Inventory.OffHand = null; removed = true; }
