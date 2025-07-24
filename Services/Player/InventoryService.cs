@@ -20,7 +20,7 @@ namespace LoDCompanion.Services.Player
 
         // Carried Items
         public List<Equipment> Backpack { get; set; } = new List<Equipment>();
-        public List<Equipment> QuickSlots { get; set; } = [.. new Equipment[3]];
+        public List<Equipment?> QuickSlots { get; set; } = [.. new Equipment?[3]];
         public int MaxQuickSlots => QuickSlots.Count;
 
         public Inventory() { }
@@ -121,17 +121,23 @@ namespace LoDCompanion.Services.Player
             // Take a single instance of the item from the backpack stack.
             Equipment? itemToEquip = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, item);
             if (itemToEquip == null) return false;
+
             // Route to the correct handler based on the item's type.
             if (itemToEquip is Weapon weapon) success = EquipWeapon(hero, weapon);
             else if (itemToEquip is Armour armour) success = EquipArmour(hero, armour);
             else if (itemToEquip is Shield shield) success = EquipOffHand(hero, shield);
-            else if (itemToEquip.HasProperty(EquipmentProperty.Lantern) || itemToEquip.HasProperty(EquipmentProperty.Torch))
+            else if (itemToEquip.HasProperty(EquipmentProperty.Lantern) 
+                || itemToEquip.HasProperty(EquipmentProperty.Torch))
             {
                 success = EquipOffHand(hero, itemToEquip);
             }
             else if (hero.ProfessionName == "Warrior Priest" 
                 && itemToEquip.Name.Contains("Relic")) success = EquipRelic(hero, itemToEquip);
-            
+            else if (item.Storage != null)
+            {
+                success = EquipStorageContainer(hero, item);
+            }
+
 
             // If equipping failed for any reason, put the item back in the backpack.
             if (!success)
@@ -144,29 +150,46 @@ namespace LoDCompanion.Services.Player
 
         public bool UnequipItem(Hero hero, Equipment itemToUnequip)
         {
-            if (itemToUnequip.Storage != null)
-            {
-                // Get all items that are not null from the container's storage.
-                var itemsToMove = itemToUnequip.Storage.QuickSlots.Where(item => item != null).ToList();
-
-                foreach (var item in itemsToMove)
-                {
-                    // Add each item back to the hero's main backpack.
-                    BackpackHelper.AddItem(hero.Inventory.Backpack, item!);
-                }
-                // Clear the container's storage.
-                itemToUnequip.Storage.QuickSlots.Clear();
-                Console.WriteLine($"Emptied contents of {itemToUnequip.Name} into backpack.");
-            }
-
             bool removed = false;
-            if (hero.Inventory.EquippedWeapon == itemToUnequip) { hero.Inventory.EquippedWeapon = null; removed = true; }
+
+            if (hero.Inventory.EquippedStorage == itemToUnequip)
+            {
+                // Empty the container's contents back into the backpack FIRST.
+                if (itemToUnequip.Storage != null)
+                {
+                    foreach (var itemInContainer in itemToUnequip.Storage.QuickSlots)
+                    {
+                        if (itemInContainer != null)
+                        {
+                            BackpackHelper.AddItem(hero.Inventory.Backpack, itemInContainer);
+                        }
+                    }
+                    // Clear the container's slots by filling it with nulls
+                    for (int i = 0; i < itemToUnequip.Storage.QuickSlots.Count; i++)
+                    {
+                        itemToUnequip.Storage.QuickSlots[i] = null;
+                    }
+                }
+
+                hero.Inventory.EquippedStorage = null;
+                removed = true;
+            }
+            else if (hero.Inventory.EquippedWeapon == itemToUnequip) { hero.Inventory.EquippedWeapon = null; removed = true; }
             else if (hero.Inventory.OffHand == itemToUnequip) { hero.Inventory.OffHand = null; removed = true; }
             else if (hero.Inventory.EquippedQuiver == itemToUnequip) { hero.Inventory.EquippedQuiver = null; removed = true; }
             else if (hero.Inventory.EquippedArmour.Contains(itemToUnequip))
             {
                 hero.Inventory.EquippedArmour.Remove((Armour)itemToUnequip);
                 removed = true;
+            }
+            else if (hero.Inventory.QuickSlots.Contains(itemToUnequip))
+            {
+                int index = hero.Inventory.QuickSlots.IndexOf(itemToUnequip);
+                if (index != -1)
+                {
+                    hero.Inventory.QuickSlots[index] = null;
+                    removed = true;
+                }
             }
 
             if (removed)
@@ -186,6 +209,21 @@ namespace LoDCompanion.Services.Player
                 UnequipItem(hero, hero.Inventory.OffHand);
                 Console.WriteLine($"Unequipped {hero.Inventory.OffHand.Name} from {hero.Name}'s off-hand.");
             }
+            return true;
+        }
+
+        private bool EquipStorageContainer(Hero hero, Equipment containerToEquip)
+        {
+            // If another container is already equipped, unequip it first.
+            if (hero.Inventory.EquippedStorage != null)
+            {
+                UnequipItem(hero, hero.Inventory.EquippedStorage);
+            }
+
+            var itemInstance = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, containerToEquip);
+            if (itemInstance == null) return false;
+
+            hero.Inventory.EquippedStorage = itemInstance;
             return true;
         }
 
