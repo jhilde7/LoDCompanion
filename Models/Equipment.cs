@@ -48,6 +48,7 @@ namespace LoDCompanion.Models
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
         public string MagicEffect { get; set; } = string.Empty;
+        public Inventory? Storage { get; set; }
         public Dictionary<EquipmentProperty, int> Properties { get; set; } = new Dictionary<EquipmentProperty, int>();
 
         public Equipment() 
