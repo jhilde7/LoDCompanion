@@ -253,7 +253,7 @@
 
                         <div class="quick-slot-actions">
                             <div class="quick-slot-row">
-                                <span>Hero:</span>
+                                <span>Hero QS:</span>
                                 <input type="number" class="quick-slot-input"
                                        min="1" max="@hero.Inventory.QuickSlots.Count"
                                        @bind="heroSlotSelections[item.Id]" />
@@ -266,7 +266,7 @@
                             {
                                 var container = hero.Inventory.EquippedStorage;
                                 <div class="quick-slot-row">
-                                    <span>Belt:</span>
+                                    <span>Belt QS:</span>
                                     <input type="number" class="quick-slot-input"
                                            min="1" max="@container.Storage.QuickSlots.Count"
                                            @bind="containerSlotSelections[item.Id]" />
