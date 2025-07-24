@@ -105,7 +105,17 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         public static bool IsInZoneOfControl(GridPosition positionToCheck, Character character)
         {
+            // A character's ZOC only extends to adjacent squares.
+            // We check this first to ensure we are only evaluating the immediate area.
+            if (GridService.GetDistance(character.Position, positionToCheck) > 1)
+            {
+                return false;
+            }
+
+            // If the square is adjacent, we then check its direction relative to the character's facing.
             var relativeDir = GetRelativeDirection(character.Facing, character.Position, positionToCheck);
+
+            // The ZOC includes all directions except for the three squares to the character's back.
             return relativeDir is not (RelativeDirection.Back or RelativeDirection.BackLeft or RelativeDirection.BackRight);
         }
     }
