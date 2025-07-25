@@ -14,8 +14,8 @@ namespace LoDCompanion.Services.GameData
     public class GameDataService
     {
         public List<Prayer> Prayers => GetPrayers();
-        public List<Species> Species => GetSpecies();
-        public List<Profession> Professions => GetProfessions();
+        public static List<Species> Species => GetSpecies();
+        public static List<Profession> Professions => GetProfessions();
         public List<Talent> Talents => GetTalents();
         public List<Talent> PhysicalTalents => GetTalentsByCategory(TalentCategory.Physical);
         public List<Talent> CombatTalents => GetTalentsByCategory(TalentCategory.Combat);
@@ -1199,7 +1199,7 @@ namespace LoDCompanion.Services.GameData
             return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
         }
 
-        public List<Species> GetSpecies()
+        public static List<Species> GetSpecies()
         {
             return new List<Species>()
             {
@@ -1266,7 +1266,7 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public List<Profession> GetProfessions()
+        public static List<Profession> GetProfessions()
         {
             return new List<Profession>()
             {
@@ -1662,6 +1662,12 @@ namespace LoDCompanion.Services.GameData
         public Dictionary<string, int> GetLevelUpCostByProfession(Profession profession)
         {
             return profession.LevelUpCost;
+        }
+
+        public static int GetProfessionMaxArmourType(string professionName)
+        {
+            Profession? profession = Professions.FirstOrDefault(p => p.Name == professionName);
+            return profession != null ? profession.MaxArmourType : 0;
         }
     }
 
