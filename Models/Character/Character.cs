@@ -323,7 +323,7 @@ namespace LoDCompanion.Models.Character
 
         public bool HasBeenTargetedThisTurn { get; set; }
         public bool HasDodgedThisBattle { get; set; } = false;
-        public Levelup? Levelup { get; set; } // Holds the level-up information for the hero
+        public Levelup Levelup { get; set; } = new Levelup();
 
         // Constructor
         public Hero() : base() { }
