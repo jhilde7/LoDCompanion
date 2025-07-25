@@ -77,7 +77,7 @@ namespace LoDCompanion.Services.Player
             // Rule: Check for race-specific maximums.
             if (IsStatAtRacialMax(hero, statToImprove))
             {
-                errorMessage = $"{statToImprove} is already at its maximum for a {hero.Species?.Name}.";
+                errorMessage = $"{statToImprove} is already at its maximum for a {hero.SpeciesName}.";
                 return false;
             }
 
@@ -219,17 +219,16 @@ namespace LoDCompanion.Services.Player
         /// </summary>
         private bool IsStatAtRacialMax(Hero hero, BasicStat stat)
         {
-            if (hero.Species == null) return false;
-
+            Species species = _gameData.GetSpeciesByName(hero.SpeciesName);
             int currentStatValue = hero.GetStat(stat);
 
             return stat switch
             {
-                BasicStat.Wisdom => currentStatValue >= hero.Species.MaxWIS,
-                BasicStat.Dexterity => currentStatValue >= hero.Species.MaxDEX,
-                BasicStat.Strength => currentStatValue >= hero.Species.MaxSTR,
-                BasicStat.Resolve => currentStatValue >= hero.Species.MaxRES,
-                BasicStat.Constitution => currentStatValue >= hero.Species.MaxCON,
+                BasicStat.Wisdom => currentStatValue >= species.MaxWIS,
+                BasicStat.Dexterity => currentStatValue >= species.MaxDEX,
+                BasicStat.Strength => currentStatValue >= species.MaxSTR,
+                BasicStat.Resolve => currentStatValue >= species.MaxRES,
+                BasicStat.Constitution => currentStatValue >= species.MaxCON,
                 _ => false,
             };
         }
