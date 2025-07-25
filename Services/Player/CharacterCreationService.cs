@@ -441,8 +441,8 @@ namespace LoDCompanion.Services.CharacterCreation
             State.Hero = new Hero
             {
                 Name = State.Name,
-                Species = State.SelectedSpecies,
-                Profession = State.SelectedProfession,
+                SpeciesName = State.SelectedSpecies.Name,
+                ProfessionName = State.SelectedProfession.Name,
                 Talents = State.TalentList,
                 Perks = State.PerkList,
             };
@@ -474,11 +474,11 @@ namespace LoDCompanion.Services.CharacterCreation
             State.Hero.Perks = State.PerkList;
 
             // Add starting spells and prayers
-            if (State.Hero.Profession?.Name == "Wizard")
+            if (State.Hero.ProfessionName == "Wizard")
             {
                 State.Hero.Spells = GetStartingSpells();
             }
-            else if (State.Hero.Profession?.Name == "Warrior Priest")
+            else if (State.Hero.ProfessionName == "Warrior Priest")
             {
                 State.Hero.Prayers = GetStartingPrayers();
             }
