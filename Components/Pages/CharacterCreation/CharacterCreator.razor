@@ -65,19 +65,20 @@ else
                                 @ProfessionSelection
                                 ;
                                 break;
+                            case Step.Specialization:
+                                @SpecializationStats
+                                ;
+                                break;
                             case Step.TalentChoice:
                                 @TalentChoiceSelection
                                 ;
                                 break;
-                            case Step.Equipment:
-                                @EquipmentSelection
-                                ;
-                                break;
                             case Step.AlchemistRecipe:
                                 @AlchemistRecipeSelection
-                                ; break;
-                            case Step.Specialization:
-                                @SpecializationStats
+                                ; 
+                                break;
+                            case Step.Equipment:
+                                @EquipmentSelection
                                 ;
                                 break;
                             case Step.FreeSkill:
@@ -135,7 +136,7 @@ else
                         @foreach (var hero in PartyManager.Party.Heroes)
                         {
                             <button type="button" class="list-group-item list-group-item-action text-start" @onclick="() => ShowCharacterSheet(hero)">
-                                @hero.Name <br /><small class="text-muted">@hero.Species?.Name @hero.Profession?.Name</small>
+                                @hero.Name <br /><small class="text-muted">@hero.SpeciesName @hero.ProfessionName</small>
                             </button>
                         }
                     }
@@ -151,7 +152,7 @@ else
     <CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
 }
     @code {
-    private enum Step { Species, HumanTalent, Profession, TalentChoice, Equipment, AlchemistRecipe, Specialization, FreeSkill, Background, Name, Review, Summary }
+    private enum Step { Species, HumanTalent, Profession, Specialization, TalentChoice, AlchemistRecipe, Equipment, FreeSkill, Background, Name, Review, Summary }
     private Step currentStep = Step.Species;
     private EditContext editContext = default!;
     private bool isLoading = true; // Start in loading state
@@ -231,7 +232,7 @@ else
 
         @{
             <div class="row">
-                @foreach (var species in GameData.Species)
+                @foreach (var species in GameDataService.Species)
                 {
                 <div class="card mb-4 shadow-sm selectable-card @(State.SelectedSpecies == species ? "selected" : "")" @onclick="() => SelectSpecies(species)">
                         <div class="card-body">
@@ -444,13 +445,13 @@ else
     private RenderFragment ProfessionSelection =>@<section>
         <h3 class="text-center my-4">Choose Your Profession</h3>
         <div class="row">
-            @if (GameData.Professions == null)
+            @if (GameDataService.Professions == null)
             {
                 <p><em>Loading professions...</em></p>
             }
             else
             {
-                @foreach (var profession in GameData.Professions)
+            @foreach (var profession in GameDataService.Professions)
                 {
                     <div class="col-md-6 mb-6">
                         <div class="card h-100 selectable-card @(selectedProfession == profession ? "selected" : "")" @onclick="() => SelectProfession(profession)">
@@ -898,8 +899,8 @@ else
                 </h4>
             </div>
             <div class="card-body">
-                <p><strong>Species:</strong> @currentHero.Species?.Name</p>
-                <p><strong>Profession:</strong> @currentHero.Profession?.Name</p>
+                <p><strong>Species:</strong> @currentHero.SpeciesName</p>
+                <p><strong>Profession:</strong> @currentHero.ProfessionName</p>
 
                 @if (currentHero.Talents.Any())
                 {
