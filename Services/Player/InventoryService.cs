@@ -95,10 +95,7 @@ namespace LoDCompanion.Services.Player
                 return false; // Invalid container or slot index.
             }
 
-            var itemInBackpack = hero.Inventory.Backpack.FirstOrDefault(i => i == itemToSlot);
-            if (itemInBackpack == null) return false; // Item not in backpack.
-
-            var movedItem = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemInBackpack);
+            var movedItem = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, itemToSlot);
             if (movedItem == null) return false;
 
             // If a different item is in the target slot, move it back to the backpack.
