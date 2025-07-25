@@ -305,7 +305,7 @@ namespace LoDCompanion.Models.Character
         public int CurrentSanity { get; set; } = 10;
 
         // Hero-specific States and Flags
-        public int MaxArmourType => GameDataService.GetProfessionMaxArmourType(ProfessionName);
+        public int MaxArmourType => new GameDataService().GetProfessionMaxArmourType(ProfessionName);
         public bool IsThief => ProfessionName == "Thief";
         public int OneHandedWeaponClass => Get1HWeaponClass(GetStat(BasicStat.Strength));
         public int TwoHandedWeaponClass => Get2HWeaponClass(GetStat(BasicStat.Strength));
@@ -347,7 +347,7 @@ namespace LoDCompanion.Models.Character
                 SetStat(BasicStat.NaturalArmour, GetNaturalArmourFromCON());
             }
 
-            if (this.Profession?.Name == "Wizard" && stat == BasicStat.Wisdom)
+            if (this.ProfessionName == "Wizard" && stat == BasicStat.Wisdom)
             {
                 SetStat(BasicStat.Mana, GetStat(BasicStat.Wisdom));
             }
@@ -366,7 +366,7 @@ namespace LoDCompanion.Models.Character
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"--- Hero: {Name} (Level {GetStat(BasicStat.Level)} {Species?.Name} {Profession?.Name}) ---");
+            sb.AppendLine($"--- Hero: {Name} (Level {GetStat(BasicStat.Level)} {SpeciesName} {ProfessionName}) ---");
             sb.AppendLine($"HP: {CurrentHP}/{GetStat(BasicStat.HitPoints)}, Sanity: {CurrentSanity}/{GetStat(BasicStat.Sanity)}, Energy: {CurrentEnergy}/{GetStat(BasicStat.Energy)}, XP: {GetStat(BasicStat.Experience)}, Coins: {Coins}");
             if (GetStat(BasicStat.Mana) > 0) sb.AppendLine($"Mana: {CurrentMana}/{GetStat(BasicStat.Mana)}");
 

@@ -800,7 +800,7 @@ namespace LoDCompanion.Services.Game
                         break;
 
                     case AiTargetHints.DebuffEnemyCaster:
-                        var enemyCaster = losHeroes.FirstOrDefault(h => h.Profession?.Name == "Wizard" || h.Profession?.Name == "Warrior Priest");
+                        var enemyCaster = losHeroes.FirstOrDefault(h => h.ProfessionName == "Wizard" || h.ProfessionName == "Warrior Priest");
                         if (enemyCaster != null)
                         {
                             choices.Add(new SpellChoice { Spell = spell, Target = enemyCaster.Position, Score = 16 });

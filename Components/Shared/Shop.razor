@@ -102,13 +102,13 @@
                                                 @if(CurrentHero.MaxArmourType >= ((Armour)item).ArmourClass)
                                                 {
                                                     <span class="badge badge-pill badge-success">
-                                                        Usable by @CurrentHero.Profession?.Name
+                                                        Usable by @CurrentHero.ProfessionName
                                                     </span>
                                                 }
                                                 else 
                                                 {
                                                     <span class="badge badge-pill badge-danger">
-                                                        Unusable by @CurrentHero.Profession?.Name
+                                                        Unusable by @CurrentHero.ProfessionName
                                                     </span>
                                                 }
                                                 @if(Armour.HasProperty(ArmourProperty.Stackable))

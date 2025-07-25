@@ -108,7 +108,7 @@ namespace LoDCompanion.Services.Player
                 }
 
                 // Restore Mana for Wizards
-                if (hero.Profession?.Name == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
+                if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
 
                 // Handle Bleeding Out and Poison
                 // (Logic remains the same as before)

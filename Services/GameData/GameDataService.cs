@@ -14,8 +14,8 @@ namespace LoDCompanion.Services.GameData
     public class GameDataService
     {
         public List<Prayer> Prayers => GetPrayers();
-        public static List<Species> Species => GetSpecies();
-        public static List<Profession> Professions => GetProfessions();
+        public List<Species> Species => GetSpecies();
+        public List<Profession> Professions => GetProfessions();
         public List<Talent> Talents => GetTalents();
         public List<Talent> PhysicalTalents => GetTalentsByCategory(TalentCategory.Physical);
         public List<Talent> CombatTalents => GetTalentsByCategory(TalentCategory.Combat);
@@ -157,7 +157,7 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public List<Talent> GetTalents()
+        public static List<Talent> GetTalents()
         {
             return new List<Talent>()
                     {
@@ -1199,7 +1199,7 @@ namespace LoDCompanion.Services.GameData
             return Perks.FirstOrDefault(t => t.Name == name) ?? new Perk();
         }
 
-        public static List<Species> GetSpecies()
+        public List<Species> GetSpecies()
         {
             return new List<Species>()
             {
@@ -1266,7 +1266,7 @@ namespace LoDCompanion.Services.GameData
             };
         }
 
-        public static List<Profession> GetProfessions()
+        public List<Profession> GetProfessions()
         {
             return new List<Profession>()
             {
@@ -1664,10 +1664,15 @@ namespace LoDCompanion.Services.GameData
             return profession.LevelUpCost;
         }
 
-        public static int GetProfessionMaxArmourType(string professionName)
+        public int GetProfessionMaxArmourType(string professionName)
         {
             Profession? profession = Professions.FirstOrDefault(p => p.Name == professionName);
             return profession != null ? profession.MaxArmourType : 0;
+        }
+
+        internal Species GetSpeciesByName(string speciesName)
+        {
+            throw new NotImplementedException();
         }
     }
 
