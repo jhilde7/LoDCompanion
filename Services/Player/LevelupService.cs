@@ -6,9 +6,32 @@ namespace LoDCompanion.Services.Player
 {
     public class Levelup
     {
-        public int ImprovementPoints { get; set; } // Points used for improving stats or skills
+        /// <summary>
+        /// Points available to spend on improving stats or skills. Starts at 15.
+        /// </summary>
+        public int ImprovementPoints { get; set; }
+
+        /// <summary>
+        /// Tracks how many times each basic stat has been improved during this level-up.
+        /// A stat cannot be increased more than 5 times per level (or +2 for Hit Points).
+        /// </summary>
         public Dictionary<BasicStat, int> BasicStatsImprovedThisLevel { get; set; } = new Dictionary<BasicStat, int>();
+
+        /// <summary>
+        /// Tracks how many times each skill has been improved during this level-up.
+        /// A skill cannot be increased more than 5 times per level.
+        /// </summary>
         public Dictionary<Skill, int> SkillsImprovedThisLevel { get; set; } = new Dictionary<Skill, int>();
+
+        /// <summary>
+        /// The Talent chosen during this level-up.
+        /// </summary>
+        public Talent? SelectedTalent { get; set; }
+
+        /// <summary>
+        /// The Perk chosen during this level-up, if applicable.
+        /// </summary>
+        public Perk? SelectedPerk { get; set; }
     }
 
     public class LevelupService
@@ -18,6 +41,230 @@ namespace LoDCompanion.Services.Player
         public LevelupService(GameDataService gameData)
         {
             _gameData = gameData;
+        }
+
+        /// <summary>
+        /// Captures the hero's saved points from their current level and carries them through to their next level while resetting level caps
+        /// </summary>
+        public void LevelUp(Hero hero)
+        {
+            int previousLevelPoints = hero.Levelup.ImprovementPoints;
+
+            hero.Levelup = new Levelup() { ImprovementPoints = 15 + previousLevelPoints };
+        }
+
+        /// <summary>
+        /// Attempts to improve a hero's basic stat.
+        /// </summary>
+        /// <param name="hero">The hero who is leveling up.</param>
+        /// <param name="session">The current level-up session object.</param>
+        /// <param name="statToImprove">The basic stat to increase.</param>
+        /// <param name="profession">The hero's profession data, which contains cost info.</param>
+        /// <param name="errorMessage">An output message explaining why the improvement failed.</param>
+        /// <returns>True if the stat was improved successfully, otherwise false.</returns>
+        public bool AttemptToImproveStat(Hero hero, Levelup session, BasicStat statToImprove, Profession profession, out string errorMessage)
+        {
+            int maxIncrease = (statToImprove == BasicStat.HitPoints) ? 2 : 5;
+            session.BasicStatsImprovedThisLevel.TryGetValue(statToImprove, out int currentIncrease);
+
+            // Rule: A stat cannot be increased more than +5 per level (+2 for HP).
+            if (currentIncrease >= maxIncrease)
+            {
+                errorMessage = $"You cannot increase {statToImprove} more than {maxIncrease} times per level.";
+                return false;
+            }
+
+            // Rule: Check for race-specific maximums.
+            if (IsStatAtRacialMax(hero, statToImprove))
+            {
+                errorMessage = $"{statToImprove} is already at its maximum for a {hero.Species?.Name}.";
+                return false;
+            }
+
+            int currentStatValue = hero.GetStat(statToImprove);
+            int cost = GetStatImprovementCost(statToImprove, currentStatValue, profession);
+
+            // Check if the hero has enough points.
+            if (session.ImprovementPoints < cost)
+            {
+                errorMessage = $"Not enough improvement points. Needs {cost}, but you only have {session.ImprovementPoints}.";
+                return false;
+            }
+
+            // All checks passed, apply the improvement.
+            session.ImprovementPoints -= cost;
+            hero.SetStat(statToImprove, currentStatValue + 1);
+            session.BasicStatsImprovedThisLevel[statToImprove] = currentIncrease + 1;
+
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to improve a hero's skill.
+        /// </summary>
+        /// <param name="hero">The hero who is leveling up.</param>
+        /// <param name="session">The current level-up session object.</param>
+        /// <param name="skillToImprove">The skill to increase.</param>
+        /// <param name="profession">The hero's profession data, which contains cost info.</param>
+        /// <param name="errorMessage">An output message explaining why the improvement failed.</param>
+        /// <returns>True if the skill was improved successfully, otherwise false.</returns>
+        public bool AttemptToImproveSkill(Hero hero, Levelup session, Skill skillToImprove, Profession profession, out string errorMessage)
+        {
+            session.SkillsImprovedThisLevel.TryGetValue(skillToImprove, out int currentIncrease);
+
+            // Rule: A skill cannot be increased by more than +5 per level.
+            if (currentIncrease >= 5)
+            {
+                errorMessage = $"You cannot increase {skillToImprove} more than 5 times per level.";
+                return false;
+            }
+
+            int currentSkillValue = hero.GetSkill(skillToImprove);
+
+            // Rule: A skill can never exceed 80.
+            if (currentSkillValue >= 80)
+            {
+                errorMessage = $"{skillToImprove} cannot be raised above 80.";
+                return false;
+            }
+
+            int cost = GetSkillImprovementCost(skillToImprove, currentSkillValue, profession);
+
+            if (session.ImprovementPoints < cost)
+            {
+                errorMessage = $"Not enough improvement points. Needs {cost}, but you only have {session.ImprovementPoints}.";
+                return false;
+            }
+
+            // All checks passed, apply the improvement.
+            session.ImprovementPoints -= cost;
+            hero.SetSkill(skillToImprove, currentSkillValue + 1);
+            session.SkillsImprovedThisLevel[skillToImprove] = currentIncrease + 1;
+
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Sets the chosen Talent for the level-up session.
+        /// </summary>
+        /// <returns>True if the talent was successfully selected, otherwise false.</returns>
+        public bool AttemptToSelectTalent(Hero hero, Levelup session, Talent talent, out string errorMessage)
+        {
+            if (hero.Talents.Contains(talent))
+            {
+                errorMessage = "You already have this talent.";
+                return false;
+            }
+
+            session.SelectedTalent = talent;
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Sets the chosen Perk for the level-up session.
+        /// </summary>
+        /// <returns>True if the perk was successfully selected, otherwise false.</returns>
+        public bool AttemptToSelectPerk(Hero hero, Levelup session, Perk perk, out string errorMessage)
+        {
+            if (hero.Perks.Contains(perk))
+            {
+                errorMessage = "You already have this perk.";
+                return false;
+            }
+
+            session.SelectedPerk = perk;
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Calculates the cost to improve a basic stat by 1.
+        /// </summary>
+        private int GetStatImprovementCost(BasicStat stat, int currentStatValue, Profession profession)
+        {
+            // The cost is determined by the hero's profession.
+            profession.LevelUpCost.TryGetValue(GetKeyForStat(stat), out int baseCost);
+
+            // Rule: Once a stat passes 70, the cost is doubled.
+            if (currentStatValue >= 70)
+            {
+                baseCost *= 2;
+            }
+
+            return baseCost;
+        }
+
+        /// <summary>
+        /// Calculates the cost to improve a skill by 1.
+        /// </summary>
+        private int GetSkillImprovementCost(Skill skill, int currentSkillValue, Profession profession)
+        {
+            // A mapping might be needed if the names don't align perfectly.
+            profession.LevelUpCost.TryGetValue(GetKeyForSkill(skill), out int baseCost);
+
+            // Rule: Once a skill passes 70, the cost is doubled.
+            if (currentSkillValue >= 70)
+            {
+                baseCost *= 2;
+            }
+
+            return baseCost;
+        }
+
+        /// <summary>
+        /// Checks if a stat has reached the maximum value for the hero's species.
+        /// </summary>
+        private bool IsStatAtRacialMax(Hero hero, BasicStat stat)
+        {
+            if (hero.Species == null) return false;
+
+            int currentStatValue = hero.GetStat(stat);
+
+            return stat switch
+            {
+                BasicStat.Wisdom => currentStatValue >= hero.Species.MaxWIS,
+                BasicStat.Dexterity => currentStatValue >= hero.Species.MaxDEX,
+                BasicStat.Strength => currentStatValue >= hero.Species.MaxSTR,
+                BasicStat.Resolve => currentStatValue >= hero.Species.MaxRES,
+                BasicStat.Constitution => currentStatValue >= hero.Species.MaxCON,
+                _ => false,
+            };
+        }
+
+        private string GetKeyForSkill(Skill skill)
+        {
+            return skill switch
+            {
+                Skill.CombatSkill => "CS",
+                Skill.RangedSkill => "RS",
+                Skill.PickLocks => "PickLocks",
+                Skill.Dodge => "Dodge",
+                Skill.Perception => "Perception",
+                Skill.Heal => "Heal",
+                Skill.ArcaneArts => "ArcaneArts",
+                Skill.BattlePrayers => "BattlePrayers",
+                Skill.Foraging => "Foraging",
+                Skill.Barter => "Barter",
+                Skill.Alchemy => "Alchemy",
+                _ => skill.ToString()
+            };
+        }
+
+        private string GetKeyForStat(BasicStat stat)
+        {
+            return stat switch
+            {
+                BasicStat.Strength => "STR",
+                BasicStat.Dexterity => "DEX",
+                BasicStat.Constitution => "CON",
+                BasicStat.Resolve => "RES",
+                BasicStat.Wisdom => "WIS",
+                BasicStat.HitPoints => "HitPoints",
+                _ => stat.ToString()
+            };
         }
 
         public List<Talent> GetTalentCategoryAtLevelup(Profession profession, int level)
