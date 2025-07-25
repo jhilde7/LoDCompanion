@@ -41,9 +41,9 @@ namespace LoDCompanion.Services.Dungeon
             int pickLockRoll = RandomHelper.GetRandomNumber(1, 100); // Roll a d100
 
             // Base roll + skill - lockModifier
-            int successRoll = pickLockRoll + skill - lockModifier;
+            int successThreshold = skill - lockModifier;
 
-            if (successRoll >= 50) // Assuming 50 is the success threshold
+            if (pickLockRoll <= 80 && pickLockRoll <= successThreshold)
             {
                 lockPicks.Quantity--; // Consume one lock pick on success (or on attempt, depending on rules)
                 Console.WriteLine($"{hero.Name} successfully picked the lock!");

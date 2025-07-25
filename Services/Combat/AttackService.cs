@@ -91,7 +91,7 @@ namespace LoDCompanion.Services.Combat
                 result.AttackRoll = RandomHelper.RollDie("D100");
             }
 
-            if (result.AttackRoll > result.ToHitChance)
+            if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";

@@ -45,7 +45,7 @@ namespace LoDCompanion.Services.Combat
             }
 
             int roll = await diceRoll.RequestRollAsync("Attempt to dodge the attack.", "1d100");
-            if (roll <= dodgeSkill)
+            if (roll <= 80 && roll <= dodgeSkill)
             {
                 result.WasSuccessful = true;
                 result.OutcomeMessage = $"{hero.Name} successfully dodges the attack!";
@@ -85,7 +85,7 @@ namespace LoDCompanion.Services.Combat
                 result.WeaponDamaged = true;
                 result.OutcomeMessage = $"{hero.Name}'s parry fails and their {weapon.Name} is damaged!";
             }
-            else if (roll <= hero.GetSkill(Skill.CombatSkill))
+            else if (roll <= 80 && roll <= hero.GetSkill(Skill.CombatSkill))
             {
                 result.WasSuccessful = true;
                 result.OutcomeMessage = $"{hero.Name} masterfully parries the blow with their {weapon.Name}!";
@@ -121,7 +121,7 @@ namespace LoDCompanion.Services.Combat
             }
 
             int roll = await diceRoll.RequestRollAsync("Attempt to parry the blow with your shield", "1d100");
-            if (roll <= parrySkill)
+            if (roll <= 80 && roll <= parrySkill)
             {
                 result.WasSuccessful = true;
                 result.DamageNegated = shield.DefValue;
