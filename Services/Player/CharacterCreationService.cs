@@ -137,7 +137,7 @@ namespace LoDCompanion.Services.CharacterCreation
             List<Perk> startingPerkList = new List<Perk> { };
             if (name == "Barbarian")
             {
-                startingPerkList.Add(_gameData.GetPerkByName("Frenzy") ?? new Perk());
+                startingPerkList.Add(_gameData.GetPerkByName(PerkName.Frenzy));
             }
             return startingPerkList;
         }
