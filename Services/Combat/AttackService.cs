@@ -339,7 +339,7 @@ namespace LoDCompanion.Services.Combat
 
             if (weapon is MeleeWeapon meleeWeapon && attacker is Hero hero)
             {
-                if (hero.Talents.Any(t => t.IsMightyBlow))
+                if (hero.Talents.Any(t => t.Name == GameData.TalentName.MightyBlow))
                 {
                     damage += 1;
                 }

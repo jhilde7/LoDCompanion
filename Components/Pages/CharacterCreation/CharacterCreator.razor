@@ -162,7 +162,7 @@ else
     private Profession? selectedProfession;
     private string? selectedSkill;
     private bool isSkillConfirmed = false;
-    private string? selectedTalentChoice;
+    private TalentName? selectedTalentChoice;
     private CharacterCreationState State = new CharacterCreationState();
 
     private CharacterSheet characterSheetModal = default!;
@@ -669,7 +669,7 @@ else
                 }
             }
         </div>
-        @if (!string.IsNullOrEmpty(selectedTalentChoice))
+        @if (selectedTalentChoice != null)
         {
             <div class="alert alert-success mt-3 w-50 mx-auto">
                 Selected: <strong>@selectedTalentChoice</strong>
@@ -1046,7 +1046,7 @@ else
         GoToNextStep();
     }
 
-    private void OnTalentSelected(string selection)
+    private void OnTalentSelected(TalentName selection)
     {
         selectedTalentChoice = selection;
         CreationService.UpdateTalentsWithSelection(selection);
@@ -1184,7 +1184,7 @@ else
         Step.HumanTalent => State.HumanTalentCategoryList != null,
         Step.Specialization => State.SpecializationBonus == 0,
         Step.Profession => State.SelectedProfession != null,
-        Step.TalentChoice => (State.TalentChoices == null || !State.TalentChoices.Any()) || !string.IsNullOrEmpty(selectedTalentChoice),
+        Step.TalentChoice => (State.TalentChoices == null || !State.TalentChoices.Any()) || selectedTalentChoice != null,
         Step.Equipment => State.SelectedWeapon == null || !string.IsNullOrEmpty(State.SelectedWeapon),
         Step.Name => !string.IsNullOrWhiteSpace(State.Name),
         Step.Review => true,

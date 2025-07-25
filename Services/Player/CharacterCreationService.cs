@@ -49,30 +49,27 @@ namespace LoDCompanion.Services.CharacterCreation
                         traits.Add(new Talent()
                         {
                             Category = TalentCategory.Physical,
-                            Name = "Night Vision",
+                            Name = TalentName.NightVision,
                             Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
-                            IsNightVision = true
                         });
-                        traits.Add(_gameData.GetHateByName(GameDataService.HateCategory.Goblins));
+                        traits.Add(_gameData.GetHateTalentByCategory(GameDataService.HateCategory.Goblins));
                         return traits;
                     case "Elf":
                         traits.Add(new Talent()
                         {
                             Category = TalentCategory.Physical,
-                            Name = "Night Vision",
+                            Name = TalentName.NightVision,
                             Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
-                            IsNightVision = true
                         });
                         traits.Add(new Talent()
                         {
                             Category = TalentCategory.Physical,
-                            Name = "Perfect Hearing",
+                            Name = TalentName.PerfectHearing,
                             Description = "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened.",
-                            IsPerfectHearing = true
                         });
                         return traits;
                     case "Halfling":
-                        traits.Add(_gameData.GetTalentByName("Lucky") ?? new Talent());
+                        traits.Add(_gameData.GetTalentByName(TalentName.Lucky) ?? new Talent());
                         return traits;
                     case "Human":
                         State.HumanTalentCategoryList = new() { "Physical", "Combat", "Faith", "Alchemist", "Common", "Magic", "Sneaky", "Mental" };
@@ -358,7 +355,7 @@ namespace LoDCompanion.Services.CharacterCreation
             }
         }
 
-        public void UpdateTalentsWithSelection(string selection)
+        public void UpdateTalentsWithSelection(TalentName selection)
         {
             State.TalentList.Add(_gameData.GetTalentByName(selection));
         }
@@ -435,7 +432,6 @@ namespace LoDCompanion.Services.CharacterCreation
                 throw new InvalidOperationException("SelectedProfession must be set before building the preview hero.");
             }
 
-            State.TalentList.RemoveAll(item => item.Name == "");
             State.StartingEquipment.RemoveAll(item => item.Name == "");
 
             State.Hero = new Hero
@@ -652,7 +648,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 2,
                         Name = "The Well",
                         Description = "As with so many others in the kingdom, you were born in a small village with farmers for parents. During the harvest, all able-bodied people were needed in the fields. When you were young, you had to stay behind with the other children who were not yet strong enough to work, and those who were too old for hard labour. Wanting to help, you decided that you could at least fetch water from the town well to make things easier for your mother on her return. Once at the well, you start mimicking the moves you have seen your mother do countless times. Turning the crank to hoist the bucket is heavy work, but after several minutes the bucket is finally visible. As you lean out to reach the bucket, you suddenly lose grip on the crank and slip, falling into the well. Luckily, the water breaks your fall, and the level is not too high for you to keep your head above water. Once the initial panic settles, you realise that you are stuck deep underground in this cold, dark place. It took several hours before you were finally located and saved, but even now the memory of the cold and darkness won't leave you alone.",
-                        Trait = new Talent() {Name = "Claustrophobia", Description = "The hero is troubled be tight spaces and becomes less effective. All skills and stats are at a -10 in corridors.This is not curable at the asylum. Instead, you must face your fears." },
+                        Trait = new Talent() {Name = TalentName.Claustrophobia, Description = "The hero is troubled be tight spaces and becomes less effective. All skills and stats are at a -10 in corridors.This is not curable at the asylum. Instead, you must face your fears." },
                         PersonalQuest = "Once you have fought and survived 5 battles in a corridor, your condition is finally cured. Such is the effect of beating this trauma that you actually turn it into a strength. You gain the Tunnel Fighter Talent."
                     },
                     new Background(_gameData)
@@ -674,7 +670,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 5,
                         Name = "Arachnophobia",
                         Description = "Many people feel uneasy in the presence of spiders. This was the case with you as well as you were growing up, but it has now become something far worse. One late afternoon as you were out picking berries in the forest surrounding your village, you sprained your ankle. Barely able to walk, you fashioned a staff to support your weight using your small knife. You began your trek home, but walking was slow, and the sun began to set. Before long, the forest became steadily darker, until you could barely see your hand in front of you. At that moment you suddenly spotted the gleaming eyes of animals in front of you. You blinked several times to get better focus, as the eyes seemed to be clustered together in a pack. Just as you are wondering what animals would stay so close together, a chill ran down your spine as you counted to eight, and realised that those eyes belonged to one single creature. Then, with a low hissing sound, a spider the size of a wolf slowly advanced towards you. Over what seemed like an eternity you fought off the vile creature using your little knife and the wooden staff. In the end though, the outcome was inevitable. You were trapped in strings of thick cobweb as the spider finally sank its fangs into your flesh. As the venom entered your veins, you slowly lost consciousness. The next thing you remembered was being back in your bed, feverish but alive. Apparently, a local Ranger had spotted you and managed to kill the spider just as you passed out. She brought you back home, and although there were no antidotes available, they managed to nurse you back to health. You made a full physical recovery from the ordeal, but the trauma remains to this day.",
-                        Trait = new Talent() {Name = "Arachnophobia", Description = "The hero finds all kinds of spiders terrifying. Treat all encounters with spiders as Terror. This is not curable at the asylum. Instead, you must face your fears." },
+                        Trait = new Talent() {Name = TalentName.Arachnophobia, Description = "The hero finds all kinds of spiders terrifying. Treat all encounters with spiders as Terror. This is not curable at the asylum. Instead, you must face your fears." },
                         PersonalQuest = "Once you have fought and survived 3 battles with spiders, your condition is finally cured. Such is the effect of beating this trauma that you actually turn it into a strength. You gain +10 CS whenever trying to hit a spider."
                     },
                     new Background(_gameData)
@@ -689,7 +685,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 7,
                         Name = "Revenge",
                         Description = "During the early days of adventuring, you were travelling the roads with one of your childhood friends. Having known each other since you could talk, you had experienced your entire childhood together. Thus, it was quite natural that you would leave your village together in search of fame, gold, and glory. You had been travelling for some weeks, still with no gold or glory in sight, when you were ambushed by two Brigands. Within seconds, your friend caught an arrow through the throat, and collapsed almost instantly. The rest of the fight is blurry, but you managed to overcome and kill both attackers. Although it has been some years since that episode, you sometimes still dream of your friend's last seconds, the shock on his face, and the gurgling sound as the last air passed through his windpipe.",
-                        Trait = _gameData.GetHateByName(GameDataService.HateCategory.Bandits),
+                        Trait = _gameData.GetHateTalentByCategory(GameDataService.HateCategory.Bandits),
                         PersonalQuest = "Furthermore,for every 5 enemies from that section that you deliver the killing blow, you gain an additional 250 XP."
                     },
                     new Background(_gameData)
@@ -697,14 +693,14 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 8,
                         Name = "Bad Tempered",
                         Description = "We are all born differently, and we look upon life in different ways. In this case, your character is a tad bit on the negative side and is, quite frankly, really grumpy. Even on a sunny day, with wind in the hair, there is always something that could have been better. Maybe the sun doesn't have to shine straight in the eyes? That sound of creaking branches from the trees due to the wind is really annoying, isn't it?",
-                        Trait = new Talent() {Name = "Bad Tempered", Description = "You will give a permanent -2 modifier to Party Morale. But, on the other hand, always expecting the worst can have its benefits as well. Your maximum Sanity is permanently increased by +2." }
+                        Trait = new Talent() {Name = TalentName.BadTempered, Description = "You will give a permanent -2 modifier to Party Morale. But, on the other hand, always expecting the worst can have its benefits as well. Your maximum Sanity is permanently increased by +2." }
                     },
                     new Background(_gameData)
                     {
                         Id = 9,
                         Name = "Poverty",
                         Description = "Life in the kingdom is not easy, and few are those who can spend money on a whim. Your family were, and still are, on the very edge of survival. Growing up, you did what you could to support your family, but decided early on that there was a need for a change. As soon as you were old enough, you left in search of other ways to bring food to the table. Living the life of an adventuring vagabond has sustained you so far, yet you still feel the urge to improve the situation for your family.",
-                        Trait = new Talent() {Name = "Poverty", Description = "You know the value of each coin, and may never make a purchase, or lend out money, that would leave you with less than 10 c." },
+                        Trait = new Talent() {Name = TalentName.Poverty, Description = "You know the value of each coin, and may never make a purchase, or lend out money, that would leave you with less than 10 c." },
                         PersonalQuest = "Furthermore,you must try to accumulate 1000 c for your family. Randomise which village (not Silver City) in which you were born and raised. If you are a dwarf, randomise between the two Dwarven settlements. Once you feel ready to hand over the money to your family, pay them a visit and hand over the money. This can be done by spending one Point of Movement in that village, and it, will grant you 2000 XP."
                     },
                     new Background(_gameData)
@@ -719,7 +715,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 11,
                         Name = "The Fraud",
                         Description = "Not applicable for wizards. Reroll if you are a wizard. You have been struggling most of your life. Food and money have always been scarce, and with no education or family business to inherit, the prospects for the future were not looking too bright. With such a life, you never quite got the attention from others that you craved either. All of this changed the day you stumbled across a wounded adventurer lying on the road. Although you did your best, you could not prevent the inevitable, and the adventurer passed away. You can't really explain why, but there and then you decided to change your fate. You quickly changed clothes with the fallen, and for the first time in your life you gripped a sword in your hand. From that day you vowed to never return home, but instead to keep travelling the kingdom. At the taverns and inns along the way you were often the centre of the attention as you told fabricated stories of your exploits and adventures. One such night of drinks and stories has landed you in your current situation. As the sun rises the morning after, you find yourself in the company of your party, apparently having promised them that you will be a great asset. With a feeling of panic, you realise that the time has now come for you to put your money where your mouth is.",
-                        Trait = new Talent() {Name = "The Fraud", Description = "Deduct -10 from CS, RS, and Dodge since you have neither formal training nor experience with this. Your RES is also reduced with -10." },
+                        Trait = new Talent() {Name = TalentName.TheFraud, Description = "Deduct -10 from CS, RS, and Dodge since you have neither formal training nor experience with this. Your RES is also reduced with -10." },
                         PersonalQuest = "It is time to go from fraud to the real deal. Once you have improved CS, RS, and Dodge with +10 you can finally believe that you are more than empty words. Once this is achieved, you regain your RES and may increase it with another +10. You also gain an additional 1500 XP."
                     },
                     new Background(_gameData)
@@ -727,7 +723,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 12,
                         Name = "The Noble",
                         Description = "Belonging to the lucky few privileged people in the kingdom, you have always gone to bed on a full stomach and, whenever needed, there was always a coin toss to solve any predicament in which you found yourself. For your father, this was not always the case. Although not poor, he was not of noble birth, and it was through marriage that he acquired his title. Realising that his child was growing spoiled, he determined you would have to make a living for yourself for at least a year before returning to the noble life. Now this year is well past, but you have grown fond of your new lifestyle, and in no hurry to return to dinner parties and boring meetings.",
-                        Trait = new Talent() {Name = "The Noble", Description = "You were not kicked out without means, and you have managed to retain some of the coins your mother secretly handed you before you parted. You start with 400 c instead of the normal 150 c. However, being accustomed to having money makes it extra hard when you have none. If you ever drop below 150 c, you start questioning if this is really what you should do for a living. Your resolve is reduced with -20 until you have enough money again (150 c)." }
+                        Trait = new Talent() {Name = TalentName.TheNoble, Description = "You were not kicked out without means, and you have managed to retain some of the coins your mother secretly handed you before you parted. You start with 400 c instead of the normal 150 c. However, being accustomed to having money makes it extra hard when you have none. If you ever drop below 150 c, you start questioning if this is really what you should do for a living. Your resolve is reduced with -20 until you have enough money again (150 c)." }
                     },
                     new Background(_gameData)
                     {
@@ -755,7 +751,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 16,
                         Name = "Revenge",
                         Description = "A little over a decade ago, your village was savagely attacked by a large group of beastmen. Although the villagers bravely tried to counter the attack, many were killed and several houses were lost to fire. Amongst the beastmen was a huge Minotaur, and it was responsible for the worst of the carnage. You hid throughout the fight, but at one point, the beast was close enough for you to make out a strange scar on its chest. The image of that beast has stayed with you ever since, and as you have grown to adulthood your lust for revenge has grown stronger.",
-                        Trait = _gameData.GetHateByName(GameDataService.HateCategory.Minotaurs),
+                        Trait = _gameData.GetHateTalentByCategory(GameDataService.HateCategory.Minotaurs),
                         PersonalQuest = "Every time you fight a Minotaur, roll 1d6. On a result of 1, you recognize the scar. If you defeat the beast, you gain an additional +1000 XP."
                     },
                     new Background(_gameData)
@@ -770,21 +766,21 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 18,
                         Name = "The Apprentice",
                         Description = "As with most young ones in the Kingdom, the time for being a carefree child is short. Most start working before their 10 birthday, and for you there was no difference. Although most children would be toiling in the fields, you were given the chance to work for the local blacksmith. He had grown fond of you as a youngster, and with no children of his own, he suggested you could help him out with the more menial tasks. At first, your work was to keep the smithy clean, bring water from the well, and run errands to and from customers. As you grew older, you began to learn some of the trade. In the end though, the blacksmith could not afford to pay you a salary that would sustain you. So you decided to find other means of bringing bread to the table.",
-                        Trait = new Talent() {Name = "The Apprentice", Description = "Your blacksmithing skills are truly useful while adventuring. Whenever using an armour repair kit or a whetstone, you automatically regain 3 Points of Durability on your gear." }
+                        Trait = new Talent() {Name = TalentName.TheApprentice, Description = "Your blacksmithing skills are truly useful while adventuring. Whenever using an armour repair kit or a whetstone, you automatically regain 3 Points of Durability on your gear." }
                     },
                     new Background(_gameData)
                     {
                         Id = 19,
                         Name = "Weak",
                         Description = "As a child you were prone to catching every cold there was. According to your mother, there isn't a disease around that you haven't suffered from! That's not true of course, but the fact remains that you seem to contract diseases more easily than most. Perhaps your father is right, and you are 'just plain weak', or maybe you are just suffering from an immune system that struggles to keep up. Luckily, this seems to have improved with time. Now when you fall ill, you usually feel better within a few days.",
-                        Trait = new Talent() {Name = "Weak", Description = "Whenever rolling for contracting a disease, you suffer an -10 modifier to your CON. However, once you are cured of your 3rd disease, your immune system kicks into overdrive and you instead get a +10 modifier to your CON when rolling for disease, and you cure yourself on a natural CON roll of 01-10 instead of 01-05." }
+                        Trait = new Talent() {Name = TalentName.Weak, Description = "Whenever rolling for contracting a disease, you suffer an -10 modifier to your CON. However, once you are cured of your 3rd disease, your immune system kicks into overdrive and you instead get a +10 modifier to your CON when rolling for disease, and you cure yourself on a natural CON roll of 01-10 instead of 01-05." }
                     },
                     new Background(_gameData)
                     {
                         Id = 20,
                         Name = "Afraid of Heights",
                         Description = "There are few things in life you fear, and that is a well-known fact amongst friends and family. You once saved a child in your village who came face to face with a stray wolf. With nothing but a stick in your hand, you charged the beast, screaming and flailing wildly. Though you did get a fair share of cuts, you managed to scare the beast away. Since then, the fearless attribute has stuck with you. However, as with most people, you do have an Achilles heel, and it is a fear that most people don't know that you have. You are deathly scared of heights. Whenever you are only a few feet above the ground your knees begin to shake, and you start to sweat profusely.",
-                        Trait = new Talent() {Name = "Afraid of Heights", Description = "Whenever you take a Fear Test (but not a Terror Test), you gain a +10 modifier on your RES. However, whenever you are on a bridge your resolve is halved (RDD) and your CS and RS suffer a -20 modifier." }
+                        Trait = new Talent() {Name = TalentName.AfraidOfHeights, Description = "Whenever you take a Fear Test (but not a Terror Test), you gain a +10 modifier on your RES. However, whenever you are on a bridge your resolve is halved (RDD) and your CS and RS suffer a -20 modifier." }
                     }
                 };
         }

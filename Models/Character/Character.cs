@@ -400,7 +400,7 @@ namespace LoDCompanion.Models.Character
             // Apply talent bonuses
             foreach (Talent talent in Talents)
             {
-                if (talent.IsResistDisease)
+                if (talent.Name == TalentName.ResistDisease)
                 {
                     con += 10;
                 }
@@ -419,7 +419,7 @@ namespace LoDCompanion.Models.Character
 
             foreach (var talent in Talents)
             {
-                if (talent.IsResistPoison)
+                if (talent.Name == TalentName.ResistPoison)
                 {
                     con += 10;
                 }

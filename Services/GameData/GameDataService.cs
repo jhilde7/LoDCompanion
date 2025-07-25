@@ -157,461 +157,386 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
-        public static List<Talent> GetTalents()
+        public List<Talent> GetTalents()
         {
             return new List<Talent>()
-                    {
-                        new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Catlike",
-                            Description = "Your hero moves with grace and has almost supernatural balance. Your hero gains +5 DEX.",
-                            IsCatLike = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Fast",
-                            Description = "Your hero moves unusually fast and gains a permanent +1 bonus to their Movement stat.",
-                            IsFast = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Resilient",
-                            Description = "Your hero's brawny physique grants a +5 bonus to the Constitution stat.",
-                            IsResilient = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Resistance to Disease",
-                            Description = "Your hero seems to have a natural ability to resist diseases. Your hero gets a +10 bonus on Constitution Tests to resist disease.",
-                            IsResistDisease = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Resistance to Poison",
-                            Description = "Your hero seems to have a natural ability to resist poison. Your hero gets a +10 bonus on Constitution Tests to resist poison.",
-                            IsResistPoison = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Strong",
-                            Description = "Your hero's exercises have paid off and your hero gains a +5 bonus to her Strength stat.",
-                            IsStrong = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Strong Build",
-                            Description = "Your hero gains a +2 bonus to her Hit Points stat.",
-                            IsStrongBuild = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Physical,
-                            Name = "Tank",
-                            Description = "Wearing heavy armour has little effect on your hero's ability to move. The hero ignores the Clunky Special Rule.",
-                            IsTank = true
-                          },
+            {
                 new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Axeman",
-                            Description = "Preferring the balance of a good axe, this hero has become a master of using this weapon. He gains +5 CS when using all kinds of axes.",
-                            IsAxeman = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Bruiser",
-                            Description = "The hero excels at fighting with blunt weapons and gains +5 CS with all hammers, flails, staffs, and morning stars.",
-                            IsBruiser = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Death Lament",
-                            Description = "When others fall, this hero still stands, refusing to give in. Each time your hero is reduced to 0 Hit Points, roll 1d6: on a result of 1-3, the hero regains 1 Hit Point.",
-                            IsDeathLament = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Disarm",
-                            Description = "This is a special attack, using the target's DEX as a negative modifier to the attack. If the attack succeeds it inflicts no damage, but causes the enemy to drop his weapon. The enemy must spend his next action trying to pick it up. In order to do so, the enemy will have to succeed with an DEX Test. The enemy will continue until successful. If the hero's attack fails, nothing happens. This can only be used on enemies that are carrying weapons.",
-                            IsDisarm = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Dual Wield",
-                            Description = "This talent requires a DEX of 60. Any hero with this talent may use a weapon with the Dual Wield Special Rule in its offhand. The attacks are still done as usual with the main weapon, but any hit will add +X DMG to the target. The X is defined in the Weapon Table. Parrying with two weapons is also easier, and any parry while using two weapons has a 1+5 modifier.",
-                            IsDualWield = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Fast Reload",
-                            Description = "Years of practice makes your hero faster than most and she can reload in the blink of an eye. She may reload bows and sling in the same action as she shoots once per turn. Crossbows may be reloaded in 1 action and fired in the next. An Arbalest can be reloaded in 2 actions, and fired in the next turn.",
-                            IsFastReload = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Marksman",
-                            Description = "Fighting from afar comes naturally to your hero. The hero gains +5 RS.",
-                            IsMarksman = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Mighty Blow",
-                            Description = "Your hero is an expert at finding the weak spots of the enemy. Your hero gets a +1 bonus on Damage Rolls with melee weapons.",
-                            IsMightyBlow = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Parry Master",
-                            Description = "Your hero is adept at protecting himself with a weapon. If the hero has taken the Parry Stance, he may parry twice with a weapon during one turn.",
-                            IsParryMaster = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Perfect Shot",
-                            Description = "Identifying the weak spots in enemy armour can sometimes make the difference when firing an arrow or bolt from afar. If the Damage Roll is odd, your hero ignores armour (But not NA).",
-                            IsPerfectShot = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Riposte Master",
-                            Description = "When successfully parrying a strike with her weapon, the hero may automatically cause 2 Points of Damage to that Enemy. May only be done with weapons of class 3 or lower.",
-                            IsRiposteMaster = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Sniper",
-                            Description = "With practiced ease, your hero cannot seem to miss when taking careful aim. The aim action gives your hero a +15 modifier instead of +10.",
-                            IsSniper = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Swordsman",
-                            Description = "This hero is very skilled with a blade and gains +5 CS with all types of swords.",
-                            IsSwordsman = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Tight Grip",
-                            Description = "With unusually strong hands, the hero may add +5 STR when calculating what weapon class he or she can use.",
-                            IsTightGrip = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Combat,
-                            Name = "Tunnel Fighter",
-                            Description = "Your hero is accustomed to fighting in tight spaces. +10 CS when fighting in a corridor.",
-                            IsTunnelFighter = true
-                          },
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.CatLike,
+                    Description = "Your hero moves with grace and has almost supernatural balance. Your hero gains +5 DEX.",
+                },
                 new Talent(){
-                            Category = TalentCategory.Faith,
-                            Name = "Devoted",
-                            Description = "The hero gains an extra Energy Point that can only be used for praying.",
-                            IsDevoted = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Faith,
-                            Name = "God's Chosen",
-                            Description = "As if by the will of the gods, nothing seems to hurt this priest. +1 Luck.",
-                            IsGodsChosen = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Faith,
-                            Name = "Healer",
-                            Description = "This priest has tended many wounds and applies bandages with practiced hands. A bandage applied by this priest will heal +1 HP",
-                            IsHealer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Faith,
-                            Name = "Messiah",
-                            Description = "With a confidence that radiates through the room, no one can help but be inspired. All heroes within LOS of the priest gain +5 Resolve.",
-                            IsMessiah = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Faith,
-                            Name = "Pure",
-                            Description = "The radiance of this priest hurts the eyes of all demons. Any demon trying to attack the priest does so at -10 CS.",
-                            IsPure = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Faith,
-                            Name = "Reliquary",
-                            Description = "So strong is their faith in the holy relics, that this priest can channel the power of 3 relics, rather than the standard two.",
-                            IsReliquary = true
-                          },
-                    new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Gatherer",
-                            Description = "Finding good ingredients in the wild comes naturally to the hero. +10 Alchemy when searching for ingredients in the wild.",
-                            IsGatherer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Harvester",
-                            Description = "With precise incisions, the hero can harvest good quality components from fallen enemies. +10 Alchemy when harvesting parts.",
-                            IsHarvester = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Keen Eye",
-                            Description = "The Alchemist has a keen eye when it comes to finding ingredients. The hero may reroll the result when rolling to see what has been gathered. The second result stands.",
-                            IsKeenEye = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Master Healer",
-                            Description = "This hero has perfected the art of making Healing Potions. All potions brewed heal +2 Hit Points more than normal.",
-                            IsMasterHealer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Perfect Toss",
-                            Description = "The hero has a knack for lobbying bottles in a perfect arc over friends and foes alike. +10 RS when lobbying a potion over the heads of others.",
-                            IsPerfectToss = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Poisoner",
-                            Description = "The hero is very adept at making all sorts of poisons. Poisons created by this hero always inflict 1 additional Hit Point per turn.",
-                            IsPoisoner = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Alchemist,
-                            Name = "Powerful Potions",
-                            Description = "The strength of these heroes' potions is remarkable. All basic stat (Not M) enhancing potions grants an additional +5 bonus.",
-                            IsPowerfulPotions = true
-                          },
-                        new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Charming",
-                            Description = "This hero seems to get along with everyone and always draws a smile from those to whom he talks. Well aware of the party lets this hero negotiate all rewards and gains +5% Reward Bonus on all quests.",
-                            IsCharming = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Disciplined",
-                            Description = "Thanks to a military background, this hero has an increased degree of calmness under pressure. This also spreads to the rest of the party. The hero gains +10 RES and the other members of the party gain +5 RES as long as the hero is not knocked out. The effect on the party is not cumulative if other heroes have the same talent. Furthermore, a hero with this talent will not benefit from the effect of this talent from another hero.",
-                            IsDisciplined = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Hunter",
-                            Description = "The hero has a knack for finding wild game and knows how best to hunt them. The hero gains +10 to Foraging.",
-                            IsHunter = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Lucky",
-                            Description = "Some are just luckier than others. Everything seems to go your way. You gain +1 Luck Point.",
-                            IsLucky = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Master Cook",
-                            Description = "During a rest, the party members will regain +2 extra HP if they have rations, due to your hero's expert cooking skills. This is not cumulative if more than one hero has this Talent.",
-                            IsMasterCook = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Natural Leader",
-                            Description = "The hero's natural ability to lead will add +2 to the Party Moral permanently. This is not cumulative if more than one hero has this talent.",
-                            IsNaturalLeader = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Ring Bearer",
-                            Description = "Somehow, this hero has managed to tame the effect of magic imbued items. Instead of being limited to one ring, your hero can now use two rings simultaneously.",
-                            IsRingBearer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Survivalist",
-                            Description = "This talent lets your hero forage one ration from any monster in the Beast category (in a dungeon or after a skirmish), as long as the Forage roll is successful.",
-                            IsSurvivalist = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Swift Leader",
-                            Description = "The party may always add one initiative token to the bag. This is only used to increase chance of activation and all heroes may still only act once per turn. Only one hero per party can have this talent.",
-                            IsSwiftLeader = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Common,
-                            Name = "Veteran",
-                            Description = "You have your gear in perfect order, making changes in equipment very easy. You can use equipment from a Quick Slot without spending an Action Point (once per turn).",
-                            IsVeteran = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Blood Magic",
-                            Description = "The wizard can spend his own life blood to create Mana. For every 2 HP spent, the wizard gains 5 Mana. This transformation can be done for free during the wizard's turn.",
-                            IsBloodMagic = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Conjurer",
-                            Description = "The wizard is an expert conjurer and gains +5 Arcane Arts whenever casting a Conjuration Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
-                            IsConjurer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Divinator",
-                            Description = "The wizard gets +5 Arcane Arts whenever casting a Divination Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
-                            IsDivinator = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Fast Reflexes",
-                            Description = "With lightning-fast reflexes, your hero can reach out and touch your enemies when casting spells. Your hero gains a +15 Combat Skill Bonus when casting Touch Spells.",
-                            IsFastReflexes = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Focused",
-                            Description = "Well attuned to the void, your hero is adept at tapping into it to gain maximum power. Your hero gets +15 Arcane Arts when focusing.",
-                            IsFocused = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Restorer",
-                            Description = "Restoration spells are the favourite spells of your hero, and this results in all Healing Spells healing +2 Hit Points in addition to the spell's normal result. You cannot have this talent at the same time as you have the Necromancer Talent.",
-                            IsRestorer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Mystic",
-                            Description = "The wizard is truly skilled with Mysticism Spells and gets +5 Arcane Arts whenever casting a Mysticism Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
-                            IsMystic = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Necromancer",
-                            Description = "The hero gets +5 Arcane Arts whenever casting a Necromantic Spell. Furthermore, the Mana cost for such a spell is reduced with 5. You cannot have this Talent at the same time as you have the Restorer Talent.",
-                            IsNecromancer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Powerful Missiles",
-                            Description = "Your hero has perfected the use of Magic Missiles, knowing where to aim for maximum effect. Magic Missile Spells do +1 Damage.",
-                            IsPowerfulMissiles = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Summoner",
-                            Description = "Reaching into other realms and bringing other beings to his aid has become easier with years of practice. Your hero gets +5 on all Summoning Spells.",
-                            IsSummoner = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Sustainer",
-                            Description = "Upkeep for the wizard's spells is reduced by 1.",
-                            IsSustainer = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Magic,
-                            Name = "Thrifty",
-                            Description = "The wizard requires 2 Mana less on every spell cast.",
-                            IsThrifty = true
-                          },
-                        new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Assassin",
-                            Description = "With uncanny precision, the hero will automatically hit any target from behind with a class 1 or 2 weapon.",
-                            IsAssassin = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Backstabber",
-                            Description = "Accustomed to optimizing the odds, your hero ignores enemy armour and NA when attacking from behind.",
-                            IsBackstabber = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Cutpurse",
-                            Description = "Once per visit in a settlement, your hero may try to steal the purse from some unsuspecting victim. This must be done as the first thing when entering a settlement. Roll 1d6. On a result of 1-2 the hero gains 1d100 coins. On a result of 6, the attempt is detected, and the hero is immediately chased out of the settlement. The hero may do nothing until the rest of the party decides to leave the settlement. Rations must be used as normal, and if rations are lacking, the hero becomes hungry. Foraging is allowed while waiting.",
-                            IsCutpurse = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Evaluate",
-                            Description = "Your hero has a good sense for the value of things. A successful Barter Roll will give your hero +15% instead of the usual +10%.",
-                            IsEvaluate = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Lock Picker",
-                            Description = "No lock seems to hinder this hero from beating them. +5 Pick Locks skill.",
-                            IsLockPicker = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Mechanical Genius",
-                            Description = "Your hero is a master at understanding mechanical contraptions and gain +10 when disarming traps.",
-                            IsMechanicalGenius = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Nimble",
-                            Description = "The hero may dodge twice per battle instead of only once.",
-                            IsNimble = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Quick Fingers",
-                            Description = "Accustomed to working under pressure, your hero has mastered the skill of reading a lock and picking it. Picking a lock now takes 1AP instead of 2.",
-                            IsQuickFingers = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Sharp-eyed",
-                            Description = "Your hero has an extreme sense for details and can easily notice anything out of the ordinary. Your hero gains a +10 bonus on Perception Tests.",
-                            IsSharpEyed = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Sense for Gold",
-                            Description = "It seems this hero can almost smell his way to treasures. When rolling on the Furniture Table for treasures, the hero may subtract -1 to the roll.",
-                            IsSenseForGold = true
-                          },
-                          new Talent(){
-                            Category = TalentCategory.Sneaky,
-                            Name = "Trap Finder",
-                            Description = "Your hero is an expert at dealing with traps. Your hero gains a +10 PER bonus when avoiding traps. This is cumulative with Sharp-eyed.",
-                            IsTrapFinder = true
-                          },
-                            new Talent(){
-                            Category = TalentCategory.Mental,
-                            Name = "Braveheart",
-                            Description = "Your hero is braver than most. +10 bonus on Fear and Terror Tests.",
-                            IsBraveheart = true
-                        },
-                        new Talent(){
-                            Category = TalentCategory.Mental,
-                            Name = "Confident",
-                            Description = "No enemy or task is too difficult. Your hero gains a +5 bonus to the Resolve stat.",
-                            IsConfident = true
-                        },
-                        new Talent(){
-                            Category = TalentCategory.Mental,
-                            Name = "Fearless",
-                            Description = "Your hero is completely immune to the effects of fear and treats terror as fear. This talent requires that the hero already has the Braveheart Mental Talent.",
-                            IsFearless = true
-                        },
-                        new Talent()
-                        {
-                            Category = TalentCategory.Mental,
-                            Name = "Hate",
-                            Description = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.",
-                            IsHate = true
-                        },
-                        new Talent(){
-                            Category = TalentCategory.Mental,
-                            Name = "Strong-Minded",
-                            Description = "Your hero is less affected by the horrors he faces in the dungeons than his comrades. He gains +1 Sanity Point.",
-                            IsStrongMinded = true
-                        },
-                        new Talent(){
-                            Category = TalentCategory.Mental,
-                            Name = "Wise",
-                            Description = "Your hero gains a permanent +5 bonus to the Wisdom stat.",
-                            IsWise = true
-                        }
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.Fast,
+                    Description = "Your hero moves unusually fast and gains a permanent +1 bonus to their Movement stat.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.Resilient,
+                    Description = "Your hero's brawny physique grants a +5 bonus to the Constitution stat.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.ResistDisease,
+                    Description = "Your hero seems to have a natural ability to resist diseases. Your hero gets a +10 bonus on Constitution Tests to resist disease.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.ResistPoison,
+                    Description = "Your hero seems to have a natural ability to resist poison. Your hero gets a +10 bonus on Constitution Tests to resist poison.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.Strong,
+                    Description = "Your hero's exercises have paid off and your hero gains a +5 bonus to her Strength stat.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.StrongBuild,
+                    Description = "Your hero gains a +2 bonus to her Hit Points stat.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Physical,
+                    Name = TalentName.Tank,
+                    Description = "Wearing heavy armour has little effect on your hero's ability to move. The hero ignores the Clunky Special Rule.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.Axeman,
+                    Description = "Preferring the balance of a good axe, this hero has become a master of using this weapon. He gains +5 CS when using all kinds of axes.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.Bruiser,
+                    Description = "The hero excels at fighting with blunt weapons and gains +5 CS with all hammers, flails, staffs, and morning stars.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.DeathLament,
+                    Description = "When others fall, this hero still stands, refusing to give in. Each time your hero is reduced to 0 Hit Points, roll 1d6: on a result of 1-3, the hero regains 1 Hit Point.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.Disarm,
+                    Description = "This is a special attack, using the target's DEX as a negative modifier to the attack. If the attack succeeds it inflicts no damage, but causes the enemy to drop his weapon. The enemy must spend his next action trying to pick it up. In order to do so, the enemy will have to succeed with an DEX Test. The enemy will continue until successful. If the hero's attack fails, nothing happens. This can only be used on enemies that are carrying weapons.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.DualWield,
+                    Description = "This talent requires a DEX of 60. Any hero with this talent may use a weapon with the Dual Wield Special Rule in its offhand. The attacks are still done as usual with the main weapon, but any hit will add +X DMG to the target. The X is defined in the Weapon Table. Parrying with two weapons is also easier, and any parry while using two weapons has a 1+5 modifier.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.FastReload,
+                    Description = "Years of practice makes your hero faster than most and she can reload in the blink of an eye. She may reload bows and sling in the same action as she shoots once per turn. Crossbows may be reloaded in 1 action and fired in the next. An Arbalest can be reloaded in 2 actions, and fired in the next turn.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.Marksman,
+                    Description = "Fighting from afar comes naturally to your hero. The hero gains +5 RS.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.MightyBlow,
+                    Description = "Your hero is an expert at finding the weak spots of the enemy. Your hero gets a +1 bonus on Damage Rolls with melee weapons.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.ParryMaster,
+                    Description = "Your hero is adept at protecting himself with a weapon. If the hero has taken the Parry Stance, he may parry twice with a weapon during one turn.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.PerfectShot,
+                    Description = "Identifying the weak spots in enemy armour can sometimes make the difference when firing an arrow or bolt from afar. If the Damage Roll is odd, your hero ignores armour (But not NA).",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.RiposteMaster,
+                    Description = "When successfully parrying a strike with her weapon, the hero may automatically cause 2 Points of Damage to that Enemy. May only be done with weapons of class 3 or lower.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.Sniper,
+                    Description = "With practiced ease, your hero cannot seem to miss when taking careful aim. The aim action gives your hero a +15 modifier instead of +10.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.Swordsman,
+                    Description = "This hero is very skilled with a blade and gains +5 CS with all types of swords.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.TightGrip,
+                    Description = "With unusually strong hands, the hero may add +5 STR when calculating what weapon class he or she can use.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Combat,
+                    Name = TalentName.TunnelFighter,
+                    Description = "Your hero is accustomed to fighting in tight spaces. +10 CS when fighting in a corridor.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Faith,
+                    Name = TalentName.Devoted,
+                    Description = "The hero gains an extra Energy Point that can only be used for praying.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Faith,
+                    Name = TalentName.GodsChosen,
+                    Description = "As if by the will of the gods, nothing seems to hurt this priest. +1 Luck.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Faith,
+                    Name = TalentName.Healer,
+                    Description = "This priest has tended many wounds and applies bandages with practiced hands. A bandage applied by this priest will heal +1 HP",
+                },
+                new Talent(){
+                    Category = TalentCategory.Faith,
+                    Name = TalentName.Messiah,
+                    Description = "With a confidence that radiates through the room, no one can help but be inspired. All heroes within LOS of the priest gain +5 Resolve.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Faith,
+                    Name = TalentName.Pure,
+                    Description = "The radiance of this priest hurts the eyes of all demons. Any demon trying to attack the priest does so at -10 CS.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Faith,
+                    Name = TalentName.Reliquary,
+                    Description = "So strong is their faith in the holy relics, that this priest can channel the power of 3 relics, rather than the standard two.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.Gatherer,
+                    Description = "Finding good ingredients in the wild comes naturally to the hero. +10 Alchemy when searching for ingredients in the wild.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.Harvester,
+                    Description = "With precise incisions, the hero can harvest good quality components from fallen enemies. +10 Alchemy when harvesting parts.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.KeenEye,
+                    Description = "The Alchemist has a keen eye when it comes to finding ingredients. The hero may reroll the result when rolling to see what has been gathered. The second result stands.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.MasterHealer,
+                    Description = "This hero has perfected the art of making Healing Potions. All potions brewed heal +2 Hit Points more than normal.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.PerfectToss,
+                    Description = "The hero has a knack for lobbying bottles in a perfect arc over friends and foes alike. +10 RS when lobbying a potion over the heads of others.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.Poisoner,
+                    Description = "The hero is very adept at making all sorts of poisons. Poisons created by this hero always inflict 1 additional Hit Point per turn.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Alchemist,
+                    Name = TalentName.PowerfulPotions,
+                    Description = "The strength of these heroes' potions is remarkable. All basic stat (Not M) enhancing potions grants an additional +5 bonus.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.Charming,
+                    Description = "This hero seems to get along with everyone and always draws a smile from those to whom he talks. Well aware of the party lets this hero negotiate all rewards and gains +5% Reward Bonus on all quests.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.Disciplined,
+                    Description = "Thanks to a military background, this hero has an increased degree of calmness under pressure. This also spreads to the rest of the party. The hero gains +10 RES and the other members of the party gain +5 RES as long as the hero is not knocked out. The effect on the party is not cumulative if other heroes have the same talent. Furthermore, a hero with this talent will not benefit from the effect of this talent from another hero.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.Hunter,
+                    Description = "The hero has a knack for finding wild game and knows how best to hunt them. The hero gains +10 to Foraging.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.Lucky,
+                    Description = "Some are just luckier than others. Everything seems to go your way. You gain +1 Luck Point.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.MasterCook,
+                    Description = "During a rest, the party members will regain +2 extra HP if they have rations, due to your hero's expert cooking skills. This is not cumulative if more than one hero has this Talent.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.NaturalLeader,
+                    Description = "The hero's natural ability to lead will add +2 to the Party Moral permanently. This is not cumulative if more than one hero has this talent.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.RingBearer,
+                    Description = "Somehow, this hero has managed to tame the effect of magic imbued items. Instead of being limited to one ring, your hero can now use two rings simultaneously.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.Survivalist,
+                    Description = "This talent lets your hero forage one ration from any monster in the Beast category (in a dungeon or after a skirmish), as long as the Forage roll is successful.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.SwiftLeader,
+                    Description = "The party may always add one initiative token to the bag. This is only used to increase chance of activation and all heroes may still only act once per turn. Only one hero per party can have this talent.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Common,
+                    Name = TalentName.Veteran,
+                    Description = "You have your gear in perfect order, making changes in equipment very easy. You can use equipment from a Quick Slot without spending an Action Point (once per turn).",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.BloodMagic,
+                    Description = "The wizard can spend his own life blood to create Mana. For every 2 HP spent, the wizard gains 5 Mana. This transformation can be done for free during the wizard's turn.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Conjurer,
+                    Description = "The wizard is an expert conjurer and gains +5 Arcane Arts whenever casting a Conjuration Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Divinator,
+                    Description = "The wizard gets +5 Arcane Arts whenever casting a Divination Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.FastReflexes,
+                    Description = "With lightning-fast reflexes, your hero can reach out and touch your enemies when casting spells. Your hero gains a +15 Combat Skill Bonus when casting Touch Spells.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Focused,
+                    Description = "Well attuned to the void, your hero is adept at tapping into it to gain maximum power. Your hero gets +15 Arcane Arts when focusing.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Restorer,
+                    Description = "Restoration spells are the favourite spells of your hero, and this results in all Healing Spells healing +2 Hit Points in addition to the spell's normal result. You cannot have this talent at the same time as you have the Necromancer Talent.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Mystic,
+                    Description = "The wizard is truly skilled with Mysticism Spells and gets +5 Arcane Arts whenever casting a Mysticism Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Necromancer,
+                    Description = "The hero gets +5 Arcane Arts whenever casting a Necromantic Spell. Furthermore, the Mana cost for such a spell is reduced with 5. You cannot have this Talent at the same time as you have the Restorer Talent.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.PowerfulMissiles,
+                    Description = "Your hero has perfected the use of Magic Missiles, knowing where to aim for maximum effect. Magic Missile Spells do +1 Damage.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Summoner,
+                    Description = "Reaching into other realms and bringing other beings to his aid has become easier with years of practice. Your hero gets +5 on all Summoning Spells.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Sustainer,
+                    Description = "Upkeep for the wizard's spells is reduced by 1.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Magic,
+                    Name = TalentName.Thrifty,
+                    Description = "The wizard requires 2 Mana less on every spell cast.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.Assassin,
+                    Description = "With uncanny precision, the hero will automatically hit any target from behind with a class 1 or 2 weapon.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.Backstabber,
+                    Description = "Accustomed to optimizing the odds, your hero ignores enemy armour and NA when attacking from behind.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.Cutpurse,
+                    Description = "Once per visit in a settlement, your hero may try to steal the purse from some unsuspecting victim. This must be done as the first thing when entering a settlement. Roll 1d6. On a result of 1-2 the hero gains 1d100 coins. On a result of 6, the attempt is detected, and the hero is immediately chased out of the settlement. The hero may do nothing until the rest of the party decides to leave the settlement. Rations must be used as normal, and if rations are lacking, the hero becomes hungry. Foraging is allowed while waiting.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.Evaluate,
+                    Description = "Your hero has a good sense for the value of things. A successful Barter Roll will give your hero +15% instead of the usual +10%.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.LockPicker,
+                    Description = "No lock seems to hinder this hero from beating them. +5 Pick Locks skill.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.MechanicalGenius,
+                    Description = "Your hero is a master at understanding mechanical contraptions and gain +10 when disarming traps.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.Nimble,
+                    Description = "The hero may dodge twice per battle instead of only once.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.QuickFingers,
+                    Description = "Accustomed to working under pressure, your hero has mastered the skill of reading a lock and picking it. Picking a lock now takes 1AP instead of 2.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.SharpEyed,
+                    Description = "Your hero has an extreme sense for details and can easily notice anything out of the ordinary. Your hero gains a +10 bonus on Perception Tests.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.SenseForGold,
+                    Description = "It seems this hero can almost smell his way to treasures. When rolling on the Furniture Table for treasures, the hero may subtract -1 to the roll.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Sneaky,
+                    Name = TalentName.TrapFinder,
+                    Description = "Your hero is an expert at dealing with traps. Your hero gains a +10 PER bonus when avoiding traps. This is cumulative with Sharp-eyed.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Mental,
+                    Name = TalentName.Braveheart,
+                    Description = "Your hero is braver than most. +10 bonus on Fear and Terror Tests.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Mental,
+                    Name = TalentName.Confident,
+                    Description = "No enemy or task is too difficult. Your hero gains a +5 bonus to the Resolve stat.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Mental,
+                    Name = TalentName.Fearless,
+                    Description = "Your hero is completely immune to the effects of fear and treats terror as fear. This talent requires that the hero already has the Braveheart Mental Talent.",
+                },
+                new Talent()
+                {
+                    Category = TalentCategory.Mental,
+                    Name = TalentName.Hate,
+                    Description = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Mental,
+                    Name = TalentName.StrongMinded,
+                    Description = "Your hero is less affected by the horrors he faces in the dungeons than his comrades. He gains +1 Sanity Point.",
+                },
+                new Talent(){
+                    Category = TalentCategory.Mental,
+                    Name = TalentName.Wise,
+                    Description = "Your hero gains a permanent +5 bonus to the Wisdom stat.",
+                }
             };
         }
 
@@ -650,7 +575,7 @@ namespace LoDCompanion.Services.GameData
             return Talents.Where(t => t.Category == category).ToList();
         }
 
-        public Talent GetTalentByName(string name)
+        public Talent GetTalentByName(TalentName? name)
         {
             return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
         }
@@ -692,254 +617,154 @@ namespace LoDCompanion.Services.GameData
             Zombies
         }
 
-        public Talent GetHateByName(HateCategory? hateCategory)
+        public Talent GetHateTalentByCategory(HateCategory category)
         {
             string baseDescription = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.";
-            int roll = 0;
-            if (!hateCategory.HasValue)
+
+            // The base talent object with common properties
+            var talent = new Talent()
             {
-                roll = RandomHelper.GetRandomNumber(1, 33);
-            }
-            else
+                Category = TalentCategory.Mental,
+            };
+
+            // Use a switch to set the specific name and description based on the category
+            switch (category)
             {
-                roll = (int)hateCategory + 1;
+                case HateCategory.Bandits:
+                    talent.Name = TalentName.HateBandits;
+                    talent.Description = $"This talent applies to any enemy with 'Bandit' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Bats:
+                    talent.Name = TalentName.HateBats;
+                    talent.Description = $"This talent applies to any enemy with 'Bat' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Beastmen:
+                    talent.Name = TalentName.HateBeastmen;
+                    talent.Description = $"This talent applies to any enemy with 'Beastman' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Centipedes:
+                    talent.Name = TalentName.HateCentipedes;
+                    talent.Description = $"This talent applies to any enemy with 'Centipede' in its name. {baseDescription}";
+                    break;
+                case HateCategory.DarkElves:
+                    talent.Name = TalentName.HateDarkElves;
+                    talent.Description = $"This talent applies to any enemy with 'Dark Elf' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Demons:
+                    talent.Name = TalentName.HateDemons;
+                    talent.Description = $"This talent applies to any enemy with 'Demon' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Dragons:
+                    talent.Name = TalentName.HateDragons;
+                    talent.Description = $"This talent applies to any enemy with 'Dragon' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Elementals:
+                    talent.Name = TalentName.HateElementals;
+                    talent.Description = $"This talent applies to any enemy with 'Elemental' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Froglings:
+                    talent.Name = TalentName.HateFroglings;
+                    talent.Description = $"This talent applies to any enemy with 'Frogling' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Geckos:
+                    talent.Name = TalentName.HateGeckos;
+                    talent.Description = $"This talent applies to any enemy with 'Gecko' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Ghosts:
+                    talent.Name = TalentName.HateGhosts;
+                    talent.Description = $"This talent applies to ethereal undead like Ghosts, Banshees, and Wraiths. {baseDescription}";
+                    break;
+                case HateCategory.Ghouls:
+                    talent.Name = TalentName.HateGhouls;
+                    talent.Description = $"This talent applies to any enemy with 'Ghoul' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Giants:
+                    talent.Name = TalentName.HateGiants;
+                    talent.Description = $"This talent applies to any enemy with 'Giant' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Gnolls:
+                    talent.Name = TalentName.HateGnolls;
+                    talent.Description = $"This talent applies to any enemy with 'Gnoll' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Goblins:
+                    talent.Name = TalentName.HateGoblins;
+                    talent.Description = $"This talent applies to any enemy with 'Goblin' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Golems:
+                    talent.Name = TalentName.HateGolems;
+                    talent.Description = $"This talent applies to any enemy with 'Golem' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Minotaurs:
+                    talent.Name = TalentName.HateMinotaurs;
+                    talent.Description = $"This talent applies to any enemy with 'Minotaur' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Mummies:
+                    talent.Name = TalentName.HateMummies;
+                    talent.Description = $"This talent applies to any enemy with 'Mummy' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Ogres:
+                    talent.Name = TalentName.HateOgres;
+                    talent.Description = $"This talent applies to any enemy with 'Ogre' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Orcs:
+                    talent.Name = TalentName.HateOrcs;
+                    talent.Description = $"This talent applies to any enemy with 'Orc' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Rats:
+                    talent.Name = TalentName.HateRats;
+                    talent.Description = $"This talent applies to any enemy with 'Rat' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Saurians:
+                    talent.Name = TalentName.HateSaurians;
+                    talent.Description = $"This talent applies to any enemy with 'Saurian' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Scorpions:
+                    talent.Name = TalentName.HateScorpions;
+                    talent.Description = $"This talent applies to any enemy with 'Scorpion' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Skeletons:
+                    talent.Name = TalentName.HateSkeletons;
+                    talent.Description = $"This talent applies to any enemy with 'Skeleton' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Snakes:
+                    talent.Name = TalentName.HateSnakes;
+                    talent.Description = $"This talent applies to any enemy with 'Snake' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Spiders:
+                    talent.Name = TalentName.HateSpiders;
+                    talent.Description = $"This talent applies to any enemy with 'Spider' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Toads:
+                    talent.Name = TalentName.HateToads;
+                    talent.Description = $"This talent applies to any enemy with 'Toad' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Trolls:
+                    talent.Name = TalentName.HateTrolls;
+                    talent.Description = $"This talent applies to any enemy with 'Troll' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Vampires:
+                    talent.Name = TalentName.HateVampires;
+                    talent.Description = $"This talent applies to any enemy with 'Vampire' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Werewolves:
+                    talent.Name = TalentName.HateWerewolves;
+                    talent.Description = $"This talent applies to any enemy with 'Werewolf' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Wights:
+                    talent.Name = TalentName.HateWights;
+                    talent.Description = $"This talent applies to any enemy with 'Wight' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Wolves:
+                    talent.Name = TalentName.HateWolves;
+                    talent.Description = $"This talent applies to any enemy with 'Wolf' in its name. {baseDescription}";
+                    break;
+                case HateCategory.Zombies:
+                    talent.Name = TalentName.HateZombies;
+                    talent.Description = $"This talent applies to any enemy with 'Zombie' in its name. {baseDescription}";
+                    break;
             }
 
-            return roll switch
-            {
-                1 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Bandits",
-                    Description = $"This talent applies to any enemy with 'Bandit' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                2 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Bats",
-                    Description = $"This talent applies to any enemy with 'Bat' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                3 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Beastmen",
-                    Description = $"This talent applies to any enemy with 'Beastman' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                4 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Centipedes",
-                    Description = $"This talent applies to any enemy with 'Centipede' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                5 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Dark Elves",
-                    Description = $"This talent applies to any enemy with 'Dark Elf' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                6 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Demons",
-                    Description = $"This talent applies to any enemy with 'Demon' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                7 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Dragons",
-                    Description = $"This talent applies to any enemy with 'Dragon' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                8 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Elementals",
-                    Description = $"This talent applies to any enemy with 'Elemental' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                9 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Froglings",
-                    Description = $"This talent applies to any enemy with 'Frogling' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                10 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Geckos",
-                    Description = $"This talent applies to any enemy with 'Gecko' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                11 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Ghosts",
-                    Description = $"This talent applies to ethereal undead like Ghosts, Banshees, and Wraiths. {baseDescription}",
-                    IsHate = true
-                },
-                12 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Ghouls",
-                    Description = $"This talent applies to any enemy with 'Ghoul' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                13 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Giants",
-                    Description = $"This talent applies to any enemy with 'Giant' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                14 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Gnolls",
-                    Description = $"This talent applies to any enemy with 'Gnoll' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                15 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Goblins",
-                    Description = $"This talent applies to any enemy with 'Goblin' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                16 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Golems",
-                    Description = $"This talent applies to any enemy with 'Golem' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                17 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Minotaurs",
-                    Description = $"This talent applies to any enemy with 'Minotaur' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                18 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Mummies",
-                    Description = $"This talent applies to any enemy with 'Mummy' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                19 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Ogres",
-                    Description = $"This talent applies to any enemy with 'Ogre' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                20 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Orcs",
-                    Description = $"This talent applies to any enemy with 'Orc' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                21 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Rats",
-                    Description = $"This talent applies to any enemy with 'Rat' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                22 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Saurians",
-                    Description = $"This talent applies to any enemy with 'Saurian' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                23 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Scorpions",
-                    Description = $"This talent applies to any enemy with 'Scorpion' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                24 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Skeletons",
-                    Description = $"This talent applies to any enemy with 'Skeleton' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                25 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Snakes",
-                    Description = $"This talent applies to any enemy with 'Snake' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                26 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Spiders",
-                    Description = $"This talent applies to any enemy with 'Spider' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                27 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Toads",
-                    Description = $"This talent applies to any enemy with 'Toad' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                28 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Trolls",
-                    Description = $"This talent applies to any enemy with 'Troll' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                29 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Vampires",
-                    Description = $"This talent applies to any enemy with 'Vampire' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                30 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Werewolves",
-                    Description = $"This talent applies to any enemy with 'Werewolf' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                31 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Wights",
-                    Description = $"This talent applies to any enemy with 'Wight' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                32 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Wolves",
-                    Description = $"This talent applies to any enemy with 'Wolf' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                33 => new Talent()
-                {
-                    Category = TalentCategory.Mental,
-                    Name = "Hate Zombies",
-                    Description = $"This talent applies to any enemy with 'Zombie' in its name. {baseDescription}",
-                    IsHate = true
-                },
-                _ => new Talent()
-            };
+            return talent;
         }
 
         public List<Perk> GetPerks()
@@ -1297,7 +1122,7 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 2,
                     MaxMeleeWeaponType = 5,
-                    TalentChoices = [GetTalentByName("Wise"), GetTalentByName("Charming")],
+                    TalentChoices = [GetTalentByName(TalentName.Wise), GetTalentByName(TalentName.Charming)],
                     StartingBackpackList = [EquipmentService.GetMeleeWeaponByName("Staff") as MeleeWeapon],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
@@ -1345,12 +1170,11 @@ namespace LoDCompanion.Services.GameData
                         EquipmentService.GetArmourByName("Padded Jacket") as Armour,
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10),
                         EquipmentService.GetEquipmentByName("Backpack - Medium") ],
-                    StartingTalentList = [ GetTalentByName("Backstabber"),
+                    StartingTalentList = [ GetTalentByName(TalentName.Backstabber),
                         new Talent() {
                             Category = TalentCategory.Sneaky,
-                            Name = "Streetwise",
+                            Name = TalentName.Streetwise,
                             Description = "Your hero knows who to turn to in order to acquire the gear he is searching for. Every roll this hero makes for availability may be modified with -1.",
-                            IsStreetwise = true
                         } ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3},
@@ -1395,7 +1219,7 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    TalentChoices = [GetTalentByName("Marksman"), GetTalentByName("Hunter")],
+                    TalentChoices = [GetTalentByName(TalentName.Marksman), GetTalentByName(TalentName.Hunter)],
                     StartingBackpackList = [
                         EquipmentService.GetRangedWeaponByName("Longbow") as RangedWeapon,
                         EquipmentService.GetAmmoByNameSetQuantity("Arrow", 10) ],
@@ -1490,7 +1314,7 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of choice", "Religious Relic of choice" ],
-                    TalentChoices = [ GetTalentByName("Braveheart"), GetTalentByName("Confident") ],
+                    TalentChoices = [ GetTalentByName(TalentName.Braveheart), GetTalentByName(TalentName.Confident) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
                       {"DEX", 3},
@@ -1536,9 +1360,9 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of Choice"],
-                    TalentChoices = [ GetTalentByName("Mighty Blow"), GetTalentByName("Braveheart")],
+                    TalentChoices = [ GetTalentByName(TalentName.MightyBlow), GetTalentByName(TalentName.Braveheart)],
                     StartingBackpackList = [EquipmentService.GetArmourByName("Leather Jacket") as Armour ],
-                    StartingTalentList = [GetTalentByName("Disciplined") ],
+                    StartingTalentList = [GetTalentByName(TalentName.Disciplined) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
                       {"DEX", 2},
@@ -1591,7 +1415,7 @@ namespace LoDCompanion.Services.GameData
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0]
                         ],
-                    StartingTalentList = [ GetTalentByName("Resistance To Poison") ],
+                    StartingTalentList = [ GetTalentByName(TalentName.ResistPoison) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4},
@@ -1637,7 +1461,7 @@ namespace LoDCompanion.Services.GameData
                         EquipmentService.GetMeleeWeaponByName("Dagger") as MeleeWeapon,
                         EquipmentService.GetEquipmentByName("Rope"),
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10) ],
-                    StartingTalentList = [ GetTalentByName("Evaluate") ],
+                    StartingTalentList = [ GetTalentByName(TalentName.Evaluate) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5},
                       {"DEX", 2},
@@ -1726,185 +1550,227 @@ namespace LoDCompanion.Services.GameData
         }
 
     public enum TalentCategory
-        {
-            Magic,
-            Physical,
-            Combat,
-            Faith,
-            Alchemist,
-            Common,
-            Sneaky,
-            Mental
-        }
+    {
+        Magic,
+        Physical,
+        Combat,
+        Faith,
+        Alchemist,
+        Common,
+        Sneaky,
+        Mental
+    }
+
+    public enum TalentName
+    {
+        // Physical Talents
+        CatLike,
+        Fast,
+        NightVision,
+        PerfectHearing,
+        Resilient,
+        ResistDisease,
+        ResistPoison,
+        Strong,
+        StrongBuild,
+        Tank,
+        // Combat Talents
+        Axeman,
+        Bruiser,
+        DeathLament,
+        Disarm,
+        DualWield,
+        FastReload,
+        Marksman,
+        MightyBlow,
+        ParryMaster,
+        PerfectShot,
+        RiposteMaster,
+        Sniper,
+        Swordsman,
+        TightGrip,
+        TunnelFighter,
+        // Faith Talents
+        Devoted,
+        GodsChosen,
+        Healer,
+        Messiah,
+        Pure,
+        Reliquary,
+        // Alchemist Talents
+        Gatherer,
+        Harvester,
+        KeenEye,
+        MasterHealer,
+        PerfectToss,
+        Poisoner,
+        PowerfulPotions,
+        // Common Talents
+        Charming,
+        Disciplined,
+        Hunter,
+        Lucky,
+        MasterCook,
+        NaturalLeader,
+        RingBearer,
+        Survivalist,
+        SwiftLeader,
+        Veteran,
+        // Magic Talents
+        BloodMagic,
+        Conjurer,
+        Divinator,
+        FastReflexes,
+        Focused,
+        Restorer,
+        Mystic,
+        Necromancer,
+        PowerfulMissiles,
+        Summoner,
+        Sustainer,
+        Thrifty,
+        // Sneaky Talents
+        Assassin,
+        Backstabber,
+        Cutpurse,
+        Evaluate,
+        LockPicker,
+        MechanicalGenius,
+        Nimble,
+        QuickFingers,
+        SharpEyed,
+        SenseForGold,
+        Streetwise,
+        TrapFinder,
+        // Mental Talents
+        Braveheart,
+        Confident,
+        Fearless,
+        Hate,
+        StrongMinded,
+        Wise,
+        AcuteStressSyndrome,
+        PostTraumaticStressDisorder,
+        FearOfTheDark,
+        Arachnophobia,
+        Jumpy,
+        IrrationalFear,
+        Claustrophobia,
+        Depression,
+        // Hate Talents
+        HateBandits,
+        HateBats,
+        HateBeastmen,
+        HateCentipedes,
+        HateDarkElves,
+        HateDemons,
+        HateDragons,
+        HateElementals,
+        HateFroglings,
+        HateGeckos,
+        HateGhosts,
+        HateGhouls,
+        HateGiants,
+        HateGnolls,
+        HateGoblins,
+        HateGolems,
+        HateMinotaurs,
+        HateMummies,
+        HateOgres,
+        HateOrcs,
+        HateRats,
+        HateSaurians,
+        HateScorpions,
+        HateSkeletons,
+        HateSnakes,
+        HateSpiders,
+        HateToads,
+        HateTrolls,
+        HateVampires,
+        HateWerewolves,
+        HateWights,
+        HateWolves,
+        HateZombies,
+        // Background Talents
+        BadTempered,
+        Poverty,
+        TheFraud,
+        TheNoble,
+        TheApprentice,
+        Weak,
+        AfraidOfHeights
+    }
 
     public class Talent
+    {
+        public string Description { get; set; } = string.Empty;
+        public TalentCategory Category { get; set; }
+        public TalentName Name { get; set; }
+
+        public Dictionary<BasicStat, int> GetInitialTalentStatBonus()
         {
-            public string Name { get; set; } = string.Empty;
-            public string Description { get; set; } = string.Empty;
-            public TalentCategory Category { get; set; }
-            // Physical Talents
-            public bool IsCatLike { get; set; }
-            public bool IsFast { get; set; }
-            public bool IsNightVision { get; set; }
-            public bool IsPerfectHearing { get; set; }
-            public bool IsResilient { get; set; }
-            public bool IsResistDisease { get; set; }
-            public bool IsResistPoison { get; set; }
-            public bool IsStrong { get; set; }
-            public bool IsStrongBuild { get; set; }
-            public bool IsTank { get; set; }
-
-            // Combat Talents
-            public bool IsAxeman { get; set; }
-            public bool IsBruiser { get; set; }
-            public bool IsDeathLament { get; set; }
-            public bool IsDisarm { get; set; }
-            public bool IsDualWield { get; set; }
-            public bool IsFastReload { get; set; }
-            public bool IsMarksman { get; set; }
-            public bool IsMightyBlow { get; set; }
-            public bool IsParryMaster { get; set; }
-            public bool IsPerfectShot { get; set; }
-            public bool IsRiposteMaster { get; set; }
-            public bool IsSniper { get; set; }
-            public bool IsSwordsman { get; set; }
-            public bool IsTightGrip { get; set; }
-            public bool IsTunnelFighter { get; set; }
-
-            // Faith Talents
-            public bool IsDevoted { get; set; }
-            public bool IsGodsChosen { get; set; }
-            public bool IsHealer { get; set; }
-            public bool IsMessiah { get; set; }
-            public bool IsPure { get; set; }
-            public bool IsReliquary { get; set; }
-
-            // Alchemist Talents
-            public bool IsGatherer { get; set; }
-            public bool IsHarvester { get; set; }
-            public bool IsKeenEye { get; set; }
-            public bool IsMasterHealer { get; set; }
-            public bool IsPerfectToss { get; set; }
-            public bool IsPoisoner { get; set; }
-            public bool IsPowerfulPotions { get; set; }
-
-            // Common Talents
-            public bool IsCharming { get; set; }
-            public bool IsDisciplined { get; set; }
-            public bool IsHunter { get; set; }
-            public bool IsLucky { get; set; }
-            public bool IsMasterCook { get; set; }
-            public bool IsNaturalLeader { get; set; }
-            public bool IsRingBearer { get; set; }
-            public bool IsSurvivalist { get; set; }
-            public bool IsSwiftLeader { get; set; }
-            public bool IsVeteran { get; set; }
-
-            // Magic Talents
-            public bool IsBloodMagic { get; set; }
-            public bool IsConjurer { get; set; }
-            public bool IsDivinator { get; set; }
-            public bool IsFastReflexes { get; set; }
-            public bool IsFocused { get; set; }
-            public bool IsRestorer { get; set; }
-            public bool IsMystic { get; set; }
-            public bool IsNecromancer { get; set; }
-            public bool IsPowerfulMissiles { get; set; }
-            public bool IsSummoner { get; set; }
-            public bool IsSustainer { get; set; }
-            public bool IsThrifty { get; set; }
-
-            // Sneaky Talents
-            public bool IsAssassin { get; set; }
-            public bool IsBackstabber { get; set; }
-            public bool IsCutpurse { get; set; }
-            public bool IsEvaluate { get; set; }
-            public bool IsLockPicker { get; set; }
-            public bool IsMechanicalGenius { get; set; }
-            public bool IsNimble { get; set; }
-            public bool IsQuickFingers { get; set; }
-            public bool IsSharpEyed { get; set; }
-            public bool IsSenseForGold { get; set; }
-            public bool IsStreetwise { get; set; }
-            public bool IsTrapFinder { get; set; }
-
-            // Mental Talents
-            public bool IsBraveheart { get; set; }
-            public bool IsConfident { get; set; }
-            public bool IsFearless { get; set; }
-            public bool IsHate { get; set; }
-            public bool IsStrongMinded { get; set; }
-            public bool IsWise { get; set; }
-
-            public Dictionary<string, int> GetInitialTalentBonus()
+            Dictionary<BasicStat, int> bonus = new Dictionary<BasicStat, int>();
+            switch (Name)
             {
-                Dictionary<string, int> bonus = new Dictionary<string, int>();
-                if (IsCatLike)
-                {
-                    bonus.Add("DEX", 5);
-                }
-                if (IsResilient)
-                {
-                    bonus.Add("CON", 5);
-                }
-                if (IsNightVision)
-                {
-                    bonus.Add("PS", 10);
-                }
-                if (IsStrong)
-                {
-                    bonus.Add("STR", 5);
-                }
-                if (IsStrongBuild)
-                {
-                    bonus.Add("HP", 2);
-                }
-                if (IsMarksman)
-                {
-                    bonus.Add("RS", 5);
-                }
-                if (IsSniper)
-                {
-                    bonus.Add("RS", 10);
-                }
-                if (IsGodsChosen || IsLucky)
-                {
-                    bonus.Add("Luck", 1);
-                }
-                if (IsHunter)
-                {
-                    bonus.Add("FS", 10);
-                }
-                if (IsLockPicker)
-                {
-                    bonus.Add("PLS", 5);
-                }
-                if (IsConfident)
-                {
-                    bonus.Add("RES", 5);
-                }
-                if (IsStrongMinded)
-                {
-                    bonus.Add("Sanity", 1);
-                }
-                if (IsWise)
-                {
-                    bonus.Add("WIS", 5);
-                }
-                if (IsHate)
-                {
-                    new GameDataService().GetHateByName(null);
-                }
-
-                return bonus;
+                case TalentName.CatLike:
+                    bonus.Add(BasicStat.Dexterity, 5);
+                    break;
+                case TalentName.Fast:
+                    bonus.Add(BasicStat.Move, 1);
+                    break;
+                case TalentName.Resilient:
+                    bonus.Add(BasicStat.Constitution, 5);
+                    break;
+                case TalentName.Strong:
+                    bonus.Add(BasicStat.Strength, 5);
+                    break;
+                case TalentName.StrongBuild:
+                    bonus.Add(BasicStat.HitPoints, 2);
+                    break;
+                case TalentName.GodsChosen:
+                case TalentName.Lucky:
+                    bonus.Add(BasicStat.Luck, 1);
+                    break;
+                case TalentName.Confident:
+                    bonus.Add(BasicStat.Resolve, 5);
+                    break;
+                case TalentName.StrongMinded:
+                    bonus.Add(BasicStat.Sanity, 1);
+                    break;
+                case TalentName.Wise:
+                    bonus.Add(BasicStat.Wisdom, 5);
+                    break;
             }
-
-            public override string ToString()
-            {
-                return $"{Name}: {Description}";
-            }
-
+            return bonus;
         }
+
+        public Dictionary<Skill, int> GetInitialTalentSkillBonus()
+        {
+            Dictionary<Skill, int> bonus = new Dictionary<Skill, int>();
+            switch (Name)
+            {
+                case TalentName.NightVision:
+                    bonus.Add(Skill.Perception, 10);
+                    break;
+                case TalentName.Marksman:
+                    bonus.Add(Skill.RangedSkill, 5);
+                    break;
+                case TalentName.Hunter:
+                    bonus.Add(Skill.Foraging, 10);
+                    break;
+                case TalentName.LockPicker:
+                    bonus.Add(Skill.PickLocks, 5);
+                    break;
+            }
+            return bonus;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name.ToString()}: {Description}";
+        }
+
+    }
 
     public enum PerkCategory
         {

@@ -285,7 +285,7 @@ namespace LoDCompanion.Services.Player
                 {
                     return EquipTwoHandedWeapon(hero, melee);
                 }
-                else if (hero.Talents.Any(t => t.Name == "Dual Wield")
+                else if (hero.Talents.Any(t => t.Name == TalentName.DualWield)
                     && melee.HasProperty(WeaponProperty.DualWield)
                      && hero.Inventory.EquippedWeapon != null)
                 {
