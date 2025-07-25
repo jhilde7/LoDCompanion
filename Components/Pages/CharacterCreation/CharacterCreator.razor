@@ -73,13 +73,13 @@ else
                                 @TalentChoiceSelection
                                 ;
                                 break;
-                            case Step.AlchemistRecipe:
-                                @AlchemistRecipeSelection
-                                ; 
-                                break;
                             case Step.Equipment:
                                 @EquipmentSelection
                                 ;
+                                break;
+                            case Step.AlchemistRecipe:
+                                @AlchemistRecipeSelection
+                                ; 
                                 break;
                             case Step.FreeSkill:
                                 @FreeSkillSelection
@@ -152,7 +152,7 @@ else
     <CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
 }
     @code {
-    private enum Step { Species, HumanTalent, Profession, Specialization, TalentChoice, AlchemistRecipe, Equipment, FreeSkill, Background, Name, Review, Summary }
+    private enum Step { Species, HumanTalent, Profession, Specialization, TalentChoice, Equipment, AlchemistRecipe, FreeSkill, Background, Name, Review, Summary }
     private Step currentStep = Step.Species;
     private EditContext editContext = default!;
     private bool isLoading = true; // Start in loading state
