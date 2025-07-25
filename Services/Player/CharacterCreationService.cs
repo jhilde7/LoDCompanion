@@ -689,7 +689,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 7,
                         Name = "Revenge",
                         Description = "During the early days of adventuring, you were travelling the roads with one of your childhood friends. Having known each other since you could talk, you had experienced your entire childhood together. Thus, it was quite natural that you would leave your village together in search of fame, gold, and glory. You had been travelling for some weeks, still with no gold or glory in sight, when you were ambushed by two Brigands. Within seconds, your friend caught an arrow through the throat, and collapsed almost instantly. The rest of the fight is blurry, but you managed to overcome and kill both attackers. Although it has been some years since that episode, you sometimes still dream of your friend's last seconds, the shock on his face, and the gurgling sound as the last air passed through his windpipe.",
-                        Trait = _gameData.GetTalentByName("Hate Bandits"),
+                        Trait = _gameData.GetHateByName(GameDataService.HateCategory.Bandits),
                         PersonalQuest = "Furthermore,for every 5 enemies from that section that you deliver the killing blow, you gain an additional 250 XP."
                     },
                     new Background(_gameData)
@@ -755,7 +755,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         Id = 16,
                         Name = "Revenge",
                         Description = "A little over a decade ago, your village was savagely attacked by a large group of beastmen. Although the villagers bravely tried to counter the attack, many were killed and several houses were lost to fire. Amongst the beastmen was a huge Minotaur, and it was responsible for the worst of the carnage. You hid throughout the fight, but at one point, the beast was close enough for you to make out a strange scar on its chest. The image of that beast has stayed with you ever since, and as you have grown to adulthood your lust for revenge has grown stronger.",
-                        Trait = _gameData.GetTalentByName("Hate Minotaurs"),
+                        Trait = _gameData.GetHateByName(GameDataService.HateCategory.Minotaurs),
                         PersonalQuest = "Every time you fight a Minotaur, roll 1d6. On a result of 1, you recognize the scar. If you defeat the beast, you gain an additional +1000 XP."
                     },
                     new Background(_gameData)
