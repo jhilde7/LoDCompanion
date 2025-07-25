@@ -577,7 +577,7 @@ namespace LoDCompanion.Services.CharacterCreation
         public int BaseResolve { get; set; }
         public int BaseHitPoints { get; set; }
         public int MaxSTR { get; set; }
-        public int MaxDex { get; set; }
+        public int MaxDEX { get; set; }
         public int MaxWIS { get; set; }
         public int MaxRES { get; set; }
         public int MaxCON { get; set; }
