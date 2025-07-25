@@ -220,10 +220,7 @@ namespace LoDCompanion.Services.Player
                 UnequipItem(hero, hero.Inventory.EquippedStorage);
             }
 
-            var itemInstance = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, containerToEquip);
-            if (itemInstance == null) return false;
-
-            hero.Inventory.EquippedStorage = itemInstance;
+            hero.Inventory.EquippedStorage = containerToEquip;
             return true;
         }
 
