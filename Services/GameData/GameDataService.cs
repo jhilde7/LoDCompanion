@@ -1573,6 +1573,7 @@ namespace LoDCompanion.Services.GameData
                       {"PickLocks", 5 },
                       {"Perception", 2 },
                       {"Heal", 2 },
+                      {"Foraging", 1 },
                       {"Barter", 3 },
                       {"Alchemy", 4 },
                       {"HitPoints", 10 }
@@ -1818,6 +1819,11 @@ namespace LoDCompanion.Services.GameData
                     }
                 }
             };
+        }
+
+        public Dictionary<string, int> GetLevelUpCostByProfession(Profession profession)
+        {
+            return profession.LevelUpCost;
         }
     }
 
