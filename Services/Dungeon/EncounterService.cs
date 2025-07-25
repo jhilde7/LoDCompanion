@@ -1616,7 +1616,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             // Assuming Monster has a constructor that copies properties from a template Monster.
             // Or you would instantiate a new Monster and manually copy relevant properties.
-            Monster newMonster = GetMonsterByName(templateMonster);
+            Monster newMonster = GetMonsterByName(templateMonster).Clone();
 
             // Assign new lists/values to the new monster instance to avoid modifying the template
             if (weapons != null)
@@ -5238,7 +5238,7 @@ namespace LoDCompanion.Services.Dungeon
 
         private Monster GetMonsterByName(string name)
         {
-            return new Monster(Monsters.First(m => m.Name == name));
+            return Monsters.First(m => m.Name == name);
         }
 
         /// <summary>
