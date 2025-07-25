@@ -1,4 +1,5 @@
-﻿using LoDCompanion.Services.Player;
+﻿using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
 using System.Reflection.PortableExecutable;
 using System.Security.Claims;
@@ -33,6 +34,11 @@ namespace LoDCompanion.Models
     [JsonDerivedType(typeof(Armour), typeDiscriminator: "Armour")]
     [JsonDerivedType(typeof(Shield), typeDiscriminator: "Shield")]
     [JsonDerivedType(typeof(Ammo), typeDiscriminator: "Ammo")]
+    [JsonDerivedType(typeof(AlchemyItem), typeDiscriminator: "AlchemyItem")]
+    [JsonDerivedType(typeof(Ingredient), typeDiscriminator: "Ingredient")]
+    [JsonDerivedType(typeof(Part), typeDiscriminator: "Part")]
+    [JsonDerivedType(typeof(Potion), typeDiscriminator: "Potion")]
+    [JsonDerivedType(typeof(AlchemicalRecipe), typeDiscriminator: "AlchemicalRecipe")]
     public class Equipment
     {
         public string Id { get; } = Guid.NewGuid().ToString();
