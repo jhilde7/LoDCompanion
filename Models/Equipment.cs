@@ -63,20 +63,26 @@ namespace LoDCompanion.Models
 
         }
 
-        public Equipment(Equipment template)
+        public Equipment Clone()
         {
-            // Copy values from the template
-            this.Category = template.Category;
-            this.Shop = template.Shop;
-            this.Name = template.Name;
-            this.Encumbrance = template.Encumbrance;
-            this.Value = template.Value;
-            this.Availability = template.Availability;
-            this.MaxDurability = template.MaxDurability;
-            this.Durability = template.Durability;
-            this.Quantity = template.Quantity;
-            this.Description = template.Description;
-            this.MagicEffect = template.MagicEffect;
+            Equipment newEquipment = new Equipment();
+            // Copy values from the this
+            newEquipment.Category = this.Category;
+            newEquipment.Shop = this.Shop;
+            newEquipment.Name = this.Name;
+            newEquipment.Encumbrance = this.Encumbrance;
+            newEquipment.Value = this.Value;
+            newEquipment.Availability = this.Availability;
+            newEquipment.MaxDurability = this.MaxDurability;
+            newEquipment.Durability = this.Durability;
+            newEquipment.Quantity = this.Quantity;
+            newEquipment.Description = this.Description;
+            newEquipment.MagicEffect = this.MagicEffect;
+            newEquipment.Storage = this.Storage;
+            // Create a NEW dictionary instance with the same properties
+            newEquipment.Properties = new Dictionary<EquipmentProperty, int>(this.Properties);
+
+            return newEquipment;
         }
 
         public override string ToString()

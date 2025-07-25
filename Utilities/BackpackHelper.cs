@@ -103,7 +103,7 @@ namespace LoDCompanion.Utilities
                 }
                 else
                 {
-                    var singleItem = new Equipment(itemInBackPack);
+                    var singleItem = itemInBackPack.Clone();
                     itemInBackPack.Quantity -= 1;
                     if (itemInBackPack.Quantity <= 0)
                     {

@@ -36,7 +36,7 @@ namespace LoDCompanion.Services.GameData
         public static Equipment? GetEquipmentByName(string name)
         {
             var masterItem = Equipment.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new Equipment(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static Equipment GetEquipmentByNameSetQuantity(string name, int qty)
@@ -169,7 +169,7 @@ namespace LoDCompanion.Services.GameData
         public static Equipment? GetRelicByName(string name)
         {
             var masterItem = Relics.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new Equipment(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static List<Equipment> GetShopInventory(bool useAvailability = false)
