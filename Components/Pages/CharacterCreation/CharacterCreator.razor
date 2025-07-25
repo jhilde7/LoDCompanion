@@ -457,7 +457,19 @@ else
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">@profession.Name</h5>
                                 <p class="card-text"><small>@profession.Description</small></p>
-
+                                
+                                    @if (profession.LevelUpCost != null && profession.LevelUpCost.Any())
+                                    {
+                                        <p class="card-text mb-1 mt-2"><strong>Level Up Costs:</strong></p>
+                                        <ul class="list-inline mb-2">
+                                            @foreach (var cost in profession.LevelUpCost)
+                                            {
+                                                <li class="list-inline-item me-3">
+                                                    <small><strong title="Cost to improve @cost.Key">@cost.Key:</strong> @cost.Value</small>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
                                     <div class="mt-auto">
                                         <p class="card-text mb-1 mt-2"><strong>Skill Modifiers:</strong></p>
                                         <div class="row g-2">
