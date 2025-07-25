@@ -298,15 +298,15 @@ namespace LoDCompanion.Models.Character
     public class Hero : Character
     {
         // Basic Hero Information
-        public Species? Species { get; set; }    
-        public Profession? Profession { get; set; }
+        public string SpeciesName { get; set; } = string.Empty;
+        public string ProfessionName { get; set; } = string.Empty;
         public int CurrentEnergy { get; set; } = 1;
         public int? CurrentMana { get; set; }
         public int CurrentSanity { get; set; } = 10;
 
         // Hero-specific States and Flags
-        public int MaxArmourType => Profession?.MaxArmourType ?? 1;
-        public bool IsThief => Profession?.Name == "Thief";
+        public int MaxArmourType => GameDataService.GetProfessionMaxArmourType(ProfessionName);
+        public bool IsThief => ProfessionName == "Thief";
         public int OneHandedWeaponClass => Get1HWeaponClass(GetStat(BasicStat.Strength));
         public int TwoHandedWeaponClass => Get2HWeaponClass(GetStat(BasicStat.Strength));
 
