@@ -44,6 +44,7 @@ namespace LoDCompanion.Utilities
                 if (itemInBackPack is MeleeWeapon melee)
                 {
                     var meleeWeapon = new MeleeWeapon(melee);
+                    meleeWeapon.Quantity = 1; // Ensure we return a single item
                     melee.Quantity -= 1;
                     if (melee.Quantity <= 0)
                     {
@@ -54,6 +55,7 @@ namespace LoDCompanion.Utilities
                 else if (itemInBackPack is RangedWeapon ranged)
                 {
                     var rangedWeapon = new RangedWeapon(ranged);
+                    rangedWeapon.Quantity = 1; // Ensure we return a single item
                     ranged.Quantity -= 1;
                     if (ranged.Quantity <= 0)
                     {
@@ -64,6 +66,7 @@ namespace LoDCompanion.Utilities
                 else if (itemInBackPack is Armour armour)
                 {
                     var armourItem = new Armour(armour);
+                    armourItem.Quantity = 1; // Ensure we return a single item
                     armour.Quantity -= 1;
                     if (armour.Quantity <= 0)
                     {
@@ -74,6 +77,7 @@ namespace LoDCompanion.Utilities
                 else if (itemInBackPack is Shield shield)
                 {
                     var shieldItem = new Shield(shield);
+                    shieldItem.Quantity = 1; // Ensure we return a single item
                     shield.Quantity -= 1;
                     if (shield.Quantity <= 0)
                     {
@@ -84,6 +88,7 @@ namespace LoDCompanion.Utilities
                 else if (itemInBackPack is Ammo ammo)
                 {
                     var ammoItem = new Ammo(ammo);
+                    ammoItem.Quantity = 1; // Ensure we return a single item
                     ammo.Quantity -= 1;
                     if (ammo.Quantity <= 0)
                     {
@@ -94,6 +99,7 @@ namespace LoDCompanion.Utilities
                 else if (itemInBackPack is MagicStaff mStaff)
                 {
                     var staff = new MagicStaff(mStaff);
+                    staff.Quantity = 1; // Ensure we return a single item
                     mStaff.Quantity -= 1;
                     if (mStaff.Quantity <= 0)
                     {
@@ -104,6 +110,7 @@ namespace LoDCompanion.Utilities
                 else
                 {
                     var singleItem = itemInBackPack.Clone();
+                    singleItem.Quantity = 1; // Ensure we return a single item
                     itemInBackPack.Quantity -= 1;
                     if (itemInBackPack.Quantity <= 0)
                     {
