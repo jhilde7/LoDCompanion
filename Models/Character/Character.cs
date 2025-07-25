@@ -456,8 +456,8 @@ namespace LoDCompanion.Models.Character
         {
             return str switch
             {
-                <= 20 => 1,
-                <= 30 => 2,
+                < 30 => 1,
+                < 40 => 2,
                 < 50 => 3,
                 >= 50 => 4
             };
@@ -467,8 +467,8 @@ namespace LoDCompanion.Models.Character
         {
             return str switch
             {
-                <= 25 => 2,
-                <= 30 => 3,
+                < 30 => 2,
+                < 40 => 3,
                 < 55 => 4,
                 >= 55 => 5
             };
