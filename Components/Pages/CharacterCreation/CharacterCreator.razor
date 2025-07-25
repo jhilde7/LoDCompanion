@@ -232,7 +232,7 @@ else
 
         @{
             <div class="row">
-                @foreach (var species in GameDataService.Species)
+                @foreach (var species in GameData.Species)
                 {
                 <div class="card mb-4 shadow-sm selectable-card @(State.SelectedSpecies == species ? "selected" : "")" @onclick="() => SelectSpecies(species)">
                         <div class="card-body">
@@ -445,13 +445,13 @@ else
     private RenderFragment ProfessionSelection =>@<section>
         <h3 class="text-center my-4">Choose Your Profession</h3>
         <div class="row">
-            @if (GameDataService.Professions == null)
+            @if (GameData.Professions == null)
             {
                 <p><em>Loading professions...</em></p>
             }
             else
             {
-            @foreach (var profession in GameDataService.Professions)
+            @foreach (var profession in GameData.Professions)
                 {
                     <div class="col-md-6 mb-6">
                         <div class="card h-100 selectable-card @(selectedProfession == profession ? "selected" : "")" @onclick="() => SelectProfession(profession)">
