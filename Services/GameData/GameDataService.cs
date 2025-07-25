@@ -1213,7 +1213,7 @@ namespace LoDCompanion.Services.GameData
                     BaseResolve =  30,
                     BaseHitPoints =  8,
                     MaxSTR = 80,
-                    MaxDex = 60,
+                    MaxDEX = 60,
                     MaxWIS = 80,
                     MaxRES = 80,
                     MaxCON = 70
@@ -1228,7 +1228,7 @@ namespace LoDCompanion.Services.GameData
                     BaseResolve =  30,
                     BaseHitPoints =  6,
                     MaxSTR = 60,
-                    MaxDex = 80,
+                    MaxDEX = 80,
                     MaxWIS = 80,
                     MaxRES = 80,
                     MaxCON = 65
@@ -1243,7 +1243,7 @@ namespace LoDCompanion.Services.GameData
                     BaseResolve =  30,
                     BaseHitPoints =  7,
                     MaxSTR = 70,
-                    MaxDex = 70,
+                    MaxDEX = 70,
                     MaxWIS = 80,
                     MaxRES = 80,
                     MaxCON = 65
@@ -1258,7 +1258,7 @@ namespace LoDCompanion.Services.GameData
                     BaseResolve =  40,
                     BaseHitPoints =  5,
                     MaxSTR = 40,
-                    MaxDex = 80,
+                    MaxDEX = 80,
                     MaxWIS = 80,
                     MaxRES = 80,
                     MaxCON = 60
