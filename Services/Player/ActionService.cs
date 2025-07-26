@@ -6,6 +6,8 @@ using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
 using System.Threading;
+using LoDCompanion.Services.GameData;
+using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Player
 {
@@ -60,6 +62,8 @@ namespace LoDCompanion.Services.Player
         private readonly InventoryService _inventory;
         private readonly IdentificationService _identification;
         private readonly AttackService _attack;
+        private readonly DiceRollService _diceRoll;
+        private readonly SpellCastingService _spellCastingService;
 
         public ActionService(
             DungeonManagerService dungeonManagerService, 
@@ -67,7 +71,9 @@ namespace LoDCompanion.Services.Player
             HealingService healingService,
             InventoryService inventoryService,
             IdentificationService identificationService,
-            AttackService attackService)
+            AttackService attackService,
+            DiceRollService diceRollService,
+            SpellCastingService spellCastingService)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -75,6 +81,8 @@ namespace LoDCompanion.Services.Player
             _inventory = inventoryService;
             _identification = identificationService;
             _attack = attackService;
+            _diceRoll = diceRollService;
+            _spellCastingService = spellCastingService;
         }
 
         /// <summary>
@@ -409,6 +417,45 @@ namespace LoDCompanion.Services.Player
                         resultMessage = string.Empty;
                     }
                     break;
+                case ActionType.CastSpell:
+                    if (character is Hero heroCasting && secondaryTarget is Spell spellToCast)
+                    {
+                        var options = await _spellCastingService.RequestCastingOptionsAsync(heroCasting, spellToCast);
+
+                        if (options.WasCancelled)
+                        {
+                            resultMessage = $"{heroCasting.Name} decided not to cast the spell.";
+                            actionWasSuccessful = false;
+                        }
+
+                        SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(heroCasting, _diceRoll, options.FocusPoints, options.PowerLevels);
+                        resultMessage = spellCastResult.OutcomeMessage;
+
+                        if(spellCastResult.ManaSpent <= 0)
+                        {
+                            actionWasSuccessful = false;
+                        }
+                        else
+                        {
+                            if (options.FocusPoints <= 0)
+                            {
+                                if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell))
+                                {
+                                    apCost = 1; // Quick spells cost 1 AP
+                                }
+                                else
+                                {
+                                    apCost = 2; // Regular spells cost 2 AP if there is no focus points added
+                                } 
+                            }
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target for CastSpell action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
             }
 
             if (actionWasSuccessful)
@@ -422,7 +469,7 @@ namespace LoDCompanion.Services.Player
         /// <summary>
         /// Gets the AP cost for a specific action type.
         /// </summary>
-        public int GetActionCost(ActionType actionType)
+        public int GetActionCost(ActionType actionType, object? context = null)
         {
             return actionType switch
             {
@@ -446,6 +493,7 @@ namespace LoDCompanion.Services.Player
                 ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
+                ActionType.CastSpell => (context is Spell spell && spell.Properties != null && spell.Properties.Contains(SpellProperty.QuickSpell)) ? 1 : 2,
                 _ => 1,
             };
         }
