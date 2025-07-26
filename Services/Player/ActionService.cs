@@ -37,8 +37,8 @@ namespace LoDCompanion.Services.Player
         Reload,
         ReloadWhileMoving,
         Aim,
-        Parry
-
+        Parry,
+        Pray
     }
 
     public class ActionInfo
@@ -421,7 +421,7 @@ namespace LoDCompanion.Services.Player
         /// <summary>
         /// Gets the AP cost for a specific action type.
         /// </summary>
-        private int GetActionCost(ActionType actionType)
+        public int GetActionCost(ActionType actionType)
         {
             return actionType switch
             {
@@ -444,6 +444,7 @@ namespace LoDCompanion.Services.Player
                 ActionType.Reload => 1,
                 ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
+                ActionType.Pray => 0,
                 _ => 1,
             };
         }
