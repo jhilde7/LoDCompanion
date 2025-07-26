@@ -95,6 +95,8 @@ namespace LoDCompanion.Services.Game
             foreach (var hero in heroes)
             {
                 hero.HasDodgedThisBattle = false;
+                hero.HasMadeFirstMoveAction = false;
+                hero.ResetMovementPoints();
 
                 if (!hero.Weapons.Any())
                 {
@@ -151,6 +153,7 @@ namespace LoDCompanion.Services.Game
 
             foreach (var monster in monsters)
             {
+                monster.ResetMovementPoints();
                 // The "Monster Behaviour" PDF states archers always start loaded.
                 foreach (var weapon in monster.Weapons)
                 {
