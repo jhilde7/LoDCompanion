@@ -177,6 +177,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 8,
                       TurnDuration = -1,
                       School = MagicSchool.Necromancy,
+                      TargetType = SpellTargetType.Self,
                       SpellEffect = "Causes the caster to fall to the ground, appearing dead to all around. Enemies will not target the caster for the rest of the battle. The caster may do nothing until the end of the battle."
                     },
                     new Spell(){
@@ -201,6 +202,7 @@ namespace LoDCompanion.Services.GameData
                       AddCasterLvlToDuration = true,
                       School = MagicSchool.Alteration,
                       IsAOESpell = true,
+                      TargetType = SpellTargetType.Self,
                       SpellEffect = "Suddenly a powerful wind blows through the dungeon, making arrows fly astray. All Missile Weapons now have a -15 modifier to hit if the arrows pass the room the Wizard is in. The wind lasts for Caster level turns. Upkeep is 1 point of Mana."
                     },
                     new Spell(){
@@ -225,6 +227,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 10,
                       Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.Touch },
                       School = MagicSchool.Restoration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster lays his hand on a comrade and heals 1d10 Hit Points."
                     },
                     new Spell(){
@@ -236,6 +239,7 @@ namespace LoDCompanion.Services.GameData
                       MaxDamage = 6,
                       Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
                       School = MagicSchool.Restoration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster can heal one hero within 4 squares and in LOS (intervening models does not matter). It heals 1d6 Hit Points."
                     },
                     new Spell(){
@@ -246,6 +250,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 1,
                       TurnDuration = -1,
                       School = MagicSchool.Mysticism,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn."
                     },
                     new Spell(){
@@ -265,6 +270,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 1,
                       TurnDuration = -1,
                       School = MagicSchool.Illusion,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "May target self or hero in LOS. Target becomes blurry and any attacks against the target is at -15. The effect lasts for 1d4 turns."
                     },
                     new Spell(){
@@ -285,6 +291,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 20,
                       Properties = new List<SpellProperty>(){ SpellProperty.Incantation },
                       School = MagicSchool.Enchantment,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "This spell is used to create scrolls. As long as the wizard knows the spell he wants to use as the basis for the scroll, and has a good quality parchment, this is quite easy although time consuming."
                     },
                     new Spell(){
@@ -319,6 +326,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 2,
                       TurnDuration = -1,
                       School = MagicSchool.Mysticism,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "Caster may strengthen a hero in LOS with +10 in either STR or CON. The spell lasts for 1d6 turns."
                     },
                     new Spell(){
@@ -328,6 +336,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 10,
                       UpkeepCost = 4,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster reaches into the Void and summons a Lesser Plague Demon. Place the demon in a random free square in the room. The demon may act as part of the hero's next turn. It will fight for the caster, but also try to break free at every turn. At the start of each turn, the caster must use 4 Mana as upkeep, and then pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. Add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -365,6 +374,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 16,
                       Properties = new List<SpellProperty>(){ SpellProperty.Incantation },
                       School = MagicSchool.Enchantment,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "This spell can only be cast between quests and requires a powerstone. The power of the stone will then be fused with an object such as a weapon, an armour or a piece of jewellery. See chapter on Crafting."
                     },
                     new Spell(){
@@ -375,6 +385,7 @@ namespace LoDCompanion.Services.GameData
                       MinDamage = 1,
                       MaxDamage = 10,
                       School = MagicSchool.Restoration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster may heal a hero within 4 squares and in LOS. The target regains 1d10 Hit Points."
                     },
                     new Spell(){
@@ -414,6 +425,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 2,
                       TurnDuration = -1,
                       School = MagicSchool.Mysticism,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster may bolster the armour of any target within LOS with +2 for all parts of the body. The spell lasts for Caster Level+2 turns."
                     },
                     new Spell(){
@@ -448,6 +460,7 @@ namespace LoDCompanion.Services.GameData
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -459,6 +472,7 @@ namespace LoDCompanion.Services.GameData
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -492,6 +506,7 @@ namespace LoDCompanion.Services.GameData
                       TurnDuration = -1,
                       Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
                       School = MagicSchool.Mysticism,
+                      TargetType = SpellTargetType.Self,
                       SpellEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
                     },
                     new Spell(){
@@ -535,6 +550,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 15,
                       ManaCost = 25,
                       School = MagicSchool.Alteration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster may shift the place of two heroes that are in LOS. If the spell fails, both heroes suffer 2 Sanity Points for the ordeal. The caster may not transpose himself."
                     },
                     new Spell(){
@@ -543,6 +559,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 15,
                       ManaCost = 25,
                       School = MagicSchool.Divination,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "Caster can tell what is on the other side of a door. Place the tile and roll for Encounter before opening a door. The heroes gain 2 activation tokens if there is an encounter on the other side of the door."
                     },
                     new Spell(){
@@ -551,6 +568,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 25,
                       ManaCost = 15,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster lures a demon from its dimension over to this world. It will randomly be either a Blood Demon or a Plague Demon. The demon is placed in a random place in the same tile as the wizard and fights for the caster. Once summoned, immediately add a hero activation token to the bag and activate the demon just like a hero. However, at the start of the wizard's activation following the summoning, the caster must pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. When it breaks free, it will make a Resolve Test of its own and if it succeeds, it takes part of the caster's mind with it. Deduct 1d3 Sanity Points from the caster. Once in our plane, the demon will relish the fighting, so no upkeep is needed."
                     },
                     new Spell(){
@@ -562,6 +580,7 @@ namespace LoDCompanion.Services.GameData
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for ML number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -573,6 +592,7 @@ namespace LoDCompanion.Services.GameData
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -646,6 +666,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 20,
                       TurnDuration = 1,
                       School = MagicSchool.Alteration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "May target self or hero in LOS. Target may levitate for the entire turn. That means the character moves above the ground, not touching any traps or similar. It may be used to leave a pit and to traverse a pit. You cannot levitate through a square which contains a model or over lava."
                     },
                     new Spell(){
@@ -656,6 +677,7 @@ namespace LoDCompanion.Services.GameData
                       UpkeepCost = 2,
                       TurnDuration = -1,
                       School = MagicSchool.Illusion,
+                      TargetType = SpellTargetType.Self,
                       SpellEffect = "The caster makes a copy of herself which may be placed anywhere within 4 squares of the caster. Enemies will treat this mirrored image as a target just like any other hero, even though it cannot take DMG. The mirrored self cannot move or attack. It will last for 1d4 turns."
                     },
                     new Spell(){
@@ -665,6 +687,7 @@ namespace LoDCompanion.Services.GameData
                       ManaCost = 15,
                       TurnDuration = -1,
                       School = MagicSchool.Mysticism,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "May target self or any friendly character in LOS. Character gains +1M. The spell lasts until a Scenario die roll of 9-10."
                     },
                     new Spell(){
@@ -673,6 +696,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 20,
                       ManaCost = 30,
                       School = MagicSchool.Divination,
+                      TargetType = SpellTargetType.Self,
                       SpellEffect = "All heroes that have acted may immediately put activation tokens back in the bag. They may act again as if it is a new turn. This spell may only be cast once during a battle."
                     },
                     new Spell(){
@@ -690,6 +714,7 @@ namespace LoDCompanion.Services.GameData
                       AOEMinDamage = 1,
                       AOEMaxDamage = 10,
                       AOERadius = 1,
+                      TargetType = SpellTargetType.AreaOfEffect,
                       SpellEffect = "The caster shoots a fireball at a square or an enemy. The target square suffers 1d20 Fire Damage. Adjacent squares suffer 1d10 Fire Damage."
                     },
                     new Spell(){
@@ -700,6 +725,7 @@ namespace LoDCompanion.Services.GameData
                       School = MagicSchool.Mysticism,
                       IsAOESpell = true,
                       AOERadius = 2,
+                      TargetType = SpellTargetType.AreaOfEffect,
                       SpellEffect = "The caster conjures a large opening in the ground, swallowing any who happens to be standing there. The wizard must have LOS to at least 1 of the squares. The hole covers 4 squares and any model with their whole base inside that range must make a DEX Test or perish. That also means an X-Large creature will not be affected by this spell. The party gets the XP for any creatures that perish. Any furniture or traps in these squares also disappears. The hole then immediately closes up."
                     },
                     new Spell(){
@@ -708,6 +734,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 20,
                       ManaCost = 30,
                       School = MagicSchool.Restoration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "This spell restores all of a hero's Hit Points."
                     },
                     new Spell(){
@@ -728,6 +755,7 @@ namespace LoDCompanion.Services.GameData
                       TurnDuration = -1,
                       AddCasterLvlToDuration = true,
                       School = MagicSchool.Conjuration,
+                      TargetType = SpellTargetType.NoTarget,
                       SpellEffect = "The caster draws a demon from its dimension to do his biddings. The demon is placed in a random place on the same tile as the wizard and fights for the caster for 1d3+Caster Level turns. Once in our plane, the demon will relish fighting, so no upkeep is needed. However, making a pact with a Greater Demon comes at a price, no matter how skilled a wizard you may be. Deduct 1d6 Sanity Points from the caster."
                     },
                     new Spell(){
@@ -736,6 +764,7 @@ namespace LoDCompanion.Services.GameData
                       CastingValue = 14,
                       ManaCost = 20,
                       School = MagicSchool.Alteration,
+                      TargetType = SpellTargetType.Ally,
                       SpellEffect = "The wizard may teleport one of his companions within LOS or himself up to 4 squares. This is risky business though, and a failed spell will cost the target one Sanity Point as he is partly in the void before coming back."
                     }
                 };
@@ -1207,6 +1236,7 @@ namespace LoDCompanion.Services.GameData
     {
         public string Name { get; set; } = string.Empty;
         public int Level { get; set; }
+        public SpellTargetType TargetType { get; set; } = SpellTargetType.SingleTarget; // Default to single target
         public string SpellEffect { get; set; } = string.Empty;
         public int CastingValue { get; set; } // The base difficulty or power of the spell
         public int ManaCost { get; set; }
