@@ -46,6 +46,13 @@ namespace LoDCompanion.Services.GameData
         Ally,
         NoTarget      // A global effect like Gust of Wind
     }
+    public class SpellCastResult
+    {
+        public bool IsSuccess { get; set; }
+        public bool IsMiscast { get; set; }
+        public int ManaSpent { get; set; }
+        public string OutcomeMessage { get; set; } = string.Empty;
+    }
 
     public static class SpellService
     {
@@ -783,6 +790,11 @@ namespace LoDCompanion.Services.GameData
             return list;
         }
 
+        public static Spell GetSpellByName(string name)
+        {
+            return Spells.First(s => s.Name == name);
+        }
+
         public static MonsterSpell GetMonsterSpellByName(string name)
         {
             return MonsterSpells.First(s => s.Name == name);
@@ -1323,35 +1335,81 @@ namespace LoDCompanion.Services.GameData
         }
 
         /// <summary>
-        /// Represents the casting attempt for the spell.
-        /// Actual mana deduction, success/failure handling, and effects on game state
-        /// would be managed by a higher-level SpellCastingService or Hero class.
+        /// Represents the casting attempt for the spell based on the rulebook.
         /// </summary>
-        /// <param name="hero">The hero attempting to cast the spell.</param>
-        /// <param name="skillRoll">The result of the hero's ArcaneArts skill roll.</param>
-        /// <returns>True if the spell was successfully cast, false otherwise.</returns>
-        public bool CastSpell(Hero hero, int skillRoll)
+        /// <param name="caster">The hero attempting to cast the spell.</param>
+        /// <param name="diceRoll">The dice rolling service.</param>
+        /// <param name="focusPoints">The number of AP spent on focusing before the cast.</param>
+        /// <param name="powerLevels">The number of power levels to add (for Destruction/Restoration spells).</param>
+        /// <returns>A SpellCastResult object detailing the outcome.</returns>
+        public async Task<SpellCastResult> CastSpellAsync(Hero caster, DiceRollService diceRoll, int focusPoints = 0, int powerLevels = 0)
         {
-            // Simplified logic: Check if hero has enough mana
-            if (hero.CurrentEnergy < ManaCost)
+            var result = new SpellCastResult();
+            var adjacentEnemies = caster.Room.MonstersInRoom?.Any(m => GridService.GetDistance(caster.Position, m.Position) <= 1) ?? false;
+
+            // --- Pre-Cast Checks ---
+            if (caster.GetStat(BasicStat.Level) < this.Level)
             {
-                // Optionally log: Console.WriteLine($"{hero.Name} does not have enough mana to cast {SpellName}.");
-                return false;
+                result.OutcomeMessage = $"{caster.Name} is not high enough level to cast {this.Name}.";
+                return result;
             }
 
-            // Check if skill roll meets or exceeds casting value
-            if (skillRoll >= CastingValue)
+            if (adjacentEnemies && !(this.Properties?.Contains(SpellProperty.Touch) ?? false))
             {
-                hero.CurrentEnergy -= ManaCost; // Deduct mana
-                                                // Spell effect would be handled by a SpellCastingService
-                                                // Console.WriteLine($"{hero.Name} successfully cast {SpellName}!");
-                return true;
+                result.OutcomeMessage = "Cannot cast non-Touch spells while adjacent to an enemy.";
+                return result;
+            }
+
+            int finalManaCost = this.ManaCost + (powerLevels * 2);
+            if (caster.CurrentMana < finalManaCost)
+            {
+                result.OutcomeMessage = $"Not enough mana to cast {this.Name}.";
+                return result;
+            }
+
+            // --- Calculate Target Skill and Miscast Chance ---
+            int arcaneArts = caster.GetSkill(Skill.ArcaneArts);
+            int targetSkill = arcaneArts - this.CastingValue + (focusPoints * 10);
+            int miscastThreshold = 95 - (focusPoints * 5) - (powerLevels * 2);
+
+            // --- Perform the Casting Roll ---
+            int roll = await diceRoll.RollDice("Roll to cast", "1d100");
+
+            // --- Check for Miscast First ---
+            if (roll >= miscastThreshold)
+            {
+                result.IsMiscast = true;
+                result.ManaSpent = finalManaCost;
+                caster.CurrentMana -= result.ManaSpent;
+
+                int sanityLoss = (int)Math.Ceiling((double)await diceRoll.RollDice("Roll for miscast sanity loss", "1d6") / 2);
+                caster.CurrentSanity -= sanityLoss;
+                caster.CurrentAP = 0; // Turn ends immediately
+
+                result.OutcomeMessage = $"Miscast! {caster.Name} loses {sanityLoss} sanity and their turn ends.";
+                return result;
+            }
+
+            // --- Check for Success or Failure ---
+            if (roll <= targetSkill)
+            {
+                result.IsSuccess = true;
+                result.ManaSpent = finalManaCost;
+                caster.CurrentMana -= result.ManaSpent;
+                result.OutcomeMessage = $"{caster.Name} successfully casts {this.Name}!";
+
+                // Note: The actual spell effect (damage, healing, etc.) would be applied here
+                // by the calling service (e.g., CombatManagerService).
             }
             else
             {
-                // Optionally log: Console.WriteLine($"{hero.Name} failed to cast {SpellName}.");
-                return false;
+                result.IsSuccess = false;
+                result.ManaSpent = (int)Math.Ceiling(finalManaCost / 2.0); // Half cost, rounded up
+                caster.CurrentMana -= result.ManaSpent;
+                result.OutcomeMessage = $"{caster.Name} failed to cast {this.Name}, losing {result.ManaSpent} mana.";
             }
+
+            return result;
         }
     }
 }
