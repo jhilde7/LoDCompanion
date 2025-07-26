@@ -204,9 +204,14 @@
             }
             @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray))
             {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Pray }))">
-                    Pray (@(ActionService.GetActionCost(ActionType.Pray)) AP)
-                </Item>
+                <SubMenu Label="Pray (@(ActionService.GetActionCost(ActionType.Pray)) AP)">
+                    @foreach (var prayer in activeHero.Prayers)
+                    {
+                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = prayer }))">
+                            @prayer.Name
+                        </Item>
+                    }
+                </SubMenu>
             }
         }
     }
@@ -268,9 +273,14 @@
 
                 @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
                 {
-                    <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster }))">
-                        Cast Spell (1 AP)
-                    </Item>
+                    <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                        @foreach (var spell in activeHero.Spells)
+                        {
+                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
+                                @spell.Name
+                            </Item>
+                        }
+                    </SubMenu>
                 }                
             }
         }
