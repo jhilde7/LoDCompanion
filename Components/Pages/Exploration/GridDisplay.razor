@@ -4,6 +4,7 @@
 @using LoDCompanion.Services.Combat
 @using LoDCompanion.Services.Player
 @using LoDCompanion.Utilities
+@using LoDCompanion.Models
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Components.Shared
 @implements IDisposable
@@ -14,97 +15,98 @@
 @inject FacingDirectionService FacingService
 @inject CombatManagerService CombatManager
 @inject ActionService ActionService
+@inject DungeonState Dungeon
 
 <style>
     .grid-container {
-        position: relative;
-        border: 2px solid #5a4d3a;
-        background-image: url('/images/backgrounds/grass_tile.png');
-        /* Example background */
-        background-size: 128px 128px;
+    position: relative;
+    border: 2px solid #5a4d3a;
+    background-image: url('/images/backgrounds/grass_tile.png');
+    /* Example background */
+    background-size: 128px 128px;
     }
 
     .grid-item {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-sizing: border-box;
-        /* Ensures padding and border are included in the element's total width and height */
-        color: white;
-        text-shadow: 1px 1px 2px black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    /* Ensures padding and border are included in the element's total width and height */
+    color: white;
+    text-shadow: 1px 1px 2px black;
     }
 
     .furniture-item {
-        background-color: rgba(139, 69, 19, 0.5);
-        /* Brownish, semi-transparent */
-        border: 1px dashed #654321;
+    background-color: rgba(139, 69, 19, 0.5);
+    /* Brownish, semi-transparent */
+    border: 1px dashed #654321;
     }
 
     .monster-item,
     .hero-item {
-        /* Flexbox helps arrange the name and HP bar vertically */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        /* Pushes name to top, hp to bottom */
-        align-items: center;
-        /* Visuals */
-        border: 1px solid #1a1a1a;
-        box-sizing: border-box;
-        color: white;
-        text-shadow: 1px 1px 2px black;
-        /* Makes text more readable */
-        font-weight: bold;
-        overflow: hidden;
-        /* Ensures content doesn't spill out */
+    /* Flexbox helps arrange the name and HP bar vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Pushes name to top, hp to bottom */
+    align-items: center;
+    /* Visuals */
+    border: 1px solid #1a1a1a;
+    box-sizing: border-box;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+    /* Makes text more readable */
+    font-weight: bold;
+    overflow: hidden;
+    /* Ensures content doesn't spill out */
     }
 
     .monster-item {
-        background-color: rgba(178, 34, 34, 0.85);
-        /* A semi-transparent red (Firebrick) */
+    background-color: rgba(178, 34, 34, 0.85);
+    /* A semi-transparent red (Firebrick) */
     }
 
     .hero-item {
-        background-color: rgba(46, 139, 87, 0.85);
-        /* A semi-transparent green (Seagreen) */
+    background-color: rgba(46, 139, 87, 0.85);
+    /* A semi-transparent green (Seagreen) */
     }
 
     .corpse-item {
-        background-color: rgba(200, 200, 20, 0.65);
-        /* A semi-transparent mustard yellow */
+    background-color: rgba(200, 200, 20, 0.65);
+    /* A semi-transparent mustard yellow */
     }
 
     .item-label {
-        padding-top: 4px;
-        /* Give the name some space from the top edge */
+    padding-top: 4px;
+    /* Give the name some space from the top edge */
     }
 
     .hp-bar {
-        height: 6px;
-        background-color: #dc3545;
-        /* Default red for monster HP */
-        border-top: 1px solid #1a1a1a;
-        align-self: stretch;
-        /* Makes the bar span the full width */
+    height: 6px;
+    background-color: #dc3545;
+    /* Default red for monster HP */
+    border-top: 1px solid #1a1a1a;
+    align-self: stretch;
+    /* Makes the bar span the full width */
     }
 
     .hero-item .hp-bar {
-        background-color: #198754;
-        /* Override with green for hero HP */
+    background-color: #198754;
+    /* Override with green for hero HP */
     }
 
     .facing-arrow {
-        position: absolute;
-        width: 0;
-        height: 0;
-        border-left: 6px solid transparent;
-        /* Adjust size as needed */
-        border-right: 6px solid transparent;
-        border-bottom: 10px solid rgba(255, 255, 255, 0.8);
-        /* A semi-transparent white */
-        /* The transition makes the rotation smooth if the facing changes */
-        transition: transform 0.3s ease-in-out;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    /* Adjust size as needed */
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid rgba(255, 255, 255, 0.8);
+    /* A semi-transparent white */
+    /* The transition makes the rotation smooth if the facing changes */
+    transition: transform 0.3s ease-in-out;
     }
 </style>
 
@@ -118,7 +120,7 @@
                 @foreach (var square in furniture.OccupiedSquares)
                 {
                     <ContextMenuTrigger MenuId="universalContextMenu" Data="square" WrapperTag="div" class="grid-background-square"
-                        title="@furniture.ToString()" style="@GetSquareStyle(square)">
+                    title="@furniture.ToString()" style="@GetSquareStyle(square)">
                     </ContextMenuTrigger>
                 }
             }
@@ -129,8 +131,8 @@
             @foreach (var monster in Room.MonstersInRoom)
             {
                 <ContextMenuTrigger MenuId="universalContextMenu" Data="monster" WrapperTag="div" class="grid-item monster-item"
-                    title="@monster.ToString()" style="@GetItemStyle(monster)"
-                    @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
+                title="@monster.ToString()" style="@GetItemStyle(monster)"
+                @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="facing-arrow" style="@GetFacingStyle(monster.Facing)"></div>
                     <div class="item-label">@monster.Name</div>
                     <div class="hp-bar" style="width: @(monster.CurrentHP * 100.0 / monster.GetStat(BasicStat.HitPoints))%"></div>
@@ -143,7 +145,7 @@
             @foreach (var hero in Room.HeroesInRoom)
             {
                 <ContextMenuTrigger MenuId="universalContextMenu" Data="hero" WrapperTag="div" class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
-                    @onclick="() => OnHeroClicked.InvokeAsync(hero)">
+                @onclick="() => OnHeroClicked.InvokeAsync(hero)">
                     <div class="facing-arrow" style="@GetFacingStyle(hero.Facing)"></div>
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.GetStat(BasicStat.HitPoints))%"></div>
@@ -156,7 +158,7 @@
             @foreach (var corpse in Room.CorpsesInRoom)
             {
                 <ContextMenuTrigger MenuId="universalContextMenu" Data="corpse" WrapperTag="div" class="grid-item corpse-item" title="@corpse.ToString()" style="@GetItemStyle(corpse)"
-                    @onclick="() => OnCorpseClicked.InvokeAsync(corpse)">
+                @onclick="() => OnCorpseClicked.InvokeAsync(corpse)">
                     <div class="item-label">@corpse.Name</div>
                 </ContextMenuTrigger>
             }
@@ -194,16 +196,16 @@
         @* Action on Self: Check if the clicked square is occupied by the active hero *@
         if (activeHero != null && activeHero.OccupiedSquares.Any(sq => sq.Equals(position)))
         {
-            if (activeHero.CurrentAP >= 1)
+            if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Parry))
             {
                 <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Parry }))">
                     Parry Stance (Ends Turn)
                 </Item>
             }
-            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= 0)
+            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray))
             {
                 <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Pray }))">
-                    Pray (0 AP)
+                    Pray (@(ActionService.GetActionCost(ActionType.Pray)) AP)
                 </Item>
             }
         }
@@ -213,29 +215,63 @@
         var activeHero = CombatManager.ActiveHero;
         if (activeHero != null)
         {
-            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
+            var distance = GridService.GetDistance(activeHero.Position, targetMonster.Position);
+            if(distance <= 1)
             {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.StandardAttack, Target = targetMonster }))">
-                    Attack (@(ActionService.GetActionCost(ActionType.StandardAttack)) AP)
-                </Item>
+                if (activeHero.Inventory.EquippedWeapon is MeleeWeapon)
+                {
+                    @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
+                    {
+                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.StandardAttack, Target = targetMonster }))">
+                            Attack (@(ActionService.GetActionCost(ActionType.StandardAttack)) AP)
+                        </Item>
+                    }
+                    @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Weapons.Any(w => w.IsMelee))
+                    {
+                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.PowerAttack, Target = targetMonster }))">
+                            Power Attack (@(ActionService.GetActionCost(ActionType.PowerAttack)) AP)
+                        </Item>
+                    }
+                }
+
+                @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Shove))
+                {
+                    <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Shove, Target = targetMonster }))">
+                        Shove (@(ActionService.GetActionCost(ActionType.Shove)) AP)
+                    </Item>
+                }
             }
-            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Weapons.Any(w => w.IsMelee))
+            
+            if (GridService.HasLineOfSight(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid).CanShoot)
             {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.PowerAttack, Target = targetMonster }))">
-                    Power Attack (@(ActionService.GetActionCost(ActionType.PowerAttack)) AP)
-                </Item>
-            }
-            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Shove))
-            {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Shove, Target = targetMonster }))">
-                    Shove (@(ActionService.GetActionCost(ActionType.Shove)) AP)
-                </Item>
-            }
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
-            {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster }))">
-                    Cast Spell (1 AP)
-                </Item>
+                if (distance > 1)
+                {
+                    @if ((activeHero.Inventory.EquippedWeapon is RangedWeapon || activeHero.Inventory.OffHand is RangedWeapon) 
+                        && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
+                    {
+                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.StandardAttack, Target = targetMonster }))">
+                            Attack (@(ActionService.GetActionCost(ActionType.StandardAttack)) AP)
+                        </Item>
+                    }
+
+                    @if (activeHero.Inventory.EquippedWeapon is MeleeWeapon 
+                       && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.ChargeAttack) 
+                       && distance <= activeHero.GetStat(BasicStat.Move) 
+                       && GridService.HasClearPath(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid))
+                    {
+                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.ChargeAttack, Target = targetMonster }))">
+                            Charge Attack (@(ActionService.GetActionCost(ActionType.ChargeAttack)) AP)
+                        </Item>
+                    }
+                }
+
+
+                @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+                {
+                    <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster }))">
+                        Cast Spell (1 AP)
+                    </Item>
+                }                
             }
         }
     }
