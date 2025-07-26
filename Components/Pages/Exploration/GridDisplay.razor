@@ -202,7 +202,7 @@
                     Parry Stance (Ends Turn)
                 </Item>
             }
-            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray))
+            if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray))
             {
                 <SubMenu Label="Pray (@(ActionService.GetActionCost(ActionType.Pray)) AP)">
                     @foreach (var prayer in activeHero.Prayers)
@@ -225,13 +225,13 @@
             {
                 if (activeHero.Inventory.EquippedWeapon is MeleeWeapon)
                 {
-                    @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
+                    if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
                     {
                         <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.StandardAttack, Target = targetMonster }))">
                             Attack (@(ActionService.GetActionCost(ActionType.StandardAttack)) AP)
                         </Item>
                     }
-                    @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Weapons.Any(w => w.IsMelee))
+                    if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Weapons.Any(w => w.IsMelee))
                     {
                         <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.PowerAttack, Target = targetMonster }))">
                             Power Attack (@(ActionService.GetActionCost(ActionType.PowerAttack)) AP)
@@ -239,7 +239,7 @@
                     }
                 }
 
-                @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Shove))
+                if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Shove))
                 {
                     <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Shove, Target = targetMonster }))">
                         Shove (@(ActionService.GetActionCost(ActionType.Shove)) AP)
@@ -251,7 +251,7 @@
             {
                 if (distance > 1)
                 {
-                    @if ((activeHero.Inventory.EquippedWeapon is RangedWeapon || activeHero.Inventory.OffHand is RangedWeapon) 
+                    if ((activeHero.Inventory.EquippedWeapon is RangedWeapon || activeHero.Inventory.OffHand is RangedWeapon) 
                         && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
                     {
                         <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.StandardAttack, Target = targetMonster }))">
@@ -259,7 +259,7 @@
                         </Item>
                     }
 
-                    @if (activeHero.Inventory.EquippedWeapon is MeleeWeapon 
+                    if (activeHero.Inventory.EquippedWeapon is MeleeWeapon 
                        && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.ChargeAttack) 
                        && distance <= activeHero.GetStat(BasicStat.Move) 
                        && GridService.HasClearPath(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid))
@@ -271,7 +271,7 @@
                 }
 
 
-                @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+                if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
                 {
                     <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
                         @foreach (var spell in activeHero.Spells)
