@@ -1351,12 +1351,14 @@ namespace LoDCompanion.Services.GameData
             if (caster.GetStat(BasicStat.Level) < this.Level)
             {
                 result.OutcomeMessage = $"{caster.Name} is not high enough level to cast {this.Name}.";
+                result.ManaSpent = 0;
                 return result;
             }
 
             if (adjacentEnemies && !(this.Properties?.Contains(SpellProperty.Touch) ?? false))
             {
                 result.OutcomeMessage = "Cannot cast non-Touch spells while adjacent to an enemy.";
+                result.ManaSpent = 0;
                 return result;
             }
 
@@ -1364,6 +1366,7 @@ namespace LoDCompanion.Services.GameData
             if (caster.CurrentMana < finalManaCost)
             {
                 result.OutcomeMessage = $"Not enough mana to cast {this.Name}.";
+                result.ManaSpent = 0;
                 return result;
             }
 
