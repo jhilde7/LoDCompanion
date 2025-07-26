@@ -101,6 +101,15 @@ namespace LoDCompanion.Services.Player
             {
                 weapon = w;
             }
+
+            // check to see if the character is in the middle of their and is choosing a different action type.
+            // This cancels the remaining move and sets as finsihing their move.
+            if ( actionType != ActionType.Move && ( character.CurrentMovePoints < character.GetStat(BasicStat.Move) && !character.HasMadeFirstMoveAction))
+            {
+                character.HasMadeFirstMoveAction = true;
+                character.ResetMovementPoints(); // Reset movement points if first move action is made
+            }
+
             // Execute the action logic
             switch (actionType)
             {
@@ -199,7 +208,16 @@ namespace LoDCompanion.Services.Player
                 case ActionType.Move:
                     if (primaryTarget is GridPosition targetPosition && character.Room != null)
                     {
+                        // Determine available movement points for this action
+                        int availableMovement = character.CurrentMovePoints;
+                        if (character.HasMadeFirstMoveAction) // Rule: Second move is half distance
+                        {
+                            availableMovement /= 2;
+                        }
+
                         List<GridPosition> path = GridService.FindShortestPath(character.Position, targetPosition, dungeon.DungeonGrid);
+
+                        // Determine enemies for ZOC calculation
                         List<Character> enemies = new List<Character>();
                         if (_dungeonManager.DungeonState != null)
                         {
@@ -224,14 +242,23 @@ namespace LoDCompanion.Services.Player
                             } 
                         }
 
-                        if (GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies))
+                        MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
+
+                        if (moveResult.WasSuccessful)
                         {
-                            resultMessage = $"{character.Name} moves to {character.Position}.";
+                            character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
+                            availableMovement = character.CurrentMovePoints;
+                            resultMessage = moveResult.Message;
+                            if (!character.HasMadeFirstMoveAction && availableMovement <= 0)
+                            {
+                                character.HasMadeFirstMoveAction = true;
+                                character.ResetMovementPoints();
+                            }
                         }
                         else
                         {
-                            resultMessage = $"{character.Name} cannot move there.";
-                            actionWasSuccessful = false;
+                            resultMessage = moveResult.Message;
+                            actionWasSuccessful = false; // Don't deduct AP if no move was made
                         }
                     }
                     else

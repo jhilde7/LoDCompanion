@@ -11,6 +11,16 @@ namespace LoDCompanion.Services.Dungeon
 {
 
     /// <summary>
+    /// Represents the outcome of a movement action.
+    /// </summary>
+    public class MovementResult
+    {
+        public bool WasSuccessful { get; set; }
+        public int MovementPointsSpent { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// Represents a 3D coordinate on the game grid.
     /// </summary>
     public class GridPosition
@@ -111,19 +121,16 @@ namespace LoDCompanion.Services.Dungeon
         /// Moves a character along a given path, one square at a time, consuming movement points.
         /// The character will stop if they run out of movement, the path is blocked, or an event interrupts them.
         /// </summary>
-        /// <param name="character">The character to move.</param>
-        /// <param name="path">The list of GridPositions to follow.</param>
-        /// <param name="grid">The main dungeon grid.</param>
-        /// <param name="enemies">A list of enemies in the room, used for ZOC calculations.</param>
-        /// <returns>True if the character moved at least one square, false otherwise.</returns>
-        public static bool MoveCharacter(Character character, List<GridPosition> path, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
+        /// <returns>A MovementResult detailing how far the character moved and how many points were spent.</returns>
+        public static MovementResult MoveCharacter(Character character, List<GridPosition> path, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies, int maxMovementPoints)
         {
+            var result = new MovementResult();
             if (path == null || path.Count <= 1)
             {
-                return false; // No path to move along.
+                result.Message = "No valid path to move along.";
+                return result;
             }
 
-            int movementPointsSpent = 0;
             var originalPosition = character.Position;
 
             // Start from the second square in the path, as the first is the character's current location.
@@ -131,41 +138,30 @@ namespace LoDCompanion.Services.Dungeon
             {
                 var nextSquare = GetSquareAt(nextPos, grid);
 
-                // --- Pre-move validation ---
-                // Stop if the next square is invalid, blocked, or occupied.
                 if (nextSquare == null || nextSquare.MovementBlocked || nextSquare.IsOccupied)
                 {
+                    result.Message = $"{character.Name}'s path is blocked at {nextPos}.";
                     break; // End movement here.
                 }
 
-                // --- Calculate Movement Cost for the next square ---
-                int costForThisSquare = 1;
-
-                // Rule: Moving through climbable furniture costs double.
-                if (nextSquare.DoubleMoveCost)
-                {
-                    costForThisSquare = 2;
-                }
-
-                // Rule: Moving through an enemy's ZOC costs 2 movement points.
-                // This check overrides the climbing cost if it's higher.
+                int costForThisSquare = nextSquare.DoubleMoveCost ? 2 : 1;
                 foreach (var enemy in enemies)
                 {
                     if (DirectionService.IsInZoneOfControl(nextPos, enemy))
                     {
                         costForThisSquare = 2;
-                        break; // ZOC penalty is applied once per square.
+                        break;
                     }
                 }
 
-                // --- Check if the character can afford to move ---
-                if (movementPointsSpent + costForThisSquare > character.GetStat(BasicStat.Move))
+                if (result.MovementPointsSpent + costForThisSquare > maxMovementPoints)
                 {
-                    break; // Not enough movement points to enter the next square.
+                    result.Message = $"{character.Name} does not have enough movement points to enter {nextPos}.";
+                    break;
                 }
 
-                // --- Commit the move for this step ---
-                movementPointsSpent += costForThisSquare;
+                // --- Commit the single step ---
+                result.MovementPointsSpent += costForThisSquare;
 
                 // Vacate the old square(s)
                 foreach (var oldSquarePos in character.OccupiedSquares)
@@ -182,12 +178,15 @@ namespace LoDCompanion.Services.Dungeon
                     var newSquare = GetSquareAt(newSquarePos, grid);
                     if (newSquare != null) newSquare.OccupyingCharacterId = character.Id;
                 }
-
-                // TODO: Add logic here to trigger traps if the new square has one.
             }
 
-            // Return true if the character's position has changed.
-            return !character.Position.Equals(originalPosition);
+            if (!character.Position.Equals(originalPosition))
+            {
+                result.WasSuccessful = true;
+                result.Message += $" {character.Name} moved to {character.Position}, spending {result.MovementPointsSpent} movement points.";
+            }
+
+            return result;
         }
 
         /// <summary>
