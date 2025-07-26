@@ -326,6 +326,13 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         public static List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
+            // First, check if a direct, unblocked path exists.
+            if (HasClearPath(start, end, grid))
+            {
+                // If so, return the straight line immediately.
+                return GetLine(start, end).ToList();
+            }
+
             // The PriorityQueue stores nodes to visit, prioritized by their F-Score.
             var openSet = new PriorityQueue<Node, int>();
 
@@ -388,7 +395,7 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
-        /// Checks for a clear path, now using the `IsObstacle` property for ranged attacks.
+        /// Checks for a clear path, using the `IsObstacle` property for ranged attacks.
         /// </summary>
         public static bool HasClearPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
         {
