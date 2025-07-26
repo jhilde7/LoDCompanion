@@ -17,6 +17,7 @@
 @inject CombatManagerService CombatManager
 @inject ActionService ActionService
 @inject DungeonState Dungeon
+@inject SpellCastingService SpellCastingService
 
 <style>
     .grid-container {
@@ -183,6 +184,11 @@
     }
 </div>
 
+@if (SpellCastingService.CurrentRequest != null)
+{
+    <SpellCastingModal />
+}
+
 <ContextMenu Id="universalContextMenu" TItem="object">
     @if (context.Data is GridPosition position)
     {
@@ -199,9 +205,9 @@
                     @foreach (var spell in activeHero.Spells)
                     {
                         if (spell.TargetType == SpellTargetType.NoTarget)
-                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
-                            @spell.Name
-                        </Item>
+                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
+                                @spell.Name
+                            </Item>
                     }
                 </SubMenu>
             } 
@@ -234,8 +240,8 @@
                     {
                         if (spell.TargetType == SpellTargetType.Self)
                             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = spell }))">
-                            @spell.Name
-                        </Item>
+                                @spell.Name
+                            </Item>
                     }
                 </SubMenu>
             }
@@ -278,7 +284,7 @@
                     </Item>
                 }
             }
-            
+
             if (GridService.HasLineOfSight(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid).CanShoot)
             {
                 if (distance > 1)
@@ -309,9 +315,9 @@
                         @foreach (var spell in activeHero.Spells)
                         {
                             if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
-                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
-                                @spell.Name
-                            </Item>
+                                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
+                                    @spell.Name
+                                </Item>
                         }
                     </SubMenu>
                 }                
@@ -336,8 +342,8 @@
                     {
                         if (spell.TargetType == SpellTargetType.Ally)
                             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero, SecondaryTarget = spell }))">
-                            @spell.Name
-                        </Item>
+                                @spell.Name
+                            </Item>
                     }
                 </SubMenu>
             } 
@@ -363,6 +369,7 @@
     private Action? _onTextChangedHandler;
     private Action? _onDiceRolledHandler;
     private Action? _onFacingDirectionChangeHandler;
+    private Action? _onCastingRequestChangeHandler;
 
     private string GridStyle
     {
@@ -469,10 +476,12 @@
         _onTextChangedHandler = () => InvokeAsync(StateHasChanged);
         _onDiceRolledHandler = () => InvokeAsync(StateHasChanged);
         _onFacingDirectionChangeHandler = () => InvokeAsync(StateHasChanged);
+        _onCastingRequestChangeHandler = () => InvokeAsync(StateHasChanged);
         // Subscribe using the stored handler.
         FloatingTextService.OnTextChanged += _onTextChangedHandler;
         DiceRollService.OnRollRequested += _onDiceRolledHandler;
         FacingService.OnFacingRequestChanged += _onFacingDirectionChangeHandler;
+        SpellCastingService.OnCastingRequestChanged += _onCastingRequestChangeHandler;
     }
 
     public void Dispose()
@@ -480,5 +489,6 @@
         FloatingTextService.OnTextChanged -= _onTextChangedHandler;
         DiceRollService.OnRollRequested -= _onDiceRolledHandler;
         FacingService.OnFacingRequestChanged -= _onFacingDirectionChangeHandler;
+        SpellCastingService.OnCastingRequestChanged -= _onCastingRequestChangeHandler;
     }
 }

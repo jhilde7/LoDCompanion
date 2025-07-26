@@ -44,6 +44,7 @@ builder.Services.AddSingleton<ArmourFactory>();
 //Combat
 builder.Services.AddScoped<CombatManagerService>();
 builder.Services.AddScoped<InitiativeService>();
+builder.Services.AddScoped<SpellCastingService>();
 builder.Services.AddSingleton<MonsterSpecialService>();
 builder.Services.AddSingleton<AttackService>();
 builder.Services.AddSingleton<FacingDirectionService>();
