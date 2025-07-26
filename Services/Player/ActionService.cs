@@ -108,6 +108,11 @@ namespace LoDCompanion.Services.Player
             {
                 character.HasMadeFirstMoveAction = true;
                 character.ResetMovementPoints(); // Reset movement points if first move action is made
+                character.CurrentAP--; // Deduct 1 AP for finishing the move action
+                if (character.CurrentAP <= 0)
+                {
+                    return $"{character.Name} has no AP left to perform {actionType}.";
+                }
             }
 
             // Execute the action logic
