@@ -7,6 +7,7 @@
 @using LoDCompanion.Models
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Components.Shared
+@using LoDCompanion.Services.GameData
 @implements IDisposable
 
 @inject RoomService RoomService
@@ -191,6 +192,19 @@
             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Move, Target = position }))">
                 Move (@(ActionService.GetActionCost(ActionType.Move)) AP)
             </Item>
+
+            if (activeHero.ProfessionName == "Wizard")
+            {
+                <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                    @foreach (var spell in activeHero.Spells)
+                    {
+                        if (spell.TargetType == SpellTargetType.NoTarget)
+                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
+                            @spell.Name
+                        </Item>
+                    }
+                </SubMenu>
+            } 
         }
 
         @* Action on Self: Check if the clicked square is occupied by the active hero *@
@@ -213,6 +227,18 @@
                     }
                 </SubMenu>
             }
+            if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+            {
+                <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                    @foreach (var spell in activeHero.Spells)
+                    {
+                        if (spell.TargetType == SpellTargetType.Self)
+                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = spell }))">
+                            @spell.Name
+                        </Item>
+                    }
+                </SubMenu>
+            } 
         }
     }
     else if (context.Data is Monster targetMonster)
@@ -276,6 +302,7 @@
                     <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
                         @foreach (var spell in activeHero.Spells)
                         {
+                            if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
                             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
                                 @spell.Name
                             </Item>
@@ -296,12 +323,18 @@
                     Apply Bandage (@(ActionService.GetActionCost(ActionType.HealOther)) AP)
                 </Item>
             }
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+            if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
             {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero }))">
-                    Cast Spell (1 AP)
-                </Item>
-            }
+                <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                    @foreach (var spell in activeHero.Spells)
+                    {
+                        if (spell.TargetType == SpellTargetType.Ally)
+                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero, SecondaryTarget = spell }))">
+                            @spell.Name
+                        </Item>
+                    }
+                </SubMenu>
+            } 
         }
     }
 </ContextMenu>
