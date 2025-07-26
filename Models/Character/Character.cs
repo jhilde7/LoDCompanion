@@ -110,8 +110,10 @@ namespace LoDCompanion.Models.Character
         public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
         public int CurrentAP { get; set; } = 2;
+        public int CurrentMovePoints { get; set; }
         public bool IsLarge { get; set; }
         public bool IsVulnerableAfterPowerAttack { get; set; }
+        public bool HasMadeFirstMoveAction { get; set; }
         public FacingDirection Facing { get; set; } = FacingDirection.North;
         public event Action<Character>? OnDeath;
         public bool CanAct() => this.CurrentAP > 0;
@@ -280,6 +282,17 @@ namespace LoDCompanion.Models.Character
             {
                 this.CurrentAP = 0;
             }
+        }
+
+        public void ResetMovementPoints()
+        {
+            // Reset movement points to the base value defined by the Move stat
+            CurrentMovePoints = GetStat(BasicStat.Move);
+        }
+
+        internal void SpendMovementPoints(int movementPointsSpent)
+        {
+            CurrentMovePoints -= movementPointsSpent;
         }
     }
 
