@@ -249,10 +249,15 @@ namespace LoDCompanion.Services.Player
                             character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
                             availableMovement = character.CurrentMovePoints;
                             resultMessage = moveResult.Message;
-                            if (!character.HasMadeFirstMoveAction && availableMovement <= 0)
+                            if (availableMovement <= 0)
                             {
                                 character.HasMadeFirstMoveAction = true;
                                 character.ResetMovementPoints();
+                            }
+                            else
+                            {
+                                resultMessage = moveResult.Message;
+                                actionWasSuccessful = false; // Don't deduct AP if movement points remain
                             }
                         }
                         else
