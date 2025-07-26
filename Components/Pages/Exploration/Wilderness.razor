@@ -45,7 +45,9 @@
 
         <div class="game-area">
             <GridDisplay Room="QuestService.ActiveEncounterRoom"
-            OnHeroClicked="HandleHeroClick" />
+                        OnHeroClicked="HandleHeroClick" 
+                        OnMonsterClicked="HandleMonsterClick"
+                        OnActionClicked="HandleContextMenuAction" />
         </div>
 
         <div class="combat-ui">
@@ -62,17 +64,6 @@
     }
 </div>
 
-<ContextMenu Id="gridActionsMenu">
-    <Item OnClick="@(args => HandleMoveClicked(args))">Move (1AP)</Item>
-    @* Add other potential actions here *@
-</ContextMenu>
-
-<ContextMenu Id="attackActionsMenu">
-    <Item OnClick="@(args => HandleAttackClicked(args))">Attack (1AP)</Item>
-    <Item OnClick="@(args => HandlePowerAttackClicked(args))">Power Attack (2 AP)</Item>
-    @* Add other potential actions here *@
-</ContextMenu>
-
 @code {
     private enum InputState
     {
@@ -85,6 +76,14 @@
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
 
+    private async Task HandleContextMenuAction(ActionInfo actionInfo)
+    {
+        if (CombatManager.ActiveHero != null)
+        {
+            await CombatManager.HeroPerformsActionAsync(actionInfo.ActionType, actionInfo.Target);
+        }
+    }
+
     private async Task HandleActionButtonClick(ActionType actionType)
     {
         switch (actionType)
@@ -96,45 +95,10 @@
         }
     }
 
-    private async Task HandleAttackClicked(ItemClickEventArgs args)
-    {
-        // The clicked monster is passed in the Data property.
-        if (args.Data is Monster targetMonster)
-        {
-            await CombatManager.HeroPerformsActionAsync(ActionType.StandardAttack, targetMonster);
-        }
-    }
-
-    private async Task HandlePowerAttackClicked(ItemClickEventArgs args)
-    {
-        if (args.Data is Monster target)
-        {
-            await CombatManager.HeroPerformsActionAsync(ActionType.PowerAttack, target);        
-        }
-    }
-
-    private async Task HandleMoveClicked(ItemClickEventArgs args)
-    {
-        // The clicked grid position is passed in the Data property.
-        if (args.Data is GridPosition targetPosition)
-        {
-            await CombatManager.HeroPerformsActionAsync(ActionType.Move, targetPosition);
-        }
-    }
-
 
     private void HandleMonsterClick(Monster monster)
     {
         //TODO: use this to display a box of information about the Monster clicked
-    }
-
-    private async Task HandleGridSquareClick(GridPosition position)
-    {
-        if (_currentInputState == InputState.SelectingDestination)
-        {
-            await CombatManager.HeroPerformsActionAsync(ActionType.Move, position);
-            ResetInputState();
-        }
     }
 
     private void HandleHeroClick(Hero hero)

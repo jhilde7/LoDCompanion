@@ -2,6 +2,7 @@
 @using LoDCompanion.Services.Dungeon
 @using LoDCompanion.Services.Game
 @using LoDCompanion.Services.Combat
+@using LoDCompanion.Services.Player
 @using LoDCompanion.Utilities
 @using LoDCompanion.Models.Character
 @using LoDCompanion.Components.Shared
@@ -11,6 +12,8 @@
 @inject FloatingTextService FloatingTextService
 @inject DiceRollService DiceRollService
 @inject FacingDirectionService FacingService
+@inject CombatManagerService CombatManager
+@inject ActionService ActionService
 
 <style>
     .grid-container {
@@ -114,7 +117,7 @@
             {
                 @foreach (var square in furniture.OccupiedSquares)
                 {
-                    <ContextMenuTrigger MenuId="gridActionsMenu" Data="square" WrapperTag="div" class="grid-background-square"
+                    <ContextMenuTrigger MenuId="universalContextMenu" Data="square" WrapperTag="div" class="grid-background-square"
                         title="@furniture.ToString()" style="@GetSquareStyle(square)">
                     </ContextMenuTrigger>
                 }
@@ -125,7 +128,7 @@
         {
             @foreach (var monster in Room.MonstersInRoom)
             {
-                <ContextMenuTrigger MenuId="attackActionsMenu" Data="monster" WrapperTag="div" class="grid-item monster-item"
+                <ContextMenuTrigger MenuId="universalContextMenu" Data="monster" WrapperTag="div" class="grid-item monster-item"
                     title="@monster.ToString()" style="@GetItemStyle(monster)"
                     @onclick="() => OnMonsterClicked.InvokeAsync(monster)">
                     <div class="facing-arrow" style="@GetFacingStyle(monster.Facing)"></div>
@@ -139,12 +142,12 @@
         {
             @foreach (var hero in Room.HeroesInRoom)
             {
-                <div class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
+                <ContextMenuTrigger MenuId="universalContextMenu" Data="hero" WrapperTag="div" class="grid-item hero-item" title="@hero.ToString()" style="@GetItemStyle(hero)"
                     @onclick="() => OnHeroClicked.InvokeAsync(hero)">
                     <div class="facing-arrow" style="@GetFacingStyle(hero.Facing)"></div>
                     <div class="item-label">@hero.Name</div>
                     <div class="hp-bar" style="width: @(hero.CurrentHP * 100.0 / hero.GetStat(BasicStat.HitPoints))%"></div>
-                </div>
+                </ContextMenuTrigger>
             }
         }
 
@@ -152,10 +155,10 @@
         {
             @foreach (var corpse in Room.CorpsesInRoom)
             {
-                <div class="grid-item corpse-item" title="@corpse.ToString()" style="@GetItemStyle(corpse)"
+                <ContextMenuTrigger MenuId="universalContextMenu" Data="corpse" WrapperTag="div" class="grid-item corpse-item" title="@corpse.ToString()" style="@GetItemStyle(corpse)"
                     @onclick="() => OnCorpseClicked.InvokeAsync(corpse)">
                     <div class="item-label">@corpse.Name</div>
-                </div>
+                </ContextMenuTrigger>
             }
         }
 
@@ -177,6 +180,75 @@
     }
 </div>
 
+<ContextMenu Id="universalContextMenu" TItem="object">
+    @if (context.Data is GridPosition position)
+    {
+        var activeHero = CombatManager.ActiveHero;
+        if (activeHero != null && activeHero.CurrentAP >= 1)
+        {
+            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Move, Target = position }))">
+                Move (@(ActionService.GetActionCost(ActionType.Move)) AP)
+            </Item>
+        }
+
+        @* Action on Self: Check if the clicked square is occupied by the active hero *@
+        if (activeHero != null && activeHero.OccupiedSquares.Any(sq => sq.Equals(position)))
+        {
+            if (activeHero.CurrentAP >= 1)
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Parry }))">
+                    Parry Stance (Ends Turn)
+                </Item>
+            }
+        }
+    }
+    else if (context.Data is Monster targetMonster)
+    {
+        var activeHero = CombatManager.ActiveHero;
+        if (activeHero != null)
+        {
+            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.StandardAttack, Target = targetMonster }))">
+                    Attack (@(ActionService.GetActionCost(ActionType.StandardAttack)) AP)
+                </Item>
+            }
+            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Weapons.Any(w => w.IsMelee))
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.PowerAttack, Target = targetMonster }))">
+                    Power Attack (@(ActionService.GetActionCost(ActionType.PowerAttack)) AP)
+                </Item>
+            }
+            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Shove))
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Shove, Target = targetMonster }))">
+                    Shove (@(ActionService.GetActionCost(ActionType.Shove)) AP)
+                </Item>
+            }
+        }
+    }
+    else if (context.Data is Hero targetHero)
+    {
+        var activeHero = CombatManager.ActiveHero;
+        if (activeHero != null && activeHero != targetHero) // Can't target self with these actions
+        {
+            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.HealOther) && activeHero.Inventory.QuickSlots.Any(i => i?.Name.Contains("Bandage") ?? false))
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.HealOther, Target = targetHero }))">
+                    Apply Bandage (@(ActionService.GetActionCost(ActionType.HealOther)) AP)
+                </Item>
+            }
+            @* Example: Warrior Priest specific action *@
+            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= 1)
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Pray, Target = targetHero }))">
+                    Cast Prayer (1 AP)
+                </Item>
+            }
+        }
+    }
+</ContextMenu>
+
 @code {
     [Parameter]
     public FloatingText Text { get; set; } = new();
@@ -188,6 +260,9 @@
     public EventCallback<Corpse> OnCorpseClicked { get; set; }
     [Parameter]
     public EventCallback<Hero> OnHeroClicked { get; set; }
+    [Parameter] 
+    public EventCallback<ActionInfo> OnActionClicked { get; set; }
+
 
     private Action? _onTextChangedHandler;
     private Action? _onDiceRolledHandler;
