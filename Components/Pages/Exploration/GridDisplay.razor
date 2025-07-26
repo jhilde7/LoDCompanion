@@ -200,6 +200,12 @@
                     Parry Stance (Ends Turn)
                 </Item>
             }
+            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= 0)
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Pray }))">
+                    Pray (0 AP)
+                </Item>
+            }
         }
     }
     else if (context.Data is Monster targetMonster)
@@ -225,6 +231,12 @@
                     Shove (@(ActionService.GetActionCost(ActionType.Shove)) AP)
                 </Item>
             }
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster }))">
+                    Cast Spell (1 AP)
+                </Item>
+            }
         }
     }
     else if (context.Data is Hero targetHero)
@@ -238,11 +250,10 @@
                     Apply Bandage (@(ActionService.GetActionCost(ActionType.HealOther)) AP)
                 </Item>
             }
-            @* Example: Warrior Priest specific action *@
-            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= 1)
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
             {
-                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Pray, Target = targetHero }))">
-                    Cast Prayer (1 AP)
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero }))">
+                    Cast Spell (1 AP)
                 </Item>
             }
         }
