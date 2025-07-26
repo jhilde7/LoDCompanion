@@ -185,11 +185,16 @@ namespace LoDCompanion.Services.Game
                 if (hero.CombatStance != CombatStance.Overwatch)
                 {
                     hero.ResetActionPoints();
+                    hero.HasBeenTargetedThisTurn = false;
+                    hero.HasMadeFirstMoveAction = false;
+                    hero.ResetMovementPoints();
                 }
             }
             foreach (var monster in MonstersInCombat)
-            {
+            {                
                 monster.ResetActionPoints();
+                monster.HasMadeFirstMoveAction = false;
+                monster.ResetMovementPoints();
             }
 
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
