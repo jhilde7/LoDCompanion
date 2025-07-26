@@ -46,6 +46,7 @@ namespace LoDCompanion.Services.Player
         public ActionType ActionType { get; set; }
         public int ApCost { get; set; }
         public object? Target { get; set; }
+        public object? SecondaryTarget { get; set; } // For actions that may require a secondary target, like healing or attacking multiple targets
     }
 
     /// <summary>
