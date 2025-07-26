@@ -238,7 +238,13 @@
                         </Item>
                     }
                 </SubMenu>
-            } 
+            }
+            @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.HealSelf) && activeHero.Inventory.QuickSlots.Any(i => i?.Name.Contains("Bandage") ?? false))
+            {
+                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.HealSelf, Target = activeHero }))">
+                    Apply Bandage (@(ActionService.GetActionCost(ActionType.HealSelf)) AP)
+                </Item>
+            }
         }
     }
     else if (context.Data is Monster targetMonster)
