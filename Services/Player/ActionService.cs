@@ -40,7 +40,8 @@ namespace LoDCompanion.Services.Player
         ReloadWhileMoving,
         Aim,
         Parry,
-        Pray
+        Pray,
+        Focus
     }
 
     public class ActionInfo
@@ -440,14 +441,24 @@ namespace LoDCompanion.Services.Player
                             {
                                 if (options.FocusPoints <= 0)
                                 {
-                                    if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell) && options.FocusPoints <= 0)
+                                    if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell))
                                     {
                                         apCost = 1; // Quick spells cost 1 AP if there is no focus points added
+                                        if(options.FocusPoints >= 1)
+                                        {
+                                            apCost = 2;
+                                            heroCasting.FocusActionRemaining--; // Deduct focus action if used
+                                        }
                                     }
                                     else
                                     {
                                         apCost = 2; // Regular spells cost 2 AP if there is no focus points added
                                     }
+                                }
+
+                                if(heroCasting.CurrentAP >= apCost && spellCastResult.IsSuccess)
+                                {
+
                                 }
                             }
                         }
@@ -458,7 +469,29 @@ namespace LoDCompanion.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case ActionType.Focus:
+                    if (character is Hero caster)
+                    {
+                        if (caster.FocusActionRemaining > 0)
+                        {
+                            caster.FocusActionRemaining--;
+                            caster.CurrentAP -= 1; // Deduct 1 AP for focusing
+                            resultMessage = $"{caster.Name} focuses their mind on casting.";
+                        }
+                        else
+                        {
+                            resultMessage = $"{caster.Name} has no focus actions remaining.";
+                            actionWasSuccessful = false;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
             }
+
 
             if (actionWasSuccessful)
             {
@@ -495,6 +528,7 @@ namespace LoDCompanion.Services.Player
                 ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
+                ActionType.Focus => 1,
                 ActionType.CastSpell => (context is Spell spell && spell.Properties != null && spell.Properties.Contains(SpellProperty.QuickSpell)) ? 1 : 2,
                 _ => 1,
             };
