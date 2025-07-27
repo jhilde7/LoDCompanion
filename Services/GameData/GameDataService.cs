@@ -1506,6 +1506,7 @@ namespace LoDCompanion.Services.GameData
             Mundane,
             Silver,
             Fire,
+            Frost,
             Water,
             Lightning,
             Acid,
