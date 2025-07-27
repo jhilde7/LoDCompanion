@@ -201,17 +201,20 @@
 
             @if (activeHero.ProfessionName == "Wizard")
             {
-                <SubMenu Label="Cast Spell">
-                    @foreach (var spell in activeHero.Spells)
-                    {
-                        @if (spell.TargetType == SpellTargetType.NoTarget)
+                <Item>
+                    <span>Cast Spell</span>
+                    <SubMenu Label="Cast Spell">
+                        @foreach (var spell in activeHero.Spells)
                         {
-                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
-                            @spell.Name
-                            </Item>
+                            @if (spell.TargetType == SpellTargetType.NoTarget)
+                            {
+                                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
+                                @spell.Name
+                                </Item>
+                            }
                         }
-                    }
-                </SubMenu>
+                    </SubMenu>
+				</Item>
             } 
         }
     }
@@ -270,19 +273,22 @@
                     }
                 }
 
-                @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+                if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 && activeHero.Spells.Any())
                 {
-                    <SubMenu Label="Cast Spell">
-                        @foreach (var spell in activeHero.Spells)
-                        {
-                            @if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+                    <Item>
+                        <span>Cast Spell</span>
+                        <SubMenu Label="Cast Spell">
+                            @foreach (var spell in activeHero.Spells)
                             {
-                                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
-                                @spell.Name
-                                </Item>
+                                @if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+                                {
+                                    <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
+                                    @spell.Name
+                                    </Item>
+                                }
                             }
-                        }
-                    </SubMenu>
+                        </SubMenu>
+					</Item>
                 }                
             }
         }
@@ -290,7 +296,7 @@
     else if (context.Data is Hero targetHero)
     {
         var activeHero = CombatManager.ActiveHero;
-        @if (activeHero != null)
+        @if (activeHero != null && activeHero == targetHero)
         {
             @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Parry))
             {
@@ -299,31 +305,37 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray))
+            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray) && activeHero.Prayers.Any())
             {
-                <SubMenu Label="Pray">
-                    @foreach (var prayer in activeHero.Prayers)
-                    {
-                        <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = prayer }))">
-                            @prayer.Name
-                        </Item>
-                    }
-                </SubMenu>
-            }
-
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
-            {
-                <SubMenu Label="Cast Spell">
-                    @foreach (var spell in activeHero.Spells)
-                    {
-                        @if (spell.TargetType == SpellTargetType.Self)
+                <Item>
+                    <span>Pray</span>
+                    <SubMenu Label="Pray">
+                        @foreach (var prayer in activeHero.Prayers)
                         {
-                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = spell }))">
-                                @spell.Name
+                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = prayer }))">
+                                @prayer.Name
                             </Item>
                         }
-                    }
-                </SubMenu>
+                    </SubMenu>
+				</Item>
+            }
+
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 && activeHero.Spells.Any())
+            {
+                <Item>
+                    <span>Cast Spell</span>
+                    <SubMenu Label="Cast Spell">
+                        @foreach (var spell in activeHero.Spells)
+                        {
+                            @if (spell.TargetType == SpellTargetType.Self || spell.TargetType == SpellTargetType.Ally)
+                            {
+                                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = spell }))">
+                                    @spell.Name
+                                </Item>
+                            }
+                        }
+                    </SubMenu>
+				</Item>
             }
 
             @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.HealSelf) && activeHero.Inventory.QuickSlots.Any(i => i?.Name.Contains("Bandage") ?? false))
@@ -343,19 +355,22 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 && activeHero.Spells.Any())
             {
-                <SubMenu Label="Cast Spell">
-                    @foreach (var spell in activeHero.Spells)
-                    {
-                        @if (spell.TargetType == SpellTargetType.Ally)
+                <Item>
+                    <span>Cast Spell</span>
+                    <SubMenu Label="Cast Spell">
+                        @foreach (var spell in activeHero.Spells)
                         {
-                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero, SecondaryTarget = spell }))">
-                            @spell.Name
-                            </Item>
+                            @if (spell.TargetType == SpellTargetType.Ally)
+                            {
+                                <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero, SecondaryTarget = spell }))">
+                                @spell.Name
+                                </Item>
+                            }
                         }
-                    }
-                </SubMenu>
+                    </SubMenu>
+                </Item>
             } 
         }
     }
