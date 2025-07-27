@@ -201,13 +201,15 @@
 
             if (activeHero.ProfessionName == "Wizard")
             {
-                <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                <SubMenu Label="Cast Spell">
                     @foreach (var spell in activeHero.Spells)
                     {
                         if (spell.TargetType == SpellTargetType.NoTarget)
+                        {
                             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
-                                @spell.Name
+                            @spell.Name
                             </Item>
+                        }
                     }
                 </SubMenu>
             } 
@@ -224,7 +226,7 @@
             }
             if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray))
             {
-                <SubMenu Label="Pray (@(ActionService.GetActionCost(ActionType.Pray)) AP)">
+                <SubMenu Label="Pray">
                     @foreach (var prayer in activeHero.Prayers)
                     {
                         <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = prayer }))">
@@ -235,13 +237,15 @@
             }
             if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
             {
-                <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                <SubMenu Label="Cast Spell">
                     @foreach (var spell in activeHero.Spells)
                     {
                         if (spell.TargetType == SpellTargetType.Self)
+                        {
                             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = spell }))">
-                                @spell.Name
+                            @spell.Name
                             </Item>
+                        }
                     }
                 </SubMenu>
             }
@@ -311,13 +315,15 @@
 
                 if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
                 {
-                    <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                    <SubMenu Label="Cast Spell">
                         @foreach (var spell in activeHero.Spells)
                         {
                             if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+                            {
                                 <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
-                                    @spell.Name
+                                @spell.Name
                                 </Item>
+                            }
                         }
                     </SubMenu>
                 }                
@@ -337,13 +343,15 @@
             }
             if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1)
             {
-                <SubMenu Label="Cast Spell (@(ActionService.GetActionCost(ActionType.CastSpell)) AP)">
+                <SubMenu Label="Cast Spell">
                     @foreach (var spell in activeHero.Spells)
                     {
                         if (spell.TargetType == SpellTargetType.Ally)
+                        {
                             <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero, SecondaryTarget = spell }))">
-                                @spell.Name
+                            @spell.Name
                             </Item>
+                        }
                     }
                 </SubMenu>
             } 
