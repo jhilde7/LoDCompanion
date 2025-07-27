@@ -440,9 +440,9 @@ namespace LoDCompanion.Services.Player
                             {
                                 if (options.FocusPoints <= 0)
                                 {
-                                    if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell))
+                                    if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell) && options.FocusPoints <= 0)
                                     {
-                                        apCost = 1; // Quick spells cost 1 AP
+                                        apCost = 1; // Quick spells cost 1 AP if there is no focus points added
                                     }
                                     else
                                     {
