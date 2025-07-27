@@ -85,7 +85,7 @@
     private bool IsPowerCastable => CurrentSpell.School is MagicSchool.Destruction or MagicSchool.Restoration;
     private int MaxPowerLevels => Math.Min(5, Caster.GetStat(BasicStat.Level));
 
-    private int APCost => (CurrentSpell.Properties != null && CurrentSpell.Properties.Contains(SpellProperty.QuickSpell)) ? 1 : 2 + _focusPoints; // 1 AP base for casting + focus
+    private int APCost => (CurrentSpell.Properties != null && CurrentSpell.Properties.Contains(SpellProperty.QuickSpell)) ? 1 + _focusPoints : 2 + _focusPoints; // 1 AP base for casting + focus
     private int ManaCost => CurrentSpell.ManaCost + (_powerLevels * 2);
     private int SuccessChance => Math.Max(0, Math.Min(100, Caster.GetSkill(Skill.ArcaneArts) - CurrentSpell.CastingValue + (_focusPoints * 10)));
     private int MiscastChance => Math.Max(0, 6 + (_focusPoints * 5) + (_powerLevels * 2)); // 95-100 is a 6% chance (95,96,97,98,99,100)
