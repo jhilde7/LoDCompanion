@@ -427,26 +427,28 @@ namespace LoDCompanion.Services.Player
                             resultMessage = $"{heroCasting.Name} decided not to cast the spell.";
                             actionWasSuccessful = false;
                         }
-
-                        SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(heroCasting, _diceRoll, options.FocusPoints, options.PowerLevels);
-                        resultMessage = spellCastResult.OutcomeMessage;
-
-                        if(spellCastResult.ManaSpent <= 0)
-                        {
-                            actionWasSuccessful = false;
-                        }
                         else
                         {
-                            if (options.FocusPoints <= 0)
+                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(heroCasting, _diceRoll, options.FocusPoints, options.PowerLevels);
+                            resultMessage = spellCastResult.OutcomeMessage;
+
+                            if (spellCastResult.ManaSpent <= 0)
                             {
-                                if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell))
+                                actionWasSuccessful = false;
+                            }
+                            else
+                            {
+                                if (options.FocusPoints <= 0)
                                 {
-                                    apCost = 1; // Quick spells cost 1 AP
+                                    if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell))
+                                    {
+                                        apCost = 1; // Quick spells cost 1 AP
+                                    }
+                                    else
+                                    {
+                                        apCost = 2; // Regular spells cost 2 AP if there is no focus points added
+                                    }
                                 }
-                                else
-                                {
-                                    apCost = 2; // Regular spells cost 2 AP if there is no focus points added
-                                } 
                             }
                         }
                     }
