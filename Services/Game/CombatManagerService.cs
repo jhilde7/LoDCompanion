@@ -460,11 +460,11 @@ namespace LoDCompanion.Services.Game
         }
 
         // This method would be called by the UI when the player selects an action.
-        public async Task HeroPerformsActionAsync(ActionType action, object? target = null)
+        public async Task HeroPerformsActionAsync(ActionType action, object? target = null, object? secondaryTarget = null)
         {
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
-                CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target));
+                CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget));
 
                 OnCombatStateChanged?.Invoke();
 

@@ -80,7 +80,7 @@
     {
         if (CombatManager.ActiveHero != null)
         {
-            await CombatManager.HeroPerformsActionAsync(actionInfo.ActionType, actionInfo.Target);
+            await CombatManager.HeroPerformsActionAsync(actionInfo.ActionType, actionInfo.Target, actionInfo.SecondaryTarget);
         }
     }
 
