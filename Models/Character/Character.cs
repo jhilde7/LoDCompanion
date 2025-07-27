@@ -331,6 +331,7 @@ namespace LoDCompanion.Models.Character
         public Dictionary<ArmourProperty, int> ArmourDefValues => GetDefValues();
 
         public List<Spell> Spells { get; set; } = new List<Spell>();
+        public int FocusActionRemaining { get; set; }
         public List<Prayer> Prayers { get; set; } = new List<Prayer>();
         public int Coins { get; set; } = 150;
 
