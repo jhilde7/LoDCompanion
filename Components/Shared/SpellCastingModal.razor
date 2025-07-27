@@ -98,7 +98,7 @@
     private void AdjustFocus(int amount)
     {
         _focusPoints += amount;
-        _focusPoints = Math.Clamp(_focusPoints, 0, MaxFocusPoints);
+        _focusPoints = Math.Clamp(_focusPoints, 0, 999);
     }
 
     private void AdjustPower(int amount)
