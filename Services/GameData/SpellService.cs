@@ -79,13 +79,6 @@ namespace LoDCompanion.Services.GameData
         Ally,
         NoTarget      // A global effect like Gust of Wind
     }
-    public class SpellCastResult
-    {
-        public bool IsSuccess { get; set; }
-        public bool IsMiscast { get; set; }
-        public int ManaSpent { get; set; }
-        public string OutcomeMessage { get; set; } = string.Empty;
-    }
 
     public static class SpellService
     {
