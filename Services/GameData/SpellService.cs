@@ -208,6 +208,7 @@ namespace LoDCompanion.Services.GameData
                         Level = 1,
                         CastingValue = 7,
                         ManaCost = 8,
+                        StatusEffect = StatusEffectType.FakeDeath,
                         School = MagicSchool.Necromancy,
                         TargetType = SpellTargetType.Self,
                         SpellEffect = "Causes the caster to fall to the ground, appearing dead to all around. Enemies will not target the caster for the rest of the battle. The caster may do nothing until the end of the battle."
@@ -239,6 +240,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.AddCasterLvlToDuration, 1 },
                             { SpellProperty.ReduceRangeSkill, 15 }
                         },
+                        StatusEffect = StatusEffectType.GustOfWind,
                         School = MagicSchool.Alteration,
                         TargetType = SpellTargetType.Self,
                         SpellEffect = "Suddenly a powerful wind blows through the dungeon, making arrows fly astray. All Missile Weapons now have a -15 modifier to hit if the arrows pass the room the Wizard is in. The wind lasts for Caster level turns. Upkeep is 1 point of Mana."
@@ -305,6 +307,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.LOS, 0 },
                             { SpellProperty.MaxCasterLvl, 3 }
                         },
+                        StatusEffect = StatusEffectType.ProtectiveShield,
                         School = MagicSchool.Mysticism,
                         TargetType = SpellTargetType.Ally,
                         SpellEffect = "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn."
@@ -318,6 +321,7 @@ namespace LoDCompanion.Services.GameData
                         {
                             { SpellProperty.TurnDuration, 1 },
                         },
+                        StatusEffect = StatusEffectType.Prone,
                         School = MagicSchool.Hex,
                         SpellEffect = "Causes the target to slip and fall. The target will remain prone until its next action when it will spend its first turn standing up."
                     },
@@ -335,6 +339,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceMaxValue, 4},
                             { SpellProperty.LOS, 0 }
                         },
+                        StatusEffect = StatusEffectType.Blur,
                         School = MagicSchool.Illusion,
                         TargetType = SpellTargetType.Ally,
                         SpellEffect = "May target self or hero in LOS. Target becomes blurry and any attacks against the target is at -15. The effect lasts for 1d4 turns."
@@ -388,6 +393,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount, 1 }, 
                             { SpellProperty.DiceMaxValue, 3 }
                         },
+                        StatusEffect = StatusEffectType.SealDoor,
                         School = MagicSchool.Alteration,
                         SpellEffect = "The Spell Caster can magically seal a door. Any monster outside trying to pass through will take 1d3 turns in doing so. Doors that have been broken down cannot be sealed. This can be cast on any door, even if there are monsters present. It can only be cast once per door."
                     },
@@ -401,6 +407,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.TurnDuration, 1 },
                             { SpellProperty.ResolveTest, 0 },
                         },
+                        StatusEffect = StatusEffectType.Silence,
                         School = MagicSchool.Hex,
                         SpellEffect = "The spell can be cast on an enemy Magic Caster. If the spell is successfully cast, the target must make a RES test when casting a spell. A failure means that the target cannot cast magic that turn, but may otherwise act as normal. Making this test does not cost an AP. If successful, the target may cast the spell as planned and the spell ceases to have any effect."
                     },
@@ -418,11 +425,13 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.StatBonus, 10 },
                             { SpellProperty.LOS, 0 }
                         },
+                        StatusEffect = StatusEffectType.StrengthenBody,
                         School = MagicSchool.Mysticism,
                         TargetType = SpellTargetType.Ally,
                         SpellEffect = "Caster may strengthen a hero in LOS with +10 in either STR or CON. The spell lasts for 1d6 turns."
                     },
                     new Spell(){
+                        // TODO: demon acts as part of caster turn and shares AP with the caster
                         Name = "Summon Lesser Demon",
                         Level = 2,
                         CastingValue = 15,
@@ -447,6 +456,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.LOS, 0 },
                             { SpellProperty.ResolveTest, 0 }
                         },
+                        StatusEffect = StatusEffectType.Confuse,
                         School = MagicSchool.Illusion,
                         SpellEffect = "If successfully cast at a target in LOS, the target must pass RES or be unable to use that action. If the target fails, it may try again for Action Point number 2. Once it succeeds, the effect of the spell is gone."
                     },
@@ -462,6 +472,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.LOS, 0 },
                             { SpellProperty.TurnDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.ControlUndead,
                         School = MagicSchool.Necromancy,
                         SpellEffect = "The caster may try to take control of a lower undead in LOS. If the caster succeeds with the RES+Caster Level test, the wizard may control the Undead until next turn. It still retains its monster activation token. Make Resolve test every time you activate the creature. As long as the test succeeds, the caster may control the Undead creature. There is no upkeep since the Undead has been brought back by something else than the caster's magic."
                     },
@@ -479,6 +490,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount, 1 },
                             { SpellProperty.DiceMaxValue, 3 }
                         },
+                        StatusEffect = StatusEffectType.Corruption,
                         School = MagicSchool.Necromancy,
                         SpellEffect = "A storm of flies soars from the gaping mouth of the caster, surrounding the target. The cloud of flies will make it harder for the enemy to fight by reducing its CS by 10. The spell lasts for 1d3 turns."
                     },
@@ -562,6 +574,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.AddCasterLvlToDuration, 1 },
                             { SpellProperty.LOS, 0 }
                         },
+                        StatusEffect = StatusEffectType.MagicArmour,
                         School = MagicSchool.Mysticism,
                         TargetType = SpellTargetType.Ally,
                         SpellEffect = "The caster may bolster the armour of any target within LOS with +2 for all parts of the body. The spell lasts for Caster Level+2 turns."
@@ -609,6 +622,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.Upkeep, 5 },
                             { SpellProperty.AddCasterLvlToDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
                         TargetType = SpellTargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
@@ -624,6 +638,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.Upkeep, 5 },
                             { SpellProperty.AddCasterLvlToDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
                         TargetType = SpellTargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
@@ -654,6 +669,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.RerollFear, 1 },
                             { SpellProperty.TurnDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.BolsteredMind,
                         School = MagicSchool.Mysticism,
                         TargetType = SpellTargetType.Self,
                         SpellEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
@@ -744,6 +760,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.Upkeep, 5 },
                             { SpellProperty.AddCasterLvlToDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
                         TargetType = SpellTargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for ML number of turns. Immediately add one hero initiative token to the bag."
@@ -759,6 +776,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.Upkeep, 5 },
                             { SpellProperty.AddCasterLvlToDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
                         TargetType = SpellTargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster level number of turns. Immediately add one hero initiative token to the bag."
@@ -804,6 +822,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount, 1 },
                             { SpellProperty.DiceMaxValue, 4 }
                         },
+                        StatusEffect = StatusEffectType.Weakness,
                         School = MagicSchool.Hex,
                         SpellEffect = "The caster can choose to lower the Strength or Constitution of a chosen target if the target fails a Resolve Test. If the target fails, it loses its NA armour or DMG bonus for 1d4 turns, depending on what the wizard chooses."
                     },
@@ -817,6 +836,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.ResolveTest, 0 },
                             { SpellProperty.TurnDuration, 1 }
                         },
+                        StatusEffect = StatusEffectType.CauseAnimosity,
                         School = MagicSchool.Illusion,
                         SpellEffect = "May target any enemy in sight. Target must pass RES or attack the closest enemy during its next activation. Once that activation is over, the effect is gone."
                     },
@@ -853,6 +873,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount2, 1 },
                             { SpellProperty.DiceMaxValue2, 6 }
                         },
+                        StatusEffect = StatusEffectType.Summoned,
                         DamageType = DamageType.Fire,
                         School = MagicSchool.Destruction,
                         SpellEffect = "This spell creates a Fire Wall, up to 3 squares long. It may only be placed in a straight line and not in a square that contains an enemy. All except lower Undead and Fire Elementals will avoid or try to walk around. Spell lasts for 1d4+1 turns. Any Lower Undead walking through takes 1d6 Fire DMG. Fire Elementals are immune."
@@ -884,6 +905,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount, 1 },
                             { SpellProperty.DiceMaxValue, 4 },
                         },
+                        StatusEffect = StatusEffectType.MirroredSelf,
                         School = MagicSchool.Illusion,
                         TargetType = SpellTargetType.Self,
                         SpellEffect = "The caster makes a copy of herself which may be placed anywhere within 4 squares of the caster. Enemies will treat this mirrored image as a target just like any other hero, even though it cannot take DMG. The mirrored self cannot move or attack. It will last for 1d4 turns."
@@ -988,6 +1010,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount2, 1 },
                             { SpellProperty.DiceMaxValue2, 6 },
                         },
+                        StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
                         TargetType = SpellTargetType.NoTarget,
                         SpellEffect = "The caster draws a demon from its dimension to do his biddings. The demon is placed in a random place on the same tile as the wizard and fights for the caster for 1d3+Caster Level turns. Once in our plane, the demon will relish fighting, so no upkeep is needed. However, making a pact with a Greater Demon comes at a price, no matter how skilled a wizard you may be. Deduct 1d6 Sanity Points from the caster."
