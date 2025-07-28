@@ -16,17 +16,20 @@ namespace LoDCompanion.Services.Game
         private readonly DungeonState _dungeon;
         private readonly AttackService _attack;
         private readonly ActionService _action;
+        private readonly SpellResolutionService _spell;
 
         public MonsterAIService(
             MonsterSpecialService monsterSpecialService,
             DungeonState dungeon,
             AttackService attackService,
-            ActionService actionService)
+            ActionService actionService,
+            SpellResolutionService spell)
         {
             _monsterSpecial = monsterSpecialService;
             _dungeon = dungeon;
             _attack = attackService;
             _action = actionService;
+            _spell = spell;
         }
 
         /// <summary>
@@ -297,7 +300,8 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            return spell.CastSpell(monster, targetPosition, _dungeon);
+                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
                     default: 
@@ -315,7 +319,8 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            return spell.CastSpell(monster, targetPosition, _dungeon);
+                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
                     default:
@@ -324,7 +329,8 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            return spell.CastSpell(monster, targetPosition, _dungeon);
+                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
                 }
@@ -343,7 +349,8 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            return spell.CastSpell(monster, targetPosition, _dungeon);
+                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
                 }
