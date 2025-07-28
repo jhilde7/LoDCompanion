@@ -71,7 +71,7 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             // Perform the Threat Level roll (d20).
-            int threatRoll = RandomHelper.RollDie("D20");
+            int threatRoll = RandomHelper.RollDie(DiceType.D20);
             Console.WriteLine($"Threat Roll: {threatRoll} (Current Threat: {dungeonState.ThreatLevel})");
 
             if (threatRoll == 20)
@@ -118,7 +118,7 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         private ThreatEventResult ResolveOutOfBattleEvent()
         {
-            int roll = RandomHelper.RollDie("D20");
+            int roll = RandomHelper.RollDie(DiceType.D20);
             var result = new ThreatEventResult();
 
             switch (roll)

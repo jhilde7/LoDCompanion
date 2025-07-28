@@ -85,7 +85,7 @@ namespace LoDCompanion.Services.Dungeon
             }
             else // Red Lever
             {
-                int roll = RandomHelper.RollDie("D20");
+                int roll = RandomHelper.RollDie(DiceType.D20);
                 switch (roll)
                 {
                     case int n when n >= 1 && n <= 11:
