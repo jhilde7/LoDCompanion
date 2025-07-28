@@ -23,12 +23,12 @@ namespace LoDCompanion.Services.Player
     public class SpellCastingService
     {
         public event Action? OnCastingRequestChanged;
-        public SpellCastingRequest? CurrentRequest { get; private set; }
+        public SpellCastingRequest? CurrentDiceRequest { get; private set; }
         private TaskCompletionSource<SpellCastingResult>? _tcs;
 
         public Task<SpellCastingResult> RequestCastingOptionsAsync(Hero hero, Spell spell)
         {
-            CurrentRequest = new SpellCastingRequest { Caster = hero, Spell = spell };
+            CurrentDiceRequest = new SpellCastingRequest { Caster = hero, Spell = spell };
             _tcs = new TaskCompletionSource<SpellCastingResult>();
             OnCastingRequestChanged?.Invoke();
             return _tcs.Task;
@@ -37,7 +37,7 @@ namespace LoDCompanion.Services.Player
         public void CompleteSelection(SpellCastingResult result)
         {
             _tcs?.SetResult(result);
-            CurrentRequest = null;
+            CurrentDiceRequest = null;
             OnCastingRequestChanged?.Invoke();
         }
     }

@@ -7,14 +7,14 @@
 
 @inject SpellCastingService SpellCastingService
 
-@if (SpellCastingService.CurrentRequest != null)
+@if (SpellCastingService.CurrentDiceRequest != null)
 {
     <div class="modal-backdrop show"></div>
     <div class="modal show" tabindex="-1" style="display: block;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@SpellCastingService.CurrentRequest.Prompt</h5>
+                    <h5 class="modal-title">@SpellCastingService.CurrentDiceRequest.Prompt</h5>
                 </div>
                 <div class="modal-body">
                     <p><strong>Spell:</strong> @CurrentSpell.Name (CV: @CurrentSpell.CastingValue, Mana: @ManaCost)</p>
@@ -79,8 +79,8 @@
     private int _focusPoints = 0;
     private int _powerLevels = 0;
 
-    private Hero Caster => SpellCastingService.CurrentRequest!.Caster;
-    private Spell CurrentSpell => SpellCastingService.CurrentRequest!.Spell;
+    private Hero Caster => SpellCastingService.CurrentDiceRequest!.Caster;
+    private Spell CurrentSpell => SpellCastingService.CurrentDiceRequest!.Spell;
 
     private bool IsPowerCastable => CurrentSpell.School is MagicSchool.Destruction or MagicSchool.Restoration;
     private int MaxPowerLevels => Math.Min(5, Caster.GetStat(BasicStat.Level));

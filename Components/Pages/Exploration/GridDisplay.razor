@@ -177,14 +177,14 @@
         {
             <DiceRollModal />
         }
-        @if (FacingService.CurrentRequest != null)
+        @if (FacingService.CurrentDiceRequest != null)
         {
             <FacingSelectionModal />
         }
     }
 </div>
 
-@if (SpellCastingService.CurrentRequest != null)
+@if (SpellCastingService.CurrentDiceRequest != null)
 {
     <SpellCastingModal />
 }

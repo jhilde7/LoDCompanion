@@ -57,12 +57,12 @@
     }
 </style>
 
-@if (DiceRollService.CurrentRequest != null)
+@if (DiceRollService.CurrentDiceRequest != null)
 {
     <div class="modal-backdrop">
         <div class="modal-content">
-            <h3>@DiceRollService.CurrentRequest.Prompt</h3>
-            <p>Dice: @DiceRollService.CurrentRequest.DiceNotation</p>
+            <h3>@DiceRollService.CurrentDiceRequest.Prompt</h3>
+            <p>Dice: @DiceRollService.CurrentDiceRequest.DiceNotation</p>
 
             <div class="manual-entry">
                 <label for="manualRoll">Enter Roll Result:</label>
@@ -90,7 +90,7 @@
 
     private void SubmitAutoRoll()
     {
-        var result = RandomHelper.RollDice(DiceRollService.CurrentRequest?.DiceNotation ?? "1d100");
+        var result = RandomHelper.RollDice(DiceRollService.CurrentDiceRequest?.DiceNotation ?? "1d100");
         DiceRollService.CompleteRoll(result);
     }
 }

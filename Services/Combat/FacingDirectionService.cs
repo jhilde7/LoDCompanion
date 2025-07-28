@@ -11,12 +11,12 @@ namespace LoDCompanion.Services.Combat
     public class FacingDirectionService
     {
         public event Action? OnFacingRequestChanged;
-        public FacingDirectionRequest? CurrentRequest { get; private set; }
+        public FacingDirectionRequest? CurrentDiceRequest { get; private set; }
         private TaskCompletionSource<FacingDirection>? _tcs;
 
         public Task<FacingDirection> RequestFacingDirectionAsync(Hero hero)
         {
-            CurrentRequest = new FacingDirectionRequest { Hero = hero };
+            CurrentDiceRequest = new FacingDirectionRequest { Hero = hero };
             _tcs = new TaskCompletionSource<FacingDirection>();
 
             OnFacingRequestChanged?.Invoke();
@@ -27,7 +27,7 @@ namespace LoDCompanion.Services.Combat
         public void CompleteSelection(FacingDirection direction)
         {
             _tcs?.SetResult(direction);
-            CurrentRequest = null;
+            CurrentDiceRequest = null;
             OnFacingRequestChanged?.Invoke();
         }
     }
