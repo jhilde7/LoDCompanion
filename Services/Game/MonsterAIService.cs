@@ -300,7 +300,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            var result = await _spell.ResolveMonsterSpell(monster, spell, targetPosition);
                             return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
@@ -319,7 +319,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            var result = await _spell.ResolveMonsterSpell(monster, spell, targetPosition);
                             return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
@@ -329,7 +329,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            var result = await _spell.ResolveMonsterSpell(monster, spell, targetPosition);
                             return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
@@ -349,7 +349,7 @@ namespace LoDCompanion.Services.Game
                         {
                             MonsterSpell spell = spellChoice.FirstOrDefault().Key;
                             GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                            var result = await _spell.ResolveMonsterSpell(monster, spell, targetPosition);
                             return result.OutcomeMessage;
                         }
                         return $"{monster.Name} considers its next move.";
