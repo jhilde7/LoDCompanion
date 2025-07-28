@@ -782,7 +782,7 @@ namespace LoDCompanion.Services.Game
 
                     // --- BUFF & DEBUFF SPELLS ---
                     case AiTargetHints.BuffHighestCombatSkillAlly:
-                        var allyToBuff = allies.Where(a => !a.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Frenzy)))
+                        var allyToBuff = allies.Where(a => a.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Frenzy) != null)
                                                .OrderByDescending(a => a.GetSkill(Skill.CombatSkill)).FirstOrDefault();
                         if (allyToBuff != null)
                         {
@@ -791,7 +791,7 @@ namespace LoDCompanion.Services.Game
                         break;
 
                     case AiTargetHints.BuffLowestArmourAlly:
-                        var allyToShield = allies.Where(a => !a.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Shield)))
+                        var allyToShield = allies.Where(a => a.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Shield) != null)
                                                  .OrderBy(a => a.ArmourValue).FirstOrDefault();
                         if (allyToShield != null)
                         {
