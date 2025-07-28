@@ -412,25 +412,6 @@ namespace LoDCompanion.Services.GameData
                         SpellEffect = "The spell can be cast on an enemy Magic Caster. If the spell is successfully cast, the target must make a RES test when casting a spell. A failure means that the target cannot cast magic that turn, but may otherwise act as normal. Making this test does not cost an AP. If successful, the target may cast the spell as planned and the spell ceases to have any effect."
                     },
                     new Spell(){
-                        Name = "Strengthen Body",
-                        Level = 2,
-                        CastingValue = 10,
-                        ManaCost = 8,
-                        Properties = new Dictionary<SpellProperty, int>()
-                        {
-                            { SpellProperty.Upkeep, 1 },
-                            { SpellProperty.TurnDuration, 0 },
-                            { SpellProperty.DiceCount, 1 },
-                            { SpellProperty.DiceMaxValue, 6 },
-                            { SpellProperty.StatBonus, 10 },
-                            { SpellProperty.LOS, 0 }
-                        },
-                        StatusEffect = StatusEffectType.StrengthenBody,
-                        School = MagicSchool.Mysticism,
-                        TargetType = SpellTargetType.Ally,
-                        SpellEffect = "Caster may strengthen a hero in LOS with +10 in either STR or CON. The spell lasts for 1d6 turns."
-                    },
-                    new Spell(){
                         // TODO: demon acts as part of caster turn and shares AP with the caster
                         Name = "Summon Lesser Demon",
                         Level = 2,
@@ -1318,7 +1299,7 @@ namespace LoDCompanion.Services.GameData
                 case "Blind":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(
-                        target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Blind)); // Blinded for its next turn
+                        target, new ActiveStatusEffect(StatusEffectType.Blind, 1)); // Blinded for its next turn
                     return $"{caster.Name} blinds {target.Name}! They are disoriented and cannot fight effectively.";
                 case "Flare":
                     if (target == null) break;
@@ -1353,16 +1334,16 @@ namespace LoDCompanion.Services.GameData
                     damage = RandomHelper.RollDie(DiceType.D8);
                     //TODO: ProcessSpellDamage(damage);
                     StatusEffectService.AttemptToApplyStatus(
-                        target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned));
+                        target, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
                     return $"{caster.Name}'s Frost Ray hits {target.Name} for {damage} damage, stunning them.";
                 case "Gust of wind":
                     // This is a global debuff originating from the caster.
-                    StatusEffectService.AttemptToApplyStatus(caster, StatusEffectService.GetStatusEffectByType(StatusEffectType.GustOfWindAura));
+                    StatusEffectService.AttemptToApplyStatus(caster, new ActiveStatusEffect(StatusEffectType.GustOfWindAura, -1));
                     return $"{caster.Name} summons a howling gust of wind, making ranged attacks difficult!";
                 case "Slow":
                     if (target == null) break;
                     StatusEffectService.AttemptToApplyStatus(
-                        target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Slow));
+                        target, new ActiveStatusEffect(StatusEffectType.Slow, 1));
                     return $"{caster.Name} slows {target.Name}, halving their movement.";
 
                 // --- CLOSE COMBAT SPELLS ---
@@ -1401,12 +1382,12 @@ namespace LoDCompanion.Services.GameData
                     break;
                 case "Seduce":
                     if (target == null) break;
-                    StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Seduce));
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Seduce, -1));
                     return $"{caster.Name} seduces {target.Name}, turning them against their allies!";
 
                 case "Stun":
                     if (target == null) break;
-                    StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned));
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
                     return $"{caster.Name} touches {target.Name}, stunning them with a jolt of energy.";
 
                 case "Teleportation":
@@ -1430,7 +1411,7 @@ namespace LoDCompanion.Services.GameData
                 // --- SUPPORT SPELLS ---
                 case "Frenzy":
                     if (target == null) break;
-                    StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Frenzy));
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Frenzy, -1));
                     return $"{caster.Name} enchants {target.Name}, who flies into a frenzy!";
 
                 case "Healing":
@@ -1446,7 +1427,7 @@ namespace LoDCompanion.Services.GameData
                     return $"{caster.Name} lays a healing hand on {target.Name}, recovering {healAmount} HP.";
 
                 case "Mute":
-                    StatusEffectService.AttemptToApplyStatus(caster, StatusEffectService.GetStatusEffectByType(StatusEffectType.MuteAura));
+                    StatusEffectService.AttemptToApplyStatus(caster, new ActiveStatusEffect(StatusEffectType.MuteAura, -1));
                     return $"{caster.Name} casts a field of silence, making other spells harder to cast.";
 
                 case "Raise dead":
@@ -1470,7 +1451,7 @@ namespace LoDCompanion.Services.GameData
 
                 case "Shield":
                     if (target == null) break;
-                    StatusEffectService.AttemptToApplyStatus(target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Shield));
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Shield, -1));
                     return $"{caster.Name} conjures a magical shield around {target.Name}, granting +2 Armour.";
 
                 case "Summon demon":
