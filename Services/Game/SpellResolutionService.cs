@@ -44,41 +44,61 @@ namespace LoDCompanion.Services.Game
         /// The main entry point to resolve any successfully cast spell.
         /// It routes the spell to the correct handler based on its properties.
         /// </summary>
-        public async Task<SpellCastResult> ResolveSpellAsync(Hero caster, Spell spell, Character initialTarget, SpellCastingResult options)
+        public async Task<SpellCastResult> ResolveSpellAsync(Hero caster, Spell spell, object initialTarget, SpellCastingResult options)
         {
-            var result = new SpellCastResult { IsSuccess = true };
+            var (centerPosition, singleTarget) = GetSpellTargetingInfo(initialTarget);
 
             // Handle Touch Spells first, as they require a to-hit roll
             if (spell.HasProperty(SpellProperty.Touch))
             {
-                int touchAttackRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100");
-                if (touchAttackRoll > caster.GetSkill(Skill.CombatSkill) + 20)
+                if (singleTarget != null)
                 {
-                    result.OutcomeMessage = $"{caster.Name}'s touch spell misses {initialTarget.Name}.";
-                    return result;
+                    int touchAttackRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100");
+                    if (touchAttackRoll > caster.GetSkill(Skill.CombatSkill) + 20)
+                    {
+                        return new SpellCastResult
+                        {
+                            IsSuccess = true,
+                            OutcomeMessage = $"{caster.Name}'s touch spell misses {singleTarget.Name}."
+                        };
+                    }
+                }
+                else
+                {
+                    return new SpellCastResult { IsSuccess = false, OutcomeMessage = "Invalid target for spell." };
                 }
             }
 
             // Route to specific handlers
-            if (spell.School == MagicSchool.Restoration)
+            if (spell.School == MagicSchool.Restoration && singleTarget != null)
             {
-                return await HandleHealingSpellAsync(caster, spell, initialTarget, options);
+                return await HandleHealingSpellAsync(caster, spell, singleTarget, options);
             }
             if (spell.School == MagicSchool.Destruction)
             {
                 return await HandleDamageSpellAsync(caster, spell, initialTarget, options);
             }
-            if (spell.School == MagicSchool.Conjuration)
+            if (spell.School == MagicSchool.Conjuration && centerPosition != null)
             {
-                return await HandleSummoningSpellAsync(caster, spell);
+                return HandleSummoningSpell(caster, centerPosition, spell);
             }
             // All other schools fall under "Utility" which includes buffs, debuffs, etc.
-            return await HandleUtilitySpellAsync(caster, spell, initialTarget, options);
+            if (singleTarget != null)
+            {
+                return await HandleUtilitySpellAsync(caster, spell, singleTarget, options); 
+            }
+
+            return new SpellCastResult
+            {
+                IsSuccess = false,
+                OutcomeMessage = "Spell casting failed due to invalid target or spell properties."
+            };
         }
 
-        private async Task<SpellCastResult> HandleDamageSpellAsync(Hero caster, Spell spell, Character target, SpellCastingResult options)
+        private async Task<SpellCastResult> HandleDamageSpellAsync(Hero caster, Spell spell, object target, SpellCastingResult options)
         {
             var outcome = new System.Text.StringBuilder();
+            var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
 
             // Handle Area of Effect spells
             if (spell.HasProperty(SpellProperty.AreaOfEffectSpell))
@@ -86,12 +106,21 @@ namespace LoDCompanion.Services.Game
                 int? radius = spell.Properties?.GetValueOrDefault(SpellProperty.Radius, 0);
                 if (radius != null)
                 {
-                    var affectedSquares = GridService.GetAllSquaresInRadius(target.Position, (int)radius, _dungeon.DungeonGrid);
-                    List<Character> allCharacters = [.. _dungeon.RevealedMonsters, .. _dungeon.HeroParty?.Heroes ?? new List<Hero>()];
+                    var center = centerPosition ?? singleTarget?.Position;
+                    List<GridPosition> affectedSquares = new List<GridPosition>();
+                    if (singleTarget != null)
+                    {
+                        affectedSquares = GridService.GetAllSquaresInRadius(singleTarget.Position, (int)radius, _dungeon.DungeonGrid);
+                    }
+                    else if (centerPosition != null)
+                    {
+                        affectedSquares = GridService.GetAllSquaresInRadius(centerPosition, (int)radius, _dungeon.DungeonGrid);
+                    }
+                    List<Character> allCharacters = _dungeon.AllCharactersInDungeon;
 
                     foreach (var character in allCharacters.Where(c => affectedSquares.Contains(c.Position)))
                     {
-                        bool isCenterTarget = character.Position.Equals(target.Position);
+                        bool isCenterTarget = character.Position.Equals(center);
                         int damage = isCenterTarget ?
                             await GetDirectDamageAsync(caster, spell) :
                             await GetAOEDamageAsync(caster, spell);
@@ -100,14 +129,14 @@ namespace LoDCompanion.Services.Game
 
                         character.TakeDamage(damage, spell.DamageType);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
-                    } 
+                    }
                 }
             }
-            else // Single target damage
+            else if (singleTarget != null) // Single target damage
             {
                 int damage = await GetDirectDamageAsync(caster, spell) + options.PowerLevels;
-                target.TakeDamage(damage, spell.DamageType);
-                outcome.AppendLine($"{spell.Name} hits {target.Name} for {damage} {spell.DamageType} damage!");
+                singleTarget.TakeDamage(damage, spell.DamageType);
+                outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
             return new SpellCastResult { IsSuccess = true, OutcomeMessage = outcome.ToString() };
@@ -138,7 +167,7 @@ namespace LoDCompanion.Services.Game
             };
         }
 
-        private async Task<SpellCastResult> HandleSummoningSpellAsync(Hero caster, Spell spell)
+        private SpellCastResult HandleSummoningSpell(Hero caster, GridPosition position, Spell spell)
         {
             Dictionary<string, string> summoningParams = new Dictionary<string, string>();
             if (spell.Name == "Summon Greater Demon")
@@ -200,28 +229,36 @@ namespace LoDCompanion.Services.Game
                     var roomGrid = caster.Room.Grid;
                     roomGrid.Shuffle();
 
+                    // Find a random empty square to place the monster
                     int i = 0;
                     while (roomGrid[i].IsOccupied || roomGrid[i].IsWall)
                     {
                         i++;
                     }
-
-                    // Find a random empty square to place the monster
                     var placementPosition = roomGrid[i];
+
                     if (placementPosition != null)
                     {
                         summonedMonster[0].Room = caster.Room;
                         summonedMonster[0].Position = placementPosition.Position;
                         if (summonedMonster[0].Name != "Lesser Plague Demon")
                         {
-                            _initiative.AddToken(ActorType.Hero); 
+                            _initiative.AddToken(ActorType.Hero);
                         }
                         return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{caster.Name} summons a {summonedMonster[0].Name}!" };
                     }
                     return new SpellCastResult { IsSuccess = false, OutcomeMessage = "No space to summon the creature." };
 
                 }
-                
+                else
+                {
+                    // Place the summoned monster at the specified position
+                    summonedMonster[0].Room = caster.Room;
+                    summonedMonster[0].Position = position;
+                    _initiative.AddToken(ActorType.Hero);
+                    return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{caster.Name} summons a {summonedMonster[0].Name} at {position}!" };
+                }
+
             }
             return new SpellCastResult { IsSuccess = false, OutcomeMessage = "Could not find the creature to summon." };
         }
@@ -263,6 +300,106 @@ namespace LoDCompanion.Services.Game
                 default:
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{spell.Name} is cast, its ancient magic weaving through the air." };
             }
+        }
+
+        /// <summary>
+        /// Resolves the effect of a spell cast by a monster.
+        /// </summary>
+        /// <param name="caster">The monster casting the spell.</param>
+        /// <param name="spell">The MonsterSpell being cast.</param>
+        /// <param name="target">The target, which can be a Character or a GridPosition.</param>
+        /// <returns>A SpellCastResult detailing the outcome.</returns>
+        public SpellCastResult ResolveMonsterSpell(Monster caster, MonsterSpell spell, object target)
+        {
+            var result = new SpellCastResult { IsSuccess = true };
+            var outcome = new System.Text.StringBuilder();
+
+            caster.SpendActionPoints(spell.CostAP);
+
+            // Determine the targets based on the spell's target type
+            var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
+
+            if (centerPosition == null)
+            {
+                result.OutcomeMessage = "Invalid target for spell.";
+                return result;
+            }
+
+            var affectedCharacters = GetCharactersInArea(spell.TargetType, centerPosition, spell.AreaOfEffectRadius);
+
+            // Apply the spell's effect
+            switch (spell.Name)
+            {
+                case "Fireball":
+                    outcome.AppendLine($"{caster.Name} casts Fireball!");
+                    foreach (var character in affectedCharacters)
+                    {
+                        int damage = character.Position.Equals(centerPosition) ?
+                                     RandomHelper.GetRandomNumber(1, 10) + 2 :
+                                     RandomHelper.GetRandomNumber(1, 6) + 1;
+                        character.TakeDamage(damage, DamageType.Fire);
+                        outcome.AppendLine($"{character.Name} takes {damage} fire damage.");
+                    }
+                    break;
+
+                case "Healing":
+                    var allyToHeal = (target as Character) ?? _dungeon.RevealedMonsters.OrderBy(m => m.CurrentHP).FirstOrDefault();
+                    if (allyToHeal != null)
+                    {
+                        int healingAmount = RandomHelper.GetRandomNumber(1, 10);
+                        allyToHeal.CurrentHP = Math.Min(allyToHeal.GetStat(BasicStat.HitPoints), allyToHeal.CurrentHP + healingAmount);
+                        outcome.AppendLine($"{caster.Name} heals {allyToHeal.Name} for {healingAmount} HP.");
+                    }
+                    break;
+
+                // ... Add cases for every other MonsterSpell here ...
+
+                default:
+                    outcome.AppendLine($"{caster.Name} casts {spell.Name}, but the effect fizzles.");
+                    break;
+            }
+
+            result.OutcomeMessage = outcome.ToString();
+            return result;
+        }
+
+        /// <summary>
+        /// Determines the center of a spell's effect and the primary single target.
+        /// </summary>
+        private (GridPosition?, Character?) GetSpellTargetingInfo(object target)
+        {
+            if (target is Character characterTarget)
+            {
+                return (characterTarget.Position, characterTarget);
+            }
+            if (target is GridPosition positionTarget)
+            {
+                // For AOE spells targeting a square, find if a character is at that center.
+                var characterAtCenter = _dungeon.AllCharactersInDungeon.FirstOrDefault(c => c.Position.Equals(positionTarget));
+                return (positionTarget, characterAtCenter);
+            }
+            return (null, null);
+        }
+
+        /// <summary>
+        /// Gets all characters within the area of effect of a spell.
+        /// </summary>
+        private List<Character> GetCharactersInArea(SpellTargetType targetType, GridPosition center, int radius)
+        {
+            var allCharacters = _dungeon.AllCharactersInDungeon; // Assumes a helper in DungeonState
+
+            if (targetType == SpellTargetType.SingleTarget)
+            {
+                return allCharacters.Where(c => c.Position.Equals(center)).ToList();
+            }
+
+            if (targetType == SpellTargetType.AreaOfEffect)
+            {
+                var affectedSquares = GridService.GetAllSquaresInRadius(center, radius, _dungeon.DungeonGrid);
+                return allCharacters.Where(c => c.OccupiedSquares.Any(os => affectedSquares.Contains(os))).ToList();
+            }
+
+            return new List<Character>();
         }
 
         private async Task<int> GetDurationAsync(Hero caster, Spell spell)
