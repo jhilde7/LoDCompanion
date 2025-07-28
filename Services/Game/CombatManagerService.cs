@@ -371,7 +371,7 @@ namespace LoDCompanion.Services.Game
         {
             if (monster.Position == null) return null;
             return heroes
-               .Where(h => h.Position != null && h.CurrentHP > 0 && !h.ActiveStatusEffects.Contains(StatusEffectService.GetStatusEffectByType(StatusEffectType.Pit)))
+               .Where(h => h.Position != null && h.CurrentHP > 0 && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Pit) != null)
                .OrderBy(h => GridService.GetDistance(monster.Position, h.Position!))
                .FirstOrDefault();
         }
@@ -504,6 +504,25 @@ namespace LoDCompanion.Services.Game
         public bool IsCombatOver()
         {
             return !HeroesInCombat.Any(h => h.CurrentHP > 0) || !MonstersInCombat.Any(m => m.CurrentHP > 0);
+        }
+
+        internal List<Hero> GetActivatedHeroes()
+        {
+            var returnList = new List<Hero>();
+
+            var heroes = _dungeon.HeroParty?.Heroes
+                .Where(h => h.CurrentHP > 0 && h.CombatStance != CombatStance.Overwatch)
+                .ToList() ?? new List<Hero>();
+
+            foreach (var hero in heroes)
+            {
+                if (!hero.CanAct())
+                {
+                    returnList.Add(hero);
+                }
+            }
+
+            return returnList;
         }
     }
 }
