@@ -441,7 +441,7 @@ namespace LoDCompanion.Services.Player
                             {
                                 if (options.FocusPoints <= 0)
                                 {
-                                    if (spellToCast.Properties != null && spellToCast.Properties.Contains(SpellProperty.QuickSpell))
+                                    if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
                                     {
                                         apCost = 1; // Quick spells cost 1 AP if there is no focus points added
                                         if(options.FocusPoints >= 1)
@@ -529,7 +529,7 @@ namespace LoDCompanion.Services.Player
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
                 ActionType.Focus => 1,
-                ActionType.CastSpell => (context is Spell spell && spell.Properties != null && spell.Properties.Contains(SpellProperty.QuickSpell)) ? 1 : 2,
+                ActionType.CastSpell => (context is Spell spell && spell.Properties != null && spell.Properties.ContainsKey(SpellProperty.QuickSpell)) ? 1 : 2,
                 _ => 1,
             };
         }
