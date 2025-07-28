@@ -6,6 +6,7 @@ using LoDCompanion.Services.Combat;
 using System.Text;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Game;
+using LoDCompanion.Models;
 
 namespace LoDCompanion.Services.GameData
 {
@@ -28,7 +29,39 @@ namespace LoDCompanion.Services.GameData
         QuickSpell,
         Incantation,
         MagicMissile,
-        Touch
+        Touch,
+        AreaOfEffectSpell,
+        ArmourPiercing, // Ignores armour for specifiied value
+        Radius, // Used for area of effect spells
+        TurnDuration, // The spell lasts for a number of turns
+        Upkeep, // The spell requires upkeep cost each turn
+        DiceCount, // Number of dice to roll for damage or effect
+        DiceMaxValue, // Maximum value for each die rolled (e.g., 6 for D6, 8 for D8, etc.)
+        DiceCount2, // for secondary damage (e.g., secondary effect of a spell)
+        DiceMaxValue2, // for secondary damage (e.g., secondary effect of a spell)
+        IncludeCasterLevelInDamage, // Add caster level to damage
+        AddCasterLvlToDuration, // Add caster level to duration of the spell
+        AOEDiceCount,
+        AOEDiceMaxValue,
+        AOEDiceCount2, // for secondary AOE damage
+        AOEDiceMaxValue2, // for secondary AOE damage
+        AOEIncludeCasterLevelInDamage, // Add caster level to AOE damage
+        ArmourValue, // Used for spells that provide an armour bonus
+        ToHitPenalty, // Used for spells that impose a penalty to hit
+        LOS, // Line of Sight required
+        StatBonus, // Used for spells that provide a stat bonus (e.g., Strength, Constitution)
+        RandomPlacement, // Used for summoning spells that require random placement
+        ResolveTest, // Used for spells that require a Resolve test each turn
+        DexterityTest, // Used for spells that require a Resolve test each turn
+        AddCasterLvlToResolveTest, // Add caster level to Resolve test
+        ReduceCombatSkill, // Used for spells that reduce combat skill
+        ReduceRangeSkill, // Used for spells that reduce range skill
+        Range, // Used for spells that have a range (e.g., 4 squares)
+        IncludeCasterLevelEffect,
+        MaxCasterLvl,
+        OnlyEthereal, // Used for spells that can only affect ethereal targets
+        RerollFear, // allow rerolling fear tests
+        UsePerBattle,
     }
 
     public enum MonsterSpellType
@@ -178,61 +211,73 @@ namespace LoDCompanion.Services.GameData
             return new List<Spell>()
                 {
                     new Spell(){
-                      Name = "Fake Death",
-                      Level = 1,
-                      CastingValue = 7,
-                      ManaCost = 8,
-                      TurnDuration = -1,
-                      School = MagicSchool.Necromancy,
-                      TargetType = SpellTargetType.Self,
-                      SpellEffect = "Causes the caster to fall to the ground, appearing dead to all around. Enemies will not target the caster for the rest of the battle. The caster may do nothing until the end of the battle."
+                        Name = "Fake Death",
+                        Level = 1,
+                        CastingValue = 7,
+                        ManaCost = 8,
+                        School = MagicSchool.Necromancy,
+                        TargetType = SpellTargetType.Self,
+                        SpellEffect = "Causes the caster to fall to the ground, appearing dead to all around. Enemies will not target the caster for the rest of the battle. The caster may do nothing until the end of the battle."
                     },
                     new Spell(){
-                      Name = "Flare",
-                      Level = 1,
-                      CastingValue = 8,
-                      ManaCost = 15,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 8,
-                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.MagicMissile },
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "A bright flare shoots from the caster's hand, hissing through the air to strike the target with a large bang. DMG is 1D8."
+                        Name = "Flare",
+                        Level = 1,
+                        CastingValue = 8,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.QuickSpell, 0 },
+                            { SpellProperty.MagicMissile, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 8 }
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "A bright flare shoots from the caster's hand, hissing through the air to strike the target with a large bang. DMG is 1D8."
                     },
                     new Spell(){
-                      Name = "Gust of Wind",
-                      Level = 1,
-                      CastingValue = 12,
-                      ManaCost = 8,
-                      UpkeepCost = 1,
-                      TurnDuration = -1,
-                      AddCasterLvlToDuration = true,
-                      School = MagicSchool.Alteration,
-                      IsAOESpell = true,
-                      TargetType = SpellTargetType.Self,
-                      SpellEffect = "Suddenly a powerful wind blows through the dungeon, making arrows fly astray. All Missile Weapons now have a -15 modifier to hit if the arrows pass the room the Wizard is in. The wind lasts for Caster level turns. Upkeep is 1 point of Mana."
+                        Name = "Gust of Wind",
+                        Level = 1,
+                        CastingValue = 12,
+                        ManaCost = 8,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.AreaOfEffectSpell, 0 },
+                            { SpellProperty.Upkeep, 1 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 },
+                            { SpellProperty.ReduceRangeSkill, 15 }
+                        },
+                        School = MagicSchool.Alteration,
+                        TargetType = SpellTargetType.Self,
+                        SpellEffect = "Suddenly a powerful wind blows through the dungeon, making arrows fly astray. All Missile Weapons now have a -15 modifier to hit if the arrows pass the room the Wizard is in. The wind lasts for Caster level turns. Upkeep is 1 point of Mana."
                     },
                     new Spell(){
-                      Name = "Hand of Death",
-                      Level = 1,
-                      CastingValue = 7,
-                      ManaCost = 8,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 10,
-                      IsArmourPiercing = true,
-                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.Touch },
-                      School = MagicSchool.Necromancy,
-                      SpellEffect = "This is a close combat spell, where the caster touches his enemy and causes him harm through magical energy. The target loses 1d10 Hit Points which ignores armour."
+                        Name = "Hand of Death",
+                        Level = 1,
+                        CastingValue = 7,
+                        ManaCost = 8,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.QuickSpell, 0 },
+                            { SpellProperty.Touch, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 10 },
+                            { SpellProperty.ArmourPiercing, 99 }
+                        },
+                        School = MagicSchool.Necromancy,
+                        SpellEffect = "This is a close combat spell, where the caster touches his enemy and causes him harm through magical energy. The target loses 1d10 Hit Points which ignores armour."
                     },
                     new Spell(){
                       Name = "Healing Hand",
                       Level = 1,
                       CastingValue = 6,
                       ManaCost = 12,
-                      MinDamage = 1,
-                      MaxDamage = 10,
-                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell, SpellProperty.Touch },
+                      Properties = new Dictionary<SpellProperty, int>()
+                      {
+                          { SpellProperty.QuickSpell, 0 },
+                          { SpellProperty.Touch, 0 },
+                          { SpellProperty.DiceCount, 1 },
+                          { SpellProperty.DiceMaxValue, 10 },
+                      },
                       School = MagicSchool.Restoration,
                       TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster lays his hand on a comrade and heals 1d10 Hit Points."
@@ -242,537 +287,731 @@ namespace LoDCompanion.Services.GameData
                       Level = 1,
                       CastingValue = 5,
                       ManaCost = 10,
-                      MinDamage = 1,
-                      MaxDamage = 6,
-                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
+                      Properties = new Dictionary<SpellProperty, int>()
+                      {
+                          { SpellProperty.QuickSpell, 0 },
+                          { SpellProperty.DiceCount, 1 },
+                          { SpellProperty.DiceMaxValue, 6 },
+                          { SpellProperty.LOS, 0 },
+                          { SpellProperty.Range, 4 }
+                      },
                       School = MagicSchool.Restoration,
                       TargetType = SpellTargetType.Ally,
                       SpellEffect = "The caster can heal one hero within 4 squares and in LOS (intervening models does not matter). It heals 1d6 Hit Points."
                     },
                     new Spell(){
-                      Name = "Protective Shield",
-                      Level = 1,
-                      CastingValue = 10,
-                      ManaCost = 10,
-                      UpkeepCost = 1,
-                      TurnDuration = -1,
-                      School = MagicSchool.Mysticism,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn."
+                        Name = "Protective Shield",
+                        Level = 1,
+                        CastingValue = 10,
+                        ManaCost = 10,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.Upkeep, 1 },
+                            { SpellProperty.ArmourValue, 0 },
+                            { SpellProperty.IncludeCasterLevelEffect, 1 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.MaxCasterLvl, 3 }
+                        },
+                        School = MagicSchool.Mysticism,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn."
                     },
                     new Spell(){
-                      Name = "Slip",
-                      Level = 1,
-                      CastingValue = 10,
-                      ManaCost = 10,
-                      TurnDuration = 1,
-                      School = MagicSchool.Hex,
-                      SpellEffect = "Causes the target to slip and fall. The target will remain prone until its next action when it will spend its first turn standing up."
+                        Name = "Slip",
+                        Level = 1,
+                        CastingValue = 10,
+                        ManaCost = 10,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 1 },
+                        },
+                        School = MagicSchool.Hex,
+                        SpellEffect = "Causes the target to slip and fall. The target will remain prone until its next action when it will spend its first turn standing up."
                     },
                     new Spell(){
-                      Name = "Blur",
-                      Level = 2,
-                      CastingValue = 15,
-                      ManaCost = 10,
-                      UpkeepCost = 1,
-                      TurnDuration = -1,
-                      School = MagicSchool.Illusion,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "May target self or hero in LOS. Target becomes blurry and any attacks against the target is at -15. The effect lasts for 1d4 turns."
+                        Name = "Blur",
+                        Level = 2,
+                        CastingValue = 15,
+                        ManaCost = 10,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.Upkeep, 1 },
+                            { SpellProperty.ToHitPenalty, -15 },
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 4},
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Illusion,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "May target self or hero in LOS. Target becomes blurry and any attacks against the target is at -15. The effect lasts for 1d4 turns."
                     },
                     new Spell(){
-                      Name = "Fist of Iron",
-                      Level = 2,
-                      CastingValue = 8,
-                      ManaCost = 14,
-                      IsDamageSpell = true,
-                      MinDamage = 2,
-                      MaxDamage = 6,
-                      IncludeCasterLevelInDamage = true,
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "The target is struck from above by a powerful blow, causing 2d6+Caster Level points of DMG. Armour and NA protects as normal. Target must be in LOS."
+                        Name = "Fist of Iron",
+                        Level = 2,
+                        CastingValue = 8,
+                        ManaCost = 14,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.DiceCount, 2 },
+                            { SpellProperty.DiceMaxValue, 6 },
+                            { SpellProperty.IncludeCasterLevelInDamage, 1 },
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "The target is struck from above by a powerful blow, causing 2d6+Caster Level points of DMG. Armour and NA protects as normal. Target must be in LOS."
                     },
                     new Spell(){
-                      Name = "Magic Scribbles",
-                      Level = 2,
-                      CastingValue = 20,
-                      Properties = new List<SpellProperty>(){ SpellProperty.Incantation },
-                      School = MagicSchool.Enchantment,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "This spell is used to create scrolls. As long as the wizard knows the spell he wants to use as the basis for the scroll, and has a good quality parchment, this is quite easy although time consuming."
+                        Name = "Magic Scribbles",
+                        Level = 2,
+                        CastingValue = 20,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.Incantation, 0 } 
+                        },
+                        School = MagicSchool.Enchantment,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "This spell is used to create scrolls. As long as the wizard knows the spell he wants to use as the basis for the scroll, and has a good quality parchment, this is quite easy although time consuming."
                     },
                     new Spell(){
-                      Name = "Open Lock",
-                      Level = 2,
-                      ManaCost = 8,
-                      Properties = new List<SpellProperty>(){ SpellProperty.Touch },
-                      School = MagicSchool.Alteration,
-                      SpellEffect = "This spell can be used to magically open locked doors or chests. The caster must stand close enough to touch the lock, and the locks hit points is used as the CV of the spell."
+                        Name = "Open Lock",
+                        Level = 2,
+                        ManaCost = 8,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.Touch, 0 } 
+                        },
+                        School = MagicSchool.Alteration,
+                        SpellEffect = "This spell can be used to magically open locked doors or chests. The caster must stand close enough to touch the lock, and the locks hit points is used as the CV of the spell."
                     },
                     new Spell(){
-                      Name = "Seal Door",
-                      Level = 2,
-                      CastingValue = 13,
-                      ManaCost = 12,
-                      School = MagicSchool.Alteration,
-                      SpellEffect = "The Spell Caster can magically seal a door. Any monster outside trying to pass through will take 1d3 turns in doing so. Doors that have been broken down cannot be sealed. This can be cast on any door, even if there are monsters present. It can only be cast once per door."
+                        Name = "Seal Door",
+                        Level = 2,
+                        CastingValue = 13,
+                        ManaCost = 12,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 }, 
+                            { SpellProperty.DiceMaxValue, 3 }
+                        },
+                        School = MagicSchool.Alteration,
+                        SpellEffect = "The Spell Caster can magically seal a door. Any monster outside trying to pass through will take 1d3 turns in doing so. Doors that have been broken down cannot be sealed. This can be cast on any door, even if there are monsters present. It can only be cast once per door."
                     },
                     new Spell(){
-                      Name = "Silence",
-                      Level = 2,
-                      CastingValue = 10,
-                      ManaCost = 12,
-                      School = MagicSchool.Hex,
-                      SpellEffect = "The spell can be cast on an enemy Magic Caster. If the spell is successfully cast, the target must make a RES test when casting a spell. A failure means that the target cannot cast magic that turn, but may otherwise act as normal. Making this test does not cost an AP. If successful, the target may cast the spell as planned and the spell ceases to have any effect."
+                        Name = "Silence",
+                        Level = 2,
+                        CastingValue = 10,
+                        ManaCost = 12,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 1 },
+                            { SpellProperty.ResolveTest, 0 },
+                        },
+                        School = MagicSchool.Hex,
+                        SpellEffect = "The spell can be cast on an enemy Magic Caster. If the spell is successfully cast, the target must make a RES test when casting a spell. A failure means that the target cannot cast magic that turn, but may otherwise act as normal. Making this test does not cost an AP. If successful, the target may cast the spell as planned and the spell ceases to have any effect."
                     },
                     new Spell(){
-                      Name = "Strengthen Body",
-                      Level = 2,
-                      CastingValue = 10,
-                      ManaCost = 8,
-                      UpkeepCost = 2,
-                      TurnDuration = -1,
-                      School = MagicSchool.Mysticism,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "Caster may strengthen a hero in LOS with +10 in either STR or CON. The spell lasts for 1d6 turns."
+                        Name = "Strengthen Body",
+                        Level = 2,
+                        CastingValue = 10,
+                        ManaCost = 8,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.Upkeep, 1 },
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 6 },
+                            { SpellProperty.StatBonus, 10 },
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Mysticism,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "Caster may strengthen a hero in LOS with +10 in either STR or CON. The spell lasts for 1d6 turns."
                     },
                     new Spell(){
-                      Name = "Summon Lesser Demon",
-                      Level = 2,
-                      CastingValue = 15,
-                      ManaCost = 10,
-                      UpkeepCost = 4,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster reaches into the Void and summons a Lesser Plague Demon. Place the demon in a random free square in the room. The demon may act as part of the hero's next turn. It will fight for the caster, but also try to break free at every turn. At the start of each turn, the caster must use 4 Mana as upkeep, and then pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. Add one hero initiative token to the bag."
+                        Name = "Summon Lesser Demon",
+                        Level = 2,
+                        CastingValue = 15,
+                        ManaCost = 10,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.RandomPlacement, 0 },
+                            { SpellProperty.Upkeep, 4 },
+                            { SpellProperty.ResolveTest, 0 }
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster reaches into the Void and summons a Lesser Plague Demon. Place the demon in a random free square in the room. The demon may act as part of the hero's next turn. It will fight for the caster, but also try to break free at every turn. At the start of each turn, the caster must use 4 Mana as upkeep, and then pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. Add one hero initiative token to the bag."
                     },
                     new Spell(){
-                      Name = "Confuse",
-                      Level = 3,
-                      CastingValue = 15,
-                      ManaCost = 18,
-                      School = MagicSchool.Illusion,
-                      SpellEffect = "If successfully cast at a target in LOS, the target must pass RES or be unable to use that action. If the target fails, it may try again for Action Point number 2. Once it succeeds, the effect of the spell is gone."
+                        Name = "Confuse",
+                        Level = 3,
+                        CastingValue = 15,
+                        ManaCost = 18,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.ResolveTest, 0 }
+                        },
+                        School = MagicSchool.Illusion,
+                        SpellEffect = "If successfully cast at a target in LOS, the target must pass RES or be unable to use that action. If the target fails, it may try again for Action Point number 2. Once it succeeds, the effect of the spell is gone."
                     },
                     new Spell(){
-                      Name = "Control Undead",
-                      Level = 3,
-                      CastingValue = 20,
-                      ManaCost = 12,
-                      TurnDuration = 1,
-                      School = MagicSchool.Necromancy,
-                      SpellEffect = "The caster may try to take control of a lower undead in LOS. If the caster succeeds with the RES+Caster Level test, the wizard may control the Undead until next turn. It still retains its monster activation token. Make Resolve test every time you activate the creature. As long as the test succeeds, the caster may control the Undead creature. There is no upkeep since the Undead has been brought back by something else than the caster's magic."
+                        Name = "Control Undead",
+                        Level = 3,
+                        CastingValue = 20,
+                        ManaCost = 12,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.ResolveTest, 0 },
+                            { SpellProperty.AddCasterLvlToResolveTest, 1 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.TurnDuration, 1 }
+                        },
+                        School = MagicSchool.Necromancy,
+                        SpellEffect = "The caster may try to take control of a lower undead in LOS. If the caster succeeds with the RES+Caster Level test, the wizard may control the Undead until next turn. It still retains its monster activation token. Make Resolve test every time you activate the creature. As long as the test succeeds, the caster may control the Undead creature. There is no upkeep since the Undead has been brought back by something else than the caster's magic."
                     },
                     new Spell(){
-                      Name = "Corruption",
-                      Level = 3,
-                      CastingValue = 18,
-                      ManaCost = 16,
-                      UpkeepCost = 1,
-                      TurnDuration = -1,
-                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
-                      School = MagicSchool.Necromancy,
-                      SpellEffect = "A storm of flies soars from the gaping mouth of the caster, surrounding the target. The cloud of flies will make it harder for the enemy to fight by reducing its CS by 10. The spell lasts for 1d3 turns."
+                        Name = "Corruption",
+                        Level = 3,
+                        CastingValue = 18,
+                        ManaCost = 16,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.MagicMissile, 0 },
+                            { SpellProperty.Upkeep, 1 },
+                            { SpellProperty.ReduceCombatSkill, 10 },
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 3 }
+                        },
+                        School = MagicSchool.Necromancy,
+                        SpellEffect = "A storm of flies soars from the gaping mouth of the caster, surrounding the target. The cloud of flies will make it harder for the enemy to fight by reducing its CS by 10. The spell lasts for 1d3 turns."
                     },
                     new Spell(){
-                      Name = "Enchant Item",
-                      Level = 3,
-                      CastingValue = 25,
-                      ManaCost = 16,
-                      Properties = new List<SpellProperty>(){ SpellProperty.Incantation },
-                      School = MagicSchool.Enchantment,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "This spell can only be cast between quests and requires a powerstone. The power of the stone will then be fused with an object such as a weapon, an armour or a piece of jewellery. See chapter on Crafting."
+                        Name = "Enchant Item",
+                        Level = 3,
+                        CastingValue = 25,
+                        ManaCost = 16,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.Incantation, 0 } 
+                        },
+                        School = MagicSchool.Enchantment,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "This spell can only be cast between quests and requires a powerstone. The power of the stone will then be fused with an object such as a weapon, an armour or a piece of jewellery. See chapter on Crafting."
                     },
                     new Spell(){
-                      Name = "Healing",
-                      Level = 3,
-                      CastingValue = 15,
-                      ManaCost = 16,
-                      MinDamage = 1,
-                      MaxDamage = 10,
-                      School = MagicSchool.Restoration,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "The caster may heal a hero within 4 squares and in LOS. The target regains 1d10 Hit Points."
+                        Name = "Healing",
+                        Level = 3,
+                        CastingValue = 15,
+                        ManaCost = 16,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 10 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.Range, 4 }
+                        },
+                        School = MagicSchool.Restoration,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "The caster may heal a hero within 4 squares and in LOS. The target regains 1d10 Hit Points."
                     },
                     new Spell(){
-                      Name = "Ice Pikes",
-                      Level = 3,
-                      CastingValue = 10,
-                      ManaCost = 16,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 12,
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "A series of razor-sharp Ice spikes shoot from the floor, striking the target from below. It causes 1d12 Frost DMG. Target must be in LOS."
+                        Name = "Ice Pikes",
+                        Level = 3,
+                        CastingValue = 10,
+                        ManaCost = 16,
+                        DamageType = DamageType.Frost,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 12 },
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "A series of razor-sharp Ice spikes shoot from the floor, striking the target from below. It causes 1d12 Frost DMG. Target must be in LOS."
                     },
                     new Spell(){
-                      Name = "Lightning Bolt",
-                      Level = 3,
-                      CastingValue = 16,
-                      ManaCost = 18,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 10,
-                      IsArmourPiercing = true,
-                      DamageType = DamageType.Lightning,
-                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
-                      School = MagicSchool.Destruction,
-                      IsAOESpell = true,
-                      AOEMinDamage = 1,
-                      AOEMaxDamage = 10,
-                      AOERadius = 3,
-                      SpellEffect = "A crackling bolt leaps from the hand of the wizard, striking a victim within LOS, dealing 1d10 DMG, ignoring armour. The bolt will then jump to the nearest model (random if equal) and deal 1d8 DMG, ignoring armour. Finally, it will make its last jump, dealing 1d6 DMG, ignoring armour. It will always jump to the nearest model, and will never strike the same model twice. It will never jump more than 3 squares."
+                        Name = "Lightning Bolt",
+                        Level = 3,
+                        CastingValue = 16,
+                        ManaCost = 18,
+                        DamageType = DamageType.Lightning,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.MagicMissile, 0 },
+                            { SpellProperty.ArmourPiercing, 99 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 10 },
+                            { SpellProperty.AOEDiceCount, 1 },
+                            { SpellProperty.AOEDiceMaxValue, 8 },
+                            { SpellProperty.AOEDiceCount2, 1 },
+                            { SpellProperty.AOEDiceMaxValue2, 6 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.Radius, 3 },
+                            { SpellProperty.AreaOfEffectSpell, 0 }
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "A crackling bolt leaps from the hand of the wizard, striking a victim within LOS, dealing 1d10 DMG, ignoring armour. The bolt will then jump to the nearest model (random if equal) and deal 1d8 DMG, ignoring armour. Finally, it will make its last jump, dealing 1d6 DMG, ignoring armour. It will always jump to the nearest model, and will never strike the same model twice. It will never jump more than 3 squares."
                     },
                     new Spell(){
-                      Name = "Magic Armour",
-                      Level = 3,
-                      CastingValue = 15,
-                      ManaCost = 15,
-                      UpkeepCost = 2,
-                      TurnDuration = -1,
-                      School = MagicSchool.Mysticism,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "The caster may bolster the armour of any target within LOS with +2 for all parts of the body. The spell lasts for Caster Level+2 turns."
+                        Name = "Magic Armour",
+                        Level = 3,
+                        CastingValue = 15,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.Upkeep, 2 },
+                            { SpellProperty.ArmourValue, 2 },
+                            { SpellProperty.TurnDuration, 2 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 },
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Mysticism,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "The caster may bolster the armour of any target within LOS with +2 for all parts of the body. The spell lasts for Caster Level+2 turns."
                     },
                     new Spell(){
-                      Name = "Magic Bolt",
-                      Level = 3,
-                      CastingValue = 10,
-                      ManaCost = 14,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 10,
-                      IsArmourPiercing = true,
-                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile, SpellProperty.QuickSpell },
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "A bolt of pure energy lashes from the caster to a target within LOS. Target loses 1d10 Hit Points, ignoring any armour."
+                        Name = "Magic Bolt",
+                        Level = 3,
+                        CastingValue = 10,
+                        ManaCost = 14,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.MagicMissile, 0 }, 
+                            {SpellProperty.QuickSpell, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 10 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.ArmourPiercing, 99 }
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "A bolt of pure energy lashes from the caster to a target within LOS. Target loses 1d10 Hit Points, ignoring any armour."
                     },
                     new Spell(){
-                      Name = "Slow",
-                      Level = 3,
-                      CastingValue = 14,
-                      ManaCost = 12,
-                      UpkeepCost = 2,
-                      TurnDuration = -1,
-                      School = MagicSchool.Hex,
-                      SpellEffect = "A target within LOS of the caster must pass a Resolve test or lose one Action Point. Test again at the start of each enemy turn. The effect will last until the enemy test succeeds."
+                        Name = "Slow",
+                        Level = 3,
+                        CastingValue = 14,
+                        ManaCost = 12,
+                        StatusEffect = StatusEffectType.Slow,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.ResolveTest, 0 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.Upkeep, 2 }
+                        },
+                        School = MagicSchool.Hex,
+                        SpellEffect = "A target within LOS of the caster must pass a Resolve test or lose one Action Point. Test again at the start of each enemy turn. The effect will last until the enemy test succeeds."
                     },
                     new Spell(){
-                      Name = "Summon Water Elemental",
-                      Level = 3,
-                      CastingValue = 18,
-                      ManaCost = 15,
-                      UpkeepCost = 5,
-                      TurnDuration = -1,
-                      AddCasterLvlToDuration = true,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
+                        Name = "Summon Water Elemental",
+                        Level = 3,
+                        CastingValue = 18,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.Upkeep, 5 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 }
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
-                      Name = "Summon Wind Elemental",
-                      Level = 3,
-                      CastingValue = 20,
-                      ManaCost = 18,
-                      UpkeepCost = 5,
-                      TurnDuration = -1,
-                      AddCasterLvlToDuration = true,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
+                        Name = "Summon Wind Elemental",
+                        Level = 3,
+                        CastingValue = 20,
+                        ManaCost = 18,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.Upkeep, 5 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 }
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
-                      Name = "Vampiric Touch",
-                      Level = 3,
-                      CastingValue = 15,
-                      ManaCost = 14,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 6,
-                      IsArmourPiercing = true,
-                      School = MagicSchool.Necromancy,
-                      SpellEffect = "Caster causes 1d6 DMG with no armour or NA, and the caster may heal with the same amount of HP up to maximum Hit Points."
+                        Name = "Banish Undead",
+                        Level = 4,
+                        CastingValue = 20,
+                        ManaCost = 20,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.OnlyEthereal, 0 },
+                            { SpellProperty.DiceCount, 2 },
+                            { SpellProperty.DiceMaxValue, 6 }
+                        },
+                        School = MagicSchool.Necromancy,
+                        SpellEffect = "This spell only hurts Undead with the Ethereal Role. A successful spell will damage the Undead creature with 2d6."
                     },
                     new Spell(){
-                      Name = "Banish Undead",
-                      Level = 4,
-                      CastingValue = 20,
-                      ManaCost = 20,
-                      IsDamageSpell = true,
-                      MinDamage = 2,
-                      MaxDamage = 6,
-                      School = MagicSchool.Necromancy,
-                      SpellEffect = "This spell only hurts Undead with the Ethereal Role. A successful spell will damage the Undead creature with 2d6."
+                        Name = "Bolstered Mind",
+                        Level = 4,
+                        CastingValue = 12,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.QuickSpell, 0 },
+                            { SpellProperty.StatBonus, 10 },
+                            { SpellProperty.RerollFear, 1 },
+                            { SpellProperty.TurnDuration, 1 }
+                        },
+                        School = MagicSchool.Mysticism,
+                        TargetType = SpellTargetType.Self,
+                        SpellEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
                     },
                     new Spell(){
-                      Name = "Bolstered Mind",
-                      Level = 4,
-                      CastingValue = 12,
-                      ManaCost = 15,
-                      TurnDuration = -1,
-                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
-                      School = MagicSchool.Mysticism,
-                      TargetType = SpellTargetType.Self,
-                      SpellEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
+                        Name = "Frost Beam",
+                        Level = 4,
+                        CastingValue = 15,
+                        ManaCost = 16,
+                        DamageType = DamageType.Frost,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.MagicMissile, 0 },
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.DiceCount, 2 },
+                            { SpellProperty.DiceMaxValue, 8 }
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "A beam of frost shoots from the hands of the caster towards the target, which must be in LOS. The target takes 2d8 Frost DMG."
                     },
                     new Spell(){
-                      Name = "Frost Beam",
-                      Level = 4,
-                      CastingValue = 15,
-                      ManaCost = 16,
-                      IsDamageSpell = true,
-                      MinDamage = 2,
-                      MaxDamage = 8,
-                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "A beam of frost shoots from the hands of the caster towards the target, which must be in LOS. The target takes 2d8 Frost DMG."
+                        Name = "Hold Creature",
+                        Level = 4,
+                        CastingValue = 20,
+                        ManaCost = 20,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.QuickSpell, 0 },
+                            { SpellProperty.Upkeep, 6 },
+                            { SpellProperty.ResolveTest, 0 },
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Hex,
+                        SpellEffect = "The wizard holds an enemy in LOS in its place, making it impossible to move or fight. The enemy will make a RES Test at the start of their turn, and if successful, it will break free and act as normal. The activation token should be added to the bag as usual, and the enemy will try to act in the normal order of activation."
                     },
                     new Spell(){
-                      Name = "Hold Creature",
-                      Level = 4,
-                      CastingValue = 20,
-                      ManaCost = 20,
-                      UpkeepCost = 6,
-                      TurnDuration = -1,
-                      Properties = new List<SpellProperty>(){ SpellProperty.QuickSpell },
-                      School = MagicSchool.Hex,
-                      SpellEffect = "The wizard holds an enemy in LOS in its place, making it impossible to move or fight. The enemy will make a RES Test at the start of their turn, and if successful, it will break free and act as normal. The activation token should be added to the bag as usual, and the enemy will try to act in the normal order of activation."
+                        Name = "Ice Tomb",
+                        Level = 4,
+                        CastingValue = 20,
+                        ManaCost = 25,
+                        DamageType = DamageType.Frost,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.DiceCount, 0 },
+                            { SpellProperty.DiceMaxValue, 10 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 },
+                            { SpellProperty.DiceCount2, 1 },
+                            { SpellProperty.DiceMaxValue2, 4 },
+                        },
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "Caster may trap a target in LOS in ice, forcing it to break free before being able to do anything else. The caster may roll Caster Level d10 to determine how strong the tomb is, and the target does its maximum damage (Inc) weapon) once per turn until the tomb breaks. It may act with both its actions on the turn the tomb breaks. For every turn, the target takes 1d4 points of Frost DMG."
                     },
                     new Spell(){
-                      Name = "Ice Tomb",
-                      Level = 4,
-                      CastingValue = 20,
-                      ManaCost = 25,
-                      TurnDuration = -1,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 4,
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "Caster may trap a target in LOS in ice, forcing it to break free before being able to do anything else. The caster may roll Caster Level d10 to determine how strong the tomb is, and the target does its maximum damage (Inc) weapon) once per turn until the tomb breaks. It may act with both its actions on the turn the tomb breaks. For every turn, the target takes 1d4 points of Frost DMG."
+                        // TODO: manipulate dungeon based on this spell effect
+                        Name = "Second Sight",
+                        Level = 4,
+                        CastingValue = 15,
+                        ManaCost = 25,
+                        School = MagicSchool.Divination,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "Caster can tell what is on the other side of a door. Place the tile and roll for Encounter before opening a door. The heroes gain 2 activation tokens if there is an encounter on the other side of the door."
                     },
                     new Spell(){
-                      Name = "Transpose",
-                      Level = 4,
-                      CastingValue = 15,
-                      ManaCost = 25,
-                      School = MagicSchool.Alteration,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "The caster may shift the place of two heroes that are in LOS. If the spell fails, both heroes suffer 2 Sanity Points for the ordeal. The caster may not transpose himself."
+                        Name = "Summon Demon",
+                        Level = 4,
+                        CastingValue = 25,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.RandomPlacement, 0 },
+                            { SpellProperty.ResolveTest, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 3 },
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster lures a demon from its dimension over to this world. It will randomly be either a Blood Demon or a Plague Demon. The demon is placed in a random place in the same tile as the wizard and fights for the caster. Once summoned, immediately add a hero activation token to the bag and activate the demon just like a hero. However, at the start of the wizard's activation following the summoning, the caster must pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. When it breaks free, it will make a Resolve Test of its own and if it succeeds, it takes part of the caster's mind with it. Deduct 1d3 Sanity Points from the caster. Once in our plane, the demon will relish the fighting, so no upkeep is needed."
                     },
                     new Spell(){
-                      Name = "Second Sight",
-                      Level = 4,
-                      CastingValue = 15,
-                      ManaCost = 25,
-                      School = MagicSchool.Divination,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "Caster can tell what is on the other side of a door. Place the tile and roll for Encounter before opening a door. The heroes gain 2 activation tokens if there is an encounter on the other side of the door."
+                        Name = "Summon Earth Elemental",
+                        Level = 4,
+                        CastingValue = 20,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.Upkeep, 5 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 }
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for ML number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
-                      Name = "Summon Demon",
-                      Level = 4,
-                      CastingValue = 25,
-                      ManaCost = 15,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster lures a demon from its dimension over to this world. It will randomly be either a Blood Demon or a Plague Demon. The demon is placed in a random place in the same tile as the wizard and fights for the caster. Once summoned, immediately add a hero activation token to the bag and activate the demon just like a hero. However, at the start of the wizard's activation following the summoning, the caster must pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. When it breaks free, it will make a Resolve Test of its own and if it succeeds, it takes part of the caster's mind with it. Deduct 1d3 Sanity Points from the caster. Once in our plane, the demon will relish the fighting, so no upkeep is needed."
+                        Name = "Summon Fire Elemental",
+                        Level = 4,
+                        CastingValue = 25,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.Upkeep, 5 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 }
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
-                      Name = "Summon Earth Elemental",
-                      Level = 4,
-                      CastingValue = 20,
-                      ManaCost = 15,
-                      UpkeepCost = 5,
-                      TurnDuration = -1,
-                      AddCasterLvlToDuration = true,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for ML number of turns. Immediately add one hero initiative token to the bag."
+                        Name = "Summon Souls",
+                        Level = 4,
+                        CastingValue = 12,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 4 },
+                            { SpellProperty.ArmourPiercing, 99 },
+                            { SpellProperty.AreaOfEffectSpell, 0 }
+                        },
+                        School = MagicSchool.Necromancy,
+                        SpellEffect = "This spell conjures a host of restless spirits to torment your enemies. Each enemy on the tile takes 1d4 points of DMG with no armour and NA. Undead enemies are immune."
                     },
                     new Spell(){
-                      Name = "Summon Fire Elemental",
-                      Level = 4,
-                      CastingValue = 25,
-                      ManaCost = 15,
-                      UpkeepCost = 5,
-                      TurnDuration = -1,
-                      AddCasterLvlToDuration = true,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster summons one of the four Elementals to aid him in the battle. The Elemental will fight for Caster level number of turns. Immediately add one hero initiative token to the bag."
+                        Name = "Transpose",
+                        Level = 4,
+                        CastingValue = 15,
+                        ManaCost = 25,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 }
+                        },
+                        School = MagicSchool.Alteration,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "The caster may shift the place of two heroes that are in LOS. If the spell fails, both heroes suffer 2 Sanity Points for the ordeal. The caster may not transpose himself."
                     },
                     new Spell(){
-                      Name = "Summon Souls",
-                      Level = 4,
-                      CastingValue = 12,
-                      ManaCost = 15,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 4,
-                      IsArmourPiercing = true,
-                      School = MagicSchool.Necromancy,
-                      IsAOESpell = true,
-                      SpellEffect = "This spell conjures a host of restless spirits to torment your enemies. Each enemy on the tile takes 1d4 points of DMG with no armour and NA. Undead enemies are immune."
+                        Name = "Weakness",
+                        Level = 4,
+                        CastingValue = 18,
+                        ManaCost = 18,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        { 
+                            { SpellProperty.Touch, 0 },
+                            { SpellProperty.ResolveTest, 0 },
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 4 }
+                        },
+                        School = MagicSchool.Hex,
+                        SpellEffect = "The caster can choose to lower the Strength or Constitution of a chosen target if the target fails a Resolve Test. If the target fails, it loses its NA armour or DMG bonus for 1d4 turns, depending on what the wizard chooses."
                     },
                     new Spell(){
-                      Name = "Weakness",
-                      Level = 4,
-                      CastingValue = 18,
-                      ManaCost = 18,
-                      TurnDuration = -1,
-                      Properties = new List<SpellProperty>(){ SpellProperty.Touch },
-                      School = MagicSchool.Hex,
-                      SpellEffect = "The caster can choose to lower the Strength or Constitution of a chosen target if the target fails a Resolve Test. If the target fails, it loses its NA armour or DMG bonus for 1d4 turns, depending on what the wizard chooses."
+                        Name = "Cause Animosity",
+                        Level = 5,
+                        CastingValue = 18,
+                        ManaCost = 18,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.ResolveTest, 0 },
+                            { SpellProperty.TurnDuration, 1 }
+                        },
+                        School = MagicSchool.Illusion,
+                        SpellEffect = "May target any enemy in sight. Target must pass RES or attack the closest enemy during its next activation. Once that activation is over, the effect is gone."
                     },
                     new Spell(){
-                      Name = "Cause Animosity",
-                      Level = 5,
-                      CastingValue = 18,
-                      ManaCost = 18,
-                      UpkeepCost = 10,
-                      TurnDuration = 1,
-                      School = MagicSchool.Illusion,
-                      SpellEffect = "May target any enemy in sight. Target must pass RES or attack the closest enemy during its next activation. Once that activation is over, the effect is gone."
+                        Name = "Fire Rain",
+                        Level = 5,
+                        CastingValue = 23,
+                        ManaCost = 25,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.AreaOfEffectSpell, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 8 },
+                            { SpellProperty.IncludeCasterLevelInDamage, 1 },
+                            { SpellProperty.AOEDiceCount, 1 },
+                            { SpellProperty.AOEDiceMaxValue, 4 },
+                            { SpellProperty.AOEIncludeCasterLevelInDamage, 1 },
+                            { SpellProperty.Radius, 1 },
+                        },
+                        DamageType = DamageType.Fire,
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "A hail of sparks rains down over the target and any adjacent squares. The target takes 1d8+Caster Level Fire DMG and the adjacent square takes 1d4+Caster Level points of Fire DMG."
                     },
                     new Spell(){
-                      Name = "Fire Rain",
-                      Level = 5,
-                      CastingValue = 23,
-                      ManaCost = 25,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 8,
-                      IncludeCasterLevelInDamage = true,
-                      DamageType = DamageType.Fire,
-                      School = MagicSchool.Destruction,
-                      IsAOESpell = true,
-                      AOEMinDamage = 1,
-                      AOEMaxDamage = 4,
-                      AOERadius = 1,
-                      AOEIncludesCasterLevel = true,
-                      SpellEffect = "A hail of sparks rains down over the target and any adjacent squares. The target takes 1d8+Caster Level Fire DMG and the adjacent square takes 1d4+Caster Level points of Fire DMG."
+                        Name = "Fire Wall",
+                        Level = 5,
+                        CastingValue = 20,
+                        ManaCost = 20,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 1 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 4 },
+                            { SpellProperty.DiceCount2, 1 },
+                            { SpellProperty.DiceMaxValue2, 6 }
+                        },
+                        DamageType = DamageType.Fire,
+                        School = MagicSchool.Destruction,
+                        SpellEffect = "This spell creates a Fire Wall, up to 3 squares long. It may only be placed in a straight line and not in a square that contains an enemy. All except lower Undead and Fire Elementals will avoid or try to walk around. Spell lasts for 1d4+1 turns. Any Lower Undead walking through takes 1d6 Fire DMG. Fire Elementals are immune."
                     },
                     new Spell(){
-                      Name = "Fire Wall",
-                      Level = 5,
-                      CastingValue = 20,
-                      ManaCost = 20,
-                      TurnDuration = -1,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 6,
-                      DamageType = DamageType.Fire,
-                      School = MagicSchool.Destruction,
-                      SpellEffect = "This spell creates a Fire Wall, up to 3 squares long. It may only be placed in a straight line and not in a square that contains an enemy. All except lower Undead and Fire Elementals will avoid or try to walk around. Spell lasts for 1d4+1 turns. Any Lower Undead walking through takes 1d6 Fire DMG. Fire Elementals are immune."
+                        Name = "Levitate",
+                        Level = 5,
+                        CastingValue = 15,
+                        ManaCost = 20,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 1 },
+                            { SpellProperty.LOS, 0 },
+                        },
+                        StatusEffect = StatusEffectType.Floater,
+                        School = MagicSchool.Alteration,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "May target self or hero in LOS. Target may levitate for the entire turn. That means the character moves above the ground, not touching any traps or similar. It may be used to leave a pit and to traverse a pit. You cannot levitate through a square which contains a model or over lava."
                     },
                     new Spell(){
-                      Name = "Levitate",
-                      Level = 5,
-                      CastingValue = 15,
-                      ManaCost = 20,
-                      TurnDuration = 1,
-                      School = MagicSchool.Alteration,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "May target self or hero in LOS. Target may levitate for the entire turn. That means the character moves above the ground, not touching any traps or similar. It may be used to leave a pit and to traverse a pit. You cannot levitate through a square which contains a model or over lava."
+                        Name = "Mirrored Self",
+                        Level = 5,
+                        CastingValue = 20,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.Range, 4 },
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 4 },
+                        },
+                        School = MagicSchool.Illusion,
+                        TargetType = SpellTargetType.Self,
+                        SpellEffect = "The caster makes a copy of herself which may be placed anywhere within 4 squares of the caster. Enemies will treat this mirrored image as a target just like any other hero, even though it cannot take DMG. The mirrored self cannot move or attack. It will last for 1d4 turns."
                     },
                     new Spell(){
-                      Name = "Mirrored Self",
-                      Level = 5,
-                      CastingValue = 20,
-                      ManaCost = 15,
-                      UpkeepCost = 2,
-                      TurnDuration = -1,
-                      School = MagicSchool.Illusion,
-                      TargetType = SpellTargetType.Self,
-                      SpellEffect = "The caster makes a copy of herself which may be placed anywhere within 4 squares of the caster. Enemies will treat this mirrored image as a target just like any other hero, even though it cannot take DMG. The mirrored self cannot move or attack. It will last for 1d4 turns."
+                        // TODO: cancel effect when scenario die rolls 9-10
+                        Name = "Speed",
+                        Level = 5,
+                        CastingValue = 15,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 },
+                        },
+                        StatusEffect = StatusEffectType.Speed,
+                        School = MagicSchool.Mysticism,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "May target self or any friendly character in LOS. Character gains +1M. The spell lasts until a Scenario die roll of 9-10."
                     },
                     new Spell(){
-                      Name = "Speed",
-                      Level = 5,
-                      CastingValue = 15,
-                      ManaCost = 15,
-                      TurnDuration = -1,
-                      School = MagicSchool.Mysticism,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "May target self or any friendly character in LOS. Character gains +1M. The spell lasts until a Scenario die roll of 9-10."
+                        Name = "Time Freeze",
+                        Level = 5,
+                        CastingValue = 20,
+                        ManaCost = 30,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.UsePerBattle, 1 },
+                        },
+                        School = MagicSchool.Divination,
+                        TargetType = SpellTargetType.Self,
+                        SpellEffect = "All heroes that have acted may immediately put activation tokens back in the bag. They may act again as if it is a new turn. This spell may only be cast once during a battle."
                     },
                     new Spell(){
-                      Name = "Time Freeze",
-                      Level = 5,
-                      CastingValue = 20,
-                      ManaCost = 30,
-                      School = MagicSchool.Divination,
-                      TargetType = SpellTargetType.Self,
-                      SpellEffect = "All heroes that have acted may immediately put activation tokens back in the bag. They may act again as if it is a new turn. This spell may only be cast once during a battle."
+                        Name = "Fireball",
+                        Level = 6,
+                        CastingValue = 32,
+                        ManaCost = 30,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.MagicMissile, 0 },
+                            { SpellProperty.AreaOfEffectSpell, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 20 },
+                            { SpellProperty.AOEDiceCount, 1 },
+                            { SpellProperty.AOEDiceMaxValue, 10 },
+                            { SpellProperty.Radius, 1 },
+                        },
+                        DamageType = DamageType.Fire,
+                        School = MagicSchool.Destruction,
+                        TargetType = SpellTargetType.AreaOfEffect,
+                        SpellEffect = "The caster shoots a fireball at a square or an enemy. The target square suffers 1d20 Fire Damage. Adjacent squares suffer 1d10 Fire Damage."
                     },
                     new Spell(){
-                      Name = "Fireball",
-                      Level = 6,
-                      CastingValue = 32,
-                      ManaCost = 30,
-                      IsDamageSpell = true,
-                      MinDamage = 1,
-                      MaxDamage = 20,
-                      DamageType = DamageType.Fire,
-                      Properties = new List<SpellProperty>(){ SpellProperty.MagicMissile },
-                      School = MagicSchool.Destruction,
-                      IsAOESpell = true,
-                      AOEMinDamage = 1,
-                      AOEMaxDamage = 10,
-                      AOERadius = 1,
-                      TargetType = SpellTargetType.AreaOfEffect,
-                      SpellEffect = "The caster shoots a fireball at a square or an enemy. The target square suffers 1d20 Fire Damage. Adjacent squares suffer 1d10 Fire Damage."
+                        Name = "Into The Void",
+                        Level = 6,
+                        CastingValue = 30,
+                        ManaCost = 40,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.AreaOfEffectSpell, 0 },
+                            { SpellProperty.DexterityTest, 0 },
+                            { SpellProperty.Radius, 4 },
+                        },
+                        School = MagicSchool.Mysticism,
+                        TargetType = SpellTargetType.AreaOfEffect,
+                        SpellEffect = "The caster conjures a large opening in the ground, swallowing any who happens to be standing there. The wizard must have LOS to at least 1 of the squares. The hole covers 4 squares and any model with their whole base inside that range must make a DEX Test or perish. That also means an X-Large creature will not be affected by this spell. The party gets the XP for any creatures that perish. Any furniture or traps in these squares also disappears. The hole then immediately closes up."
                     },
                     new Spell(){
-                      Name = "Into The Void",
-                      Level = 6,
-                      CastingValue = 30,
-                      ManaCost = 40,
-                      School = MagicSchool.Mysticism,
-                      IsAOESpell = true,
-                      AOERadius = 2,
-                      TargetType = SpellTargetType.AreaOfEffect,
-                      SpellEffect = "The caster conjures a large opening in the ground, swallowing any who happens to be standing there. The wizard must have LOS to at least 1 of the squares. The hole covers 4 squares and any model with their whole base inside that range must make a DEX Test or perish. That also means an X-Large creature will not be affected by this spell. The party gets the XP for any creatures that perish. Any furniture or traps in these squares also disappears. The hole then immediately closes up."
+                        Name = "Life Force",
+                        Level = 6,
+                        CastingValue = 20,
+                        ManaCost = 30,
+                        School = MagicSchool.Restoration,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "This spell restores all of a hero's Hit Points."
                     },
                     new Spell(){
-                      Name = "Life Force",
-                      Level = 6,
-                      CastingValue = 20,
-                      ManaCost = 30,
-                      School = MagicSchool.Restoration,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "This spell restores all of a hero's Hit Points."
+                        Name = "Raise Dead",
+                        Level = 6,
+                        CastingValue = 25,
+                        ManaCost = 15,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.Upkeep, 5 },
+                        },
+                        School = MagicSchool.Necromancy,
+                        SpellEffect = "The caster may try to raise a defeated Lower Undead or dead human in LOS. Add one hero activation token to the bag immediately. Any Zombie or Skeleton raised will retain its stats and equipment. Any raised human will gain the stats of a zombie and retain its weapon, but armour will be 0."
                     },
                     new Spell(){
-                      Name = "Raise Dead",
-                      Level = 6,
-                      CastingValue = 25,
-                      ManaCost = 15,
-                      UpkeepCost = 5,
-                      TurnDuration = -1,
-                      School = MagicSchool.Necromancy,
-                      SpellEffect = "The caster may try to raise a defeated Lower Undead or dead human in LOS. Add one hero activation token to the bag immediately. Any Zombie or Skeleton raised will retain its stats and equipment. Any raised human will gain the stats of a zombie and retain its weapon, but armour will be 0."
+                        Name = "Summon Greater Demon",
+                        Level = 6,
+                        CastingValue = 30,
+                        ManaCost = 25,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.TurnDuration, 0 },
+                            { SpellProperty.DiceCount, 1 },
+                            { SpellProperty.DiceMaxValue, 3 },
+                            { SpellProperty.AddCasterLvlToDuration, 1 },
+                            { SpellProperty.DiceCount2, 1 },
+                            { SpellProperty.DiceMaxValue2, 6 },
+                        },
+                        School = MagicSchool.Conjuration,
+                        TargetType = SpellTargetType.NoTarget,
+                        SpellEffect = "The caster draws a demon from its dimension to do his biddings. The demon is placed in a random place on the same tile as the wizard and fights for the caster for 1d3+Caster Level turns. Once in our plane, the demon will relish fighting, so no upkeep is needed. However, making a pact with a Greater Demon comes at a price, no matter how skilled a wizard you may be. Deduct 1d6 Sanity Points from the caster."
                     },
                     new Spell(){
-                      Name = "Summon Greater Demon",
-                      Level = 6,
-                      CastingValue = 30,
-                      ManaCost = 25,
-                      TurnDuration = -1,
-                      AddCasterLvlToDuration = true,
-                      School = MagicSchool.Conjuration,
-                      TargetType = SpellTargetType.NoTarget,
-                      SpellEffect = "The caster draws a demon from its dimension to do his biddings. The demon is placed in a random place on the same tile as the wizard and fights for the caster for 1d3+Caster Level turns. Once in our plane, the demon will relish fighting, so no upkeep is needed. However, making a pact with a Greater Demon comes at a price, no matter how skilled a wizard you may be. Deduct 1d6 Sanity Points from the caster."
-                    },
-                    new Spell(){
-                      Name = "Teleportation",
-                      Level = 6,
-                      CastingValue = 14,
-                      ManaCost = 20,
-                      School = MagicSchool.Alteration,
-                      TargetType = SpellTargetType.Ally,
-                      SpellEffect = "The wizard may teleport one of his companions within LOS or himself up to 4 squares. This is risky business though, and a failed spell will cost the target one Sanity Point as he is partly in the void before coming back."
+                        Name = "Teleportation",
+                        Level = 6,
+                        CastingValue = 14,
+                        ManaCost = 20,
+                        Properties = new Dictionary<SpellProperty, int>()
+                        {
+                            { SpellProperty.LOS, 0 },
+                            { SpellProperty.Range, 4 },
+                        },
+                        School = MagicSchool.Alteration,
+                        TargetType = SpellTargetType.Ally,
+                        SpellEffect = "The wizard may teleport one of his companions within LOS or himself up to 4 squares. This is risky business though, and a failed spell will cost the target one Sanity Point as he is partly in the void before coming back."
                     }
                 };
         }
@@ -793,16 +1032,6 @@ namespace LoDCompanion.Services.GameData
         public static Spell GetSpellByName(string name)
         {
             return Spells.First(s => s.Name == name);
-        }
-
-        public static MonsterSpell GetMonsterSpellByName(string name)
-        {
-            return MonsterSpells.First(s => s.Name == name);
-        }
-
-        public static List<MonsterSpell> GetMonsterSpellsByType(MonsterSpellType type)
-        {
-            return (List<MonsterSpell>)MonsterSpells.Where(s => s.Type == type);
         }
 
         public static List<MonsterSpell> GetMonsterSpells()
@@ -999,6 +1228,16 @@ namespace LoDCompanion.Services.GameData
                     Effect = "The wizard summons a random demon. This is placed in a random empty square in the same tile as the caster. If there is no empty square, it is placed in an adjacent tile. This spell can summon 1 demon per battle. The summoned demon is determined by a d10 roll: 1-6 for a Bloated Demon, 7-9 for a Lurker, and 10 for a Greater Demon."
                 }
             };
+        }
+
+        public static MonsterSpell GetMonsterSpellByName(string name)
+        {
+            return MonsterSpells.First(s => s.Name == name);
+        }
+
+        public static List<MonsterSpell> GetMonsterSpellsByType(MonsterSpellType type)
+        {
+            return (List<MonsterSpell>)MonsterSpells.Where(s => s.Type == type);
         }
     }
 
@@ -1252,28 +1491,12 @@ namespace LoDCompanion.Services.GameData
         public string SpellEffect { get; set; } = string.Empty;
         public int CastingValue { get; set; } // The base difficulty or power of the spell
         public int ManaCost { get; set; }
-        public int UpkeepCost { get; set; } // Per turn cost for sustained spells
-        public int TurnDuration { get; set; } // Duration in turns
-        public bool AddCasterLvlToDuration { get; set; }
 
         // Damage properties for direct damage spells
-        public bool IsDamageSpell { get; set; }
-        public int MinDamage { get; set; }
-        public int MaxDamage { get; set; }
-        public bool IncludeCasterLevelInDamage { get; set; }
-        public bool IsArmourPiercing { get; set; }
         public DamageType DamageType { get; set; } = DamageType.Magic;
-
-        // Spell Category Flags (can be used for filtering or specific effects)
-        public List<SpellProperty>? Properties { get; set; }
+        public StatusEffectType? StatusEffect { get; set; } // Optional status effect applied by the spell
         public MagicSchool School { get; set; }
-
-        // AOE properties
-        public bool IsAOESpell { get; set; }
-        public int AOEMinDamage { get; set; }
-        public int AOEMaxDamage { get; set; }
-        public int AOERadius { get; set; } // Or target count for EnemiesAOE
-        public bool AOEIncludesCasterLevel { get; set; }
+        public Dictionary<SpellProperty, int>? Properties { get; set; }
 
         public Spell()
         {
@@ -1282,56 +1505,80 @@ namespace LoDCompanion.Services.GameData
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"--- Spell: {Name} {School} (Lvl {Level}) ---");
-            sb.AppendLine($"Cost: {ManaCost} Mana | Upkeep: {UpkeepCost} | CV: {CastingValue}");
-            if (TurnDuration > 0)
+            sb.AppendLine($"--- {Name} (Lvl {Level} {School}) ---");
+            sb.Append($"CV: {CastingValue} | Cost: {ManaCost} Mana");
+            if (HasProperty(SpellProperty.Upkeep))
             {
-                sb.Append($"Duration: {TurnDuration}" + (AddCasterLvlToDuration ? " + Caster Lvl" : "") + " turns. ");
+                sb.Append($" | Upkeep: {Properties?[SpellProperty.Upkeep]} Mana/Turn");
             }
-            sb.AppendLine($"Effect: {SpellEffect}");
+            sb.AppendLine();
 
-            if (IsDamageSpell)
+            // --- Duration ---
+            if (HasProperty(SpellProperty.TurnDuration))
             {
-                sb.Append($"Damage: {MinDamage}-{MaxDamage}" + (IncludeCasterLevelInDamage ? " + Caster Lvl" : ""));
-                if (IsArmourPiercing) sb.Append(" (AP)");
+                sb.Append($"Duration: {Properties?.GetValueOrDefault(SpellProperty.DiceCount, 1)}d{Properties?.GetValueOrDefault(SpellProperty.DiceMaxValue, 0)}");
+                if (HasProperty(SpellProperty.AddCasterLvlToDuration))
+                {
+                    sb.Append(" + Caster Level");
+                }
+                sb.AppendLine(" turns");
+                // --- Primary Damage ---
+                if (HasProperty(SpellProperty.DiceCount2))
+                {
+                    sb.Append($"Damage: {Properties?.GetValueOrDefault(SpellProperty.DiceCount2, 1)}d{Properties?.GetValueOrDefault(SpellProperty.DiceMaxValue2, 0)} {DamageType}");
+                    if (HasProperty(SpellProperty.IncludeCasterLevelInDamage))
+                    {
+                        sb.Append(" + Caster Level");
+                    }
+                    if (HasProperty(SpellProperty.ArmourPiercing))
+                    {
+                        sb.Append(" (AP)");
+                    }
+                    sb.AppendLine();
+                }
+            }
+
+            // --- Primary Damage ---
+            if (!HasProperty(SpellProperty.TurnDuration) && HasProperty(SpellProperty.DiceCount))
+            {
+                sb.Append($"Damage: {Properties?.GetValueOrDefault(SpellProperty.DiceCount, 1)}d{Properties?.GetValueOrDefault(SpellProperty.DiceMaxValue, 0)} {DamageType}");
+                if (HasProperty(SpellProperty.IncludeCasterLevelInDamage))
+                {
+                    sb.Append(" + Caster Level");
+                }
+                if (HasProperty(SpellProperty.ArmourPiercing))
+                {
+                    sb.Append(" (AP)");
+                }
                 sb.AppendLine();
             }
-            if (IsAOESpell)
+
+            // --- AOE Damage ---
+            if (HasProperty(SpellProperty.AreaOfEffectSpell))
             {
-                sb.Append($"AOE Damage: {AOEMinDamage}-{AOEMaxDamage}" + (AOEIncludesCasterLevel ? " + Caster Lvl" : ""));
-                sb.AppendLine($" | Radius: {AOERadius}");
+                sb.Append($"AOE Damage: {Properties?.GetValueOrDefault(SpellProperty.AOEDiceCount, 1)}d{Properties?.GetValueOrDefault(SpellProperty.AOEDiceMaxValue, 0)}");
+                if (HasProperty(SpellProperty.AOEIncludeCasterLevelInDamage))
+                {
+                    sb.Append(" + Caster Level");
+                }
+                sb.AppendLine($" | Radius: {Properties.GetValueOrDefault(SpellProperty.Radius, 1)}");
             }
 
-            if (Properties != null && Properties.Any())
+            sb.AppendLine($"Effect: {SpellEffect}");
+
+            // --- Tags/Keywords ---
+            var tags = Properties?.Keys.Select(p => p.ToString()).ToList() ?? new List<string>();
+            if (tags.Any())
             {
-                sb.AppendLine($"Category: {string.Join(", ", Properties)}");
+                sb.AppendLine($"Tags: {string.Join(", ", tags)}");
             }
 
             return sb.ToString();
         }
 
-        public int GetSpellDamage(int casterLevel)
+        public bool HasProperty(SpellProperty property)
         {
-            if (!IsDamageSpell) return 0;
-
-            int calculatedDamage = RandomHelper.GetRandomNumber(MinDamage, MaxDamage);
-            if (IncludeCasterLevelInDamage)
-            {
-                calculatedDamage += casterLevel;
-            }
-            return calculatedDamage;
-        }
-
-        public int GetSpellDamageAOE(int casterLevel)
-        {
-            if (!IsAOESpell) return 0;
-
-            int calculatedDamage = RandomHelper.GetRandomNumber(AOEMinDamage, AOEMaxDamage);
-            if (AOEIncludesCasterLevel)
-            {
-                calculatedDamage += casterLevel;
-            }
-            return calculatedDamage;
+            return Properties?.ContainsKey(property) ?? false;
         }
 
         /// <summary>
@@ -1355,7 +1602,7 @@ namespace LoDCompanion.Services.GameData
                 return result;
             }
 
-            if (adjacentEnemies && !(this.Properties?.Contains(SpellProperty.Touch) ?? false))
+            if (adjacentEnemies && HasProperty(SpellProperty.Touch))
             {
                 result.OutcomeMessage = "Cannot cast non-Touch spells while adjacent to an enemy.";
                 result.ManaSpent = 0;
