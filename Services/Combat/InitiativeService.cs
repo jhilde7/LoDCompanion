@@ -79,7 +79,7 @@ namespace LoDCompanion.Services.Combat
                 // This should ideally not be reached if IsTurnOver is checked, but it's a safe fallback.
                 throw new InvalidOperationException("Cannot draw a token from an empty initiative bag.");
             }
-
+            _initiativeTokens.Shuffle();
             var token = _initiativeTokens[0];
             _initiativeTokens.RemoveAt(0);
             return token;
