@@ -92,5 +92,15 @@ namespace LoDCompanion.Services.Combat
         {
             return !_initiativeTokens.Any();
         }
+
+        internal void AddToken(ActorType token)
+        {
+            _initiativeTokens.Add(token);
+        }
+
+        internal void RemoveToken(ActorType token)
+        {
+            _initiativeTokens.Remove(token);
+        }
     }
 }
