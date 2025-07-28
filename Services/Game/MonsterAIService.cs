@@ -138,7 +138,7 @@ namespace LoDCompanion.Services.Game
             }
             else if (distance > 1 && distance <= monster.GetStat(BasicStat.Move)) 
             {
-                int roll = RandomHelper.RollDie("D6");
+                int roll = RandomHelper.RollDie(DiceType.D6);
                 switch (roll)
                 {
                     case 1: return await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry);
@@ -208,10 +208,10 @@ namespace LoDCompanion.Services.Game
                 }
                 else
                 {
-                    int actionRoll = RandomHelper.RollDie("D6");
+                    int actionRoll = RandomHelper.RollDie(DiceType.D6);
                     if (actionRoll <= 4)
                     {
-                        int attackTypeRoll = RandomHelper.RollDie("D6");
+                        int attackTypeRoll = RandomHelper.RollDie(DiceType.D6);
                         switch (attackTypeRoll)
                         {
                             case <= 2:
@@ -266,7 +266,7 @@ namespace LoDCompanion.Services.Game
             var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
             var losHeroes = heroes.Where(h => GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
-            int roll = RandomHelper.RollDie("D6");
+            int roll = RandomHelper.RollDie(DiceType.D6);
             if (adjacentHeroes.Any())
             {
                 target = ChooseTarget(monster, adjacentHeroes); // Choose from adjacent heroes
@@ -357,10 +357,10 @@ namespace LoDCompanion.Services.Game
         private async Task<AttackResult> HandleAdjacentMeleeAttackAsync(Monster monster, Weapon? weapon, Hero target, List<Hero> heroes)
         {                
             bool isWounded = (monster.CurrentHP <= monster.GetStat(BasicStat.HitPoints) / 2);
-            int actionRoll = RandomHelper.RollDie("D6");
+            int actionRoll = RandomHelper.RollDie(DiceType.D6);
             if (actionRoll <= 4)
             {
-                int attackTypeRoll = RandomHelper.RollDie("D6");
+                int attackTypeRoll = RandomHelper.RollDie(DiceType.D6);
                 switch (monster.Behavior)
                 {
                     case MonsterBehaviorType.HumanoidMelee:
@@ -649,7 +649,7 @@ namespace LoDCompanion.Services.Game
             {
                 case MonsterBehaviorType.HumanoidRanged:
                     // "Target: 1-4: closest enemy, 5-6: easiest to hit (Lowest HP first)"
-                    int roll = RandomHelper.RollDie("D6");
+                    int roll = RandomHelper.RollDie(DiceType.D6);
                     if (roll <= 4)
                     {
                         return targetableHeroes.OrderBy(h => GridService.GetDistance(monster.Position, h.Position!)).FirstOrDefault();
@@ -664,7 +664,7 @@ namespace LoDCompanion.Services.Game
 
                 case MonsterBehaviorType.MagicUser:
                     // "1-3: Closest Hero. 4-5: Least remaining hit points, 6: Opposing Magic User"
-                    int magicRoll = RandomHelper.RollDie("D6");
+                    int magicRoll = RandomHelper.RollDie(DiceType.D6);
                     if (magicRoll <= 3)
                     {
                         return targetableHeroes.OrderBy(h => GridService.GetDistance(monster.Position, h.Position!)).FirstOrDefault();

@@ -44,7 +44,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             var deck = new List<LeverColor> { LeverColor.Black };
 
-            int numberOfRedLevers = RandomHelper.RollDie("D4") + 1;
+            int numberOfRedLevers = RandomHelper.RollDie(DiceType.D4) + 1;
             if (hasClue)
             {
                 numberOfRedLevers--;
@@ -70,7 +70,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (color == LeverColor.Black)
             {
-                int roll = RandomHelper.RollDie("D8");
+                int roll = RandomHelper.RollDie(DiceType.D8);
                 switch (roll)
                 {
                     case 1: result.Description = "A distant bang is heard! The dungeon entrance is now sealed, preventing new Wandering Monsters from entering."; break;

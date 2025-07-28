@@ -88,7 +88,7 @@ namespace LoDCompanion.Services.Combat
             }
             else
             {
-                result.AttackRoll = RandomHelper.RollDie("D100");
+                result.AttackRoll = RandomHelper.RollDie(DiceType.D100);
             }
 
             if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
@@ -262,7 +262,7 @@ namespace LoDCompanion.Services.Combat
 
         private HitLocation DetermineHitLocation()
         {
-            int roll = RandomHelper.RollDie("D6");
+            int roll = RandomHelper.RollDie(DiceType.D6);
             return roll switch
             {
                 1 => HitLocation.Head,
@@ -306,7 +306,7 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         private string CheckForQuickSlotDamage(Hero target)
         {
-            int slotRoll = RandomHelper.RollDie("D10");
+            int slotRoll = RandomHelper.RollDie(DiceType.D10);
             if (slotRoll <= target.Inventory.QuickSlots.Count)
             {
                 var item = target.Inventory.QuickSlots[slotRoll - 1]; // -1 for 0-based index

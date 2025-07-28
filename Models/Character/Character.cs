@@ -403,7 +403,7 @@ namespace LoDCompanion.Models.Character
             // This method would use a RandomHelper service or static method now
             if (roll == null)
             {
-                roll = RandomHelper.RollDie("D100");
+                roll = RandomHelper.RollDie(DiceType.D100);
             }
             int con = GetStat(BasicStat.Constitution);
 
@@ -423,7 +423,7 @@ namespace LoDCompanion.Models.Character
         {
             if (roll == null)
             {
-                roll = RandomHelper.RollDie("D100");
+                roll = RandomHelper.RollDie(DiceType.D100);
             }
             int con = GetStat(BasicStat.Constitution);
 

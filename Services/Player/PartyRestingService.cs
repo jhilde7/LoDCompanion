@@ -97,14 +97,14 @@ namespace LoDCompanion.Services.Player
             foreach (var hero in party.Heroes)
             {
                 // Restore HP
-                int hpGained = RandomHelper.RollDie("D6");
+                int hpGained = RandomHelper.RollDie(DiceType.D6);
                 hero.CurrentHP = Math.Min(hero.GetStat(BasicStat.HitPoints), hero.CurrentHP + hpGained);
 
                 // Restore Energy
                 int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
                 for (int i = 0; i < energyToRestore; i++)
                 {
-                    if (RandomHelper.RollDie("D6") <= 3) hero.CurrentEnergy++;
+                    if (RandomHelper.RollDie(DiceType.D6) <= 3) hero.CurrentEnergy++;
                 }
 
                 // Restore Mana for Wizards

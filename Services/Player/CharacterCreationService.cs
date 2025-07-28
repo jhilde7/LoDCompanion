@@ -497,7 +497,7 @@ namespace LoDCompanion.Services.CharacterCreation
             {
                 if (equipment is MeleeWeapon || equipment is RangedWeapon || equipment is Armour)
                 {
-                    equipment.Durability = RandomHelper.RollDie("D4"); 
+                    equipment.Durability = RandomHelper.RollDie(DiceType.D4); 
                 }
                 else
                 {

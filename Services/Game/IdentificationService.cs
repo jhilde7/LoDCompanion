@@ -34,7 +34,7 @@ namespace LoDCompanion.Services.Game
 
             // Example difficulty - this could be based on the item's level or rarity.
             int difficulty = 50;
-            int roll = RandomHelper.RollDie("D100");
+            int roll = RandomHelper.RollDie(DiceType.D100);
 
             if (roll <= skillValue - difficulty)
             {

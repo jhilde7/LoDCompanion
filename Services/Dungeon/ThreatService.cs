@@ -61,7 +61,7 @@ namespace LoDCompanion.Services.Dungeon
         public ThreatEventResult? ProcessScenarioRoll(DungeonState dungeonState, bool isInBattle)
         {
             // As per the PDF, roll a d10 Scenario Die.
-            int scenarioRoll = RandomHelper.RollDie("D10");
+            int scenarioRoll = RandomHelper.RollDie(DiceType.D10);
             Console.WriteLine($"Scenario Roll: {scenarioRoll}");
 
             // A roll of 9 or 10 triggers a Threat Level roll.
@@ -157,7 +157,7 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         private ThreatEventResult ResolveInBattleEvent()
         {
-            int roll = RandomHelper.RollDie("D10");
+            int roll = RandomHelper.RollDie(DiceType.D10);
             var result = new ThreatEventResult();
 
             switch (roll)

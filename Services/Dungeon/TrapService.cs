@@ -15,7 +15,7 @@ namespace LoDCompanion.Services.Dungeon
         /// <returns>True if the trap is detected, false otherwise.</returns>
         public bool DetectTrap(Hero hero, Trap trap)
         {
-            int perceptionRoll = RandomHelper.RollDie("D100");
+            int perceptionRoll = RandomHelper.RollDie(DiceType.D100);
             // The PDF mentions a modifier on the card next to the eye; we use the trap's SkillModifier for this.
             return perceptionRoll <= 80 && perceptionRoll <= (hero.GetSkill(Skill.Perception) + trap.SkillModifier);
         }
@@ -30,7 +30,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             // Disarming uses the Pick Lock Skill, as per the PDF.
             // The modifier next to the cogs on the card corresponds to the trap's DisarmModifier.
-            int disarmRoll = RandomHelper.RollDie("D100");
+            int disarmRoll = RandomHelper.RollDie(DiceType.D100);
             if (disarmRoll <= 80 && disarmRoll <= (hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier))
             {
                 trap.IsDisarmed = true;

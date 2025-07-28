@@ -51,7 +51,7 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     // Monster is waiting at a door. Roll to see if it breaks through.
                     // Rule: 2-6 on a d6 to open a standard door.
-                    if (RandomHelper.RollDie("D6") >= 2)
+                    if (RandomHelper.RollDie(DiceType.D6) >= 2)
                     {
                         monsterState.IsAtClosedDoor = false;
                         // The door is now considered open. The monster will move on its next turn.
@@ -75,7 +75,7 @@ namespace LoDCompanion.Services.Dungeon
                     continue; // End this monster's turn
                 }
 
-                int moveRoll = RandomHelper.RollDie("D6");
+                int moveRoll = RandomHelper.RollDie(DiceType.D6);
                 if (moveRoll >= 2)
                 {
                     // Find the shortest path to any hero in the same room.

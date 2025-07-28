@@ -34,7 +34,7 @@ namespace LoDCompanion.Services.Player
             }
 
             // Perform a Heal skill check.
-            int healRoll = RandomHelper.RollDie("D100");
+            int healRoll = RandomHelper.RollDie(DiceType.D100);
             if (healRoll > healer.GetSkill(Skill.Heal))
             {
                 return $"{healer.Name}'s attempt to heal {target.Name} failed, and the bandage was wasted.";
@@ -42,9 +42,9 @@ namespace LoDCompanion.Services.Player
 
             // Determine HP restored based on bandage type.
             int hpGained = 0;
-            if (bandage.Name.Contains("old rags")) hpGained = RandomHelper.RollDie("D4");
-            else if (bandage.Name.Contains("linen")) hpGained = RandomHelper.RollDie("D8");
-            else if (bandage.Name.Contains("Herbal wrap")) hpGained = RandomHelper.RollDie("D10");
+            if (bandage.Name.Contains("old rags")) hpGained = RandomHelper.RollDie(DiceType.D4);
+            else if (bandage.Name.Contains("linen")) hpGained = RandomHelper.RollDie(DiceType.D8);
+            else if (bandage.Name.Contains("Herbal wrap")) hpGained = RandomHelper.RollDie(DiceType.D10);
 
             // Apply healing to the target.
             target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + hpGained);

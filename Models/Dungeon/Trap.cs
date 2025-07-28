@@ -31,7 +31,7 @@ namespace LoDCompanion.Models.Dungeon
         public static Trap GetRandomTrap()
         {
             
-            int roll = RandomHelper.RollDie("D100");
+            int roll = RandomHelper.RollDie(DiceType.D100);
             return roll switch
             {
                 <= 20 => new Trap("Pit Trap", 0, 10, "A deep pit trap.", "Causes fall damage."),

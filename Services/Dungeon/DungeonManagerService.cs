@@ -156,7 +156,7 @@ namespace LoDCompanion.Services.Dungeon
             _threat.IncreaseThreat(_dungeonState, 1);
 
             // Step 2: Roll for Trap (d6)
-            if (RandomHelper.RollDie("D6") == 6)
+            if (RandomHelper.RollDie(DiceType.D6) == 6)
             {
                 door.IsTrapped = true;
                 var trap = Trap.GetRandomTrap(); // A new trap is generated
@@ -188,7 +188,7 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             // Step 4: Roll for Lock (d10)
-            int lockRoll = RandomHelper.RollDie("D10");
+            int lockRoll = RandomHelper.RollDie(DiceType.D10);
             if (lockRoll > 6)
             {
                 door.IsLocked = true;
@@ -289,7 +289,7 @@ namespace LoDCompanion.Services.Dungeon
                 encounterChance += 10;
             }
 
-            int roll = RandomHelper.RollDie("D100");
+            int roll = RandomHelper.RollDie(DiceType.D100);
 
             if (roll <= encounterChance)
             {
