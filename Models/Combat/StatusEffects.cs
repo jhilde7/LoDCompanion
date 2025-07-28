@@ -199,7 +199,8 @@
         Stench,
         Stupid,
         WallCrawler,
-        RaiseDead
+        RaiseDead,
+        Summoned
     }
 
     /// <summary>
