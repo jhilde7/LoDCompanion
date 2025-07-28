@@ -155,9 +155,9 @@ namespace LoDCompanion.Services.CharacterCreation
             {
                 for (int i = 0; i < 5; i++) // Strength, Constitution, Dexterity, Wisdom, Resolve
                 {
-                    baseStatRolls[i] = GenerateStatRoll("D10");
+                    baseStatRolls[i] = GenerateStatRoll(DiceType.D10);
                 }
-                baseStatRolls[5] = GenerateStatRoll("D6"); // BaseHP roll
+                baseStatRolls[5] = GenerateStatRoll(DiceType.D6); // BaseHP roll
             }
             else
             {
@@ -167,7 +167,7 @@ namespace LoDCompanion.Services.CharacterCreation
             SetCalculatedStats(baseStatRolls); // Apply the rolls to actual stats
         }
 
-        private int GenerateStatRoll(string die)
+        private int GenerateStatRoll(DiceType die)
         {
             // Assuming RollTwiceAndChooseHighest is a method that rolls two dice and returns the highest result
             int highestRoll = 0;
