@@ -1,16 +1,12 @@
 ﻿
-using LoDCompanion.Models.Combat;
 using LoDCompanion.Models.Dungeon;
-using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
+using LoDCompanion.Services.Combat;
 using LoDCompanion.Utilities;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
 
 namespace LoDCompanion.Models.Character
 {
