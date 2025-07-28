@@ -250,7 +250,7 @@ namespace LoDCompanion.Models.Character
         }
 
         // Common methods for all characters
-        public virtual void TakeDamage(int damage)
+        public virtual void TakeDamage(int damage, DamageType? damageType = null)
         {
             CurrentHP -= damage;
             if (CurrentHP <= 0)
