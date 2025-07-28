@@ -1605,7 +1605,7 @@ namespace LoDCompanion.Services.GameData
         /// <param name="focusPoints">The number of AP spent on focusing before the cast.</param>
         /// <param name="powerLevels">The number of power levels to add (for Destruction/Restoration spells).</param>
         /// <returns>A SpellCastResult object detailing the outcome.</returns>
-        public async Task<SpellCastResult> CastSpellAsync(Hero caster, DiceRollService diceRoll, int focusPoints = 0, int powerLevels = 0)
+        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, int focusPoints = 0, int powerLevels = 0)
         {
             var result = new SpellCastResult();
             var adjacentEnemies = caster.Room.MonstersInRoom?.Any(m => GridService.GetDistance(caster.Position, m.Position) <= 1) ?? false;
@@ -1639,7 +1639,7 @@ namespace LoDCompanion.Services.GameData
             int miscastThreshold = 95 - (focusPoints * 5) - (powerLevels * 2);
 
             // --- Perform the Casting Roll ---
-            int roll = await diceRoll.RollDice("Roll to cast", "1d100");
+            int roll = await diceRoll.RequestRollAsync("Roll to cast", "1d100");
 
             // --- Check for Miscast First ---
             if (roll >= miscastThreshold)
@@ -1648,7 +1648,7 @@ namespace LoDCompanion.Services.GameData
                 result.ManaSpent = finalManaCost;
                 caster.CurrentMana -= result.ManaSpent;
 
-                int sanityLoss = (int)Math.Ceiling((double)await diceRoll.RollDice("Roll for miscast sanity loss", "1d6") / 2);
+                int sanityLoss = (int)Math.Ceiling((double)await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6") / 2);
                 caster.CurrentSanity -= sanityLoss;
                 caster.CurrentAP = 0; // Turn ends immediately
 

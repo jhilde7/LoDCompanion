@@ -11,9 +11,9 @@ namespace LoDCompanion.Services.GameData
 {
     public class AlchemyService
     {
-        private readonly DiceRollService _diceRoll;
+        private readonly UserRequestService _diceRoll;
 
-        public AlchemyService( DiceRollService diceRollService)
+        public AlchemyService( UserRequestService diceRollService)
         {
             _diceRoll = diceRollService;
         }

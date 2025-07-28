@@ -79,7 +79,7 @@ builder.Services.AddScoped<MonsterAIService>();
 builder.Services.AddScoped<WorldStateService>();
 builder.Services.AddScoped<PlacementService>();
 builder.Services.AddSingleton<FloatingTextService>();
-builder.Services.AddSingleton<DiceRollService>();
+builder.Services.AddSingleton<UserRequestService>();
 builder.Services.AddSingleton<UIService>();
 
 //Package

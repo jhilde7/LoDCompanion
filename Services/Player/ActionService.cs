@@ -63,7 +63,7 @@ namespace LoDCompanion.Services.Player
         private readonly InventoryService _inventory;
         private readonly IdentificationService _identification;
         private readonly AttackService _attack;
-        private readonly DiceRollService _diceRoll;
+        private readonly UserRequestService _diceRoll;
         private readonly SpellCastingService _spellCastingService;
 
         public ActionService(
@@ -73,7 +73,7 @@ namespace LoDCompanion.Services.Player
             InventoryService inventoryService,
             IdentificationService identificationService,
             AttackService attackService,
-            DiceRollService diceRollService,
+            UserRequestService diceRollService,
             SpellCastingService spellCastingService)
         {
             _dungeonManager = dungeonManagerService;

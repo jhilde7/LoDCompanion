@@ -24,7 +24,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's dodge attempt against an incoming attack.
         /// </summary>
-        public static async Task<DefenseResult> AttemptDodge(Hero hero, DiceRollService diceRoll)
+        public static async Task<DefenseResult> AttemptDodge(Hero hero, UserRequestService diceRoll)
         {
             var result = new DefenseResult();
             if (hero.HasDodgedThisBattle)
@@ -61,7 +61,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a weapon.
         /// </summary>
-        public static async Task<DefenseResult> AttemptWeaponParry(Hero hero, Weapon? weapon, DiceRollService diceRoll)
+        public static async Task<DefenseResult> AttemptWeaponParry(Hero hero, Weapon? weapon, UserRequestService diceRoll)
         {
             var result = new DefenseResult();
             if (hero.CombatStance != CombatStance.Parry)
@@ -100,7 +100,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a shield.
         /// </summary>
-        public static async Task<DefenseResult> AttemptShieldParry(Hero hero, Shield shield, int incomingDamage, DiceRollService diceRoll)
+        public static async Task<DefenseResult> AttemptShieldParry(Hero hero, Shield shield, int incomingDamage, UserRequestService diceRoll)
         {
             var result = new DefenseResult();
 

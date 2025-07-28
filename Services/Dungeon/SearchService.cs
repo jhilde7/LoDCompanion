@@ -19,10 +19,10 @@ namespace LoDCompanion.Services.Dungeon
     /// </summary>
     public class SearchService
     {
-        private readonly DiceRollService _diceRoll;
+        private readonly UserRequestService _diceRoll;
         private readonly TreasureService _treasure;
 
-        public SearchService(DiceRollService diceRollService, TreasureService treasure)
+        public SearchService(UserRequestService diceRollService, TreasureService treasure)
         {
             _diceRoll = diceRollService;
             _treasure = treasure;
@@ -60,7 +60,7 @@ namespace LoDCompanion.Services.Dungeon
                 searchTarget += 10;
             }
 
-            int searchRoll = await _diceRoll.RollDice("Attempt to search the room", "1d100");
+            int searchRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100");
 
             if (room.Category == RoomCategory.Corridor)
             {
@@ -71,7 +71,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (searchRoll <= searchTarget)
             {
-                int treasureRoll = await _diceRoll.RollDice("Search successful, rool for treasure", "1d100");
+                int treasureRoll = await _diceRoll.RequestRollAsync("Search successful, rool for treasure", "1d100");
                 // Original logic from SearchRoom(string type, bool isThief, int roll)
                 int count = hero.IsThief ? 2 : 1;
 

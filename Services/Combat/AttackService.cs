@@ -24,9 +24,9 @@ namespace LoDCompanion.Services.Combat
     public class AttackService
     {
         private readonly FloatingTextService _floatingText;
-        private readonly DiceRollService _diceRoll;
+        private readonly UserRequestService _diceRoll;
 
-        public AttackService(FloatingTextService floatingTextService, DiceRollService diceRollService)
+        public AttackService(FloatingTextService floatingTextService, UserRequestService diceRollService)
         {
             _floatingText = floatingTextService;
             _diceRoll = diceRollService;
@@ -83,7 +83,7 @@ namespace LoDCompanion.Services.Combat
                     result.OutcomeMessage = "The hero does not have a weapon equipped!"; 
                     return result; 
                 }
-                result.AttackRoll = await _diceRoll.RollDice("Roll to-hit.", "1d100");
+                result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
                 await Task.Yield();
             }
             else
@@ -329,7 +329,7 @@ namespace LoDCompanion.Services.Combat
             int damage = 0;
             if(dice != null)
             {
-                damage = await _diceRoll.RollDice($"You Hit {target.Name}, now roll for damage", dice);
+                damage = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", dice);
             }
             else
             {
