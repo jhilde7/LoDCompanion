@@ -2,15 +2,43 @@
 
 namespace LoDCompanion.Utilities
 {
+    public enum DiceType
+    {
+        D4,
+        D6,
+        D8,
+        D10,
+        D12,
+        D20,
+        D100
+    }
     /// <summary>
     /// Provides utility methods for random number generation and list manipulation.
     /// Replaces Unity's UnityEngine.Random with System.Random.
     /// </summary>
     public static class RandomHelper
     {
-        private static readonly int[] DiceSides = { 4, 6, 8, 10, 12, 20, 100 }; // Common dice sides
-        private static string[] DiceNames = { "D4", "D6", "D8", "D10", "D12", "D20", "D100" };
         private static readonly Random _random = new Random();
+
+        /// <summary>
+        /// Gets the integer number of sides for a given DiceType enum.
+        /// </summary>
+        /// <param name="diceType">The enum value of the die.</param>
+        /// <returns>The number of sides as an integer.</returns>
+        public static int GetSides(DiceType diceType)
+        {
+            return diceType switch
+            {
+                DiceType.D4 => 4,
+                DiceType.D6 => 6,
+                DiceType.D8 => 8,
+                DiceType.D10 => 10,
+                DiceType.D12 => 12,
+                DiceType.D20 => 20,
+                DiceType.D100 => 100,
+                _ => 0, // Default case, should not be reached
+            };
+        }
 
         public static int GetRandomNumber(int min, int max)
         {
@@ -19,38 +47,37 @@ namespace LoDCompanion.Utilities
             return _random.Next(min, max + 1);
         }
 
-        private static int GetDiceSides(string diceName)
+        public static int RollDie(DiceType die)
         {
-            // Find the index of the dice name in the DiceNames array
-            int index = Array.IndexOf(DiceNames, diceName);
-            if (index < 0 || index >= DiceSides.Length)
-            {
-                throw new ArgumentException($"Invalid dice name: {diceName}");
-            }
-            return DiceSides[index];
-        }
-
-        public static int RollDie(string die)
-        {
-            return GetRandomNumber(1, GetDiceSides(die));
+            return GetRandomNumber(1, GetSides(die));
         }
 
         public static int RollDice(string dice)
         {
-            string[] diceCountAndType = dice.ToLower().Split('d');
-            string diceType = diceCountAndType[1].Insert(0, "D");
-            int diceCount = 0;
-            int roll = 0;
-
-            if (int.TryParse(diceCountAndType[0], out diceCount))
+            string[] diceParts = dice.ToLower().Split('d');
+            if (diceParts.Length != 2 || !int.TryParse(diceParts[0], out int numberOfDice) || !int.TryParse(diceParts[1], out int diceSides))
             {
-                for (int i = 0; i < diceCount; i++)
-                {
-                    roll += RollDie(diceType);
-                } 
+                return 0;
             }
 
-            return roll;
+            DiceType diceType;
+            try
+            {
+                diceType = (DiceType)Enum.Parse(typeof(DiceType), "D" + diceSides);
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine($"Invalid dice type specified: d{diceSides}");
+                return 0;
+            }
+
+            int totalRoll = 0;
+            for (int i = 0; i < numberOfDice; i++)
+            {
+                totalRoll += RollDie(diceType);
+            }
+
+            return totalRoll;
         }
 
         public static T GetRandomEnumValue<T>(int min = 0, int max = 0)

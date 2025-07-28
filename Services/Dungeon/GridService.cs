@@ -271,7 +271,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
 
-            int shoveRoll = RandomHelper.RollDie("D100");
+            int shoveRoll = RandomHelper.RollDie(DiceType.D100);
             int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;
 
             if (shoveRoll > target.GetStat(BasicStat.Dexterity) + shoveBonus)

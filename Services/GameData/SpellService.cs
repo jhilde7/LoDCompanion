@@ -1322,7 +1322,7 @@ namespace LoDCompanion.Services.GameData
                     return $"{caster.Name} blinds {target.Name}! They are disoriented and cannot fight effectively.";
                 case "Flare":
                     if (target == null) break;
-                    damage = RandomHelper.RollDie("D10");
+                    damage = RandomHelper.RollDie(DiceType.D10);
                     //TODO: ProcessSpellDamage(damage);
                     return $"{caster.Name} hits {target.Name} with a Flare for {damage} damage.";
                 case "Fireball":
@@ -1332,7 +1332,7 @@ namespace LoDCompanion.Services.GameData
                     // Damage the center square (if a character is there).
                     if (target != null)
                     {
-                        int centerDamage = RandomHelper.RollDie("D10") + 2;
+                        int centerDamage = RandomHelper.RollDie(DiceType.D10) + 2;
                         //TODO: ProcessSpellDamage(centerDamage);
                         outcome += $"\n{target.Name} is at the center, taking {centerDamage} fire damage.";
                     }
@@ -1343,14 +1343,14 @@ namespace LoDCompanion.Services.GameData
 
                     foreach (Character splashTarget in charactersInSplash)
                     {
-                        int splashDamage = RandomHelper.RollDie("D6") + 1;
+                        int splashDamage = RandomHelper.RollDie(DiceType.D6) + 1;
                         //TODO: ProcessSpellDamage(splashDamage);
                         outcome += $"\n{splashTarget.Name} is caught in the blast for {splashDamage} damage.";
                     }
                     return outcome;
                 case "Frost ray":
                     if (target == null) break;
-                    damage = RandomHelper.RollDie("D8");
+                    damage = RandomHelper.RollDie(DiceType.D8);
                     //TODO: ProcessSpellDamage(damage);
                     StatusEffectService.AttemptToApplyStatus(
                         target, StatusEffectService.GetStatusEffectByType(StatusEffectType.Stunned));
@@ -1370,13 +1370,13 @@ namespace LoDCompanion.Services.GameData
                     if (target == null) break;
                     if (target is Hero heroTarget)
                     {
-                        int sanityDamage = RandomHelper.RollDie("D3");
+                        int sanityDamage = (int)Math.Ceiling(RandomHelper.RollDie(DiceType.D6)/2d);
                         heroTarget.CurrentSanity -= sanityDamage;
                         return $"{caster.Name} blasts {heroTarget.Name}'s mind, causing {sanityDamage} sanity damage!";
                     }
                     else
                     {
-                        damage = RandomHelper.RollDie("D6");
+                        damage = RandomHelper.RollDie(DiceType.D6);
                         //TODO: ProcessSpellDamage(damage); // No armour save
                         return $"{caster.Name} blasts {target.Name}'s mind for {damage} unblockable damage!";
                     }
@@ -1422,7 +1422,7 @@ namespace LoDCompanion.Services.GameData
 
                 case "Vampiric touch":
                     if (target == null) break;
-                    damage = RandomHelper.RollDie("D10");
+                    damage = RandomHelper.RollDie(DiceType.D10);
                     //TODO: ProcessSpellDamage(damage); // No armour save
                     caster.CurrentHP = Math.Min(caster.GetStat(BasicStat.HitPoints), caster.CurrentHP + damage);
                     return $"{caster.Name} drains {damage} life from {target.Name}, healing itself.";
@@ -1435,13 +1435,13 @@ namespace LoDCompanion.Services.GameData
 
                 case "Healing":
                     if (target == null) break;
-                    int healAmount = RandomHelper.RollDie("D10");
+                    int healAmount = RandomHelper.RollDie(DiceType.D10);
                     target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + healAmount);
                     return $"{caster.Name} casts a healing spell on {target.Name}, recovering {healAmount} HP.";
 
                 case "Healing hand":
                     if (target == null) break;
-                    healAmount = RandomHelper.RollDie("D10");
+                    healAmount = RandomHelper.RollDie(DiceType.D10);
                     target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + healAmount);
                     return $"{caster.Name} lays a healing hand on {target.Name}, recovering {healAmount} HP.";
 
@@ -1461,7 +1461,7 @@ namespace LoDCompanion.Services.GameData
                         var woundedUndead = dungeon.RevealedMonsters.Where(m => m.IsUndead && m.CurrentHP < m.GetStat(BasicStat.HitPoints)).FirstOrDefault();
                         if (woundedUndead != null)
                         {
-                            healAmount = RandomHelper.RollDie("D6");
+                            healAmount = RandomHelper.RollDie(DiceType.D6);
                             woundedUndead.CurrentHP = Math.Min(woundedUndead.GetStat(BasicStat.HitPoints), woundedUndead.CurrentHP + healAmount);
                             return $"{caster.Name} channels dark energy, healing {woundedUndead.Name} for {healAmount} HP.";
                         }
