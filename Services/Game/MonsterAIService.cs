@@ -270,6 +270,8 @@ namespace LoDCompanion.Services.Game
             var losHeroes = heroes.Where(h => GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
             int roll = RandomHelper.RollDie(DiceType.D6);
+            Dictionary<MonsterSpell, GridPosition>? spellChoice = null;
+
             if (adjacentHeroes.Any())
             {
                 target = ChooseTarget(monster, adjacentHeroes); // Choose from adjacent heroes
@@ -295,15 +297,8 @@ namespace LoDCompanion.Services.Game
                             }
                         }                        
                     case <= 4:
-                        var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.CloseCombat);
-                        if (spellChoice != null)
-                        {
-                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
-                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = _spell.ResolveMonsterSpell(monster, spell, targetPosition);
-                            return result.OutcomeMessage;
-                        }
-                        return $"{monster.Name} considers its next move.";
+                        spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.CloseCombat);
+                        break;
                     default: 
                         attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.Weapons.FirstOrDefault(), target, heroes);
                         return attackResult.OutcomeMessage;
@@ -314,25 +309,11 @@ namespace LoDCompanion.Services.Game
                 switch (roll)
                 {
                     case <= 4:
-                        var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Ranged);
-                        if (spellChoice != null)
-                        {
-                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
-                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = _spell.ResolveMonsterSpell(monster, spell, targetPosition);
-                            return result.OutcomeMessage;
-                        }
-                        return $"{monster.Name} considers its next move.";
+                        spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Ranged);
+                        break;
                     default:
                         spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
-                        if (spellChoice != null)
-                        {
-                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
-                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = _spell.ResolveMonsterSpell(monster, spell, targetPosition);
-                            return result.OutcomeMessage;
-                        }
-                        return $"{monster.Name} considers its next move.";
+                        break;
                 }
             }
             else if(!losHeroes.Any())
@@ -344,21 +325,26 @@ namespace LoDCompanion.Services.Game
                         if (closestHero != null) return await MoveToGetLineOfSightAsync(monster, closestHero);
                         return $"{monster.Name} considers its next move."; 
                     default:
-                        var spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
-                        if (spellChoice != null)
-                        {
-                            MonsterSpell spell = spellChoice.FirstOrDefault().Key;
-                            GridPosition targetPosition = spellChoice.FirstOrDefault().Value;
-                            var result = _spell.ResolveMonsterSpell(monster, spell, targetPosition);
-                            return result.OutcomeMessage;
-                        }
-                        return $"{monster.Name} considers its next move.";
+                        spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
+                        break;
                 }
             }
-            else
+
+            if (spellChoice != null && spellChoice.Any())
+            {
+                MonsterSpell spell = spellChoice.First().Key;
+                GridPosition targetPosition = spellChoice.First().Value;
+                var result = _spell.ResolveMonsterSpell(monster, spell, targetPosition);
+                return result.OutcomeMessage;
+            }
+
+            // Fallback if no other action was taken (e.g., no valid spell target was found)
+            if (monster.CurrentAP >= 1)
             {
                 return await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry);
             }
+
+            return $"{monster.Name} hesitates.";
         }
 
         private async Task<AttackResult> HandleAdjacentMeleeAttackAsync(Monster monster, Weapon? weapon, Hero target, List<Hero> heroes)
