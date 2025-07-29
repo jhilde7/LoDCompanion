@@ -1085,6 +1085,7 @@ namespace LoDCompanion.Services.GameData
                         { SpellProperty.Radius, 1 }
                     },
                     AITargetingHint = AiTargetHints.MaximizeHeroTargets,
+                    DamageType = DamageType.Fire,
                     Effect = "The wizard casts a fireball spell in the square that will hit the most non-allied targets. The spell effects the target square and all adjacent squares. The caster will ignore if this spell hurts any allies. The target square suffers 1d10+2 fire DMG, and the adjacent squares suffers 1d6+1 fire DMG. The spell requires LOS to the target square."
                 },
                 new MonsterSpell()
@@ -1101,6 +1102,7 @@ namespace LoDCompanion.Services.GameData
                     },
                     StatusEffect = StatusEffectType.Stunned,
                     AITargetingHint = AiTargetHints.TargetRandomHero,
+                    DamageType = DamageType.Frost,
                     Effect = "The wizard shoots a ray of frost at a target in LOS. The target suffers 1d8 DMG and is stunned (loses one AP next turn)."
                 },
                 new MonsterSpell()
@@ -1360,6 +1362,7 @@ namespace LoDCompanion.Services.GameData
         public SpellTargetType TargetType { get; set; } = SpellTargetType.SingleTarget;
         public Dictionary<SpellProperty, int>? Properties { get; set; } // Additional properties like range, duration, etc.
         public StatusEffectType? StatusEffect { get; set; } // Optional status effect applied by the spell
+        public DamageType? DamageType { get; set; }
         // A simple way to define the AI's goal for this spell
         // e.g., "MaximizeTargets", "TargetLowestHealth", "TargetClosest"
         public AiTargetHints AITargetingHint { get; set; } = AiTargetHints.TargetClosest;
