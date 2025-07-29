@@ -148,7 +148,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.AddRange(BuildMonsters(1, "Minotaur", new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe") ?? new Weapon() }, 2, true));
                             break;
                         case <= 64:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "CursedWeapon");
                             break;
                         case <= 66:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Beastman", new List<Weapon>() { EquipmentService.GetWeaponByName("Morningstar") ?? new Weapon() }, 1, true);
@@ -166,7 +166,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Spider");
                             break;
                         case <= 74:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Plague Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Plague Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "CursedWeapon");
                             break;
                         case <= 76:
                             encounters = BuildMonsters(2, "Common Troll", new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer") ?? new Weapon() });
@@ -182,7 +182,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters.AddRange(BuildMonsters(1, "Gnoll Shaman", new List<Weapon>() { EquipmentService.GetWeaponByName("Staff") ?? new Weapon() }, 0, false, BuildSpellList(2, 2, 1)));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "CursedWeapon");
                             break;
                         case <= 84:
                             encounters.Add(BuildMonster("Bloated Demon"));
@@ -215,7 +215,7 @@ namespace LoDCompanion.Services.Dungeon
                             break;
                         case <= 98:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Leech");
-                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "Cursed weapon"));
+                            encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6) + 2, "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 0, false, null, "CursedWeapon"));
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Lesser Plague Demon"));
                             break;
                         case <= 100:
@@ -541,7 +541,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Spider");
                             break;
                         case <= 72:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Fallen Knight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Fallen Knight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "CursedWeapon");
                             monster = BuildMonster("Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1));
                             monster.Spells.Add(SpellService.GetMonsterSpellByName("Summon Greater Demon"));
                             encounters.Add(monster);
@@ -589,7 +589,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(3, "Ogre Berserker", new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3);
                             break;
                         case <= 96:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Fallen Knight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Fallen Knight", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "CursedWeapon");
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Bandit", new List<Weapon>() { EquipmentService.GetWeaponByName("Longbow") ?? new Weapon(), EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2));
                             break;
                         case <= 98:
@@ -1106,7 +1106,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Spider");
                             break;
                         case <= 72:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "CursedWeapon");
                             encounters.Add(BuildMonster("Dark Elf Warlock", new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger") ?? new Weapon() }, 0, false, BuildSpellList(3, 2, 1)));
                             break;
                         case <= 74:
@@ -1148,7 +1148,7 @@ namespace LoDCompanion.Services.Dungeon
                             encounters = BuildMonsters(3, "Dryder", new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe") ?? new Weapon() }, 3);
                             break;
                         case <= 96:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "Cursed weapon");
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Blood Demon", new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword") ?? new Weapon() }, 4, true, null, "CursedWeapon");
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Dark Elf Assassin", new List<Weapon>() { EquipmentService.GetWeaponByName("Shortsword") ?? new Weapon() }, 2, false, null, "Poisonous 1"));
                             break;
                         case <= 98:
@@ -4105,7 +4105,7 @@ namespace LoDCompanion.Services.Dungeon
                 ToHitPenalty = -10,
                 Type = EncounterType.Undead,
                 Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 5", "Cursed weapons", "Just bones" },
+                SpecialRules = new List<string>() { "Fear 5", "CursedWeapon", "Just bones" },
                 XP = 180,
                 TreasureType = TreasureType.T2
             },
@@ -4128,7 +4128,7 @@ namespace LoDCompanion.Services.Dungeon
                 ToHitPenalty = -10,
                 Type = EncounterType.Undead,
                 Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Ethereal", "Cursed weapons", "Fear 5" },
+                SpecialRules = new List<string>() { "Ethereal", "CursedWeapon", "Fear 5" },
                 XP = 500,
                 TreasureType = TreasureType.Part
             },
@@ -5258,6 +5258,8 @@ namespace LoDCompanion.Services.Dungeon
             }
 
             string templateMonster = monsterName;
+            // Get the special rule, if any.
+            string? specialRule = parameters.GetValueOrDefault("SpecialRule");
 
             // 2. Parse all optional parameters from the dictionary
 
@@ -5282,10 +5284,26 @@ namespace LoDCompanion.Services.Dungeon
             {
                 foreach (string weaponName in weaponsStr.Split(','))
                 {
-                    // Assumes a service exists to get weapon data by name.
-                    Weapon? weapon = EquipmentService.GetWeaponByName(weaponName.Trim());
+                    bool isCursed = false;
+                    Weapon? weapon;
+                    if (weaponName.Contains("Cursed"))
+                    {
+                        // Removed cursed from name to get the correct weapon returned
+                        isCursed = true;
+                        weapon = EquipmentService.GetWeaponByName(weaponName.Replace("Cursed", "").Trim());
+                    }
+                    else
+                    {
+                        weapon = EquipmentService.GetWeaponByName(weaponName.Trim());
+                    }
+
                     if (weapon != null)
                     {
+                        weapon = (Weapon)weapon.Clone();
+                        if(isCursed)
+                        {
+                            specialRule = specialRule == string.Empty ? "CursedWeapon" : ", CursedWeapon";
+                        }
                         weapons.Add(weapon);
                     }
                 }
@@ -5306,10 +5324,7 @@ namespace LoDCompanion.Services.Dungeon
                 }
             }
 
-            // Get the special rule, if any.
-            string? specialRule = parameters.GetValueOrDefault("SpecialRule");
-
-            // 3. Call the existing BuildMonsters method with the parsed data
+            // Call the existing BuildMonsters method with the parsed data
             return BuildMonsters(
                 count,
                 templateMonster,
