@@ -263,42 +263,125 @@ namespace LoDCompanion.Services.Game
             return new SpellCastResult { IsSuccess = false, OutcomeMessage = "Could not find the creature to summon." };
         }
 
-        private async Task<SpellCastResult> HandleUtilitySpellAsync(Hero caster, Spell spell, Character target, SpellCastingResult options)
+        /// <summary>
+        /// Handles all non-damaging, non-healing spells cast by a hero.
+        /// </summary>
+        private async Task<SpellCastResult> HandleUtilitySpellAsync(Hero caster, Spell spell, object target, SpellCastingResult options)
         {
-            // Apply status effects or other unique spell rules
-            if (spell.StatusEffect.HasValue)
-            {
-                var effectToApply = new ActiveStatusEffect(spell.StatusEffect.Value, -1);
-                effectToApply.Duration = await GetDurationAsync(caster, spell);
-                StatusEffectService.AttemptToApplyStatus(target, effectToApply); // Bypasses resistance for direct spell effects
-                return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{target.Name} is affected by {spell.Name}!" };
-            }
+            var result = new SpellCastResult { IsSuccess = true };
+            var effectToApply = spell.StatusEffect.HasValue ? new ActiveStatusEffect(spell.StatusEffect.Value, -1) : null;
 
             switch (spell.Name)
             {
-                case "Strengthen Body":
-                    // This requires a mechanism to apply temporary stat bonuses.
-                    // For now, we apply a status effect that other services can check.
-                    var statToBoost = await _diceRoll.RequestChoiceAsync("Choose Stat", new List<string> { "Strength", "Constitution" });
-                    var effect = statToBoost == "Strength" ? StatusEffectType.StrengthenBodyStrength : StatusEffectType.StrengthenBodyConstitution;
-                    var statusEffect = new ActiveStatusEffect(effect, 1);
-                    statusEffect.Duration = await GetDurationAsync(caster, spell);
-                    StatusEffectService.AttemptToApplyStatus(target, statusEffect);
-                    return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{target.Name}'s {statToBoost} is bolstered!" };
+                // --- ALTERATION SPELLS ---
+                case "Gust of Wind":
+                case "Levitate":
+                case "Speed":
+                    // These are self/ally buffs with durations, handled by the default case.
+                    break;
+                case "Open Lock":
+                    if (target is DoorChest door && door.Properties != null)
+                    {
+                        // Logic to unlock a door
+                        if(door.Properties.ContainsKey(DoorChestProperty.Locked))door.Properties.Remove(DoorChestProperty.Locked);
+                        result.OutcomeMessage = $"{caster.Name} magically unlocks the {door.Category}!";
+                    }
+                    else
+                    {
+                        result.OutcomeMessage = "Open Lock can only target a door or chest.";
+                    }
+                    return result;
+
+                case "Seal Door":
+                    if (target is DoorChest doorToSeal)
+                    {
+                        if (doorToSeal.Properties != null)
+                        {
+                            doorToSeal.Properties.TryAdd(DoorChestProperty.MagicallySealed, await GetDurationAsync(caster, spell));
+                        }
+                        else
+                        { 
+                            doorToSeal.Properties = new Dictionary<DoorChestProperty, int> { { DoorChestProperty.MagicallySealed, await GetDurationAsync(caster, spell) } }; 
+                        }
+                        result.OutcomeMessage = $"{caster.Name} magically seals a nearby door!";
+                    }
+                    else
+                    {
+                        result.OutcomeMessage = "Seal Door can only target a door.";
+                    }
+                    return result;
+
+                case "Transpose":
+                    if (target is Hero otherHero)
+                    {
+                        var casterPos = caster.Position;
+                        var targetPos = otherHero.Position;
+                        GridService.MoveCharacterToPosition(caster, targetPos, _dungeon.DungeonGrid);
+                        GridService.MoveCharacterToPosition(otherHero, casterPos, _dungeon.DungeonGrid);
+                        result.OutcomeMessage = $"{caster.Name} and {otherHero.Name} swap positions!";
+                    }
+                    else
+                    {
+                        result.OutcomeMessage = "Transpose can only target another hero.";
+                    }
+                    return result;
+
+                // --- DIVINATION SPELLS ---
+                case "Second Sight":
+                    // This logic would need to be implemented in your DungeonManagerService
+                    result.OutcomeMessage = $"{caster.Name} peers through the next door, gaining a tactical advantage.";
+                    return result;
+
                 case "Time Freeze":
-                    foreach(Hero hero in _combatManager.GetActivatedHeroes())
+                    foreach (Hero hero in _combatManager.GetActivatedHeroes())
                     {
                         if (hero.CurrentAP <= 0)
                         {
                             hero.ResetActionPoints();
-                            _initiative.AddToken(ActorType.Hero); // Add a new token for the hero to act again
+                            _initiative.AddToken(ActorType.Hero);
                         }
                     }
-                    return new SpellCastResult { IsSuccess = true, OutcomeMessage = "Time freezes! The heroes feel a surge of energy and can act again." };
-                //TODO: implement other utility spells as needed
-                default:
-                    return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{spell.Name} is cast, its ancient magic weaving through the air." };
+                    return new SpellCastResult { IsSuccess = true, OutcomeMessage = "Time freezes! The heroes can act again." };
+
+                // --- HEX SPELLS ---
+                case "Hold Creature":
+                case "Silence":
+                case "Slow":
+                case "Weakness":
+                    // These are all debuffs with durations, handled by the default case.
+                    break;
+
+                // --- MYSTICISM SPELLS ---
+                case "Bolstered Mind":
+                case "Protective Shield":
+                case "Strengthen Body":
+                    // These are all buffs with durations, handled by the default case.
+                    break;
             }
+
+            // --- DEFAULT HANDLER FOR MOST STATUS EFFECT SPELLS ---
+            if (effectToApply != null)
+            {
+                effectToApply.Duration = await GetDurationAsync(caster, spell);
+
+                // For effects requiring a Resolve Test to apply
+                if (target is Character charater && spell.HasProperty(SpellProperty.ResolveTest))
+                {
+                    int resolveRoll = RandomHelper.RollDie(DiceType.D100);
+                    if (resolveRoll <= charater.GetStat(BasicStat.Resolve))
+                    {
+                        return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{charater.Name} resisted the effects of {spell.Name}!" };
+                    }
+                    StatusEffectService.AttemptToApplyStatus(charater, effectToApply);
+                    result.OutcomeMessage = $"{charater.Name} is affected by {spell.Name}!";
+                }
+            }
+            else
+            {
+                result.OutcomeMessage = $"{spell.Name} is cast, its ancient magic weaving through the air.";
+            }
+
+            return result;
         }
 
         /// <summary>
