@@ -199,7 +199,7 @@
                 Move (@(ActionService.GetActionCost(ActionType.Move)) AP)
             </Item>
 
-            @if (activeHero.ProfessionName == "Wizard")
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.Spells != null)
             {
                 <Item>
                     <span>Cast Spell</span>
@@ -273,7 +273,8 @@
                     }
                 }
 
-                if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 && activeHero.Spells.Any())
+                if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 
+                    && activeHero.Spells != null && activeHero.Spells.Any())
                 {
                     <Item>
                         <span>Cast Spell</span>
@@ -305,7 +306,8 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray) && activeHero.Prayers.Any())
+            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.Pray)
+                && activeHero.Prayers != null && activeHero.Prayers.Any())
             {
                 <Item>
                     <span>Pray</span>
@@ -320,7 +322,8 @@
 				</Item>
             }
 
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 && activeHero.Spells.Any())
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1
+                && activeHero.Spells != null && activeHero.Spells.Any())
             {
                 <Item>
                     <span>Cast Spell</span>
@@ -355,7 +358,8 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 && activeHero.Spells.Any())
+            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1 
+                && activeHero.Spells != null && activeHero.Spells.Any())
             {
                 <Item>
                     <span>Cast Spell</span>

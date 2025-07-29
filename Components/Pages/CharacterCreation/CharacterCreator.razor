@@ -946,7 +946,7 @@ else
                     </p>
                 }
 
-                @if(currentHero.Spells.Any())
+                @if(currentHero.Spells != null && currentHero.Spells.Any())
                 {
                     <p><strong>Spells:</strong></p>
                     <p>
@@ -961,7 +961,7 @@ else
                     </p>
                 }
 
-                @if(currentHero.Prayers.Any())
+                @if(currentHero.Prayers != null && currentHero.Prayers.Any())
                 {
                     <p><strong>Prayers:</strong></p>
                     <p>
