@@ -177,6 +177,7 @@ namespace LoDCompanion.Services.Combat
         FrostDamage,
         Floater,
         Flyer,
+        FlyerOutdoors,
         //Frenzy,
         GhostlyTouch,
         Gust,
