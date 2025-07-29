@@ -150,33 +150,35 @@ namespace LoDCompanion.Services.Dungeon
         /// <returns>A string describing the result of the attempt.</returns>
         public string InteractWithDoor(DoorChest door, Character character)
         {
-            if (door.IsOpen) return "The door is already open.";
+            if (door.Properties != null && door.Properties.ContainsKey(DoorChestProperty.Open)) return "The door is already open.";
+            
+            door.Properties ??= new Dictionary<DoorChestProperty, int>();
 
-            // Step 1: Increase Threat Level
+            // Increase Threat Level
             _threat.IncreaseThreat(_dungeonState, 1);
 
-            // Step 2: Roll for Trap (d6)
+            // Roll for Trap (d6)
             if (RandomHelper.RollDie(DiceType.D6) == 6)
             {
-                door.IsTrapped = true;
+                door.Properties.TryAdd(DoorChestProperty.Trapped, 0);
                 var trap = Trap.GetRandomTrap(); // A new trap is generated
                 if (_dungeonState.CurrentRoom != null)
                 {
                     _dungeonState.CurrentRoom.CurrentTrap = trap;
                 }
 
-                // Step 3: Resolve Trap
+                // Resolve Trap
                 if (character is Hero hero)
                 {
                     if (!_trap.DetectTrap(hero, trap))
                     {
                         // Failed to detect, trap is sprung!
-                        door.IsTrapped = false;
+                        door.Properties.Remove(DoorChestProperty.Trapped);
                         return _trap.TriggerTrap(hero, trap);
                     }
                     else
                     {
-                        // Trap detected. The UI would ask the player to disarm or trigger it.
+                        // TODO: Trap detected. The UI would ask the player to disarm or trigger it.
                         // For now, we assume they attempt to disarm.
                         if (!_trap.DisarmTrap(hero, trap))
                         {
@@ -187,30 +189,30 @@ namespace LoDCompanion.Services.Dungeon
                 }
             }
 
-            // Step 4: Roll for Lock (d10)
+            // Roll for Lock (d10)
             int lockRoll = RandomHelper.RollDie(DiceType.D10);
             if (lockRoll > 6)
             {
-                door.IsLocked = true;
+                door.Properties.TryAdd(DoorChestProperty.Locked, 0);
                 switch (lockRoll)
                 {
-                    case 7: door.SetLockAndTrapState(true, 0, 10, door.IsTrapped); break;
-                    case 8: door.SetLockAndTrapState(true, -10, 15, door.IsTrapped); break;
-                    case 9: door.SetLockAndTrapState(true, -15, 20, door.IsTrapped); break;
-                    case 10: door.SetLockAndTrapState(true, -20, 25, door.IsTrapped); break;
+                    case 7: door.SetLockAndTrapState(true, 0, 10, door.Properties.ContainsKey(DoorChestProperty.Trapped)); break;
+                    case 8: door.SetLockAndTrapState(true, -10, 15, door.Properties.ContainsKey(DoorChestProperty.Trapped)); break;
+                    case 9: door.SetLockAndTrapState(true, -15, 20, door.Properties.ContainsKey(DoorChestProperty.Trapped)); break;
+                    case 10: door.SetLockAndTrapState(true, -20, 25, door.Properties.ContainsKey(DoorChestProperty.Trapped)); break;
                 }
             }
 
-            // Step 5: Resolve Lock
-            if (door.IsLocked)
+            // Resolve Lock
+            if (door.Properties != null && door.Properties.ContainsKey(DoorChestProperty.Locked))
             {
                 // The door is locked. The game must now wait for player input
                 // (e.g., Pick Lock, Bash, Cast Spell). This method's job is done for now.
-                return $"The door is locked (Difficulty: {door.LockModifier}, HP: {door.LockHP}).";
+                return $"The door is locked (Difficulty: {door.Properties[DoorChestProperty.LockModifier]}, HP: {door.Properties[DoorChestProperty.LockHP]}).";
             }
 
-            // Step 6: Open the door and reveal the next room
-            door.IsOpen = true;
+            // Open the door and reveal the next room
+            door.Properties?.TryAdd(DoorChestProperty.Open, 0);
             RevealNextRoom(door);
             return "The door creaks open...";
         }
