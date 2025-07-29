@@ -948,7 +948,6 @@ namespace LoDCompanion.Services.GameData
                     DamageBonus = 1,
                     Encumbrance = 10,
                     Class = 4,
-                    ArmourPiercing = 1,
                     Value = 100,
                     Availability = 4,
                     Properties = new Dictionary<WeaponProperty, int>
@@ -956,7 +955,8 @@ namespace LoDCompanion.Services.GameData
                         { WeaponProperty.BFO, 0 },
                         { WeaponProperty.Edged, 0 },
                         { WeaponProperty.Axe, 0 },
-                        { WeaponProperty.Metal, 0 }
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.ArmourPiercing, 1 }
                     }
                 },
                 new MeleeWeapon()
@@ -1050,14 +1050,14 @@ namespace LoDCompanion.Services.GameData
                     DamageDice = "1d10",
                     Encumbrance = 10,
                     Class = 2,
-                    ArmourPiercing = 1,
                     Value = 100,
                     Availability = 4,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
                         { WeaponProperty.Reach, 0 },
                         { WeaponProperty.BFO, 0 },
-                        { WeaponProperty.Metal, 0 }
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.ArmourPiercing, 1 }
                     }
                 },
                 new MeleeWeapon()
@@ -1091,7 +1091,6 @@ namespace LoDCompanion.Services.GameData
                     DamageBonus = 2,
                     Encumbrance = 20,
                     Class = 5,
-                    ArmourPiercing = 2,
                     Value = 200,
                     Availability = 3,
                     Properties = new Dictionary<WeaponProperty, int>
@@ -1100,7 +1099,8 @@ namespace LoDCompanion.Services.GameData
                         { WeaponProperty.BFO, 0 },
                         { WeaponProperty.Edged, 0 },
                         { WeaponProperty.Axe, 0 },
-                        { WeaponProperty.Metal, 0 }
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.ArmourPiercing, 2 }
                     }
                 },
                 new MeleeWeapon()
@@ -1134,13 +1134,13 @@ namespace LoDCompanion.Services.GameData
                     DamageDice = "1d12",
                     Encumbrance = 20,
                     Class = 5,
-                    ArmourPiercing = 1,
                     Value = 150,
                     Availability = 4,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
                         { WeaponProperty.Reach, 0 },
-                        { WeaponProperty.Metal, 0 }
+                        { WeaponProperty.Metal, 0 },
+                        { WeaponProperty.ArmourPiercing, 1 }
                     }
                 },
                 new MeleeWeapon()
@@ -1191,12 +1191,14 @@ namespace LoDCompanion.Services.GameData
                     DamageDice = "1d10",
                     Encumbrance = 10,
                     Class = 6,
-                    ArmourPiercing = 1,
                     Value = 100,
                     Availability = 4,
                     ReloadTime = 1,
                     Description = "",
-                    AmmoType = AmmoType.Arrow
+                    AmmoType = AmmoType.Arrow,
+                    Properties = new Dictionary<WeaponProperty, int>() { 
+                        { WeaponProperty.ArmourPiercing, 1 }
+                    }
                   },
                   new RangedWeapon(){
                     Category = "Common",
@@ -1208,13 +1210,15 @@ namespace LoDCompanion.Services.GameData
                     DamageBonus = 2,
                     Encumbrance = 7,
                     Class = 6,
-                    ArmourPiercing = 1,
                     Value = 700,
                     Availability = 2,
                     ReloadTime = 1,
                     Description = "",
                     ElvenBowstring = true,
-                    AmmoType = AmmoType.Arrow
+                    AmmoType = AmmoType.Arrow,
+                    Properties = new Dictionary<WeaponProperty, int>() {
+                        { WeaponProperty.ArmourPiercing, 1 }
+                    }
                   },
                   new RangedWeapon(){
                     Category = "Common",
@@ -1243,12 +1247,14 @@ namespace LoDCompanion.Services.GameData
                     DamageBonus = 3,
                     Encumbrance = 15,
                     Class = 6,
-                    ArmourPiercing = 1,
                     Value = 250,
                     Availability = 3,
                     ReloadTime = 2,
                     Description = "",
-                    AmmoType = AmmoType.Bolt
+                    AmmoType = AmmoType.Bolt,
+                    Properties = new Dictionary<WeaponProperty, int>() {
+                        { WeaponProperty.ArmourPiercing, 1 }
+                    }
                   },
                   new RangedWeapon(){
                     Category = "Common",
@@ -1259,12 +1265,14 @@ namespace LoDCompanion.Services.GameData
                     DamageDice = "3d6",
                     Encumbrance = 20,
                     Class = 6,
-                    ArmourPiercing = 2,
                     Value = 400,
                     Availability = 2,
                     ReloadTime = 3,
                     Description = "Requires STR 55",
-                    AmmoType = AmmoType.Bolt
+                    AmmoType = AmmoType.Bolt,
+                    Properties = new Dictionary<WeaponProperty, int>() {
+                        { WeaponProperty.ArmourPiercing, 2 }
+                    }
                   },
                   new RangedWeapon(){
                     Category = "Common",
