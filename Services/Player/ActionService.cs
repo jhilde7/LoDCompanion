@@ -8,6 +8,7 @@ using LoDCompanion.Services.Game;
 using System.Threading;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Utilities;
+using Microsoft.Extensions.Options;
 
 namespace LoDCompanion.Services.Player
 {
@@ -64,7 +65,8 @@ namespace LoDCompanion.Services.Player
         private readonly IdentificationService _identification;
         private readonly AttackService _attack;
         private readonly UserRequestService _diceRoll;
-        private readonly SpellCastingService _spellCastingService;
+        private readonly SpellCastingService _spellCasting;
+        private readonly SpellResolutionService _spellResolution;
 
         public ActionService(
             DungeonManagerService dungeonManagerService, 
@@ -74,7 +76,8 @@ namespace LoDCompanion.Services.Player
             IdentificationService identificationService,
             AttackService attackService,
             UserRequestService diceRollService,
-            SpellCastingService spellCastingService)
+            SpellCastingService spellCastingService,
+            SpellResolutionService spellResolutionService)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -83,7 +86,8 @@ namespace LoDCompanion.Services.Player
             _identification = identificationService;
             _attack = attackService;
             _diceRoll = diceRollService;
-            _spellCastingService = spellCastingService;
+            _spellCasting = spellCastingService;
+            _spellResolution = spellResolutionService;
         }
 
         /// <summary>
@@ -421,7 +425,7 @@ namespace LoDCompanion.Services.Player
                 case ActionType.CastSpell:
                     if (character is Hero heroCasting && secondaryTarget is Spell spellToCast)
                     {
-                        var options = await _spellCastingService.RequestCastingOptionsAsync(heroCasting, spellToCast);
+                        var options = await _spellCasting.RequestCastingOptionsAsync(heroCasting, spellToCast);
 
                         if (options.WasCancelled)
                         {
@@ -439,26 +443,34 @@ namespace LoDCompanion.Services.Player
                             }
                             else
                             {
-                                if (options.FocusPoints <= 0)
+                                if (primaryTarget != null)
                                 {
-                                    if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
+                                    if (options.FocusPoints <= 0)
                                     {
-                                        apCost = 1; // Quick spells cost 1 AP if there is no focus points added
-                                        if(options.FocusPoints >= 1)
+                                        if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
+                                        {
+                                            apCost = 1; // Quick spells cost 1 AP if there is no focus points added                                        
+                                        }
+                                        else
+                                        {
+                                            apCost = 2; // Regular spells cost 2 AP if there is no focus points added
+                                        }
+                                        await _spellResolution.ResolveSpellAsync(heroCasting, spellToCast, primaryTarget, options);
+                                    }
+                                    else if (options.FocusPoints >= 1)
+                                    {
+                                        heroCasting.ChanneledSpell = new ChanneledSpell(heroCasting, spellToCast, primaryTarget, options);
+                                        if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
                                         {
                                             apCost = 2;
-                                            heroCasting.FocusActionRemaining--; // Deduct focus action if used
+                                            heroCasting.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used 
                                         }
                                     }
-                                    else
+
+                                    if (heroCasting.ChanneledSpell != null && heroCasting.ChanneledSpell.FocusActionsRemaining <= 0)
                                     {
-                                        apCost = 2; // Regular spells cost 2 AP if there is no focus points added
-                                    }
-                                }
-
-                                if(heroCasting.CurrentAP >= apCost && spellCastResult.IsSuccess)
-                                {
-
+                                        await _spellResolution.ResolveSpellAsync(heroCasting, spellToCast, primaryTarget, options);
+                                    } 
                                 }
                             }
                         }
@@ -470,18 +482,23 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case ActionType.Focus:
-                    if (character is Hero caster)
+                    if (character is Hero caster && caster.ChanneledSpell != null)
                     {
-                        if (caster.FocusActionRemaining > 0)
+                        apCost = 0;
+                        for (int i = 0; i < caster.CurrentAP; i++)
                         {
-                            caster.FocusActionRemaining--;
-                            caster.CurrentAP -= 1; // Deduct 1 AP for focusing
-                            resultMessage = $"{caster.Name} focuses their mind on casting.";
-                        }
-                        else
-                        {
-                            resultMessage = $"{caster.Name} has no focus actions remaining.";
-                            actionWasSuccessful = false;
+                            if (caster.ChanneledSpell.FocusActionsRemaining > 0)
+                            {
+                                caster.ChanneledSpell.FocusActionsRemaining--;
+                                apCost++;
+                                resultMessage = $"{caster.Name} focuses their mind on casting.";
+                            }
+                            else
+                            {
+                                await _spellResolution.ResolveSpellAsync(caster, caster.ChanneledSpell.Spell, caster.ChanneledSpell.Target, caster.ChanneledSpell.CastingOptions);
+                                resultMessage = $"{caster.Name} has no focus actions remaining.";
+                                actionWasSuccessful = false;
+                            } 
                         }
                     }
                     else
@@ -528,8 +545,6 @@ namespace LoDCompanion.Services.Player
                 ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
-                ActionType.Focus => 1,
-                ActionType.CastSpell => (context is Spell spell && spell.Properties != null && spell.Properties.ContainsKey(SpellProperty.QuickSpell)) ? 1 : 2,
                 _ => 1,
             };
         }
