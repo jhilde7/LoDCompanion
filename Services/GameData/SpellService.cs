@@ -1250,7 +1250,7 @@ namespace LoDCompanion.Services.GameData
                 {
                     Name = "Mute",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.NoTarget, // Affects all spells/prayers in the tile
+                    TargetType = SpellTargetType.Self,
                     StatusEffect = StatusEffectType.MuteAura,
                     AITargetingHint = AiTargetHints.DebuffEnemyCaster,
                     Effect = "The wizard casts a mute spell, making the use of an enemies spell or prayer more difficult. Any prayer or spell in the same tile as the wizard now requires the enemy warrior priest or wizard to add +15 to the skill check. This spell is in effect until the wizard who cast the mute spell casts another spell."
@@ -1259,7 +1259,7 @@ namespace LoDCompanion.Services.GameData
                 {
                     Name = "Raise dead",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.NoTarget, // Affects fallen enemies or random undead
+                    TargetType = SpellTargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.DiceCount, 1 },
@@ -1363,6 +1363,7 @@ namespace LoDCompanion.Services.GameData
         public Dictionary<SpellProperty, int>? Properties { get; set; } // Additional properties like range, duration, etc.
         public StatusEffectType? StatusEffect { get; set; } // Optional status effect applied by the spell
         public DamageType? DamageType { get; set; }
+
         // A simple way to define the AI's goal for this spell
         // e.g., "MaximizeTargets", "TargetLowestHealth", "TargetClosest"
         public AiTargetHints AITargetingHint { get; set; } = AiTargetHints.TargetClosest;
@@ -1542,9 +1543,6 @@ namespace LoDCompanion.Services.GameData
                 {
                     caster.FocusActionRemaining = focusPoints;
                 }
-
-                // Note: The actual spell effect (damage, healing, etc.) would be applied here
-                // by the calling service (e.g., CombatManagerService).
             }
             else
             {
