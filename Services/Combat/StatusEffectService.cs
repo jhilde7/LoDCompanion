@@ -84,6 +84,7 @@ namespace LoDCompanion.Services.Combat
         HateDarkElves,
         HateDemons,
         HateDragons,
+        HateDwarves,
         HateElementals,
         HateFroglings,
         HateGeckos,
