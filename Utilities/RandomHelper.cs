@@ -4,6 +4,7 @@ namespace LoDCompanion.Utilities
 {
     public enum DiceType
     {
+        D3,
         D4,
         D6,
         D8,
@@ -49,6 +50,11 @@ namespace LoDCompanion.Utilities
 
         public static int RollDie(DiceType die)
         {
+            if (die == DiceType.D3)
+            {
+                // D3 is not a standard die, but we can simulate it as a 1-3 range.
+                return GetRandomNumber(1, 3);
+            }
             return GetRandomNumber(1, GetSides(die));
         }
 
