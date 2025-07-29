@@ -20,6 +20,27 @@ namespace LoDCompanion.Services.Game
         public string OutcomeMessage { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Represents a spell that is being cast over multiple actions (due to Focus).
+    /// </summary>
+    public class ChanneledSpell
+    {
+        public Hero Caster { get; }
+        public Spell Spell { get; }
+        public object Target { get; } // Can be a Character or GridPosition
+        public SpellCastingResult CastingOptions { get; }
+        public int FocusActionsRemaining { get; set; }
+
+        public ChanneledSpell(Hero caster, Spell spell, object target, SpellCastingResult options)
+        {
+            Caster = caster;
+            Spell = spell;
+            Target = target;
+            CastingOptions = options;
+            FocusActionsRemaining = options.FocusPoints;
+        }
+    }
+
     public class SpellResolutionService
     {
         private readonly DungeonState _dungeon;
