@@ -52,8 +52,7 @@ namespace LoDCompanion.Services.Game
             DungeonState dungeonState, 
             EncounterService encounterService,
             InitiativeService initiativeService,
-            UserRequestService diceRoll,
-            CombatManagerService combatManager)
+            UserRequestService diceRoll)
         {
             _dungeon = dungeonState;
             _encounter = encounterService;
