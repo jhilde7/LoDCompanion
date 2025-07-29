@@ -248,9 +248,10 @@ namespace LoDCompanion.Models
         Metal,
         Magic,
         SecondaryWeapon,
+        ArmourPiercing,
         Cursed,
         Poisoned,
-        ArmourPiercing,
+        Diseased
     }
 
     public class Weapon : Equipment
