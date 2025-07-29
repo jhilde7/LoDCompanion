@@ -5,18 +5,19 @@ using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Game;
+using LoDCompanion.Services.Combat;
 
 namespace LoDCompanion.Services.Dungeon
 {
     public class EncounterService
     {
-        private readonly GameDataService _gameData;
+        private readonly WeaponFactory _weapon;
 
         public List<Monster> Monsters => GetMonsters();
 
-        public EncounterService(GameDataService gameDataService)
+        public EncounterService(WeaponFactory weaponFactory)
         {
-            _gameData = gameDataService;
+            _weapon = weaponFactory;
         }
 
         public List<Monster> GetRandomEncounterByType(EncounterType type)
@@ -1718,3521 +1719,3963 @@ namespace LoDCompanion.Services.Dungeon
                     XP = 90,
                     TreasureType = TreasureType.T1
                 },
-            new Monster()
-            {
-                Name = "Bandit Leader",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 16 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 },
-                    { Skill.RangedSkill, 40 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 130,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Banshee",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 18 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 60 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Ghostly Howl", "Terror 5", "Ethereal", "Ghostly touch" },
-                XP = 650,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Bat swarm",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 10 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 55 },
-                    { BasicStat.Resolve, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 100 }
-                },
-                MinDamage = 1,
-                MaxDamage = 4,
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Auto hit", "Flyer", "Always acts first on the first turn of battle" },
-                XP = 15,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Beastman",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 15 },
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 20 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 100,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Beastman Chieftain",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 20 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 50 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 150,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Beastman Guard",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 18 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 20 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 110,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Berserker",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 14 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Frenzy" },
-                XP = 110,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Bloated Demon",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 32 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 3 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 80 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 25 }
-                },
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Demon", "Floater", "Disease ridden", "Fear 5", "Large" },
-                XP = 650,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Blood Demon",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 12 },
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Demon", "Frenzy" },
-                XP = 200,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Cave Bear",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 20 },
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Ferocious charge" },
-                XP = 130,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Cave Goblin",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 8 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 30 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Hate Dwarves" },
-                XP = 70,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Cave Goblin Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 8 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 30 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Hate Dwarves" },
-                XP = 70,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Centaur",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.HitPoints, 20 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 7 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 60 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Kick" },
-                XP = 150,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Centaur Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 7 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Kick" },
-                XP = 150,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Common Troll",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Regenerate", "Stupid", "Simple weapons", "Large", "Bellow", "Fear 3" },
-                XP = 500,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Basilisk",
-                MinDamage = 1,
-                MaxDamage = 8,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Petrify", "Large" },
-                XP = 325,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Dark Elf",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 125,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Dark Elf Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                XP = 125,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Dark Elf Assassin",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 65 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>(){ "Sneaky" },
-                XP = 135,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Dark Elf Captain",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 13 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 150,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Dark Elf Sniper",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 65 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                XP = 135,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Dark Elf Warlock",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 60 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>(){ "Magic User" },
-                XP = 165,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Dire Wolf",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 8 },
-                    { BasicStat.Dexterity, 15 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Fear 3", "Ferocious charge" },
-                XP = 80,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Dragon",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 80 },
-                    { BasicStat.DamageBonus, 5 },
-                    { BasicStat.NaturalArmour, 5 },
-                    { BasicStat.HitPoints, 100 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>(){ "Fire breath", "Terror 10", "X-Large", "Sweeping strike" },
-                XP = 3500,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Drider",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.HitPoints, 28 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>(){ "Fear 5", "Wall crawler", "Large" },
-                XP = 600,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Fallen Knight",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 18 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 240,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Warlock",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string> { "Magic User" },
-                XP = 180,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Earth Elemental",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 20 },
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Magic being" },
-                XP = 200,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "Fire Elemental",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Magic being", "Fire damage", "Extra damage from Water" },
-                XP = 250,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "Water Elemental",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 15 },
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Extra damage from Fire", "Magic being" },
-                XP = 150,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "Wind Elemental",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 12 },
-                    { BasicStat.NaturalArmour, 1 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Gust, Magic being" },
-                XP = 150,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "Gargoyle",
-                MinDamage = 1,
-                MaxDamage = 12,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 25 },
-                    { BasicStat.NaturalArmour, 4 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                XP = 400,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Ettin",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 30 },
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Stupid", "Simple weapons", "Large", "Free Bellow", "Sweeping strike" },
-                XP = 550,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Giant",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 70 },
-                    { BasicStat.DamageBonus, 5 },
-                    { BasicStat.NaturalArmour, 3 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 25 }
-                },
-                Type = EncounterType.Beasts, // Type was Bandits_Brigands, likely a typo
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Terror 8", "Large", "Sweeping strike", "Simple weapons" },
-                XP = 900,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Giant Centipede",
-                MinDamage = 1,
-                MaxDamage = 10,
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 55 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 22 },
-                    { BasicStat.NaturalArmour, 4 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string> { "Fear 5" },
-                XP = 300,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Frogling",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 35 },
-                    { BasicStat.HitPoints, 8 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 40 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Poisonous spit", "Silent" },
-                XP = 90,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Gecko",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 95,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Gecko Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                XP = 95,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Gecko Assassin",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 55 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Camouflage", "sneaky" },
-                XP = 100,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Ghost",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 35 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Ethereal", "Fear 5", "Ghostly touch" },
-                XP = 550,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Ghoul",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Fear 3", "Poisonous" },
-                XP = 90,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Giant Leech",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 3 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 }
-                },
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Leech", "Slow", "Disease" },
-                XP = 90,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Pox Rat",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 8 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                MinDamage = 1,
-                MaxDamage = 6,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Disease", "Scurry" },
-                XP = 50,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Rat",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 6 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                MinDamage = 1,
-                MaxDamage = 6,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Perfect hearing", "Scurry" },
-                XP = 40,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Scorpion",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 4 },
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 12,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 4", "Poisonous", "Wall crawler" },
-                XP = 220,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Snake",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 60 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 8,
-                ToHitPenalty = -20,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Poisonous", "Fear 3" },
-                XP = 120,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Spider",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 60 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 5", "Poisonous", "Wall crawler", "Web" },
-                XP = 170,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Toad",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Large", "Swallow", "Tongue attack" },
-                XP = 400,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Giant Wolf",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 9 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Perfect hearing" },
-                XP = 80,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Gigantic Snake",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 60 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 5", "Poisonous", "Large", "Sweeping strike" },
-                XP = 800,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Sand Worm",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 60 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 5", "Large", "Sweeping strike" },
-                XP = 800,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Gigantic Spider",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Terror 5, Poisonous, Large" },
-                XP = 900,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Gnoll",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Gnoll Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Gnoll Sergeant",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 13 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 30 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 100,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Gnoll Shaman",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 11 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 40 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User" },
-                XP = 150,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Goblin",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 8 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 30 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Fear elves" },
-                XP = 70,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Goblin Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 8 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 30 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Fear elves" },
-                XP = 70,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Goblin Shaman",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 8 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 40 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User" },
-                XP = 130,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Greater Demon",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.HitPoints, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Demon", "Terror 5", "Large" },
-                XP = 1200,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Griffon",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.HitPoints, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 5", "Flyer (0)" },
-                XP = 1500,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Harpy",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 25 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -15,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Flyer (O)" },
-                XP = 130,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Hydra",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 70 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Multiple attacks Hydra", "X-Large", "Fear 7" },
-                XP = 1850,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Lesser Plague Demon",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 5 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                MinDamage = 1,
-                MaxDamage = 8,
-                ToHitPenalty = -10,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Demon", "Disease", "Flyer" },
-                XP = 50,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Lurker",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 },
-                    { Skill.RangedSkill, 60 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Demon", "Magic User", "Floater" },
-                XP = 1200,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Medusa",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.DarkElves,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Petrify" },
-                XP = 350,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Mimic",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 2 },
-                    { BasicStat.Dexterity, 15 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Leech" },
-                XP = 110,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Minotaur",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 26 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Ferocious charge", "Large", "Bellow", "Fear 3" },
-                XP = 450,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Minotaur Skeleton",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 4 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Large", "Just bones", "Fear 3", "Gives bonemeal as part" },
-                XP = 350,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Mummy",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 80 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Extra damage from Fire", "Fear 5" },
-                XP = 300,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Mummy Priest",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 80 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 50 }
-                },
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Fear 5", "Extra damage from fire", "Magic User" },
-                XP = 600,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Mummy Queen",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 85 },
-                    { BasicStat.HitPoints, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 40 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Fear 5", "Extra damage from fire", "Magic User" },
-                XP = 800,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Naga",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Multiple attacks 3" },
-                XP = 650,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Necromancer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User" },
-                XP = 180,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Ogre",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 24 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 20 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Large", "Sweeping strike" },
-                XP = 400,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Ogre Berserker",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 24 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 15 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Large", "Frenzy", "Sweeping strike" },
-                XP = 500,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Ogre Chieftain",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 32 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 20 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Large", "Sweeping strike" },
-                XP = 600,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Orc",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 95,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Orc Brute",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 16 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                XP = 110,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Orc Chieftain",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 18 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 30 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Frenzy" },
-                XP = 130,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Orc Shaman",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Orcs_Goblins,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User" },
-                XP = 180,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Plague Demon",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Demon", "Disease ridden" },
-                XP = 200,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Psyker",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.HitPoints, 16 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 70 }
-                },
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Psychic" },
-                XP = 250,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Raptor",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Ferocious charge", "Rend" },
-                XP = 130,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "River Troll",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 15 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Regeneration", "Stupid", "Stench", "Simple weapons", "Large", "Bellow", "Fear 3" },
-                XP = 550,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Salamander",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 18 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fire Breath", "Slow", "Stupid", "Large" },
-                XP = 430,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Satyr",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Perfect hearing" },
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Satyr Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Perfect hearing" },
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Saurian",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 0 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                XP = 110,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Saurian Elite",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 18 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                XP = 140,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Saurian Priest",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User" },
-                XP = 200,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Saurian Warchief",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Reptiles,
-                Behavior = MonsterBehaviorType.Beast,
-                XP = 160,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Shambler",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 12,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Large", "Entangle" },
-                XP = 450,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Skeleton",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 20 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Gives Bone meal as part", "Just bones", "Fear 2" },
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Skeleton Archer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 20 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Gives Bone meal as part", "Just bones", "Fear 2" },
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Slime",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 25 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Corrosive" },
-                XP = 120,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Sphinx",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 38 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Flyer(O)", "Large", "Riddle master" },
-                XP = 1000,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Stone Golem",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 4 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 30 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                Type = EncounterType.Magic,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Hard as rock", "Fear 3", "Large" },
-                XP = 450,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Stone Troll",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 60 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 32 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 15 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Regenerate", "Stupid", "Simple weapons", "Large", "Bellow", "Fear 3" },
-                XP = 550,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Tomb Guardian",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 5", "Large" },
-                XP = 550,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Vampire",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 70 },
-                    { BasicStat.Resolve, 70 },
-                    { BasicStat.HitPoints, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 75 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 10", "Master of the Dead", "Extra DMG from silver" },
-                XP = 2000,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Vampire Fledgling",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 65 },
-                    { BasicStat.Resolve, 70 },
-                    { BasicStat.HitPoints, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 75 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 10", "Seduction", "Extra DMG from silver" },
-                XP = 1500,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Werewolf",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 9 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Ferocious charge", "Regeneration" },
-                XP = 280,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Wight",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 45 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 5", "CursedWeapon", "Just bones" },
-                XP = 180,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Wraiths",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 65 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Ethereal", "CursedWeapon", "Fear 5" },
-                XP = 500,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Wyvern",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 4 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 60 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Terror 5, X-Large" },
-                XP = 1800,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Zombie",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 10 },
-                    { BasicStat.Resolve, 25 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 }
-                },
-                MinDamage = 1,
-                MaxDamage = 8,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Slow", "Fear 2" },
-                XP = 80,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "Zombie Ogre",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 15 },
-                    { BasicStat.Resolve, 25 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 }
-                },
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Fear 5", "Simple weapons", "Large, Slow" },
-                XP = 450,
-                TreasureType = TreasureType.T1
-            },
-            new Monster()
-            {
-                Name = "The Brood Mother",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 30 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Beasts,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Disease", "Fear 2" },
-                XP = 115,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Grop",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 16 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Bandits_Brigands,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Battleaxe", "Shield", "Armour 2" },
-                XP = 110,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Ulfric",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 35 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Fear 3", "Frenzy" },
-                XP = 110,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Imgrahil the Apprentice",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 13 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Spells: Raise dead, Healing, Vampiric Touch, Mirrored Self", "Poisonous dagger", "Armour 1" },
-                XP = 200,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Ambar the Ettin",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Stupid: Inactive on 1 (1d6). Large: Re-roll DMG. +10 to hit when shot at. Warhammer. Can cause disease just like poison. Free Bellow: All heroes must past RES or be stunned. Whenever you roll this action, the other head may still direct a standard attack during the same action. Sweeping strike: See rules." },
-                XP = 550,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Digg",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 16 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Battleaxe", "Shield", "Armour 2" },
-                XP = 110,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Kraghul the Mighty",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 4 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                ToHitPenalty = 5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Large", "Bellow", "Greataxe", "Armour 3" },
-                XP = 450,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Belua",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 45 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Terror 5", "Poisonous", "Large", "Summon children: Summons giant spider on behaviour roll of 5-6." },
-                XP = 900,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Briggo",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 35 },
-                    { BasicStat.HitPoints, 24 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Large", "Sweeping strike", "Warhammer", "Armour 2" },
-                XP = 400,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Gorm",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 35 },
-                    { BasicStat.HitPoints, 24 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Large", "Sweeping strike", "Frenzy", "Warhammer", "Armour 2" },
-                XP = 500,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Goldfrid the Short",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 35 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Special rule: Will always try to move out of close combat", "Shortbow", "Shortsword", "Armour 1" },
-                XP = 120,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Madame Isabelle",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Seduction", "Longsword", "Armour 1" },
-                XP = 140,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Gaul the Mauler",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 22 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Longsword, Shield, Armour 2" },
-                XP = 150,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Molgor The Fiend of Summerhall",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 60 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Large", "Bellow", "Ferocious charge", "Frenzy", "Fear 3", "Greataxe", "Armour 2" },
-                XP = 450,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Turog",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Regenerate", "Frenzy", "Broadsword", "Armour 2", "Fear 7" },
-                XP = 300,
-                TreasureType = TreasureType.Turog
-            },
-            new Monster()
-            {
-                Name = "Ragnalf the Mad",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 85 },
-                    { BasicStat.HitPoints, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 65 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows Raise dead, 2 support, 2 ranged and 3 close combat spells" },
-                XP = 800,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Queen Khaba",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 85 },
-                    { BasicStat.HitPoints, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 65 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Extra damage from fire", "Fear 5", "Magic User", "Dagger", "Armour 0" },
-                XP = 800,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "The Mapmaker",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 35 },
-                    { BasicStat.HitPoints, 10 }
-                },
-                SkillStats = new Dictionary<Skill, int>(),
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Dodge (45)" },
-                XP = 0,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "Beast of Turog Hall",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Regenerate", "Stupid", "Large", "Warhammer", "Armour 2", "Bellow", "Fear 3" },
-                XP = 700,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Undead Wyvern",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Terror 3", "XLarge", "Just bones" },
-                XP = 1400,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Dregrir the Wyzard",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 12 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 40 },
-                    { Skill.RangedSkill, 60 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows 2 ranged, 2 support and 2 close combat spells", "Shortsword", "Armour 2" },
-                XP = 150,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Klatche the Ogre",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Special: May make 2 attacks for every attack, even power attacks. Roll to hit for each attack", "2 Dead goblins (battlehammers)" },
-                XP = 650,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Easta Rubeet",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Frost DMG", "Armour 2" },
-                XP = 190,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "The Master Locksmith",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 80 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = 0,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Extra damage from fire", "Fear 5", "Magic User", "Dagger" },
-                XP = 600,
-                TreasureType = TreasureType.TheMasterLocksmith
-            },
-            new Monster()
-            {
-                Name = "The Guardian Scorpion",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 85 },
-                    { BasicStat.HitPoints, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 6", "Poisonous", "Wall crawler" },
-                XP = 250,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Queen Khezira",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 75 },
-                    { BasicStat.HitPoints, 45 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 45 }
-                },
-                ToHitPenalty = 5,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 7", "Regenerate", "Extra damage from fire" },
-                XP = 1000,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Chadepho",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 4 },
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 }
-                },
-                MinDamage = 1,
-                MaxDamage = 12,
-                ToHitPenalty = 0,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Fear 5", "Wall crawler", "Large", "Greatsword", "Armour 2" },
-                XP = 650,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Marla the Witch",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 18 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = 5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows Mute, Seduce and Blind", "Dagger", "Armour 1" },
-                XP = 200,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Lord Brenann",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Just bones", "Fear 5", "Greatsword", "Armour 3" },
-                XP = 250,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "The Captain",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Longsword", "Shield", "Armour 2" },
-                XP = 280,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Novelm Slateshadow",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.Undead,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Just bones", "Fear 5", "Cursed Longsword", "Armour 3" },
-                XP = 280,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Adras the Witch",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 70 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows Healing Hand, Summon Demon, Vampiric Touch and Flare", "Staff", "Armour 2" },
-                XP = 260,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Phylax the Witch",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 },
-                    { Skill.RangedSkill, 50 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows Shield, Mirrored Self and Fireball", "Dagger", "Armour 2" },
-                XP = 200,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "The Elder Witch",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 },
-                    { Skill.RangedSkill, 70 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows Mute, Seduce, Raise Dead and Blind", "Dagger", "Armour 1" },
-                XP = 350,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Ghammi the Witch",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Magic User", "Knows Healing hand, Mirrored Self and Fireball", "Dagger", "Armour 2" },
-                XP = 200,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Goblin Chieftain",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 35 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 15 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 35 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Poisonous weapon" },
-                XP = 130,
-                TreasureType = TreasureType.T3
-            },
-            new Monster()
-            {
-                Name = "Ribbit",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 75 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Throws spiked balls (1d8}, no reload time", "Fear 5", "Shortsword", "Armour 3" },
-                XP = 140,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "The Alchemist Outlaw",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 5 },
-                    { BasicStat.Dexterity, 40 },
-                    { BasicStat.Resolve, 55 },
-                    { BasicStat.HitPoints, 25 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 60 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidRanged,
-                SpecialRules = new List<string>() { "Special: See rules", "Crossbow Pistol (Poisonous}", "Dagger (Poisonous}", "Armour 1" },
-                XP = 140,
-                TreasureType = TreasureType.None
-            },
-            new Monster()
-            {
-                Name = "Ancient Stone Golem",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 4 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 25 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 35 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                MinDamage = 1,
-                MaxDamage = 10,
-                ToHitPenalty = 0,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Hard as rock", "Cause Fear 3", "Large" },
-                XP = 500,
-                TreasureType = TreasureType.Part
-            },
-            new Monster()
-            {
-                Name = "Trogskegg",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 20 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 40 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 50 },
-                    { Skill.RangedSkill, 15 }
-                },
-                ToHitPenalty = -5,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.Beast,
-                SpecialRules = new List<string>() { "Regenerate", "Large", "Bellow", "Fear 3", "Magical Warhammer (AP2)", "Armour 1" },
-                XP = 650,
-                TreasureType = TreasureType.T2
-            },
-            new Monster()
-            {
-                Name = "Gneeb the Manslayer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 50 },
-                    { BasicStat.Resolve, 50 },
-                    { BasicStat.HitPoints, 30 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 70 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HumanoidMelee,
-                SpecialRules = new List<string>() { "Poisonous weapon", "Frenzy", "Javelin", "Shield", "Armour 4", "Cloak (Armour +1 from behind)" },
-                XP = 600,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "Ada the Necromancer",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 3 },
-                    { BasicStat.NaturalArmour, 3 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 70 },
-                    { BasicStat.Resolve, 70 },
-                    { BasicStat.HitPoints, 28 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 75 },
-                    { Skill.RangedSkill, 55 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Fear 5", "Seduction", "Extra DMG from Silver", "Magic User", "Knows Vampiric Touch, Fireball, Heal", "Dagger", "Armour 1" },
-                XP = 1500,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "The Apostle",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.DamageBonus, 2 },
-                    { BasicStat.NaturalArmour, 2 },
-                    { BasicStat.Move, 6 },
-                    { BasicStat.Dexterity, 65 },
-                    { BasicStat.Resolve, 70 },
-                    { BasicStat.HitPoints, 20 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 65 },
-                    { Skill.RangedSkill, 40 }
-                },
-                ToHitPenalty = -15,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.HigherUndead,
-                SpecialRules = new List<string>() { "Fear 10", "Seduction", "Extra DMG from Silver", "Longsword", "Armour 2" },
-                XP = 1500,
-                TreasureType = TreasureType.T5
-            },
-            new Monster()
-            {
-                Name = "The Master",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.NaturalArmour, 1 },
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 40 },
-                    { BasicStat.HitPoints, 14 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 45 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.MagicUser,
-                SpecialRules = new List<string>() { "Poisonous dagger", "Armour 1", "Spells: Raise dead, 3 close combat, 4 ranged." },
-                XP = 200,
-                TreasureType = TreasureType.T4
-            },
-            new Monster()
-            {
-                Name = "Emil the Caretaker",
-                BasicStats = new Dictionary<BasicStat, int>
-                {
-                    { BasicStat.Move, 4 },
-                    { BasicStat.Dexterity, 30 },
-                    { BasicStat.Resolve, 60 },
-                    { BasicStat.HitPoints, 18 }
-                },
-                SkillStats = new Dictionary<Skill, int>
-                {
-                    { Skill.CombatSkill, 55 },
-                    { Skill.RangedSkill, 70 }
-                },
-                ToHitPenalty = -10,
-                Type = EncounterType.MainQuest,
-                Behavior = MonsterBehaviorType.LowerUndead,
-                SpecialRules = new List<string>() { "Sharpened shovel (greataxe}", "Armour 0" },
-                XP = 110,
-                TreasureType = TreasureType.T2
-            }
+                new Monster()
+                {
+                    Name = "Bandit Leader",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 16 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 },
+                        { Skill.RangedSkill, 40 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 130,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Banshee",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 18 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 60 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 5),
+                        new ActiveStatusEffect(StatusEffectType.Ethereal, -1),
+                        new ActiveStatusEffect(StatusEffectType.GhostlyTouch, -1)
+                    },
+                    SpecialRules = new List<string>() { "Ghostly Howl" },
+                    XP = 650,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Bat swarm",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 10 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 55 },
+                        { BasicStat.Resolve, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 100 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 4,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Flyer, -1)
+                    },
+                    SpecialRules = new List<string>() { "Auto hit", "Always acts first on the first turn of battle" },
+                    XP = 15,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Beastman",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 15 },
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 20 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 100,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Beastman Chieftain",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 20 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 50 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 150,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Beastman Guard",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 18 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 20 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Berserker",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 14 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
+                    },
+                    XP = 110,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Bloated Demon",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 32 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 3 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 80 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 25 }
+                    },
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5),
+                        new ActiveStatusEffect(StatusEffectType.DiseaseRidden, -1),
+                        new ActiveStatusEffect(StatusEffectType.Floater, -1),
+                        new ActiveStatusEffect(StatusEffectType.Demon, -1)
+                    },
+                    XP = 650,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Blood Demon",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 12 },
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Demon, -1),
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
+                    },
+                    XP = 200,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Cave Bear",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 20 },
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FerociousCharge, -1)
+                    },
+                    XP = 130,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Cave Goblin",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 8 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 30 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.HateDwarves, -1)
+                    },
+                    XP = 70,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Cave Goblin Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 8 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 30 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.HateDwarves, -1)
+                    },
+                    SpecialRules = new List<string>() { "Hate Dwarves" },
+                    XP = 70,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Centaur",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.HitPoints, 20 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 7 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 60 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    SpecialRules = new List<string>() { "Kick" },
+                    XP = 150,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Centaur Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 7 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    SpecialRules = new List<string>() { "Kick" },
+                    XP = 150,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Common Troll",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1),
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, -1)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 500,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Basilisk",
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    SpecialRules = new List<string>() { "Petrify" },
+                    XP = 325,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Dark Elf",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 125,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Dark Elf Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    XP = 125,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Dark Elf Assassin",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 65 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Sneaky, -1)
+                    },
+                    XP = 135,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Dark Elf Captain",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 13 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 150,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Dark Elf Sniper",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 65 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    XP = 135,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Dark Elf Warlock",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 60 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 165,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Dire Wolf",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 8 },
+                        { BasicStat.Dexterity, 15 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.FerociousCharge, -1),
+                    },
+                    XP = 80,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Dragon",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 80 },
+                        { BasicStat.DamageBonus, 5 },
+                        { BasicStat.NaturalArmour, 5 },
+                        { BasicStat.HitPoints, 100 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 10)
+                    },
+                    SpecialRules = new List<string>() { "Fire breath", "Sweeping strike" },
+                    XP = 3500,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Drider",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.HitPoints, 28 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5),
+                        new ActiveStatusEffect(StatusEffectType.WallCrawler, -1)
+                    },
+                    XP = 600,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Fallen Knight",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 18 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 240,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Warlock",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 180,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Earth Elemental",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 20 },
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    XP = 200,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "Fire Elemental",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFrost, -1)
+                    },
+                    SpecialRules = new List<string> { "Fire damage" },
+                    XP = 250,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "Water Elemental",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 15 },
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1)
+                    },
+                    XP = 150,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "Wind Elemental",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 12 },
+                        { BasicStat.NaturalArmour, 1 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    SpecialRules = new List<string> { "Gust" },
+                    XP = 150,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "Gargoyle",
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 25 },
+                        { BasicStat.NaturalArmour, 4 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    XP = 400,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Ettin",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 },
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1)
+                    },
+                    SpecialRules = new List<string> { "Free Bellow", "Sweeping strike" },
+                    XP = 550,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Giant",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 70 },
+                        { BasicStat.DamageBonus, 5 },
+                        { BasicStat.NaturalArmour, 3 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 25 }
+                    },
+                    Type = EncounterType.Beasts, // Type was Bandits_Brigands, likely a typo
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 8)
+                    },
+                    SpecialRules = new List<string> { "Sweeping strike" },
+                    XP = 900,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Giant Centipede",
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 55 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 22 },
+                        { BasicStat.NaturalArmour, 4 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 300,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Frogling",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 35 },
+                        { BasicStat.HitPoints, 8 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 40 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Silent, -1)
+                    },
+                    SpecialRules = new List<string>() { "Poisonous spit" },
+                    XP = 90,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Gecko",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 95,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Gecko Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    XP = 95,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Gecko Assassin",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 55 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Sneaky, -1)
+                    },
+                    SpecialRules = new List<string>() { "Camouflage" },
+                    XP = 100,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Ghost",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5),
+                        new ActiveStatusEffect(StatusEffectType.Ethereal, -1),
+                        new ActiveStatusEffect(StatusEffectType.GhostlyTouch, -1)
+                    },
+                    XP = 550,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Ghoul",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    XP = 90,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Giant Leech",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 3 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Slow, -1),
+                        new ActiveStatusEffect(StatusEffectType.DiseaseRidden, -1)
+                    },
+                    SpecialRules = new List<string>() { "Leech" },
+                    XP = 90,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Pox Rat",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 8 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 6,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Scurry, -1),
+                        new ActiveStatusEffect(StatusEffectType.DiseaseRidden, -1)
+                    },
+                    XP = 50,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Rat",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 6 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 6,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.PerfectHearing, -1),
+                        new ActiveStatusEffect(StatusEffectType.Scurry, -1)
+                    },
+                    XP = 40,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Scorpion",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 4 },
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 4),
+                        new ActiveStatusEffect(StatusEffectType.WallCrawler, -1),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    XP = 220,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Snake",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 60 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    ToHitPenalty = -20,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    XP = 120,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Spider",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 60 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5),
+                        new ActiveStatusEffect(StatusEffectType.WallCrawler, -1),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    SpecialRules = new List<string>() { "Web" },
+                    XP = 170,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Toad",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    SpecialRules = new List<string>() { "Swallow", "Tongue attack" },
+                    XP = 400,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Giant Wolf",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 9 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.PerfectHearing, -1)
+                    },
+                    XP = 80,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Gigantic Snake",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 60 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 800,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Sand Worm",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 60 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 800,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Gigantic Spider",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 5),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    XP = 900,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Gnoll",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Gnoll Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Gnoll Sergeant",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 13 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 30 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 100,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Gnoll Shaman",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 11 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 40 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 150,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Goblin",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 8 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 30 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FearElves, -1)
+                    },
+                    XP = 70,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Goblin Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 8 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 30 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FearElves, -1)
+                    },
+                    XP = 70,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Goblin Shaman",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 8 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 40 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 130,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Greater Demon",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.HitPoints, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 5),
+                        new ActiveStatusEffect(StatusEffectType.Demon, -1)
+                    },
+                    IsLarge = true,
+                    XP = 1200,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Griffon",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.HitPoints, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FlyerOutdoors, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 1500,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Harpy",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 25 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -15,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FlyerOutdoors, -1)
+                    },
+                    XP = 130,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Hydra",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 70 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 7)
+                    },
+                    IsLarge = true,
+                    SpecialRules = new List<string>() { "Multiple attacks Hydra" },
+                    XP = 1850,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Lesser Plague Demon",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 5 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.DiseaseRidden, -1),
+                        new ActiveStatusEffect(StatusEffectType.Demon, -1),
+                        new ActiveStatusEffect(StatusEffectType.Flyer, -1),
+                    },
+                    SpecialRules = new List<string>() { "Demon", "Disease", "Flyer" },
+                    XP = 50,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Lurker",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 },
+                        { Skill.RangedSkill, 60 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Floater, -1),
+                        new ActiveStatusEffect(StatusEffectType.Demon, -1)
+                    },
+                    XP = 1200,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Medusa",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.DarkElves,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    SpecialRules = new List<string>() { "Petrify" },
+                    XP = 350,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Mimic",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 2 },
+                        { BasicStat.Dexterity, 15 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    SpecialRules = new List<string>() { "Leech" },
+                    XP = 110,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Minotaur",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 26 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FerociousCharge, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 450,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Minotaur Skeleton",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 4 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    SpecialRules = new List<string>() { "Gives bonemeal as part" },
+                    XP = 350,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Mummy",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 80 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 300,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Mummy Priest",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 80 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 600,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Mummy Queen",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 85 },
+                        { BasicStat.HitPoints, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 40 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 800,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Naga",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    SpecialRules = new List<string>() { "Multiple attacks 3" },
+                    XP = 650,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Necromancer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 180,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Ogre",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 24 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 20 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    IsLarge = true,
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 400,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Ogre Berserker",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 24 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 15 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
+                    },
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 500,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Ogre Chieftain",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 32 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 20 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    IsLarge = true,
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 600,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Orc",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 95,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Orc Brute",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 16 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Orc Chieftain",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 18 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 30 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
+                    },
+                    XP = 130,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Orc Shaman",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Orcs_Goblins,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 180,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Plague Demon",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Demon, -1),
+                        new ActiveStatusEffect(StatusEffectType.DiseaseRidden, -1),
+                    },
+                    XP = 200,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Psyker",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.HitPoints, 16 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 70 }
+                    },
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Psychic, -1)
+                    },
+                    XP = 250,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Raptor",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FerociousCharge, -1),
+                        new ActiveStatusEffect(StatusEffectType.Rend, -1)
+                    },
+                    XP = 130,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "River Troll",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 15 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Stench, -1),
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1),
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 550,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Salamander",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 18 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Slow, -1),
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1)
+                    },
+                    SpecialRules = new List<string>() { "Fire Breath" },
+                    XP = 430,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Satyr",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.PerfectHearing, -1)
+                    },
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Satyr Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.PerfectHearing, -1)
+                    },
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Saurian",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 0 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Saurian Elite",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 18 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    XP = 140,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Saurian Priest",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Saurian Warchief",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Reptiles,
+                    Behavior = MonsterBehaviorType.Beast,
+                    XP = 160,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Shambler",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    SpecialRules = new List<string>() { "Entangle" },
+                    XP = 450,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Skeleton",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 20 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 2)
+                    },
+                    SpecialRules = new List<string>() { "Gives Bone meal as part" },
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Skeleton Archer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 20 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 2)
+                    },
+                    SpecialRules = new List<string>() { "Gives Bone meal as part" },
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Slime",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 25 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Corrosive, -1)
+                    },
+                    XP = 120,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Sphinx",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 38 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FlyerOutdoors, -1),
+                        new ActiveStatusEffect(StatusEffectType.RiddleMaster, -1)
+                    },
+                    XP = 1000,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Stone Golem",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 4 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 30 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.HardAsRock, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    XP = 450,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Stone Troll",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 60 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 32 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 15 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, 6)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 550,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Tomb Guardian",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 550,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Vampire",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 70 },
+                        { BasicStat.Resolve, 70 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 75 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToSilver, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 10)
+                    },
+                    SpecialRules = new List<string>() { "Master of the Dead" },
+                    XP = 2000,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Vampire Fledgling",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 65 },
+                        { BasicStat.Resolve, 70 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 75 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToSilver, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 10)
+                    },
+                    SpecialRules = new List<string>() { "Seduction" },
+                    XP = 1500,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Werewolf",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 9 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FerociousCharge, -1),
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, 6)
+                    },
+                    XP = 280,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Wight",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 45 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    SpecialRules = new List<string>() { "CursedWeapon" },
+                    XP = 180,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Wraiths",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 65 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Ethereal, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    SpecialRules = new List<string>() { "CursedWeapon" },
+                    XP = 500,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Wyvern",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 4 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 60 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 5)
+                    },
+                    XP = 1800,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Zombie",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 10 },
+                        { BasicStat.Resolve, 25 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Slow, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 2)
+                    },
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "Zombie Ogre",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 15 },
+                        { BasicStat.Resolve, 25 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Slow, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 450,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
+                    Name = "The Brood Mother",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 30 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Beasts,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.DiseaseRidden, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 2)
+                    },
+                    XP = 115,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Grop",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 16 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
+                    HasShield = true,
+                    ArmourValue = 2,
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Ulfric",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 35 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Imgrahil the Apprentice",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 13 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    ArmourValue = 1,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Dagger", "Poisonous Dagger",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        }) },
+                    SpecialRules = new List<string>() { "Spells: Raise dead, Healing, Vampiric Touch, Mirrored Self" },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Ambar the Ettin",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Warhammer", "Diseased Warhammer",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Diseased, 0);
+                        }) },
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1)
+                    },
+                    SpecialRules = new List<string>() { "Free Bellow: Whenever you roll this action, the other head may still direct a standard attack during the same action.", "Sweeping strike" },
+                    XP = 550,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Digg",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 16 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    HasShield = true,
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Kraghul the Mighty",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 4 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    ToHitPenalty = 5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
+                    ArmourValue = 3,
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 450,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Belua",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 5)
+                    },
+                    SpecialRules = new List<string>() { "Summon children: Summons giant spider on behaviour roll of 5-6." },
+                    XP = 900,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Briggo",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 35 },
+                        { BasicStat.HitPoints, 24 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    IsLarge = true,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 400,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Gorm",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 35 },
+                        { BasicStat.HitPoints, 24 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
+                    },
+                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    XP = 500,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Goldfrid the Short",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 35 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    Weapons = new List<Weapon>() {
+                        (Weapon?)EquipmentService.GetWeaponByName("Shortbow")?.Clone() ?? new Weapon(),
+                        (Weapon?)EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon()
+                    },
+                    ArmourValue = 1,
+                    XP = 120,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Madame Isabelle",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 1,
+                    SpecialRules = new List<string>() { "Seduction" },
+                    XP = 140,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Gaul the Mauler",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 22 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    HasShield = true,
+                    XP = 150,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Molgor The Fiend of Summerhall",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.FerociousCharge, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 450,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Turog",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Broadsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Frenzy, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 10),
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, 6)
+                    },
+                    XP = 300,
+                    TreasureType = TreasureType.Turog
+                },
+                new Monster()
+                {
+                    Name = "Ragnalf the Mad",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 85 },
+                        { BasicStat.HitPoints, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 65 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    SpecialRules = new List<string>() { "Spells: Raise dead, 2 support, 2 ranged and 3 close combat spells" },
+                    XP = 800,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Queen Khaba",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 85 },
+                        { BasicStat.HitPoints, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 65 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 800,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "The Mapmaker",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 35 },
+                        { BasicStat.HitPoints, 10 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>(),
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    SpecialRules = new List<string>() { "Dodge (45)" },
+                    XP = 0,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "Beast of Turog Hall",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3),
+                        new ActiveStatusEffect(StatusEffectType.Stupid, -1)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 700,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Undead Wyvern",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseTerror, 3)
+                    },
+                    XP = 1400,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Dregrir the Wyzard",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 },
+                        { Skill.RangedSkill, 60 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    SpecialRules = new List<string>() { "Spells: 2 ranged, 2 support and 2 close combat spells" },
+                    XP = 150,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Klatche the Ogre",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() {
+                        (Weapon?)EquipmentService.GetWeaponByName("Battle Hammer")?.Clone() ?? new Weapon(),
+                        (Weapon?)EquipmentService.GetWeaponByName("Battle Hammer")?.Clone() ?? new Weapon()
+                    },
+                    SpecialRules = new List<string>() { "Special: May make 2 attacks for every attack, even power attacks. Roll to hit for each attack" },
+                    XP = 650,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Easta Rubeet",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ArmourValue = 2,
+                    SpecialRules = new List<string>() { "Frost DMG" },
+                    XP = 190,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "The Master Locksmith",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 80 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = 0,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 600,
+                    TreasureType = TreasureType.TheMasterLocksmith
+                },
+                new Monster()
+                {
+                    Name = "The Guardian Scorpion",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 85 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WallCrawler, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 6),
+                        new ActiveStatusEffect(StatusEffectType.Poisonous, -1)
+                    },
+                    XP = 250,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Queen Khezira",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 75 },
+                        { BasicStat.HitPoints, 45 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 45 }
+                    },
+                    ToHitPenalty = 5,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 7),
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, 6)
+                    },
+                    XP = 1000,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Chadepho",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 4 },
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 12,
+                    ToHitPenalty = 0,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WallCrawler, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 650,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Marla the Witch",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 18 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = 5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 1,
+                    SpecialRules = new List<string>() { "Spells: Mute, Seduce and Blind" },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Lord Brenann",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 3,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 250,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "The Captain",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    HasShield = true,
+                    XP = 280,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Novelm Slateshadow",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Longsword", "Cursed Longsword",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
+                        }) },
+                    ArmourValue = 3,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.JustBones, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    XP = 280,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Adras the Witch",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 70 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Staff")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    SpecialRules = new List<string>() { "Spells: Healing Hand, Summon Demon, Vampiric Touch and Flare" },
+                    XP = 260,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Phylax the Witch",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    SpecialRules = new List<string>() { "Spells: Shield, Mirrored Self and Fireball" },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "The Elder Witch",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 70 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 1,
+                    SpecialRules = new List<string>() { "Spells: Mute, Seduce, Raise Dead and Blind" },
+                    XP = 350,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Ghammi the Witch",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    SpecialRules = new List<string>() { "Spells: Healing hand, Mirrored Self and Fireball" },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Goblin Chieftain",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    SpecialRules = new List<string>() { "Poisonous weapon" },
+                    XP = 130,
+                    TreasureType = TreasureType.T3
+                },
+                new Monster()
+                {
+                    Name = "Ribbit",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 75 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    Weapons = new List<Weapon>() {
+                        (Weapon?)EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon()
+                    },
+                    ArmourValue = 3,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    SpecialRules = new List<string>() { "Throws spiked balls (1d8), no reload time" },
+                    XP = 140,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "The Alchemist Outlaw",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 5 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 25 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 60 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidRanged,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Crossbow Pistol", "Crossbow Pistol (Poisonous}",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        }),
+                        _weapon.CreateModifiedMeleeWeapon(
+                        "Dagger", "Dagger (Poisonous}",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        })
+                    },
+                    ArmourValue = 1,
+                    SpecialRules = new List<string>() { "Special: See rules" },
+                    XP = 140,
+                    TreasureType = TreasureType.None
+                },
+                new Monster()
+                {
+                    Name = "Ancient Stone Golem",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 4 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 35 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 10,
+                    ToHitPenalty = 0,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.HardAsRock, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    XP = 500,
+                    TreasureType = TreasureType.Part
+                },
+                new Monster()
+                {
+                    Name = "Trogskegg",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 },
+                        { Skill.RangedSkill, 15 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Warhammer", "Magical Warhammer",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.ArmourPiercing, 2);
+                        }) },
+                    ArmourValue = 1,
+                    IsLarge = true,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.Regeneration, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 3)
+                    },
+                    SpecialRules = new List<string>() { "Bellow" },
+                    XP = 650,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "Gneeb the Manslayer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Javelin", "Poisonous Javelin",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        }) },
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() { new ActiveStatusEffect(StatusEffectType.Frenzy, -1) },
+                    ArmourValue = 4,
+                    HasShield = true,
+                    SpecialRules = new List<string>() { "Cloak (Armour +1 from behind)" },
+                    XP = 600,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "Ada the Necromancer",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 3 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 70 },
+                        { BasicStat.Resolve, 70 },
+                        { BasicStat.HitPoints, 28 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 75 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 1,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToSilver, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 5)
+                    },
+                    SpecialRules = new List<string>() { "Seduction", "Spells: Vampiric Touch, Fireball, Heal" },
+                    XP = 1500,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "The Apostle",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 2 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 65 },
+                        { BasicStat.Resolve, 70 },
+                        { BasicStat.HitPoints, 20 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 65 },
+                        { Skill.RangedSkill, 40 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.WeakToSilver, -1),
+                        new ActiveStatusEffect(StatusEffectType.CauseFear, 10)
+                    },
+                    SpecialRules = new List<string>() { "Seduction" },
+                    XP = 1500,
+                    TreasureType = TreasureType.T5
+                },
+                new Monster()
+                {
+                    Name = "The Master",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 }
+                    },
+                    ArmourValue = 1,
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                        "Dagger", "Poisonous Dagger",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        }) },
+                    SpecialRules = new List<string>() { "Spells: Raise dead, 3 close combat, 4 ranged." },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
+                    Name = "Emil the Caretaker",
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 30 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 18 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 55 },
+                        { Skill.RangedSkill, 70 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                }
             };
         }
 
@@ -5302,7 +5745,7 @@ namespace LoDCompanion.Services.Dungeon
                         weapon = (Weapon)weapon.Clone();
                         if(isCursed)
                         {
-                            specialRule = specialRule == string.Empty ? "CursedWeapon" : ", CursedWeapon";
+                            weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
                         }
                         weapons.Add(weapon);
                     }
