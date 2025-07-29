@@ -883,7 +883,7 @@ namespace LoDCompanion.Services.Game
                 // Radius 0: only currentCenter
                 // Radius 1: currentCenter + all 8 (or 4) adjacent squares
                 // Radius N: currentCenter + all squares within N steps
-                List<GridPosition> currentAoESquares = GridService.GetAllSquaresInRadius(currentCenter, spell.AreaOfEffectRadius, _dungeon.DungeonGrid);
+                List<GridPosition> currentAoESquares = GridService.GetAllSquaresInRadius(currentCenter, spell.Properties?.GetValueOrDefault(SpellProperty.Radius) ?? 0, _dungeon.DungeonGrid);
 
                 int currentHeroesHit = 0;
                 // Use a HashSet to ensure each hero is counted only once for the current AoE
