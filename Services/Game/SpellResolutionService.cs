@@ -268,7 +268,7 @@ namespace LoDCompanion.Services.Game
             // Apply status effects or other unique spell rules
             if (spell.StatusEffect.HasValue)
             {
-                var effectToApply = new ActiveStatusEffect(spell.StatusEffect.Value, 1);
+                var effectToApply = new ActiveStatusEffect(spell.StatusEffect.Value, -1);
                 effectToApply.Duration = await GetDurationAsync(caster, spell);
                 StatusEffectService.AttemptToApplyStatus(target, effectToApply); // Bypasses resistance for direct spell effects
                 return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{target.Name} is affected by {spell.Name}!" };
