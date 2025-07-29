@@ -6,6 +6,8 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
+using Microsoft.Extensions.Options;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.Services.Game
@@ -47,6 +49,14 @@ namespace LoDCompanion.Services.Game
         public async Task<SpellCastResult> ResolveSpellAsync(Hero caster, Spell spell, object initialTarget, SpellCastingResult options)
         {
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(initialTarget);
+            if (centerPosition == null)
+            {
+                return new SpellCastResult
+                {
+                    IsSuccess = false,
+                    OutcomeMessage = "Invalid target for spell."
+                };
+            }
 
             // Handle Touch Spells first, as they require a to-hit roll
             if (spell.HasProperty(SpellProperty.Touch))
@@ -78,7 +88,7 @@ namespace LoDCompanion.Services.Game
             {
                 return await HandleDamageSpellAsync(caster, spell, initialTarget, options);
             }
-            if (spell.School == MagicSchool.Conjuration && centerPosition != null)
+            if (spell.School == MagicSchool.Conjuration)
             {
                 return HandleSummoningSpell(caster, centerPosition, spell);
             }
@@ -97,7 +107,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<SpellCastResult> HandleDamageSpellAsync(Hero caster, Spell spell, object target, SpellCastingResult options)
         {
-            var outcome = new System.Text.StringBuilder();
+            var outcome = new StringBuilder();
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
 
             // Handle Area of Effect spells
@@ -226,17 +236,7 @@ namespace LoDCompanion.Services.Game
             {
                 if (spell.HasProperty(SpellProperty.RandomPlacement))
                 {
-                    var roomGrid = caster.Room.Grid;
-                    roomGrid.Shuffle();
-
-                    // Find a random empty square to place the monster
-                    int i = 0;
-                    while (roomGrid[i].IsOccupied || roomGrid[i].IsWall)
-                    {
-                        i++;
-                    }
-                    var placementPosition = roomGrid[i];
-
+                    var placementPosition = GetRandomPlacement(caster);
                     if (placementPosition != null)
                     {
                         summonedMonster[0].Room = caster.Room;
@@ -285,7 +285,6 @@ namespace LoDCompanion.Services.Game
                     statusEffect.Duration = await GetDurationAsync(caster, spell);
                     StatusEffectService.AttemptToApplyStatus(target, statusEffect);
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{target.Name}'s {statToBoost} is bolstered!" };
-
                 case "Time Freeze":
                     foreach(Hero hero in _combatManager.GetActivatedHeroes())
                     {
@@ -296,7 +295,7 @@ namespace LoDCompanion.Services.Game
                         }
                     }
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = "Time freezes! The heroes feel a surge of energy and can act again." };
-
+                //TODO: implement other utility spells as needed
                 default:
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{spell.Name} is cast, its ancient magic weaving through the air." };
             }
@@ -305,62 +304,260 @@ namespace LoDCompanion.Services.Game
         /// <summary>
         /// Resolves the effect of a spell cast by a monster.
         /// </summary>
-        /// <param name="caster">The monster casting the spell.</param>
-        /// <param name="spell">The MonsterSpell being cast.</param>
-        /// <param name="target">The target, which can be a Character or a GridPosition.</param>
-        /// <returns>A SpellCastResult detailing the outcome.</returns>
         public SpellCastResult ResolveMonsterSpell(Monster caster, MonsterSpell spell, object target)
         {
             var result = new SpellCastResult { IsSuccess = true };
-            var outcome = new System.Text.StringBuilder();
+            var outcome = new StringBuilder($"{caster.Name} casts {spell.Name}!");
 
-            caster.SpendActionPoints(spell.CostAP);
-
-            // Determine the targets based on the spell's target type
+            // Determine Targets
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
-
             if (centerPosition == null)
             {
-                result.OutcomeMessage = "Invalid target for spell.";
+                return new SpellCastResult { OutcomeMessage = "Invalid target for spell." };
+            }
+            var affectedCharacters = GetCharactersInArea(spell.TargetType, centerPosition, spell.Properties?.GetValueOrDefault(SpellProperty.Radius) ?? 0);
+
+            // Spend AP Cost
+            caster.SpendActionPoints(spell.CostAP);
+
+            if (spell.TargetType == SpellTargetType.Ally && singleTarget != null && singleTarget is Monster allyTarget)
+            {
+                return HandleHealingSpell(caster, spell, allyTarget);
+            }
+            else if(spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+            {
+                return HandleDamageSpell(caster, spell, target);
+            }
+
+            if (spell.StatusEffect != null && singleTarget != null && spell.StatusEffect != StatusEffectType.RaiseDead)
+            {
+                result.OutcomeMessage = HandleStatusEffectingSpell(caster, spell, singleTarget);
                 return result;
             }
 
-            var affectedCharacters = GetCharactersInArea(spell.TargetType, centerPosition, spell.AreaOfEffectRadius);
-
-            // Apply the spell's effect
-            switch (spell.Name)
+            // Handle Special Non-Targeted Effects (Summoning, Auras, etc.)
+            if (spell.TargetType == SpellTargetType.NoTarget)
             {
-                case "Fireball":
-                    outcome.AppendLine($"{caster.Name} casts Fireball!");
-                    foreach (var character in affectedCharacters)
-                    {
-                        int damage = character.Position.Equals(centerPosition) ?
-                                     RandomHelper.GetRandomNumber(1, 10) + 2 :
-                                     RandomHelper.GetRandomNumber(1, 6) + 1;
-                        character.TakeDamage(damage, DamageType.Fire);
-                        outcome.AppendLine($"{character.Name} takes {damage} fire damage.");
-                    }
-                    break;
+                switch (spell.Name)
+                {
+                    case "Raise dead":
+                        //TODO: Implement logic to find a fallen undead ally this may be done by evaluating corpses.
+                        var fallenUndead = _dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
+                        if (fallenUndead != null)
+                        {
+                            fallenUndead.CurrentHP = fallenUndead.GetStat(BasicStat.HitPoints);
+                            outcome.AppendLine(HandleStatusEffectingSpell(caster, spell, fallenUndead));
+                        }
+                        else
+                        {
+                            var woundedUndead = _dungeon.RevealedMonsters
+                                .Where(m => m.IsUndead && m.CurrentHP < m.GetStat(BasicStat.HitPoints))
+                                .OrderBy(m => m.CurrentHP)
+                                .FirstOrDefault();
 
-                case "Healing":
-                    var allyToHeal = (target as Character) ?? _dungeon.RevealedMonsters.OrderBy(m => m.CurrentHP).FirstOrDefault();
-                    if (allyToHeal != null)
-                    {
-                        int healingAmount = RandomHelper.GetRandomNumber(1, 10);
-                        allyToHeal.CurrentHP = Math.Min(allyToHeal.GetStat(BasicStat.HitPoints), allyToHeal.CurrentHP + healingAmount);
-                        outcome.AppendLine($"{caster.Name} heals {allyToHeal.Name} for {healingAmount} HP.");
-                    }
-                    break;
-
-                // ... Add cases for every other MonsterSpell here ...
-
-                default:
-                    outcome.AppendLine($"{caster.Name} casts {spell.Name}, but the effect fizzles.");
-                    break;
+                            if (woundedUndead != null)
+                            {
+                                int healing = RandomHelper.RollDie(DiceType.D6);
+                                woundedUndead.CurrentHP = Math.Min(woundedUndead.GetStat(BasicStat.HitPoints), woundedUndead.CurrentHP + healing);
+                                outcome.AppendLine($" Dark energy knits the wounds of {woundedUndead.Name}, healing {healing} HP.");
+                            }
+                            else
+                            {
+                                outcome.AppendLine(" The spell fizzles, finding no suitable target.");
+                            }
+                        }
+                        break;
+                    case "Summon demon":
+                    case "Summon greater demon":
+                        var summonedMonster = GetSummonedDemon(spell);
+                        var placementPos = GetRandomPlacement(caster);
+                        if (summonedMonster != null && placementPos != null)
+                        {
+                            summonedMonster.Position = placementPos.Position;
+                            summonedMonster.Room = caster.Room;
+                            _dungeon.RevealedMonsters.Add(summonedMonster);
+                            _initiative.AddToken(ActorType.Monster);
+                            outcome.AppendLine($" A terrifying {summonedMonster.Name} appears!");
+                        }
+                        else
+                        {
+                            outcome.AppendLine(" The summoning fizzles, there is no space!");
+                        }
+                        break;
+                }
             }
 
             result.OutcomeMessage = outcome.ToString();
             return result;
+        }
+
+        private string HandleStatusEffectingSpell(Monster caster, MonsterSpell spell, Character target)
+        {
+            var outcome = new StringBuilder($"{caster.Name} casts {spell.Name}!");
+
+            if (spell.StatusEffect != null)
+            {
+                // Add specific flavor text for certain spells
+                switch (spell.Name)
+                {
+                    case "Blind":
+                        outcome.Append(" A flash of light erupts!");
+                        break;
+                    case "Gust of wind":
+                        outcome.Append(" A howling wind fills the area!");
+                        break;
+                    case "Mute":
+                        outcome.Append(" An arcane silence descends!");
+                        break;
+                    case "Mirrored self":
+                        outcome.Append(" An identical copy of the caster appears!");
+                        break;
+                    case "Shield":
+                        outcome.Append(" A shimmering shield surrounds the target!");
+                        break;
+                    case "Seduce":
+                        outcome.Append(" The target's will is bent to the caster's!");
+                        break;
+                    case "Slow":
+                        outcome.Append(" The target suddenly feels sluggish and heavy.");
+                        break;
+                    case "Stun":
+                        outcome.Append(" A jolt of energy leaves the target reeling!");
+                        break;
+                    case "Frenzy":
+                        outcome.Append(" The target is filled with an uncontrollable rage!");
+                        break;
+                    case "Raise dead":
+                        outcome.Append(" A fallen ally begins to stir...");
+                        break;
+                    case "Frost ray":
+                        outcome.Append(" The target is frozen and has restricted actions");
+                        break;
+                }
+
+                int duration = spell.Properties?.GetValueOrDefault(SpellProperty.TurnDuration, -1) ?? -1;
+
+                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect((StatusEffectType)spell.StatusEffect, duration));
+                outcome.Append($" {target.Name} is now affected by {spell.StatusEffect.ToString()}.");
+            }
+
+            return outcome.ToString();
+        }
+
+        private Monster? GetSummonedDemon(MonsterSpell spell)
+        {
+            if (spell.Properties == null) return null;
+            int roll = RandomHelper.GetRandomNumber(spell.Properties.GetValueOrDefault(SpellProperty.DiceCount, 1),
+                                            spell.Properties.GetValueOrDefault(SpellProperty.DiceMaxValue, 10));
+
+            string monsterToSummonName = "";
+            if (spell.Name == "Summon demon")
+            {
+                if (roll <= 6) monsterToSummonName = "Lesser Plague Demon";
+                else if (roll <= 8) monsterToSummonName = "Blood Demon";
+                else monsterToSummonName = "Plague Demon";
+            }
+            else if (spell.Name == "Summon greater demon")
+            {
+                if (roll <= 6) monsterToSummonName = "Bloated Demon";
+                else if (roll <= 9) monsterToSummonName = "Lurker";
+                else monsterToSummonName = "Greater Demon";
+            }
+
+            Dictionary<string, string> summoningParams = new Dictionary<string, string>();
+            summoningParams.TryAdd("Name", monsterToSummonName);
+            summoningParams.TryAdd("Count", "1");
+
+            if (monsterToSummonName == "Greater Demon" || monsterToSummonName == "Bloated Demon")
+            {
+                summoningParams.TryAdd("Weapons", "Greataxe");
+            }
+            else if (monsterToSummonName == "Blood Demon" || monsterToSummonName == "Plague Demon")
+            {
+                summoningParams.TryAdd("Weapons", "Cursed Longsword");
+            }
+
+            return !string.IsNullOrEmpty(monsterToSummonName) ? _encounter.GetEncounterByParams(summoningParams)[0] : null;
+        }
+
+        private SpellCastResult HandleDamageSpell(Monster caster, MonsterSpell spell, object target)
+        {
+            var result = new SpellCastResult { IsSuccess = true };
+            var outcome = new StringBuilder();
+            var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
+
+            // Handle Area of Effect spells
+            if (spell.Properties != null && spell.Properties.ContainsKey(SpellProperty.AreaOfEffectSpell))
+            {
+                int? radius = spell.Properties?.GetValueOrDefault(SpellProperty.Radius, 0);
+                if (radius != null)
+                {
+                    var center = centerPosition ?? singleTarget?.Position;
+                    List<GridPosition> affectedSquares = new List<GridPosition>();
+                    if (singleTarget != null)
+                    {
+                        affectedSquares = GridService.GetAllSquaresInRadius(singleTarget.Position, (int)radius, _dungeon.DungeonGrid);
+                    }
+                    else if (centerPosition != null)
+                    {
+                        affectedSquares = GridService.GetAllSquaresInRadius(centerPosition, (int)radius, _dungeon.DungeonGrid);
+                    }
+                    List<Character> allCharacters = _dungeon.AllCharactersInDungeon;
+
+                    foreach (var character in allCharacters.Where(c => affectedSquares.Contains(c.Position)))
+                    {
+                        bool isCenterTarget = character.Position.Equals(center);
+                        int damage = isCenterTarget ?
+                            GetDirectDamage(caster, spell) :
+                            GetAOEDamage(caster, spell);
+
+                        character.TakeDamage(damage, spell.DamageType != null ? spell.DamageType : null);
+                        outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
+                    }
+                }
+            }
+            else if (singleTarget != null) // Single target damage
+            {
+                int damage = GetDirectDamage(caster, spell);
+                singleTarget.TakeDamage(damage, spell.DamageType != null ? spell.DamageType : null);
+                outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
+            }
+
+            if (spell.StatusEffect != null && singleTarget != null)
+            {
+                result.OutcomeMessage = HandleStatusEffectingSpell(caster, spell, singleTarget);
+            }
+
+            return result;
+        }
+
+        private SpellCastResult HandleHealingSpell(Monster caster, MonsterSpell spell, Monster target)
+        {
+            int healingAmount = GetHealing(caster, spell);
+
+            target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + healingAmount);
+
+            return new SpellCastResult
+            {
+                IsSuccess = true,
+                OutcomeMessage = $"{target.Name} is healed for {healingAmount} HP by {spell.Name}."
+            };
+        }
+
+        private GridSquare GetRandomPlacement(Character caster)
+        {
+            var roomGrid = caster.Room.Grid;
+            roomGrid.Shuffle();
+
+            // Find a random empty square to place the monster
+            int i = 0;
+            while (roomGrid[i].IsOccupied || roomGrid[i].IsWall)
+            {
+                i++;
+            }
+            var placementPosition = roomGrid[i];
+
+            return placementPosition;
         }
 
         /// <summary>
@@ -495,6 +692,61 @@ namespace LoDCompanion.Services.Game
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
                 {
                     damage += caster.GetStat(BasicStat.Level);
+                }
+                return damage;
+            }
+            else return 0;
+        }
+
+        private int GetHealing(Monster caster, MonsterSpell spell)
+        {
+            int healing = 0;
+
+            if (spell.Properties != null && spell.Properties.ContainsKey(SpellProperty.DiceCount))
+            {
+                healing += RandomHelper.GetRandomNumber(spell.Properties[SpellProperty.DiceCount], spell.Properties[SpellProperty.DiceMaxValue]);
+            }
+            return healing;
+        }
+
+        private int GetDirectDamage(Monster caster, MonsterSpell spell)
+        {
+            int damage = 0;
+            if (spell.Properties != null && spell.Properties.ContainsKey(SpellProperty.TurnDuration))
+            {
+                if (spell.Properties.ContainsKey(SpellProperty.DiceCount2))
+                {
+                    damage += RandomHelper.GetRandomNumber(spell.Properties[SpellProperty.DiceCount2], spell.Properties[SpellProperty.DiceMaxValue2]);
+                }
+                return damage;
+            }
+            else if (spell.Properties != null && !spell.Properties.ContainsKey(SpellProperty.TurnDuration))
+            {
+                if (spell.Properties.ContainsKey(SpellProperty.DiceCount))
+                {
+                    damage += RandomHelper.GetRandomNumber(spell.Properties[SpellProperty.DiceCount], spell.Properties[SpellProperty.DiceMaxValue]);
+                }
+                if(spell.Properties.ContainsKey(SpellProperty.DirectDamageBonus))
+                {
+                    damage += spell.Properties[SpellProperty.DirectDamageBonus];
+                }
+                return damage;
+            }
+            else return 0;
+        }
+
+        private int GetAOEDamage(Monster caster, MonsterSpell spell)
+        {
+            int damage = 0;
+            if (spell.Properties != null && spell.Properties.ContainsKey(SpellProperty.AreaOfEffectSpell))
+            {
+                if (spell.Properties.ContainsKey(SpellProperty.AOEDiceCount))
+                {
+                    damage += RandomHelper.GetRandomNumber(spell.Properties[SpellProperty.AOEDiceCount], spell.Properties[SpellProperty.AOEDiceMaxValue]);
+                }
+                if (spell.Properties.ContainsKey(SpellProperty.AOEDamageBonus))
+                {
+                    damage += spell.Properties[SpellProperty.AOEDamageBonus];
                 }
                 return damage;
             }
