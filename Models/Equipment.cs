@@ -247,7 +247,10 @@ namespace LoDCompanion.Models
         Blunt,
         Metal,
         Magic,
-        SecondaryWeapon
+        SecondaryWeapon,
+        Cursed,
+        Poisoned,
+        ArmourPiercing,
     }
 
     public class Weapon : Equipment
@@ -260,7 +263,6 @@ namespace LoDCompanion.Models
         public int DamageBonus { get; set; }
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
-        public int ArmourPiercing { get; set; }
         public new virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
 
         public virtual int RollDamage()
@@ -300,7 +302,6 @@ namespace LoDCompanion.Models
             this.Class = baseWeapon.Class;
             this.MinDamage = baseWeapon.MinDamage;
             this.MaxDamage = baseWeapon.MaxDamage;
-            this.ArmourPiercing = baseWeapon.ArmourPiercing;
             this.Value = baseWeapon.Value;
             this.Encumbrance = baseWeapon.Encumbrance;
             this.Durability = baseWeapon.Durability;
@@ -313,7 +314,7 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
+            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
             sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
 
             if (Properties.Any())
@@ -321,10 +322,10 @@ namespace LoDCompanion.Models
                 var propsAsStrings = new List<string>();
                 foreach (var prop in Properties)
                 {
-                    if (prop.Key == WeaponProperty.DualWield)
+                    if (prop.Value > 0)
                     {
                         // Special formatting for properties with a value
-                        propsAsStrings.Add($"Dual Wield: +{prop.Value}");
+                        propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
                     }
                     else
                     {
@@ -396,7 +397,6 @@ namespace LoDCompanion.Models
             this.Class = template.Class;
             this.MinDamage = template.MinDamage;
             this.MaxDamage = template.MaxDamage;
-            this.ArmourPiercing = template.ArmourPiercing;
             this.Value = template.Value;
             this.Encumbrance = template.Encumbrance;
             this.Durability = template.Durability;
@@ -411,7 +411,7 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder(base.ToString());
-            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
+            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
             sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
 
             if (Properties.Any())
@@ -419,10 +419,10 @@ namespace LoDCompanion.Models
                 var propsAsStrings = new List<string>();
                 foreach (var prop in Properties)
                 {
-                    if (prop.Key == WeaponProperty.DualWield)
+                    if (prop.Value > 0)
                     {
                         // Special formatting for properties with a value
-                        propsAsStrings.Add($"Dual Wield: +{prop.Value}");
+                        propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
                     }
                     else
                     {
@@ -467,7 +467,6 @@ namespace LoDCompanion.Models
             this.MaxDamage = template.MaxDamage;
             this.DamageDice = template.DamageDice;
             this.DamageBonus = template.DamageBonus;
-            this.ArmourPiercing = template.ArmourPiercing;
             // --- Properties from RangedWeapon ---
             this.AmmoType = template.AmmoType;
             this.Ammo = template.Ammo;
@@ -479,7 +478,7 @@ namespace LoDCompanion.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage} | AP: {ArmourPiercing}");
+            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
             sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
             sb.AppendLine($" | Ammo Category: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
             if (ElvenBowstring) sb.Append(" | Elven Bowstring");
@@ -487,6 +486,24 @@ namespace LoDCompanion.Models
             if (!string.IsNullOrEmpty(MagicEffect))
             {
                 sb.AppendLine($" | Magic Effect: {MagicEffect}");
+            }
+            if (Properties.Any())
+            {
+                var propsAsStrings = new List<string>();
+                foreach (var prop in Properties)
+                {
+                    if (prop.Value > 0)
+                    {
+                        // Special formatting for properties with a value
+                        propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
+                    }
+                    else
+                    {
+                        // Simple properties
+                        propsAsStrings.Add(prop.Key.ToString());
+                    }
+                }
+                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
             }
             return sb.ToString();
         }
