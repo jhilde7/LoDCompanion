@@ -1539,10 +1539,6 @@ namespace LoDCompanion.Services.GameData
                 result.ManaSpent = finalManaCost;
                 caster.CurrentMana -= result.ManaSpent;
                 result.OutcomeMessage = $"{caster.Name} successfully casts {this.Name}!";
-                if(focusPoints > 0)
-                {
-                    caster.FocusActionRemaining = focusPoints;
-                }
             }
             else
             {
