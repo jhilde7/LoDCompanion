@@ -46,7 +46,6 @@ namespace LoDCompanion.Services.Game
         private readonly DungeonState _dungeon;
         private readonly EncounterService _encounter;
         private readonly InitiativeService _initiative;
-        private readonly CombatManagerService _combatManager;
         private readonly UserRequestService _diceRoll;
 
         public SpellResolutionService(
@@ -60,7 +59,6 @@ namespace LoDCompanion.Services.Game
             _encounter = encounterService;
             _initiative = initiativeService;
             _diceRoll = diceRoll;
-            _combatManager = combatManager;
         }
 
         /// <summary>
@@ -353,7 +351,8 @@ namespace LoDCompanion.Services.Game
                     result.OutcomeMessage = $"{caster.Name} peers through the next door, gaining a tactical advantage.";
                     return result;
 
-                case "Time Freeze":
+                /* TODO: handle this in a seprate place where CombatManager is not put into a circular reference
+                 case "Time Freeze":
                     foreach (Hero hero in _combatManager.GetActivatedHeroes())
                     {
                         if (hero.CurrentAP <= 0)
@@ -363,7 +362,7 @@ namespace LoDCompanion.Services.Game
                         }
                     }
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = "Time freezes! The heroes can act again." };
-
+                */
                 // --- HEX SPELLS ---
                 case "Hold Creature":
                 case "Silence":
