@@ -140,10 +140,10 @@ namespace LoDCompanion.Services.Game
                     RewardCoin = 100,
                     EncounterType = EncounterType.TheMissingBrother,
                     ObjectiveRoom = _room.GetRandomRoom(),
-                    NarrativeQuest = "Spending an evening at The Screaming Hog tavern, the heroes are discussing their upcoming quest and their preparations, when they are suddenly interrupted by a young lady. She introduces herself and begs for forgiveness for eavesdropping, and then goes on to explain her business. Apparently, her brother went to the same dungeon as the one that the heroes are heading for, but he did not return. She now wonders if the party is willing to investigate his disappearance, since they are heading there anyway.",
+                    NarrativeQuest = "Spending an evening at The Screaming Hog tavern, the heroes are discussing their upcoming quest and their preparations, when they are suddenly interrupted by a young lady. She introduces herself and begs for forgiveness for eavesdropping, and then goes on to explain them business. Apparently, them brother went to the same dungeon as the one that the heroes are heading for, but he did not return. She now wonders if the party is willing to investigate their disappearance, since they are heading there anyway.",
                     NarrativeObjectiveRoom = "When the heroes open the door, they realise there is already a fight going on. Some poor soul is desperately fighting several enemies.",
                     NarrativeSetup = "Place the lone fighter in one of the far corners. Then roll twice on the Encounter Table and place these as close to the survivor as possible. Any Archers are placed as far away from the fighter as possible, but not in the 2 squares next to the door where the heroes are. The heroes may continue their turn. The enemies will target only the heroes from now on.",
-                    NarrativeAftermath = "Found him! Once the last enemy is dead, the heroes check on the fighter. He is slumped against the wall, breathing heavily and bleeding, but he is not heavily wounded. He introduces himself and it turns out he is the missing brother of the girl they met at the inn. He thanks the heroes for saving him and bids farewell as he limps towards the exit and the way back to the city. Once back in the city, the heroes receive their promised coins from a very grateful sister.\nDidn't find him! As soon as the heroes set foot in the tavern, they can see the sister looking at them nervously. As one of the heroes shakes his head, she covers her face with her hands and rushes out through the door."
+                    NarrativeAftermath = "Found them! Once the last enemy is dead, the heroes check on the fighter. He is slumped against the wall, breathing heavily and bleeding, but he is not heavily wounded. He introduces himself and it turns out he is the missing brother of the girl they met at the inn. He thanks the heroes for saving them and bids farewell as he limps towards the exit and the way back to the city. Once back in the city, the heroes receive their promised coins from a very grateful sister.\nDidn't find them! As soon as the heroes set foot in the tavern, they can see the sister looking at them nervously. As one of the heroes shakes their head, she covers them face with them hands and rushes out through the door."
                 },
                 new Quest()
                 {
@@ -157,14 +157,14 @@ namespace LoDCompanion.Services.Game
                     NarrativeQuest = "Feeling ready for a change of pace, the heroes decide to go to the Flying Wheel Tavern instead of their usual waterhole...they are comparing their deeds with another set of adventurers. One thing leads to another and suddenly the party is facing a challenge: 'I'd say these fellas are nothing more than loudmouths! Prove me wrong and I'll give you coins. If you fail, you either pay with your lives to the beast, or by coins to me!' The beast in question happens to be in the same dungeon the party is heading to.",
                     NarrativeObjectiveRoom = "The heroes enter a dimly lit room. Judging from the smell, this room is home to something way more sinister than most of the other rooms in this dungeon.",
                     NarrativeSetup = "Place the R17 tile. The monster is in the far end of the room.",
-                    NarrativeAftermath = "Slayed the Beast! The heroes walk triumphantly into the tavern, quickly locate the other party, and slam down the decapitated head of the beast in the middle of the table...the man who challenged you reaches inside his jacket and takes out a bag of coins. Failed to Slay the Beast! The heroes try to enter the tavern without drawing too much attention...The man behind the challenge makes a big scene...There is nothing to do but to pay up."
+                    NarrativeAftermath = "Slayed the Beast! The heroes walk triumphantly into the tavern, quickly locate the other party, and slam down the decapitated head of the beast in the middle of the table...the man who challenged you reaches inside their jacket and takes out a bag of coins. Failed to Slay the Beast! The heroes try to enter the tavern without drawing too much attention...The man behind the challenge makes a big scene...There is nothing to do but to pay up."
                 },
                 new Quest()
                 {
                     IsSideQuest = true,
                     Name = "The Mapmaker",
                     Location = QuestLocation.MainQuest,
-                    SpecialRules = "The party must keep the map maker alive in the journey from the city, through the dungeon, and back again. He should be represented with a model just like the heroes, and the players may move him in the way they see fit. He will always strive to be within 2 squares of a hero, as that makes him feel safe. He may not fight or interact with the enemy, although he may try to dodge as usual.",
+                    SpecialRules = "The party must keep the map maker alive in the journey from the city, through the dungeon, and back again. He should be represented with a model just like the heroes, and the players may move them in the way they see fit. He will always strive to be within 2 squares of a hero, as that makes them feel safe. He may not fight or interact with the enemy, although he may try to dodge as usual.",
                     RewardCoin = 500,
                     EncounterType = EncounterType.MainQuest,
                     NarrativeQuest = "One of the heroes happens upon a note on the bulletin board at the market. Apparently, there is a mapmaker seeking escort to the very dungeon to which you are heading. Why on earth he plans to map the dungeon is beyond your understanding, but the large bag of coins he offers is quite easy to understand.",
@@ -179,16 +179,16 @@ namespace LoDCompanion.Services.Game
                     RewardSpecial = "If found, the heroes may use the standard Heater Shield (DEF 6, ENC 4).",
                     EncounterType = EncounterType.MainQuest,
                     ObjectiveRoom = _room.GetRoomByName("R9"),
-                    NarrativeQuest = "The party has been contacted by another adventurer who is in desperate need of their help. He was quite recently on a quest in the very dungeon to which you are heading, but had to make a hasty retreat. Wounded and outnumbered he managed to leave the dungeon. However, to make it out he had to leave his beloved shield behind: 'If the Gods are good, it's still resting up against that fountain!'",
+                    NarrativeQuest = "The party has been contacted by another adventurer who is in desperate need of their help. He was quite recently on a quest in the very dungeon to which you are heading, but had to make a hasty retreat. Wounded and outnumbered he managed to leave the dungeon. However, to make it out he had to leave their beloved shield behind: 'If the Gods are good, it's still resting up against that fountain!'",
                     NarrativeObjectiveRoom = "You clearly recognise the fountain from the adventurer's description. Before you see if the shield is there, you notice that you are not alone. There is an automatic Encounter in this room. Roll on the quest-specific Encounter Table. Once the fight is over, you can try to locate the shield.",
-                    NarrativeAftermath = "Back with the Shield: The adventurer is overjoyed to see you, and especially the old shield. He quickly hands the heroes their agreed reward and limps away. Shield is Broken or was Not Found: He sighs, lowers his head and walks away. No shield - No money."
+                    NarrativeAftermath = "Back with the Shield: The adventurer is overjoyed to see you, and especially the old shield. He quickly hands the heroes their agreed reward and limps away. Shield is Broken or was Not Found: He sighs, lowers their head and walks away. No shield - No money."
                 },
                 new Quest()
                 {
                     IsSideQuest = true,
                     Name = "Manhunt",
                     Location = QuestLocation.MainQuest,
-                    SpecialRules = "Once the dungeon deck is done, take the same number of cards from the Dungeoneers Deck in a separate pile. Choose one specific card that represents the bandit and then mix that deck and place it next to the ordinary deck. Once you open a door, draw one card from this new deck. If you draw the card representing the bandit, you have found him. Roll for Encounters as usual, then place the bandit in the far end of the room.",
+                    SpecialRules = "Once the dungeon deck is done, take the same number of cards from the Dungeoneers Deck in a separate pile. Choose one specific card that represents the bandit and then mix that deck and place it next to the ordinary deck. Once you open a door, draw one card from this new deck. If you draw the card representing the bandit, you have found them. Roll for Encounters as usual, then place the bandit in the far end of the room.",
                     RewardCoin = 250,
                     EncounterType = EncounterType.MainQuest,
                     NarrativeQuest = "Apparently, one of the city guards was killed last night, and the streets are swarming with armed soldiers. Posters with sketches of the perpetrator have been posted everywhere. Apparently the man is missing both an eye and an ear, so he should be easy to identify. It seems anyone who kills the bandit, and can prove it, will be handsomely rewarded. Unbeknownst to the heroes, the bandit has taken refuge in the very same dungeon to which they are heading.",
@@ -204,7 +204,7 @@ namespace LoDCompanion.Services.Game
                     RewardSpecial = "A potent healing potion that heals 2d6 HP.",
                     EncounterType = EncounterType.MainQuest,
                     NarrativeQuest = "According to an alchemist you have happened upon, there is a mushroom that has very special properties. This mushroom could apparently revolutionise the brewing of healing potions. The mushroom only grows indoors in dark, damp areas and the dungeon you are heading to fits the bill perfectly. If you could bring a specimen back, he would reward you generously.",
-                    NarrativeAftermath = "Found it! The Alchemist is very satisfied, and happily pays the money he promised...A day later a messenger boy catches up with you and hands you a package with a carefully wrapped potion. There is a note from the Alchemist as well, saying that this is his new healing potion. The potion is actually very potent and heals 2d6 HP once consumed."
+                    NarrativeAftermath = "Found it! The Alchemist is very satisfied, and happily pays the money he promised...A day later a messenger boy catches up with you and hands you a package with a carefully wrapped potion. There is a note from the Alchemist as well, saying that this is their new healing potion. The potion is actually very potent and heals 2d6 HP once consumed."
                 },
                 new Quest()
                 {
@@ -341,9 +341,9 @@ namespace LoDCompanion.Services.Game
                     StartThreatLevel = 4,
                     MinThreatLevel = 4,
                     MaxThreatLevel = 18,
-                    NarrativeQuest = "The Jarl of Silver City reaches out to the party, requesting their help: 'My cousin told me you proved you could handle yourself...Would you consider heading down the Mausoleum to get in contact with Ulfric?'...Accepting the quest, the adventures are now tasked with making contact with Ulfric and his Brothers.",
-                    NarrativeObjectiveRoom = "The Crypt that the heroes enter is a large room with six sarcophagi. In the middle stands Ulfric, unmistakably changed. Flanking him are two skeletons, both armed with bronze swords and shields. As he notices the party, he lunges forward, with his Hammer held high.",
-                    NarrativeSetup = "Place Ulfric in the middle and the two skeletons on either side of him. They are considered ordinary skeletons with longswords and shields.",
+                    NarrativeQuest = "The Jarl of Silver City reaches out to the party, requesting their help: 'My cousin told me you proved you could handle yourself...Would you consider heading down the Mausoleum to get in contact with Ulfric?'...Accepting the quest, the adventures are now tasked with making contact with Ulfric and their Brothers.",
+                    NarrativeObjectiveRoom = "The Crypt that the heroes enter is a large room with six sarcophagi. In the middle stands Ulfric, unmistakably changed. Flanking them are two skeletons, both armed with bronze swords and shields. As he notices the party, he lunges forward, with their Hammer held high.",
+                    NarrativeSetup = "Place Ulfric in the middle and the two skeletons on either side of them. They are considered ordinary skeletons with longswords and shields.",
                     NarrativeAftermath = "The Jarl listens carefully to the story told by the adventurers...he appraises their skills and begs them not to spread word of what happened...He also promises to put in a good word for the party, should they ever need it."
                 },
                 new Quest()
@@ -361,7 +361,7 @@ namespace LoDCompanion.Services.Game
                     MinThreatLevel = 3,
                     MaxThreatLevel = 18,
                     NarrativeQuest = "A deal is settled. The party will deal with the bandits, in exchange for coins. Digging around for more information...it becomes clear that all attacks have happened close to the old ruined fort...all wagons were completely smashed up...no trace has been found of the wagons' crew.",
-                    NarrativeObjectiveRoom = "The party enters a room which seems to be the former great hall of the Commandant at the fort. Close to the throne stands the leader of the bandits together with his bodyguards. It suddenly dawns on the adventurers what caused the carts to be totally demolished. The bandit leader is no ordinary man, but a towering, muscular Ogre. Spotting the adventurers, he points a chubby finger at them and bellows for his guards to attack.",
+                    NarrativeObjectiveRoom = "The party enters a room which seems to be the former great hall of the Commandant at the fort. Close to the throne stands the leader of the bandits together with their bodyguards. It suddenly dawns on the adventurers what caused the carts to be totally demolished. The bandit leader is no ordinary man, but a towering, muscular Ogre. Spotting the adventurers, he points a chubby finger at them and bellows for their guards to attack.",
                     NarrativeSetup = "Place Graup, the Ogre, by the throne. Roll twice on the Bandits and Brigands Table and randomly place them around the Ogre, as close as possible. The heroes enter along the short side of the room. Bandits move first. Graup is an ordinary Ogre and is armed with a longsword and has Armour 1.",
                     NarrativeAftermath = "Taking a look around the room the party notices two chests filled with loot from the bandits' plunder. There is also a thick ledger, detailing the plunder...Curiously, the last raids have listed the wagons crew as plunder as well. It appears that their bodies have been sold for coin...Taking what they can, the heroes start their journey back to the city.",
                     SetupActions = new List<QuestSetupAction>()
@@ -436,8 +436,8 @@ namespace LoDCompanion.Services.Game
                     MaxThreatLevel = 18,
                     NarrativeQuest = "Once back in the city, the adventurers are summoned by the Jarl. He explains that there have been more incidents at the cemeteries, pointing towards a Necromancer. He asks the heroes to investigate ruins east of the city to find and kill whoever is collecting corpses.",
                     NarrativeObjectiveRoom = "The heroes enter a huge chamber. In the middle stands a man, Imgrahil, performing an incantation over the body of a peasant girl lying in a magical circle. The heroes watch as the girl starts to twitch and stand up. As they advance, more bodies appear out of the darkness to stop them.",
-                    NarrativeSetup = "Place Imgrahil, the Apprentice, in the centre of the circle. Place one unarmed Zombie next to him. Place 2d6 unarmed Zombies along the long walls, as far as possible from the heroes. The heroes are placed close to the door. Imgrahil is an apprentice Necromancer armed with a poisoned dagger, Armour 1, and has mastered Raise Dead, Healing, Vampiric Touch, and Mirrored Self.",
-                    NarrativeAftermath = "Once Imgrahil is dead, the heroes find a notebook in his pockets. It mentions a 'Master' and an 'Apostle', and a growing army of the Undead. It also mentions a sacrifice to a being named Melkhior. A map reveals the locations of the Apostle and the Master, forcing the heroes to choose their next target. If they go for the Apostle, play quest 6A. If they go for the Master, play 6B."
+                    NarrativeSetup = "Place Imgrahil, the Apprentice, in the centre of the circle. Place one unarmed Zombie next to them. Place 2d6 unarmed Zombies along the long walls, as far as possible from the heroes. The heroes are placed close to the door. Imgrahil is an apprentice Necromancer armed with a poisoned dagger, Armour 1, and has mastered Raise Dead, Healing, Vampiric Touch, and Mirrored Self.",
+                    NarrativeAftermath = "Once Imgrahil is dead, the heroes find a notebook in their pockets. It mentions a 'Master' and an 'Apostle', and a growing army of the Undead. It also mentions a sacrifice to a being named Melkhior. A map reveals the locations of the Apostle and the Master, forcing the heroes to choose their next target. If they go for the Apostle, play quest 6A. If they go for the Master, play 6B."
                 },
                 new Quest()
                 {
@@ -452,7 +452,7 @@ namespace LoDCompanion.Services.Game
                     MinThreatLevel = 6,
                     MaxThreatLevel = 18,
                     NarrativeQuest = "Deciding to intervene with the sacrifice, the heroes head for the spot where the Apostle is said to be. They arrive at an old, ruined tower and find a trapdoor leading down into the darkness, which they decide to descend.",
-                    NarrativeObjectiveRoom = "Upon entering the large hall, the heroes spot a group of civilians on the bank of a lava river, surrounded by skeletons. Further back, on a dais, stands the Apostle, her eyes fixed on the heroes.",
+                    NarrativeObjectiveRoom = "Upon entering the large hall, the heroes spot a group of civilians on the bank of a lava river, surrounded by skeletons. Further back, on a dais, stands the Apostle, them eyes fixed on the heroes.",
                     NarrativeSetup = "The heroes enter along the short side opposite the altar. Place 4 Wights on their side of the river. Place the Apostle on the dais. The heroes go first. There are 2 unlocked, non-trapped objective chests next to the altar. The Apostle is a Vampire Fledgling armed with a longsword and Armour 2.",
                     NarrativeAftermath = "After the heroes liberate the civilians, they send them on their way and head straight towards the Master themselves."
                 },
@@ -472,16 +472,16 @@ namespace LoDCompanion.Services.Game
                     MinThreatLevel = 6,
                     MaxThreatLevel = 18,
                     NarrativeQuest = "After a couple of rainy days on the road, the heroes dive into the ruins of a forgotten castle where the map indicates they can find the Master.",
-                    NarrativeObjectiveRoom = "The heroes enter the room where the Master resides. At the far end, a figure in tattered robes with a hidden face stands flanked by two lumbering Zombie Ogres. After a moment, the Master gestures for his thralls to attack and begins his incantations.",
+                    NarrativeObjectiveRoom = "The heroes enter the room where the Master resides. At the far end, a figure in tattered robes with a hidden face stands flanked by two lumbering Zombie Ogres. After a moment, the Master gestures for their thralls to attack and begins their incantations.",
                     NarrativeSetup = "The heroes enter along a short side. Place the two Ogres and the Master at the far end of the room. The heroes go first. There are 6 tombs in the room that can be looted. The Master is a Necromancer with a poisoned dagger, Armour 1, and knows Raise Dead, 3 Close-combat Spells, and 4 Ranged Spells.",
-                    NarrativeAftermath = "As the Master falls, his body disappears, leaving behind his robes, a grimoire, and a dagger. After looting the crypt, the party heads back to Silver City. The Jarl greets them, commends their actions, and gives them their reward. He also informs them that High King Logan III has requested their enlistment into the League of Dungeoneers to head into the Ancient Lands."
+                    NarrativeAftermath = "As the Master falls, their body disappears, leaving behind their robes, a grimoire, and a dagger. After looting the crypt, the party heads back to Silver City. The Jarl greets them, commends their actions, and gives them their reward. He also informs them that High King Logan III has requested their enlistment into the League of Dungeoneers to head into the Ancient Lands."
                 },
                 new Quest()
                 {
                     Name = "Lair of the Spider Queen",
                     Location = QuestLocation.White40,
                     RewardCoin = 1200,
-                    NarrativeQuest = "The party has been contacted by an elderly wizard who tells them the story of Queen Araneae, who controlled spiders with a magical sceptre. He believes the sceptre is buried with her in a tomb north of the Ancient Lands and will reward the party handsomely for retrieving it. To begin the quest, travel to location White 40."
+                    NarrativeQuest = "The party has been contacted by an elderly wizard who tells them the story of Queen Araneae, who controlled spiders with a magical sceptre. He believes the sceptre is buried with them in a tomb north of the Ancient Lands and will reward the party handsomely for retrieving it. To begin the quest, travel to location White 40."
                 },
                 new Quest()
                 {
@@ -536,7 +536,7 @@ namespace LoDCompanion.Services.Game
                     NarrativeQuest = "Reaching the end of the stairs, the party finds the corridor ending in an opening covered in a tight weave of cobweb. The dust on the floor has been disturbed by a strange pattern, suggesting the Queen's power over spiders transgresses the borders between life and death.",
                     NarrativeObjectiveRoom = "The heroes reach the final resting place of the Queen. Sunbeams shoot from holes in the roof, creating a spotlight on a sarcophagus. Standing next to it is a huge, motionless black spider. Suddenly, its eight eyes gleam and it rises as if woken from slumber.",
                     NarrativeSetup = "The Gigantic Spider, Belua, is placed next to the sarcophagus. The heroes enter on the short side of the room. Belua has a special ability: on a behavior roll of 5-6, she attempts to summon a Giant Spider, which appears randomly in the room but cannot act on the turn it arrives.",
-                    NarrativeAftermath = "With Belua and her children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless."
+                    NarrativeAftermath = "With Belua and them children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless."
                 },
                 new Quest()
                 {
@@ -553,7 +553,7 @@ namespace LoDCompanion.Services.Game
                     MinThreatLevel = 4,
                     MaxThreatLevel = 18,
                     NarrativeQuest = "A High Wizard has felt disturbances from the Void and determined someone is performing a Ritual of Summoning. If the heroes can interrupt the ritual, a demonic invasion can be prevented. They must enter the dungeon and slay the heretic conjurer.",
-                    NarrativeObjectiveRoom = "The heat from the lava river is almost unbearable. Several guards are in the room, protecting a caster who is busy performing his ritual at an altar on a dais in the far end of the room.",
+                    NarrativeObjectiveRoom = "The heat from the lava river is almost unbearable. Several guards are in the room, protecting a caster who is busy performing their ritual at an altar on a dais in the far end of the room.",
                     NarrativeSetup = "The party enters on the short side opposite the altar. Roll twice on the Encounter Table to place guards on the heroes' side of the river. On the other side stands a Magic User of the encountered race, who is so occupied with the ritual that he doesn't notice the battle. The heroes act first.",
                     NarrativeAftermath = "Once all creatures are defeated, the heroes find an alternative exit. If they kill the Spellcaster before he opens the portal, they get the full reward. If they fail, they only get half, as the portal is now open."
                 },
@@ -610,9 +610,9 @@ namespace LoDCompanion.Services.Game
                     StartThreatLevel = 5,
                     MinThreatLevel = 5,
                     MaxThreatLevel = 20,
-                    NarrativeQuest = "A caravan has been ambushed and its passengers kidnapped by a local bandit menace known as Golfrid the Short. The Jarl has turned to his trusted heroes to find the bandits' lair and rescue the prisoners.",
-                    NarrativeObjectiveRoom = "The heroes locate the hideout and find the Halfling, Golfrid, standing by a bed at the far end of the room. The kidnapped prisoners are sitting along one of the walls. Golfrid orders his bandits to attack, and in the ensuing chaos, the panicked prisoners start running around the room.",
-                    NarrativeSetup = "Place Golfrid by the bed, with his ogre bodyguards next to him if they haven't been defeated yet. Roll twice on the Encounter Table and place the bandits evenly along the walls. The heroes may act first.",
+                    NarrativeQuest = "A caravan has been ambushed and its passengers kidnapped by a local bandit menace known as Golfrid the Short. The Jarl has turned to their trusted heroes to find the bandits' lair and rescue the prisoners.",
+                    NarrativeObjectiveRoom = "The heroes locate the hideout and find the Halfling, Golfrid, standing by a bed at the far end of the room. The kidnapped prisoners are sitting along one of the walls. Golfrid orders their bandits to attack, and in the ensuing chaos, the panicked prisoners start running around the room.",
+                    NarrativeSetup = "Place Golfrid by the bed, with their ogre bodyguards next to them if they haven't been defeated yet. Roll twice on the Encounter Table and place the bandits evenly along the walls. The heroes may act first.",
                     NarrativeAftermath = "Once the battle is over, the heroes escort any surviving prisoners back to the city. The Jarl adjusts the final reward based on the number of survivors."
                 },
                 new Quest()
@@ -631,9 +631,9 @@ namespace LoDCompanion.Services.Game
                     MinThreatLevel = 5,
                     MaxThreatLevel = 20,
                     NarrativeQuest = "The High Priests have learned of an illegal Pleasure House operating in the catacombs below the city, run by the beautiful but cruel brigand, Madame Isabelle. Unwilling to trust the city guard, the priests hire the adventurers to shut down the establishment.",
-                    NarrativeObjectiveRoom = "When the heroes enter the Pleasure House, the room, filled with patrons and guards, falls silent. Madame Isabelle sits at the far end, enjoying a glass of wine. After a moment, her guards rush towards the intruders.",
+                    NarrativeObjectiveRoom = "When the heroes enter the Pleasure House, the room, filled with patrons and guards, falls silent. Madame Isabelle sits at the far end, enjoying a glass of wine. After a moment, them guards rush towards the intruders.",
                     NarrativeSetup = "Roll twice on the Bandits and Brigands Encounter Chart and place the guards along the walls, with any archers at the far end. Place Madame Isabelle by the bed. The enemy acts first. Madame Isabelle has the Seduction special rule.",
-                    NarrativeAftermath = "After defeating the guards and Isabelle, the heroes tend to the wounded. They recognize the High Priest's daughter among the visitors, who begs them not to reveal her presence and offers a hefty bribe for their silence."
+                    NarrativeAftermath = "After defeating the guards and Isabelle, the heroes tend to the wounded. They recognize the High Priest's daughter among the visitors, who begs them not to reveal them presence and offers a hefty bribe for their silence."
                 },
                 new Quest()
                 {
@@ -670,8 +670,8 @@ namespace LoDCompanion.Services.Game
                     MinThreatLevel = 4,
                     MaxThreatLevel = 18,
                     NarrativeQuest = "The heroes have been tasked by the local garrison to retrieve sacred water from a fountain of Ramos to perform an ancient weapon-baptising ritual. The closest fountain, however, is located in an abandoned castle overrun by a tribe of Orcs and Goblins.",
-                    NarrativeObjectiveRoom = "The light from the glittering fountain illuminates the chamber. The heroes are not the only ones aware of the fountain's power; a huge orc is just about to dip his sword into the water when he spots them.",
-                    NarrativeSetup = "Roll twice on the Orcs and Goblins Table and place them randomly in the chamber. Place Gaul the Mauler, a huge Orc, next to the fountain on the far side. Before the fight, Gaul dips his weapon, giving it +1 damage. The heroes start on a short side and act first.",
+                    NarrativeObjectiveRoom = "The light from the glittering fountain illuminates the chamber. The heroes are not the only ones aware of the fountain's power; a huge orc is just about to dip their sword into the water when he spots them.",
+                    NarrativeSetup = "Roll twice on the Orcs and Goblins Table and place them randomly in the chamber. Place Gaul the Mauler, a huge Orc, next to the fountain on the far side. Before the fight, Gaul dips their weapon, giving it +1 damage. The heroes start on a short side and act first.",
                     NarrativeAftermath = "After the fight, the heroes investigate the chamber and find two large chests. They take turns dipping their own weapons in the fountain before filling a bottle for the garrison and heading back to Silver City."
                 },
                 new Quest()
@@ -691,7 +691,7 @@ namespace LoDCompanion.Services.Game
                     NarrativeQuest = "A local nobleman has contracted the heroes to return a polished black stone to a long-forgotten temple. Since retrieving the stone, he has suffered from bad luck and believes it to be cursed. He hopes returning it will lift the curse.",
                     NarrativeObjectiveRoom = "The heroes enter the chamber and see the great statue at the far end, with an obvious place for the stone. However, a horde of enemies stands between them and their objective.",
                     NarrativeSetup = "Roll twice on the Encounter Table and place the enemies randomly. The heroes may act first.",
-                    NarrativeAftermath = "Once the stone is returned to its place, absolutely nothing happens. The heroes head home, where the nobleman pays them their reward, convinced his luck has turned now that the stone is gone."
+                    NarrativeAftermath = "Once the stone is returned to its place, absolutely nothing happens. The heroes head home, where the nobleman pays them their reward, convinced their luck has turned now that the stone is gone."
                 },
                 new Quest()
                 {
@@ -746,7 +746,7 @@ namespace LoDCompanion.Services.Game
                     StartThreatLevel = 5,
                     MinThreatLevel = 5,
                     MaxThreatLevel = 18,
-                    NarrativeQuest = "A young knight has hired the heroes to retrieve a powerful family heirloom—a sword of immense beauty—from his great-great-grandfather's tomb in one of the city's mausoleums. The knight himself is unable to go, as he has caught the flu.",
+                    NarrativeQuest = "A young knight has hired the heroes to retrieve a powerful family heirloom—a sword of immense beauty—from their great-great-grandfather's tomb in one of the city's mausoleums. The knight himself is unable to go, as he has caught the flu.",
                     NarrativeObjectiveRoom = "The heroes enter the Great Crypt where the ancestor is entombed. The room is covered in cobwebs and dust, and there are six tombs, not one. The engravings are worn away, so the heroes must open them one by one to find the correct one.",
                     NarrativeSetup = "There are no enemies in the room when the heroes enter.",
                     NarrativeAftermath = "Once the sword is retrieved, the heroes return to the surface. The young knight yanks the sword from their hands, complaining about the time it took, but nonetheless pays the agreed-upon reward."
@@ -765,9 +765,9 @@ namespace LoDCompanion.Services.Game
                     StartThreatLevel = 6,
                     MinThreatLevel = 6,
                     MaxThreatLevel = 20,
-                    NarrativeQuest = "The heroes have been tasked with finding and killing Ragnalf the Mad, a Necromancer who has been raiding cemeteries for corpses. After tracing his minions to a ruined fort near the city, the heroes prepare to locate the evil wizard.",
+                    NarrativeQuest = "The heroes have been tasked with finding and killing Ragnalf the Mad, a Necromancer who has been raiding cemeteries for corpses. After tracing their minions to a ruined fort near the city, the heroes prepare to locate the evil wizard.",
                     NarrativeObjectiveRoom = "The heroes enter a room filled with the stench of death and literally covered in corpses, some of which are twitching. At the far end stands Ragnalf the Mad, an old man in a tattered robe, surrounded by a host of zombies. The heroes carefully advance.",
-                    NarrativeSetup = "Place Ragnalf the Necromancer at the far end of the room, with 6 Zombies armed with longswords placed close to him. The heroes enter along a short side.",
+                    NarrativeSetup = "Place Ragnalf the Necromancer at the far end of the room, with 6 Zombies armed with longswords placed close to them. The heroes enter along a short side.",
                     NarrativeAftermath = "When the Necromancer dies, all the zombies collapse and the eerie movement on the floor stops. The heroes, not wanting to linger, head back to town to collect their reward."
                 },
                 new Quest()
@@ -803,7 +803,7 @@ namespace LoDCompanion.Services.Game
                     StartThreatLevel = 6,
                     MinThreatLevel = 6,
                     MaxThreatLevel = 20,
-                    NarrativeQuest = "The heroes have heard of the Pyramid of Xánthu, the final resting place of a cruel but prosperous ruler from the Ancient Lands. Believing he was buried with his treasures, they deem the ominous pyramid a worthy target for dungeoneering.",
+                    NarrativeQuest = "The heroes have heard of the Pyramid of Xánthu, the final resting place of a cruel but prosperous ruler from the Ancient Lands. Believing he was buried with their treasures, they deem the ominous pyramid a worthy target for dungeoneering.",
                     NarrativeObjectiveRoom = "The heroes enter a vast, mostly empty chamber containing two intricately carved stone sarcophagi at its center, surrounded by painted glyphs on the floor. The hall is not empty, however, as undead guardians must be dispatched before the room can be examined.",
                     NarrativeSetup = "The heroes enter along a short edge of the room. Make two rolls on the Encounter Table and place the enemies randomly.",
                     NarrativeAftermath = "Once the chamber is quiet, the heroes search for treasure, carefully avoiding the glyphs. They eventually find a set of movable stones in a wall, revealing a beautiful chest behind them."
@@ -872,7 +872,7 @@ namespace LoDCompanion.Services.Game
                     Name = "Crypt of Khaba",
                     Location = QuestLocation.AncientLands,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "You may re-roll 4 rolls on the furniture chart. A special playing card deck is used; each time you enter a new tile, you flip a card. If the Ace of Spades is drawn, it triggers a special encounter with the undead Queen Khaba and her four wight bodyguards.",
+                    SpecialRules = "You may re-roll 4 rolls on the furniture chart. A special playing card deck is used; each time you enter a new tile, you flip a card. If the Ace of Spades is drawn, it triggers a special encounter with the undead Queen Khaba and them four wight bodyguards.",
                     CorridorCount = 6,
                     RoomCount = 6,
                     RewardCoin = 500,
@@ -882,10 +882,10 @@ namespace LoDCompanion.Services.Game
                     StartThreatLevel = 6,
                     MinThreatLevel = 6,
                     MaxThreatLevel = 20,
-                    NarrativeQuest = "Queen Khaba was a fascinating exception to the male rulers of the Ancient Lands. Her crypt has finally been identified, and it is said to be untouched for millennia. She was always pictured with a sceptre, and the heroes hope to find it with her remains.",
+                    NarrativeQuest = "Queen Khaba was a fascinating exception to the male rulers of the Ancient Lands. Her crypt has finally been identified, and it is said to be untouched for millennia. She was always pictured with a sceptre, and the heroes hope to find it with them remains.",
                     NarrativeObjectiveRoom = "The heroes have finally located the burial site of Queen Khaba. Her legendary sceptre may be awaiting liberation within one of the two sarcophagi.",
-                    NarrativeSetup = "The party enters along the long edge. Roll twice on the Encounter Table and place the enemies randomly. If the party has not yet met Queen Khaba through the special card event, she will be present in this room next to her sarcophagus.",
-                    NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in her final resting place."
+                    NarrativeSetup = "The party enters along the long edge. Roll twice on the Encounter Table and place the enemies randomly. If the party has not yet met Queen Khaba through the special card event, she will be present in this room next to them sarcophagus.",
+                    NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in them final resting place."
                 }
             };
         }

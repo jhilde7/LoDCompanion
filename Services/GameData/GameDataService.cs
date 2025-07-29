@@ -61,7 +61,7 @@ namespace LoDCompanion.Services.GameData
                 new Prayer(){
                   Name = "Metheia's Ward",
                   Level = 1,
-                  PrayerEffect = "Under the protection of Metheia, the priest regains 1 lost HP at the start of his activation, for the rest of the battle.",
+                  PrayerEffect = "Under the protection of Metheia, the priest regains 1 lost HP at the start of their activation, for the rest of the battle.",
                   Duration = "For the rest of the battle."
                 },
                 new Prayer(){
@@ -73,7 +73,7 @@ namespace LoDCompanion.Services.GameData
                 new Prayer(){
                   Name = "Litany of Metheia",
                   Level = 2,
-                  PrayerEffect = "Metheia watches over the heroes and grants them her power of life. Every hero that passes a RES test at the start of their activation regains 1 HP.",
+                  PrayerEffect = "Metheia watches over the heroes and grants them them power of life. Every hero that passes a RES test at the start of their activation regains 1 HP.",
                   Duration = "Until end of next battle, or 4 turns if used between battles."
                 },
                 new Prayer(){
@@ -139,7 +139,7 @@ namespace LoDCompanion.Services.GameData
                 new Prayer(){
                   Name = "God's Champion",
                   Level = 4,
-                  PrayerEffect = "The priest fights like a dervish, imbued by the power of his or her god. Combat Skill is increased by +15 but after the battle, the priest loses an additional Point of Energy. If there are not enough points, the Constitution of the priest is halved (RDD) until the next short rest or until the heroes leave the dungeon.",
+                  PrayerEffect = "The priest fights like a dervish, imbued by the power of their or them god. Combat Skill is increased by +15 but after the battle, the priest loses an additional Point of Energy. If there are not enough points, the Constitution of the priest is halved (RDD) until the next short rest or until the heroes leave the dungeon.",
                   Duration = "Until end of battle (effect on energy/constitution is after battle)."
                 }
             };
@@ -190,12 +190,12 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Physical,
                     Name = TalentName.Strong,
-                    Description = "Your hero's exercises have paid off and your hero gains a +5 bonus to her Strength stat.",
+                    Description = "Your hero's exercises have paid off and your hero gains a +5 bonus to them Strength stat.",
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
                     Name = TalentName.StrongBuild,
-                    Description = "Your hero gains a +2 bonus to her Hit Points stat.",
+                    Description = "Your hero gains a +2 bonus to them Hit Points stat.",
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
@@ -220,7 +220,7 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.Disarm,
-                    Description = "This is a special attack, using the target's DEX as a negative modifier to the attack. If the attack succeeds it inflicts no damage, but causes the enemy to drop his weapon. The enemy must spend his next action trying to pick it up. In order to do so, the enemy will have to succeed with an DEX Test. The enemy will continue until successful. If the hero's attack fails, nothing happens. This can only be used on enemies that are carrying weapons.",
+                    Description = "This is a special attack, using the target's DEX as a negative modifier to the attack. If the attack succeeds it inflicts no damage, but causes the enemy to drop their weapon. The enemy must spend their next action trying to pick it up. In order to do so, the enemy will have to succeed with an DEX Test. The enemy will continue until successful. If the hero's attack fails, nothing happens. This can only be used on enemies that are carrying weapons.",
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
@@ -255,7 +255,7 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.RiposteMaster,
-                    Description = "When successfully parrying a strike with her weapon, the hero may automatically cause 2 Points of Damage to that Enemy. May only be done with weapons of class 3 or lower.",
+                    Description = "When successfully parrying a strike with them weapon, the hero may automatically cause 2 Points of Damage to that Enemy. May only be done with weapons of class 3 or lower.",
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
@@ -395,7 +395,7 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.BloodMagic,
-                    Description = "The wizard can spend his own life blood to create Mana. For every 2 HP spent, the wizard gains 5 Mana. This transformation can be done for free during the wizard's turn.",
+                    Description = "The wizard can spend their own life blood to create Mana. For every 2 HP spent, the wizard gains 5 Mana. This transformation can be done for free during the wizard's turn.",
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
@@ -440,7 +440,7 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.Summoner,
-                    Description = "Reaching into other realms and bringing other beings to his aid has become easier with years of practice. Your hero gets +5 on all Summoning Spells.",
+                    Description = "Reaching into other realms and bringing other beings to their aid has become easier with years of practice. Your hero gets +5 on all Summoning Spells.",
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
@@ -500,7 +500,7 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Sneaky,
                     Name = TalentName.SenseForGold,
-                    Description = "It seems this hero can almost smell his way to treasures. When rolling on the Furniture Table for treasures, the hero may subtract -1 to the roll.",
+                    Description = "It seems this hero can almost smell their way to treasures. When rolling on the Furniture Table for treasures, the hero may subtract -1 to the roll.",
                 },
                 new Talent(){
                     Category = TalentCategory.Sneaky,
@@ -531,7 +531,7 @@ namespace LoDCompanion.Services.GameData
                 new Talent(){
                     Category = TalentCategory.Mental,
                     Name = TalentName.StrongMinded,
-                    Description = "Your hero is less affected by the horrors he faces in the dungeons than his comrades. He gains +1 Sanity Point.",
+                    Description = "Your hero is less affected by the horrors he faces in the dungeons than their comrades. He gains +1 Sanity Point.",
                 },
                 new Talent(){
                     Category = TalentCategory.Mental,
@@ -781,7 +781,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Leader,
                     Name = PerkName.Encouragement,
-                    Effect = "Your hero's encouragement strengthens the hearts of his comrades, giving them +10 on an upcoming Fear or Terror Test.",
+                    Effect = "Your hero's encouragement strengthens the hearts of their comrades, giving them +10 on an upcoming Fear or Terror Test.",
                     Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
                 },
                 new Perk(){
@@ -817,7 +817,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.Taunt,
-                    Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack him ignoring normal targeting procedure.",
+                    Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack them ignoring normal targeting procedure.",
                     Comment = "Chose which enemy to taunt before rolling."
                 },
                 new Perk(){
@@ -829,7 +829,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Combat,
                     Name = PerkName.BattleFury,
-                    Effect = "Using his inner energy, your hero may perform 2 Power Attacks in one turn as if they only cost 1 AP.",
+                    Effect = "Using their inner energy, your hero may perform 2 Power Attacks in one turn as if they only cost 1 AP.",
                     Comment = ""
                 },
                 new Perk(){
@@ -841,7 +841,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Combat,
                     Name = PerkName.Frenzy,
-                    Effect = "Working herself into a frenzy, your hero flails wildly at her enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
+                    Effect = "Working herself into a frenzy, your hero flails wildly at them enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
                     Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle."
                 },
                 new Perk(){
@@ -859,7 +859,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Combat,
                     Name = PerkName.PowerfulBlow,
-                    Effect = "Your hero attacks with all her strength, causing 1d6 extra damage.",
+                    Effect = "Your hero attacks with all them strength, causing 1d6 extra damage.",
                     Comment = "Must be decided before the attack is made."
                 },
                 new Perk(){
@@ -883,13 +883,13 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.CleverFingers,
-                    Effect = "Relying on her experience, her fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
+                    Effect = "Relying on them experience, them fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
                     Comment = "Use before rolling."
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.HideInTheShadows,
-                    Effect = "Your hero finds that perfect spot to avoid drawing attention. No enemy will target him if they are more than 2 squares away when they start their turn. If your model is adjacent to an enemy, that enemy will always attack another adjacent model if there is one. If not, the Perk will not work.",
+                    Effect = "Your hero finds that perfect spot to avoid drawing attention. No enemy will target them if they are more than 2 squares away when they start their turn. If your model is adjacent to an enemy, that enemy will always attack another adjacent model if there is one. If not, the Perk will not work.",
                     Comment = ""
                 },
                 new Perk(){
@@ -925,7 +925,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Faith,
                     Name = PerkName.GodsFavorite,
-                    Effect = "Your hero is well attuned to the gods, and they always seem to listen to him. Once again, his prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
+                    Effect = "Your hero is well attuned to the gods, and they always seem to listen to them. Once again, their prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
                     Comment = ""
                 },
                 new Perk(){
@@ -943,7 +943,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Faith,
                     Name = PerkName.MyWillBeDone,
-                    Effect = "Using his inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
+                    Effect = "Using their inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
                     Comment = "Lasts until end of next battle"
                 },
                 new Perk(){
@@ -961,13 +961,13 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Arcane,
                     Name = PerkName.InnerPower,
-                    Effect = "The wizard increases the power of his magic missiles, causing an extra 1d6 Damage.",
+                    Effect = "The wizard increases the power of their magic missiles, causing an extra 1d6 Damage.",
                     Comment = "Must be declared before the spell is cast."
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
                     Name = PerkName.InTuneWithTheMagic,
-                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk her Sanity.",
+                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk them Sanity.",
                     Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
                 },
                 new Perk(){
@@ -991,7 +991,7 @@ namespace LoDCompanion.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Alchemist,
                     Name = PerkName.PerfectHealer,
-                    Effect = "Your hero's perfect mixing increases the potency of her potions. The Healing Potion heals +3 HP.",
+                    Effect = "Your hero's perfect mixing increases the potency of them potions. The Healing Potion heals +3 HP.",
                     Comment = "Used at the same time as the potion is mixed."
                 },
                 new Perk(){
@@ -1197,7 +1197,7 @@ namespace LoDCompanion.Services.GameData
                 },
                 new Profession {
                     Name = "Ranger",
-                    Description = "The Ranger spends his or her days in the wild. They make their living by tracking animals and selling their meat and pelts. Rangers earn a meagre income, but with time they will acquire unrivalled knowledge in how to survive in the wild, and they will seldom go hungry. Constant exposure to the weather and wandering the forests day after day also makes them quite tough and resilient. Their favourite weapon is, of course, the bow. However, some prefer the heavier crossbow for its sheer stopping power.",
+                    Description = "The Ranger spends their or them days in the wild. They make their living by tracking animals and selling their meat and pelts. Rangers earn a meagre income, but with time they will acquire unrivalled knowledge in how to survive in the wild, and they will seldom go hungry. Constant exposure to the weather and wandering the forests day after day also makes them quite tough and resilient. Their favourite weapon is, of course, the bow. However, some prefer the heavier crossbow for its sheer stopping power.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = 15,
                     DodgeSkillModifier = -5,

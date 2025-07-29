@@ -1042,7 +1042,7 @@ namespace LoDCompanion.Services.Dungeon
                                 case 9: magic[0] = "Foraging +5"; break;
                                 default: break; // Should not happen
                             }
-                            magic[1] = "Through this enchantment, the wizards who created this lends some of his skill to its user.";
+                            magic[1] = "Through this enchantment, the wizards who created this lends some of their skill to its user.";
                             break;
                         case 9: magic[0] = "Init +5 rolls / Add 1 hero token"; magic[1] = "A simple attempt to copy the Rings of Awareness, this item still has its benefits."; break;
                         default: break; // Should not happen

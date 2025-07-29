@@ -879,7 +879,7 @@ namespace LoDCompanion.Services.GameData
                     Category = "Treasure",
                     Shop = ShopCategory.Weapons,
                     Name = "The Goblins Scimitar",
-                    Description = "This scimitar once belonged to the Goblin King, Teezmeald. He wielded it in his famous last fight against the great Elf warrior, Aelynthi Bihorn. As Elves despise all things of Goblin making, Bihorn left the blade where the king fell. Whoever, or whatever, snatched the blade from his withered corpse will never be known, but this artifact continues to crave blood, no matter who wields it.",
+                    Description = "This scimitar once belonged to the Goblin King, Teezmeald. He wielded it in their famous last fight against the great Elf warrior, Aelynthi Bihorn. As Elves despise all things of Goblin making, Bihorn left the blade where the king fell. Whoever, or whatever, snatched the blade from their withered corpse will never be known, but this artifact continues to crave blood, no matter who wields it.",
                     //TODO: The wielder of this weapon gains the perk Frenzy
                     MinDamage = 3,
                     MaxDamage = 10,
