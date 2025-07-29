@@ -326,9 +326,9 @@ namespace LoDCompanion.Models.Character
         public int DualWieldBonus => GetDualWieldBonus();
         public Dictionary<ArmourProperty, int> ArmourDefValues => GetDefValues();
 
-        public List<Spell> Spells { get; set; } = new List<Spell>();
-        public int FocusActionRemaining { get; set; }
-        public List<Prayer> Prayers { get; set; } = new List<Prayer>();
+        public List<Spell>? Spells { get; set; }
+        public ChanneledSpell? ChanneledSpell { get; set; }
+        public List<Prayer>? Prayers { get; set; }
         public int Coins { get; set; } = 150;
 
         public bool HasBeenTargetedThisTurn { get; set; }
