@@ -12,16 +12,22 @@ namespace LoDCompanion.Models.Dungeon
         West
     }
 
+    public enum DoorChestProperty
+    {
+        None,
+        Locked,
+        Trapped,
+        Open,
+        LockModifier,
+        LockHP,
+        MagicallySealed,
+    }
+
     public class DoorChest
     {
         public string Category { get; set; } = string.Empty;
-        public bool IsTrapped { get; set; }
-        public bool IsLocked { get; set; }
-        public bool IsOpen { get; set; } = false; // Default to closed
         public Orientation Orientation { get; set; }
-        // Properties related to lock, if locked
-        public int LockModifier { get; set; }
-        public int LockHP { get; set; }
+        public Dictionary<DoorChestProperty, int>? Properties { get; set; }
 
         // List of rooms that this door/chest could lead to (for doors)
         // In a web project, this would represent the connections in your dungeon graph.
@@ -38,10 +44,14 @@ namespace LoDCompanion.Models.Dungeon
         // which performs the rolls and sets these properties.
         public void SetLockAndTrapState(bool isLocked, int lockModifier, int lockHP, bool isTrapped)
         {
-            IsLocked = isLocked;
-            LockModifier = lockModifier;
-            LockHP = lockHP;
-            IsTrapped = isTrapped;
+            Properties ??= new Dictionary<DoorChestProperty, int>();
+            if (isLocked) 
+            {
+                Properties.TryAdd(DoorChestProperty.Locked, 0);
+                Properties.TryAdd(DoorChestProperty.LockModifier, lockModifier);
+                Properties.TryAdd(DoorChestProperty.LockHP, lockHP);
+            }
+            if (isTrapped) Properties.TryAdd(DoorChestProperty.Trapped, 0);
         }
 
         // Provides the next connected room (for doors). The actual logic for selecting
@@ -62,7 +72,15 @@ namespace LoDCompanion.Models.Dungeon
         // (e.g., if unlocked) would reside in a service.
         public void ToggleOpen()
         {
-            IsOpen = !IsOpen;
+            Properties ??= new Dictionary<DoorChestProperty, int>();
+            if (Properties.ContainsKey(DoorChestProperty.Open))
+            {
+                Properties.Remove(DoorChestProperty.Open);
+            }
+            else
+            {
+                Properties.TryAdd(DoorChestProperty.Open, 0); // Default to open state
+            }
         }
     }
 }
