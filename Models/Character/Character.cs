@@ -107,7 +107,6 @@ namespace LoDCompanion.Models.Character
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
         public int CurrentAP { get; set; } = 2;
         public int CurrentMovePoints { get; set; }
-        public bool IsLarge { get; set; }
         public bool IsVulnerableAfterPowerAttack { get; set; }
         public bool HasMadeFirstMoveAction { get; set; }
         public FacingDirection Facing { get; set; } = FacingDirection.North;
@@ -219,19 +218,12 @@ namespace LoDCompanion.Models.Character
             return !(left == right);
         }
 
-        public void UpdateOccupiedSquares()
+        public virtual void UpdateOccupiedSquares()
         {
             OccupiedSquares.Clear();
             int SizeX = 1;
             int SizeY = 1;
             int SizeZ = 1;
-
-            if(IsLarge)
-            {
-                SizeX = 2;
-                SizeY = 2;
-                SizeZ = 1;
-            }
 
             for (int x = 0; x < SizeX; x++)
             {
@@ -615,7 +607,6 @@ namespace LoDCompanion.Models.Character
 
             // --- Copy Base Character Properties ---
             newMonster.Name = this.Name;
-            newMonster.IsLarge = this.IsLarge;
             newMonster.HasShield = this.HasShield;
 
             // --- Copy Monster-Specific Properties ---
@@ -687,6 +678,38 @@ namespace LoDCompanion.Models.Character
         public Weapon? GetRangedWeapon()
         {
             return Weapons.FirstOrDefault(w => w.IsRanged);
+        }
+
+        public override void UpdateOccupiedSquares()
+        {
+            OccupiedSquares.Clear();
+            int SizeX = 1;
+            int SizeY = 1;
+            int SizeZ = 1;
+
+            if (PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.Large))
+            {
+                SizeX = 2;
+                SizeY = 2;
+                SizeZ = 1;
+            }
+            if (PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge))
+            {
+                SizeX = 2;
+                SizeY = 3;
+                SizeZ = 1;
+            }
+
+            for (int x = 0; x < SizeX; x++)
+            {
+                for (int y = 0; y < SizeY; y++)
+                {
+                    for (int z = 0; z < SizeZ; z++)
+                    {
+                        OccupiedSquares.Add(new GridPosition(Position.X + x, Position.Y + y, Position.Z + z));
+                    }
+                }
+            }
         }
 
         /// <summary>
