@@ -9,6 +9,7 @@ namespace LoDCompanion.Services.Combat
     public enum SpecialActiveAbility
     {
         Bellow,
+        FreeBellow,
         Camouflage,
         Entangle,
         FireBreath,
