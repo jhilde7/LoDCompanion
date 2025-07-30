@@ -15,6 +15,7 @@ namespace LoDCompanion.Services.Combat
         FireBreath,
         GhostlyHowl,
         Kick,
+        Leech,
         MasterOfTheDead,
         MultipleAttack,
         Petrify,
