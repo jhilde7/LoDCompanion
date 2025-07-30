@@ -427,7 +427,7 @@ namespace LoDCompanion.Services.Dungeon
                     roll = (int)Math.Ceiling(roll / 2d);
                     switch (roll)
                     {
-                        case 1: itemName = "Battle Hammer"; break;
+                        case 1: itemName = "Battlehammer"; break;
                         case 2: itemName = "Warhammer"; break;
                     }
                     treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, (DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1)));
@@ -762,7 +762,7 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         case 1: itemName = "Longsword"; value = 200; break;
                         case 2: itemName = "Warhammer"; value = 400; break;
-                        case 3: itemName = "Battle Hammer"; value = 300; break;
+                        case 3: itemName = "Battlehammer"; value = 300; break;
                         case 4: itemName = "Morning Star"; value = 300; break;
                         case 5: itemName = "Battleaxe"; value = 200; break;
                         case 6: itemName = "Dagger"; value = 50; break;
@@ -1178,7 +1178,7 @@ namespace LoDCompanion.Services.Dungeon
                 case 4: weapon = EquipmentService.GetWeaponByNameSetDurability("Broadsword", durability); break;
                 case 5: weapon = EquipmentService.GetWeaponByNameSetDurability("Longsword", durability); break;
                 case 6: weapon = EquipmentService.GetWeaponByNameSetDurability("Battleaxe", durability); break;
-                case 7: weapon = EquipmentService.GetWeaponByNameSetDurability("Battle Hammer", durability); break;
+                case 7: weapon = EquipmentService.GetWeaponByNameSetDurability("Battlehammer", durability); break;
                 case 8: weapon = EquipmentService.GetWeaponByNameSetDurability("Morning Star", durability); break;
                 case 9: weapon = EquipmentService.GetWeaponByNameSetDurability("Flail", durability); break;
                 case 10: weapon = EquipmentService.GetWeaponByNameSetDurability("Staff", durability); break;

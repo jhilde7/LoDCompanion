@@ -963,7 +963,7 @@ namespace LoDCompanion.Services.GameData
                 {
                     Category = "Common",
                     Shop = ShopCategory.Weapons,
-                    Name = "Battle Hammer",
+                    Name = "Battlehammer",
                     MinDamage = 1,
                     MaxDamage = 10,
                     DamageDice = "1d10",
