@@ -7,42 +7,9 @@ using System.Xml.Linq;
 
 namespace LoDCompanion.Services.Player
 {
-    public enum PassiveAbilityProperty
-    {
-        CauseFear,
-        CauseTerror,
-        MultipleAttacks,
-        Regeneration,
-        DexterityBonus,
-        MovementBonus,
-        PerceptionBonus,
-        ConstitutionBonus,
-        StrengthBonus,
-        HitPointsBonus,
-        CombatSkillBonus,
-        RangedSkillBonus,
-        DodgeBonus,
-        PickLocksBonus,
-        DisarmTrapsBonus,
-        ForagingBonus,
-        LuckBonus,
-        ResolveBonus,
-        SanityBonus,
-        WisdomBonus,
-        ArcaneArtsBonus,
-        ManaCostReduction,
-        DamageBonus,
-        ParryBonus,
-        AimBonus,
-        IgnoresClunky,
-        AutomaticHitFromBehind,
-        IgnoresArmorAndNAFromBehind,
-    }
-
     public class PassiveAbility
     {
         public string Description { get; set; } = string.Empty;
-        public Dictionary<PassiveAbilityProperty, int> Properties = new Dictionary<PassiveAbilityProperty, int>();
     }
 
     public class PassiveAbilityService
@@ -56,7 +23,7 @@ namespace LoDCompanion.Services.Player
         public List<Talent> MagicTalents => GetTalentsByCategory(TalentCategory.Magic);
         public List<Talent> SneakyTalents => GetTalentsByCategory(TalentCategory.Sneaky);
         public List<Talent> MentalTalents => GetTalentsByCategory(TalentCategory.Mental);
-
+        public List<MonsterPassiveSpecial> MonsterPassiveSpecials => GetMonsterPassiveAbilities();
 
 
         public List<Talent> GetTalents()
@@ -669,236 +636,241 @@ namespace LoDCompanion.Services.Player
             return talent;
         }
 
-        public List<MonsterSpecialRule> GetMonsterPassiveAbilities()
+        public List<MonsterPassiveSpecial> GetMonsterPassiveAbilities()
         {
-            return new List<MonsterSpecialRule>
+            return new List<MonsterPassiveSpecial>
             {
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.CauseFear,
                     Description = "This enemy imparts Fear to all heroes of level X and lower. All heroes must take a RES test as soon as it is placed. A failure will give a -10 CS/RS to all attacks against it. Magic cast against the enemy will also suffer -10 Arcane Arts. Test once per battle and creature type."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.CauseTerror,
                     Description = "This enemy inflicts Terror on all heroes of level X and lower. Heroes with a higher level than X experience this as fear. A terror test is made at RES-20 and a failure will give same effect as fear, but the hero will also be stunned for 1 AP. Test as soon as it is placed on the table."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Corrosive,
                     Description = "The enemy has a corrosive effect on all metals except for Mithril and silver. Any metal armour struck by an enemy with this rule automatically loses 1 point of durability, even if the damage is less than the armour's defence value. Any metal weapon striking a creature with this rule and causing an odd amount of damage loses 1 point of durability per strike that hits."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.CursedWeapons,
                     Description = "Cursed Weapons are tainted by foul magic, or they may have some part of the user's evil soul infused into it. A wound caused by a cursed weapon also removes 1 point of Sanity from the target."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Demon,
                     Description = "Demons are not of this world, and magic can send these creatures back to their own realm. Any magic damage of 10 forces the demon to make a RES test. A failure will send the demon back to its own realm. Remove the model and count it as killed. It cannot be looted, however."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.DiseaseRidden,
                     Description = "These creatures are so full of disease that just standing next to them is dangerous. At the start of every turn, a hero standing adjacent to one of these creatures must pass a CON+2O test to resist disease."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Ethereal,
                     Description = "Indicates that the enemy is immune to damage from normal weapons. You will need magic weapons, holy water or magic to inflict the slightest harm on this creature. Ethereal creatures will never be locked in a ZOC and can move through squares with heroes. Heroes must still follow the normal rules for ZOC."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.ExtraDamageFromFire,
                     Description = "These creatures are susceptible to damage caused by fire and take 1d6 extra hit points from any wound caused by fire."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.ExtraDamageFromWater,
                     Description = "These creatures are susceptible to damage caused by water and take 1d6 extra hit points from any wound caused by water."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.ExtraDamageFromSilver,
                     Description = "These creatures are susceptible to damage caused by silver and take 1d6 extra hit points from any wound caused by silver."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.FearElves,
                     Description = "These enemies fear Elves and suffer the standard modifier for fear if they fail their Resolve test."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.FerociousCharge,
                     Description = "This creature charges with such power that it causes a further 1d4 point of damage during the charge attack."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.FireDamage,
                     Description = "This creature causes fire damage."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.FrostDamage,
                     Description = "This creature causes frost damage."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Floater,
                     Description = "This creature hovers above the ground; therefore, it is able to avoid any pitfalls or traps. They will never spring any traps and they can move over pits as if they were solid ground. They may even end their movement in such a square."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Flyer,
                     Description = "These enemies can fly and can move through other models as they do not stop in a square containing a model. They also do not incur penalties for moving through a hero's ZOC. They will never spring any traps and they can move over pits as if they were solid ground. They may even end their movement in such a square."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.FlyerOutdoors,
                     Description = "Some flyers are so large that they can only fly outdoors in skirmish battles."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Frenzy,
                     Description = "This enemy is always in frenzy mode and gains the benefit of an extra strike when they cause damage."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.GhostlyTouch,
                     Description = "These ethereal creatures do not use normal weapons but instead reach into the very soul of their target. These attacks cannot be parried, but they may be dodged. Armour and NA does nothing to help; however, the target may try to avoid damage by passing a Resolve test. If this fails, the target takes 1d8 damage and also loses 1 sanity point."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Gust,
                     Description = "A creature with this special ability will create a powerful gust around them making it hard to use ranged weapons. All creatures in the room or corridor where this creature is located suffer a -15 penalty to their RS.",
                     
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.HardAsRock,
                     Description = "Stone Golems are magic beings created from ensorcelled stone and are extremely difficult to damage. They are completely immune to all ranged weapons. Bladed weapons only do half damage (RDD) unless they are magic or made of Mithril."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.HateHeroes,
                     Description = "In much the same way as heroes may hate their enemies, the enemy may also hate your heroes. +5 CS, but luckily for them, it does not come with the negative for dodging.",
                     
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.JustBones,
                     Description = "Skeletons and Wights do not have much other than bones to show the world, and that makes some weapons more or less effective against them. Arrows, bolts and sling stones suffer a -2 DAM penalty, and crushing weapons (such as Hammers, Flails, Staffs, Morning Stars, and the like) gain +2 damage bonus."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Large,
                     Description = "This creature is large; therefore, it is easier to hit with ranged weapons. Their size also allows them to deal great damage. Thus, they roll damage twice and select the best roll. These monsters take up 4 squares instead of one. A large creature can only shove if there is enough room for it to fit in the space occupied by the hero. If there is another character standing adjacent to the shoved hero that blocks the way, this character will also be pushed back automatically. A large creature cannot pass single file squares except for bridges."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.XLarge,
                     Description = "An X-large creature uses 2x3 squares. It follows the same rules as Large creatures."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Leech,
                     Description = "A successful attack from this creature will enable it to stick to its target. The target will be unable to move, or to attack anything other than the leech. The leech will automatically drain 1d4 points of hit points from the target at the start of its turn. The hero must also roll for disease for every turn that the leech is latched on to its target. If more than one leech has latched on to a hero, the hero must roll once for each leech. Attacking a leech that is latched onto a hero is done just as normal, but any other hero trying to attack it must be extra careful not to hit his companion and thus only ever deals half damage (RDD). While attached, the leech has the Regeneration (1d3) rule."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.MagicBeing,
                     Description = "These creatures are the creations of pure magic. As such, once they are destroyed, they leave nothing behind to loot."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.MagicUser,
                     Description = "This enemy can cast spells. The exact spells are mentioned in the Encounter Tables. Enemies use RS to determine if the spell succeeds."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.MultipleAttacks,
                     Description = "This creature can assail its targets with multiple attacks. Whenever the creature makes a standard attack, it will instead strike X number of times. Roll to hit and DAM separately. This attack still only counts as 1 AP."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.MultipleAttacksHydra,
                     Description = "Hydra can attack multiple targets with its different heads, and the long necks give it a good reach as well. The Hydra has 5 heads, and each head can attack at a separate target within 4 squares of the body, just as if it was 5 different creatures."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.PerfectHearing,
                     Description = "This enemy is acutely aware of its surroundings. When rolling for initiative, add +15 to this enemy's DEX.",
                     
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Poisonous,
                     Description = "This enemy is poisonous or venomous. If wounded, the hero must pass a CON test or suffer the consequences of the poison."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Psychic,
                     Description = "A creature with psychic ability which automatically decreases the RES of all heroes by -20 as soon as it is placed on the table. The effect is only cancelled when the creature dies. The effect is not cumulative if two creatures have the same effect.",
                     
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Regeneration,
                     Description = "This enemy regenerates hit points at the start of every turn."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Rend,
                     Description = "If the creature manages to seize its target in its jaws, it will violently shake its head causing further damage. If the hero fails STR, roll another 1d6 of DAM."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.RiddleMaster,
                     Description = "Whenever you encounter a Sphinx (or multiple) without any other enemies nearby, you will have the option to answer one riddle. This requires a WIS test from one chosen hero. A successful answer will remove the Sphinx from the table without a fight. 150 XP granted. A failure will anger the Sphinx and lead to battle."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Scurry,
                     Description = "Rats are too fast to be locked in a ZOC and may move through a square with heroes. Heroes must still pass a DEX test to move in the rats' ZOC."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Silent,
                     Description = "These enemies are very difficult to hear. Perfect hearing will not help when calculating surprise."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.SimpleWeapons,
                     Description = "These creatures use crude weapons instead of the standard weapons that are usually encountered. This may include logs, or even large stones, but for game terms, all Simple Weapons are treated as Warhammers, and they are granted the same attributes."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Slow,
                     Description = "This enemy moves so slowly that they may only make one move per turn. It still has 2 AP though, and if it cannot use its second AP to any suitable action, it will be forfeit."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Sneaky,
                     Description = "These creatures are experts at ambushing enemies and receive an extra 15 bonus points when rolling for initiative."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Stench,
                     Description = "So foul is the stench of this creature that it quickly becomes difficult to focus. All close combat attacks targeting this creature suffer a -10 CS penalty.",
                     
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.Stupid,
                     Description = "Any creature affected by stupidity must roll 1d6 at the start of their turn. On a roll of 1, they will do nothing that turn, except look around them in confusion."
                 },
-                new MonsterSpecialRule
+                new MonsterPassiveSpecial
                 {
                     Name = MonsterSpecialName.WallCrawler,
                     Description = "Spiders can move on walls to bypass heroes. They cannot end their turn in such a position (even though that would be cool, it is not very practical in a game like this). Spiders ignore ZOC when moving on walls."
                 }
             };
+        }
+
+        public MonsterPassiveSpecial GetMonsterPassiveSpecialByName(MonsterSpecialName name)
+        {
+            return MonsterPassiveSpecials.FirstOrDefault(m => m.Name == name) ?? new MonsterPassiveSpecial();
         }
     }
 
@@ -1125,6 +1097,7 @@ namespace LoDCompanion.Services.Player
         Corrosive,
         CursedWeapons,
         Demon,
+        Diseased,
         DiseaseRidden,
         Ethereal,
         ExtraDamageFromFire,
@@ -1142,6 +1115,7 @@ namespace LoDCompanion.Services.Player
         Gust,
         HardAsRock,
         HateHeroes,
+        HateDwarves,
         JustBones,
         Large,
         XLarge,
@@ -1164,9 +1138,12 @@ namespace LoDCompanion.Services.Player
         Stench,
         Stupid,
         WallCrawler,
+        WeakToFrost,
+        WeakToFire,
+        WeakToSilver
     }
 
-    public class MonsterSpecialRule : PassiveAbility
+    public class MonsterPassiveSpecial : PassiveAbility
     {
         public MonsterSpecialName Name { get; set; }
 
