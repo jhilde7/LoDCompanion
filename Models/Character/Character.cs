@@ -572,7 +572,8 @@ namespace LoDCompanion.Models.Character
         public int ArmourValue { get; set; }
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
-        public bool HasSpecialAttack { get; set; }
+        public bool HasSpecialAttack => ActiveAbilities != null;
+        public List<SpecialActiveAbility>? ActiveAbilities { get; set; }
         public int ToHitPenalty { get; set; } 
         public int XP { get; set; }
         public Dictionary<MonsterPassiveSpecial, int> PassiveSpecials { get; set; } = new Dictionary<MonsterPassiveSpecial, int>();
