@@ -6,6 +6,7 @@ using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Combat;
+using System.Linq;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -1634,47 +1635,52 @@ namespace LoDCompanion.Services.Dungeon
             newMonster.HasShield = hasShield; // Assuming Monster has a HasShield property
             if (specialRule != null)
             {
-                if (newMonster.SpecialRules == null)
-                {
-                    newMonster.SpecialRules = new List<string>();
-                }
-                newMonster.SpecialRules.Add(specialRule);
+                newMonster.SpecialRules ??= new List<string>();
+                newMonster.SpecialRules.Add(specialRule); 
             }
 
-            if (newMonster.SpecialRules != null && newMonster.Weapons != null)
+            if (newMonster.SpecialRules != null)
             {
-                if (newMonster.SpecialRules.Contains("Poisonous Weapon"))
+                if (newMonster.Weapons != null)
                 {
-                    for (int i = 0; i < newMonster.Weapons.Count; i++)
+                    if (newMonster.SpecialRules.Contains("Poisonous Weapon"))
                     {
-                        var currentWeapon = newMonster.Weapons[i];
-                        if (currentWeapon is MeleeWeapon meleeWeapon)
+                        for (int i = 0; i < newMonster.Weapons.Count; i++)
                         {
-                            newMonster.Weapons[i] = _weapon.CreateModifiedMeleeWeapon(
-                                meleeWeapon.Name, $"Poisonous {meleeWeapon.Name}",
-                                weapon =>
-                                {
-                                    weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
-                                });
+                            var currentWeapon = newMonster.Weapons[i];
+                            if (currentWeapon is MeleeWeapon meleeWeapon)
+                            {
+                                newMonster.Weapons[i] = _weapon.CreateModifiedMeleeWeapon(
+                                    meleeWeapon.Name, $"Poisonous {meleeWeapon.Name}",
+                                    weapon =>
+                                    {
+                                        weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                                    });
+                            }
+                        }
+                    }
+
+                    if (newMonster.SpecialRules.Contains("Cursed Weapon"))
+                    {
+                        for (int i = 0; i < newMonster.Weapons.Count; i++)
+                        {
+                            var currentWeapon = newMonster.Weapons[i];
+                            if (currentWeapon is MeleeWeapon meleeWeapon)
+                            {
+                                newMonster.Weapons[i] = _weapon.CreateModifiedMeleeWeapon(
+                                    meleeWeapon.Name, $"Cursed {meleeWeapon.Name}",
+                                    weapon =>
+                                    {
+                                        weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
+                                    });
+                            }
                         }
                     } 
                 }
 
-                if (newMonster.SpecialRules.Contains("Cursed Weapon"))
+                if (newMonster.SpecialRules.Contains("Raise dead"))
                 {
-                    for (int i = 0; i < newMonster.Weapons.Count; i++)
-                    {
-                        var currentWeapon = newMonster.Weapons[i];
-                        if (currentWeapon is MeleeWeapon meleeWeapon)
-                        {
-                            newMonster.Weapons[i] = _weapon.CreateModifiedMeleeWeapon(
-                                meleeWeapon.Name, $"Cursed {meleeWeapon.Name}",
-                                weapon =>
-                                {
-                                    weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
-                                });
-                        }
-                    }
+                    newMonster.Spells.Add(SpellService.GetMonsterSpellByName("Raise dead"));
                 }
             }
 
@@ -4725,7 +4731,13 @@ namespace LoDCompanion.Services.Dungeon
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
                         }) },
-                    SpecialRules = new List<string>() { "Spells: Raise dead, Healing, Vampiric Touch, Mirrored Self" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Raise dead"),
+                        SpellService.GetMonsterSpellByName("Healing"),
+                        SpellService.GetMonsterSpellByName("Vampiric touch"),
+                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                    },
                     XP = 200,
                     TreasureType = TreasureType.T4
                 },
@@ -5084,7 +5096,8 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.MagicUser,
-                    SpecialRules = new List<string>() { "Spells: Raise dead, 2 support, 2 ranged and 3 close combat spells" },
+                    Spells = BuildSpellList(3, 2, 2),
+                    SpecialRules = new List<string>() { "Raise dead" },
                     XP = 800,
                     TreasureType = TreasureType.T5
                 },
@@ -5219,7 +5232,7 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    SpecialRules = new List<string>() { "Spells: 2 ranged, 2 support and 2 close combat spells" },
+                    Spells = BuildSpellList(2, 2, 2),
                     XP = 150,
                     TreasureType = TreasureType.T4
                 },
@@ -5413,7 +5426,12 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
                     ArmourValue = 1,
-                    SpecialRules = new List<string>() { "Spells: Mute, Seduce and Blind" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Mute"),
+                        SpellService.GetMonsterSpellByName("Seduce"),
+                        SpellService.GetMonsterSpellByName("Blind"),
+                    },
                     XP = 200,
                     TreasureType = TreasureType.T4
                 },
@@ -5526,7 +5544,13 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Staff")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    SpecialRules = new List<string>() { "Spells: Healing Hand, Summon Demon, Vampiric Touch and Flare" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Flare"),
+                        SpellService.GetMonsterSpellByName("Healing hand"),
+                        SpellService.GetMonsterSpellByName("Vampiric touch"),
+                        SpellService.GetMonsterSpellByName("Summon demon"),
+                    },
                     XP = 260,
                     TreasureType = TreasureType.T4
                 },
@@ -5550,7 +5574,12 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    SpecialRules = new List<string>() { "Spells: Shield, Mirrored Self and Fireball" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Shield"),
+                        SpellService.GetMonsterSpellByName("Fireball"),
+                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                    },
                     XP = 200,
                     TreasureType = TreasureType.T4
                 },
@@ -5574,7 +5603,13 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
                     ArmourValue = 1,
-                    SpecialRules = new List<string>() { "Spells: Mute, Seduce, Raise Dead and Blind" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Raise dead"),
+                        SpellService.GetMonsterSpellByName("Mute"),
+                        SpellService.GetMonsterSpellByName("Seduce"),
+                        SpellService.GetMonsterSpellByName("Blind"),
+                    },
                     XP = 350,
                     TreasureType = TreasureType.T5
                 },
@@ -5598,7 +5633,12 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    SpecialRules = new List<string>() { "Spells: Healing hand, Mirrored Self and Fireball" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Healing hand"),
+                        SpellService.GetMonsterSpellByName("Fireball"),
+                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                    },
                     XP = 200,
                     TreasureType = TreasureType.T4
                 },
@@ -5821,7 +5861,12 @@ namespace LoDCompanion.Services.Dungeon
                     {
                         SpecialActiveAbility.Seduction
                     },
-                    SpecialRules = new List<string>() { "Spells: Vampiric Touch, Fireball, Heal" },
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Healing"),
+                        SpellService.GetMonsterSpellByName("Vampiric touch"),
+                        SpellService.GetMonsterSpellByName("Fireball"),
+                    },
                     XP = 1500,
                     TreasureType = TreasureType.T5
                 },
@@ -5884,7 +5929,8 @@ namespace LoDCompanion.Services.Dungeon
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
                         }) },
-                    SpecialRules = new List<string>() { "Spells: Raise dead, 3 close combat, 4 ranged." },
+                    Spells = BuildSpellList(3, 4, 0),
+                    SpecialRules = new List<string>() { "Raise dead" },
                     XP = 200,
                     TreasureType = TreasureType.T4
                 },
@@ -6003,7 +6049,7 @@ namespace LoDCompanion.Services.Dungeon
 
             // Parse the comma-separated list of spells.
             List<MonsterSpell> spells = new List<MonsterSpell>();
-            if (parameters.TryGetValue("Spells", out var spellsStr))
+            if (parameters.TryGetValue("Spells:", out var spellsStr))
             {
                 foreach (string spellName in spellsStr.Split(','))
                 {
