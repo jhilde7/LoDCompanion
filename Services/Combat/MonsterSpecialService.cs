@@ -13,6 +13,7 @@ namespace LoDCompanion.Services.Combat
         Entangle,
         FireBreath,
         GhostlyHowl,
+        Kick,
         MasterOfTheDead,
         MultipleAttack,
         Petrify,
