@@ -2796,7 +2796,7 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.Beast,
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Slow), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.DiseaseRidden), 0 }
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 }
                     },
                     SpecialRules = new List<string>() { "Leech" },
                     XP = 90,
@@ -3341,7 +3341,7 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 7 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.XLarge), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacksHydra), 0 }
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacksHydra), 5 }
                     },
                     XP = 1850,
                     TreasureType = TreasureType.Part
@@ -3366,11 +3366,10 @@ namespace LoDCompanion.Services.Dungeon
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.DiseaseRidden), 0 },
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Flyer), 0 },
                     },
-                    SpecialRules = new List<string>() { "Demon", "Disease", "Flyer" },
                     XP = 50,
                     TreasureType = TreasureType.Part
                 },
@@ -3607,7 +3606,9 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    SpecialRules = new List<string>() { "Multiple attacks 3" },
+                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacks), 3 }
+                    },
                     XP = 650,
                     TreasureType = TreasureType.T3
                 },
@@ -4554,7 +4555,7 @@ namespace LoDCompanion.Services.Dungeon
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.DiseaseRidden), 0 },
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 2 }
                     },
                     XP = 115,
@@ -5140,7 +5141,9 @@ namespace LoDCompanion.Services.Dungeon
                         (Weapon?)EquipmentService.GetWeaponByName("Battlehammer")?.Clone() ?? new Weapon(),
                         (Weapon?)EquipmentService.GetWeaponByName("Battlehammer")?.Clone() ?? new Weapon()
                     },
-                    SpecialRules = new List<string>() { "Special: May make 2 attacks for every attack, even power attacks. Roll to hit for each attack" },
+                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacks), 2 }
+                    },
                     XP = 650,
                     TreasureType = TreasureType.T2
                 },
@@ -5577,7 +5580,7 @@ namespace LoDCompanion.Services.Dungeon
                         })
                     },
                     ArmourValue = 1,
-                    SpecialRules = new List<string>() { "Special: See rules" },
+                    SpecialRules = new List<string>() { "1 Healing Potion", "1 Vial of Black Acanthus Gas" },
                     XP = 140,
                     TreasureType = TreasureType.None
                 },
