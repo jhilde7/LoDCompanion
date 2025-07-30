@@ -396,7 +396,6 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.DiceCount, 1 }, 
                             { SpellProperty.DiceMaxValue, 3 }
                         },
-                        StatusEffect = StatusEffectType.SealDoor,
                         School = MagicSchool.Alteration,
                         SpellEffect = "The Spell Caster can magically seal a door. Any monster outside trying to pass through will take 1d3 turns in doing so. Doors that have been broken down cannot be sealed. This can be cast on any door, even if there are monsters present. It can only be cast once per door."
                     },
@@ -872,7 +871,7 @@ namespace LoDCompanion.Services.GameData
                             { SpellProperty.TurnDuration, 1 },
                             { SpellProperty.LOS, 0 },
                         },
-                        StatusEffect = StatusEffectType.Floater,
+                        StatusEffect = StatusEffectType.Levitate,
                         School = MagicSchool.Alteration,
                         TargetType = SpellTargetType.Ally,
                         SpellEffect = "May target self or hero in LOS. Target may levitate for the entire turn. That means the character moves above the ground, not touching any traps or similar. It may be used to leave a pit and to traverse a pit. You cannot levitate through a square which contains a model or over lava."
