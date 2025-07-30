@@ -2392,6 +2392,9 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.MagicBeing, -1)
+                    },
                     XP = 200,
                     TreasureType = TreasureType.None
                 },
@@ -2415,7 +2418,8 @@ namespace LoDCompanion.Services.Dungeon
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
-                        new ActiveStatusEffect(StatusEffectType.WeakToFrost, -1)
+                        new ActiveStatusEffect(StatusEffectType.WeakToFrost, -1),
+                        new ActiveStatusEffect(StatusEffectType.MagicBeing, -1)
                     },
                     SpecialRules = new List<string> { "Fire damage" },
                     XP = 250,
@@ -2443,7 +2447,8 @@ namespace LoDCompanion.Services.Dungeon
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
-                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1)
+                        new ActiveStatusEffect(StatusEffectType.WeakToFire, -1),
+                        new ActiveStatusEffect(StatusEffectType.MagicBeing, -1)
                     },
                     XP = 150,
                     TreasureType = TreasureType.None
@@ -2468,6 +2473,9 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -15,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
+                    ActiveStatusEffects = new List<ActiveStatusEffect>() {
+                        new ActiveStatusEffect(StatusEffectType.MagicBeing, -1)
+                    },
                     SpecialRules = new List<string> { "Gust" },
                     XP = 150,
                     TreasureType = TreasureType.None
