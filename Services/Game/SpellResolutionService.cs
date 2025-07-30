@@ -18,6 +18,7 @@ namespace LoDCompanion.Services.Game
         public bool IsMiscast { get; set; }
         public int ManaSpent { get; set; }
         public string OutcomeMessage { get; set; } = string.Empty;
+
     }
 
     /// <summary>
@@ -47,6 +48,9 @@ namespace LoDCompanion.Services.Game
         private readonly EncounterService _encounter;
         private readonly InitiativeService _initiative;
         private readonly UserRequestService _diceRoll;
+
+
+        public event Action? OnTimeFreezeCast;
 
         public SpellResolutionService(
             DungeonState dungeonState, 
@@ -350,18 +354,10 @@ namespace LoDCompanion.Services.Game
                     result.OutcomeMessage = $"{caster.Name} peers through the next door, gaining a tactical advantage.";
                     return result;
 
-                /* TODO: handle this in a seprate place where CombatManager is not put into a circular reference
-                 case "Time Freeze":
-                    foreach (Hero hero in _combatManager.GetActivatedHeroes())
-                    {
-                        if (hero.CurrentAP <= 0)
-                        {
-                            hero.ResetActionPoints();
-                            _initiative.AddToken(ActorType.Hero);
-                        }
-                    }
+                case "Time Freeze":
+                    
+                    OnTimeFreezeCast?.Invoke();
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = "Time freezes! The heroes can act again." };
-                */
                 // --- HEX SPELLS ---
                 case "Hold Creature":
                 case "Silence":

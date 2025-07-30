@@ -17,6 +17,7 @@ namespace LoDCompanion.Services.Game
         private readonly MonsterAIService _monsterAI;
         private readonly DungeonState _dungeon;
         private readonly FacingDirectionService _facing;
+        private readonly SpellResolutionService _spellResolution;
 
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
@@ -33,13 +34,17 @@ namespace LoDCompanion.Services.Game
             ActionService playerActionService,
             MonsterAIService monsterAIService,
             DungeonState dungeonState,
-            FacingDirectionService facingDirectionService)
+            FacingDirectionService facingDirectionService,
+        SpellResolutionService spellResolutionService)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
             _monsterAI = monsterAIService;
             _dungeon = dungeonState;
             _facing = facingDirectionService;
+            _spellResolution = spellResolutionService;
+
+            _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
         }
 
 
@@ -523,6 +528,18 @@ namespace LoDCompanion.Services.Game
             }
 
             return returnList;
+        }
+
+        private void HandleTimeFreeze()
+        {
+            foreach (Hero hero in GetActivatedHeroes())
+            {
+                if (hero.CurrentAP <= 0)
+                {
+                    hero.ResetActionPoints();
+                    _initiative.AddToken(ActorType.Hero);
+                }
+            }
         }
     }
 }
