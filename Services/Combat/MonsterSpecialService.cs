@@ -24,7 +24,8 @@ namespace LoDCompanion.Services.Combat
         SummonChildren,
         TongueAttack,
         Swallow,
-        SweepingStrike
+        SweepingStrike,
+        Web
     }
 
     public class MonsterSpecialService
