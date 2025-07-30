@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.Models.Character;
+using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Combat
@@ -52,7 +53,7 @@ namespace LoDCompanion.Services.Combat
             }
 
             // Handle "Perfect Hearing" rule
-            bool heroHasPerfectHearing = heroes.Any(h => h.Talents.Any(t => t.Name == GameData.TalentName.PerfectHearing));
+            bool heroHasPerfectHearing = heroes.Any(h => h.Talents.Any(t => t.Name == TalentName.PerfectHearing));
             bool monsterHasPerfectHearing = monsters.Any(m => m.SpecialRules.Contains("Perfect Hearing"));
 
             if (heroHasPerfectHearing && !monsterHasPerfectHearing)

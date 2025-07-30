@@ -37,10 +37,12 @@ namespace LoDCompanion.Services.Player
     public class LevelupService
     {
         private readonly GameDataService _gameData;
+        private readonly PassiveAbilityService _passive;
 
-        public LevelupService(GameDataService gameData)
+        public LevelupService(GameDataService gameData, PassiveAbilityService passive)
         {
             _gameData = gameData;
+            _passive = passive;
         }
 
         /// <summary>
@@ -274,89 +276,89 @@ namespace LoDCompanion.Services.Player
                 case "Alchemist":
                     return level switch
                     {
-                        3 => _gameData.MentalTalents,
-                        4 => _gameData.CommonTalents,
-                        6 => _gameData.CombatTalents,
-                        7 => _gameData.MentalTalents,
-                        8 => _gameData.CommonTalents,
-                        _ => _gameData.AlchemistTalents
+                        3 => _passive.MentalTalents,
+                        4 => _passive.CommonTalents,
+                        6 => _passive.CombatTalents,
+                        7 => _passive.MentalTalents,
+                        8 => _passive.CommonTalents,
+                        _ => _passive.AlchemistTalents
                     };
                 case "Barbarian":
                     return level switch
                     {
-                        2 => _gameData.PhysicalTalents,
-                        4 => _gameData.MentalTalents,
-                        5 => _gameData.CommonTalents,
-                        7 => _gameData.PhysicalTalents,
-                        9 => _gameData.CommonTalents,
-                        _ => _gameData.CombatTalents
+                        2 => _passive.PhysicalTalents,
+                        4 => _passive.MentalTalents,
+                        5 => _passive.CommonTalents,
+                        7 => _passive.PhysicalTalents,
+                        9 => _passive.CommonTalents,
+                        _ => _passive.CombatTalents
                     };
                 case "Ranger":
                     return level switch
                     {
-                        2 => _gameData.PhysicalTalents,
-                        4 => _gameData.CommonTalents,
-                        5 => _gameData.MentalTalents,
-                        7 => _gameData.PhysicalTalents,
-                        8 => _gameData.CommonTalents,
-                        9 => _gameData.MentalTalents,
-                        _ => _gameData.CombatTalents
+                        2 => _passive.PhysicalTalents,
+                        4 => _passive.CommonTalents,
+                        5 => _passive.MentalTalents,
+                        7 => _passive.PhysicalTalents,
+                        8 => _passive.CommonTalents,
+                        9 => _passive.MentalTalents,
+                        _ => _passive.CombatTalents
                     };
                 case "Rogue":
                     return level switch
                     {
-                        2 => _gameData.PhysicalTalents,
-                        3 => _gameData.SneakyTalents,
-                        5 => _gameData.MentalTalents,
-                        6 => _gameData.PhysicalTalents,
-                        8 => _gameData.SneakyTalents,
-                        9 => _gameData.CommonTalents,
-                        _ => _gameData.CombatTalents
+                        2 => _passive.PhysicalTalents,
+                        3 => _passive.SneakyTalents,
+                        5 => _passive.MentalTalents,
+                        6 => _passive.PhysicalTalents,
+                        8 => _passive.SneakyTalents,
+                        9 => _passive.CommonTalents,
+                        _ => _passive.CombatTalents
                     };
                 case "Thief":
                     return level switch
                     {
-                        3 => _gameData.CommonTalents,
-                        5 => _gameData.CombatTalents,
-                        6 => _gameData.MentalTalents,
-                        7 => _gameData.PhysicalTalents,
-                        8 => _gameData.CommonTalents,
-                        9 => _gameData.CombatTalents,
-                        _ => _gameData.SneakyTalents
+                        3 => _passive.CommonTalents,
+                        5 => _passive.CombatTalents,
+                        6 => _passive.MentalTalents,
+                        7 => _passive.PhysicalTalents,
+                        8 => _passive.CommonTalents,
+                        9 => _passive.CombatTalents,
+                        _ => _passive.SneakyTalents
                     };
                 case "Warrior":
                     return level switch
                     {
-                        2 => _gameData.MentalTalents,
-                        4 => _gameData.PhysicalTalents,
-                        6 => _gameData.CommonTalents,
-                        7 => _gameData.MentalTalents,
-                        9 => _gameData.CommonTalents,
-                        _ => _gameData.CombatTalents
+                        2 => _passive.MentalTalents,
+                        4 => _passive.PhysicalTalents,
+                        6 => _passive.CommonTalents,
+                        7 => _passive.MentalTalents,
+                        9 => _passive.CommonTalents,
+                        _ => _passive.CombatTalents
                     };
                 case "Warrior Priest":
                     return level switch
                     {
-                        2 => _gameData.MentalTalents,
-                        4 => _gameData.CombatTalents,
-                        5 => _gameData.PhysicalTalents,
-                        7 => _gameData.CombatTalents,
-                        8 => _gameData.MentalTalents,
-                        10 => _gameData.CombatTalents,
-                        _ => _gameData.FaithTalents
+                        2 => _passive.MentalTalents,
+                        4 => _passive.CombatTalents,
+                        5 => _passive.PhysicalTalents,
+                        7 => _passive.CombatTalents,
+                        8 => _passive.MentalTalents,
+                        10 => _passive.CombatTalents,
+                        _ => _passive.FaithTalents
                     };
                 case "Wizard":
                     return level switch
                     {
-                        3 => _gameData.CommonTalents,
-                        4 => _gameData.MentalTalents,
-                        6 => _gameData.MentalTalents,
-                        7 => _gameData.PhysicalTalents,
-                        9 => _gameData.CommonTalents,
-                        10 => _gameData.MentalTalents,
-                        _ => _gameData.MagicTalents
+                        3 => _passive.CommonTalents,
+                        4 => _passive.MentalTalents,
+                        6 => _passive.MentalTalents,
+                        7 => _passive.PhysicalTalents,
+                        9 => _passive.CommonTalents,
+                        10 => _passive.MentalTalents,
+                        _ => _passive.MagicTalents
                     };
-                default: return _gameData.CommonTalents;
+                default: return _passive.CommonTalents;
             }
         }
 

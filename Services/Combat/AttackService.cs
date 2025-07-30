@@ -5,6 +5,7 @@ using LoDCompanion.Models;
 using LoDCompanion.Utilities;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
+using LoDCompanion.Services.Player;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -191,7 +192,10 @@ namespace LoDCompanion.Services.Combat
             if (weapon != null && weapon is RangedWeapon)
             {
                 modifier -= (context.ObstaclesInLineOfSight * 10);
-                if (target.IsLarge) modifier += 10;
+                if (target is Monster targetMonster && 
+                    (targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge) 
+                    || targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.Large))) 
+                    modifier += 10;
                 if (context.HasAimed) modifier += 10;
             }
             if (DirectionService.IsAttackingFromBehind(attacker, target)) modifier += 20;
@@ -339,7 +343,7 @@ namespace LoDCompanion.Services.Combat
 
             if (weapon is MeleeWeapon meleeWeapon && attacker is Hero hero)
             {
-                if (hero.Talents.Any(t => t.Name == GameData.TalentName.MightyBlow))
+                if (hero.Talents.Any(t => t.Name == TalentName.MightyBlow))
                 {
                     damage += 1;
                 }

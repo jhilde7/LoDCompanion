@@ -2,6 +2,7 @@
 using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Utilities;
+using LoDCompanion.Services.Player;
 
 namespace LoDCompanion.Services.Dungeon
 {
@@ -1291,7 +1292,7 @@ namespace LoDCompanion.Services.Dungeon
                     newItem = new Equipment { Name = $"Scroll of {SpellService.GetRandomSpellName()}", Encumbrance = 0, Durability = 0, Value = 100, MaxDurability = 0 };
                     break;
                 case "Talent Training Manual":
-                    newItem = new Equipment { Name = $"{new GameDataService().GetRandomTalent()} Training Manual", Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };
+                    newItem = new Equipment { Name = $"{new PassiveAbilityService().GetRandomTalent()} Training Manual", Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };
                     break;
                 case "Wolf Pelt":
                     newItem = new Equipment { Name = "Wolf Pelt", Encumbrance = 2, Durability = 0, Value = 50, MaxDurability = 0 };

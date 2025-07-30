@@ -439,7 +439,7 @@ namespace LoDCompanion.Services.Player
             }
         }
 
-        private List<Talent> GetTalentsByCategory(TalentCategory category)
+        public List<Talent> GetTalentsByCategory(TalentCategory category)
         {
             return Talents.Where(t => t.Category == category).ToList();
         }
@@ -449,42 +449,6 @@ namespace LoDCompanion.Services.Player
             return Talents.FirstOrDefault(t => t.Name == name) ?? new Talent();
         }
 
-        public enum HateCategory
-        {
-            Bandits,
-            Bats,
-            Beastmen,
-            Centipedes,
-            DarkElves,
-            Demons,
-            Dragons,
-            Elementals,
-            Froglings,
-            Geckos,
-            Ghosts,
-            Ghouls,
-            Giants,
-            Gnolls,
-            Goblins,
-            Golems,
-            Minotaurs,
-            Mummies,
-            Ogres,
-            Orcs,
-            Rats,
-            Saurians,
-            Scorpions,
-            Skeletons,
-            Snakes,
-            Spiders,
-            Toads,
-            Trolls,
-            Vampires,
-            Werewolves,
-            Wights,
-            Wolves,
-            Zombies
-        }
 
         public Talent GetHateTalentByCategory(HateCategory category)
         {
@@ -872,6 +836,43 @@ namespace LoDCompanion.Services.Player
         {
             return MonsterPassiveSpecials.FirstOrDefault(m => m.Name == name) ?? new MonsterPassiveSpecial();
         }
+    }
+
+    public enum HateCategory
+    {
+        Bandits,
+        Bats,
+        Beastmen,
+        Centipedes,
+        DarkElves,
+        Demons,
+        Dragons,
+        Elementals,
+        Froglings,
+        Geckos,
+        Ghosts,
+        Ghouls,
+        Giants,
+        Gnolls,
+        Goblins,
+        Golems,
+        Minotaurs,
+        Mummies,
+        Ogres,
+        Orcs,
+        Rats,
+        Saurians,
+        Scorpions,
+        Skeletons,
+        Snakes,
+        Spiders,
+        Toads,
+        Trolls,
+        Vampires,
+        Werewolves,
+        Wights,
+        Wolves,
+        Zombies
     }
 
     public enum TalentCategory

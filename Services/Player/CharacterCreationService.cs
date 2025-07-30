@@ -1,21 +1,24 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.CharacterCreation
 {
     public class CharacterCreationService
     {
-        private readonly GameDataService _gameData = new GameDataService();
+        private readonly GameDataService _gameData;
+        private readonly PassiveAbilityService _passiveAbility;
         // Internal state of the character being built
         public CharacterCreationState State { get; private set; } = new CharacterCreationState();
 
 
 
-        public CharacterCreationService(GameDataService gameData)
+        public CharacterCreationService(GameDataService gameData, PassiveAbilityService passiveAbilityService)
         {
             _gameData = gameData;
+            _passiveAbility = passiveAbilityService;
             // _alchemyService = alchemyService; // Initialize if passed
             InitializeCreationState();
         }
@@ -52,7 +55,7 @@ namespace LoDCompanion.Services.CharacterCreation
                             Name = TalentName.NightVision,
                             Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
                         });
-                        traits.Add(_gameData.GetHateTalentByCategory(GameDataService.HateCategory.Goblins));
+                        traits.Add(_passiveAbility.GetHateTalentByCategory(HateCategory.Goblins));
                         return traits;
                     case "Elf":
                         traits.Add(new Talent()
@@ -69,7 +72,7 @@ namespace LoDCompanion.Services.CharacterCreation
                         });
                         return traits;
                     case "Halfling":
-                        traits.Add(_gameData.GetTalentByName(TalentName.Lucky) ?? new Talent());
+                        traits.Add(_passiveAbility.GetTalentByName(TalentName.Lucky) ?? new Talent());
                         return traits;
                     case "Human":
                         State.HumanTalentCategoryList = new() { "Physical", "Combat", "Faith", "Alchemist", "Common", "Magic", "Sneaky", "Mental" };
@@ -95,14 +98,14 @@ namespace LoDCompanion.Services.CharacterCreation
             List<Talent> list = new List<Talent>();
             switch (selection)
             {
-                case "Physical": list = _gameData.PhysicalTalents; break;
-                case "Combat": list = _gameData.CombatTalents; break;
-                case "Faith": list = _gameData.FaithTalents; break;
-                case "Alchemist": list = _gameData.AlchemistTalents; break;
-                case "Common": list = _gameData.CommonTalents; break;
-                case "Magic": list = _gameData.MagicTalents; break;
-                case "Sneaky": list = _gameData.SneakyTalents; break;
-                case "Mental": list = _gameData.MentalTalents; break;
+                case "Physical": list = _passiveAbility.PhysicalTalents; break;
+                case "Combat": list = _passiveAbility.CombatTalents; break;
+                case "Faith": list = _passiveAbility.FaithTalents; break;
+                case "Alchemist": list = _passiveAbility.AlchemistTalents; break;
+                case "Common": list = _passiveAbility.CommonTalents; break;
+                case "Magic": list = _passiveAbility.MagicTalents; break;
+                case "Sneaky": list = _passiveAbility.SneakyTalents; break;
+                case "Mental": list = _passiveAbility.MentalTalents; break;
             }
 
             if (State.HumanTalentCategoryList != null && State.HumanTalentCategoryList.Any())
@@ -357,7 +360,7 @@ namespace LoDCompanion.Services.CharacterCreation
 
         public void UpdateTalentsWithSelection(TalentName selection)
         {
-            State.TalentList.Add(_gameData.GetTalentByName(selection));
+            State.TalentList.Add(_passiveAbility.GetTalentByName(selection));
         }
 
 
@@ -390,7 +393,7 @@ namespace LoDCompanion.Services.CharacterCreation
         public void RollBackground()
         {
             // Assuming GameDataRegistryService can provide a list of all possible backgrounds
-            State.SelectedBackground = new Background(_gameData).GetRandomBackground();
+            State.SelectedBackground = new Background().GetRandomBackground();
             // You might also want to automatically apply any trait from the background here
             if (State.SelectedBackground.Trait != null)
             {
@@ -614,16 +617,15 @@ namespace LoDCompanion.Services.CharacterCreation
 
     public class Background
     {
-        private readonly GameDataService _gameData;
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? PersonalQuest { get; set; }
         public Talent? Trait { get; set; }
 
-        public Background(GameDataService gameData) 
+        public Background() 
         { 
-            _gameData = gameData;
+            
         }
 
         public Background GetRandomBackground()
@@ -636,14 +638,14 @@ namespace LoDCompanion.Services.CharacterCreation
         {
            return new List<Background>()
                 {
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 1,
                         Name = "Wanderlust",
                         Description = "For as long as you can remember, you have felt the urge to see what lies beyond the horizon. Born in a small village far to the north, you helped out on the family farm just like your siblings. As the eldest child, you were expected to take over after your father, just as he had done when your grandfather was too old to work in the fields. The older you got, the stronger the wanderlust grew, until you finally realised that your current world felt too small, and that staying within the confines of the small farm was simply not an option. Afraid to face your father, you sneak out in the middle of the night, bringing only the bare necessities as the family resources are limited. Now, several years later you have managed to make a life for yourself beyond that horizon and you have seen most of the kingdom. The wanderlust is still strong though, and you are determined to visit all of the settlements within the kingdom.",
                         PersonalQuest = "Visit all settlements on the map (A total of 10). Once done, you gain 1500 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 2,
                         Name = "The Well",
@@ -651,21 +653,21 @@ namespace LoDCompanion.Services.CharacterCreation
                         Trait = new Talent() {Name = TalentName.Claustrophobia, Description = "The hero is troubled be tight spaces and becomes less effective. All skills and stats are at a -10 in corridors.This is not curable at the asylum. Instead, you must face your fears." },
                         PersonalQuest = "Once you have fought and survived 5 battles in a corridor, your condition is finally cured. Such is the effect of beating this trauma that you actually turn it into a strength. You gain the Tunnel Fighter Talent."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 3,
                         Name = "Fables",
                         Description = "Your uncle had a knack for telling stories, and they were always stories of brave heroes defying the undead creatures of the Ancient Lands. He told their stories with such skill and rich detail that you almost started to believe that you had seen these ancient tombs with your own eyes. Even now as an adult, you still have a clear vision of the tombs. You have sworn to see them with your own eyes to see if your uncle's fables were true.",
                         PersonalQuest = "Visit 3 Quest Sites in the Ancient Lands. Once you leave the third site, you gain 1500 \u03a7\u03a1."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 4,
                         Name = "The Heirloom",
                         Description = "Your great grandmother's sister was not like most other girls in them village. At the age of 17, she left the village in search of adventure, and returned not long after, having cleared them first dungeons. She made several such trips and after one of them, she returned with a wonderful longsword. Perfectly balanced and adorned with jewels, this sword was clearly a unique find. Sadly, she would never return from them next quest. Since then, you have sworn to find and retrieve that sword.",
                         PersonalQuest = "Find your Great Aunt's sword. At the start of each quest, roll 1d10. On a roll of 1, the dungeon you are heading to is actually the one that holds the sword. Place a secondary Quest Card in the first half of the Exploration Card pile. The room after the secondary Quest Card will contain two enemies. The enemy with the highest XP will carry the sword (although not use it in battle). The fate of your ancestor will never be known, but at least you will now have a chance to get that sword back. The weapon is a silver shortsword that does +1 DMG and has +2 Durability. You may not sell it."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 5,
                         Name = "Arachnophobia",
@@ -673,29 +675,29 @@ namespace LoDCompanion.Services.CharacterCreation
                         Trait = new Talent() {Name = TalentName.Arachnophobia, Description = "The hero finds all kinds of spiders terrifying. Treat all encounters with spiders as Terror. This is not curable at the asylum. Instead, you must face your fears." },
                         PersonalQuest = "Once you have fought and survived 3 battles with spiders, your condition is finally cured. Such is the effect of beating this trauma that you actually turn it into a strength. You gain +10 CS whenever trying to hit a spider."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 6,
                         Name = "The Lost Brother",
                         Description = "Your older brother always spoke about the adventures he would embark upon once he came of age. Sure enough, it did not take long before he set out on their adventures, leaving you behind with your parents. He never returned and as you grew older, your determination to find them increased. Since then, you have searched for them everywhere you have travelled. From time to time, you have managed to pick up some clues from people who seem to have run into them, even though most leads are now very cold.",
                         PersonalQuest = "Find your lost brother. For this quest, you need to keep track of how many dungeons you have entered. At the start of each quest, roll 1d10. On a roll of 1, the dungeon you are heading to is the one in which you will find your brother. Place a secondary Quest Card in the pile not containing the Quest Room. The tile you enter next will contain your brother. Once you enter the room, roll 1d100, adding the number of dungeons you have entered. If the result is 60 or higher, you are too late and you find the remains of your dear brother on the floor, dead. It seems that he has been dead for some time. Devastated, you must decide if you will leave them where he is, or bring them out of the dungeon and bury them. In both cases you lose 3 Points of Sanity, but gain 250 XP. If you choose to bury them, you must carry them through the dungeon (of course letting go of them when danger approaches). The downside of this is that you cannot carry anything else you find (you may not search for treasures, or carry anything your comrades find). Once outside, you have a short ceremony and lay them to rest in a nearby meadow. You gain +10 RES permanently. If the result is lower than 60, your brother is alive, but badly wounded. Place them on the tile and you may move them just like the other heroes. Use the civilian Monster Card to represent them. If your brother makes it out alive, he will accompany you to the next settlement where you will part ways. You gain 1500 XP once you reach the settlement. If he dies during the dungeon crawl, revert to 'result higher than 60', If he dies in a skirmish, you do not need to carry them further, but the end result is the same."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 7,
                         Name = "Revenge",
                         Description = "During the early days of adventuring, you were travelling the roads with one of your childhood friends. Having known each other since you could talk, you had experienced your entire childhood together. Thus, it was quite natural that you would leave your village together in search of fame, gold, and glory. You had been travelling for some weeks, still with no gold or glory in sight, when you were ambushed by two Brigands. Within seconds, your friend caught an arrow through the throat, and collapsed almost instantly. The rest of the fight is blurry, but you managed to overcome and kill both attackers. Although it has been some years since that episode, you sometimes still dream of your friend's last seconds, the shock on their face, and the gurgling sound as the last air passed through their windpipe.",
-                        Trait = _gameData.GetHateTalentByCategory(GameDataService.HateCategory.Bandits),
+                        Trait = new PassiveAbilityService().GetHateTalentByCategory(HateCategory.Bandits),
                         PersonalQuest = "Furthermore,for every 5 enemies from that section that you deliver the killing blow, you gain an additional 250 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 8,
                         Name = "Bad Tempered",
                         Description = "We are all born differently, and we look upon life in different ways. In this case, your character is a tad bit on the negative side and is, quite frankly, really grumpy. Even on a sunny day, with wind in the hair, there is always something that could have been better. Maybe the sun doesn't have to shine straight in the eyes? That sound of creaking branches from the trees due to the wind is really annoying, isn't it?",
                         Trait = new Talent() {Name = TalentName.BadTempered, Description = "You will give a permanent -2 modifier to Party Morale. But, on the other hand, always expecting the worst can have its benefits as well. Your maximum Sanity is permanently increased by +2." }
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 9,
                         Name = "Poverty",
@@ -703,14 +705,14 @@ namespace LoDCompanion.Services.CharacterCreation
                         Trait = new Talent() {Name = TalentName.Poverty, Description = "You know the value of each coin, and may never make a purchase, or lend out money, that would leave you with less than 10 c." },
                         PersonalQuest = "Furthermore,you must try to accumulate 1000 c for your family. Randomise which village (not Silver City) in which you were born and raised. If you are a dwarf, randomise between the two Dwarven settlements. Once you feel ready to hand over the money to your family, pay them a visit and hand over the money. This can be done by spending one Point of Movement in that village, and it, will grant you 2000 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 10,
                         Name = "Proving Your Worth",
                         Description = "Your father spent most of their career in the Royal Army and has been in retirement for a few years. During their career, he rose from the rank of Soldier to Centurion, a transition that few could make. Somewhere during this time, he was presented with exquisite armour by the Battalion Commander for some obscure reason. Due to the inestimable number of stories he has told you about their army life, you cannot remember the details precisely. Once you grew old enough and decided to take to the road, you were told by your father that if you could prove your worth, you could come back for that piece of armour.",
                         PersonalQuest = "Kill an enemy that gives you 450 XP or more. You do not need to strike the fatal blow, as long as your party makes the kill. Once that is done, return to your father to claim the armour. Randomise in which village (not Silver City) you were born and raised. If you are a dwarf, randomise between the two Dwarven settlements. This can be done by simply spending one Point of Movement in that village. This is the Armour of the Father as described in the 'Legendary Items' chapter."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 11,
                         Name = "The Fraud",
@@ -718,64 +720,64 @@ namespace LoDCompanion.Services.CharacterCreation
                         Trait = new Talent() {Name = TalentName.TheFraud, Description = "Deduct -10 from CS, RS, and Dodge since you have neither formal training nor experience with this. Your RES is also reduced with -10." },
                         PersonalQuest = "It is time to go from fraud to the real deal. Once you have improved CS, RS, and Dodge with +10 you can finally believe that you are more than empty words. Once this is achieved, you regain your RES and may increase it with another +10. You also gain an additional 1500 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 12,
                         Name = "The Noble",
                         Description = "Belonging to the lucky few privileged people in the kingdom, you have always gone to bed on a full stomach and, whenever needed, there was always a coin toss to solve any predicament in which you found yourself. For your father, this was not always the case. Although not poor, he was not of noble birth, and it was through marriage that he acquired their title. Realising that their child was growing spoiled, he determined you would have to make a living for yourself for at least a year before returning to the noble life. Now this year is well past, but you have grown fond of your new lifestyle, and in no hurry to return to dinner parties and boring meetings.",
                         Trait = new Talent() {Name = TalentName.TheNoble, Description = "You were not kicked out without means, and you have managed to retain some of the coins your mother secretly handed you before you parted. You start with 400 c instead of the normal 150 c. However, being accustomed to having money makes it extra hard when you have none. If you ever drop below 150 c, you start questioning if this is really what you should do for a living. Your resolve is reduced with -20 until you have enough money again (150 c)." }
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 13,
                         Name = "Sworn Enemy",
                         Description = "You are not the only one in your family who has taken up arms and travelled the world. Your older sister, who left home years ago, has made your family name somewhat famous, at least amongst certain people. To reach this position of fame, she had to put more than one enemy to the blade. Of course, even these rogues have relatives. One such relative has sworn revenge, and vowed to kill all of your bloodline.",
                         PersonalQuest = "Whenever you end up in battle with bandits, roll 1d10. On a result of 10, add one Bandit Leader to the encounter. This bandit has both the Hate special rule against the entire party, as well as Frenzy. Once the bandit is killed, you have rid your family of this sworn enemy, and you gain an extra 500 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 14,
                         Name = "The Family Keep",
                         Description = "Generations ago, your family was considered to be amongst the finer families in the Kingdom. The King granted your great grandfather a Keep as a token of their status. Sadly, their terrible financial sense and their lust for alcohol, gambling, and general decadence slowly reduced the Keep to a shadow of its former glory. Once your great grandfather passed away, the Keep was abandoned, and it has since been occupied by creatures of the night. Randomize one quest location on the map using the white numbers to situate the ruins of your Keep. Although it is far beyond repair, you feel it is your ancestral duty to purge the place of its current occupants.",
                         PersonalQuest = "Clear out the Keep. Whether you go there as a part of another quest, or if you decide to go there for this sole purpose, you must clear the entire dungeon. Every tile must be placed on the table and all enemies must be killed. If you go there specifically for this purpose, use the generic Dungeon Generator to create the dungeon. Once the dungeon is cleared, you gain 1500 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 15,
                         Name = "Troll Slayer",
                         Description = "To kill a troll is a true feat, and brave individuals who accomplish this deed are accorded the title of 'Troll Slayer'. Although it is not in any way a formal title, it is held in high regard amongst commoners and nobles alike. There have been two Troll Slayers in your lineage who preceded you. Since childhood, you have vowed to honour the family tradition by ridding the world of yet another troll.",
                         PersonalQuest = "You must slay a troll. To rightfully claim the title of Troll Slayer, you must land the killing blow on a troll (of any kind). If you achieve this, you have both honoured your lineage and gained a further +1000 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 16,
                         Name = "Revenge",
                         Description = "A little over a decade ago, your village was savagely attacked by a large group of beastmen. Although the villagers bravely tried to counter the attack, many were killed and several houses were lost to fire. Amongst the beastmen was a huge Minotaur, and it was responsible for the worst of the carnage. You hid throughout the fight, but at one point, the beast was close enough for you to make out a strange scar on its chest. The image of that beast has stayed with you ever since, and as you have grown to adulthood your lust for revenge has grown stronger.",
-                        Trait = _gameData.GetHateTalentByCategory(GameDataService.HateCategory.Minotaurs),
+                        Trait = new PassiveAbilityService().GetHateTalentByCategory(HateCategory.Minotaurs),
                         PersonalQuest = "Every time you fight a Minotaur, roll 1d6. On a result of 1, you recognize the scar. If you defeat the beast, you gain an additional +1000 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 17,
                         Name = "A New Home",
                         Description = "Your parents had you rather late in life; nevertheless, you had a very happy childhood. You received all of the love any child could wish for, and there was always food on the table, even if it was far from fancy. Your parents grew older, and eventually passed away within a few weeks of each other. A few days after your mother's funeral, you are visited by a stranger who claims to own the house. He presents you with a contract which shows that your parents were deeply in debt to them, and that the house was given to them as payment. You are given two days to clear out. With nowhere to go, you don't take much with you other than the thought of finding a new home.",
                         PersonalQuest = "Even though the adventuring lifestyle suits you much better than you had expected, you still yearn for a place to call your own. Once you have acquired the Bergmeister Estate, you gain 1500 XP."
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 18,
                         Name = "The Apprentice",
                         Description = "As with most young ones in the Kingdom, the time for being a carefree child is short. Most start working before their 10 birthday, and for you there was no difference. Although most children would be toiling in the fields, you were given the chance to work for the local blacksmith. He had grown fond of you as a youngster, and with no children of their own, he suggested you could help them out with the more menial tasks. At first, your work was to keep the smithy clean, bring water from the well, and run errands to and from customers. As you grew older, you began to learn some of the trade. In the end though, the blacksmith could not afford to pay you a salary that would sustain you. So you decided to find other means of bringing bread to the table.",
                         Trait = new Talent() {Name = TalentName.TheApprentice, Description = "Your blacksmithing skills are truly useful while adventuring. Whenever using an armour repair kit or a whetstone, you automatically regain 3 Points of Durability on your gear." }
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 19,
                         Name = "Weak",
                         Description = "As a child you were prone to catching every cold there was. According to your mother, there isn't a disease around that you haven't suffered from! That's not true of course, but the fact remains that you seem to contract diseases more easily than most. Perhaps your father is right, and you are 'just plain weak', or maybe you are just suffering from an immune system that struggles to keep up. Luckily, this seems to have improved with time. Now when you fall ill, you usually feel better within a few days.",
                         Trait = new Talent() {Name = TalentName.Weak, Description = "Whenever rolling for contracting a disease, you suffer an -10 modifier to your CON. However, once you are cured of your 3rd disease, your immune system kicks into overdrive and you instead get a +10 modifier to your CON when rolling for disease, and you cure yourself on a natural CON roll of 01-10 instead of 01-05." }
                     },
-                    new Background(_gameData)
+                    new Background()
                     {
                         Id = 20,
                         Name = "Afraid of Heights",

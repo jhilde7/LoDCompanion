@@ -15,6 +15,7 @@
 @inject NavigationManager NavigationManager
 @inject CharacterCreationService CreationService
 @inject GameDataService GameData
+@inject PassiveAbilityService Passive
 @inject PartyManagerService PartyManager
 @inject GameStateManagerService GameManager
 
@@ -674,7 +675,7 @@ else
             <div class="alert alert-success mt-3 w-50 mx-auto">
                 Selected: <strong>@selectedTalentChoice</strong>
                 <hr>
-                <p class="mb-0 fst-italic">@GameData.GetTalentByName(selectedTalentChoice).Description</p>
+            <p class="mb-0 fst-italic">@Passive.GetTalentByName(selectedTalentChoice).Description</p>
             </div>
         }
     </section>;

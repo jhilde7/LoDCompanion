@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
+using LoDCompanion.Services.Player;
 
 namespace LoDCompanion.Services.GameData
 {
     public class GameDataService
     {
+        public PassiveAbilityService PassiveAbility = new PassiveAbilityService();
         public List<Prayer> Prayers => GetPrayers();
         public List<Species> Species => GetSpecies();
         public List<Profession> Professions => GetProfessions();
@@ -504,7 +506,7 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 2,
                     MaxMeleeWeaponType = 5,
-                    TalentChoices = [GetTalentByName(TalentName.Wise), GetTalentByName(TalentName.Charming)],
+                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.Wise), PassiveAbility.GetTalentByName(TalentName.Charming)],
                     StartingBackpackList = [EquipmentService.GetMeleeWeaponByName("Staff") as MeleeWeapon],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
@@ -552,7 +554,7 @@ namespace LoDCompanion.Services.GameData
                         EquipmentService.GetArmourByName("Padded Jacket") as Armour,
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10),
                         EquipmentService.GetEquipmentByName("Backpack - Medium") ],
-                    StartingTalentList = [ GetTalentByName(TalentName.Backstabber),
+                    StartingTalentList = [ PassiveAbility.GetTalentByName(TalentName.Backstabber),
                         new Talent() {
                             Category = TalentCategory.Sneaky,
                             Name = TalentName.Streetwise,
@@ -601,7 +603,7 @@ namespace LoDCompanion.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    TalentChoices = [GetTalentByName(TalentName.Marksman), GetTalentByName(TalentName.Hunter)],
+                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.Marksman), PassiveAbility.GetTalentByName(TalentName.Hunter)],
                     StartingBackpackList = [
                         EquipmentService.GetRangedWeaponByName("Longbow") as RangedWeapon,
                         EquipmentService.GetAmmoByNameSetQuantity("Arrow", 10) ],
@@ -696,7 +698,7 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of choice", "Religious Relic of choice" ],
-                    TalentChoices = [ GetTalentByName(TalentName.Braveheart), GetTalentByName(TalentName.Confident) ],
+                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.Braveheart), PassiveAbility.GetTalentByName(TalentName.Confident) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
                       {"DEX", 3},
@@ -742,9 +744,9 @@ namespace LoDCompanion.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of Choice"],
-                    TalentChoices = [ GetTalentByName(TalentName.MightyBlow), GetTalentByName(TalentName.Braveheart)],
+                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.MightyBlow), PassiveAbility.GetTalentByName(TalentName.Braveheart)],
                     StartingBackpackList = [EquipmentService.GetArmourByName("Leather Jacket") as Armour ],
-                    StartingTalentList = [GetTalentByName(TalentName.Disciplined) ],
+                    StartingTalentList = [PassiveAbility.GetTalentByName(TalentName.Disciplined) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
                       {"DEX", 2},
@@ -797,7 +799,7 @@ namespace LoDCompanion.Services.GameData
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0]
                         ],
-                    StartingTalentList = [ GetTalentByName(TalentName.ResistPoison) ],
+                    StartingTalentList = [PassiveAbility.GetTalentByName(TalentName.ResistPoison) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4},
@@ -843,7 +845,7 @@ namespace LoDCompanion.Services.GameData
                         EquipmentService.GetMeleeWeaponByName("Dagger") as MeleeWeapon,
                         EquipmentService.GetEquipmentByName("Rope"),
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10) ],
-                    StartingTalentList = [ GetTalentByName(TalentName.Evaluate) ],
+                    StartingTalentList = [PassiveAbility.GetTalentByName(TalentName.Evaluate) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5},
                       {"DEX", 2},

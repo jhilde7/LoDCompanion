@@ -2,6 +2,7 @@
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Services.Game;
+using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
 using System;
 using System.Drawing;
@@ -269,7 +270,9 @@ namespace LoDCompanion.Services.Dungeon
         /// <returns>A string describing the outcome.</returns>
         public static string ShoveCharacter(Character shover, Character target, Dictionary<GridPosition, GridSquare> grid)
         {
-            if (target.IsLarge) return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
+            if (target is Monster monster && 
+                monster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge || n.Key.Name == MonsterSpecialName.Large)) 
+                return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
 
             int shoveRoll = RandomHelper.RollDie(DiceType.D100);
             int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;

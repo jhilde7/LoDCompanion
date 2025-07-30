@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.Models;
 using LoDCompanion.Services.CharacterCreation;
 using LoDCompanion.Services.GameData;
+using LoDCompanion.Services.Player;
 
 namespace LoDCompanion.Models.Character
 {
