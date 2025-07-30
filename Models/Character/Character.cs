@@ -584,6 +584,7 @@ namespace LoDCompanion.Models.Character
         public bool IsGhost { get; set; }
         public int ToHitPenalty { get; set; } 
         public int XP { get; set; }
+        public Dictionary<MonsterPassiveSpecial, int> PassiveSpecials { get; set; } = new Dictionary<MonsterPassiveSpecial, int>();
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public List<string> SpecialRuleDescriptions { get; private set; } = new List<string>(); // List of formatted descriptions
         public bool IsUndead { get; set; }
