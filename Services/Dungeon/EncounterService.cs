@@ -1805,7 +1805,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Ethereal), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.GhostlyTouch), 0 }
                     },
-                    SpecialRules = new List<string>() { "Ghostly Howl" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.GhostlyHowl
+                    },
                     XP = 650,
                     TreasureType = TreasureType.Part
                 },
@@ -2053,7 +2056,6 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.HateDwarves), 0 }
                     },
-                    SpecialRules = new List<string>() { "Hate Dwarves" },
                     XP = 70,
                     TreasureType = TreasureType.T1
                 },
@@ -2077,7 +2079,10 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    SpecialRules = new List<string>() { "Kick" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Kick
+                    },
                     XP = 150,
                     TreasureType = TreasureType.T2
                 },
@@ -2101,7 +2106,10 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    SpecialRules = new List<string>() { "Kick" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Kick
+                    },
                     XP = 150,
                     TreasureType = TreasureType.T2
                 },
@@ -2131,7 +2139,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 500,
                     TreasureType = TreasureType.T2
                 },
@@ -2157,7 +2168,10 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Petrify" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Petrify
+                    },
                     XP = 325,
                     TreasureType = TreasureType.Part
                 },
@@ -2342,7 +2356,11 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 10 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.XLarge), 0 }
                     },
-                    SpecialRules = new List<string>() { "Fire breath", "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike,
+                        SpecialActiveAbility.FireBreath
+                    },
                     XP = 3500,
                     TreasureType = TreasureType.Part
                 },
@@ -2519,9 +2537,9 @@ namespace LoDCompanion.Services.Dungeon
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MagicBeing), 0 }
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MagicBeing), 0 },
+                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Gust), 0 }
                     },
-                    SpecialRules = new List<string> { "Gust" },
                     XP = 150,
                     TreasureType = TreasureType.None
                 },
@@ -2572,7 +2590,11 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string> { "Free Bellow", "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.FreeBellow,
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 550,
                     TreasureType = TreasureType.T2
                 },
@@ -2600,7 +2622,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 8 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string> { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 900,
                     TreasureType = TreasureType.T3
                 },
@@ -2651,7 +2676,10 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 }
                     },
-                    SpecialRules = new List<string>() { "Poisonous spit" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.PoisonSpit
+                    },
                     XP = 90,
                     TreasureType = TreasureType.T1
                 },
@@ -2718,7 +2746,10 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Sneaky), 0 }
                     },
-                    SpecialRules = new List<string>() { "Camouflage" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Camouflage
+                    },
                     XP = 100,
                     TreasureType = TreasureType.T1
                 },
@@ -2798,7 +2829,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Slow), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 }
                     },
-                    SpecialRules = new List<string>() { "Leech" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Leech
+                    },
                     XP = 90,
                     TreasureType = TreasureType.Part
                 },
@@ -2931,7 +2965,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WallCrawler), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 }
                     },
-                    SpecialRules = new List<string>() { "Web" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Web
+                    },
                     XP = 170,
                     TreasureType = TreasureType.Part
                 },
@@ -2958,7 +2995,11 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Swallow", "Tongue attack" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Swallow,
+                        SpecialActiveAbility.TongueAttack
+                    },
                     XP = 400,
                     TreasureType = TreasureType.Part
                 },
@@ -3013,7 +3054,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 800,
                     TreasureType = TreasureType.Part
                 },
@@ -3042,7 +3086,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 800,
                     TreasureType = TreasureType.Part
                 },
@@ -3420,7 +3467,10 @@ namespace LoDCompanion.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.DarkElves,
                     Behavior = MonsterBehaviorType.HumanoidRanged,
-                    SpecialRules = new List<string>() { "Petrify" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Petrify
+                    },
                     XP = 350,
                     TreasureType = TreasureType.T3
                 },
@@ -3443,7 +3493,10 @@ namespace LoDCompanion.Services.Dungeon
                     MaxDamage = 10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    SpecialRules = new List<string>() { "Leech" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Leech
+                    },
                     XP = 110,
                     TreasureType = TreasureType.Part
                 },
@@ -3471,7 +3524,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 450,
                     TreasureType = TreasureType.T3
                 },
@@ -3658,7 +3714,10 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 400,
                     TreasureType = TreasureType.T2
                 },
@@ -3688,7 +3747,10 @@ namespace LoDCompanion.Services.Dungeon
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
                     },
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 500,
                     TreasureType = TreasureType.T2
                 },
@@ -3715,7 +3777,10 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 600,
                     TreasureType = TreasureType.T3
                 },
@@ -3912,7 +3977,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 550,
                     TreasureType = TreasureType.T2
                 },
@@ -3942,7 +4010,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Fire Breath" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.FireBreath
+                    },
                     XP = 430,
                     TreasureType = TreasureType.Part
                 },
@@ -4104,7 +4175,10 @@ namespace LoDCompanion.Services.Dungeon
                     PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Entangle" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Entangle
+                    },
                     XP = 450,
                     TreasureType = TreasureType.Part
                 },
@@ -4273,7 +4347,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 550,
                     TreasureType = TreasureType.T2
                 },
@@ -4329,7 +4406,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 }
                     },
-                    SpecialRules = new List<string>() { "Master of the Dead" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.MasterOfTheDead
+                    },
                     XP = 2000,
                     TreasureType = TreasureType.T5
                 },
@@ -4358,7 +4438,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 }
                     },
-                    SpecialRules = new List<string>() { "Seduction" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Seduction
+                    },
                     XP = 1500,
                     TreasureType = TreasureType.T5
                 },
@@ -4675,7 +4758,11 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Free Bellow: Whenever you roll this action, the other head may still direct a standard attack during the same action.", "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike,
+                        SpecialActiveAbility.FreeBellow
+                    },
                     XP = 550,
                     TreasureType = TreasureType.T2
                 },
@@ -4729,7 +4816,10 @@ namespace LoDCompanion.Services.Dungeon
                     },
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     ArmourValue = 3,
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 450,
                     TreasureType = TreasureType.T4
                 },
@@ -4787,7 +4877,10 @@ namespace LoDCompanion.Services.Dungeon
                     },
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 400,
                     TreasureType = TreasureType.T2
                 },
@@ -4817,7 +4910,10 @@ namespace LoDCompanion.Services.Dungeon
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
                     },
-                    SpecialRules = new List<string>() { "Sweeping strike" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.SweepingStrike
+                    },
                     XP = 500,
                     TreasureType = TreasureType.T2
                 },
@@ -4866,7 +4962,10 @@ namespace LoDCompanion.Services.Dungeon
                     Behavior = MonsterBehaviorType.HumanoidMelee,
                     Weapons = new List<Weapon>() { (Weapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
                     ArmourValue = 1,
-                    SpecialRules = new List<string>() { "Seduction" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Seduction
+                    },
                     XP = 140,
                     TreasureType = TreasureType.T3
                 },
@@ -4924,7 +5023,10 @@ namespace LoDCompanion.Services.Dungeon
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 450,
                     TreasureType = TreasureType.T4
                 },
@@ -5059,7 +5161,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 700,
                     TreasureType = TreasureType.T2
                 },
@@ -5645,7 +5750,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
                     },
-                    SpecialRules = new List<string>() { "Bellow" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
                     XP = 650,
                     TreasureType = TreasureType.T2
                 },
@@ -5709,7 +5817,11 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
                     },
-                    SpecialRules = new List<string>() { "Seduction", "Spells: Vampiric Touch, Fireball, Heal" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Seduction
+                    },
+                    SpecialRules = new List<string>() { "Spells: Vampiric Touch, Fireball, Heal" },
                     XP = 1500,
                     TreasureType = TreasureType.T5
                 },
@@ -5740,7 +5852,10 @@ namespace LoDCompanion.Services.Dungeon
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
                         { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 }
                     },
-                    SpecialRules = new List<string>() { "Seduction" },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Seduction
+                    },
                     XP = 1500,
                     TreasureType = TreasureType.T5
                 },
