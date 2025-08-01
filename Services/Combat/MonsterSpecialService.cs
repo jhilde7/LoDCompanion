@@ -46,6 +46,7 @@ namespace LoDCompanion.Services.Combat
         public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
         public event Func<Monster, List<Hero>, DungeonState, Task<AttackResult>>? OnSweepingStrikeAttack;
         public event Func<Monster, Hero, DungeonState, Task<AttackResult>>? OnTongueAttack;
+        public event Func<Monster, Hero, Task<AttackResult>>? OnWebAttack;
 
         public MonsterSpecialService(
             UserRequestService diceRoll, 
@@ -102,6 +103,8 @@ namespace LoDCompanion.Services.Combat
                     return await SweepingStrikeAsync(monster, heroes, dungeon);
                 case SpecialActiveAbility.TongueAttack:
                     return await TongueAttackAsync(monster, target, dungeon);
+                case SpecialActiveAbility.Web:
+                    return await WebAsync(monster, target);
                 default:
                     return $"{monster.Name} attempts an unknown special ability: {abilityType}. Nothing happens.";
             }
@@ -551,6 +554,27 @@ namespace LoDCompanion.Services.Combat
                 return outcome;
             }
             else return string.Empty; // event is null
+        }
+
+        private async Task<string> WebAsync(Monster monster, Hero target)
+        {
+            string outcome = $"{monster.Name} shoots a web at {target.Name}!\n";
+
+            if(OnWebAttack != null)
+            {
+                var result = await OnWebAttack.Invoke(monster, target);
+                if (result.IsHit)
+                {
+                    outcome += $"{target.Name} is covered with a sticky web!\n";                    
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Ensnared, -1));
+                    return outcome;
+                }
+                else
+                {
+                    return result.OutcomeMessage;
+                }
+            }
+            return string.Empty;
         }
     }
 }

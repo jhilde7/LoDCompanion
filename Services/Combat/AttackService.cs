@@ -8,6 +8,7 @@ using LoDCompanion.Services.Game;
 using LoDCompanion.Services.Player;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -42,8 +43,9 @@ namespace LoDCompanion.Services.Combat
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
             _monsterSpecial.OnSpitAttack += HandleSpitAttack;
-            _monsterSpecial.OnSweepingStrikeAttack += HanldeSweepingStrikeAttackAsync;
-            _monsterSpecial.OnTongueAttack += HandleTongueAttack; // Tongue attack is treated like a spit attack
+            _monsterSpecial.OnSweepingStrikeAttack += HanldeSweepingStrikeAttack;
+            _monsterSpecial.OnTongueAttack += HandleTongueAttack;
+            _monsterSpecial.OnWebAttack += HandleWebAttempt;
         }
 
         /// <summary>
@@ -478,6 +480,10 @@ namespace LoDCompanion.Services.Combat
             result = CalculateMonsterHitAttempt(attacker, null, target, new CombatContext());
             if (!result.IsHit)
             {
+                if (!result.IsHit && target.Position != null)
+                {
+                    _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+                }
                 return result; // If the attack missed, return early.
             }
             int damageRoll = RandomHelper.RollDie(DiceType.D10);
@@ -492,6 +498,10 @@ namespace LoDCompanion.Services.Combat
             result = CalculateMonsterHitAttempt(attacker, null, target, new CombatContext());
             if (!result.IsHit)
             {
+                if (!result.IsHit && target.Position != null)
+                {
+                    _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+                }
                 return result; // If the attack missed, return early.
             }
             else // attack can be parried or dodged as normal
@@ -506,7 +516,7 @@ namespace LoDCompanion.Services.Combat
             return result;
         }
 
-        public async Task<AttackResult> HanldeSweepingStrikeAttackAsync(Monster attacker, List<Hero> heroes, DungeonState dungeon)
+        public async Task<AttackResult> HanldeSweepingStrikeAttack(Monster attacker, List<Hero> heroes, DungeonState dungeon)
         {
             var result = new AttackResult();
             if (attacker.Position == null) return result;
@@ -566,6 +576,10 @@ namespace LoDCompanion.Services.Combat
                 }
                 else
                 {
+                    if (!result.IsHit && hero.Position != null)
+                    {
+                        _floatingText.ShowText("Miss!", hero.Position, "miss-toast");
+                    }
                     result.OutcomeMessage += $"{attacker.Name}'s sweeping strike misses {hero.Name}.\n";
                 }
             }
@@ -620,10 +634,24 @@ namespace LoDCompanion.Services.Combat
             }
             else
             {
+                if (target.Position != null)
+                {
+                    _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+                }
                 result.OutcomeMessage = $"{monster.Name}'s tongue attack misses {target.Name}.";
             }
 
             return result;
+        }
+
+        public Task<AttackResult> HandleWebAttempt(Monster monster, Hero target)
+        {
+            var result = CalculateMonsterHitAttempt(monster, null, target, new CombatContext());
+            if(!result.IsHit && target.Position != null)
+            {
+                _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+            }
+            return Task.FromResult(result);
         }
     }
 }
