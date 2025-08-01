@@ -3,6 +3,8 @@ using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
 using LoDCompanion.Services.GameData;
 using System;
+using LoDCompanion.Services.Dungeon;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -30,10 +32,10 @@ namespace LoDCompanion.Services.Combat
 
     public class MonsterSpecialService
     {
-
-        public MonsterSpecialService()
+        private readonly UserRequestService _diceRoll;
+        public MonsterSpecialService(UserRequestService diceRoll)
         {
-            
+            _diceRoll = diceRoll;
         }
 
         /// <summary>
@@ -43,12 +45,12 @@ namespace LoDCompanion.Services.Combat
         /// <param name="heroes">The list of heroes targeted by the action.</param>
         /// <param name="abilityType">The type of special ability to execute (e.g., "Bellow", "FireBreath").</param>
         /// <returns>A string describing the outcome of the special action.</returns>
-        public string ExecuteSpecialAbility(Monster monster, List<Hero> heroes, Hero target, SpecialActiveAbility abilityType)
+        public async Task<string> ExecuteSpecialAbilityAsync(Monster monster, List<Hero> heroes, Hero target, SpecialActiveAbility abilityType)
         {
             switch (abilityType)
             {
                 case SpecialActiveAbility.Bellow:
-                    return Bellow(monster, heroes);
+                    return await Bellow(monster, heroes);
                 case SpecialActiveAbility.Camouflage:
                     return Camouflage(monster, heroes);
                 case SpecialActiveAbility.Entangle:
@@ -88,20 +90,23 @@ namespace LoDCompanion.Services.Combat
 
         // --- Individual Special Ability Implementations ---
 
-        public string Bellow(Monster monster, List<Hero> heroes)
+        public async Task<string> Bellow(Monster monster, List<Hero> heroes)
         {
             string outcome = $"{monster.Name} lets out a thunderous bellow!\n";
             foreach (var hero in heroes)
             {
-                int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < hero.GetStat(BasicStat.Resolve)) // Assuming lower is better for Resolve check
+                if (GridService.GetDistance(monster.Position, hero.Position) <= 4)
                 {
-                    StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1)); // Assuming Status is a List<string> or similar
-                    outcome += $"{hero.Name} is stunned by the roar!\n";
-                }
-                else
-                {
-                    outcome += $"{hero.Name} resists the bellow.\n";
+                    int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                    if (resolveRoll > hero.GetStat(BasicStat.Resolve))
+                    {
+                        StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
+                        outcome += $"{hero.Name} is stunned by the roar!\n";
+                    }
+                    else
+                    {
+                        outcome += $"{hero.Name} resists the bellow.\n";
+                    }
                 }
             }
             return outcome;
