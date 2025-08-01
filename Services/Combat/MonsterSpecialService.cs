@@ -69,7 +69,7 @@ namespace LoDCompanion.Services.Combat
                 case SpecialActiveAbility.FireBreath:
                     return await FireBreathAsync(monster, target, heroes, dungeon);
                 case SpecialActiveAbility.GhostlyHowl:
-                    return GhostlyHowl(monster, heroes);
+                    return await GhostlyHowlAsync(monster, heroes);
                 case SpecialActiveAbility.MasterOfTheDead:
                     return MasterOfTheDead(monster, heroes);
                 case SpecialActiveAbility.MultipleAttack:
@@ -284,16 +284,18 @@ namespace LoDCompanion.Services.Combat
             return outcome.ToString();
         }
 
-        public string GhostlyHowl(Monster monster, List<Hero> heroes)
+        public async Task<string> GhostlyHowlAsync(Monster monster, List<Hero> heroes)
         {
             string outcome = $"{monster.Name} emits a chilling, ghostly howl!\n";
             foreach (var hero in heroes)
             {
-                int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < (hero.GetStat(BasicStat.Resolve) * 2)) // Example check for fear/sanity loss
+                int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                if (resolveRoll > hero.GetStat(BasicStat.Resolve))
                 {
-                    hero.CurrentSanity -= 1; // Assuming Sanity exists and can be reduced
-                    outcome += $"{hero.Name} loses 1 Sanity.\n";
+                    int damage = RandomHelper.RollDie(DiceType.D8);
+                    hero.TakeDamage(damage);
+                    hero.CurrentSanity -= 1;
+                    outcome += $"{hero.Name} takes {damage} damage and loses 1 Sanity!\n";
                 }
                 else
                 {
