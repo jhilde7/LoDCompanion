@@ -314,11 +314,14 @@ namespace LoDCompanion.Services.Combat
             {
                 string outcome = $"{monster.Name} attempts a powerful kick!\n";
                 var kickTarget = heroesBehind[RandomHelper.GetRandomNumber(0, heroesBehind.Count - 1)]; // Select a random hero from those behind
-                var result = await OnKickAttack.Invoke(monster, kickTarget);
+                if (OnKickAttack != null)
+                {
+                    var result = await OnKickAttack.Invoke(monster, kickTarget); 
+                    outcome += $"{monster.Name} kicks {kickTarget.Name} from behind for {result.DamageDealt} damage.\n";
 
-                outcome += $"{monster.Name} kicks {kickTarget.Name} from behind for {result.DamageDealt} damage.\n";
-
-                return outcome;
+                    return outcome;
+                }
+                else return string.Empty; // event is null
             }
             else
             {
