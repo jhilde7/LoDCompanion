@@ -135,7 +135,7 @@ namespace LoDCompanion.Services.Combat
 
             result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
 
-            if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
+            if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
@@ -167,7 +167,7 @@ namespace LoDCompanion.Services.Combat
 
             result.AttackRoll = RandomHelper.RollDie(DiceType.D100);
 
-            if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
+            if ((target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)))
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
@@ -189,7 +189,7 @@ namespace LoDCompanion.Services.Combat
             int damageAfterDefense = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
             result.OutcomeMessage = defenseResult.OutcomeMessage;
 
-            if (damageAfterDefense > 0)
+            if (target.Position != null && damageAfterDefense > 0)
             {
                 HitLocation location = DetermineHitLocation();
                 result.DamageDealt = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
@@ -204,7 +204,10 @@ namespace LoDCompanion.Services.Combat
             }
             else
             {
-                _floatingText.ShowText("Blocked!", target.Position, "miss-text");
+                if (target.Position != null)
+                {
+                    _floatingText.ShowText("Blocked!", target.Position, "miss-text"); 
+                }
             }
 
             if (context.IsChargeAttack && dungeon != null)
@@ -223,7 +226,10 @@ namespace LoDCompanion.Services.Combat
             result.DamageDealt = finalDamage;
 
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
-            _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text");
+            if (target.Position != null)
+            {
+                _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text"); 
+            }
 
             if (context.IsChargeAttack && dungeon != null)
             {
@@ -259,7 +265,7 @@ namespace LoDCompanion.Services.Combat
                 if (context.HasAimed) modifier += 10;
             }
             if (DirectionService.IsAttackingFromBehind(attacker, target)) modifier += 20;
-            if (attacker.Position.Z > target.Position.Z) modifier += 10;
+            if (attacker.Position != null && target.Position != null && attacker.Position.Z > target.Position.Z) modifier += 10;
 
             if (context.IsChargeAttack) modifier += 10;
             if (context.IsPowerAttack) modifier += 20;
@@ -528,16 +534,16 @@ namespace LoDCompanion.Services.Combat
                     var pushbackPosition = new GridPosition(hero.Position.X + Math.Sign(dx), hero.Position.Y + Math.Sign(dy), hero.Position.Z);
                     var pushbackSquare = GridService.GetSquareAt(pushbackPosition, dungeon.DungeonGrid);
                     bool isBlocked = pushbackSquare == null || pushbackSquare.MovementBlocked || pushbackSquare.IsOccupied;
-
+                    var attackResult = new AttackResult();
                     if (isBlocked)
                     {
-                        result = await ResolveAttackAgainstHeroAsync(attacker, hero, baseDamage, attacker.GetMeleeWeapon(), new CombatContext());
+                        attackResult = await ResolveAttackAgainstHeroAsync(attacker, hero, baseDamage, attacker.GetMeleeWeapon(), new CombatContext());
                     }
                     else
                     {
-                        result = await ResolveAttackAgainstHeroAsync(attacker, hero, potentialDamage, attacker.GetMeleeWeapon(), new CombatContext());
+                        attackResult = await ResolveAttackAgainstHeroAsync(attacker, hero, potentialDamage, attacker.GetMeleeWeapon(), new CombatContext());
                     }
-
+                    result.OutcomeMessage += attackResult.OutcomeMessage;
                     // DEX test to avoid falling prone
                     int dexRoll = await _diceRoll.RequestRollAsync($"Roll a DEX test for {hero.Name} to stay standing.", "1d100");
                     if (dexRoll > hero.GetStat(BasicStat.Dexterity))
@@ -561,6 +567,7 @@ namespace LoDCompanion.Services.Combat
                     result.OutcomeMessage += $"{attacker.Name}'s sweeping strike misses {hero.Name}.\n";
                 }
             }
+            return result;
         }
     }
 }

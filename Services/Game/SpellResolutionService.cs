@@ -140,7 +140,7 @@ namespace LoDCompanion.Services.Game
                 {
                     var center = centerPosition ?? singleTarget?.Position;
                     List<GridPosition> affectedSquares = new List<GridPosition>();
-                    if (singleTarget != null)
+                    if (singleTarget != null && singleTarget.Position != null)
                     {
                         affectedSquares = GridService.GetAllSquaresInRadius(singleTarget.Position, (int)radius, _dungeon.DungeonGrid);
                     }
@@ -150,8 +150,9 @@ namespace LoDCompanion.Services.Game
                     }
                     List<Character> allCharacters = _dungeon.AllCharactersInDungeon;
 
-                    foreach (var character in allCharacters.Where(c => affectedSquares.Contains(c.Position)))
+                    foreach (var character in allCharacters.Where(c => c.Position != null && affectedSquares.Contains(c.Position)))
                     {
+                        if (character.Position == null) continue;
                         bool isCenterTarget = character.Position.Equals(center);
                         int damage = isCenterTarget ?
                             await GetDirectDamageAsync(caster, spell) :
@@ -334,7 +335,7 @@ namespace LoDCompanion.Services.Game
                     return result;
 
                 case "Transpose":
-                    if (target is Hero otherHero)
+                    if (target is Hero otherHero && caster.Position != null && otherHero.Position != null)
                     {
                         var casterPos = caster.Position;
                         var targetPos = otherHero.Position;
@@ -592,7 +593,7 @@ namespace LoDCompanion.Services.Game
                 {
                     var center = centerPosition ?? singleTarget?.Position;
                     List<GridPosition> affectedSquares = new List<GridPosition>();
-                    if (singleTarget != null)
+                    if (singleTarget != null && singleTarget.Position != null)
                     {
                         affectedSquares = GridService.GetAllSquaresInRadius(singleTarget.Position, (int)radius, _dungeon.DungeonGrid);
                     }
@@ -602,8 +603,9 @@ namespace LoDCompanion.Services.Game
                     }
                     List<Character> allCharacters = _dungeon.AllCharactersInDungeon;
 
-                    foreach (var character in allCharacters.Where(c => affectedSquares.Contains(c.Position)))
+                    foreach (var character in allCharacters.Where(c => c.Position != null && affectedSquares.Contains(c.Position)))
                     {
+                        if (character.Position == null) continue;
                         bool isCenterTarget = character.Position.Equals(center);
                         int damage = isCenterTarget ?
                             GetDirectDamage(caster, spell) :
@@ -670,7 +672,7 @@ namespace LoDCompanion.Services.Game
             if (target is GridPosition positionTarget)
             {
                 // For AOE spells targeting a square, find if a character is at that center.
-                var characterAtCenter = _dungeon.AllCharactersInDungeon.FirstOrDefault(c => c.Position.Equals(positionTarget));
+                var characterAtCenter = _dungeon.AllCharactersInDungeon.FirstOrDefault(c => c.Position != null && c.Position.Equals(positionTarget));
                 return (positionTarget, characterAtCenter);
             }
             return (null, null);
@@ -685,13 +687,13 @@ namespace LoDCompanion.Services.Game
 
             if (targetType == SpellTargetType.SingleTarget)
             {
-                return allCharacters.Where(c => c.Position.Equals(center)).ToList();
+                return allCharacters.Where(c => c.Position != null && c.Position.Equals(center)).ToList();
             }
 
             if (targetType == SpellTargetType.AreaOfEffect)
             {
                 var affectedSquares = GridService.GetAllSquaresInRadius(center, radius, _dungeon.DungeonGrid);
-                return allCharacters.Where(c => c.OccupiedSquares.Any(os => affectedSquares.Contains(os))).ToList();
+                return allCharacters.Where(c => c.Position != null && c.OccupiedSquares.Any(os => affectedSquares.Contains(os))).ToList();
             }
 
             return new List<Character>();

@@ -192,7 +192,7 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case ActionType.ChargeAttack:
-                    if (character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget && character.Weapons.FirstOrDefault(w => w.IsMelee) is MeleeWeapon chargeWeapon)
+                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget && character.Weapons.FirstOrDefault(w => w.IsMelee) is MeleeWeapon chargeWeapon)
                     {
                         AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, chargeWeapon, chargeAttackTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
@@ -209,7 +209,7 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case ActionType.Shove:
-                    if (primaryTarget is Character targetToShove && _dungeonManager.DungeonState != null)
+                    if (primaryTarget is Character targetToShove && character.Position != null && _dungeonManager.DungeonState != null)
                     {
                         resultMessage = GridService.ShoveCharacter(character, targetToShove, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
 
@@ -226,7 +226,7 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case ActionType.Move:
-                    if (primaryTarget is GridPosition targetPosition && character.Room != null)
+                    if (primaryTarget is GridPosition targetPosition && character.Position != null && character.Room != null)
                     {
                         // Determine available movement points for this action
                         int availableMovement = character.CurrentMovePoints;
