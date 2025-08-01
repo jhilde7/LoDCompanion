@@ -264,7 +264,7 @@ namespace LoDCompanion.Services.Game
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                         CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
-                        StatusEffectService.ProcessStatusEffects(monsterToAct);
+                        StatusEffectService.ProcessStatusEffectsAsync(monsterToAct);
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
                         CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
@@ -459,7 +459,7 @@ namespace LoDCompanion.Services.Game
             IsAwaitingHeroSelection = false;
 
             // Perform standard start-of-turn logic
-            StatusEffectService.ProcessStatusEffects(ActiveHero);
+            StatusEffectService.ProcessStatusEffectsAsync(ActiveHero);
             CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
             OnCombatStateChanged?.Invoke();
         }

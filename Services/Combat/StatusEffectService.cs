@@ -148,7 +148,7 @@ namespace LoDCompanion.Services.Combat
     }
 
     public static class StatusEffectService
-    {
+    {        
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
@@ -193,7 +193,7 @@ namespace LoDCompanion.Services.Combat
         /// Processes all active status effects for a character at the start of their turn.
         /// </summary>
         /// <param name="character">The character whose effects are to be processed.</param>
-        public static void ProcessStatusEffects(Character character)
+        public static async Task ProcessStatusEffectsAsync(Character character)
         {
             // Use a copy of the list to avoid issues with modifying it while iterating.
             var effectsToProcess = character.ActiveStatusEffects.ToList();
@@ -229,6 +229,40 @@ namespace LoDCompanion.Services.Combat
                         character.TakeDamage(damage);
                         effect.Duration--;
                         Console.WriteLine($"{character.Name} takes {damage} damage from being entangled.");
+                        break;
+
+                    case StatusEffectType.Seduce:
+                        if (character is Hero heroToSave)
+                        {
+                            int resolveRoll = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            if (resolveRoll <= heroToSave.GetStat(BasicStat.Resolve))
+                            {
+                                character.ActiveStatusEffects.Remove(effect);
+                                Console.WriteLine($"{character.Name} breaks free from the seduction!");
+                            }
+                            else
+                            {
+                                // The hero remains incapacitated. The combat manager will handle skipping their turn.
+                                Console.WriteLine($"{character.Name} remains seduced.");
+                            }
+                        }
+                        break;
+
+                    case StatusEffectType.Incapacitated:
+                        if (character is Hero)
+                        {
+                            int resolveRoll = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            if (resolveRoll <= character.GetStat(BasicStat.Resolve))
+                            {
+                                character.ActiveStatusEffects.Remove(effect);
+                                Console.WriteLine($"{character.Name} is no longer incapacitated!");
+                            }
+                            else
+                            {
+                                // The hero remains incapacitated. The combat manager will handle skipping their turn.
+                                Console.WriteLine($"{character.Name} remains incapacitated.");
+                            }
+                        }
                         break;
                 }
 
