@@ -41,6 +41,7 @@ namespace LoDCompanion.Services.Combat
             
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
+            _monsterSpecial.OnSpitAttack += HandleSpitAttack;
         }
 
         /// <summary>
@@ -475,6 +476,26 @@ namespace LoDCompanion.Services.Combat
             int totalDamage = damageRoll + 2;
 
             return await ResolveAttackAgainstHeroAsync(attacker, target, totalDamage, null, new CombatContext());
+        }
+
+        public async Task<AttackResult> HandleSpitAttack(Monster attacker, Hero target)
+        {
+            var result = new AttackResult();
+            result = CalculateMonsterHitAttempt(attacker, null, target, new CombatContext());
+            if (!result.IsHit)
+            {
+                return result; // If the attack missed, return early.
+            }
+            else // attack can be parried or dodged as normal
+            {
+                DefenseResult defenseResult = await ResolveHeroDefenseAsync(target, 0);
+                if( defenseResult.WasSuccessful)
+                {
+                    result.IsHit = false; // The attack was successfully defended
+                    result.OutcomeMessage = defenseResult.OutcomeMessage; 
+                }
+            }
+            return result;
         }
     }
 }

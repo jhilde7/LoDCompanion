@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LoDCompanion.Models.Dungeon;
 using System.Xml.Linq;
 using System.Text;
+using LoDCompanion.Models;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -39,6 +40,7 @@ namespace LoDCompanion.Services.Combat
 
         public event Func<Monster, Hero, Task<DefenseResult>>? OnEntangleAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
+        public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
 
         public MonsterSpecialService(UserRequestService diceRoll)
         {
@@ -79,7 +81,7 @@ namespace LoDCompanion.Services.Combat
                 case SpecialActiveAbility.Petrify:
                     return await PetrifyAsync(monster, heroes);
                 case SpecialActiveAbility.PoisonSpit:
-                    return PoisonSpit(monster, heroes);
+                    return await PoisonSpitAsync(monster, target);
                 case SpecialActiveAbility.Seduction:
                     return Seduction(monster, heroes);
                 case SpecialActiveAbility.SummonChildren:
@@ -393,17 +395,33 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string PoisonSpit(Monster monster, List<Hero> heroes)
+        public async Task<string> PoisonSpitAsync(Monster monster, Hero target)
         {
-            string outcome = $"{monster.Name} spits corrosive poison!\n";
-            if (heroes.Count > 0)
+            string outcome = $"{monster.Name} spits poison at {target.Name}!\n";
+            var spitWeapon = new RangedWeapon { Name = "Poison Spit", AmmoType = AmmoType.SlingStone }; // Create a temporary weapon for the attack
+            var context = new CombatContext();
+
+            // Use AttackService to see if the attack hits
+            if (OnSpitAttack != null)
             {
-                var target = heroes[0]; // Assume single target
-                int damage = RandomHelper.GetRandomNumber(1, 4); // Initial damage
-                target.TakeDamage(damage);
-                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1));
-                outcome += $"{target.Name} is hit for {damage} damage and is poisoned!\n";
+                var result = await OnSpitAttack.Invoke(monster, target);
+                if (result.IsHit)
+                {
+                    outcome += $"{target.Name} is hit and must resist the poison!\n";
+                    // Apply poison effect
+                    int resistRoll = await _diceRoll.RequestRollAsync("Roll a constitution test to resist the effects", "1d100");
+
+                    // The logic for applying poison, including the CON test, is now handled in StatusEffectService
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1));
+                }
+                else
+                {
+                    outcome += result.OutcomeMessage;
+                }
             }
+            else return string.Empty; // event is null
+
+
             return outcome;
         }
 
