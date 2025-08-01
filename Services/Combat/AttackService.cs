@@ -7,6 +7,7 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Services.Player;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -42,6 +43,7 @@ namespace LoDCompanion.Services.Combat
             _monsterSpecial.OnKickAttack += HandleKickAttack;
             _monsterSpecial.OnSpitAttack += HandleSpitAttack;
             _monsterSpecial.OnSweepingStrikeAttack += HanldeSweepingStrikeAttackAsync;
+            _monsterSpecial.OnTongueAttack += HandleTongueAttack; // Tongue attack is treated like a spit attack
         }
 
         /// <summary>
@@ -567,6 +569,60 @@ namespace LoDCompanion.Services.Combat
                     result.OutcomeMessage += $"{attacker.Name}'s sweeping strike misses {hero.Name}.\n";
                 }
             }
+            return result;
+        }
+
+        public async Task<AttackResult> HandleTongueAttack(Monster monster, Hero target, DungeonState dungeon)
+        {
+            var result = new AttackResult();
+            var outcome = result.OutcomeMessage;
+
+            result = CalculateMonsterHitAttempt(monster, null, target, new CombatContext());
+            if (result.IsHit)
+            {
+                // Heroes can attempt to dodge but not parry.
+                var defenseResult = await ResolveHeroDefenseAsync(target, 0);
+                if (defenseResult.WasSuccessful)
+                {
+                    result.OutcomeMessage += defenseResult.OutcomeMessage + "\n";
+                }
+                else
+                {
+                    outcome += "The tongue hits!\n";
+                    if (target.Position == null || monster.Position == null) return result;
+                    // Determine the square adjacent to the monster, in the direction of the target
+                    var directionX = Math.Sign(target.Position.X - monster.Position.X);
+                    var directionY = Math.Sign(target.Position.Y - monster.Position.Y);
+                    var destination = new GridPosition(monster.Position.X + directionX, monster.Position.Y + directionY, monster.Position.Z);
+
+                    var destinationSquare = GridService.GetSquareAt(destination, dungeon.DungeonGrid);
+                    if (destinationSquare != null)
+                    {
+                        if (destinationSquare.IsOccupied)
+                        {
+                            var occupant = dungeon.AllCharactersInDungeon.FirstOrDefault(c => c.Id == destinationSquare.OccupyingCharacterId);
+                            if (occupant != null)
+                            {
+                                // Swap positions
+                                GridService.MoveCharacterToPosition(occupant, target.Position, dungeon.DungeonGrid);
+                                GridService.MoveCharacterToPosition(target, destination, dungeon.DungeonGrid);
+                                outcome += $"{target.Name} is pulled, swapping places with {occupant.Name}!\n";
+                            }
+                        }
+                        else
+                        {
+                            // Move the target to the destination
+                            GridService.MoveCharacterToPosition(target, destination, dungeon.DungeonGrid);
+                            outcome += $"{target.Name} is pulled to the square next to {monster.Name}!\n";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                result.OutcomeMessage = $"{monster.Name}'s tongue attack misses {target.Name}.";
+            }
+
             return result;
         }
     }

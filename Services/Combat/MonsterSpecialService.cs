@@ -45,6 +45,7 @@ namespace LoDCompanion.Services.Combat
         public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
         public event Func<Monster, List<Hero>, DungeonState, Task<AttackResult>>? OnSweepingStrikeAttack;
+        public event Func<Monster, Hero, DungeonState, Task<AttackResult>>? OnTongueAttack;
 
         public MonsterSpecialService(
             UserRequestService diceRoll, 
@@ -100,7 +101,7 @@ namespace LoDCompanion.Services.Combat
                 case SpecialActiveAbility.SweepingStrike:
                     return await SweepingStrikeAsync(monster, heroes, dungeon);
                 case SpecialActiveAbility.TongueAttack:
-                    return TongueAttack(monster, heroes);
+                    return await TongueAttackAsync(monster, target, dungeon);
                 default:
                     return $"{monster.Name} attempts an unknown special ability: {abilityType}. Nothing happens.";
             }
@@ -539,18 +540,17 @@ namespace LoDCompanion.Services.Combat
             else return string.Empty; // event is null
         }
 
-        public string TongueAttack(Monster monster, List<Hero> heroes)
+        public async Task<string> TongueAttackAsync(Monster monster, Hero target, DungeonState dungeon)
         {
-            string outcome = $"{monster.Name} lashes out with a sticky tongue!\n";
-            if (heroes.Count > 0)
+            string outcome = $"{monster.Name} lashes out with its tongue at {target.Name}!\n";
+
+            if (OnTongueAttack != null)
             {
-                var target = heroes[0]; // Assume single target
-                int damage = RandomHelper.GetRandomNumber(1, 4);
-                target.TakeDamage(damage);
-                outcome += $"{target.Name} is hit for {damage} damage and ensnared by the tongue!\n";
-                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Ensnared, -1)); // Apply status effect
+                var result = await OnTongueAttack.Invoke(monster, target, dungeon);
+
+                return outcome;
             }
-            return outcome;
+            else return string.Empty; // event is null
         }
     }
 }

@@ -638,7 +638,7 @@ namespace LoDCompanion.Services.Game
             return await MoveTowardsAsync(monster, target);
         }
 
-        private Hero? ChooseTarget(Monster monster, List<Hero> heroes, bool isRanged = false)
+        private Hero? ChooseTarget(Monster monster, List<Hero> heroes, int? range = null)
         {
             if (!heroes.Any(h => h.CurrentHP > 0) || monster.Position == null)
             {
@@ -647,6 +647,18 @@ namespace LoDCompanion.Services.Game
 
             var targetableHeroes = heroes.Where(h => h.CurrentHP > 0 && h.Position != null).ToList();
             if (!targetableHeroes.Any()) return null;
+
+            // if range is specified, filter heroes within that range
+            if (range.HasValue)
+            {
+                targetableHeroes = targetableHeroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) == range.Value).ToList();
+
+                if(targetableHeroes.Any())
+                {
+                    targetableHeroes.Shuffle();
+                    return targetableHeroes[0]; // Return a random hero within range
+                }
+            }
 
             // --- Prioritize Untargeted Adjacent Heroes ---
             // "If the enemy has a choice between adjacent targets, target one that has not been targeted by another enemy."
@@ -955,7 +967,7 @@ namespace LoDCompanion.Services.Game
                             if (!availableTargets.Contains(currentTarget))
                             {
                                 // If the initial target isn't valid, find a new one
-                                currentTarget = ChooseTarget(monster, availableTargets, isRanged: true);
+                                currentTarget = ChooseTarget(monster, availableTargets, 2);
                             }
 
                             if (currentTarget != null)
@@ -993,6 +1005,18 @@ namespace LoDCompanion.Services.Game
                         if (heroes.Any(h => h.Position != null && DirectionService.IsInZoneOfControl(h.Position, monster)))
                         {
                             isUsable = true;
+                        }
+                        break;
+
+                    case SpecialActiveAbility.TongueAttack:
+                        var tongueTargets = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) == 2).ToList();
+                        if (tongueTargets.Any())
+                        {
+                            currentTarget = ChooseTarget(monster, tongueTargets, 2);
+                            if (currentTarget != null)
+                            {
+                                isUsable = true;
+                            }
                         }
                         break;
 
