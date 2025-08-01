@@ -102,7 +102,7 @@ namespace LoDCompanion.Models.Character
                 }
             }
         }
-        public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
+        public GridPosition? Position { get; set; }
         public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>(); // e.g., "Normal", "Poisoned", "Diseased"
         public int CurrentAP { get; set; } = 2;
@@ -220,6 +220,7 @@ namespace LoDCompanion.Models.Character
 
         public virtual void UpdateOccupiedSquares()
         {
+            if (Position == null) return;
             OccupiedSquares.Clear();
             int SizeX = 1;
             int SizeY = 1;
@@ -694,6 +695,7 @@ namespace LoDCompanion.Models.Character
 
         public override void UpdateOccupiedSquares()
         {
+            if (Position == null) return;
             OccupiedSquares.Clear();
             int SizeX = 1;
             int SizeY = 1;

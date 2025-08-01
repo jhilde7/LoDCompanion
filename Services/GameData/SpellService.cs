@@ -7,6 +7,7 @@ using System.Text;
 using LoDCompanion.Models.Dungeon;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Models;
+using System.Threading;
 
 namespace LoDCompanion.Services.GameData
 {
@@ -1482,8 +1483,9 @@ namespace LoDCompanion.Services.GameData
         /// <returns>A SpellCastResult object detailing the outcome.</returns>
         public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, int focusPoints = 0, int powerLevels = 0)
         {
+            if (caster.Position == null) return new SpellCastResult();
             var result = new SpellCastResult();
-            var adjacentEnemies = caster.Room.MonstersInRoom?.Any(m => GridService.GetDistance(caster.Position, m.Position) <= 1) ?? false;
+            var adjacentEnemies = caster.Room.MonstersInRoom?.Any(m => m.Position != null && GridService.GetDistance(caster.Position, m.Position) <= 1) ?? false;
 
             // --- Pre-Cast Checks ---
             if (caster.GetStat(BasicStat.Level) < this.Level)

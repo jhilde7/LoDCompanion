@@ -85,7 +85,7 @@ namespace LoDCompanion.Services.Game
                 CombatLog.Add($"{deceasedMonster.Name} has been slain!");
 
                 Corpse corpse = deceasedMonster.Body;
-                corpse.Position = deceasedMonster.Position;
+                corpse.Position = deceasedMonster.Position ?? new GridPosition(0,0,0);
                 corpse.Room = deceasedMonster.Room;
                 corpse.UpdateOccupiedSquares();
 
@@ -355,7 +355,7 @@ namespace LoDCompanion.Services.Game
             if (monster.Position == null) return false;
             foreach (var hero in heroes.Where(h => h.CurrentHP > 0 && h.Position != null))
             {
-                if (Math.Abs(monster.Position.X - hero.Position.X) <= 1 &&
+                if (hero.Position != null && Math.Abs(monster.Position.X - hero.Position.X) <= 1 &&
                     Math.Abs(monster.Position.Y - hero.Position.Y) <= 1)
                 {
                     return true;
@@ -410,10 +410,10 @@ namespace LoDCompanion.Services.Game
 
                     // Ranged Overwatch Check: Can the hero see the square?
                     // According to the rules, a ranged weapon cannot be used if an enemy is adjacent.
-                    if (weapon.IsRanged)
+                    if (weapon.IsRanged && hero.Position != null)
                     {
                         // Check for adjacent enemies
-                        bool isEnemyAdjacent = HeroesInCombat.Any(h => GridService.GetDistance(hero.Position, h.Position) <= 1);
+                        bool isEnemyAdjacent = HeroesInCombat.Any(h => h.Position != null &&  GridService.GetDistance(hero.Position, h.Position) <= 1);
                         if (isEnemyAdjacent) continue;
 
                         var losResult = GridService.HasLineOfSight(hero.Position, pathSquare, _dungeon.DungeonGrid);

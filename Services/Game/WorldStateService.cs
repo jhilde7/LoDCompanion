@@ -9,7 +9,7 @@ namespace LoDCompanion.Services.Game
         internal string Id { get; }
         string Name { get; set; }
         Room Room { get; set; }
-        GridPosition Position { get; set; } 
+        GridPosition? Position { get; set; } 
         List<GridPosition> OccupiedSquares { get; set; }
     }
 
