@@ -37,8 +37,8 @@ namespace LoDCompanion.Services.Combat
     {
         private readonly UserRequestService _diceRoll;
 
-        public event Func<Monster, Hero, Task<DefenseResult>> OnEntangleAttack;
-        public event Func<Monster, Hero, Task<AttackResult>> OnKickAttack;
+        public event Func<Monster, Hero, Task<DefenseResult>>? OnEntangleAttack;
+        public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
 
         public MonsterSpecialService(UserRequestService diceRoll)
         {
@@ -338,17 +338,30 @@ namespace LoDCompanion.Services.Combat
         {
             // Find a fallen undead ally
             var fallenUndead = dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
+            var woundedUndead = dungeon.RevealedMonsters
+                                .Where(m => m.IsUndead && m.CurrentHP < m.GetStat(BasicStat.HitPoints))
+                                .OrderBy(m => m.CurrentHP)
+                                .FirstOrDefault();
             if (fallenUndead != null)
             {
-                fallenUndead.CurrentHP = fallenUndead.GetStat(BasicStat.HitPoints);
+                fallenUndead.Heal(fallenUndead.GetStat(BasicStat.HitPoints));
                 return $"{monster.Name} uses its dark power to raise {fallenUndead.Name} from the dead!";
+            }
+            else if (woundedUndead != null)
+            {
+                if (woundedUndead != null)
+                {
+                    int healing = woundedUndead.GetStat(BasicStat.HitPoints) - woundedUndead.CurrentHP;
+                    woundedUndead.Heal(healing);
+                    return $" Dark energy knits the wounds of {woundedUndead.Name}, healing {healing} HP.";
+                }
             }
 
             // If no fallen undead, heal self
             if (monster.CurrentHP < monster.GetStat(BasicStat.HitPoints))
             {
                 int healing = RandomHelper.RollDie(DiceType.D6);
-                monster.CurrentHP = Math.Min(monster.GetStat(BasicStat.HitPoints), monster.CurrentHP + healing);
+                monster.Heal(healing);
                 return $"{monster.Name} drains life force to heal itself for {healing} HP.";
             }
 
