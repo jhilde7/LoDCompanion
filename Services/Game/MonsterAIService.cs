@@ -989,6 +989,13 @@ namespace LoDCompanion.Services.Game
                         }
                         break;
 
+                    case SpecialActiveAbility.SweepingStrike:
+                        if (heroes.Any(h => h.Position != null && DirectionService.IsInZoneOfControl(h.Position, monster)))
+                        {
+                            isUsable = true;
+                        }
+                        break;
+
                     // Default case for abilities that don't have special targeting requirements
                     default:
                         isUsable = true;

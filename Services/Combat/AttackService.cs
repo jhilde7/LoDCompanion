@@ -29,7 +29,6 @@ namespace LoDCompanion.Services.Combat
         private readonly UserRequestService _diceRoll;
         private readonly MonsterSpecialService _monsterSpecial;
 
-
         public AttackService(
             FloatingTextService floatingTextService, 
             UserRequestService diceRollService,
@@ -42,6 +41,7 @@ namespace LoDCompanion.Services.Combat
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
             _monsterSpecial.OnSpitAttack += HandleSpitAttack;
+            _monsterSpecial.OnSweepingStrikeAttack += HanldeSweepingStrikeAttackAsync;
         }
 
         /// <summary>
@@ -496,6 +496,71 @@ namespace LoDCompanion.Services.Combat
                 }
             }
             return result;
+        }
+
+        public async Task<AttackResult> HanldeSweepingStrikeAttackAsync(Monster attacker, List<Hero> heroes, DungeonState dungeon)
+        {
+            var result = new AttackResult();
+            if (attacker.Position == null) return result;
+
+            foreach (var hero in heroes)
+            {
+                if (hero.Position == null) continue;
+                var heroesInZoc = DirectionService.IsInZoneOfControl(attacker.Position, hero);
+                result = CalculateMonsterHitAttempt(attacker, attacker.GetMeleeWeapon(), hero, new CombatContext());
+                
+                // Heroes can attempt to dodge but not parry.
+                var defenseResult = await DefenseService.AttemptDodge(hero, _diceRoll);
+                if (defenseResult.WasSuccessful)
+                {
+                    result.OutcomeMessage += defenseResult.OutcomeMessage + "\n";
+                    continue; // Dodge was successful, no further effects.
+                }
+
+                if (result.IsHit)
+                {
+                    int baseDamage = CalculateMonsterPotentialDamage(attacker);
+                    int potentialDamage = (int)Math.Ceiling(baseDamage/ 2d); // Base damage is halved for sweeping strikes.
+                    
+                    // Calculate pushback position
+                    int dx = hero.Position.X - attacker.Position.X;
+                    int dy = hero.Position.Y - attacker.Position.Y;
+                    var pushbackPosition = new GridPosition(hero.Position.X + Math.Sign(dx), hero.Position.Y + Math.Sign(dy), hero.Position.Z);
+                    var pushbackSquare = GridService.GetSquareAt(pushbackPosition, dungeon.DungeonGrid);
+                    bool isBlocked = pushbackSquare == null || pushbackSquare.MovementBlocked || pushbackSquare.IsOccupied;
+
+                    if (isBlocked)
+                    {
+                        result = await ResolveAttackAgainstHeroAsync(attacker, hero, baseDamage, attacker.GetMeleeWeapon(), new CombatContext());
+                    }
+                    else
+                    {
+                        result = await ResolveAttackAgainstHeroAsync(attacker, hero, potentialDamage, attacker.GetMeleeWeapon(), new CombatContext());
+                    }
+
+                    // DEX test to avoid falling prone
+                    int dexRoll = await _diceRoll.RequestRollAsync($"Roll a DEX test for {hero.Name} to stay standing.", "1d100");
+                    if (dexRoll > hero.GetStat(BasicStat.Dexterity))
+                    {
+                        hero.CombatStance = CombatStance.Prone;
+                        StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1));
+                        result.OutcomeMessage += $"{hero.Name} is knocked off their feet!\n";
+                    }
+                    else
+                    {
+                        result.OutcomeMessage += $"{hero.Name} manages to stay standing.\n";
+                    }
+
+                    if (!isBlocked)
+                    {
+                        GridService.MoveCharacterToPosition(hero, pushbackPosition, dungeon.DungeonGrid);
+                    }
+                }
+                else
+                {
+                    result.OutcomeMessage += $"{attacker.Name}'s sweeping strike misses {hero.Name}.\n";
+                }
+            }
         }
     }
 }

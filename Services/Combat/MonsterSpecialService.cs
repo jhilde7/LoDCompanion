@@ -44,6 +44,7 @@ namespace LoDCompanion.Services.Combat
         public event Func<Monster, Hero, Task<DefenseResult>>? OnSwallowAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
+        public event Func<Monster, List<Hero>, DungeonState, Task<AttackResult>>? OnSweepingStrikeAttack;
 
         public MonsterSpecialService(
             UserRequestService diceRoll, 
@@ -94,12 +95,12 @@ namespace LoDCompanion.Services.Combat
                     return await SeductionAsync(monster, target);
                 case SpecialActiveAbility.SummonChildren:
                     return SummonChildren(monster, dungeon);
-                case SpecialActiveAbility.TongueAttack:
-                    return TongueAttack(monster, heroes);
                 case SpecialActiveAbility.Swallow:
                     return await SwallowAsync(monster, target);
                 case SpecialActiveAbility.SweepingStrike:
-                    return SweepingStrike(monster, heroes);
+                    return await SweepingStrikeAsync(monster, heroes, dungeon);
+                case SpecialActiveAbility.TongueAttack:
+                    return TongueAttack(monster, heroes);
                 default:
                     return $"{monster.Name} attempts an unknown special ability: {abilityType}. Nothing happens.";
             }
@@ -519,16 +520,23 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string SweepingStrike(Monster monster, List<Hero> heroes)
+        public async Task<string> SweepingStrikeAsync(Monster monster, List<Hero> heroes, DungeonState dungeon)
         {
             string outcome = $"{monster.Name} performs a wide sweeping strike!\n";
-            int damage = RandomHelper.GetRandomNumber(1, 8); // Example AOE damage
-            foreach (var hero in heroes)
+            var heroesInZoc = heroes.Where(h => h.Position != null && DirectionService.IsInZoneOfControl(h.Position, monster)).ToList();
+
+            if (!heroesInZoc.Any())
             {
-                hero.TakeDamage(damage);
-                outcome += $"{hero.Name} takes {damage} damage from the sweeping strike.\n";
+                return $"{monster.Name} sweeps its weapon, but no heroes are in its reach.";
             }
-            return outcome;
+
+            if (OnSweepingStrikeAttack != null)
+            {
+                var result = await OnSweepingStrikeAttack.Invoke(monster, heroes, dungeon);
+
+                return outcome;
+            }
+            else return string.Empty; // event is null
         }
 
         public string TongueAttack(Monster monster, List<Hero> heroes)
