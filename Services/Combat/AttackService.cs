@@ -6,6 +6,7 @@ using LoDCompanion.Utilities;
 using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.Game;
 using LoDCompanion.Services.Player;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -39,6 +40,7 @@ namespace LoDCompanion.Services.Combat
             _monsterSpecial = monsterSpecialService;
             
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
+            _monsterSpecial.OnKickAttack += HandleKickAttack;
         }
 
         /// <summary>
@@ -50,7 +52,7 @@ namespace LoDCompanion.Services.Combat
             {
                 context = new CombatContext(); // Standard attack has a default context 
             }
-            return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
+            return await ResolveAttackAsync(attacker, weapon, target, context);
         }
 
         /// <summary>
@@ -62,7 +64,7 @@ namespace LoDCompanion.Services.Combat
             {
                 context = new CombatContext { IsPowerAttack = true };
             }
-            return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
+            return await ResolveAttackAsync(attacker, weapon, target, context);
         }
 
         /// <summary>
@@ -77,38 +79,23 @@ namespace LoDCompanion.Services.Combat
             return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
 
-        public async Task<AttackResult> ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState dungeon)
+        public async Task<AttackResult> ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState? dungeon = null)
         {
             var result = new AttackResult();
 
-            // Calculate To-Hit Chance
-            int baseSkill = (weapon?.IsRanged ?? false) ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
-            int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
-            result.ToHitChance = baseSkill + situationalModifier;
-            if (attacker is Hero)
+            if (attacker is Hero hero)
             {
-                if(weapon == null) 
-                {
-                    result.OutcomeMessage = "The hero does not have a weapon equipped!"; 
-                    return result; 
-                }
-                result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
-                await Task.Yield();
+                result = await CalculateHeroHitAttemptAsync(hero, weapon, (Monster)target, context); 
             }
             else
             {
-                result.AttackRoll = RandomHelper.RollDie(DiceType.D100);
+                result = CalculateMonsterHitAttempt((Monster)attacker, weapon, (Hero)target, context);
             }
 
-            if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
+            if (!result.IsHit)
             {
-                result.IsHit = false;
-                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
-                _floatingText.ShowText("Miss!", target.Position, "miss-toast");
-                return result;
+                return result; // If the attack missed, return early.
             }
-
-            result.IsHit = true;                        
 
             if (target is Hero heroTarget)
             {
@@ -129,7 +116,71 @@ namespace LoDCompanion.Services.Combat
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Character attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState dungeon)
+        /// <summary>
+        /// Calculates if an attack hits its target by performing a to-hit roll.
+        /// </summary>
+        /// <param name="attacker">The hero initiating the attack.</param>
+        /// <param name="weapon">The weapon being used.</param>
+        /// <param name="target">The monster being targeted.</param>
+        /// <param name="context">The context of the combat (e.g., power attack, charge).</param>
+        /// <returns>An AttackResult containing the outcome of the to-hit roll.</returns>
+        public async Task<AttackResult> CalculateHeroHitAttemptAsync(Hero attacker, Weapon? weapon, Monster target, CombatContext context)
+        {
+            var result = new AttackResult();
+
+            int baseSkill = (weapon?.IsRanged ?? false) ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
+            int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
+            result.ToHitChance = baseSkill + situationalModifier;
+
+            result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
+
+            if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
+            {
+                result.IsHit = false;
+                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+                _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+            }
+            else
+            {
+                result.IsHit = true;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calculates if an attack hits its target by performing a to-hit roll.
+        /// </summary>
+        /// <param name="attacker">The monster initiating the attack.</param>
+        /// <param name="weapon">The weapon being used.</param>
+        /// <param name="target">The hero being targeted.</param>
+        /// <param name="context">The context of the combat (e.g., power attack, charge).</param>
+        /// <returns>An AttackResult containing the outcome of the to-hit roll.</returns>
+        public AttackResult CalculateMonsterHitAttempt(Monster attacker, Weapon? weapon, Hero target, CombatContext context)
+        {
+            var result = new AttackResult();
+
+            int baseSkill = (weapon?.IsRanged ?? false) ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
+            int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
+            result.ToHitChance = baseSkill + situationalModifier;
+
+            result.AttackRoll = RandomHelper.RollDie(DiceType.D100);
+
+            if (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance)
+            {
+                result.IsHit = false;
+                result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
+                _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+            }
+            else
+            {
+                result.IsHit = true;
+            }
+
+            return result;
+        }
+
+        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Character attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState? dungeon = null)
         {
             var result = new AttackResult { IsHit = true };
 
@@ -155,7 +206,7 @@ namespace LoDCompanion.Services.Combat
                 _floatingText.ShowText("Blocked!", target.Position, "miss-text");
             }
 
-            if (context.IsChargeAttack)
+            if (context.IsChargeAttack && dungeon != null)
             {
                 result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, dungeon.DungeonGrid);
             }
@@ -163,7 +214,7 @@ namespace LoDCompanion.Services.Combat
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState dungeon)
+        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon)
         {
             var result = new AttackResult { IsHit = true };
             int finalDamage = await CalculateHeroDamageAsync(attacker, target, weapon, context);
@@ -173,7 +224,7 @@ namespace LoDCompanion.Services.Combat
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text");
 
-            if (context.IsChargeAttack)
+            if (context.IsChargeAttack && dungeon != null)
             {
                 result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, dungeon.DungeonGrid);
             }
@@ -257,11 +308,6 @@ namespace LoDCompanion.Services.Combat
         public int CalculateMonsterPotentialDamage(Monster monster)
         {
             return RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage) + monster.GetStat(BasicStat.DamageBonus);
-        }
-
-        public async Task<DefenseResult> HandleEntangleAttempt(Monster attacker, Hero target)
-        {
-            return await ResolveHeroDefenseAsync(target, 0);
         }
 
         private async Task<DefenseResult> ResolveHeroDefenseAsync(Hero target, int incomingDamage)
@@ -410,6 +456,25 @@ namespace LoDCompanion.Services.Combat
             }
 
             return finalDamage;
+        }
+
+        public async Task<DefenseResult> HandleEntangleAttempt(Monster attacker, Hero target)
+        {
+            return await ResolveHeroDefenseAsync(target, 0);
+        }
+
+        public async Task<AttackResult> HandleKickAttack(Monster attacker, Hero target)
+        {
+            var result = new AttackResult();
+            result = CalculateMonsterHitAttempt(attacker, null, target, new CombatContext());
+            if (!result.IsHit)
+            {
+                return result; // If the attack missed, return early.
+            }
+            int damageRoll = RandomHelper.RollDie(DiceType.D10);
+            int totalDamage = damageRoll + 2;
+
+            return await ResolveAttackAgainstHeroAsync(attacker, target, totalDamage, null, new CombatContext());
         }
     }
 }

@@ -43,6 +43,16 @@ namespace LoDCompanion.Services.Game
                 // Store AP before acting to check if an action was taken.
                 int apBeforeAction = monster.CurrentAP;
 
+                // if has Kick then perform during the first action of the monsters turn as a free action
+                if (monster.ActiveAbilities != null && monster.CurrentAP >= 2)
+                {
+                    var kick = monster.ActiveAbilities.FirstOrDefault(s => s == SpecialActiveAbility.Kick);
+                    if (kick == SpecialActiveAbility.Kick)
+                    {
+                        actionResult += await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, heroes[0], kick, _dungeon);
+                    }
+                }
+
                 // The main decision-making hub.
                 actionResult += "\n" + await DecideAndPerformAction(monster, heroes, room);
 

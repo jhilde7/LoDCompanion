@@ -35,8 +35,10 @@ namespace LoDCompanion.Services.Combat
 
     public class MonsterSpecialService
     {
-        public event Func<Monster, Hero, Task<DefenseResult>> OnEntangleAttack;
         private readonly UserRequestService _diceRoll;
+
+        public event Func<Monster, Hero, Task<DefenseResult>> OnEntangleAttack;
+        public event Func<Monster, Hero, Task<AttackResult>> OnKickAttack;
 
         public MonsterSpecialService(UserRequestService diceRoll)
         {
@@ -70,6 +72,8 @@ namespace LoDCompanion.Services.Combat
                     return await FireBreathAsync(monster, target, heroes, dungeon);
                 case SpecialActiveAbility.GhostlyHowl:
                     return await GhostlyHowlAsync(monster, heroes);
+                case SpecialActiveAbility.Kick:
+                    return await KickAsync(monster, heroes);
                 case SpecialActiveAbility.MasterOfTheDead:
                     return MasterOfTheDead(monster, heroes);
                 case SpecialActiveAbility.MultipleAttack:
@@ -305,18 +309,29 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string Kick(Monster monster, List<Hero> heroes)
+        public async Task<string> KickAsync(Monster monster, List<Hero> heroes)
         {
-            string outcome = $"{monster.Name} attempts a powerful kick!\n";
-            if (heroes.Count > 0)
+            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1 && h.CombatStance != CombatStance.Prone).ToList();
+            var heroesBehind = adjacentHeroes.Where(h =>
             {
-                var target = heroes[0]; // Assume single target for now, or pick nearest
-                int damage = RandomHelper.GetRandomNumber(1, 6); // Example kick damage
-                target.TakeDamage(damage);
-                outcome += $"{target.Name} is kicked for {damage} damage.\n";
-                // Add a chance to knock down, etc. based on original logic
+                var relativeDir = DirectionService.GetRelativeDirection(monster.Facing, monster.Position, h.Position);
+                return relativeDir == RelativeDirection.Back || relativeDir == RelativeDirection.BackLeft || relativeDir == RelativeDirection.BackRight;
+            }).ToList();
+
+            if (heroesBehind.Any())
+            {
+                string outcome = $"{monster.Name} attempts a powerful kick!\n";
+                var kickTarget = heroesBehind[RandomHelper.GetRandomNumber(0, heroesBehind.Count - 1)]; // Select a random hero from those behind
+                var result = await OnKickAttack.Invoke(monster, kickTarget);
+
+                outcome += $"{monster.Name} kicks {kickTarget.Name} from behind for {result.DamageDealt} damage.\n";
+
+                return outcome;
             }
-            return outcome;
+            else
+            {
+                return string.Empty; // No heroes behind to kick
+            }
         }
 
         public string MasterOfTheDead(Monster monster, List<Hero> heroes)
