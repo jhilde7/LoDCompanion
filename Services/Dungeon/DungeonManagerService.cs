@@ -224,7 +224,7 @@ namespace LoDCompanion.Services.Dungeon
         {
             if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null)
             {
-                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.RoomName ?? string.Empty);
+                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);

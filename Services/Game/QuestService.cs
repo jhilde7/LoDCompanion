@@ -93,7 +93,7 @@ namespace LoDCompanion.Services.Game
             if (ActiveQuest == null || IsObjectiveComplete) return;
 
             // Example objective: Check if the party is in the objective room.
-            if (dungeonState.CurrentRoom?.RoomName == ActiveQuest.ObjectiveRoom?.Name)
+            if (dungeonState.CurrentRoom?.Name == ActiveQuest.ObjectiveRoom?.Name)
             {
                 // A more complex quest might require a specific monster to be defeated
                 // or an item to be in the party's inventory.

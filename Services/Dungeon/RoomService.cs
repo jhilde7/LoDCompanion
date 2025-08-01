@@ -30,7 +30,7 @@ namespace LoDCompanion.Services.Dungeon
         public Room InitializeRoomData(RoomInfo roomInfo, Room room)
         {
             // Basic Information
-            room.RoomName = roomInfo.Name ?? string.Empty;
+            room.Name = roomInfo.Name ?? string.Empty;
             room.Category = roomInfo.Category;
             room.Description = roomInfo.Description ?? string.Empty;
             room.SpecialRules = roomInfo.SpecialRules ?? string.Empty;

@@ -17,7 +17,7 @@ namespace LoDCompanion.Services.Dungeon
             Room room = new Room();
             RoomInfo roomDefinition = _roomService.GetRoomByName(roomName);
             _roomService.InitializeRoomData(roomDefinition, room);
-            room.RoomName = roomName;
+            room.Name = roomName;
 
             GridService.GenerateGridForRoom(room);
 

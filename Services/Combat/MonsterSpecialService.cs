@@ -5,6 +5,8 @@ using LoDCompanion.Services.GameData;
 using System;
 using LoDCompanion.Services.Dungeon;
 using System.Threading.Tasks;
+using LoDCompanion.Models.Dungeon;
+using System.Xml.Linq;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -45,14 +47,14 @@ namespace LoDCompanion.Services.Combat
         /// <param name="heroes">The list of heroes targeted by the action.</param>
         /// <param name="abilityType">The type of special ability to execute (e.g., "Bellow", "FireBreath").</param>
         /// <returns>A string describing the outcome of the special action.</returns>
-        public async Task<string> ExecuteSpecialAbilityAsync(Monster monster, List<Hero> heroes, Hero target, SpecialActiveAbility abilityType)
+        public async Task<string> ExecuteSpecialAbilityAsync(Monster monster, List<Hero> heroes, Hero target, SpecialActiveAbility abilityType, DungeonState dungeon)
         {
             switch (abilityType)
             {
                 case SpecialActiveAbility.Bellow:
                     return await Bellow(monster, heroes);
                 case SpecialActiveAbility.Camouflage:
-                    return Camouflage(monster, heroes);
+                    return Camouflage(monster, heroes, dungeon);
                 case SpecialActiveAbility.Entangle:
                     return Entangle(monster, heroes);
                 case SpecialActiveAbility.FireBreath:
@@ -112,10 +114,102 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        private string Camouflage(Monster monster, List<Hero> heroes)
+        private string Camouflage(Monster monster, List<Hero> heroes, DungeonState dungeon)
         {
-            //TODO
-            throw new NotImplementedException();
+            var allRooms = dungeon.RoomsInDungeon;
+            var heroRooms = new HashSet<Room>();
+            foreach (var hero in heroes)
+            {
+                if (hero.Room != null)
+                {
+                    heroRooms.Add(hero.Room);
+                }
+            }
+
+            if (!heroRooms.Any())
+            {
+                return $"{monster.Name} tries to camouflage, but there's nowhere to hide!";
+            }
+
+            var adjacentRooms = new HashSet<Room>();
+            foreach (var room in heroRooms)
+            {
+                foreach (var door in room.Doors)
+                {
+                    adjacentRooms.UnionWith(door.ConnectedRooms);
+                }
+            }
+
+            var potentialTiles = heroRooms.Union(adjacentRooms).ToList();
+            potentialTiles.Remove(monster.Room); // Can't reappear in the same room it vanished from
+
+            if (!potentialTiles.Any())
+            {
+                return $"{monster.Name} finds no suitable place to reappear.";
+            }
+
+            potentialTiles.Shuffle();
+            Room targetRoom = potentialTiles.First();
+
+            // Find a valid, empty square in the target room.
+            // This assumes a helper method to get all valid squares.
+            var validSquares = GridService.GetAllWalkableSquares(targetRoom, monster, dungeon.DungeonGrid);
+            if (!validSquares.Any())
+            {
+                return $"{monster.Name} couldn't find an empty space to reappear in {targetRoom.Name}.";
+            }
+
+            GridPosition? newPosition = null;
+
+            if (targetRoom.HeroesInRoom != null && !targetRoom.HeroesInRoom.Any())
+            {
+                // If the room has no heroes, find the spot with the best line of sight.
+                int maxLosCount = -1;
+                foreach (var square in validSquares)
+                {
+                    int currentLosCount = 0;
+                    foreach (var hero in heroes)
+                    {
+                        if (GridService.HasLineOfSight(square, hero.Position, dungeon.DungeonGrid).CanShoot)
+                        {
+                            currentLosCount++;
+                        }
+                    }
+                    if (currentLosCount > maxLosCount)
+                    {
+                        maxLosCount = currentLosCount;
+                        newPosition = square;
+                    }
+                }
+            }
+            else
+            {
+                // If there are heroes, just pick a random valid square.
+                newPosition = validSquares[RandomHelper.GetRandomNumber(0, validSquares.Count - 1)];
+            }
+
+            if (newPosition != null)
+            {
+                // Remove the monster from its current location
+                var oldSquare = GridService.GetSquareAt(monster.Position, dungeon.DungeonGrid);
+                if (oldSquare != null)
+                {
+                    oldSquare.OccupyingCharacterId = null;
+                }
+
+                // Place the monster in the new location
+                monster.Position = newPosition;
+                monster.Room = targetRoom;
+                var newSquare = GridService.GetSquareAt(newPosition, dungeon.DungeonGrid);
+                if (newSquare != null)
+                {
+                    newSquare.OccupyingCharacterId = monster.Id;
+                }
+
+                return $"{monster.Name} vanishes into the shadows and reappears in {targetRoom.Name}!";
+            }
+
+            return $"{monster.Name} tries to camouflage but fails.";
         }
 
         private string Entangle(Monster monster, List<Hero> heroes)
