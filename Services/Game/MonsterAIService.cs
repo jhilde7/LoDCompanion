@@ -249,24 +249,19 @@ namespace LoDCompanion.Services.Game
                     }
                     else
                     {
-                        List<SpecialActiveAbility> specialAttacks = _monsterSpecial.GetSpecialAttacks(monster.SpecialRules);
-                        if (specialAttacks.Count > 0)
+                        List<SpecialActiveAbility>? specialAttacks = monster.ActiveAbilities;
+                        string? specialAbilityMessage = null;
+                        if (specialAttacks != null && specialAttacks.Count > 0)
                         {
-                            specialAttacks.Shuffle();
-                            attackResult = new AttackResult()
-                            {
-                                OutcomeMessage = $"{monster.Name} uses {specialAttacks[0].ToString()}" +
-                                    await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon)
-                            };
+                            specialAbilityMessage = await AttemptSpecialAbility(monster, heroes, target, specialAttacks);
 
-                            if (attackResult.OutcomeMessage.ToLower().Contains("performs a standard attack"))
+                            if (specialAbilityMessage != null)
                             {
-                                return attackResult.OutcomeMessage +
-                                        await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
+                                return specialAbilityMessage;
                             }
-                            else return attackResult.OutcomeMessage;
                         }
-                        else if (monster.CombatStance == CombatStance.Aiming)
+
+                        if (monster.CombatStance == CombatStance.Aiming)
                         {
                             return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttackWhileAiming, target);
                         }
@@ -411,30 +406,22 @@ namespace LoDCompanion.Services.Game
             }
             else
             {
-                List<SpecialActiveAbility> specialAttacks = _monsterSpecial.GetSpecialAttacks(monster.SpecialRules);
-                if (specialAttacks.Count > 0)
+                List<SpecialActiveAbility>? specialAttacks = monster.ActiveAbilities;
+                string? specialAbilityMessage = null;
+                if (specialAttacks != null && specialAttacks.Count > 0)
                 {
-                    specialAttacks.Shuffle();
-                    var attackResult = new AttackResult()
-                    {
-                        OutcomeMessage = $"{monster.Name} uses {specialAttacks[0].ToString()}" +
-                            await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon)                        
-                    };
+                    specialAbilityMessage = await AttemptSpecialAbility(monster, heroes, target, specialAttacks);
 
-                    if (attackResult.OutcomeMessage.ToLower().Contains("performs a standard attack"))
+                    if (specialAbilityMessage != null)
                     {
                         return new AttackResult()
                         {
-                            OutcomeMessage = attackResult.OutcomeMessage + 
-                                await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target)
-                        };                        
+                            OutcomeMessage = specialAbilityMessage
+                        };
                     }
-                    else return attackResult;
                 }
-                else
-                {
-                    return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
-                }
+                // If no special ability was used, perform a standard attack.
+                return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
             }
         }
 
@@ -927,6 +914,76 @@ namespace LoDCompanion.Services.Game
             }
 
             return (bestAoECenter, maxHeroesHit);
+        }
+
+        /// <summary>
+        /// Attempts to use a random special ability if conditions are met. Otherwise, performs a standard or aimed attack.
+        /// </summary>
+        private async Task<string?> AttemptSpecialAbility(Monster monster, List<Hero> heroes, Hero target, List<SpecialActiveAbility> specialAttacks)
+        {
+            specialAttacks.Shuffle();
+
+            foreach (var ability in specialAttacks)
+            {
+                Hero? currentTarget = target; // Use a temporary target for each ability check
+                bool isUsable = false;
+
+                switch (ability)
+                {
+                    case SpecialActiveAbility.PoisonSpit:
+                        var availableTargets = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 2).ToList();
+                        if (availableTargets.Contains(currentTarget) || availableTargets.Any())
+                        {
+                            if (!availableTargets.Contains(currentTarget))
+                            {
+                                // If the initial target isn't valid, find a new one
+                                currentTarget = ChooseTarget(monster, availableTargets, isRanged: true);
+                            }
+
+                            if (currentTarget != null)
+                            {
+                                isUsable = true;
+                            }
+                        }
+                        break;
+
+                    case SpecialActiveAbility.Seduction:
+                        var seducibleTargets = heroes.Where(h => !h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Incapacitated)).ToList();
+                        if (seducibleTargets.Any())
+                        {
+                            currentTarget = ChooseTarget(monster, seducibleTargets);
+                            if (currentTarget != null)
+                            {
+                                isUsable = true;
+                            }
+                        }
+                        break;
+
+                    // Default case for abilities that don't have special targeting requirements
+                    default:
+                        isUsable = true;
+                        break;
+                }
+
+                if (isUsable && currentTarget != null)
+                {
+                    // Found a usable special ability and target, execute it and return the result.
+                    string abilityResult = await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, currentTarget, ability, _dungeon);
+
+                    if (abilityResult.ToLower().Contains("performs a standard attack"))
+                    {
+                        // Handle cases where the special ability defaults to a standard attack
+                        return abilityResult + await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, currentTarget);
+                    }
+                    return abilityResult;
+                }
+                else
+                {
+                    // If the ability is not usable, continue to the next one.
+                    continue;
+                }
+            }
+            return null;
         }
     }
 }
