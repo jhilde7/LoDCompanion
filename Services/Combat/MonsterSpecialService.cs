@@ -7,6 +7,7 @@ using LoDCompanion.Services.Dungeon;
 using System.Threading.Tasks;
 using LoDCompanion.Models.Dungeon;
 using System.Xml.Linq;
+using System.Text;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -60,13 +61,13 @@ namespace LoDCompanion.Services.Combat
             {
                 case SpecialActiveAbility.Bellow:
                 case SpecialActiveAbility.FreeBellow:
-                    return await Bellow(monster, heroes);
+                    return await BellowAsync(monster, heroes);
                 case SpecialActiveAbility.Camouflage:
                     return Camouflage(monster, heroes, dungeon);
                 case SpecialActiveAbility.Entangle:
                     return await EntangleAsync(monster, target);
                 case SpecialActiveAbility.FireBreath:
-                    return FireBreath(monster, heroes);
+                    return await FireBreathAsync(monster, target, heroes, dungeon);
                 case SpecialActiveAbility.GhostlyHowl:
                     return GhostlyHowl(monster, heroes);
                 case SpecialActiveAbility.MasterOfTheDead:
@@ -100,7 +101,7 @@ namespace LoDCompanion.Services.Combat
 
         // --- Individual Special Ability Implementations ---
 
-        public async Task<string> Bellow(Monster monster, List<Hero> heroes)
+        public async Task<string> BellowAsync(Monster monster, List<Hero> heroes)
         {
             string outcome = $"{monster.Name} lets out a thunderous bellow!\n";
             foreach (var hero in heroes)
@@ -239,16 +240,48 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string FireBreath(Monster monster, List<Hero> heroes)
+        public async Task<string> FireBreathAsync(Monster monster, Hero target, List<Hero> allHeroes, DungeonState dungeon)
         {
-            string outcome = $"{monster.Name} unleashes a cone of fiery breath!\n";
-            int damage = RandomHelper.GetRandomNumber(1, 6) + RandomHelper.GetRandomNumber(1, 6); // Example damage
-            foreach (var hero in heroes)
+            if (!target.HasDodgedThisBattle)
             {
-                hero.TakeDamage(damage);
-                outcome += $"{hero.Name} takes {damage} fire damage.\n";
+                var defenseResult = await DefenseService.AttemptDodge(target, _diceRoll);
+                if (defenseResult.WasSuccessful)
+                {
+                    return $"{monster.Name} unleashes a cone of fiery breath, but {target.Name} dives out of the way!";
+                } 
             }
-            return outcome;
+
+            var outcome = new StringBuilder($"{monster.Name} unleashes a cone of fiery breath!\n");
+
+            // Apply primary damage to the main target
+            int primaryDamage = RandomHelper.RollDie(DiceType.D10);
+            target.TakeDamage(primaryDamage, DamageType.Fire);
+            outcome.AppendLine($"{target.Name} is caught in the blast and takes {primaryDamage} fire damage.");
+
+            // Find adjacent squares
+            var adjacentSquares = GridService.GetNeighbors(target.Position, dungeon.DungeonGrid);
+            var allCharacters = new List<Character>(allHeroes);
+            if (dungeon.CurrentRoom?.MonstersInRoom != null)
+            {
+                allCharacters.AddRange(dungeon.CurrentRoom.MonstersInRoom);
+            }
+
+
+            // Find and damage characters in adjacent squares
+            foreach (var character in allCharacters)
+            {
+                // Skip the primary target and the caster
+                if (character == target || character == monster) continue;
+
+                if (adjacentSquares.Contains(character.Position))
+                {
+                    int splashDamage = RandomHelper.RollDie(DiceType.D6);
+                    character.TakeDamage(splashDamage, DamageType.Fire);
+                    outcome.AppendLine($"{character.Name} is caught in the splash and takes {splashDamage} fire damage.");
+                }
+            }
+
+            return outcome.ToString();
         }
 
         public string GhostlyHowl(Monster monster, List<Hero> heroes)
