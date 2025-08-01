@@ -248,6 +248,15 @@ namespace LoDCompanion.Models.Character
             }
         }
 
+        public void Heal(int amount)
+        {
+            CurrentHP += amount;
+            if (CurrentHP > GetStat(BasicStat.HitPoints))
+            {
+                CurrentHP = GetStat(BasicStat.HitPoints);
+            }
+        }
+
         /// <summary>
         /// Handles the character's death, raising the OnDeath event.
         /// </summary>
@@ -613,7 +622,6 @@ namespace LoDCompanion.Models.Character
             newMonster.ArmourValue = ArmourValue;
             newMonster.MinDamage = MinDamage;
             newMonster.MaxDamage = MaxDamage;
-            newMonster.HasSpecialAttack = HasSpecialAttack;
             newMonster.ToHitPenalty = ToHitPenalty;
             newMonster.XP = XP;
             newMonster.Behavior = Behavior;
