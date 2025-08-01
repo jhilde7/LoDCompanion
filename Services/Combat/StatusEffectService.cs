@@ -264,6 +264,44 @@ namespace LoDCompanion.Services.Combat
                             }
                         }
                         break;
+
+                    case StatusEffectType.Swallowed:
+                        character.CurrentAP = 0; // No actions while swallowed
+                        break;
+
+                    case StatusEffectType.BeingSwallowed:
+                        // First STR test
+                        if (effect.Duration > 0)
+                        {
+                            int strTest1 = await new UserRequestService().RequestRollAsync($"Attempt to break free.", "1d100");
+                            if (strTest1 <= character.GetStat(BasicStat.Strength))
+                            {
+                                character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                                Console.WriteLine($"{character.Name} breaks free from the creature's grasp!");
+                                break;
+                            } 
+                            Console.WriteLine($"{character.Name} struggles but can't break free!\n");
+                            character.CurrentAP = 0;
+                            break;
+                        }
+                        // Second STR test at half strength
+                        else if (effect.Duration == 0)
+                        {
+                            int strTest2 = await new UserRequestService().RequestRollAsync($"Last attempt to break free!", "1d100");
+                            if (strTest2 <= character.GetStat(BasicStat.Strength) / 2)
+                            {
+                                character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                                Console.WriteLine($"{character.Name} makes a last-ditch effort and escapes!");
+                                break;
+                            } 
+                            // Swallowed whole
+                            character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                            character.Position = null;
+                            character.CurrentAP = 0;
+                            StatusEffectService.AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Swallowed, -1));
+                            Console.WriteLine($"{character.Name} is swallowed whole!");
+                        }
+                        break;
                 }
 
                 // Decrease duration and remove if expired.

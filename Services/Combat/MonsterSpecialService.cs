@@ -41,6 +41,7 @@ namespace LoDCompanion.Services.Combat
         private readonly InitiativeService _initiative;
 
         public event Func<Monster, Hero, Task<DefenseResult>>? OnEntangleAttack;
+        public event Func<Monster, Hero, Task<DefenseResult>>? OnSwallowAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
 
@@ -96,7 +97,7 @@ namespace LoDCompanion.Services.Combat
                 case SpecialActiveAbility.TongueAttack:
                     return TongueAttack(monster, heroes);
                 case SpecialActiveAbility.Swallow:
-                    return Swallow(monster, target);
+                    return await SwallowAsync(monster, target);
                 case SpecialActiveAbility.SweepingStrike:
                     return SweepingStrike(monster, heroes);
                 default:
@@ -111,7 +112,7 @@ namespace LoDCompanion.Services.Combat
             string outcome = $"{monster.Name} lets out a thunderous bellow!\n";
             foreach (var hero in heroes)
             {
-                if (GridService.GetDistance(monster.Position, hero.Position) <= 4)
+                if (monster.Position != null && hero.Position != null && GridService.GetDistance(monster.Position, hero.Position) <= 4)
                 {
                     int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
                     if (resolveRoll > hero.GetStat(BasicStat.Resolve))
@@ -184,7 +185,7 @@ namespace LoDCompanion.Services.Combat
                     int currentLosCount = 0;
                     foreach (var hero in heroes)
                     {
-                        if (GridService.HasLineOfSight(square, hero.Position, dungeon.DungeonGrid).CanShoot)
+                        if (hero.Position != null && GridService.HasLineOfSight(square, hero.Position, dungeon.DungeonGrid).CanShoot)
                         {
                             currentLosCount++;
                         }
@@ -202,7 +203,7 @@ namespace LoDCompanion.Services.Combat
                 newPosition = validSquares[RandomHelper.GetRandomNumber(0, validSquares.Count - 1)];
             }
 
-            if (newPosition != null)
+            if (newPosition != null && monster.Position != null)
             {
                 // Remove the monster from its current location
                 var oldSquare = GridService.GetSquareAt(monster.Position, dungeon.DungeonGrid);
@@ -247,6 +248,7 @@ namespace LoDCompanion.Services.Combat
 
         public async Task<string> FireBreathAsync(Monster monster, Hero target, List<Hero> allHeroes, DungeonState dungeon)
         {
+            if (target.Position == null) return string.Empty;
             if (!target.HasDodgedThisBattle)
             {
                 var defenseResult = await DefenseService.AttemptDodge(target, _diceRoll);
@@ -312,11 +314,16 @@ namespace LoDCompanion.Services.Combat
 
         public async Task<string> KickAsync(Monster monster, List<Hero> heroes)
         {
-            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1 && h.CombatStance != CombatStance.Prone).ToList();
-            var heroesBehind = adjacentHeroes.Where(h =>
+            if (monster.Position == null) return string.Empty;
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1 && h.CombatStance != CombatStance.Prone).ToList();
+            var heroesBehind = adjacentHeroes.Where(h => 
             {
-                var relativeDir = DirectionService.GetRelativeDirection(monster.Facing, monster.Position, h.Position);
-                return relativeDir == RelativeDirection.Back || relativeDir == RelativeDirection.BackLeft || relativeDir == RelativeDirection.BackRight;
+                if (h.Position != null)
+                {
+                    var relativeDir = DirectionService.GetRelativeDirection(monster.Facing, monster.Position, h.Position);
+                    return relativeDir == RelativeDirection.Back || relativeDir == RelativeDirection.BackLeft || relativeDir == RelativeDirection.BackRight; 
+                }
+                else return false; // Skip heroes without a position
             }).ToList();
 
             if (heroesBehind.Any())
@@ -372,9 +379,10 @@ namespace LoDCompanion.Services.Combat
 
         public async Task<string> PetrifyAsync(Monster monster, List<Hero> heroes)
         {
+            if(monster.Position == null) return string.Empty; // Ensure monster has a position
             string outcome = $"{monster.Name} attempts to turn its targets to stone!\n";
 
-            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
 
             if (adjacentHeroes.Any())
             {
@@ -492,9 +500,23 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string Swallow(Monster monster, Hero target)
+        public async Task<string> SwallowAsync(Monster monster, Hero target)
         {
-            return string.Empty;
+            string outcome = $"{monster.Name} attempts to swallow {target.Name} whole!\n";
+
+            if(OnSwallowAttack != null)
+            {
+                var defenseResult = await OnSwallowAttack.Invoke(monster, target);
+                if (defenseResult.WasSuccessful)
+                {
+                    return outcome + $"{target.Name} dodges the attempt to be swallowed!";
+                }
+            }
+
+            outcome += $"{target.Name} is caught!\n";
+            StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.BeingSwallowed, 2));
+
+            return outcome;
         }
 
         public string SweepingStrike(Monster monster, List<Hero> heroes)

@@ -7,6 +7,7 @@ using LoDCompanion.Services.Dungeon;
 using LoDCompanion.Services.GameData;
 using LoDCompanion.Services.Player;
 using LoDCompanion.Utilities;
+using System.Threading;
 
 namespace LoDCompanion.Services.Game
 {
@@ -103,6 +104,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> ExecuteAggressiveMeleeBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
+            if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
@@ -126,6 +128,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> ExecuteLowerUndeadBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
+            if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
@@ -142,6 +145,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> ExecuteHumanoidMeleeBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
+            if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
@@ -176,6 +180,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> ExecuteRangedBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
+            if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
             Dictionary<Hero, int> distances = new Dictionary<Hero, int>();
@@ -184,7 +189,10 @@ namespace LoDCompanion.Services.Game
 
             foreach (Hero hero in heroes)
             {
-                distances.TryAdd(hero, GridService.GetDistance(monster.Position, hero.Position)); 
+                if (hero.Position != null)
+                {
+                    distances.TryAdd(hero, GridService.GetDistance(monster.Position, hero.Position));  
+                }
             }
 
             if (monster.Weapons.FirstOrDefault(w => w.IsRanged) is RangedWeapon weapon)
@@ -198,7 +206,7 @@ namespace LoDCompanion.Services.Game
                     }
                     else
                     {
-                        if (GridService.GetDistance(monster.Position, target.Position) <= 1)
+                        if (target.Position != null && GridService.GetDistance(monster.Position, target.Position) <= 1)
                         {
                             attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                             return attackResult.OutcomeMessage;
@@ -280,9 +288,10 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> ExecuteMagicUserBehaviorAsync(Monster monster, Hero? target, List<Hero> heroes, Room room)
         {
+            if (monster.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
-            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
-            var losHeroes = heroes.Where(h => GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
+            var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
             int roll = RandomHelper.RollDie(DiceType.D6);
             Dictionary<MonsterSpell, GridPosition>? spellChoice = null;
@@ -301,7 +310,7 @@ namespace LoDCompanion.Services.Game
                         }
                         else
                         {
-                            if (GridService.GetDistance(monster.Position, target.Position) <= 1)
+                            if (target.Position != null && GridService.GetDistance(monster.Position, target.Position) <= 1)
                             {
                                 attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                                 return attackResult.OutcomeMessage;
@@ -427,6 +436,7 @@ namespace LoDCompanion.Services.Game
 
         private string EndTurnFacing(Monster monster, List<Hero> heroes)
         {
+            if (monster.Position == null) return string.Empty;
             var aliveHeroes = heroes.Where(h => h.CurrentHP > 0).ToList();
             if (!aliveHeroes.Any())
             {
@@ -440,6 +450,7 @@ namespace LoDCompanion.Services.Game
                 int totalThreatScore = 0;
                 foreach (var hero in aliveHeroes)
                 {
+                    if (hero.Position == null) continue;
                     RelativeDirection relativeDir = DirectionService.GetRelativeDirection(potentialFacing, monster.Position, hero.Position);
                     bool isAdjacent = GridService.GetDistance(monster.Position, hero.Position) <= 1;
 
@@ -541,6 +552,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<bool> MoveAwayFromAsync(Monster monster, Hero target)
         {
+            if (monster.Position == null || target.Position == null) return false;
             var allReachableSquares = GridService.GetAllWalkableSquares(monster.Room, monster, _dungeon.DungeonGrid);
 
             if (!allReachableSquares.Any())
@@ -583,6 +595,7 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> MoveToGetLineOfSightAsync(Monster monster, Hero target)
         {
+            if (monster.Position == null || target.Position == null) return string.Empty;
             var allReachableSquares = GridService.GetAllWalkableSquares(monster.Room, monster, _dungeon.DungeonGrid);
 
             var squaresWithLOS = allReachableSquares
@@ -705,10 +718,11 @@ namespace LoDCompanion.Services.Game
         /// </summary>
         public Dictionary<MonsterSpell, GridPosition>? ChooseBestSpellAndTarget(Monster caster, List<Hero> heroes, List<Monster> allies, MonsterSpellType spellType)
         {
+            if (caster.Position == null) return null;
             var choices = new List<SpellChoice>();
-            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
-            var adjacentAllies = _dungeon.RevealedMonsters.Where(h => GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
-            var losHeroes = heroes.Where(h => GridService.HasLineOfSight(caster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
+            var adjacentAllies = _dungeon.RevealedMonsters.Where(h => h.Position != null && GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
+            var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(caster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
             foreach (var spell in caster.Spells.Where(s => s.Type == spellType))
             {
@@ -870,13 +884,16 @@ namespace LoDCompanion.Services.Game
             HashSet<GridPosition> potentialCenterSquares = new HashSet<GridPosition>();
             foreach (var hero in heroes)
             {
-                potentialCenterSquares.Add(hero.Position);
-                foreach (var occupiedSquare in hero.OccupiedSquares)
+                if (hero.Position != null)
                 {
-                    potentialCenterSquares.Add(occupiedSquare);
+                    potentialCenterSquares.Add(hero.Position);
+                    foreach (var occupiedSquare in hero.OccupiedSquares)
+                    {
+                        potentialCenterSquares.Add(occupiedSquare);
+                    }
+                    // Also consider squares around heroes that might be good centers
+                    potentialCenterSquares.UnionWith(GridService.GetNeighbors(hero.Position, _dungeon.DungeonGrid)); 
                 }
-                // Also consider squares around heroes that might be good centers
-                potentialCenterSquares.UnionWith(GridService.GetNeighbors(hero.Position, _dungeon.DungeonGrid));
             }
 
 
@@ -921,6 +938,7 @@ namespace LoDCompanion.Services.Game
         /// </summary>
         private async Task<string?> AttemptSpecialAbility(Monster monster, List<Hero> heroes, Hero target, List<SpecialActiveAbility> specialAttacks)
         {
+            if(monster.Position == null) return null;
             specialAttacks.Shuffle();
 
             foreach (var ability in specialAttacks)
@@ -931,7 +949,7 @@ namespace LoDCompanion.Services.Game
                 switch (ability)
                 {
                     case SpecialActiveAbility.PoisonSpit:
-                        var availableTargets = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 2).ToList();
+                        var availableTargets = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 2).ToList();
                         if (availableTargets.Contains(currentTarget) || availableTargets.Any())
                         {
                             if (!availableTargets.Contains(currentTarget))
@@ -952,6 +970,18 @@ namespace LoDCompanion.Services.Game
                         if (seducibleTargets.Any())
                         {
                             currentTarget = ChooseTarget(monster, seducibleTargets);
+                            if (currentTarget != null)
+                            {
+                                isUsable = true;
+                            }
+                        }
+                        break;
+
+                    case SpecialActiveAbility.Swallow:
+                        var swallowTargets = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1 && !h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.BeingSwallowed || e.Category == StatusEffectType.Swallowed)).ToList();
+                        if (swallowTargets.Any())
+                        {
+                            currentTarget = ChooseTarget(monster, swallowTargets);
                             if (currentTarget != null)
                             {
                                 isUsable = true;
