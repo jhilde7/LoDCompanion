@@ -425,47 +425,26 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string Regenerate(Monster monster, List<Hero> heroes)
+        public async Task<string> SeductionAsync(Monster monster, Hero target)
         {
-            int regenAmount = RandomHelper.GetRandomNumber(1, 6); // Example regeneration amount
-            monster.CurrentHP += regenAmount;
-            if (monster.CurrentHP > monster.GetStat(BasicStat.HitPoints)) monster.CurrentHP = monster.GetStat(BasicStat.HitPoints);
-            return $"{monster.Name} regenerates {regenAmount} HP!\n";
-        }
+            string outcome = $"{monster.Name} attempts to seduce {target.Name}!\n";
 
-        public string RiddleMaster(Monster monster, List<Hero> heroes)
-        {
-            string outcome = $"{monster.Name} poses a perplexing riddle!\n";
-            // This would typically involve a UI interaction and a wisdom/intellect check.
-            // For now, a placeholder.
-            outcome += "The heroes must answer correctly or face consequences...\n";
-            return outcome;
-        }
+            // The hero must make a RES test.
+            outcome += "Roll a resolve test to resist the effects.";
+            int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
 
-        public string Seduction(Monster monster, List<Hero> heroes)
-        {
-            string outcome = $"{monster.Name} attempts to charm a hero!\n";
-            foreach (var hero in heroes)
+            if (resolveRoll > target.GetStat(BasicStat.Resolve))
             {
-                int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < hero.GetStat(BasicStat.Resolve)) // Example: Resolve check to resist charm
-                {
-                    //hero.ActiveStatusEffect.Add("Charmed"); // Or some other effect
-                    outcome += $"{hero.Name} is charmed by {monster.Name}!\n";
-                }
-                else
-                {
-                    outcome += $"{hero.Name} resists the charm.\n";
-                }
+                // On failure, the hero is incapacitated.
+                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, -1)); // -1 for indefinite duration until saved.
+                outcome += $"{target.Name} is seduced by {monster.Name} and is incapacitated, losing all AP!\n";
             }
-            return outcome;
-        }
+            else
+            {
+                outcome += $"{target.Name} resists the seduction.\n";
+            }
 
-        public string Stupid(Monster monster, List<Hero> heroes)
-        {
-            // This typically implies a debuff on the monster, or a special action that fails.
-            // If it's a monster's "action", it usually means they do nothing or a simple attack.
-            return $"{monster.Name} stares blankly. It's too stupid to do anything complex this turn, simply attacks if able.\n";
+            return outcome;
         }
 
         public string SummonChildren(Monster monster, List<Hero> heroes)
@@ -521,66 +500,6 @@ namespace LoDCompanion.Services.Combat
                 outcome += $"{hero.Name} takes {damage} damage from the sweeping strike.\n";
             }
             return outcome;
-        }
-
-        public string ApplyFear(Monster monster, List<Hero> heroes)
-        {
-            string outcome = $"{monster.Name} emanates an aura of fear!\n";
-            int fearLevel = 1; // Default, or get from monster.FearLevel property
-            foreach (var hero in heroes)
-            {
-                int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < (hero.GetStat(BasicStat.Resolve) - fearLevel)) // Example: Resolve vs. FearLevel
-                {
-                    StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Fear, -1));
-                    outcome += $"{hero.Name} is gripped by fear!\n";
-                }
-                else
-                {
-                    outcome += $"{hero.Name} resists the fear.\n";
-                }
-            }
-            return outcome;
-        }
-
-        public string ApplyTerror(Monster monster, List<Hero> heroes)
-        {
-            string outcome = $"{monster.Name} inspires abject terror!\n";
-            int terrorLevel = 2; // Default, or get from monster.TerrorLevel property
-            foreach (var hero in heroes)
-            {
-                int resolveRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (resolveRoll < (hero.GetStat(BasicStat.Resolve) - terrorLevel)) // Example: Resolve vs. TerrorLevel
-                {
-                    StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Terror, -1));
-                    outcome += $"{hero.Name} is terrified and tries to flee!\n";
-                }
-                else
-                {
-                    outcome += $"{hero.Name} manages to overcome the terror.\n";
-                }
-            }
-            return outcome;
-        }
-
-        internal List<SpecialActiveAbility> GetSpecialAttacks(List<string> specialRules)
-        {
-            var activeAbilities = new List<SpecialActiveAbility>();
-
-            if (specialRules == null)
-            {
-                return activeAbilities;
-            }
-
-            foreach (string ruleString in specialRules)
-            {
-                if (Enum.TryParse<SpecialActiveAbility>(ruleString, true, out var ability))
-                {
-                    activeAbilities.Add(ability);
-                }
-            }
-
-            return activeAbilities;
         }
     }
 }
