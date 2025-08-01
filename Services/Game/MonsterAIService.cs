@@ -253,8 +253,18 @@ namespace LoDCompanion.Services.Game
                         if (specialAttacks.Count > 0)
                         {
                             specialAttacks.Shuffle();
-                            return $"{monster.Name} uses {specialAttacks[0].ToString()}" +
-                                await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon);
+                            attackResult = new AttackResult()
+                            {
+                                OutcomeMessage = $"{monster.Name} uses {specialAttacks[0].ToString()}" +
+                                    await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon)
+                            };
+
+                            if (attackResult.OutcomeMessage.ToLower().Contains("performs a standard attack"))
+                            {
+                                return attackResult.OutcomeMessage +
+                                        await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
+                            }
+                            else return attackResult.OutcomeMessage;
                         }
                         else if (monster.CombatStance == CombatStance.Aiming)
                         {
@@ -405,11 +415,21 @@ namespace LoDCompanion.Services.Game
                 if (specialAttacks.Count > 0)
                 {
                     specialAttacks.Shuffle();
-                    return new AttackResult()
+                    var attackResult = new AttackResult()
                     {
                         OutcomeMessage = $"{monster.Name} uses {specialAttacks[0].ToString()}" +
-                        await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon)
+                            await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon)                        
                     };
+
+                    if (attackResult.OutcomeMessage.ToLower().Contains("performs a standard attack"))
+                    {
+                        return new AttackResult()
+                        {
+                            OutcomeMessage = attackResult.OutcomeMessage + 
+                                await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target)
+                        };                        
+                    }
+                    else return attackResult;
                 }
                 else
                 {

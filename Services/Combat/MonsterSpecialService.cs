@@ -75,7 +75,7 @@ namespace LoDCompanion.Services.Combat
                 case SpecialActiveAbility.Kick:
                     return await KickAsync(monster, heroes);
                 case SpecialActiveAbility.MasterOfTheDead:
-                    return MasterOfTheDead(monster, heroes);
+                    return MasterOfTheDead(monster, dungeon);
                 case SpecialActiveAbility.MultipleAttack:
                     // This one needs a specific count, assume it's passed with the monster's state or handled externally
                     // For now, let's use a default or an assumed property on monster.
@@ -334,14 +334,26 @@ namespace LoDCompanion.Services.Combat
             }
         }
 
-        public string MasterOfTheDead(Monster monster, List<Hero> heroes)
+        public string MasterOfTheDead(Monster monster, DungeonState dungeon)
         {
-            string outcome = $"{monster.Name}, the Master of the Dead, attempts to animate a corpse!\n";
-            // This would involve creating a new Monster instance (e.g., Skeleton, Zombie)
-            // and adding it to the current encounter or dungeon.
-            // For simplicity, just a message for now.
-            outcome += "A new undead minion rises to fight!\n"; // Placeholder for actual minion creation
-            return outcome;
+            // Find a fallen undead ally
+            var fallenUndead = dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
+            if (fallenUndead != null)
+            {
+                fallenUndead.CurrentHP = fallenUndead.GetStat(BasicStat.HitPoints);
+                return $"{monster.Name} uses its dark power to raise {fallenUndead.Name} from the dead!";
+            }
+
+            // If no fallen undead, heal self
+            if (monster.CurrentHP < monster.GetStat(BasicStat.HitPoints))
+            {
+                int healing = RandomHelper.RollDie(DiceType.D6);
+                monster.CurrentHP = Math.Min(monster.GetStat(BasicStat.HitPoints), monster.CurrentHP + healing);
+                return $"{monster.Name} drains life force to heal itself for {healing} HP.";
+            }
+
+            // If at full health, perform a standard attack instead
+            return $"{monster.Name} finds no target for its dark magic, so performs a standard attack instead";
         }
 
         public string MultipleAttack(Monster monster, List<Hero> heroes, int attackCount)
