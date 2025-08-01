@@ -180,12 +180,6 @@ namespace LoDCompanion.Services.Combat
 
             return result;
         }
-        public async Task<DefenseResult> HandleEntangleAttempt(Monster attacker, Hero target)
-        {
-            // TODO: The hero can either dodge or parry the entangle attack.
-            // The player would choose which action to take. For now, we'll default to dodging.
-            return await DefenseService.AttemptDodge(target, _diceRoll);
-        }
 
         public int CalculateHitChanceModifier(Character attacker, Weapon? weapon, Character target, CombatContext context)
         {
@@ -265,8 +259,17 @@ namespace LoDCompanion.Services.Combat
             return RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage) + monster.GetStat(BasicStat.DamageBonus);
         }
 
+        public async Task<DefenseResult> HandleEntangleAttempt(Monster attacker, Hero target)
+        {
+            return await ResolveHeroDefenseAsync(target, 0);
+        }
+
         private async Task<DefenseResult> ResolveHeroDefenseAsync(Hero target, int incomingDamage)
         {
+            if (!target.HasDodgedThisBattle)
+            {
+                return await DefenseService.AttemptDodge(target, _diceRoll);
+            }
             if (target.Inventory.OffHand != null && target.Inventory.OffHand is Shield shield)
             {
                 return await DefenseService.AttemptShieldParry(target, shield, incomingDamage, _diceRoll);
