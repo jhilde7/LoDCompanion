@@ -349,12 +349,9 @@ namespace LoDCompanion.Services.Combat
             }
             else if (woundedUndead != null)
             {
-                if (woundedUndead != null)
-                {
-                    int healing = woundedUndead.GetStat(BasicStat.HitPoints) - woundedUndead.CurrentHP;
-                    woundedUndead.Heal(healing);
-                    return $" Dark energy knits the wounds of {woundedUndead.Name}, healing {healing} HP.";
-                }
+                int healing = woundedUndead.GetStat(BasicStat.HitPoints) - woundedUndead.CurrentHP;
+                woundedUndead.Heal(healing);
+                return $" Dark energy knits the wounds of {woundedUndead.Name}, healing {healing} HP.";
             }
 
             // If no fallen undead, heal self
