@@ -185,11 +185,11 @@ namespace LoDCompanion.Services.Game
 
             if (spell.Name == "Life Force")
             {
-                heroTarget.CurrentHP = heroTarget.GetStat(BasicStat.HitPoints); // Heals to full
+                heroTarget.Heal(heroTarget.GetStat(BasicStat.HitPoints)); // Heals to full
             }
             else
             {
-                heroTarget.CurrentHP = Math.Min(heroTarget.GetStat(BasicStat.HitPoints), heroTarget.CurrentHP + healingAmount);
+                heroTarget.Heal(healingAmount);
             }
 
             return new SpellCastResult
@@ -443,7 +443,7 @@ namespace LoDCompanion.Services.Game
                         var fallenUndead = _dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
                         if (fallenUndead != null)
                         {
-                            fallenUndead.CurrentHP = fallenUndead.GetStat(BasicStat.HitPoints);
+                            fallenUndead.Heal(fallenUndead.GetStat(BasicStat.HitPoints));
                             outcome.AppendLine(HandleStatusEffectingSpell(caster, spell, fallenUndead));
                         }
                         else
@@ -456,7 +456,7 @@ namespace LoDCompanion.Services.Game
                             if (woundedUndead != null)
                             {
                                 int healing = RandomHelper.RollDie(DiceType.D6);
-                                woundedUndead.CurrentHP = Math.Min(woundedUndead.GetStat(BasicStat.HitPoints), woundedUndead.CurrentHP + healing);
+                                woundedUndead.Heal(healing);
                                 outcome.AppendLine($" Dark energy knits the wounds of {woundedUndead.Name}, healing {healing} HP.");
                             }
                             else
@@ -633,7 +633,7 @@ namespace LoDCompanion.Services.Game
         {
             int healingAmount = GetHealing(caster, spell);
 
-            target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + healingAmount);
+            target.Heal(healingAmount);
 
             return new SpellCastResult
             {
