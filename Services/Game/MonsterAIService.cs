@@ -244,7 +244,7 @@ namespace LoDCompanion.Services.Game
                         {
                             specialAttacks.Shuffle();
                             return $"{monster.Name} uses {specialAttacks[0].ToString()}" +
-                                _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0]);
+                                await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon);
                         }
                         else if (monster.CombatStance == CombatStance.Aiming)
                         {
@@ -398,7 +398,7 @@ namespace LoDCompanion.Services.Game
                     return new AttackResult()
                     {
                         OutcomeMessage = $"{monster.Name} uses {specialAttacks[0].ToString()}" +
-                        _monsterSpecial.ExecuteSpecialAbility(monster, heroes, target, specialAttacks[0])
+                        await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, target, specialAttacks[0], _dungeon)
                     };
                 }
                 else
