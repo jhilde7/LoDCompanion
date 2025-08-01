@@ -264,7 +264,7 @@ namespace LoDCompanion.Services.Game
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                         CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
-                        StatusEffectService.ProcessStatusEffectsAsync(monsterToAct);
+                        await StatusEffectService.ProcessStatusEffectsAsync(monsterToAct);
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
                         CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
@@ -444,7 +444,7 @@ namespace LoDCompanion.Services.Game
         /// <summary>
         /// This NEW public method is called by the UI when a player clicks on a valid hero.
         /// </summary>
-        public void SelectHeroToAction(Hero hero)
+        public async Task SelectHeroToActionAsync(Hero hero)
         {
             // Ensure we are in the correct state and the hero is valid
             if (!IsAwaitingHeroSelection || !HeroesInCombat.Contains(hero) || hero.CurrentAP <= 0)
@@ -459,7 +459,7 @@ namespace LoDCompanion.Services.Game
             IsAwaitingHeroSelection = false;
 
             // Perform standard start-of-turn logic
-            StatusEffectService.ProcessStatusEffectsAsync(ActiveHero);
+            await StatusEffectService.ProcessStatusEffectsAsync(ActiveHero);
             CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
             OnCombatStateChanged?.Invoke();
         }
