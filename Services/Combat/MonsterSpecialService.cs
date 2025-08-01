@@ -76,16 +76,8 @@ namespace LoDCompanion.Services.Combat
                     return await KickAsync(monster, heroes);
                 case SpecialActiveAbility.MasterOfTheDead:
                     return MasterOfTheDead(monster, dungeon);
-                case SpecialActiveAbility.MultipleAttack:
-                    // This one needs a specific count, assume it's passed with the monster's state or handled externally
-                    // For now, let's use a default or an assumed property on monster.
-                    int attackCount = 1; // Default
-                    if (monster.SpecialRules.Contains("Multiple Attack x2")) attackCount = 2;
-                    else if (monster.SpecialRules.Contains("Multiple Attack x3")) attackCount = 3;
-                    // ... and so on for other counts
-                    return MultipleAttack(monster, heroes, attackCount);
                 case SpecialActiveAbility.Petrify:
-                    return Petrify(monster, heroes);
+                    return await PetrifyAsync(monster, heroes);
                 case SpecialActiveAbility.PoisonSpit:
                     return PoisonSpit(monster, heroes);
                 case SpecialActiveAbility.Seduction:
@@ -366,41 +358,35 @@ namespace LoDCompanion.Services.Combat
             return $"{monster.Name} finds no target for its dark magic, so performs a standard attack instead";
         }
 
-        public string MultipleAttack(Monster monster, List<Hero> heroes, int attackCount)
-        {
-            string outcome = $"{monster.Name} unleashes {attackCount} rapid attacks!\n";
-            //var monsterCombatService = new MonsterCombatService(this); // Assuming this service is available or injected
-            for (int i = 0; i < attackCount; i++)
-            {
-                if (heroes.Count > 0)
-                {
-                    var target = heroes[RandomHelper.GetRandomNumber(0, heroes.Count - 1)]; // Target a random hero
-                    // This would call the regular attack logic from MonsterCombatService
-                    // For example: monsterCombatService.ProcessPhysicalAttack(monster, target, monster.Weapons[0]);
-                    int damage = RandomHelper.GetRandomNumber(1, 6) + monster.GetStat(BasicStat.DamageBonus); // Simplified damage
-                    target.TakeDamage(damage);
-                    outcome += $"  Attack {i + 1}: {monster.Name} hits {target.Name} for {damage} damage.\n";
-                }
-            }
-            return outcome;
-        }
-
-        public string Petrify(Monster monster, List<Hero> heroes)
+        public async Task<string> PetrifyAsync(Monster monster, List<Hero> heroes)
         {
             string outcome = $"{monster.Name} attempts to turn its targets to stone!\n";
-            foreach (var hero in heroes)
+
+            var adjacentHeroes = heroes.Where(h => GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
+
+            if (adjacentHeroes.Any())
             {
-                int conRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (conRoll < hero.GetStat(BasicStat.Constitution)) // Example: Constitution check to resist petrification
+                adjacentHeroes.Shuffle(); // Randomize the order of heroes to target
+                var targetHero = adjacentHeroes[0];
+
+                int resolveRoll = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100");
+
+                if (resolveRoll > targetHero.GetStat(BasicStat.Resolve))
                 {
-                    StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Petrified, RandomHelper.RollDie(DiceType.D6)));
-                    outcome += $"{hero.Name} is turned to stone!\n";
+                    int duration = RandomHelper.RollDie(DiceType.D6);
+                    StatusEffectService.AttemptToApplyStatus(targetHero, new ActiveStatusEffect(StatusEffectType.Petrified, duration));
+                    outcome += $"{targetHero.Name} is turned to stone for {duration} turns!\n";
                 }
                 else
                 {
-                    outcome += $"{hero.Name} resists the petrifying gaze.\n";
+                    outcome += $"{targetHero.Name} resists the petrifying gaze.\n";
                 }
             }
+            else
+            {
+                outcome += "There are no adjacent heroes to target.";
+            }
+
             return outcome;
         }
 
