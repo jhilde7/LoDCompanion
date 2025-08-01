@@ -37,14 +37,21 @@ namespace LoDCompanion.Services.Combat
     public class MonsterSpecialService
     {
         private readonly UserRequestService _diceRoll;
+        private readonly EncounterService _encounter;
+        private readonly InitiativeService _initiative;
 
         public event Func<Monster, Hero, Task<DefenseResult>>? OnEntangleAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
 
-        public MonsterSpecialService(UserRequestService diceRoll)
+        public MonsterSpecialService(
+            UserRequestService diceRoll, 
+            EncounterService encounter, 
+            InitiativeService initiative)
         {
             _diceRoll = diceRoll;
+            _encounter = encounter;
+            _initiative = initiative;
         }
 
         /// <summary>
@@ -83,13 +90,13 @@ namespace LoDCompanion.Services.Combat
                 case SpecialActiveAbility.PoisonSpit:
                     return await PoisonSpitAsync(monster, target);
                 case SpecialActiveAbility.Seduction:
-                    return Seduction(monster, heroes);
+                    return await SeductionAsync(monster, target);
                 case SpecialActiveAbility.SummonChildren:
-                    return SummonChildren(monster, heroes);
+                    return SummonChildren(monster, dungeon);
                 case SpecialActiveAbility.TongueAttack:
                     return TongueAttack(monster, heroes);
                 case SpecialActiveAbility.Swallow:
-                    return Swallow(monster, heroes);
+                    return Swallow(monster, target);
                 case SpecialActiveAbility.SweepingStrike:
                     return SweepingStrike(monster, heroes);
                 default:
@@ -447,11 +454,58 @@ namespace LoDCompanion.Services.Combat
             return outcome;
         }
 
-        public string SummonChildren(Monster monster, List<Hero> heroes)
+        public string SummonChildren(Monster monster, DungeonState dungeon)
         {
             string outcome = $"{monster.Name} calls forth its vile offspring!\n";
-            // Similar to MasterOfTheDead, this would involve creating new Monster instances.
-            outcome += "Several smaller monsters emerge!\n"; // Placeholder
+
+            var parameters = new Dictionary<string, string> { { "Name", "Giant Spider" }, { "Count", "1" } };
+            var summonedSpiders = _encounter.GetEncounterByParams(parameters);
+
+            if (summonedSpiders == null || !summonedSpiders.Any())
+            {
+                return outcome + "But none answer the call.";
+            }
+
+            var newSpider = summonedSpiders.First();
+
+            var roomGrid = monster.Room.Grid.ToList(); // Create a copy to shuffle
+            roomGrid.Shuffle();
+            GridSquare? placementSquare = roomGrid.FirstOrDefault(sq => !sq.IsOccupied && !sq.IsWall && !sq.MovementBlocked);
+
+            if (placementSquare != null && monster.Room.MonstersInRoom != null)
+            {
+                newSpider.Position = placementSquare.Position;
+                newSpider.Room = monster.Room;
+
+                // Add the new monster to the current combat environment
+                monster.Room.MonstersInRoom.Add(newSpider);
+                dungeon.RevealedMonsters.Add(newSpider);    
+                _initiative.AddToken(ActorType.Monster);
+
+                outcome += $"A Giant Spider appears at {placementSquare.Position}!";
+            }
+            else
+            {
+                outcome += "But there is no space for it to appear.";
+            }
+
+            return outcome;
+        }
+
+        public string Swallow(Monster monster, Hero target)
+        {
+            return string.Empty;
+        }
+
+        public string SweepingStrike(Monster monster, List<Hero> heroes)
+        {
+            string outcome = $"{monster.Name} performs a wide sweeping strike!\n";
+            int damage = RandomHelper.GetRandomNumber(1, 8); // Example AOE damage
+            foreach (var hero in heroes)
+            {
+                hero.TakeDamage(damage);
+                outcome += $"{hero.Name} takes {damage} damage from the sweeping strike.\n";
+            }
             return outcome;
         }
 
@@ -465,39 +519,6 @@ namespace LoDCompanion.Services.Combat
                 target.TakeDamage(damage);
                 outcome += $"{target.Name} is hit for {damage} damage and ensnared by the tongue!\n";
                 StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Ensnared, -1)); // Apply status effect
-            }
-            return outcome;
-        }
-
-        public string Swallow(Monster monster, List<Hero> heroes)
-        {
-            string outcome = $"{monster.Name} attempts to swallow a hero whole!\n";
-            if (heroes.Count > 0)
-            {
-                var target = heroes[0]; // Assume single target
-                // This would involve a grapple/strength check and potentially instant death or heavy damage
-                int swallowRoll = RandomHelper.GetRandomNumber(1, 20);
-                if (swallowRoll > target.GetStat(BasicStat.Dexterity)) // Example: Dexterity check to avoid being swallowed
-                {
-                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.BeingSwallowed, -1)); // Apply swallowed status (e.g., for ongoing damage)
-                    outcome += $"{target.Name} is swallowed by {monster.Name}!\n";
-                }
-                else
-                {
-                    outcome += $"{target.Name} narrowly avoids being swallowed.\n";
-                }
-            }
-            return outcome;
-        }
-
-        public string SweepingStrike(Monster monster, List<Hero> heroes)
-        {
-            string outcome = $"{monster.Name} performs a wide sweeping strike!\n";
-            int damage = RandomHelper.GetRandomNumber(1, 8); // Example AOE damage
-            foreach (var hero in heroes)
-            {
-                hero.TakeDamage(damage);
-                outcome += $"{hero.Name} takes {damage} damage from the sweeping strike.\n";
             }
             return outcome;
         }
