@@ -42,7 +42,8 @@ namespace LoDCompanion.Services.Player
         Aim,
         Parry,
         Pray,
-        Focus
+        Focus,
+        BreakFreeFromEntangle
     }
 
     public class ActionInfo
@@ -492,6 +493,12 @@ namespace LoDCompanion.Services.Player
                                 caster.ChanneledSpell.FocusActionsRemaining--;
                                 apCost++;
                                 resultMessage = $"{caster.Name} focuses their mind on casting.";
+
+                                if(caster.ChanneledSpell.FocusActionsRemaining <= 0)
+                                {
+                                    await _spellResolution.ResolveSpellAsync(caster, caster.ChanneledSpell.Spell, caster.ChanneledSpell.Target, caster.ChanneledSpell.CastingOptions);
+
+                                }
                             }
                             else
                             {
@@ -504,6 +511,31 @@ namespace LoDCompanion.Services.Player
                     else
                     {
                         resultMessage = "Invalid action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case ActionType.BreakFreeFromEntangle:
+                    if (character is Hero hero && hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Entangled))
+                    {
+                        var entangledEffect = hero.ActiveStatusEffects.First(e => e.Category == StatusEffectType.Entangled);
+                        int strengthTestModifier = -10 * (-entangledEffect.Duration - 1); // -0 on turn 1, -10 on turn 2, etc.
+
+                        // Perform a strength test
+                        int strengthRoll = RandomHelper.RollDie(DiceType.D100);
+                        if (strengthRoll <= hero.GetStat(BasicStat.Strength) + strengthTestModifier)
+                        {
+                            hero.ActiveStatusEffects.Remove(entangledEffect);
+                            resultMessage = $"{hero.Name} breaks free from the entanglement!";
+                        }
+                        else
+                        {
+                            resultMessage = $"{hero.Name} fails to break free.";
+                        }
+                        apCost = 1; // Breaking free costs 1 AP
+                    }
+                    else
+                    {
+                        resultMessage = "There is nothing to break free from.";
                         actionWasSuccessful = false;
                     }
                     break;

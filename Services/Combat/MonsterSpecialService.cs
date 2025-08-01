@@ -34,7 +34,9 @@ namespace LoDCompanion.Services.Combat
 
     public class MonsterSpecialService
     {
+        public event Func<Monster, Hero, Task<DefenseResult>> OnEntangleAttack;
         private readonly UserRequestService _diceRoll;
+
         public MonsterSpecialService(UserRequestService diceRoll)
         {
             _diceRoll = diceRoll;
@@ -47,16 +49,22 @@ namespace LoDCompanion.Services.Combat
         /// <param name="heroes">The list of heroes targeted by the action.</param>
         /// <param name="abilityType">The type of special ability to execute (e.g., "Bellow", "FireBreath").</param>
         /// <returns>A string describing the outcome of the special action.</returns>
-        public async Task<string> ExecuteSpecialAbilityAsync(Monster monster, List<Hero> heroes, Hero target, SpecialActiveAbility abilityType, DungeonState dungeon)
+        public async Task<string> ExecuteSpecialAbilityAsync(
+            Monster monster, 
+            List<Hero> heroes,
+            Hero target, 
+            SpecialActiveAbility abilityType, 
+            DungeonState dungeon)
         {
             switch (abilityType)
             {
                 case SpecialActiveAbility.Bellow:
+                case SpecialActiveAbility.FreeBellow:
                     return await Bellow(monster, heroes);
                 case SpecialActiveAbility.Camouflage:
                     return Camouflage(monster, heroes, dungeon);
                 case SpecialActiveAbility.Entangle:
-                    return Entangle(monster, heroes);
+                    return await EntangleAsync(monster, target);
                 case SpecialActiveAbility.FireBreath:
                     return FireBreath(monster, heroes);
                 case SpecialActiveAbility.GhostlyHowl:
@@ -140,16 +148,16 @@ namespace LoDCompanion.Services.Combat
                 }
             }
 
-            var potentialTiles = heroRooms.Union(adjacentRooms).ToList();
-            potentialTiles.Remove(monster.Room); // Can't reappear in the same room it vanished from
+            var potentialRooms = heroRooms.Union(adjacentRooms).ToList();
+            potentialRooms.Remove(monster.Room); // Can't reappear in the same room it vanished from
 
-            if (!potentialTiles.Any())
+            if (!potentialRooms.Any())
             {
                 return $"{monster.Name} finds no suitable place to reappear.";
             }
 
-            potentialTiles.Shuffle();
-            Room targetRoom = potentialTiles.First();
+            potentialRooms.Shuffle();
+            Room targetRoom = potentialRooms.First();
 
             // Find a valid, empty square in the target room.
             // This assumes a helper method to get all valid squares.
@@ -212,10 +220,23 @@ namespace LoDCompanion.Services.Combat
             return $"{monster.Name} tries to camouflage but fails.";
         }
 
-        private string Entangle(Monster monster, List<Hero> heroes)
+        private async Task<string> EntangleAsync(Monster monster, Hero hero)
         {
-            //TODO
-            throw new NotImplementedException();
+            string outcome = $"{monster.Name} attempts to entangle {hero.Name}!\n";
+
+            if (OnEntangleAttack != null)
+            {
+                var defenseResult = await OnEntangleAttack.Invoke(monster, hero);
+                if (defenseResult.WasSuccessful)
+                {
+                    return outcome + defenseResult.OutcomeMessage;
+                }
+            }
+
+            StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Entangled, 0));
+            outcome += $"{hero.Name} is entangled!\n";
+
+            return outcome;
         }
 
         public string FireBreath(Monster monster, List<Hero> heroes)

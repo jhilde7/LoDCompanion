@@ -26,11 +26,19 @@ namespace LoDCompanion.Services.Combat
     {
         private readonly FloatingTextService _floatingText;
         private readonly UserRequestService _diceRoll;
+        private readonly MonsterSpecialService _monsterSpecial;
 
-        public AttackService(FloatingTextService floatingTextService, UserRequestService diceRollService)
+
+        public AttackService(
+            FloatingTextService floatingTextService, 
+            UserRequestService diceRollService,
+            MonsterSpecialService monsterSpecialService)
         {
             _floatingText = floatingTextService;
             _diceRoll = diceRollService;
+            _monsterSpecial = monsterSpecialService;
+            
+            _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
         }
 
         /// <summary>
@@ -171,6 +179,12 @@ namespace LoDCompanion.Services.Combat
             }
 
             return result;
+        }
+        public async Task<DefenseResult> HandleEntangleAttempt(Monster attacker, Hero target)
+        {
+            // TODO: The hero can either dodge or parry the entangle attack.
+            // The player would choose which action to take. For now, we'll default to dodging.
+            return await DefenseService.AttemptDodge(target, _diceRoll);
         }
 
         public int CalculateHitChanceModifier(Character attacker, Weapon? weapon, Character target, CombatContext context)

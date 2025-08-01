@@ -58,14 +58,11 @@ namespace LoDCompanion.Services.Combat
         Silence,
         Blur,
         MagicArmour,
-        Seduce,
-        Slow,
         Corruption,
         ControlUndead,
         Confuse,
         HoldCreature,
         IceTomb,
-        Weakness,
         BolsteredMind,
         CauseAnimosity,
         Levitate,
@@ -78,6 +75,9 @@ namespace LoDCompanion.Services.Combat
         RaiseDead,
         Summoned,
         MirroredSelf,
+        Seduce,
+        Slow,
+        Weakness,
         //--Psychology--
         HateBandits,
         HateBats,
@@ -203,7 +203,7 @@ namespace LoDCompanion.Services.Combat
                 switch (effect.Category)
                 {
                     case StatusEffectType.Poisoned:
-                        // As per PDF, make a CON test. On fail, lose 1 HP.
+                        // make a CON test. On fail, lose 1 HP.
                         if (character is Hero hero && !hero.ResistPoison())
                         {
                             character.TakeDamage(1);
@@ -212,7 +212,7 @@ namespace LoDCompanion.Services.Combat
                         break;
 
                     case StatusEffectType.FireBurning:
-                        // As per PDF, Fire damage over time.
+                        // Fire damage over time.
                         int fireDamage = RandomHelper.RollDie(DiceType.D6) / 2;
                         character.TakeDamage(fireDamage);
                         Console.WriteLine($"{character.Name} takes {fireDamage} damage from burning.");
@@ -222,13 +222,21 @@ namespace LoDCompanion.Services.Combat
                         // Logic to reduce AP would be in CombatManagerService when the turn starts.
                         Console.WriteLine($"{character.Name} is stunned and loses an action.");
                         break;
+
+                    case StatusEffectType.Entangled:
+                        // The hero takes escalating damage at the end of each turn they are entangled.
+                        int damage = -effect.Duration; // duration controls the damage, e.g., 1 damage for 1 turn, 2 for 2 turns, etc.
+                        character.TakeDamage(damage);
+                        effect.Duration--;
+                        Console.WriteLine($"{character.Name} takes {damage} damage from being entangled.");
+                        break;
                 }
 
                 // Decrease duration and remove if expired.
                 if (effect.Duration > 0)
                 {
                     effect.Duration--;
-                    if (effect.Duration <= 0)
+                    if (effect.Duration == 0)
                     {
                         character.ActiveStatusEffects.Remove(effect);
                         Console.WriteLine($"{character.Name} is no longer {effect.Category}.");
