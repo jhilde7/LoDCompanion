@@ -53,7 +53,7 @@ namespace LoDCompanion.Services.Game
         public event Action? OnTimeFreezeCast;
 
         public SpellResolutionService(
-            DungeonState dungeonState, 
+            DungeonState dungeonState,
             EncounterService encounterService,
             InitiativeService initiativeService,
             UserRequestService diceRoll)
@@ -117,7 +117,7 @@ namespace LoDCompanion.Services.Game
             // All other schools fall under "Utility" which includes buffs, debuffs, etc.
             if (singleTarget != null)
             {
-                return await HandleUtilitySpellAsync(caster, spell, singleTarget, options); 
+                return await HandleUtilitySpellAsync(caster, spell, singleTarget, options);
             }
 
             return new SpellCastResult
@@ -132,6 +132,46 @@ namespace LoDCompanion.Services.Game
             var outcome = new StringBuilder();
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
 
+            if (spell.Name == "Lightning Bolt")
+            {
+                var hitTargets = new List<Character>();
+                var result = new SpellCastResult { IsSuccess = true };
+
+                if (singleTarget != null)
+                {
+                    int primaryDamage = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt primary damage",
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    primaryDamage += options.PowerLevels;
+                    singleTarget.TakeDamage(primaryDamage, spell.DamageType);
+                    outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
+                    hitTargets.Add(singleTarget);
+
+                    // First Jump
+                    Character? secondTarget = FindNextChainTarget(singleTarget, hitTargets, 3);
+                    if (secondTarget != null)
+                    {
+                        int secondDamage = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt secondary damage",
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}");
+                        secondDamage += options.PowerLevels;
+                        secondTarget.TakeDamage(secondDamage, spell.DamageType);
+                        outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
+                        hitTargets.Add(secondTarget);
+
+                        // Second Jump
+                        Character? thirdTarget = FindNextChainTarget(secondTarget, hitTargets, 3);
+                        if (thirdTarget != null)
+                        {
+                            int thirdDamage = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt tertiary damage",
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}");
+                            thirdDamage += options.PowerLevels;
+                            thirdTarget.TakeDamage(thirdDamage, spell.DamageType);
+                            outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
+                        }
+                    }
+                }
+                result.OutcomeMessage = outcome.ToString();
+                return result;
+            }
             // Handle Area of Effect spells
             if (spell.HasProperty(SpellProperty.AreaOfEffectSpell))
             {
@@ -173,6 +213,16 @@ namespace LoDCompanion.Services.Game
             }
 
             return new SpellCastResult { IsSuccess = true, OutcomeMessage = outcome.ToString() };
+        }
+
+        private Character? FindNextChainTarget(Character currentTarget, List<Character> hitTargets, int maxJumpDistance)
+        {
+            if (currentTarget.Position == null) return null;
+            return _dungeon.AllCharactersInDungeon
+                .Where(c => !hitTargets.Contains(c) && c.CurrentHP > 0 && c.Position != null && currentTarget.Position != null)
+                .Where(c => c.Position != null && GridService.GetDistance(currentTarget.Position, c.Position) <= maxJumpDistance)
+                .OrderBy(c => GridService.GetDistance(currentTarget.Position, c.Position ?? currentTarget.Position))
+                .FirstOrDefault();
         }
 
         private async Task<SpellCastResult> HandleHealingSpellAsync(Hero caster, Spell spell, Character target, SpellCastingResult options)
@@ -306,7 +356,7 @@ namespace LoDCompanion.Services.Game
                     if (target is DoorChest door && door.Properties != null)
                     {
                         // Logic to unlock a door
-                        if(door.Properties.ContainsKey(DoorChestProperty.Locked))door.Properties.Remove(DoorChestProperty.Locked);
+                        if (door.Properties.ContainsKey(DoorChestProperty.Locked)) door.Properties.Remove(DoorChestProperty.Locked);
                         result.OutcomeMessage = $"{caster.Name} magically unlocks the {door.Category}!";
                     }
                     else
@@ -323,8 +373,8 @@ namespace LoDCompanion.Services.Game
                             doorToSeal.Properties.TryAdd(DoorChestProperty.MagicallySealed, await GetDurationAsync(caster, spell));
                         }
                         else
-                        { 
-                            doorToSeal.Properties = new Dictionary<DoorChestProperty, int> { { DoorChestProperty.MagicallySealed, await GetDurationAsync(caster, spell) } }; 
+                        {
+                            doorToSeal.Properties = new Dictionary<DoorChestProperty, int> { { DoorChestProperty.MagicallySealed, await GetDurationAsync(caster, spell) } };
                         }
                         result.OutcomeMessage = $"{caster.Name} magically seals a nearby door!";
                     }
@@ -356,7 +406,7 @@ namespace LoDCompanion.Services.Game
                     return result;
 
                 case "Time Freeze":
-                    
+
                     OnTimeFreezeCast?.Invoke();
                     return new SpellCastResult { IsSuccess = true, OutcomeMessage = "Time freezes! The heroes can act again." };
                 // --- HEX SPELLS ---
@@ -423,7 +473,7 @@ namespace LoDCompanion.Services.Game
             {
                 return HandleHealingSpell(caster, spell, allyTarget);
             }
-            else if(spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+            else if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
             {
                 return HandleDamageSpell(caster, spell, target);
             }
@@ -826,7 +876,7 @@ namespace LoDCompanion.Services.Game
                 {
                     damage += RandomHelper.GetRandomNumber(spell.Properties[SpellProperty.DiceCount], spell.Properties[SpellProperty.DiceMaxValue]);
                 }
-                if(spell.Properties.ContainsKey(SpellProperty.DirectDamageBonus))
+                if (spell.Properties.ContainsKey(SpellProperty.DirectDamageBonus))
                 {
                     damage += spell.Properties[SpellProperty.DirectDamageBonus];
                 }
