@@ -6013,7 +6013,7 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     bool isCursed = false;
                     bool isPoisoned = false;
-                    Weapon? weapon = EquipmentService.GetWeaponByName(weaponName);
+                    Weapon? weapon;
                     if (weaponName.Contains("Cursed"))
                     {
                         // Removed cursed from name to get the correct weapon returned
@@ -6033,7 +6033,7 @@ namespace LoDCompanion.Services.Dungeon
 
                     if (weapon != null)
                     {
-                        weapon = (Weapon)weapon.Clone();
+                        weapon = weapon.Clone();
                         if (isCursed)
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
