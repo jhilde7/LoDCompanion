@@ -48,7 +48,7 @@ namespace LoDCompanion.Models
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
         public int Durability { get; set; } = 1;
-        public double Value { get; set; } = 0; 
+        public double Value { get; set; } = 0;
         public int SellValue => CalculateSalePrice();
         public int RepairCost => CalculateInitialRepairCosts();
         public int Availability { get; set; } = 4;
@@ -58,12 +58,12 @@ namespace LoDCompanion.Models
         public Inventory? Storage { get; set; }
         public Dictionary<EquipmentProperty, int> Properties { get; set; } = new Dictionary<EquipmentProperty, int>();
 
-        public Equipment() 
+        public Equipment()
         {
 
         }
 
-        public Equipment Clone()
+        public virtual Equipment Clone()
         {
             Equipment newEquipment = new Equipment();
             // Copy values from the this
@@ -180,22 +180,24 @@ namespace LoDCompanion.Models
 
         public Ammo() { } // Default constructor
 
-        public Ammo(Ammo template)
+        public override Ammo Clone()
         {
+            Ammo newAmmo = new Ammo();
             // Copy values from the template
-            this.Category = template.Category;
-            this.Shop = template.Shop;
-            this.Name = template.Name;
-            this.Encumbrance = template.Encumbrance;
-            this.Value = template.Value;
-            this.Availability = template.Availability;
-            this.MaxDurability = template.MaxDurability;
-            this.Durability = template.Durability;
-            this.Quantity = template.Quantity;
-            this.Description = template.Description;
-            this.MagicEffect = template.MagicEffect;
+            newAmmo.Category = Category;
+            newAmmo.Shop = Shop;
+            newAmmo.Name = Name;
+            newAmmo.Encumbrance = Encumbrance;
+            newAmmo.Value = Value;
+            newAmmo.Availability = Availability;
+            newAmmo.MaxDurability = MaxDurability;
+            newAmmo.Durability = Durability;
+            newAmmo.Quantity = Quantity;
+            newAmmo.Description = Description;
+            newAmmo.MagicEffect = MagicEffect;
             // Create a NEW dictionary instance with the same properties
-            this.Properties = new Dictionary<AmmoProperty, int>(template.Properties);
+            newAmmo.Properties = new Dictionary<AmmoProperty, int>(Properties);
+            return newAmmo;
         }
 
         public override string ToString()
@@ -288,28 +290,31 @@ namespace LoDCompanion.Models
             }
         }
 
-        public MeleeWeapon() 
+        public MeleeWeapon()
         {
             IsMelee = true;
-        } 
+        }
 
-        public MeleeWeapon(MeleeWeapon baseWeapon)
+        public override MeleeWeapon Clone()
         {
+            MeleeWeapon newMeleeWeapon = new MeleeWeapon();
+
             IsMelee = true;
             // Copy values from the base weapon
-            this.Category = baseWeapon.Category;
-            this.Shop = baseWeapon.Shop;
-            this.Name = baseWeapon.Name;
-            this.Class = baseWeapon.Class;
-            this.MinDamage = baseWeapon.MinDamage;
-            this.MaxDamage = baseWeapon.MaxDamage;
-            this.Value = baseWeapon.Value;
-            this.Encumbrance = baseWeapon.Encumbrance;
-            this.Durability = baseWeapon.Durability;
-            this.DamageDice = baseWeapon.DamageDice;
-            this.DamageBonus = baseWeapon.DamageBonus;
+            newMeleeWeapon.Category = Category;
+            newMeleeWeapon.Shop = Shop;
+            newMeleeWeapon.Name = Name;
+            newMeleeWeapon.Class = Class;
+            newMeleeWeapon.MinDamage = MinDamage;
+            newMeleeWeapon.MaxDamage = MaxDamage;
+            newMeleeWeapon.Value = Value;
+            newMeleeWeapon.Encumbrance = Encumbrance;
+            newMeleeWeapon.Durability = Durability;
+            newMeleeWeapon.DamageDice = DamageDice;
+            newMeleeWeapon.DamageBonus = DamageBonus;
             // Create a NEW dictionary instance with the same properties
-            this.Properties = new Dictionary<WeaponProperty, int>(baseWeapon.Properties);
+            newMeleeWeapon.Properties = new Dictionary<WeaponProperty, int>(Properties);
+            return newMeleeWeapon;
         }
 
         public override string ToString()
@@ -342,7 +347,7 @@ namespace LoDCompanion.Models
 
         private void SetMithrilModifier()
         {
-            if(HasProperty(WeaponProperty.Mithril))
+            if (HasProperty(WeaponProperty.Mithril))
             {
                 MinDamage += 1;
                 MaxDamage += 1;
@@ -353,7 +358,7 @@ namespace LoDCompanion.Models
 
         public void SetSlayerTreatedModifier()
         {
-            if(HasProperty(WeaponProperty.SlayerTreated))
+            if (HasProperty(WeaponProperty.SlayerTreated))
             {
                 MinDamage += 1;
                 MaxDamage += 1;
@@ -389,24 +394,26 @@ namespace LoDCompanion.Models
 
         public MagicStaff() { }
 
-        public MagicStaff(MagicStaff template)
+        public override MagicStaff Clone()
         {
+            MagicStaff newMagicStaff = new MagicStaff();
             // Copy values from the template
-            this.Category = template.Category;
-            this.Shop = template.Shop;
-            this.Name = template.Name;
-            this.Class = template.Class;
-            this.MinDamage = template.MinDamage;
-            this.MaxDamage = template.MaxDamage;
-            this.Value = template.Value;
-            this.Encumbrance = template.Encumbrance;
-            this.Durability = template.Durability;
-            this.MagicEffect = template.MagicEffect;
+            newMagicStaff.Category = Category;
+            newMagicStaff.Shop = Shop;
+            newMagicStaff.Name = Name;
+            newMagicStaff.Class = Class;
+            newMagicStaff.MinDamage = MinDamage;
+            newMagicStaff.MaxDamage = MaxDamage;
+            newMagicStaff.Value = Value;
+            newMagicStaff.Encumbrance = Encumbrance;
+            newMagicStaff.Durability = Durability;
+            newMagicStaff.MagicEffect = MagicEffect;
             // Create a NEW dictionary instance with the same properties
-            this.Properties = new Dictionary<WeaponProperty, int>(template.Properties);
-            this.StaffType = template.StaffType;
-            this.ContainedSpell = template.ContainedSpell;
-            this.MagicStaffProperties = new Dictionary<MagicStaffProperty, int>(template.MagicStaffProperties);
+            newMagicStaff.Properties = new Dictionary<WeaponProperty, int>(Properties);
+            newMagicStaff.StaffType = StaffType;
+            newMagicStaff.ContainedSpell = ContainedSpell;
+            newMagicStaff.MagicStaffProperties = new Dictionary<MagicStaffProperty, int>(MagicStaffProperties);
+            return newMagicStaff;
         }
 
         public override string ToString()
@@ -447,33 +454,36 @@ namespace LoDCompanion.Models
         public int ReloadTime { get; set; } = 1;
         public bool IsLoaded { get; set; } = false;
 
-        public RangedWeapon() 
+        public RangedWeapon()
         {
             IsRanged = true;
-        } 
+        }
 
-        public RangedWeapon(RangedWeapon template)
+        public override RangedWeapon Clone()
         {
+            RangedWeapon newRangedWeapon = new RangedWeapon();
+
             IsRanged = true;
             // --- Properties from Searchable ---
-            this.Name = template.Name;
+            newRangedWeapon.Name = Name;
             // --- Properties from Equipment ---
-            this.Description = template.Description;
-            this.Class = template.Class;
-            this.Durability = template.Durability;
-            this.Encumbrance = template.Encumbrance;
-            this.Value = template.Value;
+            newRangedWeapon.Description = Description;
+            newRangedWeapon.Class = Class;
+            newRangedWeapon.Durability = Durability;
+            newRangedWeapon.Encumbrance = Encumbrance;
+            newRangedWeapon.Value = Value;
             // --- Properties from Weapon ---
-            this.MinDamage = template.MinDamage;
-            this.MaxDamage = template.MaxDamage;
-            this.DamageDice = template.DamageDice;
-            this.DamageBonus = template.DamageBonus;
+            newRangedWeapon.MinDamage = MinDamage;
+            newRangedWeapon.MaxDamage = MaxDamage;
+            newRangedWeapon.DamageDice = DamageDice;
+            newRangedWeapon.DamageBonus = DamageBonus;
             // --- Properties from RangedWeapon ---
-            this.AmmoType = template.AmmoType;
-            this.Ammo = template.Ammo;
-            this.ElvenBowstring = template.ElvenBowstring;
-            this.AimAttachment = template.AimAttachment;
-            this.ReloadTime = template.ReloadTime;
+            newRangedWeapon.AmmoType = AmmoType;
+            newRangedWeapon.Ammo = Ammo;
+            newRangedWeapon.ElvenBowstring = ElvenBowstring;
+            newRangedWeapon.AimAttachment = AimAttachment;
+            newRangedWeapon.ReloadTime = ReloadTime;
+            return newRangedWeapon;
         }
 
         public override string ToString()
@@ -585,23 +595,25 @@ namespace LoDCompanion.Models
 
         public Armour()
         {
-            
+
         }
 
-        public Armour(Armour template)
+        public override Armour Clone()
         {
+            Armour newArmour = new Armour();
             // Copy values from the template
-            this.Category = template.Category;
-            this.Shop = template.Shop;
-            this.Name = template.Name;
-            this.ArmourClass = template.ArmourClass;
-            this.DefValue = template.DefValue;
-            this.Encumbrance = template.Encumbrance;
-            this.Value = template.Value;
-            this.Availability = template.Availability;
-            this.Durability = template.Durability;
+            newArmour.Category = Category;
+            newArmour.Shop = Shop;
+            newArmour.Name = Name;
+            newArmour.ArmourClass = ArmourClass;
+            newArmour.DefValue = DefValue;
+            newArmour.Encumbrance = Encumbrance;
+            newArmour.Value = Value;
+            newArmour.Availability = Availability;
+            newArmour.Durability = Durability;
             // Create a NEW dictionary instance with the same properties
-            this.Properties = new Dictionary<ArmourProperty, int>(template.Properties);
+            newArmour.Properties = new Dictionary<ArmourProperty, int>(Properties);
+            return newArmour;
         }
 
         public override string ToString()
@@ -620,7 +632,7 @@ namespace LoDCompanion.Models
                 var propsAsStrings = new List<string>();
                 foreach (var prop in Properties)
                 {
-                    propsAsStrings.Add(prop.Key.ToString());                    
+                    propsAsStrings.Add(prop.Key.ToString());
                 }
                 sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
             }
@@ -671,25 +683,27 @@ namespace LoDCompanion.Models
             }
         }
 
-        public Shield() 
+        public Shield()
         {
 
         }
 
-        public Shield(Shield template)
+        public override Shield Clone()
         {
+            Shield newShield = new Shield();
             // Copy values from the template
-            this.Category = template.Category;
-            this.Shop = template.Shop;
-            this.Name = template.Name;
-            this.DefValue = template.DefValue;
-            this.Encumbrance = template.Encumbrance;
-            this.Value = template.Value;
-            this.Availability = template.Availability;
-            this.WeaponClass = template.WeaponClass;
-            this.Durability = template.Durability;
+            newShield.Category = Category;
+            newShield.Shop = Shop;
+            newShield.Name = Name;
+            newShield.DefValue = DefValue;
+            newShield.Encumbrance = Encumbrance;
+            newShield.Value = Value;
+            newShield.Availability = Availability;
+            newShield.WeaponClass = WeaponClass;
+            newShield.Durability = Durability;
             // Create a NEW dictionary instance with the same properties
-            this.Properties = new Dictionary<ShieldProperty, int>(template.Properties);
+            newShield.Properties = new Dictionary<ShieldProperty, int>(Properties);
+            return newShield;
         }
 
         public override string ToString()
