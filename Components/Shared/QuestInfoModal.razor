@@ -1,0 +1,88 @@
+@using LoDCompanion.Services.Game
+@inject QuestService QuestService
+
+<style>
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1050;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background-color: #2c2f33;
+    /* Dark theme background */
+    color: #f0f0f0;
+    /* Light text */
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    border: 1px solid #4f545c;
+  }
+
+  .modal-header h2 {
+    margin-top: 0;
+    color: #cbb377;
+    /* Gold-ish color for titles */
+  }
+
+  .narrative-text {
+    font-style: italic;
+    color: #b0b0b0;
+    /* Lighter grey for narrative */
+    margin-bottom: 1rem;
+  }
+
+  .modal-footer {
+    text-align: right;
+    margin-top: 1.5rem;
+  }
+
+  .btn-primary {
+    background-color: #7289da;
+    border-color: #7289da;
+    font-weight: bold;
+  }
+</style>
+
+@if (IsVisible && QuestService.ActiveQuest != null)
+{
+  <div class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>@QuestService.ActiveQuest.Name</h2>
+      </div>
+      <div class="modal-body">
+        <p class="narrative-text"><em>@QuestService.ActiveQuest.NarrativeQuest</em></p>
+        @if (!string.IsNullOrEmpty(QuestService.ActiveQuest.SpecialRules))
+        {
+          <p><strong>Special Rules:</strong> @QuestService.ActiveQuest.SpecialRules</p>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" @onclick="CloseModal">Begin Quest</button>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  [Parameter]
+  public bool IsVisible { get; set; }
+
+  [Parameter]
+  public EventCallback OnClose { get; set; }
+
+  private async Task CloseModal()
+  {
+    await OnClose.InvokeAsync();
+  }
+}

@@ -14,7 +14,7 @@
 @inject PartyManagerService PartyManager
 
 <style>
-.wilderness-container {
+    .wilderness-container {
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -29,42 +29,13 @@
     }
 </style>
 
-<div class="wilderness-container" >
-    @if (QuestService.IsQuestActive &&
-    QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
-    QuestService.ActiveEncounterRoom != null)
-    {
-        <div class="quest-header">
-            <h1>@QuestService.ActiveQuest.Name</h1>
-            <p class="narrative-text"><em>@QuestService.ActiveQuest.NarrativeQuest</em></p>
-            @if (!string.IsNullOrEmpty(QuestService.ActiveQuest.SpecialRules))
-            {
-                <p><strong>Special Rules:</strong> @QuestService.ActiveQuest.SpecialRules</p>
-            }
-        </div>
+<div class="wilderness-container">
+    <QuestInfoModal IsVisible="_isQuestInfoVisible" OnClose="StartCombat" />
 
-        <div class="game-area">
-            <GridDisplay Room="QuestService.ActiveEncounterRoom"
-                        OnHeroClicked="HandleHeroClick" 
-                        OnMonsterClicked="HandleMonsterClick"
-                        OnActionClicked="HandleContextMenuAction" />
-        </div>
-
-        <div class="combat-ui">
-            <CombatInterface FeedbackMessage="@_feedbackMessage"
-            OnActionButtonClicked="HandleActionButtonClick" />
-        </div>
-    }
-    else
-    {
-        <div class="no-quest-active">
-            <h3>The wilderness is quiet... for now.</h3>
-            <p>Your journey continues uneventfully.</p>
-        </div>
-    }
 </div>
 
 @code {
+    private bool _isQuestInfoVisible = true;
     private enum InputState
     {
         AwaitingAction,
@@ -75,6 +46,13 @@
 
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
+
+    private async Task StartCombat()
+    {
+        _isQuestInfoVisible = false;
+        await CombatManager.StartFirstTurnAsync();
+        StateHasChanged();
+    }
 
     private async Task HandleContextMenuAction(ActionInfo actionInfo)
     {
