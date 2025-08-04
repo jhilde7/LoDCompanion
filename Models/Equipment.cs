@@ -273,6 +273,20 @@ namespace LoDCompanion.Models
             return RandomHelper.GetRandomNumber(MinDamage, MaxDamage);
         }
 
+        public override Weapon Clone()
+        {
+            if (this is MeleeWeapon meleeWeapon)
+            {
+                return meleeWeapon.Clone();
+            }
+            else if (this is RangedWeapon rangedWeapon)
+            {
+                return rangedWeapon.Clone();
+            }
+
+            return (Weapon)this.Clone();
+        }
+
     }
 
     public class MeleeWeapon : Weapon
