@@ -114,14 +114,6 @@
         _feedbackMessage = string.Empty;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await CombatManager.StartFirstTurnAsync();
-        }
-    }
-
     protected override void OnInitialized()
     {
         QuestService.OnQuestStateChanged += () => InvokeAsync(StateHasChanged);
