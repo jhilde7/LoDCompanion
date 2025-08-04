@@ -18,7 +18,9 @@ namespace LoDCompanion.Services.Game
         private readonly DungeonState _dungeon;
         private readonly FacingDirectionService _facing;
         private readonly SpellResolutionService _spellResolution;
+        private readonly FloatingTextService _floatingText;
 
+        private static readonly GridPosition ScreenCenterPosition = new GridPosition(-1, -1, -1);
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
@@ -35,7 +37,8 @@ namespace LoDCompanion.Services.Game
             MonsterAIService monsterAIService,
             DungeonState dungeonState,
             FacingDirectionService facingDirectionService,
-        SpellResolutionService spellResolutionService)
+            SpellResolutionService spellResolutionService,
+            FloatingTextService floatingTextService)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
@@ -43,6 +46,7 @@ namespace LoDCompanion.Services.Game
             _dungeon = dungeonState;
             _facing = facingDirectionService;
             _spellResolution = spellResolutionService;
+            _floatingText = floatingTextService;
 
             _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
         }
@@ -85,7 +89,7 @@ namespace LoDCompanion.Services.Game
                 CombatLog.Add($"{deceasedMonster.Name} has been slain!");
 
                 Corpse corpse = deceasedMonster.Body;
-                corpse.Position = deceasedMonster.Position ?? new GridPosition(0,0,0);
+                corpse.Position = deceasedMonster.Position ?? new GridPosition(0, 0, 0);
                 corpse.Room = deceasedMonster.Room;
                 corpse.UpdateOccupiedSquares();
 
@@ -196,7 +200,7 @@ namespace LoDCompanion.Services.Game
                 }
             }
             foreach (var monster in MonstersInCombat)
-            {                
+            {
                 monster.ResetActionPoints();
                 monster.HasMadeFirstMoveAction = false;
                 monster.ResetMovementPoints();
@@ -231,6 +235,7 @@ namespace LoDCompanion.Services.Game
                     // Check if there are any heroes who can act.
                     if (availableHeroes.Any())
                     {
+                        _floatingText.ShowText("Player Turn!", ScreenCenterPosition, "turn-announcement-text");
                         IsAwaitingHeroSelection = true;
                         ActiveHero = null; // Clear the previously active hero
                         CombatLog.Add("Hero's turn. Select an available hero to act.");
@@ -250,7 +255,6 @@ namespace LoDCompanion.Services.Game
                 {
                     IsAwaitingHeroSelection = false;
                     ActiveHero = null;
-                    CombatLog.Add("A monster acts!");
 
                     var monstersToAct = MonstersInCombat.Except(MonstersThatHaveActedThisTurn).ToList();
                     foreach (var monster in MonstersThatHaveActedThisTurn)
@@ -261,9 +265,10 @@ namespace LoDCompanion.Services.Game
                     var monsterToAct = SelectMonsterToAct(monstersToAct, HeroesInCombat);
                     if (monsterToAct != null)
                     {
+                        _floatingText.ShowText("Monster Turn!", ScreenCenterPosition, "turn-announcement-text");
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
-                        CombatLog.Add($"A monster ({monsterToAct.Name}) prepares to act...");
+                        CombatLog.Add($"{monsterToAct.Name} prepares to act...");
                         await StatusEffectService.ProcessStatusEffectsAsync(monsterToAct);
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
@@ -272,7 +277,7 @@ namespace LoDCompanion.Services.Game
                     }
                 }
 
-                OnCombatStateChanged?.Invoke(); 
+                OnCombatStateChanged?.Invoke();
             }
 
             if (IsCombatOver())
@@ -413,7 +418,7 @@ namespace LoDCompanion.Services.Game
                     if (weapon.IsRanged && hero.Position != null)
                     {
                         // Check for adjacent enemies
-                        bool isEnemyAdjacent = HeroesInCombat.Any(h => h.Position != null &&  GridService.GetDistance(hero.Position, h.Position) <= 1);
+                        bool isEnemyAdjacent = HeroesInCombat.Any(h => h.Position != null && GridService.GetDistance(hero.Position, h.Position) <= 1);
                         if (isEnemyAdjacent) continue;
 
                         var losResult = GridService.HasLineOfSight(hero.Position, pathSquare, _dungeon.DungeonGrid);
@@ -425,8 +430,8 @@ namespace LoDCompanion.Services.Game
                     }
                     // Melee Overwatch Check: Did the monster enter the hero's Zone of Control?
                     // Dodging and parrying can only be done if the attack comes through the hero's ZOC
-            // It is implied that Overwatch follows the same principle.
-            else
+                    // It is implied that Overwatch follows the same principle.
+                    else
                     {
                         if (DirectionService.IsInZoneOfControl(pathSquare, hero))
                         {
