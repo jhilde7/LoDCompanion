@@ -12,7 +12,7 @@ namespace LoDCompanion.Services.GameData
             // 1. Find the base template.
             Armour template = EquipmentService.GetArmourByName(baseArmourName) ?? new Armour();
 
-            Armour newArmour = new Armour(template);
+            Armour newArmour = template.Clone();
             newArmour.Name = newName;
 
             modifications(newArmour);
@@ -28,7 +28,7 @@ namespace LoDCompanion.Services.GameData
             // 1. Find the base template.
             Shield template = EquipmentService.GetShieldByName(baseShieldName) ?? new Shield();
 
-            Shield newShield = new Shield(template);
+            Shield newShield = template.Clone();
             newShield.Name = newName;
 
             modifications(newShield);
