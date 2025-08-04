@@ -28,7 +28,7 @@ namespace LoDCompanion.Services.Game
         public bool IsQuestActive => ActiveQuest != null;
 
         public QuestService(
-            DungeonManagerService dungeonManagerService, 
+            DungeonManagerService dungeonManagerService,
             RoomService roomService,
             WorldStateService worldState,
             PlacementService placement,
@@ -272,7 +272,7 @@ namespace LoDCompanion.Services.Game
                             {
                                 { "Name", "Bandit Leader" },
                                 { "Count", "1" },
-                                { "Weapons", "Longsword,Shield" },
+                                { "Weapons", "Longsword" },
                                 { "Shield", "true" },
                                 { "Armour", "1" },
                                 { "PlacementRule", "RandomEdge" },
