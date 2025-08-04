@@ -368,8 +368,8 @@ namespace LoDCompanion.Services.GameData
                         Level = 2,
                         CastingValue = 20,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
-                            { SpellProperty.Incantation, 0 } 
+                        {
+                            { SpellProperty.Incantation, 0 }
                         },
                         School = MagicSchool.Enchantment,
                         TargetType = SpellTargetType.NoTarget,
@@ -380,8 +380,8 @@ namespace LoDCompanion.Services.GameData
                         Level = 2,
                         ManaCost = 8,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
-                            { SpellProperty.Touch, 0 } 
+                        {
+                            { SpellProperty.Touch, 0 }
                         },
                         School = MagicSchool.Alteration,
                         SpellEffect = "This spell can be used to magically open locked doors or chests. The caster must stand close enough to touch the lock, and the locks hit points is used as the CV of the spell."
@@ -394,7 +394,7 @@ namespace LoDCompanion.Services.GameData
                         Properties = new Dictionary<SpellProperty, int>()
                         {
                             { SpellProperty.TurnDuration, 0 },
-                            { SpellProperty.DiceCount, 1 }, 
+                            { SpellProperty.DiceCount, 1 },
                             { SpellProperty.DiceMaxValue, 3 }
                         },
                         School = MagicSchool.Alteration,
@@ -466,7 +466,7 @@ namespace LoDCompanion.Services.GameData
                         CastingValue = 18,
                         ManaCost = 16,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
+                        {
                             { SpellProperty.MagicMissile, 0 },
                             { SpellProperty.Upkeep, 1 },
                             { SpellProperty.ReduceCombatSkill, 10 },
@@ -484,8 +484,8 @@ namespace LoDCompanion.Services.GameData
                         CastingValue = 25,
                         ManaCost = 16,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
-                            { SpellProperty.Incantation, 0 } 
+                        {
+                            { SpellProperty.Incantation, 0 }
                         },
                         School = MagicSchool.Enchantment,
                         TargetType = SpellTargetType.NoTarget,
@@ -529,7 +529,7 @@ namespace LoDCompanion.Services.GameData
                         ManaCost = 18,
                         DamageType = DamageType.Lightning,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
+                        {
                             { SpellProperty.MagicMissile, 0 },
                             { SpellProperty.ArmourPiercing, 99 },
                             { SpellProperty.DiceCount, 1 },
@@ -570,7 +570,7 @@ namespace LoDCompanion.Services.GameData
                         ManaCost = 14,
                         Properties = new Dictionary<SpellProperty, int>()
                         {
-                            { SpellProperty.MagicMissile, 0 }, 
+                            { SpellProperty.MagicMissile, 0 },
                             {SpellProperty.QuickSpell, 0 },
                             { SpellProperty.DiceCount, 1 },
                             { SpellProperty.DiceMaxValue, 10 },
@@ -647,7 +647,7 @@ namespace LoDCompanion.Services.GameData
                         CastingValue = 12,
                         ManaCost = 15,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
+                        {
                             { SpellProperty.QuickSpell, 0 },
                             { SpellProperty.StatBonus, 10 },
                             { SpellProperty.RerollFear, 1 },
@@ -665,7 +665,7 @@ namespace LoDCompanion.Services.GameData
                         ManaCost = 16,
                         DamageType = DamageType.Frost,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
+                        {
                             { SpellProperty.MagicMissile, 0 },
                             { SpellProperty.LOS, 0 },
                             { SpellProperty.DiceCount, 2 },
@@ -680,7 +680,7 @@ namespace LoDCompanion.Services.GameData
                         CastingValue = 20,
                         ManaCost = 20,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
+                        {
                             { SpellProperty.QuickSpell, 0 },
                             { SpellProperty.Upkeep, 6 },
                             { SpellProperty.ResolveTest, 0 },
@@ -799,7 +799,7 @@ namespace LoDCompanion.Services.GameData
                         CastingValue = 18,
                         ManaCost = 18,
                         Properties = new Dictionary<SpellProperty, int>()
-                        { 
+                        {
                             { SpellProperty.Touch, 0 },
                             { SpellProperty.ResolveTest, 0 },
                             { SpellProperty.TurnDuration, 0 },
@@ -1323,7 +1323,7 @@ namespace LoDCompanion.Services.GameData
 
         public static List<MonsterSpell> GetMonsterSpellsByType(MonsterSpellType type)
         {
-            return (List<MonsterSpell>)MonsterSpells.Where(s => s.Type == type);
+            return MonsterSpells.Where(s => s.Type == type).ToList();
         }
     }
 
@@ -1452,7 +1452,7 @@ namespace LoDCompanion.Services.GameData
                 }
                 if (Properties != null && HasProperty(SpellProperty.Radius))
                 {
-                    sb.AppendLine($" | Radius: {Properties.GetValueOrDefault(SpellProperty.Radius, 1)}"); 
+                    sb.AppendLine($" | Radius: {Properties.GetValueOrDefault(SpellProperty.Radius, 1)}");
                 }
             }
 
