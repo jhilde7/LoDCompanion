@@ -19,7 +19,7 @@ namespace LoDCompanion.Services.GameData
         {
             var template = EquipmentService.GetWeaponByName(baseWeaponName) as MeleeWeapon ?? new MeleeWeapon();
 
-            var newWeapon = new MeleeWeapon(template);
+            var newWeapon = template.Clone();
 
             newWeapon.Name = newName;
 

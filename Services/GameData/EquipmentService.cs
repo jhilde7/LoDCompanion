@@ -17,9 +17,9 @@ namespace LoDCompanion.Services.GameData
         public static List<Shield> Shields => GetShields();
         public static List<Equipment> Relics => GetRelics();
 
-        public EquipmentService() 
-        { 
-            
+        public EquipmentService()
+        {
+
         }
 
         public static Equipment? GetAnyEquipmentByName(string name)
@@ -66,7 +66,7 @@ namespace LoDCompanion.Services.GameData
         public static Ammo? GetAmmoByName(string name)
         {
             var masterItem = Ammo.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new Ammo(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static Ammo? GetAmmoByNameSetQuantity(string name, int qty)
@@ -74,7 +74,7 @@ namespace LoDCompanion.Services.GameData
             Ammo? item = GetAmmoByName(name);
             if (item != null)
             {
-                item.Quantity = qty; 
+                item.Quantity = qty;
             }
             return item;
         }
@@ -89,13 +89,13 @@ namespace LoDCompanion.Services.GameData
         public static MeleeWeapon? GetMeleeWeaponByName(string name)
         {
             var masterItem = MeleeWeapons.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new MeleeWeapon(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static RangedWeapon? GetRangedWeaponByName(string name)
         {
             var masterItem = RangedWeapons.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new RangedWeapon(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static Weapon? GetWeaponByName(string name)
@@ -108,7 +108,7 @@ namespace LoDCompanion.Services.GameData
             Weapon? weapon = GetWeaponByName(name);
             if (weapon != null)
             {
-                weapon.Durability = durability; 
+                weapon.Durability = durability;
             }
             return weapon;
         }
@@ -124,13 +124,13 @@ namespace LoDCompanion.Services.GameData
         public static MagicStaff? GetMagicStaffByName(string name)
         {
             var masterItem = MagicStaves.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new MagicStaff(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static Armour? GetArmourByName(string name)
         {
             var masterItem = Armour.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new Armour(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
         public static Armour GetArmourByNameSetDurability(string name, int durability)
         {
@@ -149,7 +149,7 @@ namespace LoDCompanion.Services.GameData
         public static Shield? GetShieldByName(string name)
         {
             var masterItem = Shields.FirstOrDefault(x => x.Name == name);
-            return masterItem != null ? new Shield(masterItem) : null;
+            return masterItem != null ? masterItem.Clone() : null;
         }
 
         public static Shield GetShieldByNameSetDurability(string name, int durability)
@@ -174,8 +174,8 @@ namespace LoDCompanion.Services.GameData
 
         public static List<Equipment> GetShopInventory(bool useAvailability = false)
         {
-            if (useAvailability) 
-            { 
+            if (useAvailability)
+            {
                 throw new NotImplementedException();
             }
             else
@@ -1196,7 +1196,7 @@ namespace LoDCompanion.Services.GameData
                     ReloadTime = 1,
                     Description = "",
                     AmmoType = AmmoType.Arrow,
-                    Properties = new Dictionary<WeaponProperty, int>() { 
+                    Properties = new Dictionary<WeaponProperty, int>() {
                         { WeaponProperty.ArmourPiercing, 1 }
                     }
                   },

@@ -25,7 +25,7 @@ namespace LoDCompanion.Utilities
         {
             var existingItem = backpack.FirstOrDefault(item => item == itemToRemove);
 
-            if(existingItem != null && existingItem.Quantity > 1)
+            if (existingItem != null && existingItem.Quantity > 1)
             {
                 existingItem.Quantity -= 1;
             }
@@ -43,7 +43,7 @@ namespace LoDCompanion.Utilities
             {
                 if (itemInBackPack is MeleeWeapon melee)
                 {
-                    var meleeWeapon = new MeleeWeapon(melee);
+                    var meleeWeapon = melee.Clone();
                     meleeWeapon.Quantity = 1; // Ensure we return a single item
                     melee.Quantity -= 1;
                     if (melee.Quantity <= 0)
@@ -54,7 +54,7 @@ namespace LoDCompanion.Utilities
                 }
                 else if (itemInBackPack is RangedWeapon ranged)
                 {
-                    var rangedWeapon = new RangedWeapon(ranged);
+                    var rangedWeapon = ranged.Clone();
                     rangedWeapon.Quantity = 1; // Ensure we return a single item
                     ranged.Quantity -= 1;
                     if (ranged.Quantity <= 0)
@@ -65,7 +65,7 @@ namespace LoDCompanion.Utilities
                 }
                 else if (itemInBackPack is Armour armour)
                 {
-                    var armourItem = new Armour(armour);
+                    var armourItem = armour.Clone();
                     armourItem.Quantity = 1; // Ensure we return a single item
                     armour.Quantity -= 1;
                     if (armour.Quantity <= 0)
@@ -76,7 +76,7 @@ namespace LoDCompanion.Utilities
                 }
                 else if (itemInBackPack is Shield shield)
                 {
-                    var shieldItem = new Shield(shield);
+                    var shieldItem = shield.Clone();
                     shieldItem.Quantity = 1; // Ensure we return a single item
                     shield.Quantity -= 1;
                     if (shield.Quantity <= 0)
@@ -87,7 +87,7 @@ namespace LoDCompanion.Utilities
                 }
                 else if (itemInBackPack is Ammo ammo)
                 {
-                    var ammoItem = new Ammo(ammo);
+                    var ammoItem = ammo.Clone();
                     ammoItem.Quantity = 1; // Ensure we return a single item
                     ammo.Quantity -= 1;
                     if (ammo.Quantity <= 0)
@@ -98,7 +98,7 @@ namespace LoDCompanion.Utilities
                 }
                 else if (itemInBackPack is MagicStaff mStaff)
                 {
-                    var staff = new MagicStaff(mStaff);
+                    var staff = mStaff.Clone();
                     staff.Quantity = 1; // Ensure we return a single item
                     mStaff.Quantity -= 1;
                     if (mStaff.Quantity <= 0)

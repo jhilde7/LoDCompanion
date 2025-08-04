@@ -36,9 +36,9 @@ namespace LoDCompanion.Services.Player
     /// </summary>
     public class InventoryService
     {
-        public InventoryService() 
-        { 
-           
+        public InventoryService()
+        {
+
         }
 
         /// <summary>
@@ -123,12 +123,12 @@ namespace LoDCompanion.Services.Player
             if (itemToEquip is Weapon weapon) success = EquipWeapon(hero, weapon);
             else if (itemToEquip is Armour armour) success = EquipArmour(hero, armour);
             else if (itemToEquip is Shield shield) success = EquipOffHand(hero, shield);
-            else if (itemToEquip.HasProperty(EquipmentProperty.Lantern) 
+            else if (itemToEquip.HasProperty(EquipmentProperty.Lantern)
                 || itemToEquip.HasProperty(EquipmentProperty.Torch))
             {
                 success = EquipOffHand(hero, itemToEquip);
             }
-            else if (hero.ProfessionName == "Warrior Priest" 
+            else if (hero.ProfessionName == "Warrior Priest"
                 && itemToEquip.Name.Contains("Relic")) success = EquipRelic(hero, itemToEquip);
             else if (item.Storage != null)
             {
@@ -240,8 +240,9 @@ namespace LoDCompanion.Services.Player
             if (backpackStack != null)
             {
                 int quantityToMove = Math.Min(10, backpackStack.Quantity);
-                var quiverStack = new Ammo(backpackStack) { Quantity = quantityToMove };
-                backpackStack.Quantity -= quantityToMove; 
+                var quiverStack = backpackStack.Clone();
+                quiverStack.Quantity = quantityToMove;
+                backpackStack.Quantity -= quantityToMove;
                 hero.Inventory.EquippedQuiver = quiverStack;
                 Console.WriteLine($"{hero.Name}'s quiver was loaded with {quantityToMove} {ammoToEquip.Name}s.");
                 return true;
@@ -368,7 +369,7 @@ namespace LoDCompanion.Services.Player
                 foreach (var item in itemsToUnequip)
                 {
                     UnequipItem(hero, item); // This helper now handles its own console message.
-                } 
+                }
             }
 
             equippedArmour.Add(armourToEquip);
