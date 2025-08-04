@@ -32,6 +32,26 @@
 <div class="wilderness-container">
     <QuestInfoModal IsVisible="_isQuestInfoVisible" OnClose="StartCombat" />
 
+    @if (QuestService.IsQuestActive &&
+        QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
+        QuestService.ActiveEncounterRoom != null)
+    {
+        <div class="game-area">
+            <GridDisplay Room="QuestService.ActiveEncounterRoom" OnHeroClicked="HandleHeroClick"
+                OnMonsterClicked="HandleMonsterClick" OnActionClicked="HandleContextMenuAction" />
+        </div>
+
+        <div class="combat-ui">
+            <CombatInterface FeedbackMessage="@_feedbackMessage" OnActionButtonClicked="HandleActionButtonClick" />
+        </div>
+    }
+    else
+    {
+        <div class="no-quest-active">
+            <h3>The wilderness is quiet... for now.</h3>
+            <p>Your journey continues uneventfully.</p>
+        </div>
+    }
 </div>
 
 @code {
@@ -46,13 +66,6 @@
 
     private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
-
-    private async Task StartCombat()
-    {
-        _isQuestInfoVisible = false;
-        await CombatManager.StartFirstTurnAsync();
-        StateHasChanged();
-    }
 
     private async Task HandleContextMenuAction(ActionInfo actionInfo)
     {
@@ -86,6 +99,13 @@
             PartyManager.SelectedHero = PartyManager.Party?.Heroes.FirstOrDefault(h => h == hero);
             await CombatManager.SelectHeroToActionAsync(hero);
         }
+    }
+
+    private async Task StartCombat()
+    {
+        _isQuestInfoVisible = false;
+        await CombatManager.StartFirstTurnAsync();
+        StateHasChanged();
     }
 
     private void ResetInputState()
