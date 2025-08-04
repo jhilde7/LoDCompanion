@@ -46,8 +46,8 @@ builder.Services.AddScoped<CombatManagerService>();
 builder.Services.AddScoped<InitiativeService>();
 builder.Services.AddScoped<SpellCastingService>();
 builder.Services.AddScoped<SpellResolutionService>();
-builder.Services.AddSingleton<MonsterSpecialService>();
-builder.Services.AddSingleton<AttackService>();
+builder.Services.AddScoped<MonsterSpecialService>();
+builder.Services.AddScoped<AttackService>();
 builder.Services.AddSingleton<FacingDirectionService>();
 //Dungeon
 builder.Services.AddScoped<DungeonBuilderService>();
@@ -64,12 +64,13 @@ builder.Services.AddSingleton<SearchService>();
 builder.Services.AddSingleton<TreasureService>();
 builder.Services.AddSingleton<ThreatService>();
 builder.Services.AddSingleton<TrapService>();
-//Party
+//Player
 builder.Services.AddScoped<CharacterCreationService>();
 builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<ActionService>();
 builder.Services.AddScoped<PartyRestingService>();
+builder.Services.AddSingleton<PassiveAbilityService>();
 builder.Services.AddSingleton<HealingService>();
 builder.Services.AddSingleton<IdentificationService>();
 //Game
