@@ -1636,7 +1636,7 @@ namespace LoDCompanion.Services.Dungeon
             if (specialRule != null)
             {
                 newMonster.SpecialRules ??= new List<string>();
-                newMonster.SpecialRules.Add(specialRule); 
+                newMonster.SpecialRules.Add(specialRule);
             }
 
             if (newMonster.SpecialRules != null)
@@ -1675,7 +1675,7 @@ namespace LoDCompanion.Services.Dungeon
                                     });
                             }
                         }
-                    } 
+                    }
                 }
 
                 if (newMonster.SpecialRules.Contains("Raise dead"))
@@ -6013,14 +6013,14 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     bool isCursed = false;
                     bool isPoisoned = false;
-                    Weapon? weapon;
+                    Weapon? weapon = EquipmentService.GetWeaponByName(weaponName);
                     if (weaponName.Contains("Cursed"))
                     {
                         // Removed cursed from name to get the correct weapon returned
                         isCursed = true;
                         weapon = EquipmentService.GetWeaponByName(weaponName.Replace("Cursed", "").Trim());
                     }
-                    else if(weaponName.Contains("Poisonous"))
+                    else if (weaponName.Contains("Poisonous"))
                     {
                         // Removed cursed from name to get the correct weapon returned
                         isPoisoned = true;
@@ -6034,7 +6034,7 @@ namespace LoDCompanion.Services.Dungeon
                     if (weapon != null)
                     {
                         weapon = (Weapon)weapon.Clone();
-                        if(isCursed)
+                        if (isCursed)
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
                         }
