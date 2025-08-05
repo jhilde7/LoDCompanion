@@ -28,7 +28,7 @@ namespace LoDCompanion.Services.Game
         }
         private void NotifyStateChanged() => OnStateChanged?.Invoke();
 
-        public async Task SaveGameAsync(string locationUrl)
+        public async Task<bool> SaveGameAsync(string locationUrl)
         {
             GameState.CurrentLocationUrl = locationUrl;
             try
@@ -38,11 +38,14 @@ namespace LoDCompanion.Services.Game
                     Console.WriteLine("GameStateManager: SaveGameAsync called.");
                     await _persistenceService.SaveGameStateAsync(GameState);
                     Console.WriteLine("GameStateManager: Save successful!");
+                    return true;
                 }
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"GameStateManager: CRITICAL - Save FAILED. Exception: {ex}");
+                return false;
             }
         }
 
