@@ -32,14 +32,14 @@ namespace LoDCompanion.Services.Combat
         private readonly MonsterSpecialService _monsterSpecial;
 
         public AttackService(
-            FloatingTextService floatingTextService, 
+            FloatingTextService floatingTextService,
             UserRequestService diceRollService,
             MonsterSpecialService monsterSpecialService)
         {
             _floatingText = floatingTextService;
             _diceRoll = diceRollService;
             _monsterSpecial = monsterSpecialService;
-            
+
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
             _monsterSpecial.OnSpitAttack += HandleSpitAttack;
@@ -55,7 +55,7 @@ namespace LoDCompanion.Services.Combat
         {
             if (context == null)
             {
-                context = new CombatContext(); // Standard attack has a default context 
+                context = new CombatContext(); // Standard attack has a default context
             }
             return await ResolveAttackAsync(attacker, weapon, target, context);
         }
@@ -79,7 +79,7 @@ namespace LoDCompanion.Services.Combat
         {
             if (context == null)
             {
-                context =  new CombatContext { IsChargeAttack = true };
+                context = new CombatContext { IsChargeAttack = true };
             }
             return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
         }
@@ -90,7 +90,7 @@ namespace LoDCompanion.Services.Combat
 
             if (attacker is Hero hero)
             {
-                result = await CalculateHeroHitAttemptAsync(hero, weapon, (Monster)target, context); 
+                result = await CalculateHeroHitAttemptAsync(hero, weapon, (Monster)target, context);
             }
             else
             {
@@ -114,7 +114,7 @@ namespace LoDCompanion.Services.Combat
                 result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, weapon, context, dungeon);
             }
 
-            if(weapon is RangedWeapon rangedWeapon)
+            if (weapon is RangedWeapon rangedWeapon)
             {
                 rangedWeapon.ConsumeAmmo();
             }
@@ -202,7 +202,7 @@ namespace LoDCompanion.Services.Combat
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
-                    result.OutcomeMessage += CheckForQuickSlotDamage(target); 
+                    result.OutcomeMessage += CheckForQuickSlotDamage(target);
                 }
                 _floatingText.ShowText($"-{result.DamageDealt}", target.Position, "damage-text");
             }
@@ -210,7 +210,7 @@ namespace LoDCompanion.Services.Combat
             {
                 if (target.Position != null)
                 {
-                    _floatingText.ShowText("Blocked!", target.Position, "miss-text"); 
+                    _floatingText.ShowText("Blocked!", target.Position, "miss-text");
                 }
             }
 
@@ -232,7 +232,7 @@ namespace LoDCompanion.Services.Combat
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             if (target.Position != null)
             {
-                _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text"); 
+                _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text");
             }
 
             if (context.IsChargeAttack && dungeon != null)
@@ -252,7 +252,7 @@ namespace LoDCompanion.Services.Combat
             {
                 heroWeapon = hero.Inventory.EquippedWeapon;
             }
-            if(target is Monster monster)
+            if (target is Monster monster)
             {
                 monsterWeapon = monster.GetMeleeWeapon();
             }
@@ -262,9 +262,9 @@ namespace LoDCompanion.Services.Combat
             if (weapon != null && weapon is RangedWeapon)
             {
                 modifier -= (context.ObstaclesInLineOfSight * 10);
-                if (target is Monster targetMonster && 
-                    (targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge) 
-                    || targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.Large))) 
+                if (target is Monster targetMonster &&
+                    (targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge)
+                    || targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.Large)))
                     modifier += 10;
                 if (context.HasAimed) modifier += 10;
             }
@@ -313,12 +313,22 @@ namespace LoDCompanion.Services.Combat
 
         private int CalculateWeaponPotentialDamage(Weapon weapon)
         {
-            return weapon.RollDamage();
+            int damage = 0;
+            while (damage == 0)
+            {
+                damage = weapon.RollDamage();
+            }
+            return damage;
         }
 
         public int CalculateMonsterPotentialDamage(Monster monster)
         {
-            return RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage) + monster.GetStat(BasicStat.DamageBonus);
+            int damage = 0;
+            while (damage == 0)
+            {
+                damage = RandomHelper.GetRandomNumber(monster.MinDamage, monster.MaxDamage);
+            }
+            return damage + monster.GetStat(BasicStat.DamageBonus);
         }
 
         private async Task<DefenseResult> ResolveHeroDefenseAsync(Hero target, int incomingDamage)
@@ -391,7 +401,7 @@ namespace LoDCompanion.Services.Combat
                 if (item != null)
                 {
                     item.Durability--;
-                    return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged."; 
+                    return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged.";
                 }
             }
             return "The hero's gear was spared from the impact.";
@@ -405,7 +415,7 @@ namespace LoDCompanion.Services.Combat
         {
             string? dice = weapon.DamageDice;
             int damage = 0;
-            if(dice != null)
+            if (dice != null)
             {
                 damage = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", dice);
             }
@@ -507,10 +517,10 @@ namespace LoDCompanion.Services.Combat
             else // attack can be parried or dodged as normal
             {
                 DefenseResult defenseResult = await ResolveHeroDefenseAsync(target, 0);
-                if( defenseResult.WasSuccessful)
+                if (defenseResult.WasSuccessful)
                 {
                     result.IsHit = false; // The attack was successfully defended
-                    result.OutcomeMessage = defenseResult.OutcomeMessage; 
+                    result.OutcomeMessage = defenseResult.OutcomeMessage;
                 }
             }
             return result;
@@ -526,7 +536,7 @@ namespace LoDCompanion.Services.Combat
                 if (hero.Position == null) continue;
                 var heroesInZoc = DirectionService.IsInZoneOfControl(attacker.Position, hero);
                 result = CalculateMonsterHitAttempt(attacker, attacker.GetMeleeWeapon(), hero, new CombatContext());
-                
+
                 // Heroes can attempt to dodge but not parry.
                 var defenseResult = await DefenseService.AttemptDodge(hero, _diceRoll);
                 if (defenseResult.WasSuccessful)
@@ -538,8 +548,8 @@ namespace LoDCompanion.Services.Combat
                 if (result.IsHit)
                 {
                     int baseDamage = CalculateMonsterPotentialDamage(attacker);
-                    int potentialDamage = (int)Math.Ceiling(baseDamage/ 2d); // Base damage is halved for sweeping strikes.
-                    
+                    int potentialDamage = (int)Math.Ceiling(baseDamage / 2d); // Base damage is halved for sweeping strikes.
+
                     // Calculate pushback position
                     int dx = hero.Position.X - attacker.Position.X;
                     int dy = hero.Position.Y - attacker.Position.Y;
@@ -647,7 +657,7 @@ namespace LoDCompanion.Services.Combat
         public Task<AttackResult> HandleWebAttempt(Monster monster, Hero target)
         {
             var result = CalculateMonsterHitAttempt(monster, null, target, new CombatContext());
-            if(!result.IsHit && target.Position != null)
+            if (!result.IsHit && target.Position != null)
             {
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
             }
