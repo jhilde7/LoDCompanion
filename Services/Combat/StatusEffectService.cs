@@ -137,13 +137,24 @@ namespace LoDCompanion.Services.Combat
         public StatusEffectType Category { get; set; }
         public int Duration { get; set; } // Duration in turns. -1 for permanent until cured.
         public int? StatBonus { get; set; } // Optional value for effects that change stats.
+        public int? SkillBonus { get; set; } // Optional value for effects that change skills.
         public int? Damage { get; set; } // Optional value for effects that deal damage.
         public DiceType? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
 
-        public ActiveStatusEffect(StatusEffectType type, int duration)
+        public ActiveStatusEffect(
+            StatusEffectType type,
+            int duration,
+            int? statBonus = null,
+            int? skillBonus = null,
+            int? damage = null,
+            DiceType? diceToRoll = null)
         {
             Category = type;
             Duration = duration;
+            StatBonus = statBonus;
+            SkillBonus = skillBonus;
+            Damage = damage;
+            DiceToRoll = diceToRoll;
         }
     }
 
