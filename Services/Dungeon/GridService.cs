@@ -131,6 +131,7 @@ namespace LoDCompanion.Services.Dungeon
                 result.Message = "No valid path to move along.";
                 return result;
             }
+            if (character.Position == null) return result;
 
             var originalPosition = character.Position;
 
@@ -202,11 +203,10 @@ namespace LoDCompanion.Services.Dungeon
                 return false;
             }
 
-            if (character.Position != null)
-            {
-                var oldSquare = GetSquareAt(character.Position, grid);
-                if (oldSquare != null) oldSquare.OccupyingCharacterId = null;
-            }
+            if (character.Position == null) return false;
+
+            var oldSquare = GetSquareAt(character.Position, grid);
+            if (oldSquare != null) oldSquare.OccupyingCharacterId = null;
 
             character.Position = newPosition;
             character.UpdateOccupiedSquares();
@@ -270,9 +270,10 @@ namespace LoDCompanion.Services.Dungeon
         /// <returns>A string describing the outcome.</returns>
         public static string ShoveCharacter(Character shover, Character target, Dictionary<GridPosition, GridSquare> grid)
         {
-            if (target is Monster monster && 
-                monster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge || n.Key.Name == MonsterSpecialName.Large)) 
+            if (target is Monster monster &&
+                monster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge || n.Key.Name == MonsterSpecialName.Large))
                 return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
+            if (target.Position == null || shover.Position == null) return "invalid position";
 
             int shoveRoll = RandomHelper.RollDie(DiceType.D100);
             int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;
@@ -318,7 +319,7 @@ namespace LoDCompanion.Services.Dungeon
             }
             else
             {
-                // TODO: Add a "Prone" status effect to the target.
+                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Prone, 1));
                 return $"{shover.Name} shoves {target.Name}, but they are blocked and fall over!";
             }
         }
@@ -573,6 +574,7 @@ namespace LoDCompanion.Services.Dungeon
 
         public static List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity, Dictionary<GridPosition, GridSquare> grid)
         {
+            if(entity.Position == null) return new List<GridPosition>();
             var reachableSquares = new List<GridPosition>();
             // 'visited' tracks positions we've seen and the cost to reach them.
             var visited = new Dictionary<GridPosition, int>();
