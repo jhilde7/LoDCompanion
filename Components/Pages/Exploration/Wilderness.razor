@@ -64,7 +64,6 @@
     }
     private List<ActionInfo> _availableActions = new();
 
-    private InputState _currentInputState = InputState.AwaitingAction;
     private string _feedbackMessage = string.Empty;
 
     private async Task HandleContextMenuAction(ActionInfo actionInfo)
@@ -81,7 +80,7 @@
         {
             case ActionType.EndTurn:
                 await CombatManager.HeroPerformsActionAsync(actionType, null);
-                ResetInputState();
+                _feedbackMessage = string.Empty;
                 break;
         }
     }
@@ -106,12 +105,6 @@
         _isQuestInfoVisible = false;
         await CombatManager.StartFirstTurnAsync();
         StateHasChanged();
-    }
-
-    private void ResetInputState()
-    {
-        _currentInputState = InputState.AwaitingAction;
-        _feedbackMessage = string.Empty;
     }
 
     protected override void OnInitialized()
