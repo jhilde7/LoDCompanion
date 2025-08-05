@@ -14,6 +14,7 @@ namespace LoDCompanion.Services.Combat
         /// <returns>The relative direction of the target.</returns>
         public static RelativeDirection GetRelativeDirection(FacingDirection observerFacing, GridPosition observerPosition, GridPosition targetPosition)
         {
+            if (observerPosition == null || targetPosition == null) return RelativeDirection.Front;
             int dx = targetPosition.X - observerPosition.X;
             int dy = targetPosition.Y - observerPosition.Y; // Assuming Y+ is North
 
@@ -37,31 +38,6 @@ namespace LoDCompanion.Services.Combat
                     break;
             }
 
-            // Check adjacent squares first
-            /*if (Math.Abs(dx) <= 1 && Math.Abs(dy) <= 1)
-            {
-                if (dx == 0 && dy == -1) return RelativeDirection.Front;
-                if (dx == 1 && dy == -1) return RelativeDirection.FrontRight;
-                if (dx == -1 && dy == -1) return RelativeDirection.FrontLeft;
-                if (dx == 1 && dy == 0) return RelativeDirection.Right;
-                if (dx == -1 && dy == 0) return RelativeDirection.Left;
-                if (dx == 1 && dy == 1) return RelativeDirection.BackRight;
-                if (dx == -1 && dy == 1) return RelativeDirection.BackLeft;
-                if (dx == 0 && dy == 1) return RelativeDirection.Back;
-            }
-
-            // Check non-adjacent squares using the sign of dx/dy
-            int sdx = Math.Sign(dx);
-            int sdy = Math.Sign(dy);
-
-            if (sdx == 0 && sdy == -1) return RelativeDirection.Front;
-            if (sdx == 1 && sdy == -1) return RelativeDirection.FrontRight;
-            if (sdx == -1 && sdy == -1) return RelativeDirection.FrontLeft;
-            if (sdx == 1 && sdy == 0) return RelativeDirection.Right;
-            if (sdx == -1 && sdy == 0) return RelativeDirection.Left;
-            if (sdx == 1 && sdy == 1) return RelativeDirection.BackRight;
-            if (sdx == -1 && sdy == 1) return RelativeDirection.BackLeft;
-            if (sdx == 0 && sdy == 1) return RelativeDirection.Back;*/
             // Use Math.Atan2 to get a precise angle, which works for any distance.
             // We adjust the angle because in a Y-down system, "Front" is at -90 degrees.
             double angle = Math.Atan2(dy, dx) * (180 / Math.PI);
@@ -95,6 +71,7 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         public static bool IsAttackingFromBehind(Character attacker, Character target)
         {
+            if(attacker.Position == null || target.Position == null) return false;
             var relativeDir = GetRelativeDirection(target.Facing, target.Position, attacker.Position);
             return relativeDir is RelativeDirection.Back or RelativeDirection.BackLeft or RelativeDirection.BackRight;
         }
@@ -107,7 +84,7 @@ namespace LoDCompanion.Services.Combat
         {
             // A character's ZOC only extends to adjacent squares.
             // We check this first to ensure we are only evaluating the immediate area.
-            if (GridService.GetDistance(character.Position, positionToCheck) > 1)
+            if (character.Position == null ||GridService.GetDistance(character.Position, positionToCheck) > 1)
             {
                 return false;
             }
