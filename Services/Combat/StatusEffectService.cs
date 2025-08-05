@@ -29,7 +29,10 @@ namespace LoDCompanion.Services.Combat
         IgnoreWounds,
         Sprint,
         BattleFury,
+        DeadlyStrike,
         Frenzy,
+        PerfectAim,
+        CleverFingers,
         HideInShadows,
         MyWillBeDone,
         //--Prayers--
@@ -45,7 +48,7 @@ namespace LoDCompanion.Services.Combat
         StrengthOfOhlnir,
         StayThyHand,
         ProvidenceOfMetheia,
-        WarriorOfRamos,
+        WarriorsOfRamos,
         BeGone,
         WeShallNotFalter,
         GodsChampion,
@@ -127,7 +130,7 @@ namespace LoDCompanion.Services.Combat
         IrrationalFear,
         Claustrophobia,
         Depression
-    }
+  }
 
     /// <summary>
     /// Represents an active status effect on a character, including its duration.
@@ -136,16 +139,16 @@ namespace LoDCompanion.Services.Combat
     {
         public StatusEffectType Category { get; set; }
         public int Duration { get; set; } // Duration in turns. -1 for permanent until cured.
-        public int? StatBonus { get; set; } // Optional value for effects that change stats.
-        public int? SkillBonus { get; set; } // Optional value for effects that change skills.
+        public (BasicStat, int)? StatBonus { get; set; } // Optional value for effects that change stats.
+        public (Skill, int)? SkillBonus { get; set; } // Optional value for effects that change skills.
         public int? Damage { get; set; } // Optional value for effects that deal damage.
         public DiceType? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
 
         public ActiveStatusEffect(
             StatusEffectType type,
             int duration,
-            int? statBonus = null,
-            int? skillBonus = null,
+            (BasicStat, int)? statBonus = null,
+            (Skill, int)? skillBonus = null,
             int? damage = null,
             DiceType? diceToRoll = null)
         {
