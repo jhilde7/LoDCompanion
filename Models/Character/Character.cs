@@ -7,6 +7,7 @@ using LoDCompanion.Services.Player;
 using LoDCompanion.Services.Combat;
 using LoDCompanion.Utilities;
 using System.Text;
+using System.Collections;
 
 namespace LoDCompanion.Models.Character
 {
@@ -141,10 +142,24 @@ namespace LoDCompanion.Models.Character
         /// Gets the value of a specific basic stat.
         /// </summary>
         /// <param name="stat">The basic stat to retrieve.</param>
-        /// <returns>The value of the stat, or 0 if not found.</returns>
+        /// <returns>The value of the stat plus any active status effect modifiers, or 0 if not found.</returns>
         public int GetStat(BasicStat stat)
         {
-            return BasicStats.TryGetValue(stat, out int value) ? value : 0;
+            if (!BasicStats.TryGetValue(stat, out int value)) return 0;
+
+            // Filter for effects that have a stat bonus for the specific stat being requested.
+            value += ActiveStatusEffects
+                .Where(e => e.StatBonus.HasValue && e.StatBonus.Value.Item1 == stat)
+                .Sum(e => e.StatBonus != null ? e.StatBonus.Value.Item2 : 0);
+
+            if (this is Hero hero)
+            {
+                value += hero.Talents
+                    .Where(e => e.StatBonus.HasValue && e.StatBonus.Value.Item1 == stat)
+                    .Sum(e => e.StatBonus != null ? e.StatBonus.Value.Item2 : 0);
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -167,10 +182,49 @@ namespace LoDCompanion.Models.Character
         /// Gets the value of a specific skill.
         /// </summary>
         /// <param name="skill">The skill to retrieve.</param>
-        /// <returns>The value of the skill, or 0 if not found.</returns>
+        /// <returns>The value of the skill plus any active status effect modifiers, or 0 if not found.</returns>
         public int GetSkill(Skill skill)
         {
-            return SkillStats.TryGetValue(skill, out int value) ? value : 0;
+            if (!SkillStats.TryGetValue(skill, out int value)) return 0;
+
+            value += ActiveStatusEffects
+                .Where(e => e.SkillBonus.HasValue && e.SkillBonus.Value.Item1 == skill)
+                .Sum(e => e.SkillBonus != null ? e.SkillBonus.Value.Item2 : 0);
+
+            if (this is Hero hero)
+            {
+                value += hero.Talents
+                    .Where(e => e.SkillBonus.HasValue && e.SkillBonus.Value.Item1 == skill)
+                    .Sum(e => e.SkillBonus != null ? e.SkillBonus.Value.Item2 : 0);
+
+                foreach (var talent in hero.Talents)
+                {
+                    if (skill == Skill.CombatSkill)
+                    {
+                        switch (talent.Name)
+                        {
+                            case TalentName.Axeman
+                            when hero.Inventory.EquippedWeapon?.HasProperty(WeaponProperty.Axe) == true:
+                                value += 5;
+                                break;
+                            case TalentName.Bruiser
+                            when hero.Inventory.EquippedWeapon?.HasProperty(WeaponProperty.Blunt) == true:
+                                value += 5;
+                                break;
+                            case TalentName.Swordsman
+                            when hero.Inventory.EquippedWeapon?.HasProperty(WeaponProperty.Sword) == true:
+                                value += 5;
+                                break;
+                            case TalentName.TunnelFighter
+                            when hero.Room.Name.StartsWith('C') && hero.Room.Name.Length <= 4:
+                                value += 10;
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return value;
         }
 
         /// <summary>
