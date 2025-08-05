@@ -278,12 +278,12 @@
     else if (context.Data is Monster targetMonster)
     {
         var activeHero = CombatManager.ActiveHero;
-        @if (activeHero != null)
+        @if (activeHero != null && activeHero.Position != null && targetMonster.Position != null)
         {
             var distance = GridService.GetDistance(activeHero.Position, targetMonster.Position);
             @if (distance <= 1)
             {
-                @if (activeHero.Inventory.EquippedWeapon is MeleeWeapon)
+                @if (activeHero.Inventory.EquippedWeapon != null && activeHero.Inventory.EquippedWeapon.IsMelee)
                 {
                     @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
                     {
@@ -315,7 +315,8 @@
             {
                 @if (distance > 1)
                 {
-                    @if ((activeHero.Inventory.EquippedWeapon is RangedWeapon || activeHero.Inventory.OffHand is RangedWeapon)
+                    @if (activeHero.Inventory.EquippedWeapon != null && (activeHero.Inventory.EquippedWeapon.IsRanged ||
+                        (activeHero.Inventory.OffHand is Weapon weapon && weapon.IsRanged))
                         && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.StandardAttack))
                     {
                         <Item
@@ -324,7 +325,7 @@
                         </Item>
                     }
 
-                    @if (activeHero.Inventory.EquippedWeapon is MeleeWeapon
+                    @if (activeHero.Inventory.EquippedWeapon != null && activeHero.Inventory.EquippedWeapon.IsMelee
                         && activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.ChargeAttack)
                         && distance <= activeHero.GetStat(BasicStat.Move)
                         && GridService.HasClearPath(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid))
@@ -489,7 +490,7 @@
     private string GetItemStyle(IGameEntity entity)
     {
         // Handle multi-square entities like large monsters or furniture.
-        if (entity.OccupiedSquares != null && entity.OccupiedSquares.Any())
+        if (entity.OccupiedSquares != null && entity.OccupiedSquares.Any() && entity.Position != null)
         {
             var minWorldX = entity.OccupiedSquares.Min(p => p.X);
             var minWorldY = entity.OccupiedSquares.Min(p => p.Y);
