@@ -64,7 +64,7 @@ namespace LoDCompanion.Models.Character
         public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public bool HasShield { get; set; } // Indicates if the monster has a shield
         private Room? _room;
-        public Room Room 
+        public Room Room
         {
             get => _room ??= new Room();
             set
@@ -157,7 +157,7 @@ namespace LoDCompanion.Models.Character
         {
             BasicStats[stat] = value;
 
-            if(stat == BasicStat.HitPoints)
+            if (stat == BasicStat.HitPoints)
             {
                 CurrentHP = value; // Ensure CurrentHP is set to the new HitPoints value
             }
@@ -270,7 +270,7 @@ namespace LoDCompanion.Models.Character
         public void ResetActionPoints()
         {
             CurrentAP += GetStat(BasicStat.ActionPoints);
-            if(CurrentAP > GetStat(BasicStat.ActionPoints)) CurrentAP = GetStat(BasicStat.ActionPoints);
+            if (CurrentAP > GetStat(BasicStat.ActionPoints)) CurrentAP = GetStat(BasicStat.ActionPoints);
         }
 
         public void SpendActionPoints(int amount)
@@ -520,11 +520,11 @@ namespace LoDCompanion.Models.Character
 
         private int GetDualWieldBonus()
         {
-            MeleeWeapon? dualWieldWeapon = (MeleeWeapon?)Inventory.OffHand;
-            if (dualWieldWeapon == null) return 0;
-            
-            if (dualWieldWeapon.HasProperty(WeaponProperty.DualWield))
-                return dualWieldWeapon.GetPropertyValue(WeaponProperty.DualWield);
+            if (Inventory.OffHand is MeleeWeapon dualWieldWeapon)
+            {
+                if (dualWieldWeapon.HasProperty(WeaponProperty.DualWield))
+                    return dualWieldWeapon.GetPropertyValue(WeaponProperty.DualWield);
+            }
             return 0; // No dual wield bonus if the weapon doesn't have the property
         }
 
@@ -534,7 +534,7 @@ namespace LoDCompanion.Models.Character
             int torso = 0;
             int arms = 0;
             int legs = 0;
-            foreach(var armour in Inventory.EquippedArmour)
+            foreach (var armour in Inventory.EquippedArmour)
             {
                 foreach (var property in armour.Properties)
                 {
@@ -552,7 +552,7 @@ namespace LoDCompanion.Models.Character
                         case ArmourProperty.Legs:
                             legs += armour.DefValue;
                             break;
-                    } 
+                    }
                 }
             }
 
@@ -584,7 +584,7 @@ namespace LoDCompanion.Models.Character
         public int MaxDamage { get; set; }
         public bool HasSpecialAttack => ActiveAbilities != null;
         public List<SpecialActiveAbility>? ActiveAbilities { get; set; }
-        public int ToHitPenalty { get; set; } 
+        public int ToHitPenalty { get; set; }
         public int XP { get; set; }
         public Dictionary<MonsterPassiveSpecial, int> PassiveSpecials { get; set; } = new Dictionary<MonsterPassiveSpecial, int>();
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
