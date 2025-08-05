@@ -97,7 +97,7 @@
         if (CombatManager.IsAwaitingHeroSelection)
         {
             PartyManager.SelectedHero = PartyManager.Party?.Heroes.FirstOrDefault(h => h == hero);
-            await CombatManager.SelectHeroToActionAsync(hero);
+            await CombatManager.SetActiveHeroAsync(hero);
         }
     }
 

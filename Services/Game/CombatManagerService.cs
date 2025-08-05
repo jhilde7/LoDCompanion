@@ -450,7 +450,7 @@ namespace LoDCompanion.Services.Game
         /// <summary>
         /// This NEW public method is called by the UI when a player clicks on a valid hero.
         /// </summary>
-        public async Task SelectHeroToActionAsync(Hero hero)
+        public async Task SetActiveHeroAsync(Hero hero)
         {
             // Ensure we are in the correct state and the hero is valid
             if (!IsAwaitingHeroSelection || !HeroesInCombat.Contains(hero) || hero.CurrentAP <= 0)
@@ -460,9 +460,12 @@ namespace LoDCompanion.Services.Game
                 return;
             }
 
+            if (ActiveHero == hero)
+            {
+                return;
+            }
             // Set the selected hero as active and exit the selection state
             ActiveHero = hero;
-            IsAwaitingHeroSelection = false;
 
             // Perform standard start-of-turn logic
             await StatusEffectService.ProcessStatusEffectsAsync(ActiveHero);
@@ -476,6 +479,8 @@ namespace LoDCompanion.Services.Game
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
                 CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget));
+                //if hero performs an action then no other hero can be selected until next hero selection phase
+                IsAwaitingHeroSelection = false;
 
                 OnCombatStateChanged?.Invoke();
 
@@ -483,6 +488,7 @@ namespace LoDCompanion.Services.Game
                 {
                     CombatLog.Add($"{ActiveHero.Name}'s turn is over.");
                     ActiveHero.Facing = await _facing.RequestFacingDirectionAsync(ActiveHero);
+                    ActiveHero = null;
                     await Task.Yield(); // Allow UI to process modal closing
                     await ProcessNextInInitiativeAsync();
                 }
