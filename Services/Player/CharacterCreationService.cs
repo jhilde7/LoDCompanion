@@ -45,7 +45,7 @@ namespace LoDCompanion.Services.CharacterCreation
         {
             List<Talent> traits = new List<Talent>();
             if (name != null)
-            {                          
+            {
                 switch (name)
                 {
                     case "Dwarf":
@@ -299,7 +299,7 @@ namespace LoDCompanion.Services.CharacterCreation
         }
 
         public void GetTalentChoices()
-        {            
+        {
             if (State.SelectedProfession != null && State.SelectedProfession.TalentChoices != null)
             {
                 State.TalentChoices = new();
@@ -354,7 +354,7 @@ namespace LoDCompanion.Services.CharacterCreation
                     {
                         State.HasRecipe = true;
                     }
-                } 
+                }
             }
         }
 
@@ -413,7 +413,7 @@ namespace LoDCompanion.Services.CharacterCreation
                 Weapon? weapon = EquipmentService.GetWeaponByName(State.SelectedWeapon);
                 if (weapon != null)
                 {
-                    State.StartingEquipment.Add(weapon); 
+                    State.StartingEquipment.Add(weapon);
                 }
             }
 
@@ -423,7 +423,7 @@ namespace LoDCompanion.Services.CharacterCreation
                 if (State.SelectedRelic != null && relicChoice != null)
                 {
                     State.StartingEquipment.Add(relicChoice);
-                } 
+                }
             }
 
             if (State.SelectedSpecies == null)
@@ -493,14 +493,14 @@ namespace LoDCompanion.Services.CharacterCreation
                 foreach (Equipment item in State.SelectedProfession.StartingBackpackList)
                 {
                     BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
-                } 
+                }
             }
 
             foreach(Equipment equipment in State.Hero.Inventory.Backpack)
             {
                 if (equipment is MeleeWeapon || equipment is RangedWeapon || equipment is Armour)
                 {
-                    equipment.Durability = RandomHelper.RollDie(DiceType.D4); 
+                    equipment.Durability = RandomHelper.RollDie(DiceType.D4);
                 }
                 else
                 {
@@ -512,7 +512,7 @@ namespace LoDCompanion.Services.CharacterCreation
         }
 
         public void FinalizeCharacter()
-        {           
+        {
             // Re-initialize service state for next creation process
             InitializeCreationState();
         }
@@ -541,10 +541,10 @@ namespace LoDCompanion.Services.CharacterCreation
         private List<Prayer> GetStartingPrayers()
         {
             var prayers = new List<Prayer>();
-            var possiblePrayers = _gameData.GetPrayersByLevel(1);
+            var possiblePrayers = PrayerService.GetPrayersByLevel(1);
             if (possiblePrayers == null)
             {
-                throw new ArgumentException("No spells found for level 1.");
+                throw new ArgumentException("No prayers found for level 1.");
             }
 
             for (int i = 0; i < 2; i++)
@@ -552,7 +552,8 @@ namespace LoDCompanion.Services.CharacterCreation
                 Prayer prayer;
                 do
                 {
-                    prayer = possiblePrayers[RandomHelper.GetRandomNumber(0, possiblePrayers.Count - 1)];
+                    possiblePrayers.Shuffle();
+                    prayer = possiblePrayers[0];
                 } while (prayers.Contains(prayer));
                 prayers.Add(prayer);
             }
@@ -582,7 +583,7 @@ namespace LoDCompanion.Services.CharacterCreation
         public int MaxCON { get; set; }
 
         public Species() { }
-        
+
     }
 
     public class Profession
@@ -623,18 +624,18 @@ namespace LoDCompanion.Services.CharacterCreation
         public string? PersonalQuest { get; set; }
         public Talent? Trait { get; set; }
 
-        public Background() 
-        { 
-            
+        public Background()
+        {
+
         }
 
         public Background GetRandomBackground()
         {
             List<Background> backgrounds = GetBackgrounds();
-            return backgrounds[RandomHelper.GetRandomNumber(0, backgrounds.Count - 1)];           
+            return backgrounds[RandomHelper.GetRandomNumber(0, backgrounds.Count - 1)];
         }
 
-        private List<Background> GetBackgrounds() 
+        private List<Background> GetBackgrounds()
         {
            return new List<Background>()
                 {
