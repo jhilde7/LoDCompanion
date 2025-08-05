@@ -266,6 +266,7 @@ namespace LoDCompanion.Services.Game
                     if (monsterToAct != null)
                     {
                         _floatingText.ShowText("Monster Turn!", ScreenCenterPosition, "turn-announcement-text");
+                        Task.Delay(1000).Wait();
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                         CombatLog.Add($"{monsterToAct.Name} prepares to act...");
