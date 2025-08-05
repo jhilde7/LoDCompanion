@@ -31,7 +31,7 @@ namespace LoDCompanion.Services.Combat
         BattleFury,
         Frenzy,
         HideInShadows,
-        MyWillBeDone,        
+        MyWillBeDone,
         //--Prayers--
         BringerOfLight,
         PowerOfTheGods,
@@ -148,7 +148,7 @@ namespace LoDCompanion.Services.Combat
     }
 
     public static class StatusEffectService
-    {        
+    {
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
@@ -234,7 +234,8 @@ namespace LoDCompanion.Services.Combat
                     case StatusEffectType.Seduce:
                         if (character is Hero heroToSave)
                         {
-                            int resolveRoll = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= heroToSave.GetStat(BasicStat.Resolve))
                             {
                                 character.ActiveStatusEffects.Remove(effect);
@@ -251,7 +252,8 @@ namespace LoDCompanion.Services.Combat
                     case StatusEffectType.Incapacitated:
                         if (character is Hero)
                         {
-                            int resolveRoll = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= character.GetStat(BasicStat.Resolve))
                             {
                                 character.ActiveStatusEffects.Remove(effect);
@@ -273,13 +275,14 @@ namespace LoDCompanion.Services.Combat
                         // First STR test
                         if (effect.Duration > 0)
                         {
-                            int strTest1 = await new UserRequestService().RequestRollAsync($"Attempt to break free.", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            int strTest1 = rollResult.Roll;
                             if (strTest1 <= character.GetStat(BasicStat.Strength))
                             {
                                 character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
                                 Console.WriteLine($"{character.Name} breaks free from the creature's grasp!");
                                 break;
-                            } 
+                            }
                             Console.WriteLine($"{character.Name} struggles but can't break free!\n");
                             character.CurrentAP = 0;
                             break;
@@ -287,13 +290,14 @@ namespace LoDCompanion.Services.Combat
                         // Second STR test at half strength
                         else if (effect.Duration == 0)
                         {
-                            int strTest2 = await new UserRequestService().RequestRollAsync($"Last attempt to break free!", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            int strTest2 = rollResult.Roll;
                             if (strTest2 <= character.GetStat(BasicStat.Strength) / 2)
                             {
                                 character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
                                 Console.WriteLine($"{character.Name} makes a last-ditch effort and escapes!");
                                 break;
-                            } 
+                            }
                             // Swallowed whole
                             character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
                             character.Position = null;

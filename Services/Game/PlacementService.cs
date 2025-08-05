@@ -43,7 +43,7 @@ namespace LoDCompanion.Services.Game
 
             Console.WriteLine($"Placing {entity.Name} with rule: {rule}");
             List<GridPosition> potentialPositions = new List<GridPosition>();
-            
+
 
             switch (rule)
             {
@@ -213,7 +213,7 @@ namespace LoDCompanion.Services.Game
             if (!allValidSquares.Any()) return new List<GridPosition>();
 
             // Find the single square with the maximum distance to the target.
-            var farthestSquare = allValidSquares.OrderByDescending(p => GridService.GetDistance(p, awayFromTarget.Position)).FirstOrDefault();
+            var farthestSquare = allValidSquares.OrderByDescending(p => GridService.GetDistance(p ?? new GridPosition(0, 0, 0), awayFromTarget.Position ?? new GridPosition(0, 0, 0))).FirstOrDefault();
             return farthestSquare != null ? new List<GridPosition> { farthestSquare } : new List<GridPosition>();
         }
 

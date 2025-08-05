@@ -49,8 +49,8 @@ namespace LoDCompanion.Services.Combat
         public event Func<Monster, Hero, Task<AttackResult>>? OnWebAttack;
 
         public MonsterSpecialService(
-            UserRequestService diceRoll, 
-            EncounterService encounter, 
+            UserRequestService diceRoll,
+            EncounterService encounter,
             InitiativeService initiative)
         {
             _diceRoll = diceRoll;
@@ -66,10 +66,10 @@ namespace LoDCompanion.Services.Combat
         /// <param name="abilityType">The type of special ability to execute (e.g., "Bellow", "FireBreath").</param>
         /// <returns>A string describing the outcome of the special action.</returns>
         public async Task<string> ExecuteSpecialAbilityAsync(
-            Monster monster, 
+            Monster monster,
             List<Hero> heroes,
-            Hero target, 
-            SpecialActiveAbility abilityType, 
+            Hero target,
+            SpecialActiveAbility abilityType,
             DungeonState dungeon)
         {
             switch (abilityType)
@@ -119,7 +119,8 @@ namespace LoDCompanion.Services.Combat
             {
                 if (monster.Position != null && hero.Position != null && GridService.GetDistance(monster.Position, hero.Position) <= 4)
                 {
-                    int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                    int resolveRoll = rollResult.Roll;
                     if (resolveRoll > hero.GetStat(BasicStat.Resolve))
                     {
                         StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
@@ -260,7 +261,7 @@ namespace LoDCompanion.Services.Combat
                 if (defenseResult.WasSuccessful)
                 {
                     return $"{monster.Name} unleashes a cone of fiery breath, but {target.Name} dives out of the way!";
-                } 
+                }
             }
 
             var outcome = new StringBuilder($"{monster.Name} unleashes a cone of fiery breath!\n");
@@ -301,7 +302,8 @@ namespace LoDCompanion.Services.Combat
             string outcome = $"{monster.Name} emits a chilling, ghostly howl!\n";
             foreach (var hero in heroes)
             {
-                int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                int resolveRoll = rollResult.Roll;
                 if (resolveRoll > hero.GetStat(BasicStat.Resolve))
                 {
                     int damage = RandomHelper.RollDie(DiceType.D8);
@@ -321,12 +323,12 @@ namespace LoDCompanion.Services.Combat
         {
             if (monster.Position == null) return string.Empty;
             var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1 && h.CombatStance != CombatStance.Prone).ToList();
-            var heroesBehind = adjacentHeroes.Where(h => 
+            var heroesBehind = adjacentHeroes.Where(h =>
             {
                 if (h.Position != null)
                 {
                     var relativeDir = DirectionService.GetRelativeDirection(monster.Facing, monster.Position, h.Position);
-                    return relativeDir == RelativeDirection.Back || relativeDir == RelativeDirection.BackLeft || relativeDir == RelativeDirection.BackRight; 
+                    return relativeDir == RelativeDirection.Back || relativeDir == RelativeDirection.BackLeft || relativeDir == RelativeDirection.BackRight;
                 }
                 else return false; // Skip heroes without a position
             }).ToList();
@@ -337,7 +339,7 @@ namespace LoDCompanion.Services.Combat
                 var kickTarget = heroesBehind[RandomHelper.GetRandomNumber(0, heroesBehind.Count - 1)]; // Select a random hero from those behind
                 if (OnKickAttack != null)
                 {
-                    var result = await OnKickAttack.Invoke(monster, kickTarget); 
+                    var result = await OnKickAttack.Invoke(monster, kickTarget);
                     outcome += $"{monster.Name} kicks {kickTarget.Name} from behind for {result.DamageDealt} damage.\n";
 
                     return outcome;
@@ -394,7 +396,8 @@ namespace LoDCompanion.Services.Combat
                 adjacentHeroes.Shuffle(); // Randomize the order of heroes to target
                 var targetHero = adjacentHeroes[0];
 
-                int resolveRoll = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100");
+                var rollResult = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100");
+                int resolveRoll = rollResult.Roll;
 
                 if (resolveRoll > targetHero.GetStat(BasicStat.Resolve))
                 {
@@ -429,7 +432,8 @@ namespace LoDCompanion.Services.Combat
                 {
                     outcome += $"{target.Name} is hit and must resist the poison!\n";
                     // Apply poison effect
-                    int resistRoll = await _diceRoll.RequestRollAsync("Roll a constitution test to resist the effects", "1d100");
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll a constitution test to resist the effects", "1d100");
+                    int resistRoll = rollResult.Roll;
 
                     // The logic for applying poison, including the CON test, is now handled in StatusEffectService
                     StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1));
@@ -451,7 +455,8 @@ namespace LoDCompanion.Services.Combat
 
             // The hero must make a RES test.
             outcome += "Roll a resolve test to resist the effects.";
-            int resolveRoll = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+            var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+            int resolveRoll = rollResult.Roll;
 
             if (resolveRoll > target.GetStat(BasicStat.Resolve))
             {
@@ -492,7 +497,7 @@ namespace LoDCompanion.Services.Combat
 
                 // Add the new monster to the current combat environment
                 monster.Room.MonstersInRoom.Add(newSpider);
-                dungeon.RevealedMonsters.Add(newSpider);    
+                dungeon.RevealedMonsters.Add(newSpider);
                 _initiative.AddToken(ActorType.Monster);
 
                 outcome += $"A Giant Spider appears at {placementSquare.Position}!";
@@ -565,7 +570,7 @@ namespace LoDCompanion.Services.Combat
                 var result = await OnWebAttack.Invoke(monster, target);
                 if (result.IsHit)
                 {
-                    outcome += $"{target.Name} is covered with a sticky web!\n";                    
+                    outcome += $"{target.Name} is covered with a sticky web!\n";
                     StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Ensnared, -1));
                     return outcome;
                 }

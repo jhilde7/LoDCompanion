@@ -9,6 +9,7 @@ using LoDCompanion.Services.Player;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.InteropServices;
+using LoDCompanion.Services.GameData;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -136,8 +137,8 @@ namespace LoDCompanion.Services.Combat
             int baseSkill = (weapon?.IsRanged ?? false) ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
             int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
-
-            result.AttackRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
+            var resultRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100");
+            result.AttackRoll = resultRoll.Roll;
 
             if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
             {
@@ -413,11 +414,11 @@ namespace LoDCompanion.Services.Combat
         /// </summary>
         private async Task<int> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context)
         {
-            string? dice = weapon.DamageDice;
             int damage = 0;
-            if (dice != null)
+            if (weapon.DamageDice != null)
             {
-                damage = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", dice);
+                var rollResult = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", weapon.DamageDice);
+                damage = rollResult.Roll;
             }
             else
             {
@@ -567,7 +568,8 @@ namespace LoDCompanion.Services.Combat
                     }
                     result.OutcomeMessage += attackResult.OutcomeMessage;
                     // DEX test to avoid falling prone
-                    int dexRoll = await _diceRoll.RequestRollAsync($"Roll a DEX test for {hero.Name} to stay standing.", "1d100");
+                    var resultRoll = await _diceRoll.RequestRollAsync($"Roll a DEX test for {hero.Name} to stay standing.", "1d100");
+                    int dexRoll = resultRoll.Roll;
                     if (dexRoll > hero.GetStat(BasicStat.Dexterity))
                     {
                         hero.CombatStance = CombatStance.Prone;

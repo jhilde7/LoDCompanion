@@ -26,88 +26,88 @@ namespace LoDCompanion.Services.GameData
         public async Task<string> GetStandardPotionAsync()
         {
             int roll = RandomHelper.GetRandomNumber(1, 3);
+            DiceRollResult potionRoll = new DiceRollResult();
+            if(roll <= 2)
+            {
+                potionRoll = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d10");
+            }
+            else
+            {
+                potionRoll = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d8");
+            }
             switch (roll)
             {
                 case 1:
-                    roll = await _diceRoll.RequestRollAsync(
-                        $"Roll for standard potion", "1d10");
-                    await Task.Yield();
-                    switch (roll)
+                    switch (potionRoll.Roll)
                     {
                         case 1:
-                             return "Bottle of Experience";
+                            return "Bottle of Experience";
                         case 2:
-                             return "Potion of Constitution";
+                            return "Potion of Constitution";
                         case 3:
-                             return "Potion of Courage";
+                            return "Potion of Courage";
                         case 4:
-                             return "Potion of Dexterity";
+                            return "Potion of Dexterity";
                         case 5:
-                             return "Potion of Energy";
+                            return "Potion of Energy";
                         case 6:
-                             return "Potion of Health";
+                            return "Potion of Health";
                         case 7:
-                             return "Potion of Mana";
+                            return "Potion of Mana";
                         case 8:
-                             return "Potion of Strength";
+                            return "Potion of Strength";
                         case 9:
-                             return "Potion of Wisdom";
+                            return "Potion of Wisdom";
                         case 10:
-                             return "Acidic Bomb";
+                            return "Acidic Bomb";
                         default:
                             return "Acidic Bomb";
                     }
                 case 2:
-                    roll = await _diceRoll.RequestRollAsync(
-                        $"Roll for standard potion", "1d10" );
-                    await Task.Yield();
-                    switch (roll)
+                    switch (potionRoll.Roll)
                     {
                         case 1:
-                             return "Potion of Distortion";
+                            return "Potion of Distortion";
                         case 2:
-                             return "Firebomb";
+                            return "Firebomb";
                         case 3:
-                             return "Potion of Invisibility";
+                            return "Potion of Invisibility";
                         case 4:
-                             return "Vial of Corrosion";
+                            return "Vial of Corrosion";
                         case 5:
-                             return "Potion of Cure Disease";
+                            return "Potion of Cure Disease";
                         case 6:
-                             return "Potion of Cure Poison";
+                            return "Potion of Cure Poison";
                         case 7:
-                             return "Poison";
+                            return "Poison";
                         case 8:
-                             return "Liquid Fire";
+                            return "Liquid Fire";
                         case 9:
-                             return "Bottle of the Void";
+                            return "Bottle of the Void";
                         case 10:
-                             return "Weapons Oil";
+                            return "Weapons Oil";
                         default:
                             return "Weapons Oil";
                     }
                 case 3:
-                    roll = await _diceRoll.RequestRollAsync(
-                        $"Roll for standard potion", "1d8");
-                    await Task.Yield();
-                    switch (roll)
+                    switch (potionRoll.Roll)
                     {
                         case 1:
-                             return "Elixir of Speed";
+                            return "Elixir of Speed";
                         case 2:
-                             return "Alchemical Dust";
+                            return "Alchemical Dust";
                         case 3:
-                             return "Elixir of the Archer";
+                            return "Elixir of the Archer";
                         case 4:
-                             return "Potion of Rage";
+                            return "Potion of Rage";
                         case 5:
-                             return "Potion of Fire Protection";
+                            return "Potion of Fire Protection";
                         case 6:
-                             return "Potion of Dragon Skin";
+                            return "Potion of Dragon Skin";
                         case 7:
-                             return "Potion of Restoration";
+                            return "Potion of Restoration";
                         case 8:
-                             return "Potion of Dragon Breath";
+                            return "Potion of Dragon Breath";
                         default:
                             return "Potion of Dragon Breath";
                     }
@@ -117,37 +117,36 @@ namespace LoDCompanion.Services.GameData
 
         public async Task<string> GetNonStandardPotionAsync()
         {
-            int roll = await _diceRoll.RequestRollAsync(
-                $"Roll for standard potion", "1d12");
-            await Task.Yield();
+            var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d12");
+            int roll = result.Roll;
             switch (roll)
             {
                 case 1:
-                     return "Bottle of Experience";
+                    return "Bottle of Experience";
                 case 2:
-                     return "Potion of Constitution";
+                    return "Potion of Constitution";
                 case 3:
-                     return "Potion of Courage";
+                    return "Potion of Courage";
                 case 4:
-                     return "Potion of Dexterity";
+                    return "Potion of Dexterity";
                 case 5:
-                     return "Potion of Energy";
+                    return "Potion of Energy";
                 case 6:
-                     return "Potion of Health";
+                    return "Potion of Health";
                 case 7:
-                     return "Potion of Mana";
+                    return "Potion of Mana";
                 case 8:
-                     return "Potion of Strength";
+                    return "Potion of Strength";
                 case 9:
-                     return "Potion of Wisdom";
+                    return "Potion of Wisdom";
                 case 10:
-                     return "Acidic Bomb";
+                    return "Acidic Bomb";
                 case 11:
-                     return "Potion of Cure Disease";
+                    return "Potion of Cure Disease";
                 case 12:
-                     return "Potion of Cure Poison";
+                    return "Potion of Cure Poison";
                 default:
-                     return "Potion of Cure Poison";
+                    return "Potion of Cure Poison";
             }
         }
 
@@ -192,9 +191,8 @@ namespace LoDCompanion.Services.GameData
 
         private async Task<string> GetOriginAsync()
         {
-            int roll = await _diceRoll.RequestRollAsync(
-                $"Roll for standard potion", "1d100");
-            await Task.Yield();
+            var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d100");
+            int roll = result.Roll;
             return roll switch
             {
                 1 => "Banshee",
@@ -437,14 +435,14 @@ namespace LoDCompanion.Services.GameData
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle." },
-                
+
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana." },
-                
+
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Acidic damage in the target square and half to adjacent squares." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares." },
@@ -453,7 +451,7 @@ namespace LoDCompanion.Services.GameData
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES." },
-                
+
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons." },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons." },
@@ -589,7 +587,7 @@ namespace LoDCompanion.Services.GameData
 
         public AlchemyItem()
         {
-            
+
         }
     }
 

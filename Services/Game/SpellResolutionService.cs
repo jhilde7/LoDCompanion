@@ -85,7 +85,8 @@ namespace LoDCompanion.Services.Game
             {
                 if (singleTarget != null)
                 {
-                    int touchAttackRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100");
+                    int touchAttackRoll = resultRoll.Roll;
                     if (touchAttackRoll > caster.GetSkill(Skill.CombatSkill) + 20)
                     {
                         return new SpellCastResult
@@ -139,8 +140,9 @@ namespace LoDCompanion.Services.Game
 
                 if (singleTarget != null)
                 {
-                    int primaryDamage = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt primary damage",
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt primary damage",
                         $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
                     singleTarget.TakeDamage(primaryDamage, spell.DamageType);
                     outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
@@ -150,8 +152,9 @@ namespace LoDCompanion.Services.Game
                     Character? secondTarget = FindNextChainTarget(singleTarget, hitTargets, 3);
                     if (secondTarget != null)
                     {
-                        int secondDamage = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt secondary damage",
+                        resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt secondary damage",
                         $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}");
+                        int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
                         secondTarget.TakeDamage(secondDamage, spell.DamageType);
                         outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
@@ -161,8 +164,9 @@ namespace LoDCompanion.Services.Game
                         Character? thirdTarget = FindNextChainTarget(secondTarget, hitTargets, 3);
                         if (thirdTarget != null)
                         {
-                            int thirdDamage = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt tertiary damage",
+                            resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt tertiary damage",
                         $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}");
+                            int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
                             thirdTarget.TakeDamage(thirdDamage, spell.DamageType);
                             outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
@@ -756,7 +760,9 @@ namespace LoDCompanion.Services.Game
                 int duration = spell.Properties?[SpellProperty.TurnDuration] ?? 0;
                 if (spell.HasProperty(SpellProperty.DiceCount))
                 {
-                    duration += await _diceRoll.RequestRollAsync("Roll for duration", $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll for duration",
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    duration += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.AddCasterLvlToDuration))
                 {
@@ -773,7 +779,9 @@ namespace LoDCompanion.Services.Game
 
             if (spell.HasProperty(SpellProperty.DiceCount))
             {
-                healing += await _diceRoll.RequestRollAsync("Roll for healing amount", $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                var resultRoll = await _diceRoll.RequestRollAsync("Roll for healing amount",
+                    $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                healing += resultRoll.Roll;
             }
             if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
             {
@@ -789,7 +797,9 @@ namespace LoDCompanion.Services.Game
             {
                 if (spell.HasProperty(SpellProperty.DiceCount2))
                 {
-                    damage += await _diceRoll.RequestRollAsync("Roll for direct dmage", $"{spell.Properties?[SpellProperty.DiceCount2]}d{spell.Properties?[SpellProperty.DiceMaxValue2]}");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll for direct damage",
+                        $"{spell.Properties?[SpellProperty.DiceCount2]}d{spell.Properties?[SpellProperty.DiceMaxValue2]}");
+                    damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
                 {
@@ -801,7 +811,9 @@ namespace LoDCompanion.Services.Game
             {
                 if (spell.HasProperty(SpellProperty.DiceCount))
                 {
-                    damage += await _diceRoll.RequestRollAsync("Roll for direct dmage", $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll for direct damage",
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
                 {
@@ -819,7 +831,9 @@ namespace LoDCompanion.Services.Game
             {
                 if (spell.HasProperty(SpellProperty.AOEDiceCount))
                 {
-                    damage += await _diceRoll.RequestRollAsync("Roll for area of effect dmage", $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll for area of effect damage",
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}");
+                    damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
                 {
@@ -837,7 +851,9 @@ namespace LoDCompanion.Services.Game
             {
                 if (spell.HasProperty(SpellProperty.AOEDiceCount2))
                 {
-                    damage += await _diceRoll.RequestRollAsync("Roll for area of effect dmage", $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll for area of effect damage",
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}");
+                    damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
                 {

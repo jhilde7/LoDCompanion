@@ -6,8 +6,6 @@
 @inject AttackService AttackService
 
 <style>
-
-
     .modal-backdrop {
         /* Make the backdrop cover the entire screen */
         position: fixed;
@@ -27,7 +25,8 @@
 
     .modal-content {
         /* Style the actual pop-up window */
-        background-color: #332d25; /* A dark, thematic background */
+        background-color: #332d25;
+        /* A dark, thematic background */
         color: #e6d8c0;
         padding: 2rem;
         border-radius: 8px;
@@ -40,20 +39,21 @@
         animation: fadeIn 0.3s ease-out;
     }
 
-        .modal-content h3 {
-            margin-top: 0;
-            text-align: center;
-        }
+    .modal-content h3 {
+        margin-top: 0;
+        text-align: center;
+    }
 
-    .manual-entry, .auto-roll {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
+    .manual-entry,
+    .auto-roll {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1rem;
     }
 
     .auto-roll p {
-    margin: 0 1rem;
+        margin: 0 1rem;
     }
 </style>
 
@@ -73,6 +73,10 @@
             <div class="auto-roll">
                 <p>Or</p>
                 <button class="btn-auto-roll" @onclick="SubmitAutoRoll">Roll Automatically</button>
+                @if (DiceRollService.CurrentDiceRequest?.IsCancellable == true)
+                {
+                    <button class="btn-auto-roll" @onclick="CancelRoll">Cancel</button>
+                }
             </div>
         </div>
     </div>
@@ -84,13 +88,19 @@
 
     private void SubmitManualRoll()
     {
-        DiceRollService.CompleteRoll(_manualRollValue);
+        var result = new DiceRollResult { Roll = _manualRollValue };
+        DiceRollService.CompleteRoll(result);
         _manualRollValue = 0; // Reset for next time
     }
 
     private void SubmitAutoRoll()
     {
-        var result = RandomHelper.RollDice(DiceRollService.CurrentDiceRequest?.DiceNotation ?? "1d100");
+        var result = new DiceRollResult { Roll = RandomHelper.RollDice(DiceRollService.CurrentDiceRequest?.DiceNotation ?? "1d100")};
         DiceRollService.CompleteRoll(result);
+    }
+
+    private void CancelRoll()
+    {
+        DiceRollService.CancelRoll();
     }
 }

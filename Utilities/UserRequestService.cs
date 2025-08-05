@@ -5,7 +5,14 @@ namespace LoDCompanion.Utilities
     {
         public string Prompt { get; set; } = "Roll the dice";
         public string DiceNotation { get; set; } = "1d100";
-        public TaskCompletionSource<int> CompletionSource { get; } = new TaskCompletionSource<int>();
+        public bool IsCancellable { get; set; } = false;
+        public TaskCompletionSource<DiceRollResult> CompletionSource { get; } = new TaskCompletionSource<DiceRollResult>();
+    }
+
+    public class DiceRollResult
+    {
+        public int Roll { get; set; }
+        public bool WasCancelled { get; set; } = false;
     }
 
     public class ChooseOptionRequest
@@ -26,12 +33,13 @@ namespace LoDCompanion.Utilities
         /// It shows the modal and waits for the user to provide a result.
         /// </summary>
         /// <returns>The result of the dice roll.</returns>
-        public Task<int> RequestRollAsync(string prompt, string diceNotation = "1d100")
+        public Task<DiceRollResult> RequestRollAsync(string prompt, string diceNotation = "1d100", bool canCancel = false)
         {
             CurrentDiceRequest = new DiceRollRequest
             {
                 Prompt = prompt,
-                DiceNotation = diceNotation
+                DiceNotation = diceNotation,
+                IsCancellable = canCancel
             };
 
             OnRollRequested?.Invoke();
@@ -41,8 +49,19 @@ namespace LoDCompanion.Utilities
         /// <summary>
         /// This is called by the modal when the user submits a result.
         /// </summary>
-        public void CompleteRoll(int result)
+        public void CompleteRoll(DiceRollResult result)
         {
+            if (CurrentDiceRequest != null)
+            {
+                CurrentDiceRequest.CompletionSource.SetResult(result);
+                CurrentDiceRequest = null;
+                OnRollRequested?.Invoke(); // Hides the modal
+            }
+        }
+
+        public void CancelRoll()
+        {
+            var result = new DiceRollResult { WasCancelled = true };
             if (CurrentDiceRequest != null)
             {
                 CurrentDiceRequest.CompletionSource.SetResult(result);

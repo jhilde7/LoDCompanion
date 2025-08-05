@@ -83,10 +83,9 @@ namespace LoDCompanion.Services.Dungeon
 
                     foreach (var hero in dungeon.HeroParty?.Heroes ?? Enumerable.Empty<Hero>())
                     {
-                        if (hero == null) continue;
-                        if (hero.CurrentHP <= 0) continue;
+                        if (hero == null || hero.Position == null || hero.CurrentHP <= 0) continue;
 
-                        if (monsterState.CurrentRoom == null) continue;
+                        if (monsterState.CurrentRoom == null || monsterState.CurrentPosition == null) continue;
 
                         List<GridPosition> currentPath = GridService.FindShortestPath(monsterState.CurrentPosition, hero.Position, dungeon.DungeonGrid);
 

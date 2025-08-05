@@ -33,7 +33,7 @@ namespace LoDCompanion.Models.Dungeon
                 }
             }
         }
-        public GridPosition Position { get; set; } = new GridPosition(0, 0, 0);
+        public GridPosition? Position { get; set; } = new GridPosition(0, 0, 0);
         public List<GridPosition> OccupiedSquares { get; set; } = new List<GridPosition>();
         public bool HasBeenSearched { get; set; }
         public Hero? HeroPerformingSearch { get; set; }
@@ -50,7 +50,7 @@ namespace LoDCompanion.Models.Dungeon
 
         internal void UpdateOccupiedSquares()
         {
-
+            if(Position == null) return;
             OccupiedSquares.Clear();
             int SizeX = 1;
             int SizeY = 1;
@@ -81,7 +81,7 @@ namespace LoDCompanion.Models.Dungeon
 
         public Corpse(string name, TreasureType treasureType)
         {
-            Name = name;    
+            Name = name;
             TreasureType = treasureType;
             HasBeenSearched = false;
             Treasures = new List<string>();
