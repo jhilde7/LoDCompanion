@@ -163,16 +163,11 @@ namespace LoDCompanion.Services.Combat
                 if (effect.Category == StatusEffectType.Poisoned) resisted = hero.ResistPoison(resistRoll);
                 if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll);
             }
-            else
-            {
-                // Monsters have a simpler resistance check
-                resisted = RandomHelper.RollDie(DiceType.D100) <= target.GetStat(BasicStat.Constitution);
-            }
 
             if (!resisted)
             {
-                int duration = (effect.Category == StatusEffectType.Poisoned) ? RandomHelper.RollDie(DiceType.D10) : -1; // -1 for permanent until cured
                 ApplyStatus(target, effect);
+                if (effect.Category == StatusEffectType.Prone) target.CombatStance = CombatStance.Prone;
             }
             else
             {

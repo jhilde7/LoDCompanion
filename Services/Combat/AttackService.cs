@@ -572,7 +572,6 @@ namespace LoDCompanion.Services.Combat
                     int dexRoll = resultRoll.Roll;
                     if (dexRoll > hero.GetStat(BasicStat.Dexterity))
                     {
-                        hero.CombatStance = CombatStance.Prone;
                         StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1));
                         result.OutcomeMessage += $"{hero.Name} is knocked off their feet!\n";
                     }
