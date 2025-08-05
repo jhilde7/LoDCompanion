@@ -34,16 +34,19 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Physical,
                     Name = TalentName.CatLike,
                     Description = "Your hero moves with grace and has almost supernatural balance. Your hero gains +5 DEX.",
+                    StatBonus = (BasicStat.Dexterity, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
                     Name = TalentName.Fast,
                     Description = "Your hero moves unusually fast and gains a permanent +1 bonus to their Movement stat.",
+                    StatBonus = (BasicStat.Move, 1)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
                     Name = TalentName.Resilient,
                     Description = "Your hero's brawny physique grants a +5 bonus to the Constitution stat.",
+                    StatBonus = (BasicStat.Constitution, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
@@ -59,11 +62,13 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Physical,
                     Name = TalentName.Strong,
                     Description = "Your hero's exercises have paid off and your hero gains a +5 bonus to them Strength stat.",
+                    StatBonus = (BasicStat.Strength, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
                     Name = TalentName.StrongBuild,
                     Description = "Your hero gains a +2 bonus to them Hit Points stat.",
+                    StatBonus = (BasicStat.HitPoints, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
@@ -104,11 +109,13 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Combat,
                     Name = TalentName.Marksman,
                     Description = "Fighting from afar comes naturally to your hero. The hero gains +5 RS.",
+                    SkillBonus = (Skill.RangedSkill, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.MightyBlow,
                     Description = "Your hero is an expert at finding the weak spots of the enemy. Your hero gets a +1 bonus on Damage Rolls with melee weapons.",
+                    StatBonus = (BasicStat.DamageBonus, 1)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
@@ -154,6 +161,7 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Faith,
                     Name = TalentName.GodsChosen,
                     Description = "As if by the will of the gods, nothing seems to hurt this priest. +1 Luck.",
+                    StatBonus = (BasicStat.Luck, 1)
                 },
                 new Talent(){
                     Category = TalentCategory.Faith,
@@ -164,6 +172,7 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Faith,
                     Name = TalentName.Messiah,
                     Description = "With a confidence that radiates through the room, no one can help but be inspired. All heroes within LOS of the priest gain +5 Resolve.",
+                    StatBonus = (BasicStat.Resolve, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Faith,
@@ -219,16 +228,19 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Common,
                     Name = TalentName.Disciplined,
                     Description = "Thanks to a military background, this hero has an increased degree of calmness under pressure. This also spreads to the rest of the party. The hero gains +10 RES and the other members of the party gain +5 RES as long as the hero is not knocked out. The effect on the party is not cumulative if other heroes have the same talent. Furthermore, a hero with this talent will not benefit from the effect of this talent from another hero.",
+                    StatBonus = (BasicStat.Resolve, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Common,
                     Name = TalentName.Hunter,
                     Description = "The hero has a knack for finding wild game and knows how best to hunt them. The hero gains +10 to Foraging.",
+                    SkillBonus = (Skill.Foraging, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Common,
                     Name = TalentName.Lucky,
                     Description = "Some are just luckier than others. Everything seems to go your way. You gain +1 Luck Point.",
+                    StatBonus = (BasicStat.Luck, 1)
                 },
                 new Talent(){
                     Category = TalentCategory.Common,
@@ -288,7 +300,7 @@ namespace LoDCompanion.Services.Player
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.Restorer,
-                    Description = "Restoration spells are the favourite spells of your hero, and this results in all Healing Spells healing +2 Hit Points in addition to the spell's normal result. You cannot have this talent at the same time as you have the Necromancer Talent.",
+                    Description = "Restoration spells are the favorite spells of your hero, and this results in all Healing Spells healing +2 Hit Points in addition to the spell's normal result. You cannot have this talent at the same time as you have the Necromancer Talent.",
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
@@ -344,6 +356,7 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Sneaky,
                     Name = TalentName.LockPicker,
                     Description = "No lock seems to hinder this hero from beating them. +5 Pick Locks skill.",
+                    SkillBonus = (Skill.PickLocks, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Sneaky,
@@ -364,6 +377,7 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Sneaky,
                     Name = TalentName.SharpEyed,
                     Description = "Your hero has an extreme sense for details and can easily notice anything out of the ordinary. Your hero gains a +10 bonus on Perception Tests.",
+                    SkillBonus = (Skill.Perception, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Sneaky,
@@ -384,6 +398,7 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Mental,
                     Name = TalentName.Confident,
                     Description = "No enemy or task is too difficult. Your hero gains a +5 bonus to the Resolve stat.",
+                    StatBonus = (BasicStat.Resolve, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Mental,
@@ -405,6 +420,7 @@ namespace LoDCompanion.Services.Player
                     Category = TalentCategory.Mental,
                     Name = TalentName.Wise,
                     Description = "Your hero gains a permanent +5 bonus to the Wisdom stat.",
+                    StatBonus = (BasicStat.Wisdom, 1)
                 }
             };
         }
@@ -703,7 +719,7 @@ namespace LoDCompanion.Services.Player
                 {
                     Name = MonsterSpecialName.Gust,
                     Description = "A creature with this special ability will create a powerful gust around them making it hard to use ranged weapons. All creatures in the room or corridor where this creature is located suffer a -15 penalty to their RS.",
-                    
+
                 },
                 new MonsterPassiveSpecial
                 {
@@ -714,7 +730,7 @@ namespace LoDCompanion.Services.Player
                 {
                     Name = MonsterSpecialName.HateHeroes,
                     Description = "In much the same way as heroes may hate their enemies, the enemy may also hate your heroes. +5 CS, but luckily for them, it does not come with the negative for dodging.",
-                    
+
                 },
                 new MonsterPassiveSpecial
                 {
@@ -760,7 +776,7 @@ namespace LoDCompanion.Services.Player
                 {
                     Name = MonsterSpecialName.PerfectHearing,
                     Description = "This enemy is acutely aware of its surroundings. When rolling for initiative, add +15 to this enemy's DEX.",
-                    
+
                 },
                 new MonsterPassiveSpecial
                 {
@@ -771,7 +787,7 @@ namespace LoDCompanion.Services.Player
                 {
                     Name = MonsterSpecialName.Psychic,
                     Description = "A creature with psychic ability which automatically decreases the RES of all heroes by -20 as soon as it is placed on the table. The effect is only cancelled when the creature dies. The effect is not cumulative if two creatures have the same effect.",
-                    
+
                 },
                 new MonsterPassiveSpecial
                 {
@@ -817,7 +833,7 @@ namespace LoDCompanion.Services.Player
                 {
                     Name = MonsterSpecialName.Stench,
                     Description = "So foul is the stench of this creature that it quickly becomes difficult to focus. All close combat attacks targeting this creature suffer a -10 CS penalty.",
-                    
+
                 },
                 new MonsterPassiveSpecial
                 {
@@ -1025,70 +1041,14 @@ namespace LoDCompanion.Services.Player
     {
         public TalentName Name { get; set; }
         public TalentCategory Category { get; set; }
+        public (BasicStat, int)? StatBonus { get; set; }
+        public (Skill, int)? SkillBonus { get; set; }
+
 
         public override string ToString()
         {
             return $"{Regex.Replace(Name.ToString(), "(\\B[A-Z])", " $1")}: {Description}";
         }
-
-        public Dictionary<BasicStat, int> GetInitialTalentStatBonus()
-        {
-            Dictionary<BasicStat, int> bonus = new Dictionary<BasicStat, int>();
-            switch (Name)
-            {
-                case TalentName.CatLike:
-                    bonus.Add(BasicStat.Dexterity, 5);
-                    break;
-                case TalentName.Fast:
-                    bonus.Add(BasicStat.Move, 1);
-                    break;
-                case TalentName.Resilient:
-                    bonus.Add(BasicStat.Constitution, 5);
-                    break;
-                case TalentName.Strong:
-                    bonus.Add(BasicStat.Strength, 5);
-                    break;
-                case TalentName.StrongBuild:
-                    bonus.Add(BasicStat.HitPoints, 2);
-                    break;
-                case TalentName.GodsChosen:
-                case TalentName.Lucky:
-                    bonus.Add(BasicStat.Luck, 1);
-                    break;
-                case TalentName.Confident:
-                    bonus.Add(BasicStat.Resolve, 5);
-                    break;
-                case TalentName.StrongMinded:
-                    bonus.Add(BasicStat.Sanity, 1);
-                    break;
-                case TalentName.Wise:
-                    bonus.Add(BasicStat.Wisdom, 5);
-                    break;
-            }
-            return bonus;
-        }
-
-        public Dictionary<Skill, int> GetInitialTalentSkillBonus()
-        {
-            Dictionary<Skill, int> bonus = new Dictionary<Skill, int>();
-            switch (Name)
-            {
-                case TalentName.NightVision:
-                    bonus.Add(Skill.Perception, 10);
-                    break;
-                case TalentName.Marksman:
-                    bonus.Add(Skill.RangedSkill, 5);
-                    break;
-                case TalentName.Hunter:
-                    bonus.Add(Skill.Foraging, 10);
-                    break;
-                case TalentName.LockPicker:
-                    bonus.Add(Skill.PickLocks, 5);
-                    break;
-            }
-            return bonus;
-        }
-
     }
 
     public enum MonsterSpecialName
