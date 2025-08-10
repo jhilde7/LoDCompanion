@@ -119,6 +119,15 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
+        /// Helper to check if two positions are adjacent (not diagonal).
+        /// </summary>
+        public static bool IsAdjacent(GridPosition pos1, GridPosition pos2)
+        {
+            int dist = Math.Abs(pos1.X - pos2.X) + Math.Abs(pos1.Y - pos2.Y) + Math.Abs(pos1.Z - pos2.Z);
+            return dist == 1;
+        }
+
+        /// <summary>
         /// Moves a character along a given path, one square at a time, consuming movement points.
         /// The character will stop if they run out of movement, the path is blocked, or an event interrupts them.
         /// </summary>
