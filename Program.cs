@@ -70,10 +70,10 @@ builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<ActionService>();
 builder.Services.AddScoped<PartyRestingService>();
+builder.Services.AddScoped<MovementHighlightingService>();
 builder.Services.AddSingleton<PassiveAbilityService>();
 builder.Services.AddSingleton<HealingService>();
 builder.Services.AddSingleton<IdentificationService>();
-builder.Services.AddSingleton<MovementHighlightingService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddScoped<GameStateManagerService>();

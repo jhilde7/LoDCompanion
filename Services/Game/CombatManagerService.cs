@@ -19,6 +19,8 @@ namespace LoDCompanion.Services.Game
         private readonly FacingDirectionService _facing;
         private readonly SpellResolutionService _spellResolution;
         private readonly FloatingTextService _floatingText;
+        private readonly MovementHighlightingService _movementHighlighting;
+
 
         private static readonly GridPosition ScreenCenterPosition = new GridPosition(-1, -1, -1);
         private List<Hero> HeroesInCombat = new List<Hero>();
@@ -38,7 +40,8 @@ namespace LoDCompanion.Services.Game
             DungeonState dungeonState,
             FacingDirectionService facingDirectionService,
             SpellResolutionService spellResolutionService,
-            FloatingTextService floatingTextService)
+            FloatingTextService floatingTextService,
+            MovementHighlightingService movementHighlightingService)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
@@ -47,6 +50,7 @@ namespace LoDCompanion.Services.Game
             _facing = facingDirectionService;
             _spellResolution = spellResolutionService;
             _floatingText = floatingTextService;
+            _movementHighlighting = movementHighlightingService
 
             _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
         }
@@ -466,9 +470,13 @@ namespace LoDCompanion.Services.Game
             }
             // Set the selected hero as active and exit the selection state
             ActiveHero = hero;
+            _movementHighlighting.HighlightWalkableSquares(hero, _dungeon);
 
             // Perform standard start-of-turn logic
+            /*
+            TODO: This should be handled in a separate location as the hero can be selected but not actioned upon  and another hero selected
             await StatusEffectService.ProcessStatusEffectsAsync(ActiveHero);
+            */
             CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
             OnCombatStateChanged?.Invoke();
         }
