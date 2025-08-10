@@ -45,7 +45,7 @@ namespace LoDCompanion.Services.Combat
             }
 
             var rollResult = await diceRoll.RequestRollAsync("Attempt to dodge the attack.", "1d100", canCancel: true);
-            if (rollResult.WasCancelled)
+            if (!rollResult.WasCancelled)
             {
                 int roll = rollResult.Roll;
                 if (roll <= 80 && roll <= dodgeSkill)
