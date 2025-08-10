@@ -10,6 +10,7 @@
     <PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="bootstrap" Version="5.3.7" />
+    <PackageReference Include="RogueSharp" Version="4.2.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="System.Text.Json" Version="9.0.8" />
   </ItemGroup>
