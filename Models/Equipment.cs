@@ -212,7 +212,7 @@ namespace LoDCompanion.Models
             sb.Append($" | Ammo Category: {AmmoType}");
             if (HasProperty(AmmoProperty.Silver)) sb.Append(", Silver");
             if (HasProperty(AmmoProperty.Barbed)) sb.Append(", Barbed");
-            if (HasProperty(AmmoProperty.SupuriorSlingStone)) sb.Append(", Superior");
+            if (HasProperty(AmmoProperty.SuperiorSlingStone)) sb.Append(", Superior");
             if (HasProperty(AmmoProperty.HolyWater)) sb.Append(", Holy Water added");
             return sb.ToString();
         }
@@ -540,7 +540,7 @@ namespace LoDCompanion.Models
 
         public bool IsSlingUsingNormalAmmo()
         {
-            if (AmmoType == AmmoType.SlingStone && Ammo != null && !Ammo.HasProperty(AmmoProperty.SupuriorSlingStone))
+            if (AmmoType == AmmoType.SlingStone && Ammo != null && !Ammo.HasProperty(AmmoProperty.SuperiorSlingStone))
             {
                 return true;
             }
