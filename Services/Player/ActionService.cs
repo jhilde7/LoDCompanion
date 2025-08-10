@@ -70,7 +70,7 @@ namespace LoDCompanion.Services.Player
         private readonly SpellResolutionService _spellResolution;
 
         public ActionService(
-            DungeonManagerService dungeonManagerService, 
+            DungeonManagerService dungeonManagerService,
             SearchService searchService,
             HealingService healingService,
             InventoryService inventoryService,
@@ -142,7 +142,7 @@ namespace LoDCompanion.Services.Player
                         AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, standardAttackTarget, dungeon);
                         if (startingAP > character.CurrentAP)
                         {
-                            resultMessage += "\n" + attackResult.OutcomeMessage; 
+                            resultMessage += "\n" + attackResult.OutcomeMessage;
                         }
                         else
                         {
@@ -199,7 +199,7 @@ namespace LoDCompanion.Services.Player
                         Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
                         if (room != null)
                         {
-                            character.Room = room; 
+                            character.Room = room;
                         }
                     }
                     else
@@ -209,15 +209,26 @@ namespace LoDCompanion.Services.Player
                     }
                     break;
                 case ActionType.Shove:
-                    if (primaryTarget is Character targetToShove && character.Position != null && _dungeonManager.DungeonState != null)
+                    if (primaryTarget is Character targetToShove && character.Position != null)
                     {
-                        resultMessage = GridService.ShoveCharacter(character, targetToShove, _dungeonManager.DungeonState.DungeonGrid); // Pass current room
-
-                        Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
-                        if (room != null)
+                        AttackResult attackResult = await _attack.PerformShoveAttackAsync(character, targetToShove, dungeon);
+                        resultMessage = attackResult.OutcomeMessage;
+                        if(result.IsHit)
                         {
-                            character.Room = room;
+                            if (result.ToHitChance <= result.AttackRoll)
+                            {
+                                Room? room = _dungeonManager.FindRoomAtPosition(targetToShove.Position);
+                                if (room != null)
+                                {
+                                    targetToShove.Room = room;
+                                }
+                            }
                         }
+                        else
+                        {
+                            actionWasSuccessful = false;
+                        }
+
                     }
                     else
                     {
@@ -253,13 +264,13 @@ namespace LoDCompanion.Services.Player
                             {
                                 if (_dungeonManager.DungeonState.HeroParty != null)
                                 {
-                                    enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList(); 
+                                    enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList();
                                 }
                                 if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
                                 {
                                     enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
                                 }
-                            } 
+                            }
                         }
 
                         MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
@@ -328,10 +339,10 @@ namespace LoDCompanion.Services.Player
                     break;
                 case ActionType.EquipGear:
                     if (character is Hero inventoryHero && primaryTarget is Equipment item)
-                    { 
+                    {
                         if(_inventory.EquipItem(inventoryHero, item)) resultMessage = $"{item.Name} was equipped";
-                        else 
-                        { 
+                        else
+                        {
                             resultMessage = $"{item.Name} could not be equipped";
                             actionWasSuccessful = false;
                         }
@@ -360,7 +371,7 @@ namespace LoDCompanion.Services.Player
                     break;
                 case ActionType.IdentifyItem:
                     if (character is Hero identifyingHero && primaryTarget is Equipment itemToIdentify)
-                    { 
+                    {
                         resultMessage = _identification.IdentifyItem(identifyingHero, itemToIdentify);
                     }
                     else
@@ -397,7 +408,7 @@ namespace LoDCompanion.Services.Player
                         {
                             rangedWeapon.reloadAmmo();
                             if (character is Monster) rangedWeapon.IsLoaded = true;
-                            resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}."; 
+                            resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}.";
                         }
                         else
                         {
@@ -450,7 +461,7 @@ namespace LoDCompanion.Services.Player
                                     {
                                         if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
                                         {
-                                            apCost = 1; // Quick spells cost 1 AP if there is no focus points added                                        
+                                            apCost = 1; // Quick spells cost 1 AP if there is no focus points added
                                         }
                                         else
                                         {
@@ -464,14 +475,14 @@ namespace LoDCompanion.Services.Player
                                         if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
                                         {
                                             apCost = 2;
-                                            heroCasting.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used 
+                                            heroCasting.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used
                                         }
                                     }
 
                                     if (heroCasting.ChanneledSpell != null && heroCasting.ChanneledSpell.FocusActionsRemaining <= 0)
                                     {
                                         await _spellResolution.ResolveSpellAsync(heroCasting, spellToCast, primaryTarget, options);
-                                    } 
+                                    }
                                 }
                             }
                         }
@@ -505,7 +516,7 @@ namespace LoDCompanion.Services.Player
                                 await _spellResolution.ResolveSpellAsync(caster, caster.ChanneledSpell.Spell, caster.ChanneledSpell.Target, caster.ChanneledSpell.CastingOptions);
                                 resultMessage = $"{caster.Name} has no focus actions remaining.";
                                 actionWasSuccessful = false;
-                            } 
+                            }
                         }
                     }
                     else

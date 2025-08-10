@@ -217,7 +217,7 @@ namespace LoDCompanion.Services.Combat
 
             if (context.IsChargeAttack && dungeon != null)
             {
-                result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, dungeon.DungeonGrid);
+                result.OutcomeMessage += await ResolvePostChargeAttack(attacker, target, dungeon);
             }
 
             return result;
@@ -238,10 +238,35 @@ namespace LoDCompanion.Services.Combat
 
             if (context.IsChargeAttack && dungeon != null)
             {
-                result.OutcomeMessage += "\n" + GridService.ShoveCharacter(attacker, target, dungeon.DungeonGrid);
+                result.OutcomeMessage += await ResolvePostChargeAttack(attacker, target, dungeon);
             }
 
             return result;
+        }
+
+        public async Task<string> ResolvePostChargeAttack(Character attacker, Character target, DungeonState dungeon)
+        {
+            var chargeMessage = new StringBuilder();
+
+            var originalTargetPosition = target.Position;
+
+            chargeMessage.Append("\n" + $"{attacker.Name} follows through with the charge!");
+
+            // Perform the shove
+            ShoveResult shoveResult = await PerformShoveAsync(attacker, target, dungeon, isCharge: true);
+            chargeMessage.Append("\n" + shoveResult.OutcomeMessage);
+
+            // If the shove was successful and a valid original position was stored
+            if (shoveResult.IsHit && originalTargetPosition != null)
+            {
+                // Move the attacker into the square the target was pushed FROM
+                if(GridService.MoveCharacterToPosition(attacker, originalTargetPosition, dungeon.DungeonGrid))
+                {
+                    chargeMessage.Append($"\n{attacker.Name} moves into the vacated space.");
+                }
+            }
+
+            return chargeMessage.ToString();
         }
 
         public int CalculateHitChanceModifier(Character attacker, Weapon? weapon, Character target, CombatContext context)
@@ -478,6 +503,128 @@ namespace LoDCompanion.Services.Combat
             }
 
             return finalDamage;
+        }
+
+        /// <summary>
+        /// Performs a shove attack, handling all rules and outcomes.
+        /// </summary>
+        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, DungeonState dungeon, bool isCharge = false)
+        {
+            var result = new AttackResult();
+            var grid = dungeon.DungeonGrid;
+            result.IsHit = true;
+
+            var charactersInArea = new List<Character>();
+            if (shover.Room?.HeroesInRoom != null) charactersInArea.AddRange(shover.Room.HeroesInRoom);
+            if (shover.Room?.MonstersInRoom != null) charactersInArea.AddRange(shover.Room.MonstersInRoom);
+
+            // === PRE-CHECKS ===
+            if (target.Position == null || shover.Position == null)
+            {
+                result.OutcomeMessage = "Invalid character position.";
+                result.IsHit = false;
+                return result;
+            }
+
+            // Rule: Can only shove adjacent models, only applies to non-charge attacks
+            if (!isCharge && !GridService.IsAdjacent(shover.Position, target.Position))
+            {
+                result.OutcomeMessage = $"{target.Name} is not adjacent.";
+                result.IsHit = false;
+                return result;
+            }
+
+            // Rule: Cannot shove large models
+            if (target is Monster monster && monster.PassiveSpecials.Any(s => s.Key.Name == MonsterSpecialName.Large || s.Key.Name == MonsterSpecialName.XLarge))
+            {
+                result.OutcomeMessage = $"{target.Name} is too large to be moved!";
+                result.IsHit = false;
+                return result;
+            }
+
+            if(!isCharge)
+            {
+                // === ROLL CHECK ===
+                int shoveRoll = RandomHelper.RollDie(DiceType.D100);
+                int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;
+                int totalShoveValue = shoveRoll + shoveBonus;
+                result.ToHitChance = target.GetStat(BasicStat.Dexterity);
+                result.AttackRoll = totalShoveValue;
+
+                if (result.AttackRoll <= result.ToHitChance)
+                {
+                    result.OutcomeMessage = $"attempt fails. (Rolled {result.AttackRoll} vs DEX {result.ToHitChance})";
+                    return result;
+                }
+            }
+
+            // Determine "straight back" vector
+            var straightBackVector = new GridPosition(
+                Math.Sign(target.Position.X - shover.Position.X),
+                Math.Sign(target.Position.Y - shover.Position.Y),
+                Math.Sign(target.Position.Z - shover.Position.Z)
+            );
+
+            var straightBackPos = target.Position.Add(straightBackVector);
+            var straightBackSquare = GridService.GetSquareAt(straightBackPos, grid);
+
+            // --- Attempt Straight Push ---
+            if (straightBackSquare != null && !straightBackSquare.MovementBlocked)
+            {
+                Character? model2 = charactersInArea.FirstOrDefault(c => c.Position != null && c.Position.Equals(straightBackPos));
+
+                if (model2 == null) // Space is free
+                {
+                    GridService.MoveCharacterToPosition(target, straightBackPos, grid);
+                    result.OutcomeMessage = $"successfully shoves {target.Name} straight back!";
+                    return result;
+                }
+                else // Attempt chain reaction
+                {
+                    var posBehindModel2 = model2.Position.Add(straightBackVector);
+                    var squareBehindModel2 = GridService.GetSquareAt(posBehindModel2, grid);
+
+                    if (squareBehindModel2 != null && !squareBehindModel2.MovementBlocked && !charactersInArea.Any(c => c.Position != null && c.Position.Equals(posBehindModel2)))
+                    {
+                        GridService.MoveCharacterToPosition(model2, posBehindModel2, grid);
+                        GridService.MoveCharacterToPosition(target, straightBackPos, grid);
+                        result.OutcomeMessage = $"shoves {target.Name}, who stumbles into {model2.Name}, pushing them both back!";
+                        return result;
+                    }
+                }
+            }
+
+            // --- Attempt Diagonal Push if straight back is blocked ---
+            if (straightBackSquare == null || straightBackSquare.MovementBlocked)
+            {
+                var diagonalPositions = new List<GridPosition>();
+                if (straightBackVector.X != 0) // Pushing along X axis
+                {
+                    diagonalPositions.Add(target.Position.Add(new GridPosition(straightBackVector.X, 1, 0)));
+                    diagonalPositions.Add(target.Position.Add(new GridPosition(straightBackVector.X, -1, 0)));
+                }
+                else if (straightBackVector.Y != 0) // Pushing along Y axis
+                {
+                    diagonalPositions.Add(target.Position.Add(new GridPosition(1, straightBackVector.Y, 0)));
+                    diagonalPositions.Add(target.Position.Add(new GridPosition(-1, straightBackVector.Y, 0)));
+                }
+
+                foreach (var diagPos in diagonalPositions)
+                {
+                    var diagSquare = GridService.GetSquareAt(diagPos, grid);
+                    if (diagSquare != null && !diagSquare.MovementBlocked && !charactersInArea.Any(c => c.Position != null && c.Position.Equals(diagPos)))
+                    {
+                        GridService.MoveCharacterToPosition(target, diagPos, grid);
+                        result.OutcomeMessage = $"successfully shoves {target.Name} diagonally back!";
+                        return result;
+                    }
+                }
+            }
+
+            // === FALL OVER (If all else fails) ===
+            StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Prone, 1));
+            result.OutcomeMessage = $"shoves {target.Name}, but they are blocked and fall over!";
+            return result;
         }
 
         public async Task<DefenseResult> HandleEntangleAttempt(Monster attacker, Hero target)

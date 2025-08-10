@@ -272,68 +272,6 @@ namespace LoDCompanion.Services.Dungeon
         }
 
         /// <summary>
-        /// Attempts to shove a target character one square back.
-        /// </summary>
-        /// <param name="shover">The character performing the shove.</param>
-        /// <param name="target">The character being shoved.</param>
-        /// <returns>A string describing the outcome.</returns>
-        public static string ShoveCharacter(Character shover, Character target, Dictionary<GridPosition, GridSquare> grid)
-        {
-            if (target is Monster monster &&
-                monster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge || n.Key.Name == MonsterSpecialName.Large))
-                return $"{shover.Name} tries to shove {target.Name}, but they are too large to be moved!";
-            if (target.Position == null || shover.Position == null) return "invalid position";
-
-            int shoveRoll = RandomHelper.RollDie(DiceType.D100);
-            int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;
-
-            if (shoveRoll > target.GetStat(BasicStat.Dexterity) + shoveBonus)
-            {
-                return $"{shover.Name}'s shove attempt fails.";
-            }
-
-            // Shove is successful. Calculate pushback direction.
-            int dx = target.Position.X - shover.Position.X;
-            int dy = target.Position.Y - shover.Position.Y;
-            int dz = target.Position.Z - shover.Position.Z;
-
-            int shoveX = 0, shoveY = 0, shoveZ = 0;
-
-            // Determine the primary axis of the shove
-            if (Math.Abs(dx) >= Math.Abs(dy) && Math.Abs(dx) >= Math.Abs(dz))
-            {
-                shoveX = Math.Sign(dx); // Shove is primarily horizontal (X)
-            }
-            else if (Math.Abs(dy) >= Math.Abs(dx) && Math.Abs(dy) >= Math.Abs(dz))
-            {
-                shoveY = Math.Sign(dy); // Shove is primarily horizontal (Y)
-            }
-            else
-            {
-                shoveZ = Math.Sign(dz); // Shove is primarily vertical
-            }
-
-            var pushbackPosition = new GridPosition(
-                target.Position.X + shoveX,
-                target.Position.Y + shoveY,
-                target.Position.Z + shoveZ
-            );
-
-            var pushbackSquare = GetSquareAt(pushbackPosition, grid);
-
-            if (pushbackSquare != null && !pushbackSquare.MovementBlocked && !pushbackSquare.IsOccupied)
-            {
-                MoveCharacterToPosition(target, pushbackPosition, grid);
-                return $"{shover.Name} successfully shoves {target.Name} back!";
-            }
-            else
-            {
-                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Prone, 1));
-                return $"{shover.Name} shoves {target.Name}, but they are blocked and fall over!";
-            }
-        }
-
-        /// <summary>
         /// Finds the shortest path between two points using the A* algorithm,
         /// now correctly using your existing Node class and helper methods.
         /// </summary>
