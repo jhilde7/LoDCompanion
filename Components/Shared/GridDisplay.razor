@@ -18,6 +18,8 @@
 @inject ActionService ActionService
 @inject DungeonState Dungeon
 @inject SpellCastingService SpellCastingService
+@inject MovementHighlightingService MovementHighlighting
+
 
 <style>
     .grid-container {
@@ -37,6 +39,12 @@
         /* Ensures padding and border are included in the element's total width and height */
         color: white;
         text-shadow: 1px 1px 2px black;
+    }
+
+    .walkable-square-highlight {
+        background-color: rgba(0, 217, 255, 0.5);
+        border: 1px solid rgb(0, 217, 255);
+        box-sizing: border-box;
     }
 
     .furniture-item {
@@ -156,6 +164,11 @@
 <div class="grid-container" style="@GridStyle">
     @if (Room != null)
     {
+        @foreach (var square in MovementHighlighting.HighlightedSquares)
+        {
+            <div class="grid-item walkable-square-highlight" style="@GetSquareStyle(square)"></div>
+        }
+
         @foreach (var text in FloatingTextService.ActiveTexts)
         {
             @if (text.CssClass.Contains("turn-announcement-text"))
@@ -280,8 +293,7 @@
         var activeHero = CombatManager.ActiveHero;
         @if (activeHero != null && activeHero.Position != null && targetMonster.Position != null)
         {
-            var distance = GridService.GetDistance(activeHero.Position, targetMonster.Position);
-            @if (distance <= 1)
+            @if (GridService.IsAdjacent(activeHero.Position, targetMonster.Position))
             {
                 @if (activeHero.Inventory.EquippedWeapon != null && activeHero.Inventory.EquippedWeapon.IsMelee)
                 {
@@ -313,7 +325,7 @@
 
             @if (GridService.HasLineOfSight(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid).CanShoot)
             {
-                @if (distance > 1)
+                @if (!GridService.IsAdjacent(activeHero.Position, targetMonster.Position))
                 {
                     @if (activeHero.Inventory.EquippedWeapon != null && (activeHero.Inventory.EquippedWeapon.IsRanged ||
                         (activeHero.Inventory.OffHand is Weapon weapon && weapon.IsRanged))

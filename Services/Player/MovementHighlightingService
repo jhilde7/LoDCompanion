@@ -1,0 +1,39 @@
+using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
+using LoDCompanion.Services.Dungeon;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LoDCompanion.Services.Player
+{
+    public class MovementHighlightingService
+    {
+        public event Action? OnHighlightChanged;
+        public HashSet<GridPosition> HighlightedSquares { get; private set; } = new HashSet<GridPosition>();
+
+        public void HighlightWalkableSquares(Hero hero, DungeonState dungeonState)
+        {
+            if (hero?.Position == null || dungeonState?.DungeonGrid == null)
+            {
+                ClearHighlights();
+                return;
+            }
+
+            var path = GridService.GetAllWalkableSquares(hero.Room, hero, dungeonState.DungeonGrid);
+            HighlightedSquares = new HashSet<GridPosition>(path);
+            NotifyStateChanged();
+        }
+
+        public void ClearHighlights()
+        {
+            if (HighlightedSquares.Any())
+            {
+                HighlightedSquares.Clear();
+                NotifyStateChanged();
+            }
+        }
+
+        private void NotifyStateChanged() => OnStateChanged?.Invoke();
+    }
+}

@@ -73,6 +73,7 @@ builder.Services.AddScoped<PartyRestingService>();
 builder.Services.AddSingleton<PassiveAbilityService>();
 builder.Services.AddSingleton<HealingService>();
 builder.Services.AddSingleton<IdentificationService>();
+builder.Services.AddSingleton<MovementHighlightingService>();
 //Game
 builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 builder.Services.AddScoped<GameStateManagerService>();
