@@ -37,6 +37,11 @@ namespace LoDCompanion.Services.Dungeon
             Z = z;
         }
 
+        public GridPosition Add(GridPosition other)
+        {
+            return new GridPosition(X + other.X, Y + other.Y, Z + other.Z);
+        }
+
         public override string ToString()
         {
             return $"X:{X} Y:{Y} Z:{Z}";
