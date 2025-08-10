@@ -1,4 +1,8 @@
 
+using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Models.Character;
+using LoDCompanion.Models.Dungeon;
+
 namespace LoDCompanion.Services.Player
 {
     public class MovementHighlightingService
@@ -28,6 +32,6 @@ namespace LoDCompanion.Services.Player
             }
         }
 
-        private void NotifyStateChanged() => OnStateChanged?.Invoke();
+        private void NotifyStateChanged() => OnHighlightChanged?.Invoke();
     }
 }
