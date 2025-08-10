@@ -325,6 +325,7 @@
 
             @if (GridService.HasLineOfSight(activeHero.Position, targetMonster.Position, Dungeon.DungeonGrid).CanShoot)
             {
+                var distance = GridService.GetDistance(activeHero.Position, targetMonster.Position);
                 @if (!GridService.IsAdjacent(activeHero.Position, targetMonster.Position))
                 {
                     @if (activeHero.Inventory.EquippedWeapon != null && (activeHero.Inventory.EquippedWeapon.IsRanged ||
