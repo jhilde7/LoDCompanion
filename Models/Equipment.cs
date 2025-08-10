@@ -169,7 +169,7 @@ namespace LoDCompanion.Models
     {
         Silver,
         Barbed,
-        SupuriorSlingStone,
+        SuperiorSlingStone,
         HolyWater
     }
 
