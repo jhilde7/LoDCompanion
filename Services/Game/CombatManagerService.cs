@@ -50,7 +50,7 @@ namespace LoDCompanion.Services.Game
             _facing = facingDirectionService;
             _spellResolution = spellResolutionService;
             _floatingText = floatingTextService;
-            _movementHighlighting = movementHighlightingService
+            _movementHighlighting = movementHighlightingService;
 
             _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
         }
