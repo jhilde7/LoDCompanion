@@ -118,7 +118,7 @@ namespace LoDCompanion.Services.Player
             }
 
             // check to see if the character is in the middle of their and is choosing a different action type.
-            // This cancels the remaining move and sets as finsihing their move.
+            // This cancels the remaining move and sets as finishing their move.
             if ( actionType != ActionType.Move && ( character.CurrentMovePoints < character.GetStat(BasicStat.Move) && !character.HasMadeFirstMoveAction))
             {
                 character.HasMadeFirstMoveAction = true;
@@ -211,11 +211,11 @@ namespace LoDCompanion.Services.Player
                 case ActionType.Shove:
                     if (primaryTarget is Character targetToShove && character.Position != null)
                     {
-                        AttackResult attackResult = await _attack.PerformShoveAttackAsync(character, targetToShove, dungeon);
+                        AttackResult attackResult = await _attack.PerformShoveAsync(character, targetToShove, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
-                        if(result.IsHit)
+                        if(attackResult.IsHit)
                         {
-                            if (result.ToHitChance <= result.AttackRoll)
+                            if (attackResult.ToHitChance <= attackResult.AttackRoll)
                             {
                                 Room? room = _dungeonManager.FindRoomAtPosition(targetToShove.Position);
                                 if (room != null)
