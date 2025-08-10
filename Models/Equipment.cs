@@ -287,7 +287,7 @@ namespace LoDCompanion.Models
             return (Weapon)this.Clone();
         }
 
-        public bool HasProperty(WeaponProperty property)
+        public virtual bool HasProperty(WeaponProperty property)
         {
             return Properties.ContainsKey(property);
         }
