@@ -386,7 +386,7 @@ namespace LoDCompanion.Models
             }
         }
 
-        public bool HasProperty(WeaponProperty property)
+        public override bool HasProperty(WeaponProperty property)
         {
             return Properties.ContainsKey(property);
         }
