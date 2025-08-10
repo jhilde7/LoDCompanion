@@ -220,6 +220,7 @@ namespace LoDCompanion.Services.Game
         {
             while (!IsCombatOver())
             {
+                _movementHighlighting.ClearHighlights();
                 if (_initiative.IsTurnOver())
                 {
                     await StartNewTurnAsync();
@@ -485,6 +486,7 @@ namespace LoDCompanion.Services.Game
         {
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
+                _movementHighlighting.ClearHighlights();
                 CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget));
                 //if hero performs an action then no other hero can be selected until next hero selection phase
                 IsAwaitingHeroSelection = false;
@@ -499,6 +501,7 @@ namespace LoDCompanion.Services.Game
                     await Task.Yield(); // Allow UI to process modal closing
                     await ProcessNextInInitiativeAsync();
                 }
+                else _movementHighlighting.HighlightWalkableSquares(ActiveHero, _dungeon);
             }
         }
 
