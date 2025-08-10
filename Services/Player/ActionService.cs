@@ -211,11 +211,11 @@ namespace LoDCompanion.Services.Player
                 case ActionType.Shove:
                     if (primaryTarget is Character targetToShove && character.Position != null)
                     {
-                        AttackResult attackResult = await _attack.PerformShoveAsync(character, targetToShove, dungeon);
+                        AttackResult attackResult = _attack.PerformShove(character, targetToShove, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                         if(attackResult.IsHit)
                         {
-                            if (attackResult.ToHitChance <= attackResult.AttackRoll)
+                            if (attackResult.ToHitChance <= attackResult.AttackRoll && targetToShove.Position != null)
                             {
                                 Room? room = _dungeonManager.FindRoomAtPosition(targetToShove.Position);
                                 if (room != null)

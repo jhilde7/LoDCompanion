@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.InteropServices;
 using LoDCompanion.Services.GameData;
+using System.Text;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -44,7 +45,7 @@ namespace LoDCompanion.Services.Combat
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
             _monsterSpecial.OnSpitAttack += HandleSpitAttack;
-            _monsterSpecial.OnSweepingStrikeAttack += HanldeSweepingStrikeAttack;
+            _monsterSpecial.OnSweepingStrikeAttack += HandleSweepingStrikeAttack;
             _monsterSpecial.OnTongueAttack += HandleTongueAttack;
             _monsterSpecial.OnWebAttack += HandleWebAttempt;
         }
@@ -217,7 +218,7 @@ namespace LoDCompanion.Services.Combat
 
             if (context.IsChargeAttack && dungeon != null)
             {
-                result.OutcomeMessage += await ResolvePostChargeAttack(attacker, target, dungeon);
+                result.OutcomeMessage += ResolvePostChargeAttack(attacker, target, dungeon);
             }
 
             return result;
@@ -238,13 +239,13 @@ namespace LoDCompanion.Services.Combat
 
             if (context.IsChargeAttack && dungeon != null)
             {
-                result.OutcomeMessage += await ResolvePostChargeAttack(attacker, target, dungeon);
+                result.OutcomeMessage += ResolvePostChargeAttack(attacker, target, dungeon);
             }
 
             return result;
         }
 
-        public async Task<string> ResolvePostChargeAttack(Character attacker, Character target, DungeonState dungeon)
+        public string ResolvePostChargeAttack(Character attacker, Character target, DungeonState dungeon)
         {
             var chargeMessage = new StringBuilder();
 
@@ -253,7 +254,7 @@ namespace LoDCompanion.Services.Combat
             chargeMessage.Append("\n" + $"{attacker.Name} follows through with the charge!");
 
             // Perform the shove
-            ShoveResult shoveResult = await PerformShoveAsync(attacker, target, dungeon, isCharge: true);
+            AttackResult shoveResult = PerformShove(attacker, target, dungeon, isCharge: true);
             chargeMessage.Append("\n" + shoveResult.OutcomeMessage);
 
             // If the shove was successful and a valid original position was stored
@@ -468,7 +469,7 @@ namespace LoDCompanion.Services.Combat
             }
             else if (weapon is RangedWeapon rangedWeapon)
             {
-                if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SupuriorSlingStone)))
+                if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SuperiorSlingStone)))
                 {
                     damage += 1;
                 }
@@ -508,7 +509,7 @@ namespace LoDCompanion.Services.Combat
         /// <summary>
         /// Performs a shove attack, handling all rules and outcomes.
         /// </summary>
-        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, DungeonState dungeon, bool isCharge = false)
+        public AttackResult PerformShove(Character shover, Character target, DungeonState dungeon, bool isCharge = false)
         {
             var result = new AttackResult();
             var grid = dungeon.DungeonGrid;
@@ -542,7 +543,7 @@ namespace LoDCompanion.Services.Combat
                 return result;
             }
 
-            if(!isCharge)
+            if (!isCharge)
             {
                 // === ROLL CHECK ===
                 int shoveRoll = RandomHelper.RollDie(DiceType.D100);
@@ -581,15 +582,18 @@ namespace LoDCompanion.Services.Combat
                 }
                 else // Attempt chain reaction
                 {
-                    var posBehindModel2 = model2.Position.Add(straightBackVector);
-                    var squareBehindModel2 = GridService.GetSquareAt(posBehindModel2, grid);
-
-                    if (squareBehindModel2 != null && !squareBehindModel2.MovementBlocked && !charactersInArea.Any(c => c.Position != null && c.Position.Equals(posBehindModel2)))
+                    if(model2.Position != null)
                     {
-                        GridService.MoveCharacterToPosition(model2, posBehindModel2, grid);
-                        GridService.MoveCharacterToPosition(target, straightBackPos, grid);
-                        result.OutcomeMessage = $"shoves {target.Name}, who stumbles into {model2.Name}, pushing them both back!";
-                        return result;
+                        var posBehindModel2 = model2.Position.Add(straightBackVector);
+                        var squareBehindModel2 = GridService.GetSquareAt(posBehindModel2, grid);
+
+                        if (squareBehindModel2 != null && !squareBehindModel2.MovementBlocked && !charactersInArea.Any(c => c.Position != null && c.Position.Equals(posBehindModel2)))
+                        {
+                            GridService.MoveCharacterToPosition(model2, posBehindModel2, grid);
+                            GridService.MoveCharacterToPosition(target, straightBackPos, grid);
+                            result.OutcomeMessage = $"shoves {target.Name}, who stumbles into {model2.Name}, pushing them both back!";
+                            return result;
+                        }
                     }
                 }
             }
@@ -674,7 +678,7 @@ namespace LoDCompanion.Services.Combat
             return result;
         }
 
-        public async Task<AttackResult> HanldeSweepingStrikeAttack(Monster attacker, List<Hero> heroes, DungeonState dungeon)
+        public async Task<AttackResult> HandleSweepingStrikeAttack(Monster attacker, List<Hero> heroes, DungeonState dungeon)
         {
             var result = new AttackResult();
             if (attacker.Position == null) return result;
