@@ -174,7 +174,7 @@ namespace LoDCompanion.Services.Combat
 
             // Find a valid, empty square in the target room.
             // This assumes a helper method to get all valid squares.
-            var validSquares = GridService.GetAllWalkableSquares(targetRoom, monster, dungeon.DungeonGrid);
+            var validSquares = GridService.GetAllWalkableSquares(monster, dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
             if (!validSquares.Any())
             {
                 return $"{monster.Name} couldn't find an empty space to reappear in {targetRoom.Name}.";

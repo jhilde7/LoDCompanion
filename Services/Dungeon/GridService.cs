@@ -89,6 +89,36 @@ namespace LoDCompanion.Services.Dungeon
     public static class GridService
     {
         /// <summary>
+        /// Calculates the cost in movement points to enter a given square.
+        /// </summary>
+        /// <param name="square">The grid square to evaluate.</param>
+        /// <param name="enemies">A list of enemies to check for Zone of Control.</param>
+        /// <returns>The number of movement points required to enter the square.</returns>
+        private static int GetMovementCost(GridSquare square, List<Character> enemies)
+        {
+            // Base cost is 1.
+            int cost = 1;
+
+            // Rule: Climbing onto furniture costs double.
+            if (square.DoubleMoveCost)
+            {
+                cost = 2;
+            }
+
+            // Rule: Entering an enemy's Zone of Control costs 2. This overrides the climb cost if it's higher.
+            foreach (var enemy in enemies)
+            {
+                if (DirectionService.IsInZoneOfControl(square.Position, enemy))
+                {
+                    cost = 2;
+                    break; // The penalty is applied once, no need to check other enemies.
+                }
+            }
+
+            return cost;
+        }
+
+        /// <summary>
         /// Places a new room onto the global grid at a specific offset.
         /// </summary>
         /// <param name="room">The room to place.</param>
@@ -284,7 +314,7 @@ namespace LoDCompanion.Services.Dungeon
         /// Finds the shortest path between two points using the A* algorithm,
         /// now correctly using your existing Node class and helper methods.
         /// </summary>
-        public static List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid)
+        public static List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
         {
 
             // The PriorityQueue stores nodes to visit, prioritized by their F-Score.
@@ -325,7 +355,7 @@ namespace LoDCompanion.Services.Dungeon
                     if (neighborSquare == null) continue; // Should not happen if GetNeighbors is correct
 
                     // Calculate the cost to move to this neighbor.
-                    int movementCost = neighborSquare.DoubleMoveCost ? 2 : 1;
+                    int movementCost = GetMovementCost(neighborSquare, enemies);
                     int tentativeGScore = currentNode.GScore + movementCost;
 
                     // Check if this new path to the neighbor is better than any previous one.
@@ -526,7 +556,7 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public static List<GridPosition> GetAllWalkableSquares(Room room, IGameEntity entity, Dictionary<GridPosition, GridSquare> grid)
+        public static List<GridPosition> GetAllWalkableSquares(IGameEntity entity, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
         {
             if(entity.Position == null) return new List<GridPosition>();
             var reachableSquares = new List<GridPosition>();
@@ -551,21 +581,7 @@ namespace LoDCompanion.Services.Dungeon
                     if (neighborSquare == null) continue;
 
                     // This is the base cost to enter the square.
-                    int movementCost = neighborSquare.DoubleMoveCost ? 2 : 1;
-
-                    // Check if the neighbor square is in the ZOC of any enemy in the room.
-                    if (room.MonstersInRoom != null)
-                    {
-                        foreach (var monster in room.MonstersInRoom)
-                        {
-                            if (DirectionService.IsInZoneOfControl(neighborPos, monster))
-                            {
-                                // Moving through ZOC costs 2 Movement Points.
-                                movementCost = 2;
-                                break; // The penalty is applied once.
-                            }
-                        }
-                    }
+                    int movementCost = GetMovementCost(neighborSquare, enemies);
 
                     int newCost = currentCost + movementCost;
 

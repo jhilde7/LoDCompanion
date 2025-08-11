@@ -246,8 +246,6 @@ namespace LoDCompanion.Services.Player
                             availableMovement /= 2;
                         }
 
-                        List<GridPosition> path = GridService.FindShortestPath(character.Position, targetPosition, dungeon.DungeonGrid);
-
                         // Determine enemies for ZOC calculation
                         List<Character> enemies = new List<Character>();
                         if (_dungeonManager.DungeonState != null)
@@ -272,6 +270,7 @@ namespace LoDCompanion.Services.Player
                                 }
                             }
                         }
+                        List<GridPosition> path = GridService.FindShortestPath(character.Position, targetPosition, dungeon.DungeonGrid, enemies);
 
                         MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
 

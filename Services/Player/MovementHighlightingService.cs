@@ -18,7 +18,7 @@ namespace LoDCompanion.Services.Player
                 return;
             }
 
-            var path = GridService.GetAllWalkableSquares(hero.Room, hero, dungeonState.DungeonGrid);
+            var path = GridService.GetAllWalkableSquares(hero, dungeonState.DungeonGrid, dungeonState.RevealedMonsters.Cast<Character>().ToList());
             HighlightedSquares = new HashSet<GridPosition>(path);
             NotifyStateChanged();
         }
