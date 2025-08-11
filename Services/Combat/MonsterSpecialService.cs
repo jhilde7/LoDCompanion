@@ -190,7 +190,7 @@ namespace LoDCompanion.Services.Combat
             {
                 // If the room has no heroes, find the spot with the best line of sight.
                 int maxLosCount = -1;
-                foreach (var square in validSquares)
+                foreach (var square in validSquares.Keys)
                 {
                     int currentLosCount = 0;
                     foreach (var hero in heroes)
@@ -209,8 +209,10 @@ namespace LoDCompanion.Services.Combat
             }
             else
             {
+                var validSquareList = validSquares.Keys.ToList();
+                validSquareList.Shuffle();
                 // If there are heroes, just pick a random valid square.
-                newPosition = validSquares[RandomHelper.GetRandomNumber(0, validSquares.Count - 1)];
+                newPosition = validSquareList[0];
             }
 
             if (newPosition != null && monster.Position != null)

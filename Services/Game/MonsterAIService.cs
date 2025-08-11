@@ -560,7 +560,7 @@ namespace LoDCompanion.Services.Game
                 return false;
             }
 
-            var idealSquares = allReachableSquares
+            var idealSquares = allReachableSquares.Keys
                 .Where(pos => GridService.HasLineOfSight(pos, target.Position, _dungeon.DungeonGrid).CanShoot)
                 .OrderByDescending(pos => GridService.GetDistance(pos, target.Position))
                 .ToList();
@@ -573,7 +573,7 @@ namespace LoDCompanion.Services.Game
             }
             else
             {
-                bestRetreatSpot = allReachableSquares
+                bestRetreatSpot = allReachableSquares.Keys
                     .OrderByDescending(pos => GridService.GetDistance(pos, target.Position))
                     .FirstOrDefault();
             }
@@ -598,7 +598,7 @@ namespace LoDCompanion.Services.Game
             if (monster.Position == null || target.Position == null) return string.Empty;
             var allReachableSquares = GridService.GetAllWalkableSquares(monster, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
 
-            var squaresWithLOS = allReachableSquares
+            var squaresWithLOS = allReachableSquares.Keys
                 .Where(pos => GridService.HasLineOfSight(pos, target.Position, _dungeon.DungeonGrid).CanShoot)
                 .ToList();
 

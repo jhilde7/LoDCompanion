@@ -188,7 +188,7 @@ namespace LoDCompanion.Services.Dungeon
             {
                 var nextSquare = GetSquareAt(nextPos, grid);
 
-                if (nextSquare == null || nextSquare.MovementBlocked || nextSquare.IsOccupied)
+                if (nextSquare == null || nextSquare.MovementBlocked)
                 {
                     result.Message = $"{character.Name}'s path is blocked at {nextPos}.";
                     break; // End movement here.
@@ -436,7 +436,7 @@ namespace LoDCompanion.Services.Dungeon
                 // A square is a valid neighbor if it exists and is not blocked.
                 // You could add more complex rules here for vertical movement,
                 // e.g., requiring "Stairs" or a "Ladder" to move up or down.
-                if (square != null && !square.MovementBlocked)
+                if (square != null)
                 {
                     yield return newPos;
                 }
@@ -548,10 +548,10 @@ namespace LoDCompanion.Services.Dungeon
             }
         }
 
-        public static List<GridPosition> GetAllWalkableSquares(IGameEntity entity, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
+        public static Dictionary<GridPosition, int> GetAllWalkableSquares(IGameEntity entity, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
         {
-            if(entity.Position == null) return new List<GridPosition>();
-            var reachableSquares = new List<GridPosition>();
+            if(entity.Position == null) return new Dictionary<GridPosition, int>();
+            var reachableSquares = new Dictionary<GridPosition, int>();
             // 'visited' tracks positions we've seen and the cost to reach them.
             var visited = new Dictionary<GridPosition, int>();
             var queue = new Queue<GridPosition>();
@@ -570,7 +570,7 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     // Calculate the cost to move into this neighbor square.
                     var neighborSquare = GetSquareAt(neighborPos, grid);
-                    if (neighborSquare == null) continue;
+                    if (neighborSquare == null || neighborSquare.MovementBlocked) continue;
 
                     // This is the base cost to enter the square.
                     int movementCost = GetMovementCost(neighborSquare, enemies);
@@ -579,21 +579,19 @@ namespace LoDCompanion.Services.Dungeon
 
                     if (entity is Character character && newCost <= character.CurrentMovePoints)
                     {
-                        if (neighborSquare.MovementBlocked) continue;
                         // ...and we haven't found a cheaper path to this square already...
                         if (!visited.ContainsKey(neighborPos) || newCost < visited[neighborPos])
                         {
                             // ...then this is a valid square to move to.
                             visited[neighborPos] = newCost;
                             queue.Enqueue(neighborPos);
-                            reachableSquares.Add(neighborPos);
+                            reachableSquares.TryAdd(neighborPos, newCost);
                         }
                     }
                 }
             }
 
-            // Return all the unique positions found within the movement range.
-            return reachableSquares.Distinct().ToList();
+            return reachableSquares;
         }
 
         internal static List<GridPosition> GetAllSquaresInRadius(GridPosition currentCenter, int areaOfEffectRadius, Dictionary<GridPosition, GridSquare> grid)

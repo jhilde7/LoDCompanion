@@ -12,21 +12,27 @@ namespace LoDCompanion.Services.Player
 
         public void HighlightWalkableSquares(Hero hero, DungeonState dungeonState)
         {
+            var enemiesList = dungeonState?.RevealedMonsters ?? new List<Monster>();
             if (hero?.Position == null || dungeonState?.DungeonGrid == null)
             {
                 ClearHighlights();
                 return;
             }
 
-            if (hero.CurrentMovePoints > 0)
+            if(enemiesList.Count <= 0)
             {
-                var path = GridService.GetAllWalkableSquares(hero, dungeonState.DungeonGrid, dungeonState.RevealedMonsters.Cast<Character>().ToList());
-                HighlightedSquares = new HashSet<GridPosition>(path); 
+                enemiesList = hero.Room?.MonstersInRoom ?? new List<Monster>();
             }
-            else
-            {
-                HighlightedSquares.Clear();
-            }
+
+            // Get the pre-calculated costs for all squares reachable within a full move.
+            var walkableSquaresWithCosts = GridService.GetAllWalkableSquares(hero, dungeonState.DungeonGrid, enemiesList.Cast<Character>().ToList());
+
+            // Now, filter this dictionary based on the hero's CURRENT movement points.
+            HighlightedSquares = walkableSquaresWithCosts
+                .Where(kvp => kvp.Value <= hero.CurrentMovePoints)
+                .Select(kvp => kvp.Key)
+                .ToHashSet();
+
             NotifyStateChanged();
         }
 
