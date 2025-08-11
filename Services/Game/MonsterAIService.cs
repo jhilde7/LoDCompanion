@@ -206,7 +206,7 @@ namespace LoDCompanion.Services.Game
                     }
                     else
                     {
-                        if (target.Position != null && GridService.GetDistance(monster.Position, target.Position) <= 1)
+                        if (target.Position != null && GridService.IsAdjacent(monster.Position, target.Position))
                         {
                             attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                             return attackResult.OutcomeMessage;
@@ -663,7 +663,7 @@ namespace LoDCompanion.Services.Game
             // --- Prioritize Untargeted Adjacent Heroes ---
             // "If the enemy has a choice between adjacent targets, target one that has not been targeted by another enemy."
             var adjacentHeroes = targetableHeroes
-                .Where(h => GridService.GetDistance(monster.Position, h.Position!) <= 1)
+                .Where(h => GridService.IsAdjacent(monster.Position, h.Position!))
                 .ToList();
 
             if (adjacentHeroes.Any())
@@ -732,8 +732,8 @@ namespace LoDCompanion.Services.Game
         {
             if (caster.Position == null) return null;
             var choices = new List<SpellChoice>();
-            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
-            var adjacentAllies = _dungeon.RevealedMonsters.Where(h => h.Position != null && GridService.GetDistance(caster.Position, h.Position) <= 1).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.IsAdjacent(caster.Position, h.Position)).ToList();
+            var adjacentAllies = _dungeon.RevealedMonsters.Where(h => h.Position != null && GridService.IsAdjacent(caster.Position, h.Position)).ToList();
             var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(caster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
             foreach (var spell in caster.Spells.Where(s => s.Type == spellType))
@@ -990,7 +990,7 @@ namespace LoDCompanion.Services.Game
                         break;
 
                     case SpecialActiveAbility.Swallow:
-                        var swallowTargets = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1 && !h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.BeingSwallowed || e.Category == StatusEffectType.Swallowed)).ToList();
+                        var swallowTargets = heroes.Where(h => h.Position != null && GridService.IsAdjacent(monster.Position, h.Position) && !h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.BeingSwallowed || e.Category == StatusEffectType.Swallowed)).ToList();
                         if (swallowTargets.Any())
                         {
                             currentTarget = ChooseTarget(monster, swallowTargets);

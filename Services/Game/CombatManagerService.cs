@@ -423,7 +423,7 @@ namespace LoDCompanion.Services.Game
                     if (weapon.IsRanged && hero.Position != null)
                     {
                         // Check for adjacent enemies
-                        bool isEnemyAdjacent = HeroesInCombat.Any(h => h.Position != null && GridService.GetDistance(hero.Position, h.Position) <= 1);
+                        bool isEnemyAdjacent = HeroesInCombat.Any(h => h.Position != null && GridService.IsAdjacent(hero.Position, h.Position));
                         if (isEnemyAdjacent) continue;
 
                         var losResult = GridService.HasLineOfSight(hero.Position, pathSquare, _dungeon.DungeonGrid);

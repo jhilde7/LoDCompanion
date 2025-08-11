@@ -322,7 +322,7 @@ namespace LoDCompanion.Services.Combat
         public async Task<string> KickAsync(Monster monster, List<Hero> heroes)
         {
             if (monster.Position == null) return string.Empty;
-            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1 && h.CombatStance != CombatStance.Prone).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.IsAdjacent(monster.Position, h.Position) && h.CombatStance != CombatStance.Prone).ToList();
             var heroesBehind = adjacentHeroes.Where(h =>
             {
                 if (h.Position != null)
@@ -389,7 +389,7 @@ namespace LoDCompanion.Services.Combat
             if(monster.Position == null) return string.Empty; // Ensure monster has a position
             string outcome = $"{monster.Name} attempts to turn its targets to stone!\n";
 
-            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.IsAdjacent(monster.Position, h.Position)).ToList();
 
             if (adjacentHeroes.Any())
             {

@@ -1485,7 +1485,7 @@ namespace LoDCompanion.Services.GameData
         {
             if (caster.Position == null) return new SpellCastResult();
             var result = new SpellCastResult();
-            var adjacentEnemies = caster.Room.MonstersInRoom?.Any(m => m.Position != null && GridService.GetDistance(caster.Position, m.Position) <= 1) ?? false;
+            var adjacentEnemies = caster.Room.MonstersInRoom?.Any(m => m.Position != null && GridService.IsAdjacent(caster.Position, m.Position)) ?? false;
 
             // --- Pre-Cast Checks ---
             if (caster.GetStat(BasicStat.Level) < this.Level)
