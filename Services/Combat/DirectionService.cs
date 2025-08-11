@@ -84,7 +84,7 @@ namespace LoDCompanion.Services.Combat
         {
             // A character's ZOC only extends to adjacent squares.
             // We check this first to ensure we are only evaluating the immediate area.
-            if (character.Position == null ||GridService.GetDistance(character.Position, positionToCheck) > 1)
+            if (character.Position == null || !GridService.IsAdjacent(character.Position, positionToCheck))
             {
                 return false;
             }
