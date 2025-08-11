@@ -1,0 +1,1433 @@
+{
+    "$id": "1",
+    "CurrentParty": {
+        "$id": "2",
+        "Id": "764e8e0a-6b51-46a3-9ef4-f5d3766ee49b",
+        "Heroes": {
+            "$id": "3",
+            "$values": [
+                {
+                    "$id": "4",
+                    "SpeciesName": "Halfling",
+                    "ProfessionName": "Warrior Priest",
+                    "CurrentEnergy": 1,
+                    "CurrentMana": null,
+                    "CurrentSanity": 10,
+                    "MaxArmourType": 4,
+                    "IsThief": false,
+                    "OneHandedWeaponClass": 3,
+                    "TwoHandedWeaponClass": 4,
+                    "Talents": {
+                        "$id": "5",
+                        "$values": [
+                            {
+                                "$id": "6",
+                                "Name": 41,
+                                "Category": 5,
+                                "Description": "Some are just luckier than others. Everything seems to go your way. You gain +1 Luck Point."
+                            },
+                            {
+                                "$id": "7",
+                                "Name": 73,
+                                "Category": 7,
+                                "Description": "No enemy or task is too difficult. Your hero gains a +5 bonus to the Resolve stat."
+                            }
+                        ]
+                    },
+                    "Perks": {
+                        "$id": "8",
+                        "$values": []
+                    },
+                    "Inventory": {
+                        "$id": "9",
+                        "EquippedWeapon": {
+                            "$id": "10",
+                            "IsRanged": false,
+                            "IsMelee": true,
+                            "Durability": 6,
+                            "Class": 3,
+                            "DamageDice": "1d10",
+                            "DamageBonus": 0,
+                            "MinDamage": 1,
+                            "MaxDamage": 10,
+                            "Properties": {
+                                "$id": "11",
+                                "Stun": 0,
+                                "BFO": 0,
+                                "Blunt": 0,
+                                "Metal": 0
+                            },
+                            "Id": "80bab10e-f4a8-4633-9a45-f1909abe6ac8",
+                            "Category": "Common",
+                            "Shop": 1,
+                            "Name": "Battlehammer",
+                            "Encumbrance": 10,
+                            "MaxDurability": 6,
+                            "Value": 100,
+                            "SellValue": 20,
+                            "RepairCost": 20,
+                            "Availability": 4,
+                            "Quantity": 1,
+                            "Description": "",
+                            "MagicEffect": "",
+                            "Storage": null
+                        },
+                        "EquippedArmour": {
+                            "$id": "12",
+                            "$values": [
+                                {
+                                    "$id": "13",
+                                    "ArmourClass": 2,
+                                    "DefValue": 3,
+                                    "Properties": {
+                                        "$id": "14",
+                                        "Torso": 0,
+                                        "Arms": 0
+                                    },
+                                    "Id": "27d5a5f8-0bed-4d27-9607-8069c70cda9b",
+                                    "Category": "Common",
+                                    "Shop": 2,
+                                    "Name": "Leather Jacket",
+                                    "Encumbrance": 4,
+                                    "MaxDurability": 6,
+                                    "Durability": 1,
+                                    "Value": 140,
+                                    "SellValue": 28,
+                                    "RepairCost": 28,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "",
+                                    "MagicEffect": "",
+                                    "Storage": null
+                                }
+                            ]
+                        },
+                        "EquippedQuiver": null,
+                        "OffHand": null,
+                        "EquippedRelic": {
+                            "$id": "15",
+                            "Id": "1d278185-6380-4409-8205-0af8d762833c",
+                            "Category": "The Inner Sanctum",
+                            "Shop": 0,
+                            "Name": "Relic of Metheia",
+                            "Encumbrance": 1,
+                            "MaxDurability": 6,
+                            "Durability": 1,
+                            "Value": 500,
+                            "SellValue": 100,
+                            "RepairCost": 100,
+                            "Availability": 4,
+                            "Quantity": 1,
+                            "Description": "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                            "MagicEffect": "Healing bonus 1d3 done by the Warrior Priest",
+                            "Storage": null,
+                            "Properties": {
+                                "$id": "16"
+                            }
+                        },
+                        "EquippedStorage": null,
+                        "Backpack": {
+                            "$id": "17",
+                            "$values": []
+                        },
+                        "QuickSlots": {
+                            "$id": "18",
+                            "$values": [
+                                null,
+                                null,
+                                null
+                            ]
+                        },
+                        "MaxQuickSlots": 3
+                    },
+                    "DualWieldBonus": 0,
+                    "ArmourDefValues": {
+                        "$id": "19",
+                        "Head": 0,
+                        "Torso": 3,
+                        "Arms": 3,
+                        "Legs": 0
+                    },
+                    "Spells": null,
+                    "ChanneledSpell": null,
+                    "Prayers": {
+                        "$id": "20",
+                        "$values": [
+                            {
+                                "$id": "21",
+                                "Name": "Metheia's Ward",
+                                "Level": 1,
+                                "EnergyCost": 1,
+                                "IsActive": false,
+                                "Duration": "For the rest of the battle.",
+                                "PrayerEffect": "Under the protection of Metheia, the priest regains 1 lost HP at the start of their activation, for the rest of the battle."
+                            },
+                            {
+                                "$id": "22",
+                                "Name": "Bringer of Light",
+                                "Level": 1,
+                                "EnergyCost": 1,
+                                "IsActive": false,
+                                "Duration": "Until end of next battle, or 4 turns if used between battles.",
+                                "PrayerEffect": "The light of the gods shines through the priest, causing the Undead to waver. Any Undead trying to attack the Warrior Priest suffers -10 CS."
+                            }
+                        ]
+                    },
+                    "Coins": 0,
+                    "HasBeenTargetedThisTurn": false,
+                    "HasDodgedThisBattle": false,
+                    "Levelup": {
+                        "$id": "23",
+                        "ImprovementPoints": 0,
+                        "BasicStatsImprovedThisLevel": {
+                            "$id": "24"
+                        },
+                        "SkillsImprovedThisLevel": {
+                            "$id": "25"
+                        },
+                        "SelectedTalent": null,
+                        "SelectedPerk": null
+                    },
+                    "Id": "38c23a77-e65d-46f6-a888-3312f3ceab5d",
+                    "Name": "Foehammer",
+                    "CurrentHP": 12,
+                    "BasicStats": {
+                        "$id": "26",
+                        "Strength": 40,
+                        "Constitution": 30,
+                        "Dexterity": 54,
+                        "Wisdom": 40,
+                        "Resolve": 50,
+                        "DamageBonus": 0,
+                        "NaturalArmour": 0,
+                        "ActionPoints": 0,
+                        "Energy": 1,
+                        "Mana": 0,
+                        "Sanity": 10,
+                        "Luck": 0,
+                        "Move": 4,
+                        "HitPoints": 12,
+                        "Experience": 0,
+                        "Level": 1
+                    },
+                    "SkillStats": {
+                        "$id": "27",
+                        "CombatSkill": 59,
+                        "RangedSkill": 49,
+                        "Dodge": 49,
+                        "PickLocks": 34,
+                        "Barter": 30,
+                        "Heal": 45,
+                        "Alchemy": 25,
+                        "Perception": 40,
+                        "ArcaneArts": 0,
+                        "Foraging": 10,
+                        "BattlePrayers": 55
+                    },
+                    "CombatStance": 0,
+                    "Weapons": {
+                        "$id": "28",
+                        "$values": []
+                    },
+                    "HasShield": false,
+                    "Room": {
+                        "$id": "29",
+                        "Name": "",
+                        "ImagePath": "",
+                        "IsStartingTile": false,
+                        "IsObjectiveRoom": false,
+                        "HasLevers": false,
+                        "Category": 1,
+                        "Description": "",
+                        "SpecialRules": "",
+                        "HasSpecial": false,
+                        "ActivateSpecial": false,
+                        "ThreatLevelModifier": 0,
+                        "PartyMoraleModifier": 0,
+                        "Size": [
+                            0,
+                            0
+                        ],
+                        "Doors": {
+                            "$id": "30",
+                            "$values": []
+                        },
+                        "IsDeadEnd": false,
+                        "FurnitureList": {
+                            "$id": "31",
+                            "$values": []
+                        },
+                        "RandomEncounter": false,
+                        "RollEncounter": false,
+                        "EncounterRoll": 0,
+                        "EncounterModifier": 0,
+                        "IsEncounter": false,
+                        "HasBeenSearched": false,
+                        "PartySearch": false,
+                        "SearchRoomTrigger": false,
+                        "SearchRoll": 0,
+                        "TreasureRoll": 0,
+                        "CurrentTrap": {
+                            "$id": "32",
+                            "Name": "No Trap",
+                            "SkillModifier": 0,
+                            "DisarmModifier": 0,
+                            "Description": "",
+                            "SpecialDescription": "",
+                            "IsTrapped": true,
+                            "IsTriggered": false,
+                            "IsAvoided": false,
+                            "IsDisarmed": false
+                        },
+                        "SearchResults": {
+                            "$id": "33",
+                            "$values": []
+                        },
+                        "ConnectedRooms": {
+                            "$id": "34",
+                            "$values": []
+                        },
+                        "DoorCount": 0,
+                        "Grid": {
+                            "$id": "35",
+                            "$values": []
+                        },
+                        "Width": 0,
+                        "Height": 0,
+                        "GridOffset": {
+                            "$id": "36",
+                            "X": 0,
+                            "Y": 0,
+                            "Z": 0
+                        },
+                        "HeroesInRoom": {
+                            "$id": "37",
+                            "$values": [
+                                {
+                                    "$ref": "4"
+                                }
+                            ]
+                        },
+                        "MonstersInRoom": null,
+                        "CorpsesInRoom": null,
+                        "CharactersInRoom": {
+                            "$id": "38",
+                            "$values": [
+                                {
+                                    "$ref": "4"
+                                }
+                            ]
+                        },
+                        "SearchablesInRoom": {
+                            "$id": "39",
+                            "$values": []
+                        }
+                    },
+                    "Position": null,
+                    "OccupiedSquares": {
+                        "$id": "40",
+                        "$values": []
+                    },
+                    "ActiveStatusEffects": {
+                        "$id": "41",
+                        "$values": []
+                    },
+                    "CurrentAP": 2,
+                    "CurrentMovePoints": 0,
+                    "IsVulnerableAfterPowerAttack": false,
+                    "HasMadeFirstMoveAction": false,
+                    "Facing": 0
+                },
+                {
+                    "$id": "42",
+                    "SpeciesName": "Elf",
+                    "ProfessionName": "Wizard",
+                    "CurrentEnergy": 1,
+                    "CurrentMana": null,
+                    "CurrentSanity": 10,
+                    "MaxArmourType": 2,
+                    "IsThief": false,
+                    "OneHandedWeaponClass": 2,
+                    "TwoHandedWeaponClass": 3,
+                    "Talents": {
+                        "$id": "43",
+                        "$values": [
+                            {
+                                "$id": "44",
+                                "Name": 2,
+                                "Category": 1,
+                                "Description": "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description."
+                            },
+                            {
+                                "$id": "45",
+                                "Name": 3,
+                                "Category": 1,
+                                "Description": "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened."
+                            },
+                            {
+                                "$id": "46",
+                                "Name": 77,
+                                "Category": 7,
+                                "Description": "Your hero gains a permanent +5 bonus to the Wisdom stat."
+                            }
+                        ]
+                    },
+                    "Perks": {
+                        "$id": "47",
+                        "$values": []
+                    },
+                    "Inventory": {
+                        "$id": "48",
+                        "EquippedWeapon": {
+                            "$id": "49",
+                            "IsRanged": true,
+                            "IsMelee": false,
+                            "Durability": 6,
+                            "Class": 6,
+                            "DamageDice": "1d8",
+                            "DamageBonus": 0,
+                            "MinDamage": 1,
+                            "MaxDamage": 8,
+                            "Properties": {
+                                "$id": "50"
+                            },
+                            "Id": "cba70c59-235a-4b66-8289-a9794af8f7d7",
+                            "Category": "Common",
+                            "Shop": 0,
+                            "Name": "Sling",
+                            "Encumbrance": 1,
+                            "MaxDurability": 6,
+                            "Value": 40,
+                            "SellValue": 8,
+                            "RepairCost": 8,
+                            "Availability": 4,
+                            "Quantity": 1,
+                            "Description": "",
+                            "MagicEffect": "",
+                            "Storage": null
+                        },
+                        "EquippedArmour": {
+                            "$id": "51",
+                            "$values": [
+                                {
+                                    "$id": "52",
+                                    "ArmourClass": 1,
+                                    "DefValue": 2,
+                                    "Properties": {
+                                        "$id": "53",
+                                        "Arms": 0,
+                                        "Torso": 0,
+                                        "Stackable": 0
+                                    },
+                                    "Id": "b6f8cb5d-167c-4033-afed-5c5fe7f13a0d",
+                                    "Category": "Common",
+                                    "Shop": 2,
+                                    "Name": "Padded Jacket",
+                                    "Encumbrance": 5,
+                                    "MaxDurability": 6,
+                                    "Durability": 1,
+                                    "Value": 120,
+                                    "SellValue": 24,
+                                    "RepairCost": 24,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "",
+                                    "MagicEffect": "",
+                                    "Storage": null
+                                }
+                            ]
+                        },
+                        "EquippedQuiver": null,
+                        "OffHand": null,
+                        "EquippedRelic": null,
+                        "EquippedStorage": null,
+                        "Backpack": {
+                            "$id": "54",
+                            "$values": [
+                                {
+                                    "$id": "55",
+                                    "$type": "MeleeWeapon",
+                                    "Properties": {
+                                        "$id": "56",
+                                        "Defensive": 0,
+                                        "Blunt": 0
+                                    },
+                                    "IsRanged": false,
+                                    "IsMelee": true,
+                                    "Durability": 6,
+                                    "Class": 2,
+                                    "DamageDice": "1d8",
+                                    "DamageBonus": 0,
+                                    "MinDamage": 1,
+                                    "MaxDamage": 8,
+                                    "Id": "dc0298b8-2eb0-40ba-8788-1f6659e4e085",
+                                    "Category": "Common",
+                                    "Shop": 1,
+                                    "Name": "Staff",
+                                    "Encumbrance": 5,
+                                    "MaxDurability": 6,
+                                    "Value": 5,
+                                    "SellValue": 0,
+                                    "RepairCost": 1,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "",
+                                    "MagicEffect": "",
+                                    "Storage": null
+                                }
+                            ]
+                        },
+                        "QuickSlots": {
+                            "$id": "57",
+                            "$values": [
+                                null,
+                                null,
+                                null
+                            ]
+                        },
+                        "MaxQuickSlots": 3
+                    },
+                    "DualWieldBonus": 0,
+                    "ArmourDefValues": {
+                        "$id": "58",
+                        "Head": 0,
+                        "Torso": 2,
+                        "Arms": 2,
+                        "Legs": 0
+                    },
+                    "Spells": {
+                        "$id": "59",
+                        "$values": [
+                            {
+                                "$id": "60",
+                                "Name": "Flare",
+                                "Level": 1,
+                                "TargetType": 0,
+                                "SpellEffect": "A bright flare shoots from the caster's hand, hissing through the air to strike the target with a large bang. DMG is 1D8.",
+                                "CastingValue": 8,
+                                "ManaCost": 15,
+                                "DamageType": 8,
+                                "StatusEffect": null,
+                                "School": 1,
+                                "Properties": {
+                                    "$id": "61",
+                                    "QuickSpell": 0,
+                                    "MagicMissile": 0,
+                                    "DiceCount": 1,
+                                    "DiceMaxValue": 8
+                                }
+                            },
+                            {
+                                "$id": "62",
+                                "Name": "Slip",
+                                "Level": 1,
+                                "TargetType": 0,
+                                "SpellEffect": "Causes the target to slip and fall. The target will remain prone until its next action when it will spend its first turn standing up.",
+                                "CastingValue": 10,
+                                "ManaCost": 10,
+                                "DamageType": 8,
+                                "StatusEffect": 6,
+                                "School": 5,
+                                "Properties": {
+                                    "$id": "63",
+                                    "TurnDuration": 1
+                                }
+                            },
+                            {
+                                "$id": "64",
+                                "Name": "Protective Shield",
+                                "Level": 1,
+                                "TargetType": 3,
+                                "SpellEffect": "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn.",
+                                "CastingValue": 10,
+                                "ManaCost": 10,
+                                "DamageType": 8,
+                                "StatusEffect": 38,
+                                "School": 4,
+                                "Properties": {
+                                    "$id": "65",
+                                    "Upkeep": 1,
+                                    "ArmourValue": 0,
+                                    "IncludeCasterLevelEffect": 1,
+                                    "LOS": 0,
+                                    "MaxCasterLvl": 3
+                                }
+                            }
+                        ]
+                    },
+                    "ChanneledSpell": null,
+                    "Prayers": null,
+                    "Coins": 0,
+                    "HasBeenTargetedThisTurn": false,
+                    "HasDodgedThisBattle": false,
+                    "Levelup": {
+                        "$id": "66",
+                        "ImprovementPoints": 0,
+                        "BasicStatsImprovedThisLevel": {
+                            "$id": "67"
+                        },
+                        "SkillsImprovedThisLevel": {
+                            "$id": "68"
+                        },
+                        "SelectedTalent": null,
+                        "SelectedPerk": null
+                    },
+                    "Id": "2b729fdb-5b30-4be0-a505-cb1ca51750e5",
+                    "Name": "Wiz",
+                    "CurrentHP": 11,
+                    "BasicStats": {
+                        "$id": "69",
+                        "Strength": 34,
+                        "Constitution": 29,
+                        "Dexterity": 46,
+                        "Wisdom": 55,
+                        "Resolve": 38,
+                        "DamageBonus": 0,
+                        "NaturalArmour": 0,
+                        "ActionPoints": 0,
+                        "Energy": 1,
+                        "Mana": 55,
+                        "Sanity": 10,
+                        "Luck": 0,
+                        "Move": 4,
+                        "HitPoints": 11,
+                        "Experience": 0,
+                        "Level": 1
+                    },
+                    "SkillStats": {
+                        "$id": "70",
+                        "CombatSkill": 41,
+                        "RangedSkill": 46,
+                        "Dodge": 36,
+                        "PickLocks": 26,
+                        "Barter": 60,
+                        "Heal": 50,
+                        "Alchemy": 35,
+                        "Perception": 45,
+                        "ArcaneArts": 65,
+                        "Foraging": 9,
+                        "BattlePrayers": 0
+                    },
+                    "CombatStance": 0,
+                    "Weapons": {
+                        "$id": "71",
+                        "$values": []
+                    },
+                    "HasShield": false,
+                    "Room": {
+                        "$id": "72",
+                        "Name": "",
+                        "ImagePath": "",
+                        "IsStartingTile": false,
+                        "IsObjectiveRoom": false,
+                        "HasLevers": false,
+                        "Category": 1,
+                        "Description": "",
+                        "SpecialRules": "",
+                        "HasSpecial": false,
+                        "ActivateSpecial": false,
+                        "ThreatLevelModifier": 0,
+                        "PartyMoraleModifier": 0,
+                        "Size": [
+                            0,
+                            0
+                        ],
+                        "Doors": {
+                            "$id": "73",
+                            "$values": []
+                        },
+                        "IsDeadEnd": false,
+                        "FurnitureList": {
+                            "$id": "74",
+                            "$values": []
+                        },
+                        "RandomEncounter": false,
+                        "RollEncounter": false,
+                        "EncounterRoll": 0,
+                        "EncounterModifier": 0,
+                        "IsEncounter": false,
+                        "HasBeenSearched": false,
+                        "PartySearch": false,
+                        "SearchRoomTrigger": false,
+                        "SearchRoll": 0,
+                        "TreasureRoll": 0,
+                        "CurrentTrap": {
+                            "$id": "75",
+                            "Name": "No Trap",
+                            "SkillModifier": 0,
+                            "DisarmModifier": 0,
+                            "Description": "",
+                            "SpecialDescription": "",
+                            "IsTrapped": true,
+                            "IsTriggered": false,
+                            "IsAvoided": false,
+                            "IsDisarmed": false
+                        },
+                        "SearchResults": {
+                            "$id": "76",
+                            "$values": []
+                        },
+                        "ConnectedRooms": {
+                            "$id": "77",
+                            "$values": []
+                        },
+                        "DoorCount": 0,
+                        "Grid": {
+                            "$id": "78",
+                            "$values": []
+                        },
+                        "Width": 0,
+                        "Height": 0,
+                        "GridOffset": {
+                            "$id": "79",
+                            "X": 0,
+                            "Y": 0,
+                            "Z": 0
+                        },
+                        "HeroesInRoom": {
+                            "$id": "80",
+                            "$values": [
+                                {
+                                    "$ref": "42"
+                                }
+                            ]
+                        },
+                        "MonstersInRoom": null,
+                        "CorpsesInRoom": null,
+                        "CharactersInRoom": {
+                            "$id": "81",
+                            "$values": [
+                                {
+                                    "$ref": "42"
+                                }
+                            ]
+                        },
+                        "SearchablesInRoom": {
+                            "$id": "82",
+                            "$values": []
+                        }
+                    },
+                    "Position": null,
+                    "OccupiedSquares": {
+                        "$id": "83",
+                        "$values": []
+                    },
+                    "ActiveStatusEffects": {
+                        "$id": "84",
+                        "$values": []
+                    },
+                    "CurrentAP": 2,
+                    "CurrentMovePoints": 0,
+                    "IsVulnerableAfterPowerAttack": false,
+                    "HasMadeFirstMoveAction": false,
+                    "Facing": 0
+                },
+                {
+                    "$id": "85",
+                    "SpeciesName": "Elf",
+                    "ProfessionName": "Thief",
+                    "CurrentEnergy": 1,
+                    "CurrentMana": null,
+                    "CurrentSanity": 10,
+                    "MaxArmourType": 3,
+                    "IsThief": true,
+                    "OneHandedWeaponClass": 3,
+                    "TwoHandedWeaponClass": 4,
+                    "Talents": {
+                        "$id": "86",
+                        "$values": [
+                            {
+                                "$id": "87",
+                                "Name": 2,
+                                "Category": 1,
+                                "Description": "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description."
+                            },
+                            {
+                                "$id": "88",
+                                "Name": 3,
+                                "Category": 1,
+                                "Description": "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened."
+                            },
+                            {
+                                "$id": "89",
+                                "Name": 63,
+                                "Category": 6,
+                                "Description": "Your hero has a good sense for the value of things. A successful Barter Roll will give your hero +15% instead of the usual +10%."
+                            }
+                        ]
+                    },
+                    "Perks": {
+                        "$id": "90",
+                        "$values": []
+                    },
+                    "Inventory": {
+                        "$id": "91",
+                        "EquippedWeapon": {
+                            "$id": "92",
+                            "IsRanged": true,
+                            "IsMelee": false,
+                            "Durability": 6,
+                            "Class": 6,
+                            "DamageDice": "1d8",
+                            "DamageBonus": 0,
+                            "MinDamage": 1,
+                            "MaxDamage": 8,
+                            "Properties": {
+                                "$id": "93"
+                            },
+                            "Id": "cdd54cc8-1949-4415-a0a6-caf08bdadefe",
+                            "Category": "Common",
+                            "Shop": 0,
+                            "Name": "Sling",
+                            "Encumbrance": 1,
+                            "MaxDurability": 6,
+                            "Value": 40,
+                            "SellValue": 8,
+                            "RepairCost": 8,
+                            "Availability": 4,
+                            "Quantity": 1,
+                            "Description": "",
+                            "MagicEffect": "",
+                            "Storage": null
+                        },
+                        "EquippedArmour": {
+                            "$id": "94",
+                            "$values": [
+                                {
+                                    "$id": "95",
+                                    "ArmourClass": 1,
+                                    "DefValue": 2,
+                                    "Properties": {
+                                        "$id": "96",
+                                        "Arms": 0,
+                                        "Torso": 0,
+                                        "Stackable": 0
+                                    },
+                                    "Id": "17ef0265-6f4a-4146-8726-99568f6e93c0",
+                                    "Category": "Common",
+                                    "Shop": 2,
+                                    "Name": "Padded Jacket",
+                                    "Encumbrance": 5,
+                                    "MaxDurability": 6,
+                                    "Durability": 1,
+                                    "Value": 120,
+                                    "SellValue": 24,
+                                    "RepairCost": 24,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "",
+                                    "MagicEffect": "",
+                                    "Storage": null
+                                }
+                            ]
+                        },
+                        "EquippedQuiver": null,
+                        "OffHand": null,
+                        "EquippedRelic": null,
+                        "EquippedStorage": null,
+                        "Backpack": {
+                            "$id": "97",
+                            "$values": [
+                                {
+                                    "$id": "98",
+                                    "$type": "MeleeWeapon",
+                                    "Properties": {
+                                        "$id": "99",
+                                        "DualWield": 1,
+                                        "Edged": 0,
+                                        "Metal": 0
+                                    },
+                                    "IsRanged": false,
+                                    "IsMelee": true,
+                                    "Durability": 6,
+                                    "Class": 1,
+                                    "DamageDice": "1d6",
+                                    "DamageBonus": 0,
+                                    "MinDamage": 1,
+                                    "MaxDamage": 6,
+                                    "Id": "cf2bd62a-1d99-479f-a313-f5f6b215114a",
+                                    "Category": "Common",
+                                    "Shop": 1,
+                                    "Name": "Dagger",
+                                    "Encumbrance": 5,
+                                    "MaxDurability": 6,
+                                    "Value": 10,
+                                    "SellValue": 0,
+                                    "RepairCost": 2,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "",
+                                    "MagicEffect": "",
+                                    "Storage": null
+                                },
+                                {
+                                    "$id": "100",
+                                    "Id": "916d7f04-ebd5-4e76-9aca-40ca3f117c88",
+                                    "Category": "Common",
+                                    "Shop": 0,
+                                    "Name": "Rope",
+                                    "Encumbrance": 2,
+                                    "MaxDurability": 6,
+                                    "Durability": 1,
+                                    "Value": 50,
+                                    "SellValue": 10,
+                                    "RepairCost": 10,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "A piece of rope may help you out of that pit you happened to trip into.",
+                                    "MagicEffect": "",
+                                    "Storage": null,
+                                    "Properties": {
+                                        "$id": "101"
+                                    }
+                                },
+                                {
+                                    "$id": "102",
+                                    "Id": "d926d067-cef8-4b39-96f5-fbf2daedebd0",
+                                    "Category": "Common",
+                                    "Shop": 0,
+                                    "Name": "Lock Picks",
+                                    "Encumbrance": 0,
+                                    "MaxDurability": 6,
+                                    "Durability": 1,
+                                    "Value": 30,
+                                    "SellValue": 6,
+                                    "RepairCost": 6,
+                                    "Availability": 3,
+                                    "Quantity": 10,
+                                    "Description": "Necessary to use the Pick Lock Skill, but can also be used to disarm traps. If damaged, only 1 pick will be destroyed.",
+                                    "MagicEffect": "",
+                                    "Storage": null,
+                                    "Properties": {
+                                        "$id": "103"
+                                    }
+                                }
+                            ]
+                        },
+                        "QuickSlots": {
+                            "$id": "104",
+                            "$values": [
+                                null,
+                                null,
+                                null
+                            ]
+                        },
+                        "MaxQuickSlots": 3
+                    },
+                    "DualWieldBonus": 0,
+                    "ArmourDefValues": {
+                        "$id": "105",
+                        "Head": 0,
+                        "Torso": 2,
+                        "Arms": 2,
+                        "Legs": 0
+                    },
+                    "Spells": null,
+                    "ChanneledSpell": null,
+                    "Prayers": null,
+                    "Coins": 0,
+                    "HasBeenTargetedThisTurn": false,
+                    "HasDodgedThisBattle": false,
+                    "Levelup": {
+                        "$id": "106",
+                        "ImprovementPoints": 0,
+                        "BasicStatsImprovedThisLevel": {
+                            "$id": "107"
+                        },
+                        "SkillsImprovedThisLevel": {
+                            "$id": "108"
+                        },
+                        "SelectedTalent": null,
+                        "SelectedPerk": null
+                    },
+                    "Id": "bc1867c6-2199-4365-bb3b-32376c40ffbd",
+                    "Name": "Shade",
+                    "CurrentHP": 12,
+                    "BasicStats": {
+                        "$id": "109",
+                        "Strength": 40,
+                        "Constitution": 26,
+                        "Dexterity": 58,
+                        "Wisdom": 43,
+                        "Resolve": 39,
+                        "DamageBonus": 0,
+                        "NaturalArmour": 0,
+                        "ActionPoints": 0,
+                        "Energy": 1,
+                        "Mana": 0,
+                        "Sanity": 10,
+                        "Luck": 0,
+                        "Move": 4,
+                        "HitPoints": 12,
+                        "Experience": 0,
+                        "Level": 1
+                    },
+                    "SkillStats": {
+                        "$id": "110",
+                        "CombatSkill": 63,
+                        "RangedSkill": 63,
+                        "Dodge": 63,
+                        "PickLocks": 68,
+                        "Barter": 43,
+                        "Heal": 23,
+                        "Alchemy": 13,
+                        "Perception": 53,
+                        "ArcaneArts": 0,
+                        "Foraging": 6,
+                        "BattlePrayers": 0
+                    },
+                    "CombatStance": 0,
+                    "Weapons": {
+                        "$id": "111",
+                        "$values": []
+                    },
+                    "HasShield": false,
+                    "Room": {
+                        "$id": "112",
+                        "Name": "",
+                        "ImagePath": "",
+                        "IsStartingTile": false,
+                        "IsObjectiveRoom": false,
+                        "HasLevers": false,
+                        "Category": 1,
+                        "Description": "",
+                        "SpecialRules": "",
+                        "HasSpecial": false,
+                        "ActivateSpecial": false,
+                        "ThreatLevelModifier": 0,
+                        "PartyMoraleModifier": 0,
+                        "Size": [
+                            0,
+                            0
+                        ],
+                        "Doors": {
+                            "$id": "113",
+                            "$values": []
+                        },
+                        "IsDeadEnd": false,
+                        "FurnitureList": {
+                            "$id": "114",
+                            "$values": []
+                        },
+                        "RandomEncounter": false,
+                        "RollEncounter": false,
+                        "EncounterRoll": 0,
+                        "EncounterModifier": 0,
+                        "IsEncounter": false,
+                        "HasBeenSearched": false,
+                        "PartySearch": false,
+                        "SearchRoomTrigger": false,
+                        "SearchRoll": 0,
+                        "TreasureRoll": 0,
+                        "CurrentTrap": {
+                            "$id": "115",
+                            "Name": "No Trap",
+                            "SkillModifier": 0,
+                            "DisarmModifier": 0,
+                            "Description": "",
+                            "SpecialDescription": "",
+                            "IsTrapped": true,
+                            "IsTriggered": false,
+                            "IsAvoided": false,
+                            "IsDisarmed": false
+                        },
+                        "SearchResults": {
+                            "$id": "116",
+                            "$values": []
+                        },
+                        "ConnectedRooms": {
+                            "$id": "117",
+                            "$values": []
+                        },
+                        "DoorCount": 0,
+                        "Grid": {
+                            "$id": "118",
+                            "$values": []
+                        },
+                        "Width": 0,
+                        "Height": 0,
+                        "GridOffset": {
+                            "$id": "119",
+                            "X": 0,
+                            "Y": 0,
+                            "Z": 0
+                        },
+                        "HeroesInRoom": {
+                            "$id": "120",
+                            "$values": [
+                                {
+                                    "$ref": "85"
+                                }
+                            ]
+                        },
+                        "MonstersInRoom": null,
+                        "CorpsesInRoom": null,
+                        "CharactersInRoom": {
+                            "$id": "121",
+                            "$values": [
+                                {
+                                    "$ref": "85"
+                                }
+                            ]
+                        },
+                        "SearchablesInRoom": {
+                            "$id": "122",
+                            "$values": []
+                        }
+                    },
+                    "Position": null,
+                    "OccupiedSquares": {
+                        "$id": "123",
+                        "$values": []
+                    },
+                    "ActiveStatusEffects": {
+                        "$id": "124",
+                        "$values": []
+                    },
+                    "CurrentAP": 2,
+                    "CurrentMovePoints": 0,
+                    "IsVulnerableAfterPowerAttack": false,
+                    "HasMadeFirstMoveAction": false,
+                    "Facing": 0
+                },
+                {
+                    "$id": "125",
+                    "SpeciesName": "Dwarf",
+                    "ProfessionName": "Warrior",
+                    "CurrentEnergy": 1,
+                    "CurrentMana": null,
+                    "CurrentSanity": 10,
+                    "MaxArmourType": 4,
+                    "IsThief": false,
+                    "OneHandedWeaponClass": 4,
+                    "TwoHandedWeaponClass": 4,
+                    "Talents": {
+                        "$id": "126",
+                        "$values": [
+                            {
+                                "$id": "127",
+                                "Name": 2,
+                                "Category": 1,
+                                "Description": "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description."
+                            },
+                            {
+                                "$id": "128",
+                                "Name": 92,
+                                "Category": 7,
+                                "Description": "This talent applies to any enemy with 'Goblin' in its name. This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them."
+                            },
+                            {
+                                "$id": "129",
+                                "Name": 39,
+                                "Category": 5,
+                                "Description": "Thanks to a military background, this hero has an increased degree of calmness under pressure. This also spreads to the rest of the party. The hero gains +10 RES and the other members of the party gain +5 RES as long as the hero is not knocked out. The effect on the party is not cumulative if other heroes have the same talent. Furthermore, a hero with this talent will not benefit from the effect of this talent from another hero."
+                            },
+                            {
+                                "$id": "130",
+                                "Name": 17,
+                                "Category": 2,
+                                "Description": "Your hero is an expert at finding the weak spots of the enemy. Your hero gets a +1 bonus on Damage Rolls with melee weapons."
+                            },
+                            {
+                                "$id": "131",
+                                "Name": 118,
+                                "Category": 0,
+                                "Description": "The hero is troubled be tight spaces and becomes less effective. All skills and stats are at a -10 in corridors.This is not curable at the asylum. Instead, you must face your fears."
+                            }
+                        ]
+                    },
+                    "Perks": {
+                        "$id": "132",
+                        "$values": []
+                    },
+                    "Inventory": {
+                        "$id": "133",
+                        "EquippedWeapon": {
+                            "$id": "134",
+                            "IsRanged": false,
+                            "IsMelee": true,
+                            "Durability": 6,
+                            "Class": 4,
+                            "DamageDice": "1d10",
+                            "DamageBonus": 1,
+                            "MinDamage": 2,
+                            "MaxDamage": 11,
+                            "Properties": {
+                                "$id": "135",
+                                "BFO": 0,
+                                "Edged": 0,
+                                "Axe": 0,
+                                "Metal": 0,
+                                "ArmourPiercing": 1
+                            },
+                            "Id": "ae55d07a-fa46-46eb-9bdd-8008939b4597",
+                            "Category": "Common",
+                            "Shop": 1,
+                            "Name": "Battleaxe",
+                            "Encumbrance": 10,
+                            "MaxDurability": 6,
+                            "Value": 100,
+                            "SellValue": 20,
+                            "RepairCost": 20,
+                            "Availability": 4,
+                            "Quantity": 1,
+                            "Description": "",
+                            "MagicEffect": "",
+                            "Storage": null
+                        },
+                        "EquippedArmour": {
+                            "$id": "136",
+                            "$values": [
+                                {
+                                    "$id": "137",
+                                    "ArmourClass": 2,
+                                    "DefValue": 3,
+                                    "Properties": {
+                                        "$id": "138",
+                                        "Torso": 0,
+                                        "Arms": 0
+                                    },
+                                    "Id": "817b84b4-fcab-4d2d-8ad1-409e113fda90",
+                                    "Category": "Common",
+                                    "Shop": 2,
+                                    "Name": "Leather Jacket",
+                                    "Encumbrance": 4,
+                                    "MaxDurability": 6,
+                                    "Durability": 1,
+                                    "Value": 140,
+                                    "SellValue": 28,
+                                    "RepairCost": 28,
+                                    "Availability": 4,
+                                    "Quantity": 1,
+                                    "Description": "",
+                                    "MagicEffect": "",
+                                    "Storage": null
+                                }
+                            ]
+                        },
+                        "EquippedQuiver": null,
+                        "OffHand": {
+                            "$id": "139",
+                            "$type": "Shield",
+                            "WeaponClass": 3,
+                            "DefValue": 6,
+                            "Properties": {
+                                "$id": "140",
+                                "Metal": 0
+                            },
+                            "Id": "e44b7ff8-d23f-4c19-bdc9-085a6fb698e9",
+                            "Category": "Common",
+                            "Shop": 3,
+                            "Name": "Heater Shield",
+                            "Encumbrance": 10,
+                            "MaxDurability": 6,
+                            "Durability": 1,
+                            "Value": 100,
+                            "SellValue": 20,
+                            "RepairCost": 20,
+                            "Availability": 3,
+                            "Quantity": 1,
+                            "Description": "",
+                            "MagicEffect": "",
+                            "Storage": null
+                        },
+                        "EquippedRelic": null,
+                        "EquippedStorage": null,
+                        "Backpack": {
+                            "$id": "141",
+                            "$values": []
+                        },
+                        "QuickSlots": {
+                            "$id": "142",
+                            "$values": [
+                                null,
+                                null,
+                                null
+                            ]
+                        },
+                        "MaxQuickSlots": 3
+                    },
+                    "DualWieldBonus": 0,
+                    "ArmourDefValues": {
+                        "$id": "143",
+                        "Head": 0,
+                        "Torso": 3,
+                        "Arms": 3,
+                        "Legs": 0
+                    },
+                    "Spells": null,
+                    "ChanneledSpell": null,
+                    "Prayers": null,
+                    "Coins": 0,
+                    "HasBeenTargetedThisTurn": false,
+                    "HasDodgedThisBattle": false,
+                    "Levelup": {
+                        "$id": "144",
+                        "ImprovementPoints": 0,
+                        "BasicStatsImprovedThisLevel": {
+                            "$id": "145"
+                        },
+                        "SkillsImprovedThisLevel": {
+                            "$id": "146"
+                        },
+                        "SelectedTalent": null,
+                        "SelectedPerk": null
+                    },
+                    "Id": "5b6d76a0-c0d0-4e6c-8f7d-ef7e63271a43",
+                    "Name": "War",
+                    "CurrentHP": 14,
+                    "BasicStats": {
+                        "$id": "147",
+                        "Strength": 50,
+                        "Constitution": 38,
+                        "Dexterity": 45,
+                        "Wisdom": 31,
+                        "Resolve": 40,
+                        "DamageBonus": 0,
+                        "NaturalArmour": 0,
+                        "ActionPoints": 0,
+                        "Energy": 1,
+                        "Mana": 0,
+                        "Sanity": 10,
+                        "Luck": 0,
+                        "Move": 4,
+                        "HitPoints": 14,
+                        "Experience": 0,
+                        "Level": 1
+                    },
+                    "SkillStats": {
+                        "$id": "148",
+                        "CombatSkill": 55,
+                        "RangedSkill": 50,
+                        "Dodge": 45,
+                        "PickLocks": 25,
+                        "Barter": 16,
+                        "Heal": 21,
+                        "Alchemy": 6,
+                        "Perception": 31,
+                        "ArcaneArts": 0,
+                        "Foraging": 23,
+                        "BattlePrayers": 0
+                    },
+                    "CombatStance": 0,
+                    "Weapons": {
+                        "$id": "149",
+                        "$values": []
+                    },
+                    "HasShield": false,
+                    "Room": {
+                        "$id": "150",
+                        "Name": "",
+                        "ImagePath": "",
+                        "IsStartingTile": false,
+                        "IsObjectiveRoom": false,
+                        "HasLevers": false,
+                        "Category": 1,
+                        "Description": "",
+                        "SpecialRules": "",
+                        "HasSpecial": false,
+                        "ActivateSpecial": false,
+                        "ThreatLevelModifier": 0,
+                        "PartyMoraleModifier": 0,
+                        "Size": [
+                            0,
+                            0
+                        ],
+                        "Doors": {
+                            "$id": "151",
+                            "$values": []
+                        },
+                        "IsDeadEnd": false,
+                        "FurnitureList": {
+                            "$id": "152",
+                            "$values": []
+                        },
+                        "RandomEncounter": false,
+                        "RollEncounter": false,
+                        "EncounterRoll": 0,
+                        "EncounterModifier": 0,
+                        "IsEncounter": false,
+                        "HasBeenSearched": false,
+                        "PartySearch": false,
+                        "SearchRoomTrigger": false,
+                        "SearchRoll": 0,
+                        "TreasureRoll": 0,
+                        "CurrentTrap": {
+                            "$id": "153",
+                            "Name": "No Trap",
+                            "SkillModifier": 0,
+                            "DisarmModifier": 0,
+                            "Description": "",
+                            "SpecialDescription": "",
+                            "IsTrapped": true,
+                            "IsTriggered": false,
+                            "IsAvoided": false,
+                            "IsDisarmed": false
+                        },
+                        "SearchResults": {
+                            "$id": "154",
+                            "$values": []
+                        },
+                        "ConnectedRooms": {
+                            "$id": "155",
+                            "$values": []
+                        },
+                        "DoorCount": 0,
+                        "Grid": {
+                            "$id": "156",
+                            "$values": []
+                        },
+                        "Width": 0,
+                        "Height": 0,
+                        "GridOffset": {
+                            "$id": "157",
+                            "X": 0,
+                            "Y": 0,
+                            "Z": 0
+                        },
+                        "HeroesInRoom": {
+                            "$id": "158",
+                            "$values": [
+                                {
+                                    "$ref": "125"
+                                }
+                            ]
+                        },
+                        "MonstersInRoom": null,
+                        "CorpsesInRoom": null,
+                        "CharactersInRoom": {
+                            "$id": "159",
+                            "$values": [
+                                {
+                                    "$ref": "125"
+                                }
+                            ]
+                        },
+                        "SearchablesInRoom": {
+                            "$id": "160",
+                            "$values": []
+                        }
+                    },
+                    "Position": null,
+                    "OccupiedSquares": {
+                        "$id": "161",
+                        "$values": []
+                    },
+                    "ActiveStatusEffects": {
+                        "$id": "162",
+                        "$values": []
+                    },
+                    "CurrentAP": 2,
+                    "CurrentMovePoints": 0,
+                    "IsVulnerableAfterPowerAttack": false,
+                    "HasMadeFirstMoveAction": false,
+                    "Facing": 0
+                }
+            ]
+        },
+        "Coins": 40,
+        "PartyMorale": 0
+    },
+    "CurrentDungeon": null,
+    "CurrentLocationUrl": "https://localhost:7283/party/shop"
+}
