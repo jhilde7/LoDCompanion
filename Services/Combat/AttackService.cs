@@ -199,14 +199,13 @@ namespace LoDCompanion.Services.Combat
             {
                 HitLocation location = DetermineHitLocation();
                 result.DamageDealt = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
-                target.TakeDamage(result.DamageDealt);
+                target.TakeDamage(result.DamageDealt, (_floatingText, target.Position));
 
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
                     result.OutcomeMessage += CheckForQuickSlotDamage(target);
                 }
-                _floatingText.ShowText($"-{result.DamageDealt}", target.Position, "damage-text");
             }
             else
             {
@@ -228,13 +227,13 @@ namespace LoDCompanion.Services.Combat
         {
             var result = new AttackResult { IsHit = true };
             int finalDamage = await CalculateHeroDamageAsync(attacker, target, weapon, context);
-            target.TakeDamage(finalDamage);
+            
             result.DamageDealt = finalDamage;
 
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             if (target.Position != null)
             {
-                _floatingText.ShowText($"-{finalDamage}", target.Position, "damage-text");
+                target.TakeDamage(finalDamage, (_floatingText, target.Position));
             }
 
             if (context.IsChargeAttack && dungeon != null)

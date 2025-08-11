@@ -48,7 +48,7 @@ namespace LoDCompanion.Services.Game
         private readonly EncounterService _encounter;
         private readonly InitiativeService _initiative;
         private readonly UserRequestService _diceRoll;
-
+        private readonly FloatingTextService _floatingText;
 
         public event Action? OnTimeFreezeCast;
 
@@ -56,12 +56,14 @@ namespace LoDCompanion.Services.Game
             DungeonState dungeonState,
             EncounterService encounterService,
             InitiativeService initiativeService,
-            UserRequestService diceRoll)
+            UserRequestService diceRoll,
+            FloatingTextService floatingText)
         {
             _dungeon = dungeonState;
             _encounter = encounterService;
             _initiative = initiativeService;
             _diceRoll = diceRoll;
+            _floatingText = floatingText;
         }
 
         /// <summary>
@@ -144,7 +146,7 @@ namespace LoDCompanion.Services.Game
                         $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                     int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
-                    singleTarget.TakeDamage(primaryDamage, spell.DamageType);
+                    singleTarget.TakeDamage(primaryDamage, (_floatingText, singleTarget.Position), spell.DamageType);
                     outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
                     hitTargets.Add(singleTarget);
 
@@ -156,7 +158,7 @@ namespace LoDCompanion.Services.Game
                         $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); await Task.Yield();
                         int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
-                        secondTarget.TakeDamage(secondDamage, spell.DamageType);
+                        secondTarget.TakeDamage(secondDamage, (_floatingText, secondTarget.Position), spell.DamageType);
                         outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
                         hitTargets.Add(secondTarget);
 
@@ -168,7 +170,7 @@ namespace LoDCompanion.Services.Game
                         $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); await Task.Yield();
                             int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
-                            thirdTarget.TakeDamage(thirdDamage, spell.DamageType);
+                            thirdTarget.TakeDamage(thirdDamage, (_floatingText, thirdTarget.Position), spell.DamageType);
                             outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
                         }
                     }
@@ -204,7 +206,7 @@ namespace LoDCompanion.Services.Game
 
                         damage += options.PowerLevels;
 
-                        character.TakeDamage(damage, spell.DamageType);
+                        character.TakeDamage(damage, (_floatingText, character.Position), spell.DamageType);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -212,7 +214,7 @@ namespace LoDCompanion.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = await GetDirectDamageAsync(caster, spell) + options.PowerLevels;
-                singleTarget.TakeDamage(damage, spell.DamageType);
+                singleTarget.TakeDamage(damage, (_floatingText, singleTarget.Position), spell.DamageType);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
@@ -665,7 +667,7 @@ namespace LoDCompanion.Services.Game
                             GetDirectDamage(caster, spell) :
                             GetAOEDamage(caster, spell);
 
-                        character.TakeDamage(damage, spell.DamageType != null ? spell.DamageType : null);
+                        character.TakeDamage(damage, (_floatingText, character.Position), spell.DamageType != null ? spell.DamageType : null);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -673,7 +675,7 @@ namespace LoDCompanion.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = GetDirectDamage(caster, spell);
-                singleTarget.TakeDamage(damage, spell.DamageType != null ? spell.DamageType : null);
+                singleTarget.TakeDamage(damage, (_floatingText, singleTarget.Position), spell.DamageType != null ? spell.DamageType : null);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 

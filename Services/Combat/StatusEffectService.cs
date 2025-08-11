@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
+using LoDCompanion.Services.Game;
 using LoDCompanion.Utilities;
 
 namespace LoDCompanion.Services.Combat
@@ -206,6 +207,7 @@ namespace LoDCompanion.Services.Combat
         {
             // Use a copy of the list to avoid issues with modifying it while iterating.
             var effectsToProcess = character.ActiveStatusEffects.ToList();
+            var _floatingText = new FloatingTextService();
 
             foreach (var effect in effectsToProcess)
             {
@@ -215,7 +217,7 @@ namespace LoDCompanion.Services.Combat
                         // make a CON test. On fail, lose 1 HP.
                         if (character is Hero hero && !hero.ResistPoison())
                         {
-                            character.TakeDamage(1);
+                            character.TakeDamage(1, (_floatingText, character.Position));
                             Console.WriteLine($"{character.Name} takes 1 damage from poison.");
                         }
                         break;
@@ -223,7 +225,7 @@ namespace LoDCompanion.Services.Combat
                     case StatusEffectType.FireBurning:
                         // Fire damage over time.
                         int fireDamage = RandomHelper.RollDie(DiceType.D6) / 2;
-                        character.TakeDamage(fireDamage);
+                        character.TakeDamage(fireDamage, (_floatingText, character.Position));
                         Console.WriteLine($"{character.Name} takes {fireDamage} damage from burning.");
                         break;
 
@@ -235,7 +237,7 @@ namespace LoDCompanion.Services.Combat
                     case StatusEffectType.Entangled:
                         // The hero takes escalating damage at the end of each turn they are entangled.
                         int damage = -effect.Duration; // duration controls the damage, e.g., 1 damage for 1 turn, 2 for 2 turns, etc.
-                        character.TakeDamage(damage);
+                        character.TakeDamage(damage, (_floatingText, character.Position));
                         effect.Duration--;
                         Console.WriteLine($"{character.Name} takes {damage} damage from being entangled.");
                         break;

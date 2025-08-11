@@ -1,14 +1,15 @@
-﻿using LoDCompanion.Utilities;
+﻿using LoDCompanion.Models;
 using LoDCompanion.Models.Character;
 using LoDCompanion.Models.Combat;
-using LoDCompanion.Services.GameData;
-using System;
-using LoDCompanion.Services.Dungeon;
-using System.Threading.Tasks;
 using LoDCompanion.Models.Dungeon;
-using System.Xml.Linq;
+using LoDCompanion.Services.Dungeon;
+using LoDCompanion.Services.Game;
+using LoDCompanion.Services.GameData;
+using LoDCompanion.Utilities;
+using System;
 using System.Text;
-using LoDCompanion.Models;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace LoDCompanion.Services.Combat
 {
@@ -39,6 +40,7 @@ namespace LoDCompanion.Services.Combat
         private readonly UserRequestService _diceRoll;
         private readonly EncounterService _encounter;
         private readonly InitiativeService _initiative;
+        private readonly FloatingTextService _floatingText;
 
         public event Func<Monster, Hero, Task<DefenseResult>>? OnEntangleAttack;
         public event Func<Monster, Hero, Task<DefenseResult>>? OnSwallowAttack;
@@ -51,11 +53,13 @@ namespace LoDCompanion.Services.Combat
         public MonsterSpecialService(
             UserRequestService diceRoll,
             EncounterService encounter,
-            InitiativeService initiative)
+            InitiativeService initiative,
+            FloatingTextService floatingText)
         {
             _diceRoll = diceRoll;
             _encounter = encounter;
             _initiative = initiative;
+            _floatingText = floatingText;
         }
 
         /// <summary>
@@ -268,7 +272,7 @@ namespace LoDCompanion.Services.Combat
 
             // Apply primary damage to the main target
             int primaryDamage = RandomHelper.RollDie(DiceType.D10);
-            target.TakeDamage(primaryDamage, DamageType.Fire);
+            target.TakeDamage(primaryDamage, (_floatingText, target.Position), DamageType.Fire);
             outcome.AppendLine($"{target.Name} is caught in the blast and takes {primaryDamage} fire damage.");
 
             // Find adjacent squares
@@ -289,7 +293,7 @@ namespace LoDCompanion.Services.Combat
                 if (adjacentSquares.Contains(character.Position))
                 {
                     int splashDamage = RandomHelper.RollDie(DiceType.D6);
-                    character.TakeDamage(splashDamage, DamageType.Fire);
+                    character.TakeDamage(splashDamage, (_floatingText, target.Position), DamageType.Fire);
                     outcome.AppendLine($"{character.Name} is caught in the splash and takes {splashDamage} fire damage.");
                 }
             }
@@ -304,10 +308,10 @@ namespace LoDCompanion.Services.Combat
             {
                 var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                 int resolveRoll = rollResult.Roll;
-                if (resolveRoll > hero.GetStat(BasicStat.Resolve))
+                if (resolveRoll > hero.GetStat(BasicStat.Resolve) && hero.Position != null)
                 {
                     int damage = RandomHelper.RollDie(DiceType.D8);
-                    hero.TakeDamage(damage);
+                    hero.TakeDamage(damage, (_floatingText, hero.Position));
                     hero.CurrentSanity -= 1;
                     outcome += $"{hero.Name} takes {damage} damage and loses 1 Sanity!\n";
                 }

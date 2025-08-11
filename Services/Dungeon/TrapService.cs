@@ -57,7 +57,7 @@ namespace LoDCompanion.Services.Dungeon
             trap.IsTrapped = false;
 
             // In a real game loop, you would apply damage or status effects to the hero here.
-            // For example: hero.TakeDamage(trap.Damage);
+            // For example: hero.TakeDamage(trap.Damage, (_floatingText, hero.Position));
 
             return $"{hero.Name} triggered the {trap.Name}! {trap.SpecialDescription}";
         }

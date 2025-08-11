@@ -293,13 +293,18 @@ namespace LoDCompanion.Models.Character
         }
 
         // Common methods for all characters
-        public virtual void TakeDamage(int damage, DamageType? damageType = null)
+        public virtual void TakeDamage(int damage, (FloatingTextService, GridPosition?) floatingText, DamageType? damageType = null)
         {
             CurrentHP -= damage;
             if (CurrentHP <= 0)
             {
                 CurrentHP = 0;
                 Die();
+            }
+
+            if (floatingText.Item2 != null)
+            {
+                floatingText.Item1.ShowText($"-{damage}", floatingText.Item2, "damage-text"); 
             }
         }
 
