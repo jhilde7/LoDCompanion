@@ -128,8 +128,12 @@ namespace LoDCompanion.Services.Dungeon
         /// </summary>
         public static bool IsAdjacent(GridPosition pos1, GridPosition pos2)
         {
-            int dist = Math.Abs(pos1.X - pos2.X) + Math.Abs(pos1.Y - pos2.Y) + Math.Abs(pos1.Z - pos2.Z);
-            return dist == 1;
+            int dx = Math.Abs(pos1.X - pos2.X);
+            int dy = Math.Abs(pos1.Y - pos2.Y);
+            int dz = Math.Abs(pos1.Z - pos2.Z);
+
+            // Using Chebyshev distance for 3D adjacency (includes diagonals)
+            return Math.Max(Math.Max(dx, dy), dz) == 1;
         }
 
         /// <summary>
@@ -394,6 +398,10 @@ namespace LoDCompanion.Services.Dungeon
                 new GridPosition(-1, 0, 0), // West
                 new GridPosition(0, 1, 0),  // North
                 new GridPosition(0, -1, 0), // South
+                new GridPosition(1, 1, 0),  // North-East
+                new GridPosition(-1, 1, 0), // North-West
+                new GridPosition(1, -1, 0), // South-East
+                new GridPosition(-1, -1, 0), // South-West
                 new GridPosition(0, 0, 1),  // Up
                 new GridPosition(0, 0, -1)  // Down
             };
