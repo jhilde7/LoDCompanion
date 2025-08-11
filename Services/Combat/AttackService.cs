@@ -395,7 +395,8 @@ namespace LoDCompanion.Services.Combat
             var relevantArmor = target.Inventory.EquippedArmour.Where(a => DoesArmorCoverLocation(a, location)).ToList();
             int totalArmorValue = relevantArmor.Sum(a => a.DefValue);
 
-            int armourPiercing = weapon?.Properties[WeaponProperty.ArmourPiercing] ?? 0;
+            int armourPiercing = 0;
+            weapon?.Properties.TryGetValue(WeaponProperty.ArmourPiercing, out armourPiercing);
             int effectiveArmor = Math.Max(0, totalArmorValue - armourPiercing);
 
             return Math.Max(0, incomingDamage - effectiveArmor);
