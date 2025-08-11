@@ -1516,7 +1516,7 @@ namespace LoDCompanion.Services.GameData
             int miscastThreshold = 95 - (focusPoints * 5) - (powerLevels * 2);
 
             // --- Perform the Casting Roll ---
-            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100") await Task.Yield();
+            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100"); await Task.Yield();
             int roll = resultRoll.Roll;
 
             // --- Check for Miscast First ---
