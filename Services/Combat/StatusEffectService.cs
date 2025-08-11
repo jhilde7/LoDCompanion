@@ -243,7 +243,7 @@ namespace LoDCompanion.Services.Combat
                     case StatusEffectType.Seduce:
                         if (character is Hero heroToSave)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= heroToSave.GetStat(BasicStat.Resolve))
                             {
@@ -261,7 +261,7 @@ namespace LoDCompanion.Services.Combat
                     case StatusEffectType.Incapacitated:
                         if (character is Hero)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= character.GetStat(BasicStat.Resolve))
                             {
@@ -284,7 +284,7 @@ namespace LoDCompanion.Services.Combat
                         // First STR test
                         if (effect.Duration > 0)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                             int strTest1 = rollResult.Roll;
                             if (strTest1 <= character.GetStat(BasicStat.Strength))
                             {
@@ -299,7 +299,7 @@ namespace LoDCompanion.Services.Combat
                         // Second STR test at half strength
                         else if (effect.Duration == 0)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                             int strTest2 = rollResult.Roll;
                             if (strTest2 <= character.GetStat(BasicStat.Strength) / 2)
                             {

@@ -85,7 +85,7 @@ namespace LoDCompanion.Services.Game
             {
                 if (singleTarget != null)
                 {
-                    var resultRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100");
+                    var resultRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100"); await Task.Yield();
                     int touchAttackRoll = resultRoll.Roll;
                     if (touchAttackRoll > caster.GetSkill(Skill.CombatSkill) + 20)
                     {
@@ -141,7 +141,7 @@ namespace LoDCompanion.Services.Game
                 if (singleTarget != null)
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt primary damage",
-                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                     int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
                     singleTarget.TakeDamage(primaryDamage, spell.DamageType);
@@ -153,7 +153,7 @@ namespace LoDCompanion.Services.Game
                     if (secondTarget != null)
                     {
                         resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt secondary damage",
-                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}");
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); await Task.Yield();
                         int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
                         secondTarget.TakeDamage(secondDamage, spell.DamageType);
@@ -165,7 +165,7 @@ namespace LoDCompanion.Services.Game
                         if (thirdTarget != null)
                         {
                             resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt tertiary damage",
-                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}");
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); await Task.Yield();
                             int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
                             thirdTarget.TakeDamage(thirdDamage, spell.DamageType);
@@ -761,7 +761,7 @@ namespace LoDCompanion.Services.Game
                 if (spell.HasProperty(SpellProperty.DiceCount))
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for duration",
-                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                     duration += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.AddCasterLvlToDuration))
@@ -780,7 +780,7 @@ namespace LoDCompanion.Services.Game
             if (spell.HasProperty(SpellProperty.DiceCount))
             {
                 var resultRoll = await _diceRoll.RequestRollAsync("Roll for healing amount",
-                    $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                    $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                 healing += resultRoll.Roll;
             }
             if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
@@ -798,7 +798,7 @@ namespace LoDCompanion.Services.Game
                 if (spell.HasProperty(SpellProperty.DiceCount2))
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for direct damage",
-                        $"{spell.Properties?[SpellProperty.DiceCount2]}d{spell.Properties?[SpellProperty.DiceMaxValue2]}");
+                        $"{spell.Properties?[SpellProperty.DiceCount2]}d{spell.Properties?[SpellProperty.DiceMaxValue2]}"); await Task.Yield();
                     damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
@@ -812,7 +812,7 @@ namespace LoDCompanion.Services.Game
                 if (spell.HasProperty(SpellProperty.DiceCount))
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for direct damage",
-                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}");
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                     damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
@@ -832,7 +832,7 @@ namespace LoDCompanion.Services.Game
                 if (spell.HasProperty(SpellProperty.AOEDiceCount))
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for area of effect damage",
-                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}");
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); await Task.Yield();
                     damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))
@@ -852,7 +852,7 @@ namespace LoDCompanion.Services.Game
                 if (spell.HasProperty(SpellProperty.AOEDiceCount2))
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for area of effect damage",
-                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}");
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); await Task.Yield();
                     damage += resultRoll.Roll;
                 }
                 if (spell.HasProperty(SpellProperty.IncludeCasterLevelInDamage))

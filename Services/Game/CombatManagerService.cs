@@ -496,7 +496,7 @@ namespace LoDCompanion.Services.Game
                 if (ActiveHero.CurrentAP <= 0)
                 {
                     CombatLog.Add($"{ActiveHero.Name}'s turn is over.");
-                    ActiveHero.Facing = await _facing.RequestFacingDirectionAsync(ActiveHero);
+                    ActiveHero.Facing = await _facing.RequestFacingDirectionAsync(ActiveHero); await Task.Yield();
                     ActiveHero = null;
                     await Task.Yield(); // Allow UI to process modal closing
                     await ProcessNextInInitiativeAsync();

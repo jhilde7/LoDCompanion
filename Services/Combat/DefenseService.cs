@@ -44,7 +44,7 @@ namespace LoDCompanion.Services.Combat
                 dodgeSkill += 15; // Bonus for dodging from a Parry CombatStance
             }
 
-            var rollResult = await diceRoll.RequestRollAsync("Attempt to dodge the attack.", "1d100", canCancel: true);
+            var rollResult = await diceRoll.RequestRollAsync("Attempt to dodge the attack.", "1d100", canCancel: true); await Task.Yield();
             if (!rollResult.WasCancelled)
             {
                 int roll = rollResult.Roll;
@@ -87,7 +87,7 @@ namespace LoDCompanion.Services.Combat
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} does not have a melee weapon equipped." };
             }
 
-            var rollResult = await diceRoll.RequestRollAsync("Attempt to parry the with your weapon.", "1d100");
+            var rollResult = await diceRoll.RequestRollAsync("Attempt to parry the with your weapon.", "1d100"); await Task.Yield();
             int roll = rollResult.Roll;
             if (roll >= 95) // Fumble on 95-100
             {
@@ -129,7 +129,7 @@ namespace LoDCompanion.Services.Combat
                 parrySkill -= 15; // Penalty for parrying with a shield from a normal stance
             }
 
-            var rollResult = await diceRoll.RequestRollAsync("Attempt to parry the blow with your shield", "1d100");
+            var rollResult = await diceRoll.RequestRollAsync("Attempt to parry the blow with your shield", "1d100"); await Task.Yield();
             int roll = rollResult.Roll;
             if (roll <= 80 && roll <= parrySkill)
             {

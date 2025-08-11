@@ -1516,7 +1516,7 @@ namespace LoDCompanion.Services.GameData
             int miscastThreshold = 95 - (focusPoints * 5) - (powerLevels * 2);
 
             // --- Perform the Casting Roll ---
-            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100");
+            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100") await Task.Yield();
             int roll = resultRoll.Roll;
 
             // --- Check for Miscast First ---
@@ -1525,7 +1525,7 @@ namespace LoDCompanion.Services.GameData
                 result.IsMiscast = true;
                 result.ManaSpent = finalManaCost;
                 caster.CurrentMana -= result.ManaSpent;
-                resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6");
+                resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6"); await Task.Yield();
                 int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);
                 caster.CurrentSanity -= sanityLoss;
                 caster.CurrentAP = 0; // Turn ends immediately

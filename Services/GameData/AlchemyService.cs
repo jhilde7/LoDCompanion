@@ -29,11 +29,11 @@ namespace LoDCompanion.Services.GameData
             DiceRollResult potionRoll = new DiceRollResult();
             if(roll <= 2)
             {
-                potionRoll = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d10");
+                potionRoll = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d10"); await Task.Yield();
             }
             else
             {
-                potionRoll = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d8");
+                potionRoll = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d8"); await Task.Yield();
             }
             switch (roll)
             {
@@ -117,7 +117,7 @@ namespace LoDCompanion.Services.GameData
 
         public async Task<string> GetNonStandardPotionAsync()
         {
-            var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d12");
+            var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d12"); await Task.Yield();
             int roll = result.Roll;
             switch (roll)
             {
@@ -191,7 +191,7 @@ namespace LoDCompanion.Services.GameData
 
         private async Task<string> GetOriginAsync()
         {
-            var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d100");
+            var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d100"); await Task.Yield();
             int roll = result.Roll;
             return roll switch
             {

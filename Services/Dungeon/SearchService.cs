@@ -59,7 +59,7 @@ namespace LoDCompanion.Services.Dungeon
             {
                 searchTarget += 10;
             }
-            var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100");
+            var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100"); await Task.Yield();
             int searchRoll = resultRoll.Roll;
 
 
@@ -72,7 +72,7 @@ namespace LoDCompanion.Services.Dungeon
 
             if (searchRoll <= searchTarget)
             {
-                resultRoll = await _diceRoll.RequestRollAsync("Search successful, roll for treasure", "1d100");
+                resultRoll = await _diceRoll.RequestRollAsync("Search successful, roll for treasure", "1d100"); await Task.Yield();
                 int treasureRoll = resultRoll.Roll;
                 // Original logic from SearchRoom(string type, bool isThief, int roll)
                 int count = hero.IsThief ? 2 : 1;

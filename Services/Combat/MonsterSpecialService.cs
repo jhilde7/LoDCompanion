@@ -119,7 +119,7 @@ namespace LoDCompanion.Services.Combat
             {
                 if (monster.Position != null && hero.Position != null && GridService.GetDistance(monster.Position, hero.Position) <= 4)
                 {
-                    var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                     int resolveRoll = rollResult.Roll;
                     if (resolveRoll > hero.GetStat(BasicStat.Resolve))
                     {
@@ -302,7 +302,7 @@ namespace LoDCompanion.Services.Combat
             string outcome = $"{monster.Name} emits a chilling, ghostly howl!\n";
             foreach (var hero in heroes)
             {
-                var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+                var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
                 int resolveRoll = rollResult.Roll;
                 if (resolveRoll > hero.GetStat(BasicStat.Resolve))
                 {
@@ -396,7 +396,7 @@ namespace LoDCompanion.Services.Combat
                 adjacentHeroes.Shuffle(); // Randomize the order of heroes to target
                 var targetHero = adjacentHeroes[0];
 
-                var rollResult = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100");
+                var rollResult = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100"); await Task.Yield();
                 int resolveRoll = rollResult.Roll;
 
                 if (resolveRoll > targetHero.GetStat(BasicStat.Resolve))
@@ -432,7 +432,7 @@ namespace LoDCompanion.Services.Combat
                 {
                     outcome += $"{target.Name} is hit and must resist the poison!\n";
                     // Apply poison effect
-                    var rollResult = await _diceRoll.RequestRollAsync("Roll a constitution test to resist the effects", "1d100");
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll a constitution test to resist the effects", "1d100"); await Task.Yield();
                     int resistRoll = rollResult.Roll;
 
                     // The logic for applying poison, including the CON test, is now handled in StatusEffectService
@@ -455,7 +455,7 @@ namespace LoDCompanion.Services.Combat
 
             // The hero must make a RES test.
             outcome += "Roll a resolve test to resist the effects.";
-            var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100");
+            var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
             int resolveRoll = rollResult.Roll;
 
             if (resolveRoll > target.GetStat(BasicStat.Resolve))

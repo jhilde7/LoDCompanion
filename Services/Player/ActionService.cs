@@ -437,7 +437,7 @@ namespace LoDCompanion.Services.Player
                 case ActionType.CastSpell:
                     if (character is Hero heroCasting && secondaryTarget is Spell spellToCast)
                     {
-                        var options = await _spellCasting.RequestCastingOptionsAsync(heroCasting, spellToCast);
+                        SpellCastingResult options = await _spellCasting.RequestCastingOptionsAsync(heroCasting, spellToCast); await Task.Yield();
 
                         if (options.WasCancelled)
                         {
