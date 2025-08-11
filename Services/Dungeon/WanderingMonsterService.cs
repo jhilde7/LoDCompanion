@@ -76,18 +76,18 @@ namespace LoDCompanion.Services.Dungeon
                 }
 
                 int moveRoll = RandomHelper.RollDie(DiceType.D6);
-                if (moveRoll >= 2)
+                if (moveRoll >= 2 && dungeon.HeroParty != null)
                 {
                     // Find the shortest path to any hero in the same room.
                     List<GridPosition> shortestPath = new List<GridPosition>();
 
-                    foreach (var hero in dungeon.HeroParty?.Heroes ?? Enumerable.Empty<Hero>())
+                    foreach (var hero in dungeon.HeroParty.Heroes)
                     {
                         if (hero == null || hero.Position == null || hero.CurrentHP <= 0) continue;
 
                         if (monsterState.CurrentRoom == null || monsterState.CurrentPosition == null) continue;
 
-                        List<GridPosition> currentPath = GridService.FindShortestPath(monsterState.CurrentPosition, hero.Position, dungeon.DungeonGrid);
+                        List<GridPosition> currentPath = GridService.FindShortestPath(monsterState.CurrentPosition, hero.Position, dungeon.DungeonGrid, dungeon.HeroParty.Heroes.Cast<Character>().ToList());
 
                         // If this is the first valid path found, or if it's shorter than the previous shortest path
                         if (currentPath.Any() && (!shortestPath.Any() || currentPath.Count < shortestPath.Count))
