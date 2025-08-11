@@ -75,7 +75,7 @@ namespace LoDCompanion.Services.Dungeon
         public bool IsWall { get; set; }
 
         public bool LoSBlocked => IsWall || Furniture != null && Furniture.BlocksLoS;
-        public bool MovementBlocked => IsWall || Furniture != null && Furniture.NoEntry;
+        public bool MovementBlocked => IsWall || IsOccupied || Furniture != null && Furniture.NoEntry;
         public bool DoubleMoveCost => Furniture != null && Furniture.CanBeClimbed; //moving through cost 2x movement
         public bool IsObstacle => Furniture != null && Furniture.IsObstacle; //Affects ranged attacks passing through this square
         public bool IsOccupied => OccupyingCharacterId != null;
@@ -194,7 +194,7 @@ namespace LoDCompanion.Services.Dungeon
                     break; // End movement here.
                 }
 
-                int costForThisSquare = nextSquare.DoubleMoveCost ? 2 : 1;
+                int costForThisSquare = GetMovementCost(nextSquare, enemies);
                 foreach (var enemy in enemies)
                 {
                     if (DirectionService.IsInZoneOfControl(nextPos, enemy))
@@ -352,7 +352,7 @@ namespace LoDCompanion.Services.Dungeon
                 foreach (var neighborPos in GetNeighbors(currentNode.Position, grid))
                 {
                     var neighborSquare = GetSquareAt(neighborPos, grid);
-                    if (neighborSquare == null) continue; // Should not happen if GetNeighbors is correct
+                    if (neighborSquare == null || neighborSquare.MovementBlocked) continue;
 
                     // Calculate the cost to move to this neighbor.
                     int movementCost = GetMovementCost(neighborSquare, enemies);
@@ -578,7 +578,7 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     // Calculate the cost to move into this neighbor square.
                     var neighborSquare = GetSquareAt(neighborPos, grid);
-                    if (neighborSquare == null) continue;
+                    if (neighborSquare == null || neighborSquare.MovementBlocked) continue;
 
                     // This is the base cost to enter the square.
                     int movementCost = GetMovementCost(neighborSquare, enemies);
