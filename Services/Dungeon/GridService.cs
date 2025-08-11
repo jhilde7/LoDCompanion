@@ -578,7 +578,7 @@ namespace LoDCompanion.Services.Dungeon
                 {
                     // Calculate the cost to move into this neighbor square.
                     var neighborSquare = GetSquareAt(neighborPos, grid);
-                    if (neighborSquare == null || neighborSquare.MovementBlocked) continue;
+                    if (neighborSquare == null) continue;
 
                     // This is the base cost to enter the square.
                     int movementCost = GetMovementCost(neighborSquare, enemies);
@@ -587,6 +587,7 @@ namespace LoDCompanion.Services.Dungeon
 
                     if (entity is Character character && newCost <= character.CurrentMovePoints)
                     {
+                        if (neighborSquare.MovementBlocked) continue;
                         // ...and we haven't found a cheaper path to this square already...
                         if (!visited.ContainsKey(neighborPos) || newCost < visited[neighborPos])
                         {
