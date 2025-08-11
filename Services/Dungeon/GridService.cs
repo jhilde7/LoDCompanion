@@ -569,7 +569,7 @@ namespace LoDCompanion.Services.Dungeon
 
                     int newCost = currentCost + movementCost;
 
-                    if (entity is Character character && newCost <= character.GetStat(BasicStat.Move))
+                    if (entity is Character character && newCost <= character.CurrentMovePoints)
                     {
                         // ...and we haven't found a cheaper path to this square already...
                         if (!visited.ContainsKey(neighborPos) || newCost < visited[neighborPos])
