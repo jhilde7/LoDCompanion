@@ -195,14 +195,6 @@ namespace LoDCompanion.Services.Dungeon
                 }
 
                 int costForThisSquare = GetMovementCost(nextSquare, enemies);
-                foreach (var enemy in enemies)
-                {
-                    if (DirectionService.IsInZoneOfControl(nextPos, enemy))
-                    {
-                        costForThisSquare = 2;
-                        break;
-                    }
-                }
 
                 if (result.MovementPointsSpent + costForThisSquare > maxMovementPoints)
                 {
