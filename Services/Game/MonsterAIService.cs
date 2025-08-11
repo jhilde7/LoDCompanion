@@ -108,7 +108,7 @@ namespace LoDCompanion.Services.Game
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
 
-            if (distance > 1)
+            if (!GridService.IsAdjacent(monster.Position, target.Position))
             {
                 if (distance < monster.GetStat(BasicStat.Move) && monster.CurrentAP >=2)
                 {
@@ -153,7 +153,7 @@ namespace LoDCompanion.Services.Game
             {
                 return await MoveTowardsAsync(monster, target); 
             }
-            else if (distance > 1 && distance <= monster.GetStat(BasicStat.Move)) 
+            else if (!GridService.IsAdjacent(monster.Position, target.Position) && distance <= monster.GetStat(BasicStat.Move)) 
             {
                 int roll = RandomHelper.RollDie(DiceType.D6);
                 switch (roll)
@@ -222,7 +222,7 @@ namespace LoDCompanion.Services.Game
                 {
                     return await MoveToGetLineOfSightAsync(monster, target);
                 }
-                else if(distance <= 1)
+                else if(GridService.IsAdjacent(monster.Position, target.Position))
                 {
                     attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                     return attackResult.OutcomeMessage;
@@ -288,9 +288,9 @@ namespace LoDCompanion.Services.Game
 
         private async Task<string> ExecuteMagicUserBehaviorAsync(Monster monster, Hero? target, List<Hero> heroes, Room room)
         {
-            if (monster.Position == null) return string.Empty;
+            if (monster.Position == null || target == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
-            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.GetDistance(monster.Position, h.Position) <= 1).ToList();
+            var adjacentHeroes = heroes.Where(h => h.Position != null && target.Position != null && GridService.IsAdjacent(monster.Position, target.Position)).ToList();
             var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
             int roll = RandomHelper.RollDie(DiceType.D6);
@@ -310,7 +310,7 @@ namespace LoDCompanion.Services.Game
                         }
                         else
                         {
-                            if (target.Position != null && GridService.GetDistance(monster.Position, target.Position) <= 1)
+                            if (target.Position != null && GridService.IsAdjacent(monster.Position, target.Position))
                             {
                                 attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
                                 return attackResult.OutcomeMessage;
@@ -452,7 +452,7 @@ namespace LoDCompanion.Services.Game
                 {
                     if (hero.Position == null) continue;
                     RelativeDirection relativeDir = DirectionService.GetRelativeDirection(potentialFacing, monster.Position, hero.Position);
-                    bool isAdjacent = GridService.GetDistance(monster.Position, hero.Position) <= 1;
+                    bool isAdjacent = GridService.IsAdjacent(monster.Position, hero.Position);
 
                     int threat = 0;
                     if (isAdjacent)

@@ -346,7 +346,7 @@ namespace LoDCompanion.Services.Game
             if (target == null || monster.Position == null || target.Position == null) return false;
 
             int distance = GridService.GetDistance(monster.Position, target.Position);
-            return distance > 1 && distance <= monster.GetStat(BasicStat.Move) && GridService.HasClearPath(monster.Position, target.Position, _dungeon.DungeonGrid);
+            return !GridService.IsAdjacent(monster.Position, target.Position) && distance <= monster.GetStat(BasicStat.Move) && GridService.HasClearPath(monster.Position, target.Position, _dungeon.DungeonGrid);
         }
 
         private bool CanMoveFullPath(Monster monster)
