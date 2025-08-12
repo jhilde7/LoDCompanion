@@ -197,9 +197,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case ActionType.PowerAttack:
-                    if (character.CurrentAP >= GetActionCost(actionType) && weapon is MeleeWeapon meleeWeapon && primaryTarget is Character powerAttackTarget)
+                    if (character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character powerAttackTarget)
                     {
-                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, meleeWeapon, powerAttackTarget, dungeon);
+                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, weapon, powerAttackTarget, dungeon);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
 
@@ -215,9 +215,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case ActionType.ChargeAttack:
-                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget && weapon is MeleeWeapon chargeWeapon)
+                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget)
                     {
-                        AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, chargeWeapon, chargeAttackTarget, dungeon);
+                        AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, weapon, chargeAttackTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                         Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
                         if (room != null)
