@@ -463,7 +463,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
         /// <summary>
         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
-        /// This method now incorporates the logic from the previous bonus calculation methods.
         /// </summary>
         private async Task<int> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context)
         {
@@ -504,31 +503,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             int finalDamage = 0;
             int targetArmor = 0;
-            int targetNaturalArmor = 0;
             if (target is Monster monster)
             {
                 targetArmor = monster.ArmourValue;
-                targetNaturalArmor = monster.GetStat(BasicStat.NaturalArmour);
             }
 
             // Apply Armour Piercing from the context
             targetArmor = Math.Max(0, targetArmor - context.ArmourPiercingValue);
-
-            if (context.IsFireDamage)
-            {
-                // Rule: "Fire Damage will ignore both NA and armour."
-                finalDamage = damage;
-            }
-            else if (context.IsAcidicDamage)
-            {
-                // Rule: "Acidic Damage... will ignore NA."
-                finalDamage = Math.Max(0, damage - targetArmor);
-            }
-            else // This includes Frost and standard Physical damage
-            {
-                // Rule: Standard damage calculation.
-                finalDamage = Math.Max(0, damage - (targetArmor + targetNaturalArmor));
-            }
 
             return finalDamage;
         }
