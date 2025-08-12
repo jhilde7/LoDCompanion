@@ -648,7 +648,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                 return null;
             }
 
-            var targetableHeroes = heroes.Where(h => h.CurrentHP > 0 && h.Position != null).ToList();
+            var potentialTargets = FilterTargetsByHideInShadows(monster, heroes);
+            var targetableHeroes = potentialTargets.Where(h => h.CurrentHP > 0 && h.Position != null).ToList();
             if (!targetableHeroes.Any()) return null;
 
             // if range is specified, filter heroes within that range
@@ -734,10 +735,11 @@ namespace LoDCompanion.BackEnd.Services.Game
         public Dictionary<MonsterSpell, GridPosition>? ChooseBestSpellAndTarget(Monster caster, List<Hero> heroes, List<Monster> allies, MonsterSpellType spellType)
         {
             if (caster.Position == null) return null;
+            var potentialTargets = FilterTargetsByHideInShadows(caster, heroes);
             var choices = new List<SpellChoice>();
-            var adjacentHeroes = heroes.Where(h => h.Position != null && GridService.IsAdjacent(caster.Position, h.Position)).ToList();
+            var adjacentHeroes = potentialTargets.Where(h => h.Position != null && GridService.IsAdjacent(caster.Position, h.Position)).ToList();
             var adjacentAllies = _dungeon.RevealedMonsters.Where(h => h.Position != null && GridService.IsAdjacent(caster.Position, h.Position)).ToList();
-            var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(caster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
+            var losHeroes = potentialTargets.Where(h => h.Position != null && GridService.HasLineOfSight(caster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
 
             foreach (var spell in caster.Spells.Where(s => s.Type == spellType))
             {
@@ -897,7 +899,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
             // Collect all potential target squares.
             HashSet<GridPosition> potentialCenterSquares = new HashSet<GridPosition>();
-            foreach (var hero in heroes)
+            foreach (var hero in FilterTargetsByHideInShadows(caster, heroes))
             {
                 if (hero.Position != null)
                 {
@@ -1048,6 +1050,58 @@ namespace LoDCompanion.BackEnd.Services.Game
                 }
             }
             return null;
+        }
+
+        private List<Hero> FilterTargetsByHideInShadows(Monster monster, List<Hero> potentialTargets)
+        {
+            if (monster.Position == null) return potentialTargets;
+
+            // Find heroes who are hiding and might be invalid targets
+            var hidingHeroes = potentialTargets.Where(h => h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.HideInShadows)).ToList();
+
+            if (!hidingHeroes.Any())
+            {
+                return potentialTargets; // No one is hiding, no filtering needed
+            }
+
+            var filteredList = new List<Hero>(potentialTargets);
+
+            foreach (var hidingHero in hidingHeroes)
+            {
+                if (hidingHero.Position == null) continue;
+
+                int distance = GridService.GetDistance(monster.Position, hidingHero.Position);
+
+                if (distance > 2)
+                {
+                    // Cannot be targeted if more than 2 squares away.
+                    filteredList.Remove(hidingHero);
+                }
+                else if (GridService.IsAdjacent(monster.Position, hidingHero.Position)) // Adjacent
+                {
+                    // If adjacent, check for other adjacent targets.
+                    bool otherAdjacentTargetsExist = potentialTargets.Any(otherHero =>
+                        otherHero != hidingHero &&
+                        otherHero.Position != null &&
+                        GridService.IsAdjacent(monster.Position, otherHero.Position)
+                    );
+
+                    if (otherAdjacentTargetsExist)
+                    {
+                        // If other adjacent targets exist, the hiding hero is not a valid target.
+                        filteredList.Remove(hidingHero);
+                    }
+                    //If no other adjacent targets, the hiding hero remains in the list and can be targeted.
+                }
+            }
+
+            // If filtering removed all potential targets, the perk doesn't work, and the original list should be used.
+            if (!filteredList.Any() && potentialTargets.Any())
+            {
+                return potentialTargets;
+            }
+
+            return filteredList;
         }
     }
 }
