@@ -151,22 +151,6 @@ namespace LoDCompanion.Services.GameData
     {
       return $"[{Name} (Lvl {Level})] Cost: {EnergyCost} Energy | Duration: {Duration} | Effect: {PrayerEffect}";
     }
-
-    // Method to get the prayer effect description
-    // This method can be expanded to apply the effect in a game logic service.
-    public string GetPrayerEffectDescription()
-    {
-      return PrayerEffect;
-    }
-
-    // Example method for applying the prayer effect (logic would typically be in a service)
-    public void ApplyEffect(Hero hero)
-    {
-      // This is a placeholder. Real logic would depend on the 'PrayerEffect' string
-      // or if 'PrayerEffect' was an enum/interface.
-      Console.WriteLine($"{hero.Name} is affected by {Name}: {PrayerEffect}");
-      // Example: if PrayerName == "Heal" -> hero.HP += amount;
-    }
   }
 
 }
