@@ -272,7 +272,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                         CombatLog.Add($"{monsterToAct.Name} prepares to act...");
-                        await StatusEffectService.ProcessStatusEffectsAsync(monsterToAct);
+                        await StatusEffectService.ProcessActiveStatusEffectsAsync(monsterToAct);
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
                         CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));

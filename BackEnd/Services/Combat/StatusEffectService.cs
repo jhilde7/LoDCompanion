@@ -203,7 +203,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// Processes all active status effects for a character at the start of their turn.
         /// </summary>
         /// <param name="character">The character whose effects are to be processed.</param>
-        public static async Task ProcessStatusEffectsAsync(Character character)
+        public static async Task ProcessActiveStatusEffectsAsync(Character character)
         {
             // Use a copy of the list to avoid issues with modifying it while iterating.
             var effectsToProcess = character.ActiveStatusEffects.ToList();
