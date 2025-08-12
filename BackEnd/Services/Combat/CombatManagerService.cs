@@ -368,7 +368,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 // Check each hero on overwatch to see if they can interrupt at this square.
                 foreach (var hero in overwatchHeroes)
                 {
-                    var weapon = hero.Weapons.FirstOrDefault();
+                    var weapon = hero.Inventory.EquippedWeapon;
                     if (weapon == null) continue; // Hero has no weapon to attack with.
 
                     // Ranged Overwatch Check: Can the hero see the square?
