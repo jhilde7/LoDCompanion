@@ -50,11 +50,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Physical,
                     Name = TalentName.ResistDisease,
                     Description = "Your hero seems to have a natural ability to resist diseases. Your hero gets a +10 bonus on Constitution Tests to resist disease.",
+                    StatBonus = (BasicStat.Constitution, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
                     Name = TalentName.ResistPoison,
                     Description = "Your hero seems to have a natural ability to resist poison. Your hero gets a +10 bonus on Constitution Tests to resist poison.",
+                    StatBonus = (BasicStat.Constitution, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Physical,
@@ -77,11 +79,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Combat,
                     Name = TalentName.Axeman,
                     Description = "Preferring the balance of a good axe, this hero has become a master of using this weapon. He gains +5 CS when using all kinds of axes.",
+                    SkillBonus = (Skill.CombatSkill, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.Bruiser,
                     Description = "The hero excels at fighting with blunt weapons and gains +5 CS with all hammers, flails, staffs, and morning stars.",
+                    SkillBonus = (Skill.CombatSkill, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
@@ -96,7 +100,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.DualWield,
-                    Description = "This talent requires a DEX of 60. Any hero with this talent may use a weapon with the Dual Wield Special Rule in its offhand. The attacks are still done as usual with the main weapon, but any hit will add +X DMG to the target. The X is defined in the Weapon Table. Parrying with two weapons is also easier, and any parry while using two weapons has a 1+5 modifier.",
+                    Description = "This talent requires a DEX of 60. Any hero with this talent may use a weapon with the Dual Wield Special Rule in its offhand. The attacks are still done as usual with the main weapon, but any hit will add +X DMG to the target. The X is defined in the Weapon Table. Parrying with two weapons is also easier, and any parry while using two weapons has a +5 modifier.",
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
@@ -134,21 +138,25 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Combat,
                     Name = TalentName.Sniper,
                     Description = "With practiced ease, your hero cannot seem to miss when taking careful aim. The aim action gives your hero a +15 modifier instead of +10.",
+                    SkillBonus = (Skill.RangedSkill, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.Swordsman,
                     Description = "This hero is very skilled with a blade and gains +5 CS with all types of swords.",
+                    SkillBonus = (Skill.CombatSkill, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.TightGrip,
                     Description = "With unusually strong hands, the hero may add +5 STR when calculating what weapon class he or she can use.",
+                    StatBonus = (BasicStat.Strength, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Combat,
                     Name = TalentName.TunnelFighter,
                     Description = "Your hero is accustomed to fighting in tight spaces. +10 CS when fighting in a corridor.",
+                    SkillBonus = (Skill.CombatSkill, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Faith,
@@ -186,11 +194,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Alchemist,
                     Name = TalentName.Gatherer,
                     Description = "Finding good ingredients in the wild comes naturally to the hero. +10 Alchemy when searching for ingredients in the wild.",
+                    SkillBonus = (Skill.Alchemy, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Alchemist,
                     Name = TalentName.Harvester,
                     Description = "With precise incisions, the hero can harvest good quality components from fallen enemies. +10 Alchemy when harvesting parts.",
+                    SkillBonus = (Skill.Alchemy, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Alchemist,
@@ -206,6 +216,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Alchemist,
                     Name = TalentName.PerfectToss,
                     Description = "The hero has a knack for lobbying bottles in a perfect arc over friends and foes alike. +10 RS when lobbying a potion over the heads of others.",
+                    SkillBonus = (Skill.RangedSkill, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Alchemist,
@@ -279,21 +290,25 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Magic,
                     Name = TalentName.Conjurer,
                     Description = "The wizard is an expert conjurer and gains +5 Arcane Arts whenever casting a Conjuration Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
+                    SkillBonus = (Skill.ArcaneArts, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.Divinator,
                     Description = "The wizard gets +5 Arcane Arts whenever casting a Divination Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
+                    SkillBonus = (Skill.ArcaneArts, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.FastReflexes,
                     Description = "With lightning-fast reflexes, your hero can reach out and touch your enemies when casting spells. Your hero gains a +15 Combat Skill Bonus when casting Touch Spells.",
+                    SkillBonus = (Skill.CombatSkill, 15)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.Focused,
                     Description = "Well attuned to the void, your hero is adept at tapping into it to gain maximum power. Your hero gets +15 Arcane Arts when focusing.",
+                    SkillBonus = (Skill.ArcaneArts, 15)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
@@ -304,11 +319,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Magic,
                     Name = TalentName.Mystic,
                     Description = "The wizard is truly skilled with Mysticism Spells and gets +5 Arcane Arts whenever casting a Mysticism Spell. Furthermore, the Mana cost for such a spell is reduced with 5.",
+                    SkillBonus = (Skill.ArcaneArts, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.Necromancer,
                     Description = "The hero gets +5 Arcane Arts whenever casting a Necromantic Spell. Furthermore, the Mana cost for such a spell is reduced with 5. You cannot have this Talent at the same time as you have the Restorer Talent.",
+                    SkillBonus = (Skill.ArcaneArts, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
@@ -318,7 +335,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Talent(){
                     Category = TalentCategory.Magic,
                     Name = TalentName.Summoner,
-                    Description = "Reaching into other realms and bringing other beings to their aid has become easier with years of practice. Your hero gets +5 on all Summoning Spells.",
+                    Description = "Reaching into other realms and bringing other beings to their aid has become easier with years of practice. Your hero gets +5 Arcane Arts on all Summoning Spells.",
+                    SkillBonus = (Skill.ArcaneArts, 5)
                 },
                 new Talent(){
                     Category = TalentCategory.Magic,
@@ -360,6 +378,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Sneaky,
                     Name = TalentName.MechanicalGenius,
                     Description = "Your hero is a master at understanding mechanical contraptions and gain +10 when disarming traps.",
+                    SkillBonus = (Skill.Perception, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Sneaky,
@@ -391,6 +410,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Mental,
                     Name = TalentName.Braveheart,
                     Description = "Your hero is braver than most. +10 bonus on Fear and Terror Tests.",
+                    StatBonus = (BasicStat.Resolve, 10)
                 },
                 new Talent(){
                     Category = TalentCategory.Mental,
@@ -408,11 +428,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Category = TalentCategory.Mental,
                     Name = TalentName.Hate,
                     Description = "This hate fuels their fighting, granting a +5 bonus to CS when attacking these enemies. However, so blind is their hatred that their focus on parrying and dodging diminishes (-5 penalty) when struck by them.",
+                    SkillBonus = (Skill.CombatSkill, 5),
                 },
                 new Talent(){
                     Category = TalentCategory.Mental,
                     Name = TalentName.StrongMinded,
                     Description = "Your hero is less affected by the horrors he faces in the dungeons than their comrades. He gains +1 Sanity Point.",
+                    StatBonus = (BasicStat.Sanity, 1)
                 },
                 new Talent(){
                     Category = TalentCategory.Mental,
