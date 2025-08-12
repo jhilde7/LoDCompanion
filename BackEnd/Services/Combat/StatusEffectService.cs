@@ -214,23 +214,23 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 switch (effect.Category)
                 {
                     case StatusEffectType.Poisoned:
-                        // make a CON test. On fail, lose 1 HP.
                         if (character is Hero hero && !hero.ResistPoison())
                         {
-                            character.TakeDamage(1, (_floatingText, character.Position));
-                            Console.WriteLine($"{character.Name} takes 1 damage from poison.");
+                            int poisonDamage = effect.Damage ??= 1; // Default to 1 damage if not specified
+                            character.TakeDamage(poisonDamage, (_floatingText, character.Position));
+                            Console.WriteLine($"{character.Name} takes {poisonDamage} damage from poison.");
                         }
                         break;
 
+                    case StatusEffectType.AcidBurning:
                     case StatusEffectType.FireBurning:
-                        // Fire damage over time.
-                        int fireDamage = RandomHelper.RollDie(DiceType.D6) / 2;
-                        character.TakeDamage(fireDamage, (_floatingText, character.Position));
-                        Console.WriteLine($"{character.Name} takes {fireDamage} damage from burning.");
+                        int burnDamage = effect.Damage ??= 1;
+                        character.TakeDamage(burnDamage, (_floatingText, character.Position));
+                        Console.WriteLine($"{character.Name} takes {burnDamage} damage from burning.");
                         break;
 
                     case StatusEffectType.Stunned:
-                        // Logic to reduce AP would be in CombatManagerService when the turn starts.
+                        character.CurrentAP -= 1; // Lose an action point
                         Console.WriteLine($"{character.Name} is stunned and loses an action.");
                         break;
 
