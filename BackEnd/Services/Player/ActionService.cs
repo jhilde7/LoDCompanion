@@ -120,11 +120,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             resultMessage = $"{character.Name} performed {actionType}.";
             bool actionWasSuccessful = true;
             Weapon? weapon = null;
-            if (character is Hero h && h.Inventory.EquippedWeapon != null)
+            if (character is Hero h)
             {
                 weapon = h.Inventory.EquippedWeapon;
             }
-            else if (character is Monster m && m.ActiveWeapon != null)
+            else if (character is Monster m)
             {
                 weapon = m.ActiveWeapon;
             }
