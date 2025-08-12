@@ -145,6 +145,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public int? Damage { get; set; } // Optional value for effects that deal damage.
         public DiceType? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
         public bool RemoveAfterCombat { get; set; }
+        public bool RemoveAfterNextBattle { get; set; }
 
         public ActiveStatusEffect(
             StatusEffectType type,
@@ -153,7 +154,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             (Skill, int)? skillBonus = null,
             int? damage = null,
             DiceType? diceToRoll = null,
-            bool removeAfterCombat = false)
+            bool removeAfterCombat = false,
+            bool removeAfterNextBattle = false)
         {
             Category = type;
             Duration = duration;
@@ -162,6 +164,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             Damage = damage;
             DiceToRoll = diceToRoll;
             RemoveAfterCombat = removeAfterCombat;
+            RemoveAfterNextBattle = removeAfterNextBattle;
         }
     }
 
