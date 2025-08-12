@@ -24,7 +24,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
         public bool IsAwaitingHeroSelection { get; private set; } = false;
-
+        public bool IsCombatOver => !HeroesInCombat.Any(h => h.CurrentHP > 0) || !MonstersInCombat.Any(m => m.CurrentHP > 0);
         public List<string> CombatLog { get; set; } = new List<string>();
         public event Action? OnCombatStateChanged;
         public Hero? ActiveHero { get; private set; }
@@ -171,7 +171,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// </summary>
         public async Task ProcessNextInInitiativeAsync()
         {
-            while (!IsCombatOver())
+            while (!IsCombatOver)
             {
                 _movementHighlighting.ClearHighlights();
                 if (_initiative.IsTurnOver())
@@ -238,9 +238,27 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 OnCombatStateChanged?.Invoke();
             }
 
-            if (IsCombatOver())
+            if (IsCombatOver)
             {
                 CombatLog.Add("Combat is over!");
+
+                foreach(var hero in HeroesInCombat)
+                {
+                    //Remove all active combat effects
+                    foreach (var effect in hero.ActiveStatusEffects)
+                    {
+                        if(effect.RemoveAfterCombat)
+                        {
+                            StatusEffectService.RemoveActiveStatusEffect(hero, effect);
+                        }
+                        //Activate disease effect after battle is over
+                        if(effect.Category == StatusEffectType.Diseased)
+                        {
+                            hero.ActivateDiseasedEffect();
+                        }
+                    }
+                }
+
                 OnCombatStateChanged?.Invoke();
                 return;
             }
@@ -479,11 +497,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             return totalDamage;
-        }
-
-        public bool IsCombatOver()
-        {
-            return !HeroesInCombat.Any(h => h.CurrentHP > 0) || !MonstersInCombat.Any(m => m.CurrentHP > 0);
         }
 
         internal List<Hero> GetActivatedHeroes()
