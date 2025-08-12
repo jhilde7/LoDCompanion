@@ -176,7 +176,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 // Perform the CON test based on the effect type
                 if (effect.Category == StatusEffectType.Poisoned) resisted = hero.ResistPoison(resistRoll) && hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Poisoned) == null;
-                if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll);
+                if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll) && hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Diseased) == null;
             }
 
             if (!resisted)
