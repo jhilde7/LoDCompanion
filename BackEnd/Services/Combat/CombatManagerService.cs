@@ -541,7 +541,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             foreach (var hero in heroes)
             {
-                if (!hero.CanAct())
+                if (!hero.CanAct)
                 {
                     returnList.Add(hero);
                 }
