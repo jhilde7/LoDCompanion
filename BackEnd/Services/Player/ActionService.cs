@@ -44,7 +44,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         Pray,
         Focus,
         BreakFreeFromEntangle,
-        Frenzy
+        Frenzy,
+        UsePerk
     }
 
     public class ActionInfo
@@ -69,6 +70,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly UserRequestService _diceRoll;
         private readonly SpellCastingService _spellCasting;
         private readonly SpellResolutionService _spellResolution;
+        private readonly PowerActivationService _powerActivation;
 
         public ActionService(
             DungeonManagerService dungeonManagerService,
@@ -79,7 +81,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             AttackService attackService,
             UserRequestService diceRollService,
             SpellCastingService spellCastingService,
-            SpellResolutionService spellResolutionService)
+            SpellResolutionService spellResolutionService,
+            PowerActivationService powerActivationService)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -90,6 +93,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             _diceRoll = diceRollService;
             _spellCasting = spellCastingService;
             _spellResolution = spellResolutionService;
+            _powerActivation = powerActivationService;
         }
 
         /// <summary>
@@ -594,16 +598,38 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero hero, ActionType.Frenzy):
-                    if (!character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) && hero.CurrentEnergy >= 1)
+                case (Hero hero, ActionType.Pray):
+                    if (secondaryTarget is Prayer prayerToCast
+                        && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.Replace(" ", ""))))
                     {
-                        StatusEffectService.AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true));
-                        resultMessage = $"{character.Name} enters a frenzy!";
-
+                        resultMessage = _powerActivation.ActivatePrayer(hero, prayerToCast, (Character?)primaryTarget);
                     }
                     else
                     {
-                        resultMessage = $"{character.Name} is already in a frenzy.";
+                        resultMessage = "Invalid target for Pray action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.UsePerk):
+                    if (secondaryTarget is Perk perkToUse
+                        && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), perkToUse.Name.ToString())))
+                    {
+
+                        if (perkToUse.Name == PerkName.Frenzy)
+                        {
+                            if (hero.CurrentAP <= 0)
+                            {
+                                resultMessage = "Not enough AP to activate this perk";
+                                actionWasSuccessful = false;
+                                break;
+                            }
+                            apCost = 1;
+                        }
+                        resultMessage = _powerActivation.ActivatePerk(hero, perkToUse, (Character?)primaryTarget);
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target for UsePerk action.";
                         actionWasSuccessful = false;
                     }
                     break;
@@ -645,7 +671,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
-                ActionType.Frenzy => 1,
+                ActionType.UsePerk => 0,
                 _ => 1,
             };
         }
