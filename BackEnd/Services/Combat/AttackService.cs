@@ -220,9 +220,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 HitLocation location = DetermineHitLocation();
                 context = ApplyArmorToLocation(target, location, context, weapon);
-                target.TakeDamage(result.DamageDealt, (_floatingText, target.Position), context);
+                result.DamageDealt = target.TakeDamage(result.DamageDealt, (_floatingText, target.Position), context);
 
-                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt - context.ArmourValue} damage!";
+                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
                     result.OutcomeMessage += CheckForQuickSlotDamage(target);
