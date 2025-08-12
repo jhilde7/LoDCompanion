@@ -716,7 +716,6 @@ namespace LoDCompanion.BackEnd.Models
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public bool IsUndead => Type == EncounterType.Undead || Behavior == MonsterBehaviorType.LowerUndead || Behavior == MonsterBehaviorType.HigherUndead;
         public List<Weapon> Weapons { get; set; } = new List<Weapon>();
-        public Weapon? ActiveWeapon { get; set; }
         public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
         public Corpse Body { get; set; } = new Corpse("Corpse", TreasureType.None);
         private TreasureType _treasureType = TreasureType.None;
