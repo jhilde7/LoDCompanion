@@ -575,7 +575,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case ActionType.Frenzy:
                     if (!character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
                     {
-                        StatusEffectService.AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Frenzy, -1));
+                        StatusEffectService.AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true));
                         resultMessage = $"{character.Name} enters a frenzy!";
                     }
                     else
