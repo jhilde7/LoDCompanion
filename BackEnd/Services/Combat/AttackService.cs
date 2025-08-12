@@ -254,7 +254,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             if (target.Position != null)
             {
-                target.TakeDamage(finalDamage, (_floatingText, target.Position));
+                target.TakeDamage(finalDamage, (_floatingText, target.Position), context);
             }
 
             if (context.IsChargeAttack && dungeon != null)
@@ -458,7 +458,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
         /// </summary>
-        private async Task<int> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context)
+        private async Task<(int, CombatContext)> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context)
         {
             int damage = 0;
             if (weapon.DamageDice != null)
@@ -489,13 +489,19 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
             else if (weapon is RangedWeapon rangedWeapon)
             {
-                if (rangedWeapon.Ammo != null && (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed) || rangedWeapon.Ammo.HasProperty(AmmoProperty.SuperiorSlingStone)))
+                if (rangedWeapon.Ammo != null)
                 {
-                    damage += 1;
+                    if (rangedWeapon.Ammo.HasProperty(AmmoProperty.Barbed))
+                    {
+                        damage += rangedWeapon.Ammo.GetPropertyValue(AmmoProperty.Barbed); 
+                    }
+                    else if (rangedWeapon.Ammo.HasProperty(AmmoProperty.SuperiorSlingStone))
+                    {
+                        damage += rangedWeapon.Ammo.GetPropertyValue(AmmoProperty.SuperiorSlingStone);
+                    }
                 }
             }
 
-            int finalDamage = 0;
             int targetArmor = 0;
             if (target is Monster monster)
             {
@@ -503,9 +509,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // Apply Armour Piercing from the context
-            targetArmor = Math.Max(0, targetArmor - context.ArmourPiercingValue);
+            context.ArmourValue = Math.Max(0, targetArmor - context.ArmourPiercingValue);
 
-            return finalDamage;
+            return (damage, context);
         }
 
         /// <summary>
