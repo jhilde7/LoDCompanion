@@ -60,8 +60,7 @@ namespace LoDCompanion.BackEnd.Models
         public Dictionary<BasicStat, int> BasicStats { get; set; }
         public Dictionary<Skill, int> SkillStats { get; set; }
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
-        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
-        public bool HasShield { get; set; } // Indicates if the monster has a shield
+        public virtual bool HasShield { get; set; } // Indicates if the character has a shield
         private Room? _room;
         public Room Room
         {
@@ -456,6 +455,7 @@ namespace LoDCompanion.BackEnd.Models
         public Inventory Inventory { get; set; } = new Inventory();
         public int DualWieldBonus => GetDualWieldBonus();
         public Dictionary<ArmourProperty, int> ArmourDefValues => GetDefValues();
+        public override bool HasShield => Inventory.OffHand != null && Inventory.OffHand is Shield;
 
         public List<Spell>? Spells { get; set; }
         public ChanneledSpell? ChanneledSpell { get; set; }
@@ -634,16 +634,13 @@ namespace LoDCompanion.BackEnd.Models
         /// </summary>
         private void CheckWeaponRequirements()
         {
-            var equippedWeapons = new List<Weapon>(Weapons);
+            var equippedWeapon = this.Inventory.EquippedWeapon;
 
-            foreach (var weapon in equippedWeapons)
+            if (equippedWeapon != null && GetWieldStatus(GetStat(BasicStat.Strength), equippedWeapon) == "(Too weak to wield)")
             {
-                if (GetWieldStatus(GetStat(BasicStat.Strength), weapon) == "(Too weak to wield)")
-                {
-                    new InventoryService().UnequipItem(this, weapon);
+                new InventoryService().UnequipItem(this, equippedWeapon);
 
-                    Console.WriteLine($"{Name} is no longer strong enough to wield the {weapon.Name} and has unequipped it.");
-                }
+                Console.WriteLine($"{Name} is no longer strong enough to wield the {equippedWeapon.Name} and has unequipped it.");
             }
         }
 
@@ -718,6 +715,8 @@ namespace LoDCompanion.BackEnd.Models
         public Dictionary<MonsterPassiveSpecial, int> PassiveSpecials { get; set; } = new Dictionary<MonsterPassiveSpecial, int>();
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public bool IsUndead => Type == EncounterType.Undead || Behavior == MonsterBehaviorType.LowerUndead || Behavior == MonsterBehaviorType.HigherUndead;
+        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
+        public Weapon? ActiveWeapon { get; set; }
         public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
         public Corpse Body { get; set; } = new Corpse("Corpse", TreasureType.None);
         private TreasureType _treasureType = TreasureType.None;
