@@ -32,7 +32,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 return result;
             }
 
-            if (hero.IsVulnerableAfterPowerAttack)
+            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot dodge!" };
             }
@@ -76,7 +76,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 new DefenseResult { OutcomeMessage = "Cannot parry with a weapon unless in a Parry CombatStance." };
             }
 
-            if (hero.IsVulnerableAfterPowerAttack)
+            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
             }
@@ -112,7 +112,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             var result = new DefenseResult();
 
-            if (hero.IsVulnerableAfterPowerAttack)
+            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
             }

@@ -1,12 +1,14 @@
 ﻿
-using System.Threading;
-using Microsoft.Extensions.Options;
 using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Xml.Linq;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -41,7 +43,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         Parry,
         Pray,
         Focus,
-        BreakFreeFromEntangle
+        BreakFreeFromEntangle,
+        Frenzy
     }
 
     public class ActionInfo
@@ -98,6 +101,13 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
         public async Task<string> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
         {
+            // This restricts the hero to only attacking or moving while in a frenzy.
+            if (character is Hero heroFrenzied && heroFrenzied.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) &&
+                actionType != ActionType.StandardAttack && actionType != ActionType.Move && actionType != ActionType.EndTurn)
+            {
+                return $"{character.Name} is in a frenzy and can only attack or move.";
+            }
+
             string resultMessage = "";
             int startingAP = character.CurrentAP;
             int apCost = GetActionCost(actionType);
@@ -146,6 +156,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                         {
                             resultMessage = attackResult.OutcomeMessage;
                         }
+
+                        if (attackResult.IsHit && character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+                        {
+                            apCost = 0;
+                            resultMessage += $"\n {character.Name} is in a frenzy and can act again";
+                        }
                     }
                     else
                     {
@@ -182,6 +198,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                         AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, meleeWeapon, powerAttackTarget, dungeon);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
+
+                        if (character.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BattleFury) != null)
+                        {
+                            apCost = 1; // Battle Fury reduces the AP cost of Power Attacks to 1
+                        }
                     }
                     else
                     {
@@ -211,7 +232,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         AttackResult attackResult = _attack.PerformShove(character, targetToShove, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
-                        if(attackResult.IsHit)
+                        if (attackResult.IsHit)
                         {
                             if (attackResult.ToHitChance <= attackResult.AttackRoll && targetToShove.Position != null)
                             {
@@ -251,7 +272,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                             if (character is Hero)
                             {
                                 enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
-                                if(enemies.Count <= 0 && character.Room.MonstersInRoom != null)
+                                if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
                                 {
                                     enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
                                 }
@@ -337,7 +358,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case ActionType.EquipGear:
                     if (character is Hero inventoryHero && primaryTarget is Equipment item)
                     {
-                        if(_inventory.EquipItem(inventoryHero, item)) resultMessage = $"{item.Name} was equipped";
+                        if (_inventory.EquipItem(inventoryHero, item)) resultMessage = $"{item.Name} was equipped";
                         else
                         {
                             resultMessage = $"{item.Name} could not be equipped";
@@ -423,7 +444,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
                     {
                         rangedWeapon1.reloadAmmo();
-                        if(character is Monster) rangedWeapon1.IsLoaded = true;
+                        if (character is Monster) rangedWeapon1.IsLoaded = true;
                         resultMessage = $" and reloads their {rangedWeapon1.Name}.";
                     }
                     else
@@ -502,7 +523,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 apCost++;
                                 resultMessage = $"{caster.Name} focuses their mind on casting.";
 
-                                if(caster.ChanneledSpell.FocusActionsRemaining <= 0)
+                                if (caster.ChanneledSpell.FocusActionsRemaining <= 0)
                                 {
                                     await _spellResolution.ResolveSpellAsync(caster, caster.ChanneledSpell.Spell, caster.ChanneledSpell.Target, caster.ChanneledSpell.CastingOptions);
 
@@ -547,6 +568,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case ActionType.Frenzy:
+                    if (!character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+                    {
+                        StatusEffectService.AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Frenzy, -1));
+                        resultMessage = $"{character.Name} enters a frenzy!";
+                    }
+                    else
+                    {
+                        resultMessage = $"{character.Name} is already in a frenzy.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
             }
 
 
@@ -585,6 +618,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
+                ActionType.Frenzy => 1,
                 _ => 1,
             };
         }
