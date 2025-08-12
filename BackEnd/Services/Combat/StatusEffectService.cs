@@ -152,7 +152,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             (BasicStat, int)? statBonus = null,
             (Skill, int)? skillBonus = null,
             int? damage = null,
-            DiceType? diceToRoll = null)
+            DiceType? diceToRoll = null,
+            bool removeAfterCombat = false)
         {
             Category = type;
             Duration = duration;
@@ -160,6 +161,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             SkillBonus = skillBonus;
             Damage = damage;
             DiceToRoll = diceToRoll;
+            RemoveAfterCombat = removeAfterCombat;
         }
     }
 
