@@ -99,15 +99,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public async Task<string> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null)
+        public async Task<string> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null, CombatContext? combatContext = null)
         {
-            // This restricts the hero to only attacking or moving while in a frenzy.
-            if (character is Hero heroFrenzied && heroFrenzied.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) &&
-                actionType != ActionType.StandardAttack && actionType != ActionType.Move && actionType != ActionType.EndTurn)
-            {
-                return $"{character.Name} is in a frenzy and can only attack or move.";
-            }
-
             string resultMessage = "";
             int startingAP = character.CurrentAP;
             int apCost = GetActionCost(actionType);
@@ -116,9 +109,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 resultMessage = $"{character.Name} does not have enough AP for {actionType}.";
                 return resultMessage;
             }
-
             resultMessage = $"{character.Name} performed {actionType}.";
             bool actionWasSuccessful = true;
+
             Weapon? weapon = null;
             if (character is Hero h)
             {
@@ -129,7 +122,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 weapon = m.ActiveWeapon;
             }
 
-            // check to see if the character is in the middle of their and is choosing a different action type.
+            // This restricts the hero to only attacking or moving while in a frenzy.
+            if (character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) &&
+                actionType != ActionType.StandardAttack && actionType != ActionType.Move && actionType != ActionType.EndTurn)
+            {
+                return $"{character.Name} is in a frenzy and can only attack or move.";
+            }
+
+            // check to see if the character is in the middle of their move and is choosing a different action type.
             // This cancels the remaining move and sets as finishing their move.
             if ( actionType != ActionType.Move &&  character.CurrentMovePoints < character.GetStat(BasicStat.Move) && !character.HasMadeFirstMoveAction)
             {
@@ -143,15 +143,16 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             // Execute the action logic
-            switch (actionType)
+            switch (character, actionType)
             {
-                case ActionType.StandardAttack:
-                    if (primaryTarget is Character standardAttackTarget && weapon != null)
+                case (Hero, ActionType.StandardAttack):
+                case (Monster, ActionType.StandardAttack):
+                    if (primaryTarget is Character)
                     {
                         resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
                         if (character.CurrentAP <= 0) break;
 
-                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, standardAttackTarget, dungeon);
+                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
                         if (startingAP > character.CurrentAP)
                         {
                             resultMessage += "\n" + attackResult.OutcomeMessage;
@@ -173,33 +174,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.StandardAttackWhileAiming:
-                    if (primaryTarget is Character standardAttackTarget1 && weapon != null)
+                case (Hero, ActionType.PowerAttack):
+                case (Monster, ActionType.PowerAttack):
+                    if (character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character)
                     {
-                        resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
-                        if (character.CurrentAP <= 0) break;
-
-                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, standardAttackTarget1, dungeon, new CombatContext { HasAimed = true });
-                        if (startingAP > character.CurrentAP)
-                        {
-                            resultMessage += "\n" + attackResult.OutcomeMessage;
-                        }
-                        else
-                        {
-                            resultMessage = attackResult.OutcomeMessage;
-                        }
-                        character.CombatStance = CombatStance.Normal;
-                    }
-                    else
-                    {
-                        resultMessage = "Invalid target or no weapon equipped for attack.";
-                        actionWasSuccessful = false;
-                    }
-                    break;
-                case ActionType.PowerAttack:
-                    if (character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character powerAttackTarget)
-                    {
-                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, weapon, powerAttackTarget, dungeon);
+                        AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, weapon, (Character)primaryTarget, dungeon);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
 
@@ -214,10 +193,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.ChargeAttack:
-                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget)
+                case (Hero, ActionType.ChargeAttack):
+                case (Monster, ActionType.ChargeAttack):
+                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character)
                     {
-                        AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, weapon, chargeAttackTarget, dungeon);
+                        AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, weapon, (Character)primaryTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                         Room? room = _dungeonManager.FindRoomAtPosition(character.Position);
                         if (room != null)
@@ -231,7 +211,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.Shove:
+                case (Hero, ActionType.Shove):
+                case (Monster, ActionType.Shove):
                     if (primaryTarget is Character targetToShove && character.Position != null)
                     {
                         AttackResult attackResult = _attack.PerformShove(character, targetToShove, dungeon);
@@ -259,8 +240,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.Move:
-                    if (primaryTarget is GridPosition targetPosition && character.Position != null && character.Room != null)
+                case (Hero, ActionType.Move):
+                    if (primaryTarget is GridPosition && character.Position != null && character.Room != null)
                     {
                         // Determine available movement points for this action
                         int availableMovement = character.CurrentMovePoints;
@@ -269,53 +250,97 @@ namespace LoDCompanion.BackEnd.Services.Player
                             availableMovement /= 2;
                         }
 
-                        // Determine enemies for ZOC calculation
-                        List<Character> enemies = new List<Character>();
                         if (_dungeonManager.DungeonState != null)
                         {
-                            if (character is Hero)
+                            // Determine enemies for ZOC calculation
+                            var enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
+                            if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
                             {
-                                enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
-                                if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
-                                {
-                                    enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
-                                }
+                                enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
                             }
-                            else if (character is Monster)
-                            {
-                                if (_dungeonManager.DungeonState.HeroParty != null)
-                                {
-                                    enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList();
-                                }
-                                if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
-                                {
-                                    enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
-                                }
-                            }
-                        }
-                        List<GridPosition> path = GridService.FindShortestPath(character.Position, targetPosition, dungeon.DungeonGrid, enemies);
+                            List<GridPosition> path = GridService.FindShortestPath(character.Position, (GridPosition)primaryTarget, dungeon.DungeonGrid, enemies);
 
-                        MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
+                            MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
 
-                        if (moveResult.WasSuccessful)
-                        {
-                            character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
-                            availableMovement = character.CurrentMovePoints;
-                            resultMessage = moveResult.Message;
-                            if (availableMovement <= 0)
+                            if (moveResult.WasSuccessful)
                             {
-                                character.HasMadeFirstMoveAction = true;
-                                character.ResetMovementPoints();
+                                character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
+                                availableMovement = character.CurrentMovePoints;
+                                resultMessage = moveResult.Message;
+                                if (availableMovement <= 0)
+                                {
+                                    character.HasMadeFirstMoveAction = true;
+                                    character.ResetMovementPoints();
+                                }
+                                else
+                                {
+                                    resultMessage = moveResult.Message;
+                                    actionWasSuccessful = false; // Don't deduct AP if movement points remain
+                                }
                             }
                             else
                             {
                                 resultMessage = moveResult.Message;
-                                actionWasSuccessful = false; // Don't deduct AP if movement points remain
+                                actionWasSuccessful = false; // Don't deduct AP if no move was made
                             }
                         }
                         else
                         {
-                            resultMessage = moveResult.Message;
+                            actionWasSuccessful = false; // Don't deduct AP if no move was made
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid destination for move action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Monster, ActionType.Move):
+                    if (primaryTarget is GridPosition && character.Position != null && character.Room != null)
+                    {
+                        // Determine available movement points for this action
+                        int availableMovement = character.CurrentMovePoints;
+                        if (character.HasMadeFirstMoveAction) // Rule: Second move is half distance
+                        {
+                            availableMovement /= 2;
+                        }
+
+                        if (_dungeonManager.DungeonState != null && _dungeonManager.DungeonState.HeroParty != null)
+                        {
+                            // Determine enemies for ZOC calculation
+                            var enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList();
+                            if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
+                            {
+                                enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
+                            }
+                            List<GridPosition> path = GridService.FindShortestPath(character.Position, (GridPosition)primaryTarget, dungeon.DungeonGrid, enemies);
+
+                            MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
+
+                            if (moveResult.WasSuccessful)
+                            {
+                                character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
+                                availableMovement = character.CurrentMovePoints;
+                                resultMessage = moveResult.Message;
+                                if (availableMovement <= 0)
+                                {
+                                    character.HasMadeFirstMoveAction = true;
+                                    character.ResetMovementPoints();
+                                }
+                                else
+                                {
+                                    resultMessage = moveResult.Message;
+                                    actionWasSuccessful = false; // Don't deduct AP if movement points remain
+                                }
+                            }
+                            else
+                            {
+                                resultMessage = moveResult.Message;
+                                actionWasSuccessful = false; // Don't deduct AP if no move was made
+                            }
+                        }
+                        else
+                        {
                             actionWasSuccessful = false; // Don't deduct AP if no move was made
                         }
                     }
@@ -326,7 +351,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
 
-                case ActionType.OpenDoor:
+                case (Hero, ActionType.OpenDoor):
+                case (Monster, ActionType.OpenDoor):
                     if (primaryTarget is Door door)
                     {
                         _dungeonManager.InteractWithDoor(door, character);
@@ -337,10 +363,13 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.HealSelf:
-                    if (character is Hero self)
+                case (Hero hero, ActionType.HealSelf):
+                    resultMessage = _healing.ApplyBandage(hero, hero);
+                    break;
+                case (Hero hero, ActionType.HealOther):
+                    if (primaryTarget is Hero targetHero)
                     {
-                        resultMessage = _healing.ApplyBandage(self, self);
+                        resultMessage = _healing.ApplyBandage(hero, targetHero);
                     }
                     else
                     {
@@ -348,21 +377,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.HealOther:
-                    if (character is Hero actingHero && primaryTarget is Hero targetHero)
+                case (Hero hero, ActionType.EquipGear):
+                    if (primaryTarget is Equipment item)
                     {
-                        resultMessage = _healing.ApplyBandage(actingHero, targetHero);
-                    }
-                    else
-                    {
-                        resultMessage = "Action was unsuccessful";
-                        actionWasSuccessful = false;
-                    }
-                    break;
-                case ActionType.EquipGear:
-                    if (character is Hero inventoryHero && primaryTarget is Equipment item)
-                    {
-                        if (_inventory.EquipItem(inventoryHero, item)) resultMessage = $"{item.Name} was equipped";
+                        if (_inventory.EquipItem(hero, item)) resultMessage = $"{item.Name} was equipped";
                         else
                         {
                             resultMessage = $"{item.Name} could not be equipped";
@@ -375,10 +393,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.AddItemToQuickSlot:
-                    if (character is Hero inventoryHero1 && primaryTarget is Equipment item1)
+                case (Hero hero, ActionType.AddItemToQuickSlot):
+                    if (primaryTarget is Equipment item1)
                     {
-                        if (_inventory.EquipItem(inventoryHero1, item1)) resultMessage = $"{item1.Name} was equipped";
+                        if (_inventory.EquipItem(hero, item1)) resultMessage = $"{item1.Name} was equipped";
                         else
                         {
                             resultMessage = $"{item1.Name} could not be equipped";
@@ -391,10 +409,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.IdentifyItem:
-                    if (character is Hero identifyingHero && primaryTarget is Equipment itemToIdentify)
+                case (Hero hero, ActionType.IdentifyItem):
+                    if (primaryTarget is Equipment itemToIdentify)
                     {
-                        resultMessage = _identification.IdentifyItem(identifyingHero, itemToIdentify);
+                        resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
                     }
                     else
                     {
@@ -402,28 +420,31 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.SetOverwatch:
+                case (Hero hero, ActionType.SetOverwatch):
                     var equippedWeapon = weapon;
                     if (equippedWeapon == null) return $"{character.Name} does not have a weapon equipped";
-                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{character.Name} needs to reload their weapon";
+                    if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{hero.Name} needs to reload their weapon";
                     character.CombatStance = CombatStance.Overwatch;
-                    apCost = character.CurrentAP;
+                    apCost = hero.CurrentAP;
                     resultMessage = $"{character.Name} takes an Overwatch stance, ready to react.";
                     break;
-                case ActionType.EndTurn:
-                    resultMessage = $"{character.Name} ends their turn.";
-                    apCost = character.CurrentAP;
+                case (Hero hero, ActionType.EndTurn):
+                    resultMessage = $"{hero.Name} ends their turn.";
+                    apCost = hero.CurrentAP;
                     break;
-                case ActionType.Parry:
+                case (Hero, ActionType.Parry):
+                case (Monster, ActionType.Parry):
                     character.CombatStance = CombatStance.Parry;
                     apCost = character.CurrentAP;
                     resultMessage = $"{character.Name} entered parry stance";
                     break;
-                case ActionType.Aim:
+                case (Hero, ActionType.Aim):
+                case (Monster, ActionType.Aim):
                     character.CombatStance = CombatStance.Aiming;
                     resultMessage = $"{character.Name} takes careful aim.";
                     break;
-                case ActionType.Reload:
+                case (Hero, ActionType.Reload):
+                case (Monster, ActionType.Reload):
                     if (weapon is RangedWeapon rangedWeapon)
                     {
                         if (!rangedWeapon.IsLoaded)
@@ -444,7 +465,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.ReloadWhileMoving:
+                case (Hero, ActionType.ReloadWhileMoving):
+                case (Monster, ActionType.ReloadWhileMoving):
                     if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
                     {
                         rangedWeapon1.reloadAmmo();
@@ -456,19 +478,19 @@ namespace LoDCompanion.BackEnd.Services.Player
                         resultMessage = string.Empty;
                     }
                     break;
-                case ActionType.CastSpell:
-                    if (character is Hero heroCasting && secondaryTarget is Spell spellToCast)
+                case (Hero hero, ActionType.CastSpell):
+                    if (secondaryTarget is Spell spellToCast)
                     {
-                        SpellCastingResult options = await _spellCasting.RequestCastingOptionsAsync(heroCasting, spellToCast); await Task.Yield();
+                        SpellCastingResult options = await _spellCasting.RequestCastingOptionsAsync(hero, spellToCast); await Task.Yield();
 
                         if (options.WasCancelled)
                         {
-                            resultMessage = $"{heroCasting.Name} decided not to cast the spell.";
+                            resultMessage = $"{hero.Name} decided not to cast the spell.";
                             actionWasSuccessful = false;
                         }
                         else
                         {
-                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(heroCasting, _diceRoll, options.FocusPoints, options.PowerLevels);
+                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, options.FocusPoints, options.PowerLevels);
                             resultMessage = spellCastResult.OutcomeMessage;
 
                             if (spellCastResult.ManaSpent <= 0)
@@ -489,21 +511,21 @@ namespace LoDCompanion.BackEnd.Services.Player
                                         {
                                             apCost = 2; // Regular spells cost 2 AP if there is no focus points added
                                         }
-                                        await _spellResolution.ResolveSpellAsync(heroCasting, spellToCast, primaryTarget, options);
+                                        await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
                                     }
                                     else if (options.FocusPoints >= 1)
                                     {
-                                        heroCasting.ChanneledSpell = new ChanneledSpell(heroCasting, spellToCast, primaryTarget, options);
+                                        hero.ChanneledSpell = new ChanneledSpell(hero, spellToCast, primaryTarget, options);
                                         if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
                                         {
                                             apCost = 2;
-                                            heroCasting.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used
+                                            hero.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used
                                         }
                                     }
 
-                                    if (heroCasting.ChanneledSpell != null && heroCasting.ChanneledSpell.FocusActionsRemaining <= 0)
+                                    if (hero.ChanneledSpell != null && hero.ChanneledSpell.FocusActionsRemaining <= 0)
                                     {
-                                        await _spellResolution.ResolveSpellAsync(heroCasting, spellToCast, primaryTarget, options);
+                                        await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
                                     }
                                 }
                             }
@@ -515,28 +537,28 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.Focus:
-                    if (character is Hero caster && caster.ChanneledSpell != null)
+                case (Hero hero, ActionType.Focus):
+                    if (hero.ChanneledSpell != null)
                     {
                         apCost = 0;
-                        for (int i = 0; i < caster.CurrentAP; i++)
+                        for (int i = 0; i < hero.CurrentAP; i++)
                         {
-                            if (caster.ChanneledSpell.FocusActionsRemaining > 0)
+                            if (hero.ChanneledSpell.FocusActionsRemaining > 0)
                             {
-                                caster.ChanneledSpell.FocusActionsRemaining--;
+                                hero.ChanneledSpell.FocusActionsRemaining--;
                                 apCost++;
-                                resultMessage = $"{caster.Name} focuses their mind on casting.";
+                                resultMessage = $"{hero.Name} focuses their mind on casting.";
 
-                                if (caster.ChanneledSpell.FocusActionsRemaining <= 0)
+                                if (hero.ChanneledSpell.FocusActionsRemaining <= 0)
                                 {
-                                    await _spellResolution.ResolveSpellAsync(caster, caster.ChanneledSpell.Spell, caster.ChanneledSpell.Target, caster.ChanneledSpell.CastingOptions);
+                                    await _spellResolution.ResolveSpellAsync(hero, hero.ChanneledSpell.Spell, hero.ChanneledSpell.Target, hero.ChanneledSpell.CastingOptions);
 
                                 }
                             }
                             else
                             {
-                                await _spellResolution.ResolveSpellAsync(caster, caster.ChanneledSpell.Spell, caster.ChanneledSpell.Target, caster.ChanneledSpell.CastingOptions);
-                                resultMessage = $"{caster.Name} has no focus actions remaining.";
+                                await _spellResolution.ResolveSpellAsync(hero, hero.ChanneledSpell.Spell, hero.ChanneledSpell.Target, hero.ChanneledSpell.CastingOptions);
+                                resultMessage = $"{hero.Name} has no focus actions remaining.";
                                 actionWasSuccessful = false;
                             }
                         }
@@ -547,8 +569,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.BreakFreeFromEntangle:
-                    if (character is Hero hero && hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Entangled))
+                case (Hero hero, ActionType.BreakFreeFromEntangle):
+                    if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Entangled))
                     {
                         var entangledEffect = hero.ActiveStatusEffects.First(e => e.Category == StatusEffectType.Entangled);
                         int strengthTestModifier = -10 * (-entangledEffect.Duration - 1); // -0 on turn 1, -10 on turn 2, etc.
@@ -572,11 +594,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case ActionType.Frenzy:
-                    if (!character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+                case (Hero hero, ActionType.Frenzy):
+                    if (!character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) && hero.CurrentEnergy >= 1)
                     {
                         StatusEffectService.AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true));
                         resultMessage = $"{character.Name} enters a frenzy!";
+
                     }
                     else
                     {
