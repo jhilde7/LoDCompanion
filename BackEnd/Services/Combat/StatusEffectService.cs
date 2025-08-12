@@ -144,6 +144,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public (Skill, int)? SkillBonus { get; set; } // Optional value for effects that change skills.
         public int? Damage { get; set; } // Optional value for effects that deal damage.
         public DiceType? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
+        public bool RemoveAfterCombat { get; set; }
 
         public ActiveStatusEffect(
             StatusEffectType type,
