@@ -36,6 +36,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         HideInShadows,
         MyWillBeDone,
         //--Prayers--
+        Disciplined,
         BringerOfLight,
         PowerOfTheGods,
         ThePowerOfIphy,
@@ -315,6 +316,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Swallowed, -1));
                             Console.WriteLine($"{character.Name} is swallowed whole!");
                         }
+                        break;
+
+                        case StatusEffectType.IgnoreWounds:
+                        character.BasicStats[BasicStat.NaturalArmour] += 2; // Temporary bonus to NA
+
                         break;
                 }
 
