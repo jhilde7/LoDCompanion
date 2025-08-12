@@ -1,4 +1,5 @@
-﻿using LoDCompanion.BackEnd.Models;
+﻿using LoDCompanion.BackEnd.Services.Player;
+using LoDCompanion.BackEnd.Services.Dungeon;
 
 namespace LoDCompanion.BackEnd.Services.Game
 {
