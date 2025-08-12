@@ -318,7 +318,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         }
                         break;
 
-                        case StatusEffectType.IgnoreWounds:
+                    case StatusEffectType.IgnoreWounds:
                         character.BasicStats[BasicStat.NaturalArmour] += 2; // Temporary bonus to NA
 
                         break;
@@ -330,11 +330,16 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     effect.Duration--;
                     if (effect.Duration == 0)
                     {
-                        character.ActiveStatusEffects.Remove(effect);
+                        RemoveActiveStatusEffect(character, effect);
                         Console.WriteLine($"{character.Name} is no longer {effect.Category}.");
                     }
                 }
             }
+        }
+
+        public static void RemoveActiveStatusEffect(Character character, ActiveStatusEffect effect)
+        {
+            character.ActiveStatusEffects.Remove(effect);
         }
     }
 }
