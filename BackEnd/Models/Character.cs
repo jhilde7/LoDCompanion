@@ -110,7 +110,8 @@ namespace LoDCompanion.BackEnd.Models
         public bool HasMadeFirstMoveAction { get; set; }
         public FacingDirection Facing { get; set; } = FacingDirection.North;
         public event Action<Character>? OnDeath;
-        public bool CanAct() => CurrentAP > 0;
+        public bool CanAct => CurrentAP > 0;
+        public bool Wounded => CurrentHP <= GetStat(BasicStat.HitPoints) / 2;
 
 
         // Constructor (optional, but good practice for initialization)
@@ -291,8 +292,29 @@ namespace LoDCompanion.BackEnd.Models
         }
 
         // Common methods for all characters
-        public virtual void TakeDamage(int damage, (FloatingTextService, GridPosition?) floatingText, DamageType? damageType = null)
+        public virtual int TakeDamage(int damage, (FloatingTextService, GridPosition?) floatingText, CombatContext? combatContext = null, DamageType? damageType = null)
         {
+            int naturalArmour = GetStat(BasicStat.NaturalArmour);
+            bool fireDamage = combatContext != null && combatContext.IsFireDamage || damageType == DamageType.Fire;
+            bool acidDamage = combatContext != null && combatContext.IsAcidicDamage || damageType == DamageType.Acid;
+            bool frostDamage = combatContext != null && combatContext.IsFrostDamage || damageType == DamageType.Frost;
+            bool poisonDamage = combatContext != null && combatContext.IsPoisonousAttack || damageType == DamageType.Poison;
+            bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
+
+            if (ActiveStatusEffects != null && ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.IgnoreWounds) != null)
+            {
+                naturalArmour += 2; // Ignore Wounds effect adds +2 to natural armour
+            }
+
+            if (!fireDamage || !acidDamage)
+            {
+                damage -= naturalArmour; //natural armour is not affected by armour piercing 
+            }
+            if (!fireDamage)
+            {
+                damage -= combatContext?.ArmourValue ?? 0; // Apply any armour value from the combat context 
+            }
+
             CurrentHP -= damage;
             if (CurrentHP <= 0)
             {
@@ -303,6 +325,56 @@ namespace LoDCompanion.BackEnd.Models
             if (floatingText.Item2 != null)
             {
                 floatingText.Item1.ShowText($"-{damage}", floatingText.Item2, "damage-text"); 
+            }
+
+            if (fireDamage)
+            {
+                ApllyFireEffect(damage);
+            }
+            if (acidDamage)
+            {
+                ApllyAcidEffect(damage);
+            }
+            if (frostDamage)
+            {
+                ApplyFrostEffect();
+            }
+            if (poisonDamage)
+            {
+                StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1));
+            }
+            if (diseaseDamage)
+            {
+                StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.Diseased, -1));
+            }
+
+            return damage; // Return the amount of damage taken
+        }
+
+        private void ApplyFrostEffect()
+        {
+            int roll = RandomHelper.RollDie(DiceType.D100);
+            if (roll <= 50) // 50% chance to apply frost effect
+            {
+                StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
+            }
+        }
+
+        private void ApllyAcidEffect(int damage)
+        {
+            int roll = RandomHelper.RollDie(DiceType.D6);
+            if (roll >= 4)
+            {
+                StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.AcidBurning, 1, damage: (int)Math.Ceiling(damage / 2d))); 
+            }
+        }
+
+        private void ApllyFireEffect(int damage)
+        {
+            int roll = RandomHelper.RollDie(DiceType.D6);
+            if (roll >= 4)
+            {
+                StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.FireBurning, 1, damage: (int)Math.Ceiling(damage / 2d)));
             }
         }
 
@@ -326,7 +398,7 @@ namespace LoDCompanion.BackEnd.Models
 
         public void ResetActionPoints()
         {
-            CurrentAP += GetStat(BasicStat.ActionPoints);
+            CurrentAP += !Wounded ? GetStat(BasicStat.ActionPoints) : (int)Math.Ceiling(GetStat(BasicStat.ActionPoints) / 2d);
             if (CurrentAP > GetStat(BasicStat.ActionPoints)) CurrentAP = GetStat(BasicStat.ActionPoints);
         }
 
