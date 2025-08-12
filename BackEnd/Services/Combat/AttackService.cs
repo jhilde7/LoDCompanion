@@ -18,14 +18,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
     public class CombatContext
     {
         // General Modifiers
-        public bool IsAttackingFromBehind { get; set; }
-        public bool HasHeightAdvantage { get; set; }
-        public bool IsTargetProne { get; set; }
         public bool IsFireDamage { get; set; } = false;
         public bool IsAcidicDamage { get; set; } = false;
         public bool IsFrostDamage { get; set; } = false;
         public bool IsPoisonousAttack { get; set; } = false;
         public bool CausesDisease { get; set; } = false;
+        public int ArmourValue { get; set; } = 0;
         public int ArmourPiercingValue { get; set; } = 0;
 
         // Melee Specific Modifiers
@@ -36,10 +34,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
         // Ranged Specific Modifiers
         public bool HasAimed { get; set; }
         public int ObstaclesInLineOfSight { get; set; }
-
-        // Target's State Modifiers
-        public bool IsTargetInParryStance { get; set; }
-        public bool DidTargetUsePowerAttackLastTurn { get; set; }
     }
 
     /// <summary>
@@ -225,10 +219,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
             if (target.Position != null && damageAfterDefense > 0)
             {
                 HitLocation location = DetermineHitLocation();
-                result.DamageDealt = ApplyArmorToLocation(target, location, damageAfterDefense, weapon);
-                target.TakeDamage(result.DamageDealt, (_floatingText, target.Position));
+                context = ApplyArmorToLocation(target, location, context, weapon);
+                target.TakeDamage(result.DamageDealt, (_floatingText, target.Position), context);
 
-                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
+                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt - context.ArmourValue} damage!";
                 if (location == HitLocation.Torso)
                 {
                     result.OutcomeMessage += CheckForQuickSlotDamage(target);
@@ -416,16 +410,16 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Applies armor reduction based on the specific hit location.
         /// </summary>
-        private int ApplyArmorToLocation(Hero target, HitLocation location, int incomingDamage, Weapon? weapon)
+        private CombatContext ApplyArmorToLocation(Hero target, HitLocation location, CombatContext combatContext, Weapon? weapon)
         {
             var relevantArmor = target.Inventory.EquippedArmour.Where(a => DoesArmorCoverLocation(a, location)).ToList();
-            int totalArmorValue = relevantArmor.Sum(a => a.DefValue);
+            combatContext.ArmourValue = relevantArmor.Sum(a => a.DefValue);
 
             int armourPiercing = 0;
             weapon?.Properties.TryGetValue(WeaponProperty.ArmourPiercing, out armourPiercing);
-            int effectiveArmor = Math.Max(0, totalArmorValue - armourPiercing);
+            combatContext.ArmourValue = Math.Max(0, combatContext.ArmourValue - armourPiercing);
 
-            return Math.Max(0, incomingDamage - effectiveArmor);
+            return combatContext;
         }
 
         /// <summary>
