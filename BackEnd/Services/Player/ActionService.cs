@@ -120,9 +120,13 @@ namespace LoDCompanion.BackEnd.Services.Player
             resultMessage = $"{character.Name} performed {actionType}.";
             bool actionWasSuccessful = true;
             Weapon? weapon = new Weapon();
-            if (character.Weapons.FirstOrDefault() is Weapon w)
+            if (character is Hero h && h.Inventory.EquippedWeapon != null)
             {
-                weapon = w;
+                weapon = h.Inventory.EquippedWeapon;
+            }
+            else if (character is Monster m && m.ActiveWeapon != null)
+            {
+                weapon = m.ActiveWeapon;
             }
 
             // check to see if the character is in the middle of their and is choosing a different action type.
@@ -193,7 +197,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case ActionType.PowerAttack:
-                    if (character.CurrentAP >= GetActionCost(actionType) && character.Weapons.FirstOrDefault(w => w.IsMelee) is MeleeWeapon meleeWeapon && primaryTarget is Character powerAttackTarget)
+                    if (character.CurrentAP >= GetActionCost(actionType) && weapon is MeleeWeapon meleeWeapon && primaryTarget is Character powerAttackTarget)
                     {
                         AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, meleeWeapon, powerAttackTarget, dungeon);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
@@ -211,7 +215,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case ActionType.ChargeAttack:
-                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget && character.Weapons.FirstOrDefault(w => w.IsMelee) is MeleeWeapon chargeWeapon)
+                    if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character chargeAttackTarget && weapon is MeleeWeapon chargeWeapon)
                     {
                         AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, chargeWeapon, chargeAttackTarget, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
@@ -399,7 +403,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case ActionType.SetOverwatch:
-                    var equippedWeapon = character.Weapons.FirstOrDefault();
+                    var equippedWeapon = weapon;
                     if (equippedWeapon == null) return $"{character.Name} does not have a weapon equipped";
                     if (equippedWeapon is RangedWeapon ranged && !ranged.IsLoaded) return $"{character.Name} needs to reload their weapon";
                     character.CombatStance = CombatStance.Overwatch;
