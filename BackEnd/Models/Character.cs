@@ -690,6 +690,43 @@ namespace LoDCompanion.BackEnd.Models
                 { ArmourProperty.Legs, legs }
             };
         }
+
+        public void ActivateDiseasedEffect()
+        {
+            // Check for the base "Diseased" status effect, which acts as the trigger.
+            if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Diseased))
+            {
+                // --- Handle Constitution Penalty ---
+                var diseasedConstitution = ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Diseased && a.StatBonus.HasValue && a.StatBonus.Value.Item1 == BasicStat.Constitution);
+
+                int currentCon = GetStat(BasicStat.Constitution);
+                int additionalConPenalty = currentCon / 2;
+                int existingConPenalty = 0;
+
+                if (diseasedConstitution != null)
+                {
+                    existingConPenalty = diseasedConstitution.StatBonus?.Item2 ?? 0;
+                    ActiveStatusEffects.Remove(diseasedConstitution);
+                }
+
+                ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.Diseased, -1, statBonus: (BasicStat.Constitution, existingConPenalty - additionalConPenalty)));
+
+                // --- Handle Strength Penalty ---
+                var diseasedStrength = ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Diseased && a.StatBonus.HasValue && a.StatBonus.Value.Item1 == BasicStat.Strength);
+
+                int currentStr = GetStat(BasicStat.Strength);
+                int additionalStrPenalty = currentStr / 2;
+                int existingStrPenalty = 0;
+
+                if (diseasedStrength != null)
+                {
+                    existingStrPenalty = diseasedStrength.StatBonus?.Item2 ?? 0;
+                    ActiveStatusEffects.Remove(diseasedStrength);
+                }
+
+                ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.Diseased, -1, statBonus: (BasicStat.Strength, existingStrPenalty - additionalStrPenalty)));
+            }
+        }
     }
 
     public enum MonsterBehaviorType
