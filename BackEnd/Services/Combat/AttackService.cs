@@ -474,10 +474,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (weapon is MeleeWeapon meleeWeapon && attacker is Hero hero)
             {
-                if (hero.Talents.Any(t => t.Name == TalentName.MightyBlow))
-                {
-                    damage += 1;
-                }
+                // If the hero has a talent that provides a damage bonus, apply it.
+                damage += hero.Talents
+                    .Where(t => t.StatBonus != null && t.StatBonus.Value.Item1 == BasicStat.DamageBonus)
+                    .Sum(t => t.StatBonus != null ? t.StatBonus.Value.Item2 : 0);
                 // Apply the Unwieldly bonus if the context flag is set.
                 if (context.ApplyUnwieldlyBonus)
                 {
