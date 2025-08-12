@@ -108,63 +108,18 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 hero.HasMadeFirstMoveAction = false;
                 hero.ResetMovementPoints();
 
-                if (!hero.Weapons.Any())
-                {
-                    var availableWeapons = hero.Inventory.Backpack.OfType<Weapon>()
-                                                                  .Concat(hero.Inventory.QuickSlots.OfType<Weapon>())
-                                                                  .ToList();
-                    if (!availableWeapons.Any())
-                    {
-                        foreach (var item in hero.Inventory.Backpack)
-                        {
-                            Weapon? weapon = EquipmentService.GetWeaponByName(item.Name);
-                            if (weapon != null) availableWeapons.Add(weapon);
-                        }
-                    }
-
-                    if (availableWeapons.Any())
-                    {
-                        bool isMeleeFocused = hero.GetSkill(Skill.CombatSkill) >= hero.GetSkill(Skill.RangedSkill);
-
-                        List<Weapon> suitableWeapons;
-                        if (isMeleeFocused)
-                        {
-                            suitableWeapons = availableWeapons.Where(w => w is MeleeWeapon).ToList();
-                            // If no melee weapons, fall back to any available weapon.
-                            if (!suitableWeapons.Any()) suitableWeapons = availableWeapons;
-                        }
-                        else // Ranged focused
-                        {
-                            suitableWeapons = availableWeapons.Where(w => w is RangedWeapon).ToList();
-                            // If no ranged weapons, fall back to any available weapon.
-                            if (!suitableWeapons.Any()) suitableWeapons = availableWeapons;
-                        }
-
-                        if (suitableWeapons.Any())
-                        {
-                            // For now, we'll pick one randomly from the suitable list.
-                            suitableWeapons.Shuffle();
-                            var weaponToEquip = suitableWeapons[0];
-                            hero.Weapons.Add(weaponToEquip);
-                            CombatLog.Add($"{hero.Name} was unarmed and equipped their best weapon: {weaponToEquip.Name}!");
-                        }
-                    }
-                }
-
                 // Load all ranged weapons.
-                foreach (var weapon in hero.Weapons)
+                if (hero.Inventory.EquippedWeapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
                 {
-                    if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
-                    {
-                        rangedWeapon.reloadAmmo();
-                    }
+                    rangedWeapon.reloadAmmo();
                 }
             }
 
             foreach (var monster in monsters)
             {
                 monster.ResetMovementPoints();
-                // The "Monster Behaviour" PDF states archers always start loaded.
+
+                // Load all ranged weapons.
                 foreach (var weapon in monster.Weapons)
                 {
                     if (weapon is RangedWeapon rangedWeapon && !rangedWeapon.IsLoaded)
