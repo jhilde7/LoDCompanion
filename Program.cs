@@ -1,16 +1,13 @@
 using Blazored.LocalStorage;
 using LoDCompanion.Components;
-using LoDCompanion.Models;
-using LoDCompanion.Models.Character;
-using LoDCompanion.Models.Dungeon;
-using LoDCompanion.Services.CharacterCreation;
-using LoDCompanion.Services.Dungeon;
-using LoDCompanion.Services.GameData;
-using LoDCompanion.Services.Player;
-using LoDCompanion.Services.Game;
 using System.Text.Json;
-using LoDCompanion.Services.Combat;
-using LoDCompanion.Utilities;
+using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Services.Dungeon;
+using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Player;
+using LoDCompanion.BackEnd.Services.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 

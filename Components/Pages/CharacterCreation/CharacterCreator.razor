@@ -2,15 +2,13 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
-@using Microsoft.JSInterop
+@using LoDCompanion.BackEnd.Models
+@using LoDCompanion.BackEnd.Services.Game
+@using LoDCompanion.BackEnd.Services.GameData
+@using LoDCompanion.BackEnd.Services.Player
+@using LoDCompanion.BackEnd.Services.Utilities
 @using LoDCompanion.Components.Shared
-@using LoDCompanion.Utilities
-@using LoDCompanion.Models
-@using LoDCompanion.Models.Character
-@using LoDCompanion.Services.CharacterCreation
-@using LoDCompanion.Services.GameData
-@using LoDCompanion.Services.Player
-@using LoDCompanion.Services.Game
+@using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject CharacterCreationService CreationService
