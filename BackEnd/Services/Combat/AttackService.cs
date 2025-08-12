@@ -247,7 +247,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon)
         {
             var result = new AttackResult { IsHit = true };
-            int finalDamage = await CalculateHeroDamageAsync(attacker, target, weapon, context);
+            int finalDamage = 0; 
+            (finalDamage, context) = await CalculateHeroDamageAsync(attacker, target, weapon, context);
             
             result.DamageDealt = finalDamage;
 
