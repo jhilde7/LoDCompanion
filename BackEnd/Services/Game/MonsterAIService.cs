@@ -103,6 +103,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
+            monster.ActiveWeapon = monster.GetMeleeWeapon();
 
             if (!GridService.IsAdjacent(monster.Position, target.Position))
             {
@@ -117,7 +118,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
-                attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
+                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                 return attackResult.OutcomeMessage;
             }
         }
@@ -127,6 +128,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
+            monster.ActiveWeapon = monster.GetMeleeWeapon();
 
             if (distance >= monster.GetStat(BasicStat.Move))
             {
@@ -134,7 +136,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
-                attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
+                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                 return attackResult.OutcomeMessage;
             }
         }
@@ -144,6 +146,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             if (monster.Position == null || target.Position == null) return string.Empty;
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
+            monster.ActiveWeapon = monster.GetMeleeWeapon();
 
             if (distance > monster.GetStat(BasicStat.Move))
             {
@@ -168,7 +171,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
-                attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
+                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                 return attackResult.OutcomeMessage;
             }
             return $"{monster.Name} hesitates.";
@@ -191,8 +194,9 @@ namespace LoDCompanion.BackEnd.Services.Game
                 }
             }
 
-            if (monster.Weapons.FirstOrDefault(w => w.IsRanged) is RangedWeapon weapon)
+            if (missile != null)
             {
+                monster.ActiveWeapon = missile;
                 if (distances.Values.FirstOrDefault(i => i <= 2) > 0)
                 {
                     target = distances.FirstOrDefault(h => h.Value <= 2).Key;
@@ -204,7 +208,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                     {
                         if (target.Position != null && GridService.IsAdjacent(monster.Position, target.Position))
                         {
-                            attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
+                            monster.ActiveWeapon = melee;
+                            attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                             return attackResult.OutcomeMessage;
                         }
                         else
@@ -220,7 +225,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                 }
                 else if(GridService.IsAdjacent(monster.Position, target.Position))
                 {
-                    attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
+                    monster.ActiveWeapon = melee;
+                    attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                     return attackResult.OutcomeMessage;
                 }
                 else
@@ -288,6 +294,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             AttackResult attackResult = new AttackResult();
             var adjacentHeroes = heroes.Where(h => h.Position != null && target.Position != null && GridService.IsAdjacent(monster.Position, target.Position)).ToList();
             var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
+            monster.ActiveWeapon = monster.GetMeleeWeapon();
 
             int roll = RandomHelper.RollDie(DiceType.D6);
             Dictionary<MonsterSpell, GridPosition>? spellChoice = null;
@@ -308,7 +315,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         {
                             if (target.Position != null && GridService.IsAdjacent(monster.Position, target.Position))
                             {
-                                attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.GetMeleeWeapon(), target, heroes);
+                                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                                 return attackResult.OutcomeMessage;
                             }
                             else
@@ -320,7 +327,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.CloseCombat);
                         break;
                     default: 
-                        attackResult = await HandleAdjacentMeleeAttackAsync(monster, monster.Weapons.FirstOrDefault(), target, heroes);
+                        attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                         return attackResult.OutcomeMessage;
                 }
             }
@@ -367,7 +374,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             return $"{monster.Name} hesitates.";
         }
 
-        private async Task<AttackResult> HandleAdjacentMeleeAttackAsync(Monster monster, Weapon? weapon, Hero target, List<Hero> heroes)
+        private async Task<AttackResult> HandleAdjacentMeleeAttackAsync(Monster monster, Hero target, List<Hero> heroes)
         {                
             bool isWounded = monster.CurrentHP <= monster.GetStat(BasicStat.HitPoints) / 2;
             int actionRoll = RandomHelper.RollDie(DiceType.D6);
@@ -840,7 +847,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         break;
 
                     case AiTargetHints.DebuffHeroRanged:
-                        int rangedHeroCount = losHeroes.Count(h => h.Weapons.Any(w => w is RangedWeapon));
+                        int rangedHeroCount = losHeroes.Count(h => h.Inventory.EquippedWeapon is RangedWeapon);
                         if (rangedHeroCount > 0)
                         {
                             // No specific target, but it's a valuable spell.
