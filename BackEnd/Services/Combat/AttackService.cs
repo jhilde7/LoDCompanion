@@ -389,9 +389,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 return await DefenseService.AttemptShieldParry(target, shield, incomingDamage, _diceRoll);
             }
-            if (target.CombatStance == CombatStance.Parry)
+            if (target.CombatStance == CombatStance.Parry && target.Inventory.EquippedWeapon != null)
             {
-                return await DefenseService.AttemptWeaponParry(target, target.Weapons.FirstOrDefault(w => w.IsMelee), _diceRoll);
+                return await DefenseService.AttemptWeaponParry(target, target.Inventory.EquippedWeapon, _diceRoll);
             }
             return new DefenseResult { WasSuccessful = false, OutcomeMessage = $"{target.Name} is unable to defend!" };
         }
