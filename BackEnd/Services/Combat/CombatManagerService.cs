@@ -240,27 +240,37 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (IsCombatOver)
             {
-                CombatLog.Add("Combat is over!");
-
-                foreach(var hero in HeroesInCombat)
-                {
-                    //Remove all active combat effects
-                    foreach (var effect in hero.ActiveStatusEffects)
-                    {
-                        if(effect.RemoveAfterCombat)
-                        {
-                            StatusEffectService.RemoveActiveStatusEffect(hero, effect);
-                        }
-                        //Activate disease effect after battle is over
-                        if(effect.Category == StatusEffectType.Diseased)
-                        {
-                            hero.ActivateDiseasedEffect();
-                        }
-                    }
-                }
+                ResolveCombat();
 
                 OnCombatStateChanged?.Invoke();
                 return;
+            }
+        }
+
+        private void ResolveCombat()
+        {
+            CombatLog.Add("Combat is over!");
+
+            foreach (var hero in HeroesInCombat)
+            {
+                foreach (var effect in hero.ActiveStatusEffects)
+                {
+                    //Remove all active combat effects
+                    if (effect.RemoveAfterCombat)
+                    {
+                        StatusEffectService.RemoveActiveStatusEffect(hero, effect);
+                    }
+                    //Activate after effects battle is over
+                    if (effect.Category == StatusEffectType.Diseased)
+                    {
+                        hero.ActivateDiseasedEffect();
+                    }
+                    //update remove after next battle to remove next battle
+                    if(effect.RemoveAfterNextBattle)
+                    {
+                        effect.RemoveAfterCombat = true;
+                    }
+                }
             }
         }
 
@@ -474,29 +484,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
                 else _movementHighlighting.HighlightWalkableSquares(ActiveHero, _dungeon);
             }
-        }
-
-        public int CalculateDamage(Hero attacker, MeleeWeapon weapon)
-        {
-            int totalDamage = 0; // Roll your base damage...
-
-            // --- Unwieldly Bonus Logic ---
-            // 1. Check if the weapon has the Unwieldly property.
-            if (weapon.HasProperty(WeaponProperty.Unwieldly))
-            {
-                // 2. Check if the attacker has ALREADY used their bonus in this combat.
-                if (!UnwieldlyBonusUsed.Contains(attacker.Id)) // Assuming Hero has a unique Id
-                {
-                    // 3. If not, apply the bonus and record that it has been used.
-                    int bonus = weapon.GetPropertyValue(WeaponProperty.Unwieldly);
-                    totalDamage += bonus;
-
-                    // 4. Add the attacker's ID to the set so they can't get the bonus again this fight.
-                    UnwieldlyBonusUsed.Add(attacker.Id);
-                }
-            }
-
-            return totalDamage;
         }
 
         internal List<Hero> GetActivatedHeroes()
