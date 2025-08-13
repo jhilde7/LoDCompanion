@@ -855,15 +855,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
                 return result; // If the attack missed, return early.
             }
-            else // attack can be parried or dodged as normal
-            {
-                DefenseResult defenseResult = await ResolveHeroDefenseAsync(target, 0);
-                if (defenseResult.WasSuccessful)
-                {
-                    result.IsHit = false; // The attack was successfully defended
-                    result.OutcomeMessage = defenseResult.OutcomeMessage;
-                }
-            }
+
             return result;
         }
     }
