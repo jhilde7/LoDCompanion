@@ -188,14 +188,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
         new Prayer(){
-          Name = "Litany Of Metheia",
-          Level = 2,
-          PrayerEffect = "Metheia watches over the heroes and grants them the power of life. Every hero that passes a RES test at the start of their activation regains 1 HP.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
           Name = "Power Of Faith",
           Level = 2,
           PrayerEffect = "The gods grant your party inner strength, making them immune to fear, and treating terror as fear. Heroes already scared will regain their courage if this prayer succeeds.",
