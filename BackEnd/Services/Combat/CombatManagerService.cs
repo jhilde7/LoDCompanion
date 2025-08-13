@@ -154,7 +154,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     hero.HasMadeFirstMoveAction = false;
                     hero.ResetMovementPoints();
                 }
-                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics))
+                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics) 
+                    || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
                 {
                     foreach(var monster in MonstersInCombat)
                     {
@@ -163,7 +164,14 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             int distance = GridService.GetDistance(hero.Position, monster.Position);
                             if (distance <= 4 && monster.TestResolve(RandomHelper.RollDie(DiceType.D100)))
                             {
-                                monster.TakeDamage(1, (_floatingText, monster.Position), ignoreAllArmour: true);
+                                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics))
+                                {
+                                    monster.TakeDamage(1, (_floatingText, monster.Position), ignoreAllArmour: true); 
+                                }
+                                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
+                                {
+                                    monster.CurrentAP = 1;
+                                }
                             }
                         }
                     }

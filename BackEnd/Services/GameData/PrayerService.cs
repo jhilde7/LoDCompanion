@@ -186,14 +186,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return Prayers.FirstOrDefault(p => p.Name == name) ?? new Prayer();
         }
 
-        /*
-        new Prayer(){
-          Name = "Stay Thy Hand",
-          Level = 3,
-          PrayerEffect = "The enemies seem to slow down, as if questioning whether to fight or not. All enemies within 4 squares of the priest must pass a Resolve Test and will lose 1 Action Point during that turn. Test at the start of every turn. This effect is not cumulative with any other effect causing an enemy to lose an action. For instance, a wounded enemy will not be affected by this prayer.",
-          Duration = "Until enemy test succeeds (tested at start of every turn)."
-        },*/
-
     }
 
     public class Prayer
