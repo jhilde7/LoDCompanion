@@ -494,7 +494,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         }
                         else
                         {
-                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, options.FocusPoints, options.PowerLevels);
+                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, options.FocusPoints, options.PowerLevels, 
+                                monster: (primaryTarget is Monster) ? (Monster)primaryTarget : null);
                             resultMessage = spellCastResult.OutcomeMessage;
 
                             if (spellCastResult.ManaSpent <= 0)
