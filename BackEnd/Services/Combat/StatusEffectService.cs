@@ -228,6 +228,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         }
                         break;
                     case StatusEffectType.PowerOfFaith: hero.AfraidOfTheseMonsters.Clear(); break;
+                    case StatusEffectType.WeShallNotFalter: hero.Heal(5); break;
                 };
             } 
 

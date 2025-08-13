@@ -199,7 +199,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             Name = "We Shall Not Falter",
           Level = 4,
-          PrayerEffect = "The power of the gods strengthens the party, making them more resilient than ever. All members of the party gain +5 HP that can temporarily give a hero more HP than its current max. After the battle, this goes back to the normal max HP.",
+          PrayerEffect = "All members of the party gain +5 HP that can temporarily give a hero more HP than its current max. After the battle, this goes back to the normal max HP.",
           Duration = "Until end of battle."
         },*/
 
