@@ -1,11 +1,12 @@
-﻿using System.Text;
-using System.Collections;
-using LoDCompanion.BackEnd.Services.Combat;
+﻿using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Collections;
+using System.Reflection.Emit;
+using System.Text;
 
 namespace LoDCompanion.BackEnd.Models
 {
@@ -61,6 +62,7 @@ namespace LoDCompanion.BackEnd.Models
         public Dictionary<Skill, int> SkillStats { get; set; }
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public virtual bool HasShield { get; set; } // Indicates if the character has a shield
+        public List<Character> AfraidOfTheseCharacters { get; set; } = new List<Character>();
         private Room? _room;
         public Room Room
         {
@@ -442,6 +444,10 @@ namespace LoDCompanion.BackEnd.Models
         public int CurrentEnergy { get; set; } = 1;
         public int? CurrentMana { get; set; }
         public int CurrentSanity { get; set; } = 10;
+        public int Level { get; set; } = 1;
+        private int MaxLevel { get; set; } = 10;
+        public int Experience { get; set; }
+        public int XPtoLVL => RequiredXPbyLVL(Level);
 
         // Hero-specific States and Flags
         public int MaxArmourType => new GameDataService().GetProfessionMaxArmourType(ProfessionName);
@@ -567,6 +573,63 @@ namespace LoDCompanion.BackEnd.Models
             }
 
             return roll <= con;
+        }
+
+        internal bool ResistFear(Monster fearCauser, int? roll = null)
+        {
+            fearCauser.PassiveSpecials.TryGetValue(new MonsterPassiveSpecial() { Name = MonsterSpecialName.CauseFear }, out int level);
+            if (this.Level > level) return true;
+
+            if (roll == null)
+            {
+                roll = RandomHelper.RollDie(DiceType.D100);
+            }
+
+            foreach (var effect in ActiveStatusEffects)
+            {
+                switch (effect.Category)
+                {
+                    case StatusEffectType.ThePowerOfIphy:
+                        roll -= 10; break;
+                }
+            }
+
+            if (roll > this.GetStat(BasicStat.Resolve))
+            {
+                AfraidOfTheseCharacters.Add(fearCauser);
+                return false;
+            }
+
+            return true;
+        }
+
+        internal bool ResistTerror(Monster fearCauser, int? roll = null)
+        {
+            fearCauser.PassiveSpecials.TryGetValue(new MonsterPassiveSpecial() { Name = MonsterSpecialName.CauseTerror }, out int level);
+            if (this.Level > level) return true;
+            
+            if (roll == null)
+            {
+                roll = RandomHelper.RollDie(DiceType.D100);
+            }
+
+            foreach (var effect in ActiveStatusEffects)
+            {
+                switch (effect.Category)
+                {
+                    case StatusEffectType.ThePowerOfIphy:
+                        roll -= 10; break;
+                }
+            }
+
+            if (roll > this.GetStat(BasicStat.Resolve) - 20)
+            {
+                AfraidOfTheseCharacters.Add(fearCauser);
+                StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
+                return false;
+            }
+
+            return true;
         }
 
         public int GetDamageBonusFromSTR()
@@ -726,6 +789,23 @@ namespace LoDCompanion.BackEnd.Models
 
                 ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.Diseased, -1, statBonus: (BasicStat.Strength, existingStrPenalty - additionalStrPenalty)));
             }
+        }
+
+        private int RequiredXPbyLVL(int level)
+        {
+            return level switch
+            {
+                1 => 1000,
+                2 => 2500,
+                3 => 6000,
+                4 => 10500,
+                5 => 16000,
+                6 => 25000,
+                7 => 35000,
+                8 => 50000,
+                9 => 70000,
+                _ => 0,
+            };
         }
     }
 
