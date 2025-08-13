@@ -810,7 +810,7 @@ namespace LoDCompanion.BackEnd.Models
             };
         }
 
-        internal void CheckPerfectRoll(int roll, Skill? skill, BasicStat? stat)
+        internal void CheckPerfectRoll(int roll, Skill? skill = null, BasicStat? stat = null)
         {
             if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.CharusWalkWithUs) && roll <= 10 && roll > 5) CurrentEnergy += 1;
             else if (roll <= 5)
