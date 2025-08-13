@@ -119,6 +119,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (attacker is Hero hero)
             {
+                hero.MonsterLastFought = (Monster)target;
                 result = await CalculateHeroHitAttemptAsync(hero, weapon, (Monster)target, context);
             }
             else

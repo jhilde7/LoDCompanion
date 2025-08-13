@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Rewrite;
 using System.Collections;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Models
 {
@@ -479,6 +480,7 @@ namespace LoDCompanion.BackEnd.Models
         public Levelup Levelup { get; set; } = new Levelup();
         public bool ReceivedPerfectRollSkill { get; set; } = false;
         public bool ReceivedPerfectRollStat { get; set; } = false;
+        public Monster MonsterLastFought { get; set; } = new Monster();
 
         // Constructor
         public Hero() : base() { }
@@ -832,6 +834,54 @@ namespace LoDCompanion.BackEnd.Models
 
             if (CurrentEnergy > GetStat(BasicStat.Energy)) CurrentEnergy = GetStat(BasicStat.Energy);
         }
+
+        public async Task TakeSanityDamage(int damage)
+        {
+            bool resisted = false;
+            if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.VerseOfTheSane))
+            {
+                var result = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100");
+                resisted = TestResolve(result.Roll);
+            }
+            
+            if(!resisted) CurrentSanity -= damage;
+
+            if (CurrentSanity <= 0) await GetConditionAsync();
+        }
+
+        public async Task GetConditionAsync()
+        {
+            bool conditionApplied = false;
+            while (!conditionApplied)
+            {
+                ActiveStatusEffect? conditionToApply = null;
+                var result = await new UserRequestService().RequestRollAsync("Roll for condition", "1d10");
+                switch (result.Roll)
+                {
+                    case 1: conditionToApply = null; break;
+                    case <= 3: conditionToApply = new ActiveStatusEffect(StatusEffectType.AcuteStessSyndrome, -1); break;
+                    case 4: conditionToApply = new ActiveStatusEffect(StatusEffectType.PostTraumaticStressDisorder, -1); break;
+                    case 5: conditionToApply = new ActiveStatusEffect(StatusEffectType.FearDark, -1); break;
+                    case 6: conditionToApply = new ActiveStatusEffect(StatusEffectType.Arachnophobia, -1); break;
+                    case 7: conditionToApply = new ActiveStatusEffect(StatusEffectType.Jumpy, -1); break;
+                    case 8: conditionToApply = new ActiveStatusEffect(StatusEffectType.IrrationalFear, -1); break;
+                    case 9: conditionToApply = new ActiveStatusEffect(StatusEffectType.Claustrophobia, -1); break;
+                    case 10: conditionToApply = new ActiveStatusEffect(StatusEffectType.Depression, -1); break;
+                }
+                var hate = new PassiveAbilityService().GetHateTalentByCategory(MonsterLastFought.HateCategory);
+                if (conditionToApply == null && Talents.Any(t => hate != null && t.Name == hate.Name))
+                {
+                    Talents.Add(hate); 
+                    conditionApplied = true;
+                }
+                else if (conditionToApply != null)
+                {
+                    string outcome = StatusEffectService.AttemptToApplyStatus(this, conditionToApply);
+                    if (outcome != "Already affected") conditionApplied = true;
+                }
+            }
+
+        }
     }
 
     public enum MonsterBehaviorType
@@ -873,6 +923,7 @@ namespace LoDCompanion.BackEnd.Models
         }
         public List<string> Treasures { get; set; } = new List<string>();
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
+        public HateCategory HateCategory { get; set; } = HateCategory.Bandits;
 
         public Monster()
         {

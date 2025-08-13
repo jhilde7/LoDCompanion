@@ -188,14 +188,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
         new Prayer(){
-          Name = "Verse Of The Sane",
-          Level = 2,
-          PrayerEffect = "As long as this verse is read, the heroes are less prone to mental scars. Each event that would trigger a loss of a Sanity Point is negated by a RES test. If the test succeeds, the Sanity Point is not lost.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
           Name = "Shield Of The Gods",
           Level = 2,
           PrayerEffect = "The gods will protect the pious, and as long as this prayer is active, any wizard will be protected from miscast. Any Miscast roll can be ignored, although the priest will instead have to pass a RES test, or suffer 1d4 DMG with no armour and NA.",
