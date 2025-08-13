@@ -846,7 +846,13 @@ namespace LoDCompanion.BackEnd.Models
                 var result = await new UserRequestService().RequestRollAsync("Roll for condition", "1d10"); await Task.Yield();
                 switch (result.Roll)
                 {
-                    case 1: conditionToApply = null; break;
+                    case 1:
+                        string statusEffectName = "Hate" + MonsterLastFought.HateCategory.ToString();
+                        if (Enum.TryParse<StatusEffectType>(statusEffectName, out var statusEffect))
+                        {
+                            conditionToApply = new ActiveStatusEffect(statusEffect, -1);
+                        }
+                        break;
                     case <= 3: conditionToApply = new ActiveStatusEffect(StatusEffectType.AcuteStessSyndrome, -1); break;
                     case 4: conditionToApply = new ActiveStatusEffect(StatusEffectType.PostTraumaticStressDisorder, -1); break;
                     case 5: conditionToApply = new ActiveStatusEffect(StatusEffectType.FearDark, -1); break;
@@ -856,16 +862,10 @@ namespace LoDCompanion.BackEnd.Models
                     case 9: conditionToApply = new ActiveStatusEffect(StatusEffectType.Claustrophobia, -1); break;
                     case 10: conditionToApply = new ActiveStatusEffect(StatusEffectType.Depression, -1); break;
                 }
-                var hate = new PassiveAbilityService().GetHateTalentByCategory(MonsterLastFought.HateCategory);
-                if (conditionToApply == null && Talents.Any(t => hate != null && t.Name == hate.Name))
-                {
-                    Talents.Add(hate); 
-                    conditionApplied = true;
-                }
-                else if (conditionToApply != null)
+                if (conditionToApply != null)
                 {
                     string outcome = StatusEffectService.AttemptToApplyStatus(this, conditionToApply);
-                    if (outcome != "Already affected") conditionApplied = true;
+                    if (outcome != "Already affected") conditionApplied = true; 
                 }
             }
 

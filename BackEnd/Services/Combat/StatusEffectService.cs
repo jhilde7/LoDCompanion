@@ -9,6 +9,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
     /// </summary>
     public enum StatusEffectType
     {
+        NeedRest,
         Poisoned,
         Diseased,
         Stunned,

@@ -269,6 +269,16 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 foreach (var effect in hero.ActiveStatusEffects)
                 {
+                    if (effect.Category == StatusEffectType.GodsChampion)
+                    {
+                        hero.CurrentEnergy--;
+                        if( hero.CurrentEnergy < 0)
+                        {
+                            hero.CurrentEnergy = 0;
+                            StatusEffectService.AttemptToApplyStatus(hero, 
+                                new ActiveStatusEffect(StatusEffectType.NeedRest, -1, statBonus: (BasicStat.Constitution, -(int)Math.Floor(hero.GetStat(BasicStat.Constitution) / 2d))));
+                        }
+                    }
                     //Remove all active combat effects
                     if (effect.RemoveAfterCombat)
                     {

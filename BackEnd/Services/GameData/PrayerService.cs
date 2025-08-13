@@ -194,25 +194,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
           Duration = "Until enemy test succeeds (tested at start of every turn)."
         },*/
 
-        /*
-        new Prayer()
-        {
-            Name = "We Shall Not Falter",
-          Level = 4,
-          PrayerEffect = "All members of the party gain +5 HP that can temporarily give a hero more HP than its current max. After the battle, this goes back to the normal max HP.",
-          Duration = "Until end of battle."
-        },*/
-
-        /*
-        new Prayer()
-        {
-            Name = "Gods Champion",
-          Level = 4,
-          PrayerEffect = "The priest fights like a dervish, imbued by the power of their or them god. Combat Skill is increased by +15 but after the battle, the priest loses an additional Point of Energy. If there are not enough points, the Constitution of the priest is halved (RDD) until the next short rest or until the heroes leave the dungeon.",
-          Duration = "Until end of battle (effect on energy/constitution is after battle)."
-        }
-         */
-
     }
 
     public class Prayer
