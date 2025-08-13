@@ -114,6 +114,11 @@ namespace LoDCompanion.BackEnd.Models
         public bool CanAct => CurrentAP > 0;
         public bool Wounded => CurrentHP <= GetStat(BasicStat.HitPoints) / 2;
 
+        public bool TestResolve(int roll) => roll <= GetStat(BasicStat.Resolve);
+        public bool TestConstitution(int roll) => roll <= GetStat(BasicStat.Constitution);
+        public bool TestStrength(int roll) => roll <= GetStat(BasicStat.Strength);
+        public bool TestDexterity(int roll) => roll <= GetStat(BasicStat.Dexterity);
+
 
         // Constructor (optional, but good practice for initialization)
         public Character()
@@ -553,11 +558,11 @@ namespace LoDCompanion.BackEnd.Models
             {
                 if (talent.Name == TalentName.ResistDisease)
                 {
-                    con += 10;
+                    roll -= 10;
                 }
             }
 
-            return roll <= con;
+            return TestConstitution((int)roll);
         }
 
         public bool ResistPoison(int? roll = null)
@@ -573,11 +578,11 @@ namespace LoDCompanion.BackEnd.Models
             {
                 if (talent.Name == TalentName.ResistPoison)
                 {
-                    con += 10;
+                    roll -= 10;
                 }
             }
 
-            return roll <= con;
+            return TestConstitution((int)roll);
         }
 
         internal bool ResistFear(Monster fearCauser, int? roll = null)
@@ -600,7 +605,7 @@ namespace LoDCompanion.BackEnd.Models
                 }
             }
 
-            if (roll > this.GetStat(BasicStat.Resolve))
+            if (TestResolve((int)roll))
             {
                 AfraidOfTheseMonsters.Add(fearCauser);
                 return false;
@@ -629,7 +634,7 @@ namespace LoDCompanion.BackEnd.Models
                 }
             }
 
-            if (roll > this.GetStat(BasicStat.Resolve) - 20)
+            if (TestResolve((int)roll + 20))
             {
                 AfraidOfTheseMonsters.Add(fearCauser);
                 StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
