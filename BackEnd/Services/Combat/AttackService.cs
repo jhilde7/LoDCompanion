@@ -137,7 +137,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 int potentialDamage = weapon != null
                     ? CalculateWeaponPotentialDamage(weapon)
                     : attacker is Monster m ? CalculateMonsterPotentialDamage(m) : 0;
-                result = await ResolveAttackAgainstHeroAsync(attacker, heroTarget, potentialDamage, weapon, context, dungeon);
+                result = await ResolveAttackAgainstHeroAsync((Monster)attacker, heroTarget, potentialDamage, weapon, context, dungeon);
             }
             else if (target is Monster monsterTarget && weapon != null)
             {
@@ -218,7 +218,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Character attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState? dungeon = null)
+        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Monster attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState? dungeon = null)
         {
             var result = new AttackResult { IsHit = true };
 
@@ -230,9 +230,18 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 HitLocation location = DetermineHitLocation();
                 context = ApplyArmorToLocation(target, location, context, weapon);
-                result.DamageDealt = target.TakeDamage(result.DamageDealt, (_floatingText, target.Position), context);
+                if(attacker.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.GhostlyTouch))
+                {
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: target, stat: BasicStat.Resolve);
+                    if (target.TestResolve(rollResult.Roll))
+                    {
+                        result.DamageDealt = target.TakeDamage(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), ignoreAllArmour: true);
+                        await target.TakeSanityDamage(1); 
+                    }
+                }
+                else result.DamageDealt = target.TakeDamage(result.DamageDealt, (_floatingText, target.Position), context);
 
-                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
+                    result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
                     result.OutcomeMessage += CheckForQuickSlotDamage(target);
@@ -321,8 +330,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 modifier -= context.ObstaclesInLineOfSight * 10;
                 if (target is Monster targetMonster &&
-                    (targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge)
-                    || targetMonster.PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.Large)))
+                    (targetMonster.PassiveSpecials.Any(n => n.Key == MonsterSpecialName.XLarge)
+                    || targetMonster.PassiveSpecials.Any(n => n.Key == MonsterSpecialName.Large)))
                     modifier += 10;
                 if (context.HasAimed) modifier += 10;
             }
@@ -570,7 +579,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // Rule: Cannot shove large models
-            if (target is Monster monster && monster.PassiveSpecials.Any(s => s.Key.Name == MonsterSpecialName.Large || s.Key.Name == MonsterSpecialName.XLarge))
+            if (target is Monster monster && monster.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Large || s.Key == MonsterSpecialName.XLarge))
             {
                 result.OutcomeMessage = $"{target.Name} is too large to be moved!";
                 result.IsHit = false;
