@@ -316,6 +316,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     modifier += 10;
                 if (context.HasAimed) modifier += 10;
             }
+
             if (DirectionService.IsAttackingFromBehind(attacker, target)) modifier += 20;
             if (attacker.Position != null && target.Position != null && attacker.Position.Z > target.Position.Z) modifier += 10;
 
@@ -356,8 +357,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
             }
 
+            // attacker against tagrget CS/RS effecting talents/perks/prayers
             if(attacker is Monster m && m.IsUndead && target is Hero h 
                 && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
+            {
+                modifier -= 10;
+            }
+
+            // Fear modifier
+            if(attacker.AfraidOfTheseCharacters.Contains(target))
             {
                 modifier -= 10;
             }
