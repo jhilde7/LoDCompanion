@@ -269,6 +269,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         if (character is Hero heroToSave)
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                            heroToSave.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= heroToSave.GetStat(BasicStat.Resolve))
                             {
@@ -284,9 +285,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         break;
 
                     case StatusEffectType.Incapacitated:
-                        if (character is Hero)
+                        if (character is Hero heroToResist)
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                            heroToResist.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= character.GetStat(BasicStat.Resolve))
                             {
@@ -307,43 +309,40 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
                     case StatusEffectType.BeingSwallowed:
                         // First STR test
-                        if (effect.Duration > 0)
+                        if (effect.Duration > 0 && character is Hero heroBeingSwallowed1)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a strength test to resist the effects", "1d100"); await Task.Yield();
+                            heroBeingSwallowed1.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Strength);
                             int strTest1 = rollResult.Roll;
-                            if (strTest1 <= character.GetStat(BasicStat.Strength))
+                            if (strTest1 <= heroBeingSwallowed1.GetStat(BasicStat.Strength))
                             {
-                                character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
-                                Console.WriteLine($"{character.Name} breaks free from the creature's grasp!");
+                                heroBeingSwallowed1.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                                Console.WriteLine($"{heroBeingSwallowed1.Name} breaks free from the creature's grasp!");
                                 break;
                             }
-                            Console.WriteLine($"{character.Name} struggles but can't break free!\n");
-                            character.CurrentAP = 0;
+                            Console.WriteLine($"{heroBeingSwallowed1.Name} struggles but can't break free!\n");
+                            heroBeingSwallowed1.CurrentAP = 0;
                             break;
                         }
                         // Second STR test at half strength
-                        else if (effect.Duration == 0)
+                        else if (effect.Duration == 0 && character is Hero heroBeingSwallowed2)
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                            heroBeingSwallowed2.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Strength);
                             int strTest2 = rollResult.Roll;
-                            if (strTest2 <= character.GetStat(BasicStat.Strength) / 2)
+                            if (strTest2 <= heroBeingSwallowed2.GetStat(BasicStat.Strength) / 2)
                             {
-                                character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
-                                Console.WriteLine($"{character.Name} makes a last-ditch effort and escapes!");
+                                heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                                Console.WriteLine($"{heroBeingSwallowed2.Name} makes a last-ditch effort and escapes!");
                                 break;
                             }
                             // Swallowed whole
-                            character.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
-                            character.Position = null;
-                            character.CurrentAP = 0;
-                            AttemptToApplyStatus(character, new ActiveStatusEffect(StatusEffectType.Swallowed, -1));
-                            Console.WriteLine($"{character.Name} is swallowed whole!");
+                            heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                            heroBeingSwallowed2.Position = null;
+                            heroBeingSwallowed2.CurrentAP = 0;
+                            AttemptToApplyStatus(heroBeingSwallowed2, new ActiveStatusEffect(StatusEffectType.Swallowed, -1));
+                            Console.WriteLine($"{heroBeingSwallowed2.Name} is swallowed whole!");
                         }
-                        break;
-
-                    case StatusEffectType.IgnoreWounds:
-                        character.BasicStats[BasicStat.NaturalArmour] += 2; // Temporary bonus to NA
-
                         break;
                 }
 

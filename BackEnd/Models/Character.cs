@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using Microsoft.AspNetCore.Rewrite;
 using System.Collections;
 using System.Reflection.Emit;
 using System.Text;
@@ -544,6 +545,7 @@ namespace LoDCompanion.BackEnd.Models
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
+            CheckPerfectRoll((int)roll, stat: BasicStat.Constitution);
             int con = GetStat(BasicStat.Constitution);
 
             // Apply talent bonuses
@@ -564,6 +566,7 @@ namespace LoDCompanion.BackEnd.Models
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
+            CheckPerfectRoll((int)roll, stat: BasicStat.Constitution);
             int con = GetStat(BasicStat.Constitution);
 
             foreach (var talent in Talents)
@@ -586,6 +589,7 @@ namespace LoDCompanion.BackEnd.Models
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
+            CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
 
             foreach (var effect in ActiveStatusEffects)
             {
@@ -614,6 +618,7 @@ namespace LoDCompanion.BackEnd.Models
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
+            CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
 
             foreach (var effect in ActiveStatusEffects)
             {

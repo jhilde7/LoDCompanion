@@ -118,6 +118,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (monster.Position != null && hero.Position != null && GridService.GetDistance(monster.Position, hero.Position) <= 4)
                 {
                     var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                    hero.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
                     int resolveRoll = rollResult.Roll;
                     if (resolveRoll > hero.GetStat(BasicStat.Resolve))
                     {
@@ -303,6 +304,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             foreach (var hero in heroes)
             {
                 var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                hero.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
                 int resolveRoll = rollResult.Roll;
                 if (resolveRoll > hero.GetStat(BasicStat.Resolve) && hero.Position != null)
                 {
@@ -397,6 +399,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 var targetHero = adjacentHeroes[0];
 
                 var rollResult = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100"); await Task.Yield();
+                targetHero.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
                 int resolveRoll = rollResult.Roll;
 
                 if (resolveRoll > targetHero.GetStat(BasicStat.Resolve))
@@ -456,6 +459,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             // The hero must make a RES test.
             outcome += "Roll a resolve test to resist the effects.";
             var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+            target.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
             int resolveRoll = rollResult.Roll;
 
             if (resolveRoll > target.GetStat(BasicStat.Resolve))

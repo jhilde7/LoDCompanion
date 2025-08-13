@@ -104,6 +104,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 if (singleTarget != null)
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100"); await Task.Yield();
+                    caster.CheckPerfectRoll(resultRoll.Roll, skill: Skill.CombatSkill);
                     int touchAttackRoll = resultRoll.Roll;
                     if (touchAttackRoll > caster.GetSkill(Skill.CombatSkill) + 20)
                     {

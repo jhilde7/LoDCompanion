@@ -1,8 +1,9 @@
 ﻿using LoDCompanion.BackEnd.Models;
-using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Game;
-using System.Text;
+using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using Microsoft.AspNetCore.Rewrite;
+using System.Text;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -65,6 +66,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 } 
             }
             var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100"); await Task.Yield();
+            hero.CheckPerfectRoll(resultRoll.Roll, skill: Skill.Perception);
             int searchRoll = resultRoll.Roll;
 
 

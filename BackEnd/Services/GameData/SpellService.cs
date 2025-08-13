@@ -1514,6 +1514,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
             // --- Perform the Casting Roll ---
             var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100"); await Task.Yield();
+            caster.CheckPerfectRoll(resultRoll.Roll, skill: Skill.ArcaneArts);
             int roll = resultRoll.Roll;
 
             // --- Check for Miscast First ---

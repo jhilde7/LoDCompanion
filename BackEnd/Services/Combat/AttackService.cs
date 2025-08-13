@@ -160,6 +160,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
             var resultRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100"); await Task.Yield();
+            attacker.CheckPerfectRoll(resultRoll.Roll, skill: weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill);
             result.AttackRoll = resultRoll.Roll;
 
             if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
@@ -743,6 +744,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     result.OutcomeMessage += attackResult.OutcomeMessage;
                     // DEX test to avoid falling prone
                     var resultRoll = await _diceRoll.RequestRollAsync($"Roll a DEX test for {hero.Name} to stay standing.", "1d100"); await Task.Yield();
+                    hero.CheckPerfectRoll(resultRoll.Roll, stat: BasicStat.Dexterity);
                     int dexRoll = resultRoll.Roll;
                     if (dexRoll > hero.GetStat(BasicStat.Dexterity))
                     {
