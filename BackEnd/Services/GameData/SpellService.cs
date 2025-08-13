@@ -1508,7 +1508,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
             // --- Calculate Target Skill and Miscast Chance ---
             int arcaneArts = caster.GetSkill(Skill.ArcaneArts);
-            if (monster != null && caster.AfraidOfTheseCharacters.Contains(monster)) arcaneArts -= 10;
+            if (monster != null && caster.AfraidOfTheseMonsters.Contains(monster)) arcaneArts -= 10;
             int targetSkill = arcaneArts - CastingValue + focusPoints * 10;
             int miscastThreshold = 95 - focusPoints * 5 - powerLevels * 2;
 
