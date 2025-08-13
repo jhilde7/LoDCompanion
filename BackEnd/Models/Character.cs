@@ -471,6 +471,8 @@ namespace LoDCompanion.BackEnd.Models
         public bool HasDodgedThisBattle { get; set; } = false;
         public List<Monster> AfraidOfTheseMonsters { get; set; } = new List<Monster>();
         public Levelup Levelup { get; set; } = new Levelup();
+        public bool ReceivedPerfectRollSkill { get; set; } = false;
+        public bool ReceivedPerfectRollStat { get; set; } = false;
 
         // Constructor
         public Hero() : base() { }
@@ -806,6 +808,19 @@ namespace LoDCompanion.BackEnd.Models
                 9 => 70000,
                 _ => 0,
             };
+        }
+
+        internal void CheckPerfectRoll(int roll, Skill? skill, BasicStat? stat)
+        {
+            if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.CharusWalkWithUs) && roll <= 10 && roll > 5) CurrentEnergy += 1;
+            else if (roll <= 5)
+            {
+                CurrentEnergy += 1;
+                if (skill.HasValue && !ReceivedPerfectRollSkill) SetSkill(skill.Value, GetSkill(skill.Value) + 1);
+                if (stat.HasValue && !ReceivedPerfectRollStat) SetStat(stat.Value, GetStat(stat.Value) + 1);
+            }
+
+            if (CurrentEnergy > GetStat(BasicStat.Energy)) CurrentEnergy = GetStat(BasicStat.Energy);
         }
     }
 

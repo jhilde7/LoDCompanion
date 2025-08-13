@@ -38,6 +38,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         //--Prayers--
         Disciplined,
         BringerOfLight,
+        CharusWalkWithUs,
         PowerOfTheGods,
         ThePowerOfIphy,
         MetheiasWard,
@@ -131,7 +132,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         IrrationalFear,
         Claustrophobia,
         Depression
-  }
+    }
 
     /// <summary>
     /// Represents an active status effect on a character, including its duration.

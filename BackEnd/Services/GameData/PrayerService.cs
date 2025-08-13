@@ -8,7 +8,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
     {
         BringerOfLight,
         ThePowerOfIphy,
-        CharusWalkWithUS,
+        CharusWalkWithUs,
         MetheiasWard,
         PowerOfTheGods,
         LitanyOfMetheia,
@@ -48,7 +48,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
           EffectsParty = true
         },
         new Prayer(){
-          Name = PrayerName.CharusWalkWithUS,
+          Name = PrayerName.CharusWalkWithUs,
           Level = 1,
           PrayerEffect = "This prayer goes to Charus and as long as he listens, all heroes regain an Energy Point on any skill roll of 01-10, instead of the normal 01-05. Note that this only affects energy, not the other options you have if you roll 01-05. However, the priest will be too busy with the prayer to benefit from this.",
           Duration = "Until end of next battle, or 4 turns if used between battles.",
@@ -167,22 +167,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             return Prayers.FirstOrDefault(p => p.Name == name) ?? new Prayer();
         }
-
-        /*
-        new Prayer(){
-          Name = "The Power Of Iphy",
-          Level = 1,
-          PrayerEffect = "If they already have failed any Fear or Terror these tests, they may retake them with this bonus.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
-          Name = "Charas Walk With Us",
-          Level = 1,
-          PrayerEffect = "This prayer goes to Charus and as long as he listens, all heroes regain an Energy Point on any skill roll of 01-10, instead of the normal 01-05. Note that this only affects energy, not the other options you have if you roll 01-05. However, the priest will be too busy with the prayer to benefit from this.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
 
         /*
         new Prayer(){
