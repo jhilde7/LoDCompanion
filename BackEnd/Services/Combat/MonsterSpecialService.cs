@@ -304,7 +304,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 {
                     int damage = RandomHelper.RollDie(DiceType.D8);
                     hero.TakeDamage(damage, (_floatingText, hero.Position));
-                    hero.CurrentSanity -= 1;
+                    await hero.TakeSanityDamage(1);
                     outcome += $"{hero.Name} takes {damage} damage and loses 1 Sanity!\n";
                 }
                 else

@@ -589,7 +589,7 @@ namespace LoDCompanion.BackEnd.Models
 
         internal bool ResistFear(Monster fearCauser, int? roll = null)
         {
-            fearCauser.PassiveSpecials.TryGetValue(new MonsterPassiveSpecial() { Name = MonsterSpecialName.CauseFear }, out int level);
+            fearCauser.PassiveSpecials.TryGetValue(MonsterSpecialName.CauseFear, out int level);
             if (this.Level > level) return true;
 
             if (roll == null)
@@ -618,7 +618,7 @@ namespace LoDCompanion.BackEnd.Models
 
         internal bool ResistTerror(Monster fearCauser, int? roll = null)
         {
-            fearCauser.PassiveSpecials.TryGetValue(new MonsterPassiveSpecial() { Name = MonsterSpecialName.CauseTerror }, out int level);
+            fearCauser.PassiveSpecials.TryGetValue(MonsterSpecialName.CauseTerror, out int level);
             if (this.Level > level) return true;
             
             if (roll == null)
@@ -904,7 +904,7 @@ namespace LoDCompanion.BackEnd.Models
         public List<SpecialActiveAbility>? ActiveAbilities { get; set; }
         public int ToHitPenalty { get; set; }
         public int XP { get; set; }
-        public Dictionary<MonsterPassiveSpecial, int> PassiveSpecials { get; set; } = new Dictionary<MonsterPassiveSpecial, int>();
+        public Dictionary<MonsterSpecialName, int> PassiveSpecials { get; set; } = new Dictionary<MonsterSpecialName, int>();
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
         public bool IsUndead => Type == EncounterType.Undead || Behavior == MonsterBehaviorType.LowerUndead || Behavior == MonsterBehaviorType.HigherUndead;
         public List<Weapon> Weapons { get; set; } = new List<Weapon>();
@@ -974,7 +974,7 @@ namespace LoDCompanion.BackEnd.Models
             return newMonster;
         }
 
-        private void SetPassive(MonsterPassiveSpecial key, int value)
+        private void SetPassive(MonsterSpecialName key, int value)
         {
             PassiveSpecials.TryAdd(key, value);
         }
@@ -1022,13 +1022,13 @@ namespace LoDCompanion.BackEnd.Models
             int SizeY = 1;
             int SizeZ = 1;
 
-            if (PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.Large))
+            if (PassiveSpecials.Any(n => n.Key == MonsterSpecialName.Large))
             {
                 SizeX = 2;
                 SizeY = 2;
                 SizeZ = 1;
             }
-            if (PassiveSpecials.Any(n => n.Key.Name == MonsterSpecialName.XLarge))
+            if (PassiveSpecials.Any(n => n.Key == MonsterSpecialName.XLarge))
             {
                 SizeX = 2;
                 SizeY = 3;

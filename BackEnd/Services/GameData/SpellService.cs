@@ -1524,7 +1524,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 caster.CurrentMana -= result.ManaSpent;
                 resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6"); await Task.Yield();
                 int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);
-                caster.CurrentSanity -= sanityLoss;
+                await caster.TakeSanityDamage(sanityLoss);
                 caster.CurrentAP = 0; // Turn ends immediately
 
                 result.OutcomeMessage = $"Miscast! {caster.Name} loses {sanityLoss} sanity and their turn ends.";
