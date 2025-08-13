@@ -204,7 +204,21 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private static void ApplyStatus(Character target, ActiveStatusEffect effect)
         {
             target.ActiveStatusEffects.Add(effect);
-            Console.WriteLine($"{target.Name} is now {effect.Category}!");
+            Console.WriteLine($"{target.Name} is now has effect of {effect.Category}!");
+            if (target is Hero hero)
+            {
+                switch (effect.Category)
+                {
+                    case StatusEffectType.ThePowerOfIphy:
+                        foreach (var monster in hero.AfraidOfTheseMonsters)
+                        {
+                            bool resisted = false;
+                            resisted = hero.ResistFear(monster);
+                            if (resisted) hero.AfraidOfTheseMonsters.Remove(monster); Console.WriteLine($"{hero.Name} is no longer afraid of {monster.Name}");
+                        }
+                        break;
+                };
+            } 
         }
 
         /// <summary>
