@@ -78,6 +78,26 @@ namespace LoDCompanion.BackEnd.Services.Game
                 };
             }
 
+            // Route to specific handlers
+            if (spell.School == MagicSchool.Restoration && singleTarget != null)
+            {
+                return await HandleHealingSpellAsync(caster, spell, singleTarget, options);
+            }
+            if (spell.School == MagicSchool.Destruction)
+            {
+                return await HandleDamageSpellAsync(caster, spell, initialTarget, options);
+            }
+            if (spell.School == MagicSchool.Conjuration)
+            {
+                return HandleSummoningSpell(caster, centerPosition, spell);
+            }
+            // All other schools fall under "Utility" which includes buffs, debuffs, etc.
+            if (singleTarget != null)
+            {
+                return await HandleUtilitySpellAsync(caster, spell, singleTarget, options);
+            }
+
+            /* TODO: handle touch spells in the attackservice
             // Handle Touch Spells first, as they require a to-hit roll
             if (spell.HasProperty(SpellProperty.Touch))
             {
@@ -98,26 +118,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     return new SpellCastResult { IsSuccess = false, OutcomeMessage = "Invalid target for spell." };
                 }
-            }
-
-            // Route to specific handlers
-            if (spell.School == MagicSchool.Restoration && singleTarget != null)
-            {
-                return await HandleHealingSpellAsync(caster, spell, singleTarget, options);
-            }
-            if (spell.School == MagicSchool.Destruction)
-            {
-                return await HandleDamageSpellAsync(caster, spell, initialTarget, options);
-            }
-            if (spell.School == MagicSchool.Conjuration)
-            {
-                return HandleSummoningSpell(caster, centerPosition, spell);
-            }
-            // All other schools fall under "Utility" which includes buffs, debuffs, etc.
-            if (singleTarget != null)
-            {
-                return await HandleUtilitySpellAsync(caster, spell, singleTarget, options);
-            }
+            }*/
 
             return new SpellCastResult
             {
