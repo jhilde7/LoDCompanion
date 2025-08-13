@@ -170,14 +170,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
         new Prayer(){
-          Name = "Metheias Ward",
-          Level = 1,
-          PrayerEffect = "Under the protection of Metheia, the priest regains 1 lost HP at the start of their activation, for the rest of the battle.",
-          Duration = "For the rest of the battle."
-        },*/
-
-        /*
-        new Prayer(){
           Name = "Power Of The Gods",
           Level = 1,
           PrayerEffect = "By channelling the power of the gods and diverting it to a wizard, the priest can help conjure a spell. As long as the prayer is active, any hero wizard gains +10 Arcane Arts.",

@@ -365,6 +365,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             Console.WriteLine($"{heroBeingSwallowed2.Name} is swallowed whole!");
                         }
                         break;
+
+                        case StatusEffectType.MetheiasWard when character.CurrentHP < character.GetStat(BasicStat.HitPoints): character.CurrentHP += 1; break;
                 }
 
                 // Decrease duration and remove if expired.
