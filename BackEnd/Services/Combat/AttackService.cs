@@ -34,6 +34,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         // Ranged Specific Modifiers
         public bool HasAimed { get; set; }
         public int ObstaclesInLineOfSight { get; set; }
+        public bool IsTouch { get; set; }
     }
 
     /// <summary>
@@ -53,15 +54,18 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private readonly FloatingTextService _floatingText;
         private readonly UserRequestService _diceRoll;
         private readonly MonsterSpecialService _monsterSpecial;
+        private readonly SpellResolutionService _spellResolution;
 
         public AttackService(
             FloatingTextService floatingTextService,
             UserRequestService diceRollService,
-            MonsterSpecialService monsterSpecialService)
+            MonsterSpecialService monsterSpecialService,
+            SpellResolutionService spellResolutionService)
         {
             _floatingText = floatingTextService;
             _diceRoll = diceRollService;
             _monsterSpecial = monsterSpecialService;
+            _spellResolution = spellResolutionService;
 
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
@@ -69,6 +73,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _monsterSpecial.OnSweepingStrikeAttack += HandleSweepingStrikeAttack;
             _monsterSpecial.OnTongueAttack += HandleTongueAttack;
             _monsterSpecial.OnWebAttack += HandleWebAttempt;
+            _spellResolution.OnTouchAttack += HandleTouchAttack;
+
         }
 
         /// <summary>
@@ -159,8 +165,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
             int baseSkill = weapon?.IsRanged ?? false ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
             int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
-            var resultRoll = await _diceRoll.RequestRollAsync("Roll to-hit.", "1d100"); await Task.Yield();
-            attacker.CheckPerfectRoll(resultRoll.Roll, skill: weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill);
+            var resultRoll = await _diceRoll.RequestRollAsync(
+                "Roll to-hit.", "1d100",
+                hero: attacker, skill: weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill); 
+            await Task.Yield();
             result.AttackRoll = resultRoll.Roll;
 
             if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
@@ -323,6 +331,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (context.IsChargeAttack) modifier += 10;
             if (context.IsPowerAttack) modifier += 20;
+            if (context.IsTouch) modifier += 20;
             if (target.CombatStance == CombatStance.Prone) modifier += 30;
             if (monsterWeapon != null)
             {
@@ -743,18 +752,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     }
                     result.OutcomeMessage += attackResult.OutcomeMessage;
                     // DEX test to avoid falling prone
-                    var resultRoll = await _diceRoll.RequestRollAsync($"Roll a DEX test for {hero.Name} to stay standing.", "1d100"); await Task.Yield();
-                    hero.CheckPerfectRoll(resultRoll.Roll, stat: BasicStat.Dexterity);
-                    int dexRoll = resultRoll.Roll;
-                    if (dexRoll > hero.GetStat(BasicStat.Dexterity))
-                    {
-                        StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1));
-                        result.OutcomeMessage += $"{hero.Name} is knocked off their feet!\n";
-                    }
-                    else
-                    {
-                        result.OutcomeMessage += $"{hero.Name} manages to stay standing.\n";
-                    }
+                    var resultRoll = await _diceRoll.RequestRollAsync(
+                        $"Roll a DEX test for {hero.Name} to stay standing.", "1d100",
+                        hero: hero, stat: BasicStat.Dexterity); 
+                    await Task.Yield();
+                    result.OutcomeMessage += StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1), resultRoll.Roll);
 
                     if (!isBlocked)
                     {
@@ -839,6 +841,30 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
             }
             return Task.FromResult(result);
+        }
+
+        public async Task<AttackResult> HandleTouchAttack(Hero attacker, Monster target)
+        {
+            var result = new AttackResult();
+            result = await CalculateHeroHitAttemptAsync(attacker, null, target, new CombatContext() { IsTouch = true });
+            if (!result.IsHit)
+            {
+                if (!result.IsHit && target.Position != null)
+                {
+                    _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+                }
+                return result; // If the attack missed, return early.
+            }
+            else // attack can be parried or dodged as normal
+            {
+                DefenseResult defenseResult = await ResolveHeroDefenseAsync(target, 0);
+                if (defenseResult.WasSuccessful)
+                {
+                    result.IsHit = false; // The attack was successfully defended
+                    result.OutcomeMessage = defenseResult.OutcomeMessage;
+                }
+            }
+            return result;
         }
     }
 }

@@ -47,6 +47,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly FloatingTextService _floatingText;
 
         public event Action? OnTimeFreezeCast;
+        public event Func<Hero, Monster, Task<AttackResult>>? OnTouchAttack;
 
         public SpellResolutionService(
             DungeonState dungeonState,
@@ -97,16 +98,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                 return await HandleUtilitySpellAsync(caster, spell, singleTarget, options);
             }
 
-            /* TODO: handle touch spells in the attackservice
             // Handle Touch Spells first, as they require a to-hit roll
             if (spell.HasProperty(SpellProperty.Touch))
             {
-                if (singleTarget != null)
+                if (singleTarget != null && OnTouchAttack != null && singleTarget is Monster monster)
                 {
-                    var resultRoll = await _diceRoll.RequestRollAsync("Roll to touch target", "1d100"); await Task.Yield();
-                    caster.CheckPerfectRoll(resultRoll.Roll, skill: Skill.CombatSkill);
-                    int touchAttackRoll = resultRoll.Roll;
-                    if (touchAttackRoll > caster.GetSkill(Skill.CombatSkill) + 20)
+                    var result = await OnTouchAttack.Invoke(caster, monster);
+                    if (!result.IsHit)
                     {
                         return new SpellCastResult
                         {
@@ -119,7 +117,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     return new SpellCastResult { IsSuccess = false, OutcomeMessage = "Invalid target for spell." };
                 }
-            }*/
+            }
 
             return new SpellCastResult
             {
