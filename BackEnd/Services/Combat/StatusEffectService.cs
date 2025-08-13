@@ -1,7 +1,6 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.Game;
-using LoDCompanion.BackEnd.Services.GameData;
 
 namespace LoDCompanion.BackEnd.Services.Combat
 {
@@ -347,11 +346,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public static void RemoveActiveStatusEffect(Character character, ActiveStatusEffect effect)
         {
             character.ActiveStatusEffects.Remove(effect);
-        }
-
-        public static List<Prayer> GetMonsterEffectingPrayers()
-        {
-
         }
     }
 }
