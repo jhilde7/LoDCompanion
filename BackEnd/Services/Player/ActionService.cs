@@ -71,6 +71,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly SpellCastingService _spellCasting;
         private readonly SpellResolutionService _spellResolution;
         private readonly PowerActivationService _powerActivation;
+        private readonly PartyManagerService _partyManager;
 
         public ActionService(
             DungeonManagerService dungeonManagerService,
@@ -82,7 +83,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             UserRequestService diceRollService,
             SpellCastingService spellCastingService,
             SpellResolutionService spellResolutionService,
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            PartyManagerService partyManager)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -94,6 +96,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             _spellCasting = spellCastingService;
             _spellResolution = spellResolutionService;
             _powerActivation = powerActivationService;
+            _partyManager = partyManager;
         }
 
         /// <summary>
@@ -494,7 +497,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         }
                         else
                         {
-                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, options.FocusPoints, options.PowerLevels, 
+                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, _partyManager, options.FocusPoints, options.PowerLevels, 
                                 monster: (primaryTarget is Monster) ? (Monster)primaryTarget : null);
                             resultMessage = spellCastResult.OutcomeMessage;
 

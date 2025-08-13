@@ -188,14 +188,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
         new Prayer(){
-          Name = "Shield Of The Gods",
-          Level = 2,
-          PrayerEffect = "The gods will protect the pious, and as long as this prayer is active, any wizard will be protected from miscast. Any Miscast roll can be ignored, although the priest will instead have to pass a RES test, or suffer 1d4 DMG with no armour and NA.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
           Name = "Strengths Of Ohlnir",
           Level = 3,
           PrayerEffect = "The party feels invigorated, and their weapons feel like feathers in their hands. All members of the party gain +10 Strength.",

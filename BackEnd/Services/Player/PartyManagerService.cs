@@ -60,7 +60,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             var gameState = _gameStateManager.GameState;
             if (gameState.CurrentParty != null)
             {
-                return gameState.CurrentParty!;
+                return gameState.CurrentParty;
             }
             else
             {

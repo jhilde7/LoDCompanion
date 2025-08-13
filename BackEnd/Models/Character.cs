@@ -840,7 +840,7 @@ namespace LoDCompanion.BackEnd.Models
             bool resisted = false;
             if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.VerseOfTheSane))
             {
-                var result = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100");
+                var result = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100"); await Task.Yield();
                 resisted = TestResolve(result.Roll);
             }
             
@@ -855,7 +855,7 @@ namespace LoDCompanion.BackEnd.Models
             while (!conditionApplied)
             {
                 ActiveStatusEffect? conditionToApply = null;
-                var result = await new UserRequestService().RequestRollAsync("Roll for condition", "1d10");
+                var result = await new UserRequestService().RequestRollAsync("Roll for condition", "1d10"); await Task.Yield();
                 switch (result.Roll)
                 {
                     case 1: conditionToApply = null; break;

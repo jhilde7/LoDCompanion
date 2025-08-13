@@ -232,7 +232,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 context = ApplyArmorToLocation(target, location, context, weapon);
                 if(attacker.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.GhostlyTouch))
                 {
-                    var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: target, stat: BasicStat.Resolve);
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: target, stat: BasicStat.Resolve); await Task.Yield();
                     if (target.TestResolve(rollResult.Roll))
                     {
                         result.DamageDealt = target.TakeDamage(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), ignoreAllArmour: true);

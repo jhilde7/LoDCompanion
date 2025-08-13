@@ -369,7 +369,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
                         case StatusEffectType.MetheiasWard when character.CurrentHP < character.GetStat(BasicStat.HitPoints): character.CurrentHP += 1; break;
                         case StatusEffectType.LitanyOfMetheia when character.CurrentHP < character.GetStat(BasicStat.HitPoints):
-                            var resultRoll = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100");
+                            var resultRoll = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100"); await Task.Yield();
                             if (character.TestResolve(resultRoll.Roll)) character.CurrentHP += 1;
                         break;
                 }

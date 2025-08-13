@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.Player;
 
 namespace LoDCompanion.BackEnd.Services.GameData
 {
@@ -1477,7 +1478,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         /// <param name="focusPoints">The number of AP spent on focusing before the cast.</param>
         /// <param name="powerLevels">The number of power levels to add (for Destruction/Restoration spells).</param>
         /// <returns>A SpellCastResult object detailing the outcome.</returns>
-        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, int focusPoints = 0, int powerLevels = 0, Monster? monster = null)
+        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, PartyManagerService partyManager, int focusPoints = 0, int powerLevels = 0, Monster? monster = null)
         {
             if (caster.Position == null) return new SpellCastResult();
             var result = new SpellCastResult();
@@ -1522,12 +1523,27 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 result.IsMiscast = true;
                 result.ManaSpent = finalManaCost;
                 caster.CurrentMana -= result.ManaSpent;
-                resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6"); await Task.Yield();
-                int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);
-                await caster.TakeSanityDamage(sanityLoss);
+                if (!caster.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ShieldOfTheGods))
+                {
+                    resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6"); await Task.Yield();
+                    int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);
+                    await caster.TakeSanityDamage(sanityLoss); 
+                    result.OutcomeMessage = $"Miscast! {caster.Name} loses {sanityLoss} sanity and their turn ends.";
+                }
+                else
+                {
+                    if (partyManager.Party != null)
+                    {
+                        var priest = partyManager.Party.Heroes.FirstOrDefault(h => h.ProfessionName == "Warrior Priest");
+                        resultRoll = await diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: priest, stat: BasicStat.Resolve); await Task.Yield();
+                        if (priest != null && priest.Position != null && priest.TestResolve(resultRoll.Roll))
+                        {
+                            priest.TakeDamage(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), ignoreAllArmour: true);
+                        }
+                    }
+                }
                 caster.CurrentAP = 0; // Turn ends immediately
 
-                result.OutcomeMessage = $"Miscast! {caster.Name} loses {sanityLoss} sanity and their turn ends.";
                 return result;
             }
 
