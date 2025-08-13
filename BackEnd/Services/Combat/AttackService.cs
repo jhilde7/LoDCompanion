@@ -343,7 +343,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     {
                         modifier -= 5;
                     }
-                    // A Parry Stance makes the hero harder to hit.
+                    // A Parry Stance makes the target harder to hit.
                     if (target.CombatStance == CombatStance.Parry)
                     {
                         modifier -= 10;
@@ -354,6 +354,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         }
                     }
                 }
+            }
+
+            if(attacker is Monster m && m.IsUndead && target is Hero h 
+                && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
+            {
+                modifier -= 10;
             }
 
             return modifier;
