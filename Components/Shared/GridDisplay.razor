@@ -280,8 +280,7 @@
                             Attack (@(ActionService.GetActionCost(ActionType.StandardAttack)) AP)
                         </Item>
                     }
-                    @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Weapons.Any(w =>
-                        w.IsMelee))
+                    @if (activeHero.CurrentAP >= ActionService.GetActionCost(ActionType.PowerAttack) && activeHero.Inventory.EquippedWeapon != null)
                     {
                         <Item
                             OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.PowerAttack, Target = targetMonster }))">
@@ -360,8 +359,22 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentAP >=
-                ActionService.GetActionCost(ActionType.Pray)
+            @if (activeHero.CurrentEnergy >= 1 && activeHero.Perks != null && activeHero.Perks.Any())
+            {
+                <Item>
+                    <span>Use Perk</span>
+                    <SubMenu Label="Use Perk">
+                        @foreach (var perk in activeHero.Perks)
+                        {
+                            <Item OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.UsePerk, Target = activeHero, SecondaryTarget = perk }))">
+                                @perk.Name
+                            </Item>
+                        }
+                    </SubMenu>
+                </Item>
+            }
+
+            @if (activeHero.ProfessionName == "Warrior Priest" && activeHero.CurrentEnergy >= 1
                 && activeHero.Prayers != null && activeHero.Prayers.Any())
             {
                 <Item>
@@ -370,7 +383,7 @@
                         @foreach (var prayer in activeHero.Prayers)
                         {
                             <Item
-                                OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = prayer }))">
+                                OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.Pray, Target = activeHero, SecondaryTarget = prayer }))">
                                 @prayer.Name
                             </Item>
                         }
