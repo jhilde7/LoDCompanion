@@ -600,7 +600,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case (Hero hero, ActionType.Pray):
                     if (secondaryTarget is Prayer prayerToCast
-                        && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.Replace(" ", ""))))
+                        && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.ToString())))
                     {
                         resultMessage = _powerActivation.ActivatePrayer(hero, prayerToCast, (Character?)primaryTarget);
                     }

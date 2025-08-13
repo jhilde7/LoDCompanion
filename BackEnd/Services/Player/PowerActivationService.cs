@@ -22,7 +22,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public string ActivatePrayer(Hero hero, Prayer prayer, Character? target = null)
         {
-            var effect = new ActiveStatusEffect((StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayer.Name.Replace(" ", "")), -1);
+            var effect = new ActiveStatusEffect((StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayer.Name.ToString()), -1);
             StatusEffectService.AttemptToApplyStatus(target ?? hero, effect);
             hero.CurrentEnergy--;
             return $"{hero.Name} prayed for {prayer.Name}!";
