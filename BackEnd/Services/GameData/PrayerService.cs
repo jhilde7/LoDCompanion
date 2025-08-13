@@ -188,35 +188,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
         new Prayer(){
-          Name = "Strengths Of Ohlnir",
-          Level = 3,
-          PrayerEffect = "The party feels invigorated, and their weapons feel like feathers in their hands. All members of the party gain +10 Strength.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
-          Name = "Warriors Of Ramos",
-          Level = 3,
-          PrayerEffect = "As if the gods guide the weapons of the heroes, all seem to fight with renewed power. All members of the party fight with +5 CS.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
           Name = "Stay Thy Hand",
           Level = 3,
           PrayerEffect = "The enemies seem to slow down, as if questioning whether to fight or not. All enemies within 4 squares of the priest must pass a Resolve Test and will lose 1 Action Point during that turn. Test at the start of every turn. This effect is not cumulative with any other effect causing an enemy to lose an action. For instance, a wounded enemy will not be affected by this prayer.",
           Duration = "Until enemy test succeeds (tested at start of every turn)."
-        },*/
-
-        /*
-        new Prayer()
-        {
-            Name = "Providence Of Metheia",
-          Level = 3,
-          PrayerEffect = "Metheia will shield its children and protect them from harm. While this prayer is active, all heroes get +10 CON when rolling to resist disease or poison.",
-          Duration = "While prayer is active (until end of next battle, or 4 turns if used between battles)."
         },*/
 
         /*

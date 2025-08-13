@@ -547,7 +547,6 @@ namespace LoDCompanion.BackEnd.Models
 
         public bool ResistDisease(int? roll = null)
         {
-            // This method would use a RandomHelper service or static method now
             if (roll == null)
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
@@ -555,14 +554,8 @@ namespace LoDCompanion.BackEnd.Models
             CheckPerfectRoll((int)roll, stat: BasicStat.Constitution);
             int con = GetStat(BasicStat.Constitution);
 
-            // Apply talent bonuses
-            foreach (Talent talent in Talents)
-            {
-                if (talent.Name == TalentName.ResistDisease)
-                {
-                    roll -= 10;
-                }
-            }
+            if (Talents.Any(t => t.Name == TalentName.ResistDisease)) roll -= 10;
+            if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
             return TestConstitution((int)roll);
         }
@@ -576,13 +569,8 @@ namespace LoDCompanion.BackEnd.Models
             CheckPerfectRoll((int)roll, stat: BasicStat.Constitution);
             int con = GetStat(BasicStat.Constitution);
 
-            foreach (var talent in Talents)
-            {
-                if (talent.Name == TalentName.ResistPoison)
-                {
-                    roll -= 10;
-                }
-            }
+            if (Talents.Any(t => t.Name == TalentName.ResistPoison)) roll -= 10;
+            if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
             return TestConstitution((int)roll);
         }
