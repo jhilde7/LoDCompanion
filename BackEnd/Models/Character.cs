@@ -62,7 +62,6 @@ namespace LoDCompanion.BackEnd.Models
         public Dictionary<Skill, int> SkillStats { get; set; }
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
         public virtual bool HasShield { get; set; } // Indicates if the character has a shield
-        public List<Character> AfraidOfTheseCharacters { get; set; } = new List<Character>();
         private Room? _room;
         public Room Room
         {
@@ -470,6 +469,7 @@ namespace LoDCompanion.BackEnd.Models
 
         public bool HasBeenTargetedThisTurn { get; set; }
         public bool HasDodgedThisBattle { get; set; } = false;
+        public List<Monster> AfraidOfTheseMonsters { get; set; } = new List<Monster>();
         public Levelup Levelup { get; set; } = new Levelup();
 
         // Constructor
@@ -596,7 +596,7 @@ namespace LoDCompanion.BackEnd.Models
 
             if (roll > this.GetStat(BasicStat.Resolve))
             {
-                AfraidOfTheseCharacters.Add(fearCauser);
+                AfraidOfTheseMonsters.Add(fearCauser);
                 return false;
             }
 
@@ -624,7 +624,7 @@ namespace LoDCompanion.BackEnd.Models
 
             if (roll > this.GetStat(BasicStat.Resolve) - 20)
             {
-                AfraidOfTheseCharacters.Add(fearCauser);
+                AfraidOfTheseMonsters.Add(fearCauser);
                 StatusEffectService.AttemptToApplyStatus(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
                 return false;
             }

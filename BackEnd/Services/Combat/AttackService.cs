@@ -358,14 +358,14 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // attacker against tagrget CS/RS effecting talents/perks/prayers
-            if(attacker is Monster m && m.IsUndead && target is Hero h 
+            if(attacker is Monster m && m.IsUndead && target is Hero h
                 && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
             {
                 modifier -= 10;
             }
 
             // Fear modifier
-            if(attacker.AfraidOfTheseCharacters.Contains(target))
+            if(attacker is Hero afraidHero && afraidHero.AfraidOfTheseMonsters.Contains(target))
             {
                 modifier -= 10;
             }
