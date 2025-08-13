@@ -154,6 +154,20 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     hero.HasMadeFirstMoveAction = false;
                     hero.ResetMovementPoints();
                 }
+                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics))
+                {
+                    foreach(var monster in MonstersInCombat)
+                    {
+                        if (hero.Position != null && monster.Position != null)
+                        {
+                            int distance = GridService.GetDistance(hero.Position, monster.Position);
+                            if (distance <= 4 && monster.TestResolve(RandomHelper.RollDie(DiceType.D100)))
+                            {
+                                monster.TakeDamage(1, (_floatingText, monster.Position), ignoreAllArmour: true);
+                            }
+                        }
+                    }
+                }
             }
             foreach (var monster in MonstersInCombat)
             {

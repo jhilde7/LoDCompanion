@@ -298,7 +298,7 @@ namespace LoDCompanion.BackEnd.Models
         }
 
         // Common methods for all characters
-        public virtual int TakeDamage(int damage, (FloatingTextService, GridPosition?) floatingText, CombatContext? combatContext = null, DamageType? damageType = null)
+        public virtual int TakeDamage(int damage, (FloatingTextService, GridPosition?) floatingText, CombatContext? combatContext = null, DamageType? damageType = null, bool ignoreAllArmour = false)
         {
             int naturalArmour = GetStat(BasicStat.NaturalArmour);
             bool fireDamage = combatContext != null && combatContext.IsFireDamage || damageType == DamageType.Fire;
@@ -312,11 +312,11 @@ namespace LoDCompanion.BackEnd.Models
                 naturalArmour += 2; // Ignore Wounds effect adds +2 to natural armour
             }
 
-            if (!fireDamage || !acidDamage)
+            if (!fireDamage || !acidDamage || !ignoreAllArmour)
             {
                 damage -= naturalArmour; //natural armour is not affected by armour piercing 
             }
-            if (!fireDamage)
+            if (!fireDamage || !ignoreAllArmour)
             {
                 damage -= combatContext?.ArmourValue ?? 0; // Apply any armour value from the combat context 
             }
