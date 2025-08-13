@@ -172,7 +172,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         new Prayer(){
           Name = "The Power Of Iphy",
           Level = 1,
-          PrayerEffect = "This empowering psalm strengthens your resolve. The party gets +10 RES on any Fear or Terror Test during the battle. If they already have failed these tests, they may retake them with this bonus.",
+          PrayerEffect = "If they already have failed any Fear or Terror these tests, they may retake them with this bonus.",
           Duration = "Until end of next battle, or 4 turns if used between battles."
         },*/
 

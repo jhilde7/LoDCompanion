@@ -173,7 +173,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
-        public static void AttemptToApplyStatus(Character target, ActiveStatusEffect effect, int? resistRoll = null)
+        public static void AttemptToApplyStatus(Character target, ActiveStatusEffect effect, int? resistRoll = null, Monster? monster = null)
         {
             if (target.ActiveStatusEffects.Any(e => e.Category == effect.Category)) return; // Already affected
 
@@ -183,6 +183,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 // Perform the CON test based on the effect type
                 if (effect.Category == StatusEffectType.Poisoned) resisted = hero.ResistPoison(resistRoll);
                 if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll);
+                if (effect.Category == StatusEffectType.Fear && monster != null) resisted = hero.ResistFear(monster, resistRoll);
+                if (effect.Category == StatusEffectType.Terror && monster != null) resisted = hero.ResistTerror(monster, resistRoll);
             }
 
             if (!resisted)

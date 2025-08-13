@@ -1477,7 +1477,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         /// <param name="focusPoints">The number of AP spent on focusing before the cast.</param>
         /// <param name="powerLevels">The number of power levels to add (for Destruction/Restoration spells).</param>
         /// <returns>A SpellCastResult object detailing the outcome.</returns>
-        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, int focusPoints = 0, int powerLevels = 0)
+        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, int focusPoints = 0, int powerLevels = 0, Monster? monster = null)
         {
             if (caster.Position == null) return new SpellCastResult();
             var result = new SpellCastResult();
@@ -1491,7 +1491,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 return result;
             }
 
-            if (adjacentEnemies && HasProperty(SpellProperty.Touch))
+            if (adjacentEnemies && !HasProperty(SpellProperty.Touch))
             {
                 result.OutcomeMessage = "Cannot cast non-Touch spells while adjacent to an enemy.";
                 result.ManaSpent = 0;
@@ -1508,6 +1508,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
             // --- Calculate Target Skill and Miscast Chance ---
             int arcaneArts = caster.GetSkill(Skill.ArcaneArts);
+            if (monster != null && caster.AfraidOfTheseCharacters.Contains(monster)) arcaneArts -= 10;
             int targetSkill = arcaneArts - CastingValue + focusPoints * 10;
             int miscastThreshold = 95 - focusPoints * 5 - powerLevels * 2;
 
