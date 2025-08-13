@@ -19,6 +19,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Pit,
         Fear,
         Terror,
+        Bellow,
         Entangled,
         Petrified,
         Incapacitated,
@@ -174,9 +175,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
-        public static void AttemptToApplyStatus(Character target, ActiveStatusEffect effect, int? resistRoll = null, Monster? monster = null)
+        public static string AttemptToApplyStatus(Character target, ActiveStatusEffect effect, int? resistRoll = null, Monster? monster = null)
         {
-            if (target.ActiveStatusEffects.Any(e => e.Category == effect.Category)) return; // Already affected
+            if (target.ActiveStatusEffects.Any(e => e.Category == effect.Category)) return "Already affected";
 
             bool resisted = false;
             if (target is Hero hero)
@@ -188,24 +189,32 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (effect.Category == StatusEffectType.Terror && monster != null) resisted = hero.ResistTerror(monster, resistRoll);
             }
 
+            if (effect.Category == StatusEffectType.Incapacitated 
+                || effect.Category == StatusEffectType.Petrified
+                || effect.Category == StatusEffectType.Bellow) 
+                resisted = target.TestResolve(resistRoll ?? RandomHelper.RollDie(DiceType.D100));
+
+            if (effect.Category == StatusEffectType.Prone)
+                resisted = target.TestDexterity(resistRoll ?? RandomHelper.RollDie(DiceType.D100));
+
             if (!resisted)
             {
-                ApplyStatus(target, effect);
                 if (effect.Category == StatusEffectType.Prone) target.CombatStance = CombatStance.Prone;
+                if (effect.Category == StatusEffectType.Bellow) effect = new ActiveStatusEffect(StatusEffectType.Stunned, effect.Duration);
+                return ApplyStatus(target, effect);
             }
             else
             {
-                Console.WriteLine($"{target.Name} resisted the {effect.Category} effect!");
+                return $"{target.Name} resisted the {effect.Category} effect!";
             }
         }
 
         /// <summary>
         /// Applies a new status effect to a target character.
         /// </summary>
-        private static void ApplyStatus(Character target, ActiveStatusEffect effect)
+        private static string ApplyStatus(Character target, ActiveStatusEffect effect)
         {
             target.ActiveStatusEffects.Add(effect);
-            Console.WriteLine($"{target.Name} is now has effect of {effect.Category}!");
             if (target is Hero hero)
             {
                 switch (effect.Category)
@@ -220,6 +229,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         break;
                 };
             } 
+
+            return $"{target.Name} is now has effect of {effect.Category}!";
         }
 
         /// <summary>
@@ -268,8 +279,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     case StatusEffectType.Seduce:
                         if (character is Hero heroToSave)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
-                            heroToSave.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
+                            var rollResult = await new UserRequestService().RequestRollAsync(
+                                "Roll a resolve test to resist the effects", "1d100",
+                                hero: heroToSave, stat: BasicStat.Resolve);
+                            await Task.Yield();
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= heroToSave.GetStat(BasicStat.Resolve))
                             {
@@ -287,8 +300,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     case StatusEffectType.Incapacitated:
                         if (character is Hero heroToResist)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
-                            heroToResist.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
+                            var rollResult = await new UserRequestService().RequestRollAsync(
+                                "Roll a resolve test to resist the effects", "1d100",
+                                hero: heroToResist, stat: BasicStat.Resolve); 
+                            await Task.Yield();
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= character.GetStat(BasicStat.Resolve))
                             {
@@ -311,7 +326,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         // First STR test
                         if (effect.Duration > 0 && character is Hero heroBeingSwallowed1)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a strength test to resist the effects", "1d100"); await Task.Yield();
+                            var rollResult = await new UserRequestService().RequestRollAsync(
+                                "Roll a strength test to resist the effects", "1d100",
+                                hero: heroBeingSwallowed1, stat: BasicStat.Strength);
+                            await Task.Yield();
                             heroBeingSwallowed1.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Strength);
                             int strTest1 = rollResult.Roll;
                             if (strTest1 <= heroBeingSwallowed1.GetStat(BasicStat.Strength))
@@ -327,7 +345,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         // Second STR test at half strength
                         else if (effect.Duration == 0 && character is Hero heroBeingSwallowed2)
                         {
-                            var rollResult = await new UserRequestService().RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
+                            var rollResult = await new UserRequestService().RequestRollAsync(
+                                "Roll a strength test to resist the effects", "1d100", 
+                                hero: heroBeingSwallowed2, stat: BasicStat.Strength); 
+                            await Task.Yield();
                             heroBeingSwallowed2.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Strength);
                             int strTest2 = rollResult.Roll;
                             if (strTest2 <= heroBeingSwallowed2.GetStat(BasicStat.Strength) / 2)

@@ -117,18 +117,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 if (monster.Position != null && hero.Position != null && GridService.GetDistance(monster.Position, hero.Position) <= 4)
                 {
-                    var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
-                    hero.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
-                    int resolveRoll = rollResult.Roll;
-                    if (resolveRoll > hero.GetStat(BasicStat.Resolve))
-                    {
-                        StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
-                        outcome += $"{hero.Name} is stunned by the roar!\n";
-                    }
-                    else
-                    {
-                        outcome += $"{hero.Name} resists the bellow.\n";
-                    }
+                    var rollResult = await _diceRoll.RequestRollAsync(
+                                "Roll a resolve test to resist the effects", "1d100",
+                                hero: hero, stat: BasicStat.Resolve);
+                    await Task.Yield();
+                    outcome += StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1), rollResult.Roll);
                 }
             }
             return outcome;
@@ -303,10 +296,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             string outcome = $"{monster.Name} emits a chilling, ghostly howl!\n";
             foreach (var hero in heroes)
             {
-                var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
-                hero.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
-                int resolveRoll = rollResult.Roll;
-                if (resolveRoll > hero.GetStat(BasicStat.Resolve) && hero.Position != null)
+                var rollResult = await _diceRoll.RequestRollAsync(
+                                "Roll a resolve test to resist the effects", "1d100",
+                                hero: hero, stat: BasicStat.Resolve);
+                await Task.Yield();
+                if (hero.TestResolve(rollResult.Roll) && hero.Position != null)
                 {
                     int damage = RandomHelper.RollDie(DiceType.D8);
                     hero.TakeDamage(damage, (_floatingText, hero.Position));
@@ -398,20 +392,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 adjacentHeroes.Shuffle(); // Randomize the order of heroes to target
                 var targetHero = adjacentHeroes[0];
 
-                var rollResult = await _diceRoll.RequestRollAsync($"Roll a resolve test for {targetHero.Name} to resist being petrified.", "1d100"); await Task.Yield();
-                targetHero.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
-                int resolveRoll = rollResult.Roll;
+                var rollResult = await _diceRoll.RequestRollAsync(
+                                "Roll a resolve test to resist the effects", "1d100",
+                                hero: targetHero, stat: BasicStat.Resolve);
+                await Task.Yield();
 
-                if (resolveRoll > targetHero.GetStat(BasicStat.Resolve))
-                {
-                    int duration = RandomHelper.RollDie(DiceType.D6);
-                    StatusEffectService.AttemptToApplyStatus(targetHero, new ActiveStatusEffect(StatusEffectType.Petrified, duration));
-                    outcome += $"{targetHero.Name} is turned to stone for {duration} turns!\n";
-                }
-                else
-                {
-                    outcome += $"{targetHero.Name} resists the petrifying gaze.\n";
-                }
+                int duration = RandomHelper.RollDie(DiceType.D6);
+                outcome += StatusEffectService.AttemptToApplyStatus(targetHero, new ActiveStatusEffect(StatusEffectType.Petrified, duration), resistRoll: rollResult.Roll);
             }
             else
             {
@@ -435,11 +422,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 {
                     outcome += $"{target.Name} is hit and must resist the poison!\n";
                     // Apply poison effect
-                    var rollResult = await _diceRoll.RequestRollAsync("Roll a constitution test to resist the effects", "1d100"); await Task.Yield();
-                    int resistRoll = rollResult.Roll;
+                    var rollResult = await _diceRoll.RequestRollAsync(
+                        "Roll a constitution test to resist the effects", "1d100", 
+                        hero: target, stat: BasicStat.Constitution); 
+                    await Task.Yield();
 
                     // The logic for applying poison, including the CON test, is now handled in StatusEffectService
-                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1));
+                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1), resistRoll: rollResult.Roll);
                 }
                 else
                 {
@@ -457,21 +446,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             string outcome = $"{monster.Name} attempts to seduce {target.Name}!\n";
 
             // The hero must make a RES test.
-            outcome += "Roll a resolve test to resist the effects.";
-            var rollResult = await _diceRoll.RequestRollAsync("Roll a resolve test to resist the effects", "1d100"); await Task.Yield();
-            target.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Resolve);
-            int resolveRoll = rollResult.Roll;
-
-            if (resolveRoll > target.GetStat(BasicStat.Resolve))
-            {
-                // On failure, the hero is incapacitated.
-                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, -1)); // -1 for indefinite duration until saved.
-                outcome += $"{target.Name} is seduced by {monster.Name} and is incapacitated, losing all AP!\n";
-            }
-            else
-            {
-                outcome += $"{target.Name} resists the seduction.\n";
-            }
+            var rollResult = await _diceRoll.RequestRollAsync(
+                                "Roll a resolve test to resist the effects", "1d100",
+                                hero: target, stat: BasicStat.Resolve);
+            await Task.Yield();
+            outcome += StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, -1), resistRoll: rollResult.Roll);
 
             return outcome;
         }

@@ -43,8 +43,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 dodgeSkill += 15; // Bonus for dodging from a Parry CombatStance
             }
 
-            var rollResult = await diceRoll.RequestRollAsync("Attempt to dodge the attack.", "1d100", canCancel: true); await Task.Yield();
-            hero.CheckPerfectRoll(rollResult.Roll, skill: Skill.Dodge);
+            var rollResult = await diceRoll.RequestRollAsync(
+                "Attempt to dodge the attack.", "1d100", canCancel: true,
+                hero: hero, skill: Skill.Dodge); 
+            await Task.Yield();
             if (!rollResult.WasCancelled)
             {
                 int roll = rollResult.Roll;

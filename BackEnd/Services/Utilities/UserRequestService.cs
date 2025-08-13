@@ -1,4 +1,6 @@
-﻿namespace LoDCompanion.BackEnd.Services.Utilities
+﻿using LoDCompanion.BackEnd.Models;
+
+namespace LoDCompanion.BackEnd.Services.Utilities
 {
     public class DiceRollRequest
     {
@@ -6,6 +8,9 @@
         public string DiceNotation { get; set; } = "1d100";
         public bool IsCancellable { get; set; } = false;
         public TaskCompletionSource<DiceRollResult> CompletionSource { get; } = new TaskCompletionSource<DiceRollResult>();
+        public Hero? HeroAttemptingRoll { get; internal set; }
+        public Skill? SkillBeingUsed { get; internal set; }
+        public BasicStat? StatBeingUsed { get; internal set; }
     }
 
     public class DiceRollResult
@@ -32,13 +37,17 @@
         /// It shows the modal and waits for the user to provide a result.
         /// </summary>
         /// <returns>The result of the dice roll.</returns>
-        public Task<DiceRollResult> RequestRollAsync(string prompt, string diceNotation = "1d100", bool canCancel = false)
+        public Task<DiceRollResult> RequestRollAsync(string prompt, string diceNotation = "1d100", bool canCancel = false, 
+            Hero? hero = null, Skill? skill = null, BasicStat? stat = null)
         {
             CurrentDiceRequest = new DiceRollRequest
             {
                 Prompt = prompt,
                 DiceNotation = diceNotation,
-                IsCancellable = canCancel
+                IsCancellable = canCancel,
+                HeroAttemptingRoll = hero,
+                SkillBeingUsed = skill,
+                StatBeingUsed = stat
             };
 
             OnRollRequested?.Invoke();
@@ -52,6 +61,11 @@
         {
             if (CurrentDiceRequest != null)
             {
+                if (CurrentDiceRequest.HeroAttemptingRoll != null)
+                {
+                    CurrentDiceRequest.HeroAttemptingRoll.CheckPerfectRoll(result.Roll, skill: CurrentDiceRequest.SkillBeingUsed, stat: CurrentDiceRequest.StatBeingUsed);
+                }
+
                 CurrentDiceRequest.CompletionSource.SetResult(result);
                 CurrentDiceRequest = null;
                 OnRollRequested?.Invoke(); // Hides the modal

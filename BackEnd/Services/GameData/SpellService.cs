@@ -1513,8 +1513,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             int miscastThreshold = 95 - focusPoints * 5 - powerLevels * 2;
 
             // --- Perform the Casting Roll ---
-            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100"); await Task.Yield();
-            caster.CheckPerfectRoll(resultRoll.Roll, skill: Skill.ArcaneArts);
+            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100", hero: caster, skill: Skill.ArcaneArts); await Task.Yield();
             int roll = resultRoll.Roll;
 
             // --- Check for Miscast First ---
