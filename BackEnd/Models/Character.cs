@@ -600,8 +600,8 @@ namespace LoDCompanion.BackEnd.Models
             {
                 switch (effect.Category)
                 {
-                    case StatusEffectType.ThePowerOfIphy:
-                        roll -= 10; break;
+                    case StatusEffectType.ThePowerOfIphy: roll -= 10; break;
+                    case StatusEffectType.PowerOfFaith: roll = 0; break; // resist fear and terror completely
                 }
             }
 
@@ -629,8 +629,8 @@ namespace LoDCompanion.BackEnd.Models
             {
                 switch (effect.Category)
                 {
-                    case StatusEffectType.ThePowerOfIphy:
-                        roll -= 10; break;
+                    case StatusEffectType.ThePowerOfIphy: roll -= 10; break;
+                    case StatusEffectType.PowerOfFaith: return ResistFear(fearCauser, roll);
                 }
             }
 

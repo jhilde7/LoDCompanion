@@ -227,6 +227,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             if (resisted) hero.AfraidOfTheseMonsters.Remove(monster); Console.WriteLine($"{hero.Name} is no longer afraid of {monster.Name}");
                         }
                         break;
+                    case StatusEffectType.PowerOfFaith: hero.AfraidOfTheseMonsters.Clear(); break;
                 };
             } 
 

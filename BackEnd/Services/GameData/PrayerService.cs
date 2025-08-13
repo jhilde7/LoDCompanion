@@ -188,14 +188,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
         new Prayer(){
-          Name = "Power Of Faith",
-          Level = 2,
-          PrayerEffect = "The gods grant your party inner strength, making them immune to fear, and treating terror as fear. Heroes already scared will regain their courage if this prayer succeeds.",
-          Duration = "Until end of next battle, or 4 turns if used between battles."
-        },*/
-
-        /*
-        new Prayer(){
           Name = "Smite The Heretics",
           Level = 2,
           PrayerEffect = "The wrath of the gods renders the flesh of your enemies. At the start of each turn, the enemies within 4 squares of the priest must pass a RES test or lose 1 HP.",
