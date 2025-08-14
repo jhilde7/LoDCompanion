@@ -83,6 +83,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 gameState.CurrentParty = new Party();
             }
 
+            newHero.Party = gameState.CurrentParty;
             gameState.CurrentParty.Heroes.Add(newHero);
         }
 

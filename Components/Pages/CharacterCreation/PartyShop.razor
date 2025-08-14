@@ -47,6 +47,7 @@ else
         currentParty = PartyService.GetCurrentParty();
         foreach (Hero hero in currentParty.Heroes)
         {
+            hero.Party ??= currentParty;
             PartyService.AddCoins(hero);
         }
     }
