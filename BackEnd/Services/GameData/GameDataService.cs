@@ -2,12 +2,13 @@
 using System.Text.RegularExpressions;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.Combat;
 
 namespace LoDCompanion.BackEnd.Services.GameData
 {
     public class GameDataService
     {
-        public PassiveAbilityService PassiveAbility = new PassiveAbilityService();
+        private readonly PassiveAbilityService _passiveAbility;
         public List<Species> Species => GetSpecies();
         public List<Profession> Professions => GetProfessions();
         public List<Perk> Perks => GetPerks();
@@ -19,6 +20,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public List<Perk> ArcanePerks => GetPerksByCategory(PerkCategory.Arcane);
         public List<Perk> AlchemistPerks => GetPerksByCategory(PerkCategory.Alchemist);
 
+        public GameDataService (PassiveAbilityService passiveAbility)
+        {
+            _passiveAbility = passiveAbility;
+        }
 
         public List<Perk> GetPerks()
         {
@@ -28,13 +33,16 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Leader,
                     Name = PerkName.CallToAction,
                     Effect = "Your hero lets out a battle shout that gives another hero a chance to spring into immediate action. You may use this Perk when activating the hero. Once the 2 AP has been spent, you may take a hero token from the bag and activate another hero within LOS of the hero using this Perk.",
-                    Comment = ""
+                    Comment = "",
+                    TargetType = TargetType.Ally
                 },
                 new Perk(){
                     Category = PerkCategory.Leader,
                     Name = PerkName.Encouragement,
-                    Effect = "Your hero's encouragement strengthens the hearts of their comrades, giving them +10 on an upcoming Fear or Terror Test.",
-                    Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
+                    Effect = "Your hero's encouragement strengthens the hearts of their comrades, giving their +10 on an upcoming Fear or Terror Test.",
+                    Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary.",
+                    TargetType = TargetType.Ally,
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Encouragement, -1)
                 },
                 new Perk(){
                     Category = PerkCategory.Leader,
@@ -46,13 +54,15 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Leader,
                     Name = PerkName.Rally,
                     Effect = "The hero tries to encourage a comrade to action! A hero that has failed a Fear or Terror Test may immediately retake that test.",
-                    Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary."
+                    Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary.",
+                    TargetType = TargetType.Ally,
                 },
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.IgnoreWounds,
-                    Effect = "Hero gains Natural Armour 2",
-                    Comment = "Lasts for one battle."
+                    Effect = "Hero gains Natural Armour +2",
+                    Comment = "Lasts for one battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.IgnoreWounds, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Common,
@@ -64,25 +74,30 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Common,
                     Name = PerkName.Sprint,
                     Effect = "Your hero may use one Point of Energy to move up to 6 squares with the first movement. A second movement is still allowed but with the standard half movement.",
-                    Comment = ""
+                    Comment = "",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Sprint, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.Taunt,
-                    Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack them ignoring normal targeting procedure.",
-                    Comment = "Chose which enemy to taunt before rolling."
+                    Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack their ignoring normal targeting procedure.",
+                    Comment = "Chose which enemy to taunt before rolling.",
+                    TargetType = TargetType.SingleTarget,
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.TasteForBlood,
                     Effect = "Character evokes blood lust on a To Hit' roll of 01-10 instead of 01-05 for an entire battle.",
-                    Comment = "Must be used before Damage Roll but lasts the entire battle."
+                    Comment = "Must be used before Damage Roll but lasts the entire battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.TasteForBlood, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
                     Name = PerkName.BattleFury,
                     Effect = "Using their inner energy, your hero may perform 2 Power Attacks in one turn as if they only cost 1 AP.",
-                    Comment = ""
+                    Comment = "",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.BattleFury, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -93,8 +108,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Combat,
                     Name = PerkName.Frenzy,
-                    Effect = "Working herself into a frenzy, your hero flails wildly at them enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
-                    Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle."
+                    Effect = "Working herself into a frenzy, your hero flails wildly at their enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
+                    Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -111,7 +127,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Combat,
                     Name = PerkName.PowerfulBlow,
-                    Effect = "Your hero attacks with all them strength, causing 1d6 extra damage.",
+                    Effect = "Your hero's next attack made, they attack with all their strength, causing 1d6 extra damage.",
                     Comment = "Must be decided before the attack is made."
                 },
                 new Perk(){
@@ -124,7 +140,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Combat,
                     Name = PerkName.ShieldWall,
                     Effect = "Years of training lets your hero handle that shield like a pro. You may parry twice during one turn while in Parry Stance.",
-                    Comment = "May be used when attacked."
+                    Comment = "May be used when attacked.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.ShieldWall, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -135,19 +152,20 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.CleverFingers,
-                    Effect = "Relying on them experience, them fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
+                    Effect = "Relying on their experience, their fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
                     Comment = "Use before rolling."
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.HideInTheShadows,
                     Effect = "Your hero finds that perfect spot to avoid drawing attention. No enemy will target them if they are more than 2 squares away when they start their turn. If your model is adjacent to an enemy, that enemy will always attack another adjacent model if there is one. If not, the Perk will not work.",
-                    Comment = ""
+                    Comment = "",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.HideInShadows, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.LivingOnNothing,
-                    Effect = "Accustomed to hardship, your hero can sustain themselves on almost nothing. Spending an Energy Point to activate this Perk is considered the same as consuming a ration.",
+                    Effect = "Accustomed to hardship, your hero can sustain theirselves on almost nothing. Spending an Energy Point to activate this Perk is considered the same as consuming a ration.",
                     Comment = "The Energy Point cannot be regained in the same rest in which it was spent."
                 },
                 new Perk(){
@@ -172,12 +190,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.StrikeToInjure,
                     Effect = "Your hero targets the enemy with extreme precision, striking the most vulnerable area. Ignore the enemy's armour for all your attacks this turn.",
-                    Comment = "Must be declared before attacking"
+                    Comment = "Must be declared before attacking",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.StrikeToInjure, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Faith,
                     Name = PerkName.GodsFavorite,
-                    Effect = "Your hero is well attuned to the gods, and they always seem to listen to them. Once again, their prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
+                    Effect = "Your hero is well attuned to the gods, and they always seem to listen to their. Once again, their prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
                     Comment = ""
                 },
                 new Perk(){
@@ -196,7 +215,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Faith,
                     Name = PerkName.MyWillBeDone,
                     Effect = "Using their inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
-                    Comment = "Lasts until end of next battle"
+                    Comment = "Lasts until end of next battle",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.MyWillBeDone, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
@@ -218,8 +238,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
-                    Name = PerkName.InTuneWithTheMagic,
-                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk them Sanity.",
+                    Name = PerkName.InTuneWiththeiragic,
+                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk their Sanity.",
                     Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
                 },
                 new Perk(){
@@ -243,7 +263,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Alchemist,
                     Name = PerkName.PerfectHealer,
-                    Effect = "Your hero's perfect mixing increases the potency of them potions. The Healing Potion heals +3 HP.",
+                    Effect = "Your hero's perfect mixing increases the potency of their potions. The Healing Potion heals +3 HP.",
                     Comment = "Used at the same time as the potion is mixed."
                 },
                 new Perk(){
@@ -283,7 +303,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             {
                 new Species() {
                     Name = "Dwarf",
-                    Description = "Dwarves are short, but broad and often muscular after their mandatory service in the mines under the mountains of the world. Their beards grow thick and long, and they serve as a symbol of their status. The longer the beard, the more respect they earn amongst their kindred. Female dwarves are every bit as sturdy as their male counterparts, and are seen just as often on the battlefield wielding an axe or warhammer. There have been numerous conflicts between Dwarf and Goblin clans, and with the Dwarves inability to forget a misdeed against them, this has led to a full-blown hatred.",
+                    Description = "Dwarves are short, but broad and often muscular after their mandatory service in the mines under the mountains of the world. Their beards grow thick and long, and they serve as a symbol of their status. The longer the beard, the more respect they earn amongst their kindred. Female dwarves are every bit as sturdy as their male counterparts, and are seen just as often on the battlefield wielding an axe or warhammer. There have been numerous conflicts between Dwarf and Goblin clans, and with the Dwarves inability to forget a misdeed against their, this has led to a full-blown hatred.",
                     BaseStrength = 40,
                     BaseConstitution =  30,
                     BaseDexterity =  25,
@@ -375,7 +395,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 2,
                     MaxMeleeWeaponType = 5,
-                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.Wise), PassiveAbility.GetTalentByName(TalentName.Charming)],
+                    TalentChoices = [_passiveAbility.GetTalentByName(TalentName.Wise), _passiveAbility.GetTalentByName(TalentName.Charming)],
                     StartingBackpackList = [EquipmentService.GetMeleeWeaponByName("Staff") as MeleeWeapon],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
@@ -423,7 +443,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         EquipmentService.GetArmourByName("Padded Jacket") as Armour,
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10),
                         EquipmentService.GetEquipmentByName("Backpack - Medium") ],
-                    StartingTalentList = [ PassiveAbility.GetTalentByName(TalentName.Backstabber),
+                    StartingTalentList = [ _passiveAbility.GetTalentByName(TalentName.Backstabber),
                         new Talent() {
                             Category = TalentCategory.Sneaky,
                             Name = TalentName.Streetwise,
@@ -449,7 +469,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Profession {
                     Name = "Ranger",
-                    Description = "The Ranger spends their or them days in the wild. They make their living by tracking animals and selling their meat and pelts. Rangers earn a meagre income, but with time they will acquire unrivalled knowledge in how to survive in the wild, and they will seldom go hungry. Constant exposure to the weather and wandering the forests day after day also makes them quite tough and resilient. Their favourite weapon is, of course, the bow. However, some prefer the heavier crossbow for its sheer stopping power.",
+                    Description = "The Ranger spends their or their days in the wild. They make their living by tracking animals and selling their meat and pelts. Rangers earn a meagre income, but with time they will acquire unrivalled knowledge in how to survive in the wild, and they will seldom go hungry. Constant exposure to the weather and wandering the forests day after day also makes their quite tough and resilient. Their favourite weapon is, of course, the bow. However, some prefer the heavier crossbow for its sheer stopping power.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = 15,
                     DodgeSkillModifier = -5,
@@ -472,7 +492,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     HPModifier = 0,
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
-                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.Marksman), PassiveAbility.GetTalentByName(TalentName.Hunter)],
+                    TalentChoices = [_passiveAbility.GetTalentByName(TalentName.Marksman), _passiveAbility.GetTalentByName(TalentName.Hunter)],
                     StartingBackpackList = [
                         EquipmentService.GetRangedWeaponByName("Longbow") as RangedWeapon,
                         EquipmentService.GetAmmoByNameSetQuantity("Arrow", 10) ],
@@ -496,7 +516,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Profession {
                     Name = "Barbarian",
-                    Description = "Barbarians live for the thrill of battle. Unlike most sane people, Barbarians eagerly await the next possibility for a good fight, and they often work themselves up into a frenzy once the battle starts. This frenzy causes them to wield their weapons like dervishes, striking out left and right, which makes them formidable. On the other hand, being in the grips of such a frenzy makes it easy to abandon caution and to forget to properly protect yourself.",
+                    Description = "Barbarians live for the thrill of battle. Unlike most sane people, Barbarians eagerly await the next possibility for a good fight, and they often work theirselves up into a frenzy once the battle starts. This frenzy causes their to wield their weapons like dervishes, striking out left and right, which makes their formidable. On the other hand, being in the grips of such a frenzy makes it easy to abandon caution and to forget to properly protect yourself.",
                     CombatSkillModifier = 15,
                     RangedSkillModifier = -10,
                     DodgeSkillModifier = 5,
@@ -542,7 +562,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Profession {
                     Name = "Warrior Priest",
-                    Description = "Warrior Priests have taken it upon themselves to act as soldiers of their god, preaching to those who will listen, and smiting those that they regard as heretics. Luckily, their codex will normally limit those deemed as heretics to the monsters of the world, or to those who choose to dabble with dark magic or evil gods. Their faith makes them unwavering in front of the most fearsome foes. The more experienced priests have learned to perfect the art of battle prayers, bestowing some blessings from their god to their comrades in arms.",
+                    Description = "Warrior Priests have taken it upon theirselves to act as soldiers of their god, preaching to those who will listen, and smiting those that they regard as heretics. Luckily, their codex will normally limit those deemed as heretics to the monsters of the world, or to those who choose to dabble with dark magic or evil gods. Their faith makes their unwavering in front of the most fearsome foes. The more experienced priests have learned to perfect the art of battle prayers, bestowing some blessings from their god to their comrades in arms.",
                     CombatSkillModifier = 5,
                     RangedSkillModifier = -5,
                     DodgeSkillModifier = -5,
@@ -567,7 +587,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of choice", "Religious Relic of choice" ],
-                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.Braveheart), PassiveAbility.GetTalentByName(TalentName.Confident) ],
+                    TalentChoices = [_passiveAbility.GetTalentByName(TalentName.Braveheart), _passiveAbility.GetTalentByName(TalentName.Confident) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 3 },
                       {"DEX", 3},
@@ -613,9 +633,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MaxArmourType = 4,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = ["Weapon of Choice"],
-                    TalentChoices = [PassiveAbility.GetTalentByName(TalentName.MightyBlow), PassiveAbility.GetTalentByName(TalentName.Braveheart)],
+                    TalentChoices = [_passiveAbility.GetTalentByName(TalentName.MightyBlow), _passiveAbility.GetTalentByName(TalentName.Braveheart)],
                     StartingBackpackList = [EquipmentService.GetArmourByName("Leather Jacket") as Armour ],
-                    StartingTalentList = [PassiveAbility.GetTalentByName(TalentName.Disciplined) ],
+                    StartingTalentList = [_passiveAbility.GetTalentByName(TalentName.Disciplined) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
                       {"DEX", 2},
@@ -636,7 +656,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Profession {
                     Name = "Alchemist",
-                    Description = "The Alchemist has spent years studying the properties of materials and solutions, learning the effect they have on each other and on the human body. Through both study and experience, they have learned how to mix ingredients to obtain beneficial effects that have become highly sought after. Their ability to create powerful concoctions have made them popular amongst adventurers. Many alchemists can hold their ground pretty well, spreading fire and destruction all around them.",
+                    Description = "The Alchemist has spent years studying the properties of materials and solutions, learning the effect they have on each other and on the human body. Through both study and experience, they have learned how to mix ingredients to obtain beneficial effects that have become highly sought after. Their ability to create powerful concoctions have made their popular amongst adventurers. Many alchemists can hold their ground pretty well, spreading fire and destruction all around their.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = -5,
                     DodgeSkillModifier = -10,
@@ -668,7 +688,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         AlchemyService.GetIngredients(3)[0],
                         AlchemyService.GetIngredients(3)[0]
                         ],
-                    StartingTalentList = [PassiveAbility.GetTalentByName(TalentName.ResistPoison) ],
+                    StartingTalentList = [_passiveAbility.GetTalentByName(TalentName.ResistPoison) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5 },
                       {"DEX", 4},
@@ -689,7 +709,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Profession {
                     Name = "Thief",
-                    Description = "The Thief prefers to work in the shadows, avoiding all attention if possible. The use of arms is not alien to them, but it is seen as a last resort. Better to take what you want undetected, and thereby minimise the risk of getting injured whilst doing it. As a consequence, daggers are their preferred weapons. Lock picks and crowbars are the tools of the trade. Special: Whenever it is time to get treasure, a thief may always get two choices and choose which one to keep. This ability may be combined with the sense of gold talent.",
+                    Description = "The Thief prefers to work in the shadows, avoiding all attention if possible. The use of arms is not alien to their, but it is seen as a last resort. Better to take what you want undetected, and thereby minimise the risk of getting injured whilst doing it. As a consequence, daggers are their preferred weapons. Lock picks and crowbars are the tools of the trade. Special: Whenever it is time to get treasure, a thief may always get two choices and choose which one to keep. This ability may be combined with the sense of gold talent.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = 5,
                     DodgeSkillModifier = 5,
@@ -714,7 +734,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         EquipmentService.GetMeleeWeaponByName("Dagger") as MeleeWeapon,
                         EquipmentService.GetEquipmentByName("Rope"),
                         EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10) ],
-                    StartingTalentList = [PassiveAbility.GetTalentByName(TalentName.Evaluate) ],
+                    StartingTalentList = [_passiveAbility.GetTalentByName(TalentName.Evaluate) ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 5},
                       {"DEX", 2},
@@ -812,7 +832,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         DispelMaster,
         EnergyToMana,
         InnerPower,
-        InTuneWithTheMagic,
+        InTuneWiththeiragic,
         QuickFocus,
         CarefulTouch,
         Connoisseur,
@@ -828,6 +848,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public PerkCategory Category { get; set; }
         public string Effect { get; set; } = string.Empty;
         public string? Comment { get; set; }
+        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
+        public TargetType TargetType { get; set; } = TargetType.Self;
 
         public Perk() { }
 
