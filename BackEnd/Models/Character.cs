@@ -456,7 +456,7 @@ namespace LoDCompanion.BackEnd.Models
         public int XPtoLVL => RequiredXPbyLVL(Level);
 
         // Hero-specific States and Flags
-        public int MaxArmourType => new GameDataService().GetProfessionMaxArmourType(ProfessionName);
+        public int MaxArmourType => GetProfessionMaxArmourType(ProfessionName);
         public bool IsThief => ProfessionName == "Thief";
         public int OneHandedWeaponClass => Get1HWeaponClass(GetStat(BasicStat.Strength));
         public int TwoHandedWeaponClass => Get2HWeaponClass(GetStat(BasicStat.Strength));
@@ -543,6 +543,22 @@ namespace LoDCompanion.BackEnd.Models
             if (Inventory.Backpack.Any()) sb.AppendLine($"\n-- Backpack --\n{string.Join(", ", Inventory.Backpack.Select(e => e.Name))}");
 
             return sb.ToString();
+        }
+
+        private int GetProfessionMaxArmourType(string professionName)
+        {
+            return professionName switch
+            {
+                "Wizard" => 2,
+                "Thief" => 2,
+                "Rogue" => 3,
+                "Ranger" => 3,
+                "Barbarian" => 3,
+                "Alchemist" => 3,
+                "Warrior Priest" => 4,
+                "Warrior" => 4,
+                _ => 2
+            };
         }
 
         public bool ResistDisease(int? roll = null)
