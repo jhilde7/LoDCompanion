@@ -235,11 +235,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: target, stat: BasicStat.Resolve); await Task.Yield();
                     if (target.TestResolve(rollResult.Roll))
                     {
-                        result.DamageDealt = target.TakeDamage(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), ignoreAllArmour: true);
+                        result.DamageDealt = target.TakeDamageAsync(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), ignoreAllArmour: true);
                         await target.TakeSanityDamage(1); 
                     }
                 }
-                else result.DamageDealt = target.TakeDamage(result.DamageDealt, (_floatingText, target.Position), context);
+                else result.DamageDealt = target.TakeDamageAsync(result.DamageDealt, (_floatingText, target.Position), context);
 
                     result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
@@ -274,7 +274,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             if (target.Position != null)
             {
-                target.TakeDamage(finalDamage, (_floatingText, target.Position), context);
+                target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), context);
             }
 
             if (context.IsChargeAttack && dungeon != null)
@@ -669,7 +669,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // === FALL OVER (If all else fails) ===
-            StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Prone, 1));
+            StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Prone, 1));
             result.OutcomeMessage = $"shoves {target.Name}, but they are blocked and fall over!";
             return result;
         }
@@ -766,7 +766,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         $"Roll a DEX test for {hero.Name} to stay standing.", "1d100",
                         hero: hero, stat: BasicStat.Dexterity); 
                     await Task.Yield();
-                    result.OutcomeMessage += StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1), resultRoll.Roll);
+                    result.OutcomeMessage += StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1), resultRoll.Roll);
 
                     if (!isBlocked)
                     {

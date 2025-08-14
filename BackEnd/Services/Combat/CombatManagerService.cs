@@ -166,7 +166,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             {
                                 if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics))
                                 {
-                                    monster.TakeDamage(1, (_floatingText, monster.Position), ignoreAllArmour: true); 
+                                    monster.TakeDamageAsync(1, (_floatingText, monster.Position), ignoreAllArmour: true); 
                                 }
                                 if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
                                 {
@@ -283,7 +283,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         if( hero.CurrentEnergy < 0)
                         {
                             hero.CurrentEnergy = 0;
-                            StatusEffectService.AttemptToApplyStatus(hero, 
+                            StatusEffectService.AttemptToApplyStatusAsync(hero, 
                                 new ActiveStatusEffect(StatusEffectType.NeedRest, -1, statBonus: (BasicStat.Constitution, -(int)Math.Floor(hero.GetStat(BasicStat.Constitution) / 2d))));
                         }
                     }

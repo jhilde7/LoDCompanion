@@ -181,7 +181,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
-        public static string AttemptToApplyStatus(Character target, ActiveStatusEffect effect, int? resistRoll = null, Monster? monster = null)
+        public static async Task<string> AttemptToApplyStatusAsync(Character target, ActiveStatusEffect effect, int? resistRoll = null, Monster? monster = null)
         {
             if (target.ActiveStatusEffects.Any(e => e.Category == effect.Category)) return "Already affected";
 
@@ -191,8 +191,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 // Perform the CON test based on the effect type
                 if (effect.Category == StatusEffectType.Poisoned) resisted = hero.ResistPoison(resistRoll);
                 if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll);
-                if (effect.Category == StatusEffectType.Fear && monster != null) resisted = hero.ResistFear(monster, resistRoll);
-                if (effect.Category == StatusEffectType.Terror && monster != null) resisted = hero.ResistTerror(monster, resistRoll);
+                if (effect.Category == StatusEffectType.Fear && monster != null) resisted = await hero.ResistFearAsync(monster, resistRoll);
+                if (effect.Category == StatusEffectType.Terror && monster != null) resisted = await hero.ResistTerrorAsync(monster, resistRoll);
             }
 
             if (effect.Category == StatusEffectType.Incapacitated 
@@ -207,7 +207,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 if (effect.Category == StatusEffectType.Prone) target.CombatStance = CombatStance.Prone;
                 if (effect.Category == StatusEffectType.Bellow) effect = new ActiveStatusEffect(StatusEffectType.Stunned, effect.Duration);
-                return ApplyStatus(target, effect);
+                return await ApplyStatusAsync(target, effect);
             }
             else
             {
@@ -218,7 +218,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Applies a new status effect to a target character.
         /// </summary>
-        private static string ApplyStatus(Character target, ActiveStatusEffect effect)
+        private static async Task<string> ApplyStatusAsync(Character target, ActiveStatusEffect effect)
         {
             target.ActiveStatusEffects.Add(effect);
             if (target is Hero hero)
@@ -229,7 +229,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         foreach (var monster in hero.AfraidOfTheseMonsters)
                         {
                             bool resisted = false;
-                            resisted = hero.ResistFear(monster);
+                            resisted = await hero.ResistFearAsync(monster);
                             if (resisted) hero.AfraidOfTheseMonsters.Remove(monster); Console.WriteLine($"{hero.Name} is no longer afraid of {monster.Name}");
                         }
                         break;
@@ -259,7 +259,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         if (character is Hero hero && !hero.ResistPoison())
                         {
                             int poisonDamage = effect.Damage ??= 1; // Default to 1 damage if not specified
-                            character.TakeDamage(poisonDamage, (_floatingText, character.Position));
+                            await character.TakeDamageAsync(poisonDamage, (_floatingText, character.Position));
                             Console.WriteLine($"{character.Name} takes {poisonDamage} damage from poison.");
                         }
                         break;
@@ -267,7 +267,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     case StatusEffectType.AcidBurning:
                     case StatusEffectType.FireBurning:
                         int burnDamage = effect.Damage ??= 1;
-                        character.TakeDamage(burnDamage, (_floatingText, character.Position));
+                        await character.TakeDamageAsync(burnDamage, (_floatingText, character.Position));
                         Console.WriteLine($"{character.Name} takes {burnDamage} damage from burning.");
                         break;
 
@@ -279,7 +279,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     case StatusEffectType.Entangled:
                         // The hero takes escalating damage at the end of each turn they are entangled.
                         int damage = -effect.Duration; // duration controls the damage, e.g., 1 damage for 1 turn, 2 for 2 turns, etc.
-                        character.TakeDamage(damage, (_floatingText, character.Position));
+                        await character.TakeDamageAsync(damage, (_floatingText, character.Position));
                         effect.Duration--;
                         Console.WriteLine($"{character.Name} takes {damage} damage from being entangled.");
                         break;
@@ -369,7 +369,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
                             heroBeingSwallowed2.Position = null;
                             heroBeingSwallowed2.CurrentAP = 0;
-                            AttemptToApplyStatus(heroBeingSwallowed2, new ActiveStatusEffect(StatusEffectType.Swallowed, -1));
+                            await AttemptToApplyStatusAsync(heroBeingSwallowed2, new ActiveStatusEffect(StatusEffectType.Swallowed, -1));
                             Console.WriteLine($"{heroBeingSwallowed2.Name} is swallowed whole!");
                         }
                         break;

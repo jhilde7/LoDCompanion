@@ -1538,7 +1538,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         resultRoll = await diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: priest, stat: BasicStat.Resolve); await Task.Yield();
                         if (priest != null && priest.Position != null && priest.TestResolve(resultRoll.Roll))
                         {
-                            priest.TakeDamage(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), ignoreAllArmour: true);
+                            await priest.TakeDamageAsync(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), ignoreAllArmour: true);
                         }
                     }
                 }

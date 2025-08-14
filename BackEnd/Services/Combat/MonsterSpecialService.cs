@@ -121,7 +121,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                                 "Roll a resolve test to resist the effects", "1d100",
                                 hero: hero, stat: BasicStat.Resolve);
                     await Task.Yield();
-                    outcome += StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1), rollResult.Roll);
+                    outcome += StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1), rollResult.Roll);
                 }
             }
             return outcome;
@@ -240,7 +240,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
             }
 
-            StatusEffectService.AttemptToApplyStatus(hero, new ActiveStatusEffect(StatusEffectType.Entangled, 0));
+            StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Entangled, 0));
             outcome += $"{hero.Name} is entangled!\n";
 
             return outcome;
@@ -262,7 +262,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             // Apply primary damage to the main target
             int primaryDamage = RandomHelper.RollDie(DiceType.D10);
-            target.TakeDamage(primaryDamage, (_floatingText, target.Position), damageType: DamageType.Fire);
+            target.TakeDamageAsync(primaryDamage, (_floatingText, target.Position), damageType: DamageType.Fire);
             outcome.AppendLine($"{target.Name} is caught in the blast and takes {primaryDamage} fire damage.");
 
             // Find adjacent squares
@@ -283,7 +283,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (adjacentSquares.Contains(character.Position))
                 {
                     int splashDamage = RandomHelper.RollDie(DiceType.D6);
-                    character.TakeDamage(splashDamage, (_floatingText, target.Position), damageType: DamageType.Fire);
+                    character.TakeDamageAsync(splashDamage, (_floatingText, target.Position), damageType: DamageType.Fire);
                     outcome.AppendLine($"{character.Name} is caught in the splash and takes {splashDamage} fire damage.");
                 }
             }
@@ -303,7 +303,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (hero.TestResolve(rollResult.Roll) && hero.Position != null)
                 {
                     int damage = RandomHelper.RollDie(DiceType.D8);
-                    hero.TakeDamage(damage, (_floatingText, hero.Position));
+                    hero.TakeDamageAsync(damage, (_floatingText, hero.Position));
                     await hero.TakeSanityDamage(1);
                     outcome += $"{hero.Name} takes {damage} damage and loses 1 Sanity!\n";
                 }
@@ -398,7 +398,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 await Task.Yield();
 
                 int duration = RandomHelper.RollDie(DiceType.D6);
-                outcome += StatusEffectService.AttemptToApplyStatus(targetHero, new ActiveStatusEffect(StatusEffectType.Petrified, duration), resistRoll: rollResult.Roll);
+                outcome += StatusEffectService.AttemptToApplyStatusAsync(targetHero, new ActiveStatusEffect(StatusEffectType.Petrified, duration), resistRoll: rollResult.Roll);
             }
             else
             {
@@ -428,7 +428,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     await Task.Yield();
 
                     // The logic for applying poison, including the CON test, is now handled in StatusEffectService
-                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1), resistRoll: rollResult.Roll);
+                    StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10) + 1), resistRoll: rollResult.Roll);
                 }
                 else
                 {
@@ -450,7 +450,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                                 "Roll a resolve test to resist the effects", "1d100",
                                 hero: target, stat: BasicStat.Resolve);
             await Task.Yield();
-            outcome += StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, -1), resistRoll: rollResult.Roll);
+            outcome += StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, -1), resistRoll: rollResult.Roll);
 
             return outcome;
         }
@@ -507,7 +507,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             outcome += $"{target.Name} is caught!\n";
-            StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.BeingSwallowed, 2));
+            StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.BeingSwallowed, 2));
 
             return outcome;
         }
@@ -554,7 +554,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (result.IsHit)
                 {
                     outcome += $"{target.Name} is covered with a sticky web!\n";
-                    StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect(StatusEffectType.Ensnared, -1));
+                    StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Ensnared, -1));
                     return outcome;
                 }
                 else

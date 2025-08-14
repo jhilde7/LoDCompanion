@@ -142,7 +142,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                     int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
-                    singleTarget.TakeDamage(primaryDamage, (_floatingText, singleTarget.Position), damageType: spell.DamageType);
+                    singleTarget.TakeDamageAsync(primaryDamage, (_floatingText, singleTarget.Position), damageType: spell.DamageType);
                     outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
                     hitTargets.Add(singleTarget);
 
@@ -154,7 +154,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); await Task.Yield();
                         int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
-                        secondTarget.TakeDamage(secondDamage, (_floatingText, secondTarget.Position), damageType: spell.DamageType);
+                        secondTarget.TakeDamageAsync(secondDamage, (_floatingText, secondTarget.Position), damageType: spell.DamageType);
                         outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
                         hitTargets.Add(secondTarget);
 
@@ -166,7 +166,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); await Task.Yield();
                             int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
-                            thirdTarget.TakeDamage(thirdDamage, (_floatingText, thirdTarget.Position), damageType: spell.DamageType);
+                            thirdTarget.TakeDamageAsync(thirdDamage, (_floatingText, thirdTarget.Position), damageType: spell.DamageType);
                             outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
                         }
                     }
@@ -202,7 +202,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
                         damage += options.PowerLevels;
 
-                        character.TakeDamage(damage, (_floatingText, character.Position), damageType: spell.DamageType);
+                        character.TakeDamageAsync(damage, (_floatingText, character.Position), damageType: spell.DamageType);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -210,7 +210,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = await GetDirectDamageAsync(caster, spell) + options.PowerLevels;
-                singleTarget.TakeDamage(damage, (_floatingText, singleTarget.Position), damageType: spell.DamageType);
+                singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), damageType: spell.DamageType);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
@@ -446,7 +446,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     {
                         return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{charater.Name} resisted the effects of {spell.Name}!" };
                     }
-                    StatusEffectService.AttemptToApplyStatus(charater, effectToApply);
+                    StatusEffectService.AttemptToApplyStatusAsync(charater, effectToApply);
                     result.OutcomeMessage = $"{charater.Name} is affected by {spell.Name}!";
                 }
             }
@@ -594,7 +594,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
                 int duration = spell.Properties?.GetValueOrDefault(SpellProperty.TurnDuration, -1) ?? -1;
 
-                StatusEffectService.AttemptToApplyStatus(target, new ActiveStatusEffect((StatusEffectType)spell.StatusEffect, duration));
+                StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect((StatusEffectType)spell.StatusEffect, duration));
                 outcome.Append($" {target.Name} is now affected by {spell.StatusEffect.ToString()}.");
             }
 
@@ -669,7 +669,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             GetDirectDamage(caster, spell) :
                             GetAOEDamage(caster, spell);
 
-                        character.TakeDamage(damage, (_floatingText, character.Position), damageType: spell.DamageType != null ? spell.DamageType : null);
+                        character.TakeDamageAsync(damage, (_floatingText, character.Position), damageType: spell.DamageType != null ? spell.DamageType : null);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -677,7 +677,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = GetDirectDamage(caster, spell);
-                singleTarget.TakeDamage(damage, (_floatingText, singleTarget.Position), damageType: spell.DamageType != null ? spell.DamageType : null);
+                singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), damageType: spell.DamageType != null ? spell.DamageType : null);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 

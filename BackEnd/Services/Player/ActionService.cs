@@ -606,7 +606,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (secondaryTarget is Prayer prayerToCast
                         && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.ToString())))
                     {
-                        resultMessage = _powerActivation.ActivatePrayer(hero, prayerToCast, (Character?)primaryTarget);
+                        resultMessage = _powerActivation.ActivatePrayerAsync(hero, prayerToCast, (Character?)primaryTarget);
                     }
                     else
                     {
@@ -629,7 +629,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                             }
                             apCost = 1;
                         }
-                        resultMessage = _powerActivation.ActivatePerk(hero, perkToUse, (Character?)primaryTarget);
+                        resultMessage = _powerActivation.ActivatePerkAsync(hero, perkToUse, (Character?)primaryTarget);
                     }
                     else
                     {
