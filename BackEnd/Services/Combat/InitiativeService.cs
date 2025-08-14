@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 
 namespace LoDCompanion.BackEnd.Services.Combat
@@ -102,6 +103,17 @@ namespace LoDCompanion.BackEnd.Services.Combat
         internal void RemoveToken(ActorType token)
         {
             _initiativeTokens.Remove(token);
+        }
+
+        public bool ForceNextActorType(ActorType actor)
+        {
+            if (_initiativeTokens.Contains(actor))
+            {
+                _initiativeTokens.Remove(actor);
+                _initiativeTokens.Insert(0, actor);
+                return true;
+            }
+            return false;
         }
     }
 }

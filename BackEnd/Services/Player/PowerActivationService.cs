@@ -12,21 +12,40 @@ namespace LoDCompanion.BackEnd.Services.Player
     
     public class PowerActivationService
     {
-        public async Task<string> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
+        private readonly InitiativeService _initiative;
+
+        public PowerActivationService(InitiativeService initiativeService)
         {
+            _initiative = initiativeService;
+        }
+
+        public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
+        {
+            bool success = false;
             if (perk.ActiveStatusEffect != null)
             {
                 var effect = perk.ActiveStatusEffect;
-                await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect); 
+                success = await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect, this) != "Already affected"; 
             }
-            hero.CurrentEnergy--;
-            return $"{hero.Name} used {perk.Name}!";
+
+            switch (perk.Name)
+            {
+                case PerkName.CallToAction:
+                    success = _initiative.ForceNextActorType(ActorType.Hero);
+                    break;
+            };
+            if (success)
+            {
+                hero.CurrentEnergy--;
+                return true; 
+            }
+            else return false;
         }
 
         public async Task<string> ActivatePrayerAsync(Hero hero, Prayer prayer, Character? target = null)
         {
             var effect = prayer.ActiveStatusEffect;
-            await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect);
+            await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect, this);
             hero.CurrentEnergy--;
             return $"{hero.Name} prayed for {prayer.Name}!";
         }
