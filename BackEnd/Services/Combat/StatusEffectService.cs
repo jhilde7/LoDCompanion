@@ -133,7 +133,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Jumpy,
         IrrationalFear,
         Claustrophobia,
-        Depression
+        Depression,
+        Taunt,
+        TasteForBlood,
+        Encouragement,
+        ShieldWall,
+        StrikeToInjure
     }
 
     /// <summary>
