@@ -1801,12 +1801,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Ethereal), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.GhostlyTouch), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0 },
+                        { MonsterSpecialName.Silent, 0 },
+                        { MonsterSpecialName.CauseTerror, 5 },
+                        { MonsterSpecialName.Ethereal, 0 },
+                        { MonsterSpecialName.GhostlyTouch, 0 }
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -1834,8 +1834,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Flyer), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Flyer, 0 }
                     },
                     SpecialRules = new List<string>() { "Auto hit", "Always acts first on the first turn of battle" },
                     XP = 15,
@@ -1949,12 +1949,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.DiseaseRidden), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Floater), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.DiseaseRidden, 0 },
+                        { MonsterSpecialName.Floater, 0 },
+                        { MonsterSpecialName.Demon, 0 },
+                        { MonsterSpecialName.Large, 0 }
                     },
                     XP = 650,
                     TreasureType = TreasureType.Part
@@ -1978,8 +1978,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 },
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Demon, 0 },
                     },
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
@@ -2008,8 +2008,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FerociousCharge), 0}
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FerociousCharge, 0}
                     },
                     XP = 130,
                     TreasureType = TreasureType.Part
@@ -2032,8 +2032,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Orcs_Goblins,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.HateDwarves), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.HateDwarves, 0}
                     },
                     XP = 70,
                     TreasureType = TreasureType.T1
@@ -2056,8 +2056,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Orcs_Goblins,
                     Behavior = MonsterBehaviorType.HumanoidRanged,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.HateDwarves), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.HateDwarves, 0}
                     },
                     XP = 70,
                     TreasureType = TreasureType.T1
@@ -2136,11 +2136,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Regeneration, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2168,8 +2168,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2238,8 +2238,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -15,
                     Type = EncounterType.DarkElves,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Sneaky), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Sneaky, 0}
                     },
                     XP = 135,
                     TreasureType = TreasureType.T2
@@ -2327,9 +2327,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FerociousCharge), 0},
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.FerociousCharge, 0},
                     },
                     XP = 80,
                     TreasureType = TreasureType.Part
@@ -2355,9 +2355,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 10 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.XLarge), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseTerror, 10 },
+                        { MonsterSpecialName.XLarge, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2386,10 +2386,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.DarkElves,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WallCrawler), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.WallCrawler, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 600,
                     TreasureType = TreasureType.T3
@@ -2458,8 +2458,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MagicBeing), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.MagicBeing, 0}
                     },
                     XP = 200,
                     TreasureType = TreasureType.None
@@ -2483,9 +2483,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFrost), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MagicBeing), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToFrost, 0},
+                        { MonsterSpecialName.MagicBeing, 0}
                     },
                     SpecialRules = new List<string> { "Fire damage" },
                     XP = 250,
@@ -2512,9 +2512,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MagicBeing), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.MagicBeing, 0}
                     },
                     XP = 150,
                     TreasureType = TreasureType.None
@@ -2539,9 +2539,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -15,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MagicBeing), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Gust), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.MagicBeing, 0},
+                        { MonsterSpecialName.Gust, 0}
                     },
                     XP = 150,
                     TreasureType = TreasureType.None
@@ -2589,9 +2589,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2621,9 +2621,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.Beasts, // Type was Bandits_Brigands, likely a typo
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 8 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseTerror, 8 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2652,8 +2652,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 300,
                     TreasureType = TreasureType.Part
@@ -2676,8 +2676,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2746,8 +2746,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Sneaky), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Sneaky, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2773,12 +2773,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Ethereal), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.GhostlyTouch), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.Ethereal, 0},
+                        { MonsterSpecialName.GhostlyTouch, 0}
                     },
                     XP = 550,
                     TreasureType = TreasureType.Part
@@ -2803,11 +2803,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Poisonous, 0}
                     },
                     XP = 90,
                     TreasureType = TreasureType.T1
@@ -2828,9 +2828,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Slow), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Slow, 0},
+                        { MonsterSpecialName.Diseased, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2857,9 +2857,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 6,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Scurry), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Scurry, 0},
+                        { MonsterSpecialName.Diseased, 0}
                     },
                     XP = 50,
                     TreasureType = TreasureType.Part
@@ -2883,9 +2883,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.PerfectHearing), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Scurry), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.PerfectHearing, 0},
+                        { MonsterSpecialName.Scurry, 0}
                     },
                     XP = 40,
                     TreasureType = TreasureType.Part
@@ -2909,10 +2909,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 12,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 4 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WallCrawler), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 4 },
+                        { MonsterSpecialName.WallCrawler, 0},
+                        { MonsterSpecialName.Poisonous, 0}
                     },
                     XP = 220,
                     TreasureType = TreasureType.Part
@@ -2936,9 +2936,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -20,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Poisonous, 0}
                     },
                     XP = 120,
                     TreasureType = TreasureType.Part
@@ -2963,10 +2963,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WallCrawler), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.WallCrawler, 0},
+                        { MonsterSpecialName.Poisonous, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -2995,8 +2995,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 10,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -3025,8 +3025,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.PerfectHearing), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.PerfectHearing, 0}
                     },
                     XP = 80,
                     TreasureType = TreasureType.Part
@@ -3052,10 +3052,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.Poisonous, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -3085,9 +3085,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -3117,10 +3117,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseTerror, 5 },
+                        { MonsterSpecialName.Poisonous, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 900,
                     TreasureType = TreasureType.Part
@@ -3232,8 +3232,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Orcs_Goblins,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FearElves), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FearElves, 0}
                     },
                     XP = 70,
                     TreasureType = TreasureType.T1
@@ -3256,8 +3256,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Orcs_Goblins,
                     Behavior = MonsterBehaviorType.HumanoidRanged,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FearElves), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FearElves, 0}
                     },
                     XP = 70,
                     TreasureType = TreasureType.T1
@@ -3303,10 +3303,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.MagicUser,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseTerror, 5 },
+                        { MonsterSpecialName.Demon, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 1200,
                     TreasureType = TreasureType.T5
@@ -3332,9 +3332,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FlyerOutdoors), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FlyerOutdoors, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 1500,
                     TreasureType = TreasureType.Part
@@ -3361,8 +3361,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -15,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FlyerOutdoors), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FlyerOutdoors, 0}
                     },
                     XP = 130,
                     TreasureType = TreasureType.Part
@@ -3388,10 +3388,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 7 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.XLarge), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacksHydra), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 7 },
+                        { MonsterSpecialName.XLarge, 0},
+                        { MonsterSpecialName.MultipleAttacksHydra, 5 }
                     },
                     XP = 1850,
                     TreasureType = TreasureType.Part
@@ -3415,10 +3415,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Flyer), 0 },
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Diseased, 0},
+                        { MonsterSpecialName.Demon, 0},
+                        { MonsterSpecialName.Flyer, 0},
                     },
                     XP = 50,
                     TreasureType = TreasureType.Part
@@ -3445,9 +3445,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.MagicUser,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Floater), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Floater, 0},
+                        { MonsterSpecialName.Demon, 0}
                     },
                     XP = 1200,
                     TreasureType = TreasureType.Part
@@ -3522,10 +3522,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FerociousCharge), 0},
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FerociousCharge, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -3553,12 +3553,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     SpecialRules = new List<string>() { "Gives bonemeal as part" },
                     XP = 350,
@@ -3585,11 +3585,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 300,
                     TreasureType = TreasureType.T3
@@ -3613,9 +3613,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.MagicUser,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 600,
                     TreasureType = TreasureType.T5
@@ -3640,9 +3640,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.MagicUser,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 800,
                     TreasureType = TreasureType.T5
@@ -3665,8 +3665,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacks), 3 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.MultipleAttacks, 3 }
                     },
                     XP = 650,
                     TreasureType = TreasureType.T3
@@ -3714,8 +3714,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Bandits_Brigands,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -3744,8 +3744,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Bandits_Brigands,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
@@ -3777,8 +3777,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Bandits_Brigands,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -3898,9 +3898,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Demon), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.DiseaseRidden), 0 },
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Demon, 0},
+                        { MonsterSpecialName.DiseaseRidden, 0},
                     },
                     XP = 200,
                     TreasureType = TreasureType.Part
@@ -3922,8 +3922,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.MagicUser,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Psychic), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Psychic, 0}
                     },
                     XP = 250,
                     TreasureType = TreasureType.T4
@@ -3945,9 +3945,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FerociousCharge), 0},
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Rend), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FerociousCharge, 0},
+                        { MonsterSpecialName.Rend, 0}
                     },
                     XP = 130,
                     TreasureType = TreasureType.Part
@@ -3973,12 +3973,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stench), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Stench, 0},
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Regeneration, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4008,10 +4008,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 10,
                     Type = EncounterType.Reptiles,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Slow), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Slow, 0},
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4038,8 +4038,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.PerfectHearing), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.PerfectHearing, 0}
                     },
                     XP = 80,
                     TreasureType = TreasureType.T1
@@ -4062,8 +4062,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.HumanoidRanged,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.PerfectHearing), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.PerfectHearing, 0}
                     },
                     XP = 80,
                     TreasureType = TreasureType.T1
@@ -4175,8 +4175,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 12,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4203,11 +4203,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 2 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseFear, 2 }
                     },
                     SpecialRules = new List<string>() { "Gives Bone meal as part" },
                     XP = 80,
@@ -4231,11 +4231,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 2 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseFear, 2 }
                     },
                     SpecialRules = new List<string>() { "Gives Bone meal as part" },
                     XP = 80,
@@ -4260,8 +4260,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Corrosive), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Corrosive, 0}
                     },
                     XP = 120,
                     TreasureType = TreasureType.Part
@@ -4287,10 +4287,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FlyerOutdoors), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.RiddleMaster), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FlyerOutdoors, 0},
+                        { MonsterSpecialName.RiddleMaster, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 1000,
                     TreasureType = TreasureType.Part
@@ -4315,10 +4315,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 10,
                     Type = EncounterType.Magic,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.HardAsRock), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.HardAsRock, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 450,
                     TreasureType = TreasureType.Part
@@ -4344,11 +4344,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Regeneration, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4375,11 +4375,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 550,
                     TreasureType = TreasureType.T3
@@ -4404,10 +4404,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -15,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 10 }
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4436,10 +4436,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -15,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 10 }
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4469,9 +4469,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FerociousCharge), 0},
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FerociousCharge, 0},
+                        { MonsterSpecialName.Regeneration, 0}
                     },
                     XP = 280,
                     TreasureType = TreasureType.Part
@@ -4496,11 +4496,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     SpecialRules = new List<string>() { "Cursed Weapon" },
                     XP = 180,
@@ -4525,11 +4525,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Ethereal), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Ethereal, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     SpecialRules = new List<string>() { "Cursed Weapon" },
                     XP = 500,
@@ -4556,9 +4556,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.XLarge), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseTerror, 5 },
+                        { MonsterSpecialName.XLarge, 0}
                     },
                     XP = 1800,
                     TreasureType = TreasureType.Part
@@ -4582,11 +4582,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     MaxDamage = 8,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Slow), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 2 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Slow, 0},
+                        { MonsterSpecialName.CauseFear, 2 }
                     },
                     XP = 80,
                     TreasureType = TreasureType.T1
@@ -4610,12 +4610,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Slow), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Slow, 0},
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 450,
                     TreasureType = TreasureType.T1
@@ -4640,9 +4640,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Beasts,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Diseased), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 2 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Diseased, 0},
+                        { MonsterSpecialName.CauseFear, 2 }
                     },
                     XP = 115,
                     TreasureType = TreasureType.Part
@@ -4692,10 +4692,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 3 }
                     },
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
@@ -4763,9 +4763,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Diseased, 0);
                         }) },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -4820,8 +4820,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = 5,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     ArmourValue = 3,
@@ -4853,10 +4853,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Poisonous, 0},
+                        { MonsterSpecialName.CauseTerror, 5 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     SpecialRules = new List<string>() { "Summon children: Summons giant spider on behaviour roll of 5-6." },
                     XP = 900,
@@ -4881,8 +4881,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
@@ -4911,8 +4911,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Large, 0}
                     },
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
@@ -5024,10 +5024,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.FerociousCharge), 0},
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.FerociousCharge, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
@@ -5061,11 +5061,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.HigherUndead,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 10 },
+                        { MonsterSpecialName.Regeneration, 0}
                     },
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
@@ -5117,11 +5117,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.HigherUndead,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 800,
                     TreasureType = TreasureType.T5
@@ -5165,11 +5165,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Stupid), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Regeneration, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -5199,12 +5199,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseTerror), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.XLarge), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseTerror, 3 },
+                        { MonsterSpecialName.XLarge, 0}
                     },
                     XP = 1400,
                     TreasureType = TreasureType.Part
@@ -5256,8 +5256,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         EquipmentService.GetWeaponByName("Battlehammer")?.Clone() ?? new Weapon(),
                         EquipmentService.GetWeaponByName("Battlehammer")?.Clone() ?? new Weapon()
                     },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.MultipleAttacks), 2 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.MultipleAttacks, 2 }
                     },
                     XP = 650,
                     TreasureType = TreasureType.T2
@@ -5309,9 +5309,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 600,
                     TreasureType = TreasureType.TheMasterLocksmith
@@ -5335,10 +5335,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WallCrawler), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 6 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Poisonous), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WallCrawler, 0},
+                        { MonsterSpecialName.CauseFear, 6 },
+                        { MonsterSpecialName.Poisonous, 0}
                     },
                     XP = 250,
                     TreasureType = TreasureType.Part
@@ -5362,12 +5362,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = 5,
                     Type = EncounterType.Undead,
                     Behavior = MonsterBehaviorType.HigherUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToFire), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 7 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.WeakToFire, 0},
+                        { MonsterSpecialName.CauseFear, 7 },
+                        { MonsterSpecialName.Regeneration, 0}
                     },
                     XP = 1000,
                     TreasureType = TreasureType.T5
@@ -5395,10 +5395,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.Beast,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WallCrawler), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WallCrawler, 0},
+                        { MonsterSpecialName.CauseFear, 5 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 650,
                     TreasureType = TreasureType.T4
@@ -5453,11 +5453,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.HigherUndead,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new Weapon() },
                     ArmourValue = 3,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 250,
                     TreasureType = TreasureType.T5
@@ -5512,11 +5512,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             weapon.Properties.TryAdd(WeaponProperty.Cursed, 0);
                         }) },
                     ArmourValue = 3,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.JustBones), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.JustBones, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 280,
                     TreasureType = TreasureType.T4
@@ -5683,8 +5683,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon()
                     },
                     ArmourValue = 3,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     SpecialRules = new List<string>() { "Throws spiked balls (1d8), no reload time" },
                     XP = 140,
@@ -5747,10 +5747,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = 0,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.Beast,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.HardAsRock), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.HardAsRock, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     XP = 500,
                     TreasureType = TreasureType.Part
@@ -5782,10 +5782,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             weapon.Properties.TryAdd(WeaponProperty.ArmourPiercing, 2);
                         }) },
                     ArmourValue = 1,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Regeneration), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 3 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Large), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Regeneration, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Large, 0}
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -5850,9 +5850,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.MagicUser,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
                     ArmourValue = 1,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 5 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 5 }
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -5889,10 +5889,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.HigherUndead,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
                     ArmourValue = 2,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.CauseFear), 10 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.CauseFear, 10 }
                     },
                     ActiveAbilities = new List<SpecialActiveAbility>()
                     {
@@ -5949,9 +5949,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.LowerUndead,
-                    PassiveSpecials = new Dictionary<MonsterPassiveSpecial, int>() {
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.WeakToSilver), 0 },
-                        { _passive.GetMonsterPassiveSpecialByName(MonsterSpecialName.Silent), 0 }
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Silent, 0}
                     },
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     XP = 110,
