@@ -17,6 +17,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private readonly SpellResolutionService _spellResolution;
         private readonly FloatingTextService _floatingText;
         private readonly MovementHighlightingService _movementHighlighting;
+        private readonly PowerActivationService _powerActivation;
 
 
         private static readonly GridPosition ScreenCenterPosition = new GridPosition(-1, -1, -1);
@@ -38,7 +39,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             FacingDirectionService facingDirectionService,
             SpellResolutionService spellResolutionService,
             FloatingTextService floatingTextService,
-            MovementHighlightingService movementHighlightingService)
+            MovementHighlightingService movementHighlightingService,
+            PowerActivationService powerActivationService)
         {
             _initiative = initiativeService;
             _playerAction = playerActionService;
@@ -48,6 +50,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _spellResolution = spellResolutionService;
             _floatingText = floatingTextService;
             _movementHighlighting = movementHighlightingService;
+            _powerActivation = powerActivationService;
 
             _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
         }
@@ -166,7 +169,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             {
                                 if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics))
                                 {
-                                    monster.TakeDamageAsync(1, (_floatingText, monster.Position), ignoreAllArmour: true); 
+                                    await monster.TakeDamageAsync(1, (_floatingText, monster.Position), _powerActivation, ignoreAllArmour: true); 
                                 }
                                 if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
                                 {
@@ -249,7 +252,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                         CombatLog.Add($"{monsterToAct.Name} prepares to act...");
-                        await StatusEffectService.ProcessActiveStatusEffectsAsync(monsterToAct);
+                        await StatusEffectService.ProcessActiveStatusEffectsAsync(monsterToAct, _powerActivation);
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
                         CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
@@ -262,14 +265,14 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (IsCombatOver)
             {
-                ResolveCombat();
+                await ResolveCombatAsync();
 
                 OnCombatStateChanged?.Invoke();
                 return;
             }
         }
 
-        private void ResolveCombat()
+        private async Task ResolveCombatAsync()
         {
             CombatLog.Add("Combat is over!");
 
@@ -283,8 +286,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         if( hero.CurrentEnergy < 0)
                         {
                             hero.CurrentEnergy = 0;
-                            StatusEffectService.AttemptToApplyStatusAsync(hero, 
-                                new ActiveStatusEffect(StatusEffectType.NeedRest, -1, statBonus: (BasicStat.Constitution, -(int)Math.Floor(hero.GetStat(BasicStat.Constitution) / 2d))));
+                            await StatusEffectService.AttemptToApplyStatusAsync(hero, 
+                                new ActiveStatusEffect(StatusEffectType.NeedRest, -1, statBonus: (BasicStat.Constitution, -(int)Math.Floor(hero.GetStat(BasicStat.Constitution) / 2d))),
+                                _powerActivation);
                         }
                     }
                     //Remove all active combat effects

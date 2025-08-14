@@ -361,7 +361,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             {
                 MonsterSpell spell = spellChoice.First().Key;
                 GridPosition targetPosition = spellChoice.First().Value;
-                var result = _spell.ResolveMonsterSpell(monster, spell, targetPosition);
+                var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
                 return result.OutcomeMessage;
             }
 

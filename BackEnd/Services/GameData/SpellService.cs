@@ -1478,7 +1478,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         /// <param name="focusPoints">The number of AP spent on focusing before the cast.</param>
         /// <param name="powerLevels">The number of power levels to add (for Destruction/Restoration spells).</param>
         /// <returns>A SpellCastResult object detailing the outcome.</returns>
-        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, PartyManagerService partyManager, int focusPoints = 0, int powerLevels = 0, Monster? monster = null)
+        public async Task<SpellCastResult> CastSpellAsync(Hero caster, UserRequestService diceRoll, PowerActivationService activation, 
+            int focusPoints = 0, int powerLevels = 0, Monster? monster = null)
         {
             if (caster.Position == null) return new SpellCastResult();
             var result = new SpellCastResult();
@@ -1527,18 +1528,18 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6"); await Task.Yield();
                     int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);
-                    await caster.TakeSanityDamage(sanityLoss); 
+                    await caster.TakeSanityDamage(sanityLoss, (new FloatingTextService(), caster.Position), activation); 
                     result.OutcomeMessage = $"Miscast! {caster.Name} loses {sanityLoss} sanity and their turn ends.";
                 }
                 else
                 {
-                    if (partyManager.Party != null)
+                    if (caster.Party != null)
                     {
-                        var priest = partyManager.Party.Heroes.FirstOrDefault(h => h.ProfessionName == "Warrior Priest");
+                        var priest = caster.Party.Heroes.FirstOrDefault(h => h.ProfessionName == "Warrior Priest");
                         resultRoll = await diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: priest, stat: BasicStat.Resolve); await Task.Yield();
                         if (priest != null && priest.Position != null && priest.TestResolve(resultRoll.Roll))
                         {
-                            await priest.TakeDamageAsync(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), ignoreAllArmour: true);
+                            await priest.TakeDamageAsync(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), activation, ignoreAllArmour: true);
                         }
                     }
                 }

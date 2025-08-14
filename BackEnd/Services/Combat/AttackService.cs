@@ -3,6 +3,7 @@ using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 
 namespace LoDCompanion.BackEnd.Services.Combat
@@ -55,17 +56,20 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private readonly UserRequestService _diceRoll;
         private readonly MonsterSpecialService _monsterSpecial;
         private readonly SpellResolutionService _spellResolution;
+        private readonly PowerActivationService _powerActivation;
 
         public AttackService(
             FloatingTextService floatingTextService,
             UserRequestService diceRollService,
             MonsterSpecialService monsterSpecialService,
-            SpellResolutionService spellResolutionService)
+            SpellResolutionService spellResolutionService,
+            PowerActivationService powerActivationService)
         {
             _floatingText = floatingTextService;
             _diceRoll = diceRollService;
             _monsterSpecial = monsterSpecialService;
             _spellResolution = spellResolutionService;
+            _powerActivation = powerActivationService;
 
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
@@ -235,11 +239,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: target, stat: BasicStat.Resolve); await Task.Yield();
                     if (target.TestResolve(rollResult.Roll))
                     {
-                        result.DamageDealt = target.TakeDamageAsync(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), ignoreAllArmour: true);
-                        await target.TakeSanityDamage(1); 
+                        result.DamageDealt = await target.TakeDamageAsync(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), _powerActivation, ignoreAllArmour: true);
+                        await target.TakeSanityDamage(1, (_floatingText, target.Position), _powerActivation); 
                     }
                 }
-                else result.DamageDealt = target.TakeDamageAsync(result.DamageDealt, (_floatingText, target.Position), context);
+                else result.DamageDealt = await target.TakeDamageAsync(result.DamageDealt, (_floatingText, target.Position), _powerActivation, context);
 
                     result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
@@ -257,7 +261,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (context.IsChargeAttack && dungeon != null)
             {
-                result.OutcomeMessage += ResolvePostChargeAttack(attacker, target, dungeon);
+                result.OutcomeMessage += ResolvePostChargeAttackAsync(attacker, target, dungeon);
             }
 
             return result;
@@ -274,18 +278,18 @@ namespace LoDCompanion.BackEnd.Services.Combat
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             if (target.Position != null)
             {
-                target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), context);
+                await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context);
             }
 
             if (context.IsChargeAttack && dungeon != null)
             {
-                result.OutcomeMessage += ResolvePostChargeAttack(attacker, target, dungeon);
+                result.OutcomeMessage += ResolvePostChargeAttackAsync(attacker, target, dungeon);
             }
 
             return result;
         }
 
-        public string ResolvePostChargeAttack(Character attacker, Character target, DungeonState dungeon)
+        public async Task<string> ResolvePostChargeAttackAsync(Character attacker, Character target, DungeonState dungeon)
         {
             var chargeMessage = new StringBuilder();
 
@@ -294,7 +298,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             chargeMessage.Append("\n" + $"{attacker.Name} follows through with the charge!");
 
             // Perform the shove
-            AttackResult shoveResult = PerformShove(attacker, target, dungeon, isCharge: true);
+            AttackResult shoveResult = await PerformShoveAsync(attacker, target, dungeon, isCharge: true);
             chargeMessage.Append("\n" + shoveResult.OutcomeMessage);
 
             // If the shove was successful and a valid original position was stored
@@ -552,7 +556,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Performs a shove attack, handling all rules and outcomes.
         /// </summary>
-        public AttackResult PerformShove(Character shover, Character target, DungeonState dungeon, bool isCharge = false)
+        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, DungeonState dungeon, bool isCharge = false)
         {
             var result = new AttackResult();
             var grid = dungeon.DungeonGrid;
@@ -669,7 +673,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // === FALL OVER (If all else fails) ===
-            StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Prone, 1));
+            await StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Prone, 1), _powerActivation);
             result.OutcomeMessage = $"shoves {target.Name}, but they are blocked and fall over!";
             return result;
         }
@@ -766,7 +770,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         $"Roll a DEX test for {hero.Name} to stay standing.", "1d100",
                         hero: hero, stat: BasicStat.Dexterity); 
                     await Task.Yield();
-                    result.OutcomeMessage += StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1), resultRoll.Roll);
+                    result.OutcomeMessage += await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1), _powerActivation, resultRoll.Roll);
 
                     if (!isBlocked)
                     {

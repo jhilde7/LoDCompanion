@@ -299,7 +299,7 @@ namespace LoDCompanion.BackEnd.Models
         }
 
         // Common methods for all characters
-        public virtual async Task<int> TakeDamageAsync(int damage, (FloatingTextService, GridPosition?) floatingText, CombatContext? combatContext = null, DamageType? damageType = null, bool ignoreAllArmour = false)
+        public virtual async Task<int> TakeDamageAsync(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation, CombatContext? combatContext = null, DamageType? damageType = null, bool ignoreAllArmour = false)
         {
             int naturalArmour = GetStat(BasicStat.NaturalArmour);
             bool fireDamage = combatContext != null && combatContext.IsFireDamage || damageType == DamageType.Fire;
@@ -336,52 +336,52 @@ namespace LoDCompanion.BackEnd.Models
 
             if (fireDamage)
             {
-                await ApllyFireEffectAsync(damage);
+                await ApllyFireEffectAsync(damage, activation);
             }
             if (acidDamage)
             {
-                await ApllyAcidEffectAsync(damage);
+                await ApllyAcidEffectAsync(damage, activation);
             }
             if (frostDamage)
             {
-                await ApplyFrostEffectAsync();
+                await ApplyFrostEffectAsync(activation);
             }
             if (poisonDamage)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1));
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1), activation);
             }
             if (diseaseDamage)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Diseased, -1));
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Diseased, -1), activation);
             }
 
             return damage; // Return the amount of damage taken
         }
 
-        private async Task ApplyFrostEffectAsync()
+        private async Task ApplyFrostEffectAsync(PowerActivationService activation)
         {
             int roll = RandomHelper.RollDie(DiceType.D100);
             if (roll <= 50) // 50% chance to apply frost effect
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
             }
         }
 
-        private async Task ApllyAcidEffectAsync(int damage)
+        private async Task ApllyAcidEffectAsync(int damage, PowerActivationService activation)
         {
             int roll = RandomHelper.RollDie(DiceType.D6);
             if (roll >= 4)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.AcidBurning, 1, damage: (int)Math.Ceiling(damage / 2d))); 
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.AcidBurning, 1, damage: (int)Math.Ceiling(damage / 2d)), activation); 
             }
         }
 
-        private async Task ApllyFireEffectAsync(int damage)
+        private async Task ApllyFireEffectAsync(int damage, PowerActivationService activation)
         {
             int roll = RandomHelper.RollDie(DiceType.D6);
             if (roll >= 4)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.FireBurning, 1, damage: (int)Math.Ceiling(damage / 2d)));
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.FireBurning, 1, damage: (int)Math.Ceiling(damage / 2d)), activation);
             }
         }
 
@@ -592,7 +592,7 @@ namespace LoDCompanion.BackEnd.Models
             return TestConstitution((int)roll);
         }
 
-        internal async Task<bool> ResistFearAsync(Monster fearCauser, int? roll = null, bool wasTerror = false)
+        internal async Task<bool> ResistFearAsync(Monster fearCauser, PowerActivationService activation, int? roll = null, bool wasTerror = false)
         {
             fearCauser.PassiveSpecials.TryGetValue(MonsterSpecialName.CauseFear, out int level);
             if (this.Level > level) return true;
@@ -615,7 +615,7 @@ namespace LoDCompanion.BackEnd.Models
                         var result = await new UserRequestService().RequestChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name.ToString()}", new List<string>() { "Yes", "No" });
                         if (result == "Yes")
                         {
-                            await new PowerActivationService().ActivatePerkAsync(hero, perk, target: this);
+                            await activation.ActivatePerkAsync(hero, perk, target: this);
                         } 
                     }
                 }
@@ -640,7 +640,7 @@ namespace LoDCompanion.BackEnd.Models
             return true;
         }
 
-        internal async Task<bool> ResistTerrorAsync(Monster fearCauser, int? roll = null)
+        internal async Task<bool> ResistTerrorAsync(Monster fearCauser, PowerActivationService activation, int? roll = null)
         {
             fearCauser.PassiveSpecials.TryGetValue(MonsterSpecialName.CauseTerror, out int level);
             if (this.Level > level) return true;
@@ -663,7 +663,7 @@ namespace LoDCompanion.BackEnd.Models
                         var result = await new UserRequestService().RequestChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name.ToString()}", new List<string>() { "Yes", "No" });
                         if (result == "Yes")
                         {
-                            await new PowerActivationService().ActivatePerkAsync(hero, perk, target: this);
+                            await activation.ActivatePerkAsync(hero, perk, target: this);
                         }
                     }
                 }
@@ -674,7 +674,7 @@ namespace LoDCompanion.BackEnd.Models
                 switch (effect.Category)
                 {
                     case StatusEffectType.ThePowerOfIphy: roll -= 10; break;
-                    case StatusEffectType.PowerOfFaith: return await ResistFearAsync(fearCauser, roll, wasTerror: true); // Treats terror as fear
+                    case StatusEffectType.PowerOfFaith: return await ResistFearAsync(fearCauser, activation, roll, wasTerror: true); // Treats terror as fear
                     case StatusEffectType.Encouragement: roll -= 10; ActiveStatusEffects.Remove(effect); break;
                 }
             }
@@ -682,7 +682,7 @@ namespace LoDCompanion.BackEnd.Models
             if (TestResolve((int)roll + 20))
             {
                 AfraidOfTheseMonsters.Add(fearCauser);
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1));
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
                 return false;
             }
 
@@ -878,7 +878,7 @@ namespace LoDCompanion.BackEnd.Models
             if (CurrentEnergy > GetStat(BasicStat.Energy)) CurrentEnergy = GetStat(BasicStat.Energy);
         }
 
-        public async Task TakeSanityDamage(int damage)
+        public async Task TakeSanityDamage(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation)
         {
             bool resisted = false;
             if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.VerseOfTheSane))
@@ -888,11 +888,15 @@ namespace LoDCompanion.BackEnd.Models
             }
             
             if(!resisted) CurrentSanity -= damage;
+            if (floatingText.Item2 != null)
+            {
+                floatingText.Item1.ShowText($"-{damage}", floatingText.Item2, "damage-text");
+            }
 
-            if (CurrentSanity <= 0) await GetConditionAsync();
+            if (CurrentSanity <= 0) await GetConditionAsync(activation);
         }
 
-        public async Task GetConditionAsync()
+        public async Task GetConditionAsync(PowerActivationService activation)
         {
             bool conditionApplied = false;
             while (!conditionApplied)
@@ -919,7 +923,7 @@ namespace LoDCompanion.BackEnd.Models
                 }
                 if (conditionToApply != null)
                 {
-                    string outcome = await StatusEffectService.AttemptToApplyStatusAsync(this, conditionToApply);
+                    string outcome = await StatusEffectService.AttemptToApplyStatusAsync(this, conditionToApply, activation);
                     if (outcome != "Already affected") conditionApplied = true; 
                 }
             }

@@ -45,6 +45,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly InitiativeService _initiative;
         private readonly UserRequestService _diceRoll;
         private readonly FloatingTextService _floatingText;
+        private readonly PowerActivationService _powerActivation;
 
         public event Action? OnTimeFreezeCast;
         public event Func<Hero, Monster, Task<AttackResult>>? OnTouchAttack;
@@ -54,13 +55,15 @@ namespace LoDCompanion.BackEnd.Services.Game
             EncounterService encounterService,
             InitiativeService initiativeService,
             UserRequestService diceRoll,
-            FloatingTextService floatingText)
+            FloatingTextService floatingText,
+            PowerActivationService powerActivation)
         {
             _dungeon = dungeonState;
             _encounter = encounterService;
             _initiative = initiativeService;
             _diceRoll = diceRoll;
             _floatingText = floatingText;
+            _powerActivation = powerActivation;
         }
 
         /// <summary>
@@ -142,7 +145,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
                     int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
-                    singleTarget.TakeDamageAsync(primaryDamage, (_floatingText, singleTarget.Position), damageType: spell.DamageType);
+                    await singleTarget.TakeDamageAsync(primaryDamage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType);
                     outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
                     hitTargets.Add(singleTarget);
 
@@ -154,7 +157,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); await Task.Yield();
                         int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
-                        secondTarget.TakeDamageAsync(secondDamage, (_floatingText, secondTarget.Position), damageType: spell.DamageType);
+                        await secondTarget.TakeDamageAsync(secondDamage, (_floatingText, secondTarget.Position), _powerActivation, damageType: spell.DamageType);
                         outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
                         hitTargets.Add(secondTarget);
 
@@ -166,7 +169,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); await Task.Yield();
                             int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
-                            thirdTarget.TakeDamageAsync(thirdDamage, (_floatingText, thirdTarget.Position), damageType: spell.DamageType);
+                            await thirdTarget.TakeDamageAsync(thirdDamage, (_floatingText, thirdTarget.Position), _powerActivation, damageType: spell.DamageType);
                             outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
                         }
                     }
@@ -202,7 +205,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
                         damage += options.PowerLevels;
 
-                        character.TakeDamageAsync(damage, (_floatingText, character.Position), damageType: spell.DamageType);
+                        await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: spell.DamageType);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -210,7 +213,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = await GetDirectDamageAsync(caster, spell) + options.PowerLevels;
-                singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), damageType: spell.DamageType);
+                await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
@@ -446,7 +449,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     {
                         return new SpellCastResult { IsSuccess = true, OutcomeMessage = $"{charater.Name} resisted the effects of {spell.Name}!" };
                     }
-                    StatusEffectService.AttemptToApplyStatusAsync(charater, effectToApply);
+                    await StatusEffectService.AttemptToApplyStatusAsync(charater, effectToApply, _powerActivation);
                     result.OutcomeMessage = $"{charater.Name} is affected by {spell.Name}!";
                 }
             }
@@ -461,7 +464,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// <summary>
         /// Resolves the effect of a spell cast by a monster.
         /// </summary>
-        public SpellCastResult ResolveMonsterSpell(Monster caster, MonsterSpell spell, object target)
+        public async Task<SpellCastResult> ResolveMonsterSpellAsync(Monster caster, MonsterSpell spell, object target)
         {
             var result = new SpellCastResult { IsSuccess = true };
             var outcome = new StringBuilder($"{caster.Name} casts {spell.Name}!");
@@ -483,12 +486,12 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else if (spell.TargetType == TargetType.SingleTarget || spell.TargetType == TargetType.AreaOfEffect)
             {
-                return HandleDamageSpell(caster, spell, target);
+                return await HandleDamageSpellAsync(caster, spell, target);
             }
 
             if (spell.StatusEffect != null && singleTarget != null && spell.StatusEffect != StatusEffectType.RaiseDead)
             {
-                result.OutcomeMessage = HandleStatusEffectingSpell(caster, spell, singleTarget);
+                result.OutcomeMessage = await HandleStatusEffectingSpellAsync(caster, spell, singleTarget);
                 return result;
             }
 
@@ -503,7 +506,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         if (fallenUndead != null)
                         {
                             fallenUndead.Heal(fallenUndead.GetStat(BasicStat.HitPoints));
-                            outcome.AppendLine(HandleStatusEffectingSpell(caster, spell, fallenUndead));
+                            outcome.AppendLine(await HandleStatusEffectingSpellAsync(caster, spell, fallenUndead));
                         }
                         else
                         {
@@ -548,7 +551,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             return result;
         }
 
-        private string HandleStatusEffectingSpell(Monster caster, MonsterSpell spell, Character target)
+        private async Task<string> HandleStatusEffectingSpellAsync(Monster caster, MonsterSpell spell, Character target)
         {
             var outcome = new StringBuilder($"{caster.Name} casts {spell.Name}!");
 
@@ -594,7 +597,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
                 int duration = spell.Properties?.GetValueOrDefault(SpellProperty.TurnDuration, -1) ?? -1;
 
-                StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect((StatusEffectType)spell.StatusEffect, duration));
+                await StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect((StatusEffectType)spell.StatusEffect, duration), _powerActivation);
                 outcome.Append($" {target.Name} is now affected by {spell.StatusEffect.ToString()}.");
             }
 
@@ -637,7 +640,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             return !string.IsNullOrEmpty(monsterToSummonName) ? _encounter.GetEncounterByParams(summoningParams)[0] : null;
         }
 
-        private SpellCastResult HandleDamageSpell(Monster caster, MonsterSpell spell, object target)
+        private async Task<SpellCastResult> HandleDamageSpellAsync(Monster caster, MonsterSpell spell, object target)
         {
             var result = new SpellCastResult { IsSuccess = true };
             var outcome = new StringBuilder();
@@ -669,7 +672,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             GetDirectDamage(caster, spell) :
                             GetAOEDamage(caster, spell);
 
-                        character.TakeDamageAsync(damage, (_floatingText, character.Position), damageType: spell.DamageType != null ? spell.DamageType : null);
+                        await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: spell.DamageType != null ? spell.DamageType : null);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -677,13 +680,13 @@ namespace LoDCompanion.BackEnd.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = GetDirectDamage(caster, spell);
-                singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), damageType: spell.DamageType != null ? spell.DamageType : null);
+                await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType != null ? spell.DamageType : null);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
             if (spell.StatusEffect != null && singleTarget != null)
             {
-                result.OutcomeMessage = HandleStatusEffectingSpell(caster, spell, singleTarget);
+                result.OutcomeMessage = await HandleStatusEffectingSpellAsync(caster, spell, singleTarget);
             }
 
             return result;

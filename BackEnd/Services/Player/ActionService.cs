@@ -222,7 +222,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Monster, ActionType.Shove):
                     if (primaryTarget is Character targetToShove && character.Position != null)
                     {
-                        AttackResult attackResult = _attack.PerformShove(character, targetToShove, dungeon);
+                        AttackResult attackResult = await _attack.PerformShoveAsync(character, targetToShove, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
                         if (attackResult.IsHit)
                         {
@@ -497,7 +497,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         }
                         else
                         {
-                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, _partyManager, options.FocusPoints, options.PowerLevels, 
+                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, _powerActivation, options.FocusPoints, options.PowerLevels, 
                                 monster: (primaryTarget is Monster) ? (Monster)primaryTarget : null);
                             resultMessage = spellCastResult.OutcomeMessage;
 
@@ -606,7 +606,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (secondaryTarget is Prayer prayerToCast
                         && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.ToString())))
                     {
-                        resultMessage = _powerActivation.ActivatePrayerAsync(hero, prayerToCast, (Character?)primaryTarget);
+                        resultMessage = await _powerActivation.ActivatePrayerAsync(hero, prayerToCast, (Character?)primaryTarget);
                     }
                     else
                     {
@@ -629,7 +629,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                             }
                             apCost = 1;
                         }
-                        resultMessage = _powerActivation.ActivatePerkAsync(hero, perkToUse, (Character?)primaryTarget);
+                        resultMessage = await _powerActivation.ActivatePerkAsync(hero, perkToUse, (Character?)primaryTarget) ? 
+                            $"{hero.Name} activated {perkToUse.Name.ToString()}" : $"{perkToUse.Name.ToString()} activation was unsuccessful";
                     }
                     else
                     {
