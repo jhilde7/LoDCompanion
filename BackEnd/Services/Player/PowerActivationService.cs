@@ -9,20 +9,23 @@ namespace LoDCompanion.BackEnd.Services.Player
         Perk,
         Prayer
     }
-
+    
     public class PowerActivationService
     {
         public string ActivatePerk(Hero hero, Perk perk, Character? target = null)
         {
-            var effect = new ActiveStatusEffect((StatusEffectType)Enum.Parse(typeof(StatusEffectType), perk.Name.ToString()), -1);
-            StatusEffectService.AttemptToApplyStatus(target ?? hero, effect);
+            if (perk.ActiveStatusEffect != null)
+            {
+                var effect = perk.ActiveStatusEffect;
+                StatusEffectService.AttemptToApplyStatus(target ?? hero, effect); 
+            }
             hero.CurrentEnergy--;
             return $"{hero.Name} used {perk.Name}!";
         }
 
         public string ActivatePrayer(Hero hero, Prayer prayer, Character? target = null)
         {
-            var effect = new ActiveStatusEffect((StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayer.Name.ToString()), -1);
+            var effect = prayer.ActiveStatusEffect;
             StatusEffectService.AttemptToApplyStatus(target ?? hero, effect);
             hero.CurrentEnergy--;
             return $"{hero.Name} prayed for {prayer.Name}!";

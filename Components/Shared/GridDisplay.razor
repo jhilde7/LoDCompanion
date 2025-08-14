@@ -251,7 +251,7 @@
                     <SubMenu Label="Cast Spell">
                         @foreach (var spell in activeHero.Spells)
                         {
-                            @if (spell.TargetType == SpellTargetType.NoTarget)
+                            @if (spell.TargetType == TargetType.NoTarget)
                             {
                                 <Item
                                     OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = position, SecondaryTarget = spell }))">
@@ -333,7 +333,7 @@
                         <SubMenu Label="Cast Spell">
                             @foreach (var spell in activeHero.Spells)
                             {
-                                @if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+                                @if (spell.TargetType == TargetType.SingleTarget || spell.TargetType == TargetType.AreaOfEffect)
                                 {
                                     <Item
                                         OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetMonster, SecondaryTarget = spell }))">
@@ -399,7 +399,7 @@
                     <SubMenu Label="Cast Spell">
                         @foreach (var spell in activeHero.Spells)
                         {
-                            @if (spell.TargetType == SpellTargetType.Self || spell.TargetType == SpellTargetType.Ally)
+                            @if (spell.TargetType == TargetType.Self || spell.TargetType == TargetType.Ally)
                             {
                                 <Item
                                     OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = activeHero, SecondaryTarget = spell }))">
@@ -440,7 +440,7 @@
                     <SubMenu Label="Cast Spell">
                         @foreach (var spell in activeHero.Spells)
                         {
-                            @if (spell.TargetType == SpellTargetType.Ally)
+                            @if (spell.TargetType == TargetType.Ally)
                             {
                                 <Item
                                     OnClick="@(() => OnActionClicked.InvokeAsync(new ActionInfo { ActionType = ActionType.CastSpell, Target = targetHero, SecondaryTarget = spell }))">

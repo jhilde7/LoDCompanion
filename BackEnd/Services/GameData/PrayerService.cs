@@ -195,8 +195,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int EnergyCost { get; set; } = 1;
         public string Duration { get; set; } = string.Empty;
         public string PrayerEffect { get; set; } = string.Empty;// This could be an enum or a more complex object if effects become varied.
-        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
-        public SpellTargetType TargetType { get; set; } = SpellTargetType.Self;
+        public ActiveStatusEffect ActiveStatusEffect { get; set; } = new ActiveStatusEffect(StatusEffectType.NeedRest, 0);
+        public TargetType TargetType { get; set; } = TargetType.Self;
         public bool EffectsParty { get; set; }
 
         // Constructor

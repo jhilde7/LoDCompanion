@@ -477,11 +477,11 @@ namespace LoDCompanion.BackEnd.Services.Game
             // Spend AP Cost
             caster.SpendActionPoints(spell.CostAP);
 
-            if (spell.TargetType == SpellTargetType.Ally && singleTarget != null && singleTarget is Monster allyTarget)
+            if (spell.TargetType == TargetType.Ally && singleTarget != null && singleTarget is Monster allyTarget)
             {
                 return HandleHealingSpell(caster, spell, allyTarget);
             }
-            else if (spell.TargetType == SpellTargetType.SingleTarget || spell.TargetType == SpellTargetType.AreaOfEffect)
+            else if (spell.TargetType == TargetType.SingleTarget || spell.TargetType == TargetType.AreaOfEffect)
             {
                 return HandleDamageSpell(caster, spell, target);
             }
@@ -493,7 +493,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
 
             // Handle Special Non-Targeted Effects (Summoning, Auras, etc.)
-            if (spell.TargetType == SpellTargetType.NoTarget)
+            if (spell.TargetType == TargetType.NoTarget)
             {
                 switch (spell.Name)
                 {
@@ -739,16 +739,16 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// <summary>
         /// Gets all characters within the area of effect of a spell.
         /// </summary>
-        private List<Character> GetCharactersInArea(SpellTargetType targetType, GridPosition center, int radius)
+        private List<Character> GetCharactersInArea(TargetType targetType, GridPosition center, int radius)
         {
             var allCharacters = _dungeon.AllCharactersInDungeon; // Assumes a helper in DungeonState
 
-            if (targetType == SpellTargetType.SingleTarget)
+            if (targetType == TargetType.SingleTarget)
             {
                 return allCharacters.Where(c => c.Position != null && c.Position.Equals(center)).ToList();
             }
 
-            if (targetType == SpellTargetType.AreaOfEffect)
+            if (targetType == TargetType.AreaOfEffect)
             {
                 var affectedSquares = GridService.GetAllSquaresInRadius(center, radius, _dungeon.DungeonGrid);
                 return allCharacters.Where(c => c.Position != null && c.OccupiedSquares.Any(os => affectedSquares.Contains(os))).ToList();

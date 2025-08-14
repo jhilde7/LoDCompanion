@@ -72,7 +72,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         Support
     }
 
-    public enum SpellTargetType
+    public enum TargetType
     {
         SingleTarget, // Affects one character
         AreaOfEffect, // Affects a grid square and its surroundings
@@ -211,7 +211,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         ManaCost = 8,
                         StatusEffect = StatusEffectType.FakeDeath,
                         School = MagicSchool.Necromancy,
-                        TargetType = SpellTargetType.Self,
+                        TargetType = TargetType.Self,
                         SpellEffect = "Causes the caster to fall to the ground, appearing dead to all around. Enemies will not target the caster for the rest of the battle. The caster may do nothing until the end of the battle."
                     },
                     new Spell(){
@@ -243,7 +243,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.GustOfWind,
                         School = MagicSchool.Alteration,
-                        TargetType = SpellTargetType.Self,
+                        TargetType = TargetType.Self,
                         SpellEffect = "Suddenly a powerful wind blows through the dungeon, making arrows fly astray. All Missile Weapons now have a -15 modifier to hit if the arrows pass the room the Wizard is in. The wind lasts for Caster level turns. Upkeep is 1 point of Mana."
                     },
                     new Spell(){
@@ -275,7 +275,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                           { SpellProperty.DiceMaxValue, 10 },
                       },
                       School = MagicSchool.Restoration,
-                      TargetType = SpellTargetType.Ally,
+                      TargetType = TargetType.Ally,
                       SpellEffect = "The caster lays their hand on a comrade and heals 1d10 Hit Points."
                     },
                     new Spell(){
@@ -292,7 +292,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                           { SpellProperty.Range, 4 }
                       },
                       School = MagicSchool.Restoration,
-                      TargetType = SpellTargetType.Ally,
+                      TargetType = TargetType.Ally,
                       SpellEffect = "The caster can heal one hero within 4 squares and in LOS (intervening models does not matter). It heals 1d6 Hit Points."
                     },
                     new Spell(){
@@ -310,7 +310,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.ProtectiveShield,
                         School = MagicSchool.Mysticism,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "The caster summons a translucent sphere of blue light around himself or the target (which must be in LOS), protecting it from physical harm. The shield absorbs 1 Point of Damage per Caster level to a maximum of 3. You can cast the spell twice (but not more) on each target, adding together the effect of the spell. The spell lasts the entire battle but costs 1 point of Mana in upkeep per turn."
                     },
                     new Spell(){
@@ -342,7 +342,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Blur,
                         School = MagicSchool.Illusion,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "May target self or hero in LOS. Target becomes blurry and any attacks against the target is at -15. The effect lasts for 1d4 turns."
                     },
                     new Spell(){
@@ -369,7 +369,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.Incantation, 0 }
                         },
                         School = MagicSchool.Enchantment,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "This spell is used to create scrolls. As long as the wizard knows the spell he wants to use as the basis for the scroll, and has a good quality parchment, this is quite easy although time consuming."
                     },
                     new Spell(){
@@ -424,7 +424,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.ResolveTest, 0 }
                         },
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster reaches into the Void and summons a Lesser Plague Demon. Place the demon in a random free square in the room. The demon may act as part of the hero's next turn. It will fight for the caster, but also try to break free at every turn. At the start of each turn, the caster must use 4 Mana as upkeep, and then pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. Add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -485,7 +485,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.Incantation, 0 }
                         },
                         School = MagicSchool.Enchantment,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "This spell can only be cast between quests and requires a powerstone. The power of the stone will then be fused with an object such as a weapon, an armour or a piece of jewellery. See chapter on Crafting."
                     },
                     new Spell(){
@@ -501,7 +501,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.Range, 4 }
                         },
                         School = MagicSchool.Restoration,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "The caster may heal a hero within 4 squares and in LOS. The target regains 1d10 Hit Points."
                     },
                     new Spell(){
@@ -557,7 +557,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.MagicArmour,
                         School = MagicSchool.Mysticism,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "The caster may bolster the armour of any target within LOS with +2 for all parts of the body. The spell lasts for Caster Level+2 turns."
                     },
                     new Spell(){
@@ -605,7 +605,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid them in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -621,7 +621,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid them in the battle. The Elemental will fight for Caster Level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -652,7 +652,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.BolsteredMind,
                         School = MagicSchool.Mysticism,
-                        TargetType = SpellTargetType.Self,
+                        TargetType = TargetType.Self,
                         SpellEffect = "The caster infuses all members of the party with magical courage. Each hero gains +10 Resolve and may try to re-roll any failed fear test once. Lasts until end of turn."
                     },
                     new Spell(){
@@ -711,7 +711,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         CastingValue = 15,
                         ManaCost = 25,
                         School = MagicSchool.Divination,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "Caster can tell what is on the other side of a door. Place the tile and roll for Encounter before opening a door. The heroes gain 2 activation tokens if there is an encounter on the other side of the door."
                     },
                     new Spell(){
@@ -727,7 +727,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.DiceMaxValue, 3 },
                         },
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster lures a demon from its dimension over to this world. It will randomly be either a Blood Demon or a Plague Demon. The demon is placed in a random place in the same tile as the wizard and fights for the caster. Once summoned, immediately add a hero activation token to the bag and activate the demon just like a hero. However, at the start of the wizard's activation following the summoning, the caster must pass a Resolve Test. If the caster fails, the demon breaks free and escapes back to its own dimension. When it breaks free, it will make a Resolve Test of its own and if it succeeds, it takes part of the caster's mind with it. Deduct 1d3 Sanity Points from the caster. Once in our plane, the demon will relish the fighting, so no upkeep is needed."
                     },
                     new Spell(){
@@ -743,7 +743,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid them in the battle. The Elemental will fight for ML number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -759,7 +759,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster summons one of the four Elementals to aid them in the battle. The Elemental will fight for Caster level number of turns. Immediately add one hero initiative token to the bag."
                     },
                     new Spell(){
@@ -787,7 +787,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.LOS, 0 }
                         },
                         School = MagicSchool.Alteration,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "The caster may shift the place of two heroes that are in LOS. If the spell fails, both heroes suffer 2 Sanity Points for the ordeal. The caster may not transpose himself."
                     },
                     new Spell(){
@@ -871,7 +871,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Levitate,
                         School = MagicSchool.Alteration,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "May target self or hero in LOS. Target may levitate for the entire turn. That means the character moves above the ground, not touching any traps or similar. It may be used to leave a pit and to traverse a pit. You cannot levitate through a square which contains a model or over lava."
                     },
                     new Spell(){
@@ -888,7 +888,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.MirroredSelf,
                         School = MagicSchool.Illusion,
-                        TargetType = SpellTargetType.Self,
+                        TargetType = TargetType.Self,
                         SpellEffect = "The caster makes a copy of herself which may be placed anywhere within 4 squares of the caster. Enemies will treat this mirrored image as a target just like any other hero, even though it cannot take DMG. The mirrored self cannot move or attack. It will last for 1d4 turns."
                     },
                     new Spell(){
@@ -903,7 +903,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Speed,
                         School = MagicSchool.Mysticism,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "May target self or any friendly character in LOS. Character gains +1M. The spell lasts until a Scenario die roll of 9-10."
                     },
                     new Spell(){
@@ -916,7 +916,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.UsePerBattle, 1 },
                         },
                         School = MagicSchool.Divination,
-                        TargetType = SpellTargetType.Self,
+                        TargetType = TargetType.Self,
                         SpellEffect = "All heroes that have acted may immediately put activation tokens back in the bag. They may act again as if it is a new turn. This spell may only be cast once during a battle."
                     },
                     new Spell(){
@@ -936,7 +936,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         DamageType = DamageType.Fire,
                         School = MagicSchool.Destruction,
-                        TargetType = SpellTargetType.AreaOfEffect,
+                        TargetType = TargetType.AreaOfEffect,
                         SpellEffect = "The caster shoots a fireball at a square or an enemy. The target square suffers 1d20 Fire Damage. Adjacent squares suffer 1d10 Fire Damage."
                     },
                     new Spell(){
@@ -952,7 +952,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.Radius, 4 },
                         },
                         School = MagicSchool.Mysticism,
-                        TargetType = SpellTargetType.AreaOfEffect,
+                        TargetType = TargetType.AreaOfEffect,
                         SpellEffect = "The caster conjures a large opening in the ground, swallowing any who happens to be standing there. The wizard must have LOS to at least 1 of the squares. The hole covers 4 squares and any model with their whole base inside that range must make a DEX Test or perish. That also means an X-Large creature will not be affected by this spell. The party gets the XP for any creatures that perish. Any furniture or traps in these squares also disappears. The hole then immediately closes up."
                     },
                     new Spell(){
@@ -961,7 +961,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         CastingValue = 20,
                         ManaCost = 30,
                         School = MagicSchool.Restoration,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "This spell restores all of a hero's Hit Points."
                     },
                     new Spell(){
@@ -993,7 +993,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         },
                         StatusEffect = StatusEffectType.Summoned,
                         School = MagicSchool.Conjuration,
-                        TargetType = SpellTargetType.NoTarget,
+                        TargetType = TargetType.NoTarget,
                         SpellEffect = "The caster draws a demon from its dimension to do their biddings. The demon is placed in a random place on the same tile as the wizard and fights for the caster for 1d3+Caster Level turns. Once in our plane, the demon will relish fighting, so no upkeep is needed. However, making a pact with a Greater Demon comes at a price, no matter how skilled a wizard you may be. Deduct 1d6 Sanity Points from the caster."
                     },
                     new Spell(){
@@ -1007,7 +1007,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                             { SpellProperty.Range, 4 },
                         },
                         School = MagicSchool.Alteration,
-                        TargetType = SpellTargetType.Ally,
+                        TargetType = TargetType.Ally,
                         SpellEffect = "The wizard may teleport one of their companions within LOS or himself up to 4 squares. This is risky business though, and a failed spell will cost the target one Sanity Point as he is partly in the void before coming back."
                     }
                 };
@@ -1040,7 +1040,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Blind",
                     Type = MonsterSpellType.Ranged,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     AITargetingHint = AiTargetHints.TargetHighestCombatSkillHero,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
@@ -1054,7 +1054,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Flare",
                     Type = MonsterSpellType.Ranged,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.LOS, 0 },
@@ -1068,7 +1068,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Fireball",
                     Type = MonsterSpellType.Ranged,
-                    TargetType = SpellTargetType.AreaOfEffect,
+                    TargetType = TargetType.AreaOfEffect,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.LOS, 0 },
@@ -1089,7 +1089,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Frost ray",
                     Type = MonsterSpellType.Ranged,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.LOS, 0 },
@@ -1106,7 +1106,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Gust of wind",
                     Type = MonsterSpellType.Ranged,
-                    TargetType = SpellTargetType.NoTarget,
+                    TargetType = TargetType.NoTarget,
                     AITargetingHint = AiTargetHints.DebuffHeroRanged,
                     StatusEffect = StatusEffectType.GustOfWindAura,
                     Effect = "The wizard summons a gust of wind making the use of projectiles harder. For any ranged weapon where the projectile would pass within 10 squares of the wizard, heroes or enemies suffer a -10 to hit modifier. The spell lasts the entire battle or until the caster is dead."
@@ -1115,7 +1115,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Slow",
                     Type = MonsterSpellType.Ranged,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.LOS, 0 },
@@ -1131,7 +1131,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Mind blast",
                     Type = MonsterSpellType.CloseCombat,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.Touch, 0 },
@@ -1148,7 +1148,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Mirrored self",
                     Type = MonsterSpellType.CloseCombat,
-                    TargetType = SpellTargetType.Self,
+                    TargetType = TargetType.Self,
                     StatusEffect = StatusEffectType.MirroredSelf,
                     AITargetingHint = AiTargetHints.SelfPreservation,
                     Effect = "The wizard creates a duplicate of himself in any random empty square on the same tile. This copy is in the same condition as the wizard (i.e. same amount of wounds). Once placed, there is no telling which is the copy and which is the real wizard. Both will fight as normal and cast spells. Once one of them is killed there is a 50% chance that this was the real wizard. In that case, the copy vanishes as well. Otherwise the wizard will continue to fight."
@@ -1157,7 +1157,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Seduce",
                     Type = MonsterSpellType.CloseCombat,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.Touch, 0 },
@@ -1171,7 +1171,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Stun",
                     Type = MonsterSpellType.CloseCombat,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.Touch, 0 },
@@ -1185,7 +1185,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Teleportation",
                     Type = MonsterSpellType.CloseCombat,
-                    TargetType = SpellTargetType.Self,
+                    TargetType = TargetType.Self,
                     AITargetingHint = AiTargetHints.SelfPreservation,
                     Effect = "The wizard teleports to a random location on the same tile that is not adjacent to a non-allied character. If no such square is available, the wizard will instead end up in a random square in any random adjacent tile."
                 },
@@ -1193,7 +1193,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Vampiric touch",
                     Type = MonsterSpellType.CloseCombat,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.Touch, 0 },
@@ -1210,7 +1210,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Frenzy",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.Ally,
+                    TargetType = TargetType.Ally,
                     StatusEffect = StatusEffectType.Frenzy,
                     AITargetingHint = AiTargetHints.BuffHighestCombatSkillAlly,
                     Effect = "The wizard targets one ally that gets the frenzy special rule. This lasts until the end of the battle. No LOS required."
@@ -1219,7 +1219,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Healing",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.Ally, // Can heal self or ally
+                    TargetType = TargetType.Ally, // Can heal self or ally
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.LOS, 0 },
@@ -1233,7 +1233,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Healing hand",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.Ally, // Can heal self or adjacent ally
+                    TargetType = TargetType.Ally, // Can heal self or adjacent ally
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.Touch, 0 },
@@ -1247,7 +1247,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Mute",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.Self,
+                    TargetType = TargetType.Self,
                     StatusEffect = StatusEffectType.MuteAura,
                     AITargetingHint = AiTargetHints.DebuffEnemyCaster,
                     Effect = "The wizard casts a mute spell, making the use of an enemies spell or prayer more difficult. Any prayer or spell in the same tile as the wizard now requires the enemy warrior priest or wizard to add +15 to the skill check. This spell is in effect until the wizard who cast the mute spell casts another spell."
@@ -1256,7 +1256,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Raise dead",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.SingleTarget,
+                    TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.DiceCount, 1 },
@@ -1271,7 +1271,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Shield",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.Ally, // Can shield self or ally
+                    TargetType = TargetType.Ally, // Can shield self or ally
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.ArmourValue, 2 }
@@ -1284,7 +1284,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Summon demon",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.NoTarget, // Summons a new entity
+                    TargetType = TargetType.NoTarget, // Summons a new entity
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.RandomPlacement, 0 },
@@ -1299,7 +1299,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Name = "Summon greater demon",
                     Type = MonsterSpellType.Support,
-                    TargetType = SpellTargetType.NoTarget, // Summons a new entity
+                    TargetType = TargetType.NoTarget, // Summons a new entity
                     Properties = new Dictionary<SpellProperty, int>()
                     {
                         { SpellProperty.RandomPlacement, 0 },
@@ -1356,7 +1356,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
     {
         public string Name { get; set; } = string.Empty;
         public MonsterSpellType Type { get; set; }
-        public SpellTargetType TargetType { get; set; } = SpellTargetType.SingleTarget;
+        public TargetType TargetType { get; set; } = TargetType.SingleTarget;
         public Dictionary<SpellProperty, int>? Properties { get; set; } // Additional properties like range, duration, etc.
         public StatusEffectType? StatusEffect { get; set; } // Optional status effect applied by the spell
         public DamageType? DamageType { get; set; }
@@ -1373,7 +1373,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
     {
         public string Name { get; set; } = string.Empty;
         public int Level { get; set; }
-        public SpellTargetType TargetType { get; set; } = SpellTargetType.SingleTarget; // Default to single target
+        public TargetType TargetType { get; set; } = TargetType.SingleTarget; // Default to single target
         public string SpellEffect { get; set; } = string.Empty;
         public int CastingValue { get; set; } // The base difficulty or power of the spell
         public int ManaCost { get; set; }
