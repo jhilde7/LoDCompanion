@@ -14,7 +14,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="healer">The hero applying the bandage.</param>
         /// <param name="target">The hero receiving the healing.</param>
         /// <returns>A string describing the outcome.</returns>
-        public string ApplyBandage(Hero healer, Hero target)
+        public async Task<string> ApplyBandageAsync(Hero healer, Hero target, UserRequestService userRequest, PowerActivationService activation)
         {
             Equipment? bandage = null;
             if (!healer.Inventory.QuickSlots.Any())
@@ -47,8 +47,20 @@ namespace LoDCompanion.BackEnd.Services.Player
             else if (bandage.Name.Contains("linen")) hpGained = RandomHelper.RollDie(DiceType.D8);
             else if (bandage.Name.Contains("Herbal wrap")) hpGained = RandomHelper.RollDie(DiceType.D10);
 
+            var fateForger = healer.Perks.FirstOrDefault(p => p.Name == PerkName.FateForger);
+            if(fateForger != null && healer.CurrentEnergy > 0)
+            {
+                if(await userRequest.RequestYesNoChoiceAsync($"Does {healer.Name} wish to activate {fateForger.Name.ToString()} which will add 3 to the healing roll of {hpGained}?"))
+                {
+                    if(await activation.ActivatePerkAsync(healer, fateForger))
+                    {
+                        hpGained += 3;
+                    }
+                }
+            }
+
             // Apply healing to the target.
-            target.CurrentHP = Math.Min(target.GetStat(BasicStat.HitPoints), target.CurrentHP + hpGained);
+            target.Heal(hpGained);
 
             return $"{healer.Name} successfully heals {target.Name} for {hpGained} HP.";
         }

@@ -398,12 +398,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case (Hero hero, ActionType.HealSelf):
-                    resultMessage = _healing.ApplyBandage(hero, hero);
+                    resultMessage = await _healing.ApplyBandageAsync(hero, hero, _diceRoll, _powerActivation);
                     break;
                 case (Hero hero, ActionType.HealOther):
                     if (primaryTarget is Hero targetHero)
                     {
-                        resultMessage = _healing.ApplyBandage(hero, targetHero);
+                        resultMessage = await _healing.ApplyBandageAsync(hero, targetHero, _diceRoll, _powerActivation);
                     }
                     else
                     {

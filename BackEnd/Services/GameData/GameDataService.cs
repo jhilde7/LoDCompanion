@@ -303,12 +303,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Faith,
-                    Name = PerkName.Healer,
-                    Effect = "Putting that extra effort into tending a wound can make such a difference. When applying a bandage, this Perk adds +3 HP to the result.",
-                    Comment = "Used at the same time as the Healing Skill."
-                },
-                new Perk(){
-                    Category = PerkCategory.Faith,
                     Name = PerkName.MyWillBeDone,
                     Effect = "Using their inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
                     Comment = "Lasts until end of next battle",
