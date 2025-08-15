@@ -215,7 +215,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Name = PerkName.MyWillBeDone,
                     Effect = "Using their inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
                     Comment = "Lasts until end of next battle",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.MyWillBeDone, -1, removeAfterCombat: true)
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.MyWillBeDone, -1, statBonus: (BasicStat.Resolve, 10), removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
@@ -300,13 +300,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Name = PerkName.FateForger,
                     Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
                     Comment = "Used as soon as the Scenario die has been rolled."
-                },
-                new Perk(){
-                    Category = PerkCategory.Faith,
-                    Name = PerkName.MyWillBeDone,
-                    Effect = "Using their inner strength, the priest manifests tremendous Resolve. Add +10 RES.",
-                    Comment = "Lasts until end of next battle",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.MyWillBeDone, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
