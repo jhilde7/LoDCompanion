@@ -80,7 +80,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _monsterSpecial.OnTongueAttack += HandleTongueAttack;
             _monsterSpecial.OnWebAttack += HandleWebAttempt;
             _spellResolution.OnTouchAttack += HandleTouchAttack;
-
+            
         }
 
         /// <summary>
@@ -947,6 +947,38 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 return result; // If the attack missed, return early.
             }
 
+            return result;
+        }
+
+        public async Task<AttackResult> PerformStunningStrikeAsync(Hero hero, Weapon weapon, Monster target, CombatContext context)
+        {
+            var stunninStrike = hero.Perks.FirstOrDefault(p => p.Name == PerkName.StunningStrike);
+            if (stunninStrike == null) return new AttackResult() { OutcomeMessage = $"{hero.Name} does not have the perk {PerkName.StunningStrike.ToString()}" };
+            if (!await _powerActivation.ActivatePerkAsync(hero, stunninStrike)) return new AttackResult() { OutcomeMessage = $"{hero.Name} failed to activate perk {PerkName.StunningStrike.ToString()}" };
+
+            var result = await CalculateHeroHitAttemptAsync(hero, weapon, target, context);
+
+            var stunningStrikeEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.StunningStrike);
+            if (stunningStrikeEffect != null) hero.ActiveStatusEffects.Remove(stunningStrikeEffect);
+
+            if (!result.IsHit)
+            {
+                return result;
+            }
+            else
+            {
+                if (!target.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.XLarge || s.Key == MonsterSpecialName.Large))
+                {
+                    if (await StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, 1), _powerActivation) != "Already affected")
+                    result.OutcomeMessage = $"{target.Name} has been incapacitated";
+                }
+                else if (target.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Large))
+                {
+                    if (await StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Stunned, 1), _powerActivation) != "Already affected")
+                    result.OutcomeMessage = $"{target.Name} is large and resists being incapacitated, but is stunned instead";
+                }
+                else result.OutcomeMessage = $"{target.Name} is too large for {hero.Name} attack to have any effect";
+            }
             return result;
         }
     }

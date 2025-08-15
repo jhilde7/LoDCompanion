@@ -140,7 +140,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Encouragement,
         ShieldWall,
         StrikeToInjure,
-        PowerfulBlow
+        PowerfulBlow,
+        StunningStrike
     }
 
     /// <summary>
@@ -197,13 +198,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (effect.Category == StatusEffectType.Terror && monster != null) resisted = await hero.ResistTerrorAsync(monster, activation, resistRoll);
             }
 
-            if (effect.Category == StatusEffectType.Incapacitated 
+            if (target is Hero && (effect.Category == StatusEffectType.Incapacitated 
                 || effect.Category == StatusEffectType.Petrified
-                || effect.Category == StatusEffectType.Bellow) 
+                || effect.Category == StatusEffectType.Bellow)) 
                 resisted = target.TestResolve(resistRoll ?? RandomHelper.RollDie(DiceType.D100));
 
-            if (effect.Category == StatusEffectType.Prone)
-                resisted = target.TestDexterity(resistRoll ?? RandomHelper.RollDie(DiceType.D100));
+            if (effect.Category == StatusEffectType.Prone && resistRoll != null)
+                resisted = target.TestDexterity((int)resistRoll);
 
             if (!resisted)
             {
@@ -403,6 +404,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public static void RemoveActiveStatusEffect(Character character, ActiveStatusEffect effect)
         {
             character.ActiveStatusEffects.Remove(effect);
+            if (character.CombatStance == CombatStance.Prone) character.CombatStance = CombatStance.Normal;
         }
     }
 }

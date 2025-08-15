@@ -47,7 +47,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         BreakFreeFromEntangle,
         Frenzy,
         UsePerk,
-        ShieldBash
+        ShieldBash,
+        StunningStrike
     }
 
     public class ActionInfo
@@ -693,6 +694,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case (Hero hero, ActionType.StunningStrike):
+                    if (primaryTarget is Character && character.Position != null && hero.CurrentEnergy > 0 && weapon is MeleeWeapon)
+                    {
+                        var result = await _attack.PerformStunningStrikeAsync(hero, weapon, (Monster)primaryTarget, new CombatContext());
+                        resultMessage = result.OutcomeMessage;
+                    }
+                    else
+                    {
+                        resultMessage = "Cannot perform action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
             }
 
 
@@ -734,6 +747,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.Pray => 0,
                 ActionType.UsePerk => 0,
                 ActionType.ShieldBash => 0,
+                ActionType.StunningStrike => 0,
                 _ => 1,
             };
         }

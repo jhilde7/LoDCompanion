@@ -144,7 +144,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Combat,
                     Name = PerkName.StunningStrike,
                     Effect = "Your hero may choose to stun the enemy instead of inflicting wounds. Your hero performs a Standard Attack with a -10 CS penalty and if the attack is successful, the enemy must pass a RES test or it may perform NO actions during its next turn.",
-                    Comment = "Only melee weapons. Does not work on X-Large creatures and Large creatures only lose 1 AP."
+                    Comment = "Only melee weapons. Does not work on X-Large creatures and Large creatures only lose 1 AP.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.StunningStrike, -1, skillBonus: (Skill.CombatSkill, -10))
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
@@ -292,13 +293,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
-                    Name = PerkName.ShieldWall,
-                    Effect = "Years of training lets your hero handle that shield like a pro. You may parry twice during one turn while in Parry Stance.",
-                    Comment = "May be used when attacked.",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.ShieldWall, 1)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
