@@ -76,7 +76,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Name = PerkName.Sprint,
                     Effect = "Your hero may use one Point of Energy to move up to 6 squares with the first movement. A second movement is still allowed but with the standard half movement.",
                     Comment = "",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Sprint, 1)
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Sprint, 1, statBonus: (BasicStat.Move, 2))
                 },
                 new Perk(){
                     Category = PerkCategory.Common,
@@ -295,13 +295,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Effect = "May add +20 to a dodge result when attacked or +20 to a Perception Test when avoiding a triggered trap.",
                     Comment = ""
                 },
-                new Perk(){
-                    Category = PerkCategory.Common,
-                    Name = PerkName.Sprint,
-                    Effect = "Your hero may use one Point of Energy to move up to 6 squares with the first movement. A second movement is still allowed but with the standard half movement.",
-                    Comment = "",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Sprint, 1)
-                },
+                ,
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.Taunt,

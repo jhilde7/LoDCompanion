@@ -141,6 +141,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             if ( actionType != ActionType.Move &&  character.CurrentMovePoints < character.GetStat(BasicStat.Move) && !character.HasMadeFirstMoveAction)
             {
                 character.HasMadeFirstMoveAction = true;
+
+                // Sprint is only in effect for the first move action
+                var sprint = character.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Sprint);
+                if (sprint != null)
+                {
+                    character.ActiveStatusEffects.Remove(sprint);
+                }
+
                 character.ResetMovementPoints(); // Reset movement points if first move action is made
                 character.CurrentAP--; // Deduct 1 AP for finishing the move action
                 if (character.CurrentAP <= 0)
