@@ -295,12 +295,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
-                    Name = PerkName.ShieldBash,
-                    Effect = "Pushes one enemy of the same size or smaller one square. Target must make a Dexterity Test or fall over, spending its next action to stand again. Hero may occupy target's square afterwards.",
-                    Comment = "Flyers are immune. Requires a Heater or Tower shield."
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
                     Name = PerkName.ShieldWall,
                     Effect = "Years of training lets your hero handle that shield like a pro. You may parry twice during one turn while in Parry Stance.",
                     Comment = "May be used when attacked.",

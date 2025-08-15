@@ -23,6 +23,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
         {
+            await Task.Yield();
             bool success = false;
             if (hero.Perks.Any(p => p.Name == perk.Name))
             {

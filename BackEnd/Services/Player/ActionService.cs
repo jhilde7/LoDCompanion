@@ -46,7 +46,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         Focus,
         BreakFreeFromEntangle,
         Frenzy,
-        UsePerk
+        UsePerk,
+        ShieldBash
     }
 
     public class ActionInfo
@@ -173,17 +174,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                             && weapon is RangedWeapon bowSling && (bowSling.AmmoType == AmmoType.Arrow || bowSling.AmmoType == AmmoType.SlingStone)
                             && hero.CurrentEnergy >= 1)
                         {
-                            var result = await _diceRoll.RequestChoiceAsync(
-                                $"Does {hero.Name} want to use {huntersEye.Name.ToString()} against {((Character)primaryTarget).Name}?",
-                                new List<string>() { "Yes", "No" }); await Task.Yield();
-                            if (result == "Yes")
+                            if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} want to use {huntersEye.Name.ToString()} against {((Character)primaryTarget).Name}?"))
                             {
+                                await Task.Yield();
                                 if (await _powerActivation.ActivatePerkAsync(hero, huntersEye))
                                 {
                                     await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
                                     await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
                                 }
                             }
+                            await Task.Yield();
                         }
 
                         AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
@@ -253,15 +253,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         AttackResult attackResult = await _attack.PerformShoveAsync(character, targetToShove, dungeon);
                         resultMessage = attackResult.OutcomeMessage;
-                        if (attackResult.IsHit)
+                        if (attackResult.IsHit && targetToShove.Position != null)
                         {
-                            if (attackResult.ToHitChance <= attackResult.AttackRoll && targetToShove.Position != null)
+                            Room? room = _dungeonManager.FindRoomAtPosition(targetToShove.Position);
+                            if (room != null)
                             {
-                                Room? room = _dungeonManager.FindRoomAtPosition(targetToShove.Position);
-                                if (room != null)
-                                {
-                                    targetToShove.Room = room;
-                                }
+                                targetToShove.Room = room;
                             }
                         }
                         else
@@ -670,6 +667,32 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case (Hero hero, ActionType.ShieldBash):
+                    if (primaryTarget is Character targetToBash && character.Position != null && hero.CurrentEnergy > 0
+                        && hero.Inventory.OffHand != null && hero.Inventory.OffHand is Shield && ((Shield)hero.Inventory.OffHand).WeaponClass > 1)
+                    {
+                        AttackResult attackResult = await _attack.PerformShoveAsync(character, targetToBash, dungeon, isShieldBash: true);
+                        resultMessage = attackResult.OutcomeMessage;
+                        if (attackResult.IsHit && targetToBash.Position != null)
+                        {
+                            Room? room = _dungeonManager.FindRoomAtPosition(targetToBash.Position);
+                            if (room != null)
+                            {
+                                targetToBash.Room = room;
+                            }
+                            hero.CurrentEnergy--;
+                        }
+                        else
+                        {
+                            actionWasSuccessful = false;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Cannot perform Shield Bash. Conditions not met (not enough energy, no suitable shield, or invalid target).";
+                        actionWasSuccessful = false;
+                    }
+                    break;
             }
 
 
@@ -709,6 +732,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
                 ActionType.UsePerk => 0,
+                ActionType.ShieldBash => 0,
                 _ => 1,
             };
         }

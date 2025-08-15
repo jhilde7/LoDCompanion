@@ -585,11 +585,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Performs a shove attack, handling all rules and outcomes.
         /// </summary>
-        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, DungeonState dungeon, bool isCharge = false)
+        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, DungeonState? dungeon, bool isCharge = false, bool isShieldBash = false)
         {
             var result = new AttackResult();
-            var grid = dungeon.DungeonGrid;
-            result.IsHit = true;
+            var grid = dungeon?.DungeonGrid ?? shover.Room.Grid;
 
             var charactersInArea = new List<Character>();
             if (shover.Room?.HeroesInRoom != null) charactersInArea.AddRange(shover.Room.HeroesInRoom);
@@ -612,28 +611,59 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // Rule: Cannot shove large models
-            if (target is Monster monster && monster.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Large || s.Key == MonsterSpecialName.XLarge))
+            if (target is Monster 
+                && ((Monster)target).PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Large || s.Key == MonsterSpecialName.XLarge))
             {
-                result.OutcomeMessage = $"{target.Name} is too large to be moved!";
+                result.OutcomeMessage = $"{target.Name} is too large to be moved.";
                 result.IsHit = false;
                 return result;
             }
 
-            if (!isCharge)
+            // Rule: Cannot shove flying models
+            if (target is Monster && ((Monster)target).PassiveSpecials.Any(s =>  s.Key == MonsterSpecialName.Flyer)
+                || dungeon == null && target is Monster && ((Monster)target).PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Flyer || s.Key == MonsterSpecialName.FlyerOutdoors))
+            {
+                result.OutcomeMessage = $"{target.Name} is flying.";
+                result.IsHit = false;
+                return result;
+            }
+
+            if(isShieldBash)
+            {
+                int shoveRoll = (await _diceRoll.RequestRollAsync("Roll to attempt shove.", "1d100")).Roll;
+                result.AttackRoll = shoveRoll;
+
+                if (shoveRoll > target.GetStat(BasicStat.Dexterity))
+                {
+                    await StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Prone, 1), _powerActivation);
+                    result.OutcomeMessage = $"{target.Name} fails to keep their footing and is knocked prone! ";
+                }
+            }
+            else if (!isCharge)
             {
                 // === ROLL CHECK ===
-                int shoveRoll = RandomHelper.RollDie(DiceType.D100);
+                int shoveRoll = (target is Monster) ? (await _diceRoll.RequestRollAsync("Roll to attempt shove.", "1d100")).Roll : RandomHelper.RollDie(DiceType.D100);
+                await Task.Yield();
+                if (shoveRoll == 100)
+                {
+                    await StatusEffectService.AttemptToApplyStatusAsync(shover, new ActiveStatusEffect(StatusEffectType.Prone, 1), _powerActivation);
+                    result.OutcomeMessage = $"{shover.Name} critically fails and falls prone! ";
+                    return result;
+                }
+
                 int shoveBonus = shover.GetStat(BasicStat.DamageBonus) * 10;
                 int totalShoveValue = shoveRoll + shoveBonus;
                 result.ToHitChance = target.GetStat(BasicStat.Dexterity);
                 result.AttackRoll = totalShoveValue;
 
-                if (result.AttackRoll <= result.ToHitChance)
+                if (result.AttackRoll > result.ToHitChance)
                 {
                     result.OutcomeMessage = $"attempt fails. (Rolled {result.AttackRoll} vs DEX {result.ToHitChance})";
                     return result;
                 }
             }
+
+            result.IsHit = true;
 
             // Determine "straight back" vector
             var straightBackVector = new GridPosition(
@@ -654,6 +684,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 {
                     GridService.MoveCharacterToPosition(target, straightBackPos, grid);
                     result.OutcomeMessage = $"successfully shoves {target.Name} straight back!";
+                    if (await _diceRoll.RequestYesNoChoiceAsync($"Do you wish to move into the space you pushed {target.Name} out of?"))
+                    { 
+                        shover.Position = target.Position;
+                        shover.Room = target.Room;
+                    }
+                    await Task.Yield();
                     return result;
                 }
                 else // Attempt chain reaction
@@ -668,6 +704,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             GridService.MoveCharacterToPosition(model2, posBehindModel2, grid);
                             GridService.MoveCharacterToPosition(target, straightBackPos, grid);
                             result.OutcomeMessage = $"shoves {target.Name}, who stumbles into {model2.Name}, pushing them both back!";
+                            if (await _diceRoll.RequestYesNoChoiceAsync($"Do you wish to move into the space you pushed {target.Name} out of?"))
+                            {
+                                shover.Position = target.Position;
+                                shover.Room = target.Room;
+                            }
+                            await Task.Yield();
                             return result;
                         }
                     }
@@ -696,6 +738,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     {
                         GridService.MoveCharacterToPosition(target, diagPos, grid);
                         result.OutcomeMessage = $"successfully shoves {target.Name} diagonally back!";
+                        if (await _diceRoll.RequestYesNoChoiceAsync($"Do you wish to move into the space you pushed {target.Name} out of?"))
+                        {
+                            shover.Position = target.Position;
+                            shover.Room = target.Room;
+                        }
+                        await Task.Yield();
                         return result;
                     }
                 }
