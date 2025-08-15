@@ -440,7 +440,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
             if (target.Inventory.OffHand != null && target.Inventory.OffHand is Shield shield)
             {
-                return await DefenseService.AttemptShieldParry(target, shield, incomingDamage, _diceRoll);
+                return await DefenseService.AttemptShieldParry(target, shield, incomingDamage, _diceRoll, _powerActivation);
             }
             if (target.CombatStance == CombatStance.Parry && target.Inventory.EquippedWeapon != null)
             {

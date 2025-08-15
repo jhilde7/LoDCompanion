@@ -88,7 +88,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new DefenseResult();
             if (hero.CombatStance != CombatStance.Parry)
             {
-                new DefenseResult { OutcomeMessage = "Cannot parry with a weapon unless in a Parry CombatStance." };
+                return new DefenseResult { OutcomeMessage = "Cannot parry with a weapon unless in a Parry CombatStance." };
+            }
+            if (hero.HasParriedThisTurn)
+            {
+                return new DefenseResult { OutcomeMessage = "Cannot parry more then once per turn." };
             }
 
             if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
@@ -123,13 +127,32 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Resolves a hero's parry attempt using a shield.
         /// </summary>
-        public static async Task<DefenseResult> AttemptShieldParry(Hero hero, Shield shield, int incomingDamage, UserRequestService diceRoll)
+        public static async Task<DefenseResult> AttemptShieldParry(Hero hero, Shield shield, int incomingDamage, UserRequestService diceRoll, PowerActivationService activation)
         {
             var result = new DefenseResult();
 
             if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
+            }
+            if (hero.HasParriedThisTurn)
+            {
+                var shieldWall = hero.Perks.FirstOrDefault(p => p.Name == PerkName.ShieldWall);
+                if (shieldWall != null)
+                {
+                    if (!await new UserRequestService().RequestYesNoChoiceAsync($"Do you wish to activate {PerkName.ShieldWall.ToString()} perk to attempt another parry this turn?"))
+                    {
+                        await Task.Yield();
+                        return new DefenseResult { OutcomeMessage = "Cannot parry more then once per turn." };
+                    }
+                    
+                    await activation.ActivatePerkAsync(hero, shieldWall);
+                    await Task.Yield();
+                }
+                else
+                {
+                    return new DefenseResult { OutcomeMessage = "Cannot parry more then once per turn." };
+                }
             }
 
             int parrySkill = hero.GetSkill(Skill.CombatSkill);

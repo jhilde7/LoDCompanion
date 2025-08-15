@@ -699,6 +699,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             if (actionWasSuccessful)
             {
                 character.CurrentAP -= apCost;
+                if(actionType != ActionType.PowerAttack) character.IsVulnerableAfterPowerAttack = false;
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";

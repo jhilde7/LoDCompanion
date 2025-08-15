@@ -149,7 +149,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             foreach (var hero in HeroesInCombat)
             {
-                hero.IsVulnerableAfterPowerAttack = false;
+                hero.HasParriedThisTurn = false;
                 if (hero.CombatStance != CombatStance.Overwatch)
                 {
                     hero.ResetActionPoints();

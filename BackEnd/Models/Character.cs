@@ -472,11 +472,12 @@ namespace LoDCompanion.BackEnd.Models
         public int Coins { get; set; } = 150;
 
         public bool HasBeenTargetedThisTurn { get; set; }
-        public bool HasDodgedThisBattle { get; set; } = false;
+        public bool HasDodgedThisBattle { get; set; }
+        public bool HasParriedThisTurn { get; set; }
         public List<Monster> AfraidOfTheseMonsters { get; set; } = new List<Monster>();
         public Levelup Levelup { get; set; } = new Levelup();
-        public bool ReceivedPerfectRollSkill { get; set; } = false;
-        public bool ReceivedPerfectRollStat { get; set; } = false;
+        public bool ReceivedPerfectRollSkill { get; set; }
+        public bool ReceivedPerfectRollStat { get; set; }
         public Monster MonsterLastFought { get; set; } = new Monster();
 
         // Constructor
