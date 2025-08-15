@@ -309,11 +309,6 @@ namespace LoDCompanion.BackEnd.Models
             bool poisonDamage = combatContext != null && combatContext.IsPoisonousAttack || damageType == DamageType.Poison;
             bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
 
-            if (ActiveStatusEffects != null && ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.IgnoreWounds) != null)
-            {
-                naturalArmour += 2; // Ignore Wounds effect adds +2 to natural armour
-            }
-
             if (!fireDamage || !acidDamage || !ignoreAllArmour)
             {
                 damage -= naturalArmour; //natural armour is not affected by armour piercing 

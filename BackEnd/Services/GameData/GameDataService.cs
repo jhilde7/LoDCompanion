@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Models;
 
 namespace LoDCompanion.BackEnd.Services.GameData
 {
@@ -62,7 +63,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Name = PerkName.IgnoreWounds,
                     Effect = "Hero gains Natural Armour +2",
                     Comment = "Lasts for one battle.",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.IgnoreWounds, -1, removeAfterCombat: true)
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.IgnoreWounds, -1, statBonus: (BasicStat.NaturalArmour, 2), removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Common,
@@ -288,13 +289,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         }
 
         /*
-                new Perk(){
-                    Category = PerkCategory.Common,
-                    Name = PerkName.IgnoreWounds,
-                    Effect = "Hero gains Natural Armour +2",
-                    Comment = "Lasts for one battle.",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.IgnoreWounds, -1, removeAfterCombat: true)
-                },
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.SixthSense,
