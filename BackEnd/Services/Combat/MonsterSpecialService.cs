@@ -252,7 +252,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             if (target.Position == null) return string.Empty;
             if (!target.HasDodgedThisBattle)
             {
-                var defenseResult = await DefenseService.AttemptDodge(target, _diceRoll);
+                var defenseResult = await DefenseService.AttemptDodge(target, _diceRoll, _powerActivation);
                 if (defenseResult.WasSuccessful)
                 {
                     return $"{monster.Name} unleashes a cone of fiery breath, but {target.Name} dives out of the way!";

@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Player;
 
 namespace LoDCompanion.BackEnd.Services.Combat
 {
@@ -23,7 +24,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Resolves a hero's dodge attempt against an incoming attack.
         /// </summary>
-        public static async Task<DefenseResult> AttemptDodge(Hero hero, UserRequestService diceRoll)
+        public static async Task<DefenseResult> AttemptDodge(Hero hero, UserRequestService diceRoll, PowerActivationService activation)
         {
             var result = new DefenseResult();
             if (hero.HasDodgedThisBattle)
@@ -49,6 +50,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
             await Task.Yield();
             if (!rollResult.WasCancelled)
             {
+                var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
+                if (sixthSense != null)
+                {
+                    var choice = await diceRoll.RequestChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your dodge chance?", new List<string>() { "Yes", "No" }); 
+                    if (choice == "Yes" && (await activation.ActivatePerkAsync(hero, sixthSense)))
+                    {
+                        dodgeSkill += 20;
+                    }
+                }
                 int roll = rollResult.Roll;
                 if (roll <= 80 && roll <= dodgeSkill)
                 {

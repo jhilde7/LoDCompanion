@@ -370,7 +370,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Monster, ActionType.OpenDoor):
                     if (primaryTarget is Door door)
                     {
-                        _dungeonManager.InteractWithDoor(door, character);
+                        await _dungeonManager.InteractWithDoorAsync(door, character);
                     }
                     else
                     {

@@ -1,5 +1,8 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -10,11 +13,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int DisarmModifier { get; set; } // Modifier for disarming the trap
         public string Description { get; set; }
         public string SpecialDescription { get; set; } // Description of the special effect if triggered
-
-        // Properties to track trap state (can be managed by a service)
-        public bool IsTrapped { get; set; } = true; // A trap starts as active
         public bool IsTriggered { get; set; }
-        public bool IsAvoided { get; set; }
         public bool IsDisarmed { get; set; }
 
         public Trap(string name, int skillModifier, int disarmModifier, string description, string specialDescription = "")
@@ -45,6 +44,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
     public class TrapService
     {
+        private readonly UserRequestService _diceRoll;
+        private readonly PowerActivationService _powerActivation;
+
+        public TrapService (UserRequestService diceRoll, PowerActivationService powerActivation)
+        {
+            _diceRoll = diceRoll;
+            _powerActivation = powerActivation;
+        }
+
 
         /// <summary>
         /// Checks if a hero successfully detects a trap based on their Perception.
@@ -55,7 +63,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool DetectTrap(Hero hero, Trap trap)
         {
             int perceptionRoll = RandomHelper.RollDie(DiceType.D100);
-            // The PDF mentions a modifier on the card next to the eye; we use the trap's SkillModifier for this.
             return perceptionRoll <= 80 && perceptionRoll <= hero.GetSkill(Skill.Perception) + trap.SkillModifier;
         }
 
@@ -65,21 +72,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero attempting to disarm the trap.</param>
         /// <param name="trap">The trap to be disarmed.</param>
         /// <returns>True if the trap is successfully disarmed.</returns>
-        public bool DisarmTrap(Hero hero, Trap trap)
+        public async Task<bool> DisarmTrapAsync(Hero hero, Trap trap)
         {
-            // Disarming uses the Pick Lock Skill, as per the PDF.
-            // The modifier next to the cogs on the card corresponds to the trap's DisarmModifier.
-            int disarmRoll = RandomHelper.RollDie(DiceType.D100);
-            if (disarmRoll <= 80 && disarmRoll <= hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier)
+            var rollResult = await _diceRoll.RequestRollAsync("Roll pick locks test", "1d100");
+            if (rollResult.Roll <= 80 && rollResult.Roll <= hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier)
             {
                 trap.IsDisarmed = true;
-                trap.IsTrapped = false;
                 return true;
             }
             else
             {
                 // Failure to disarm sets off the trap.
-                TriggerTrap(hero, trap);
+                await TriggerTrapAsync(hero, trap);
                 return false;
             }
         }
@@ -90,10 +94,20 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero who triggered the trap.</param>
         /// <param name="trap">The trap that was triggered.</param>
         /// <returns>A string describing the outcome of the trap.</returns>
-        public string TriggerTrap(Hero hero, Trap trap)
+        public async Task<string> TriggerTrapAsync(Hero hero, Trap trap)
         {
             trap.IsTriggered = true;
-            trap.IsTrapped = false;
+            var perceptionSkill = hero.GetSkill(Skill.Perception);
+            
+            var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
+            if (sixthSense != null)
+            {
+                var choice = await _diceRoll.RequestChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your chance to avoid the trap?", new List<string>() { "Yes", "No" });
+                if (choice == "Yes" && (await _powerActivation.ActivatePerkAsync(hero, sixthSense)))
+                {
+                    perceptionSkill += 20;
+                }
+            }
 
             // In a real game loop, you would apply damage or status effects to the hero here.
             // For example: hero.TakeDamage(trap.Damage, (_floatingText, hero.Position));

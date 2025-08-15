@@ -421,7 +421,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             if (!target.HasDodgedThisBattle)
             {
-                return await DefenseService.AttemptDodge(target, _diceRoll);
+                return await DefenseService.AttemptDodge(target, _diceRoll, _powerActivation);
             }
             if (target.Inventory.OffHand != null && target.Inventory.OffHand is Shield shield)
             {
@@ -737,7 +737,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 result = CalculateMonsterHitAttempt(attacker, attacker.GetMeleeWeapon(), hero, new CombatContext());
 
                 // Heroes can attempt to dodge but not parry.
-                var defenseResult = await DefenseService.AttemptDodge(hero, _diceRoll);
+                var defenseResult = await DefenseService.AttemptDodge(hero, _diceRoll, _powerActivation);
                 if (defenseResult.WasSuccessful)
                 {
                     result.OutcomeMessage += defenseResult.OutcomeMessage + "\n";

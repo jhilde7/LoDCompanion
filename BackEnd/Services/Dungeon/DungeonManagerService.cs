@@ -168,7 +168,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="door">The door or chest being opened.</param>
         /// <param name="character">The hero performing the action.</param>
         /// <returns>A string describing the result of the attempt.</returns>
-        public string InteractWithDoor(Door door, Character character)
+        public async Task<string> InteractWithDoorAsync(Door door, Character character)
         {
             if (door.Properties != null && door.Properties.ContainsKey(DoorProperty.Open)) return "The door is already open.";
             
@@ -190,13 +190,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     {
                         // Failed to detect, trap is sprung!
                         door.Properties.Remove(DoorProperty.Trapped);
-                        return _trap.TriggerTrap(hero, door.Trap);
+                        return await _trap.TriggerTrapAsync(hero, door.Trap);
                     }
                     else
                     {
                         // TODO: Trap detected. The UI would ask the player to disarm or trigger it.
                         // For now, we assume they attempt to disarm.
-                        if (!_trap.DisarmTrap(hero, door.Trap))
+                        if (!await _trap.DisarmTrapAsync(hero, door.Trap))
                         {
                             return $"{hero.Name} failed to disarm the {door.Trap.Name} and triggered it!";
                         }
