@@ -14,7 +14,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         public bool WasSuccessful { get; set; }
         public string Message { get; set; } = string.Empty;
-        public List<string> FoundItems { get; set; } = new List<string>();
+        public List<Equipment> FoundItems { get; set; } = new List<Equipment>();
     }
 
     /// <summary>
@@ -45,7 +45,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
             if (room.HasBeenSearched)
             {
-                room.SearchResults.Add("This room has already been searched.");
                 return;
             }
 
@@ -86,7 +85,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 switch (treasureRoll)
                 {
                     case int r when r >= 1 && r <= 15:
-                        room.SearchResults.Add("You found a secret door leading to a small _treasure chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
+                        Console.WriteLine("You found a secret door leading to a small _treasure chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
                         // Note: The logic for creating a new room/door (GetRoom, Instantiate)
                         // must be handled by DungeonManagerService. This just adds the text result.
                         // You'd have to signal back to the DungeonManagerService to create this room.
@@ -98,26 +97,26 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         room.SearchResults.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Mundane, count));
                         break;
                     case int r when r >= 41 && r <= 45:
-                        room.SearchResults.Add("You found a set of levers. (Interaction handled by a LeverService)");
+                        Console.WriteLine("You found a set of levers. (Interaction handled by a LeverService)");
                         room.HasLevers = true; // Update room state
                         break;
                     case int r when r >= 46 && r <= 50:
                         room.SearchResults.Add(await _treasure.GetTreasureAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
                         break;
                     case int r when r >= 91 && r <= 100:
-                        room.SearchResults.Add("You've sprung a trap!");
+                        Console.WriteLine("You've sprung a trap!");
                         // A TrapService or DungeonManagerService would handle the trap instantiation/effect.
                         // You might set a flag here or return a Trap object.
                         // CurrentTrap = newTrap; // Example: if Trap is a simple data class.
                         break;
                     default:
-                        room.SearchResults.Add("You found Nothing");
+                        Console.WriteLine("You found Nothing");
                         break;
                 }
             }
             else
             {
-                room.SearchResults.Add("Search Failed");
+                Console.WriteLine("Search Failed");
             }
             room.SearchRoomTrigger = false; // Reset trigger
             room.HasBeenSearched = true;

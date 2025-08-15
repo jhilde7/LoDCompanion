@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.Player;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -30,28 +31,58 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _diceRoll;
         private readonly WeaponFactory _weaponFactory;
         private readonly ArmourFactory _armourFactory;
+        private readonly PartyManagerService _partyManager;
+        private readonly PowerActivationService _powerActivation;
 
         public TreasureService(
             AlchemyService alchemyService,
             UserRequestService diceRollService,
             WeaponFactory weaponFactory,
-            ArmourFactory armourFactory)
+            ArmourFactory armourFactory,
+            PartyManagerService partyManagerService,
+            PowerActivationService powerActivationService)
         {
             _alchemy = alchemyService;
             _diceRoll = diceRollService;
             _weaponFactory = weaponFactory;
             _armourFactory = armourFactory;
+            _partyManager = partyManagerService;
+            _powerActivation = powerActivationService;
         }
 
-        public async Task<string> GetTreasureAsync(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "")
+        public async Task<Equipment> GetTreasureAsync(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "", 
+            int? maxCoinRoll = null, string? coinDice = null, int? bonusCoins = null)
         {
-            Equipment item = await CreateItemAsync(itemName, durability, value, amount, description);
-            return $"{item.Quantity} {item.Name}";
+            if (_partyManager.Party != null && maxCoinRoll != null && coinDice != null)
+            {
+                var lootGoblins = _partyManager.Party.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.LootGoblin));
+                if (lootGoblins.Any())
+                {
+                    await Task.Yield();
+                    foreach (var hero in lootGoblins)
+                    {
+                        var lootGoblin = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LootGoblin);
+                        if (lootGoblin == null || hero.CurrentEnergy < 1) continue;
+
+                        if (await _diceRoll.RequestYesNoChoiceAsync($"Current Coin roll is {amount - bonusCoins ?? 0}, there is a maximum of {maxCoinRoll}. " +
+                            $"Does {hero.Name} wish to activate {lootGoblin.Name.ToString()}? The second roll will override the current role."))
+                        {
+                            if (await _powerActivation.ActivatePerkAsync(hero, lootGoblin))
+                            {
+                                amount = (await _diceRoll.RequestRollAsync("Roll for coins.", coinDice)).Roll;
+                                if (bonusCoins != null) amount += (int)bonusCoins;
+                            }
+                        }
+                    }  
+                }
+            }
+
+            return await CreateItemAsync(itemName, durability, value, amount, description);
         }
 
-        public async Task<List<string>> SearchCorpseAsync(TreasureType type, Hero hero, int searchRoll)
+        public async Task<List<Equipment>> SearchCorpseAsync(TreasureType type, Hero hero, int searchRoll)
         {
-            List<string> rewards = new List<string>();
+            List<Equipment> rewards = new List<Equipment>();
             if (searchRoll == 0 || searchRoll > 10)
             {
                 var resultRoll = await _diceRoll.RequestRollAsync($"Roll for treasure", "1d10"); await Task.Yield();
@@ -83,7 +114,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             rewards.Add(await GetTreasureAsync("Bandage (old rags)", 1));
                             break;
                         default:
-                            rewards.Add("You found nothing.");
                             break;
                     }
                     break;
@@ -106,7 +136,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             rewards.Add(await GetTreasureAsync("Coin", 0, 1, 20));
                             break;
                         default:
-                            rewards.Add("You found nothing.");
                             break;
                     }
                     break;
@@ -131,7 +160,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             rewards.Add(await GetTreasureAsync("Coin", 0, 1, 60));
                             break;
                         default:
-                            rewards.Add("You found nothing.");
                             break;
                     }
                     break;
@@ -149,7 +177,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             for (int i = 0; i < RandomHelper.GetRandomNumber(1, 2); i++)
                             {
                                 var potions = await _alchemy.GetRandomPotions(1, RandomHelper.GetRandomEnumValue<PotionStrength>(1, 3));
-                                rewards.Add(potions[0].Name);
+                                rewards.Add(potions[0]);
                             }
                             break;
                         case 5:
@@ -159,7 +187,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             rewards.Add(await GetTreasureAsync("Coin", 0, 1, 100));
                             break;
                         default:
-                            rewards.Add("You found nothing.");
                             break;
                     }
                     break;
@@ -190,7 +217,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             rewards.Add(await GetTreasureAsync("Coin", 0, 1, 500));
                             break;
                         default:
-                            rewards.Add("You found nothing.");
                             break;
                     }
                     break;
@@ -204,19 +230,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     {
                         rewards.Add(await GetTreasureAsync("Part", 0, 0, 1, await GetAlchemicalTreasureAsync(TreasureType.Part, 1, false)));
                     }
-                    else
-                    {
-                        rewards.Add("You found nothing.");
-                    }
                     break;
                 case TreasureType.Turog:
                     var resultTurog = await _diceRoll.RequestRollAsync($"Roll for coins", "2d100"); await Task.Yield();
-                    rewards.Add(await GetTreasureAsync("Coin", 0, 1, resultTurog.Roll));
-                    rewards.Add("The Goblins Scimitar");
+                    rewards.Add(await GetTreasureAsync("Coin", 0, 1, resultTurog.Roll, maxCoinRoll: 200, coinDice: "2d100"));
+                    var item = EquipmentService.GetWeaponByName("The Goblins Scimitar");
+                    if (item != null) rewards.Add(item);
                     break;
                 case TreasureType.TheMasterLocksmith:
                     rewards.AddRange(await SearchCorpseAsync(TreasureType.T5, hero, searchRoll));
-                    rewards.Add("The Flames of Zul");
+                    item = EquipmentService.GetWeaponByName("The Flames of Zul");
+                    if (item != null) rewards.Add(item);
                     break;
                 default:
                     break;
@@ -224,9 +248,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return rewards;
         }
 
-        public async Task<List<string>> FoundTreasureAsync(TreasureType type, int count)
+        public async Task<List<Equipment>> FoundTreasureAsync(TreasureType type, int count)
         {
-            List<string> rewards = new List<string>();
+            List<Equipment> rewards = new List<Equipment>();
             for (int i = 0; i < count; i++)
             {
                 Equipment? item;
@@ -234,15 +258,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     case TreasureType.Mundane:
                         item = await GetMundaneTreasureAsync();
-                        if (item != null) rewards.Add(item.Name);
+                        if (item != null) rewards.Add(item);
                         break;
                     case TreasureType.Fine:
                         item = await GetFineTreasureAsync();
-                        if (item != null) rewards.Add(item.Name);
+                        if (item != null) rewards.Add(item);
                         break;
                     case TreasureType.Wonderful:
                         item = await GetWonderfulTreasureAsync();
-                        if (item != null) rewards.Add(item.Name);
+                        if (item != null) rewards.Add(item);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException("type");
@@ -274,16 +298,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case 10: treasure = EquipmentService.GetEquipmentByNameSetQuantity("Beef Jerky", RandomHelper.GetRandomNumber(1, 4)); break;
                 case 11: treasure = EquipmentService.GetAmmoByNameSetQuantity("Bolt", 5); break;
                 case 12: treasure = EquipmentService.GetShieldByNameSetDurability("Buckler", armourDurability); break;
-                case <= 14: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d20")).Roll); await Task.Yield(); break;
-                case 15: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "2d20")).Roll); await Task.Yield(); break;
-                case  <= 17: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "3d20")).Roll); await Task.Yield(); break;
-                case 18: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "4d20")).Roll); await Task.Yield(); break;
-                case 19: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d100")).Roll); await Task.Yield(); break;
+                case <= 14: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d20")).Roll, maxCoinRoll: 20, coinDice: "1d20"); await Task.Yield(); break;
+                case 15: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "2d20")).Roll, maxCoinRoll: 40, coinDice: "2d20"); await Task.Yield(); break;
+                case  <= 17: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "3d20")).Roll, maxCoinRoll: 60, coinDice: "3d20"); await Task.Yield(); break;
+                case 18: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "4d20")).Roll, maxCoinRoll: 80, coinDice: "4d20"); await Task.Yield(); break;
+                case 19: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d100")).Roll, maxCoinRoll: 100, coinDice: "1d100"); await Task.Yield(); break;
                 case 20: treasure = EquipmentService.GetArmourByNameSetDurability("Cloak", armourDurability); break;
                 case 21: treasure = EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Crowbar", 6 - defaultDurabilityDamageRoll, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 22: treasure = EquipmentService.GetWeaponByNameSetDurability("Dagger", weaponDurability); break;
@@ -387,12 +411,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     treasure = EquipmentService.GetWeaponByNameSetDurability(itemName, DefaultWeaponDurability - (RandomHelper.GetRandomNumber(1, 4) - 1));
                     break;
-                case 9: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d100")).Roll + 40); await Task.Yield(); break;
-                case 10: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "2d100")).Roll + 20); await Task.Yield(); break;
-                case 11: treasure = await CreateItemAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "3d100")).Roll); await Task.Yield(); break;
+                case 9: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d100")).Roll + 40, maxCoinRoll: 100, coinDice: "1d100", bonusCoins: 40); await Task.Yield(); break;
+                case 10: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "2d100")).Roll + 20, maxCoinRoll: 200, coinDice: "2d100", bonusCoins: 20); await Task.Yield(); break;
+                case 11: treasure = await GetTreasureAsync("Coin", 0, 1,
+                    (await _diceRoll.RequestRollAsync($"You found coins!", "3d100")).Roll, maxCoinRoll: 300, coinDice: "3d100"); await Task.Yield(); break;
                 case 12: treasure = EquipmentService.GetEquipmentByName("Door Mirror"); break;
                 case 13: treasure = await CreateItemAsync("Lock Picks - Dwarven", 1, 0, RandomHelper.GetRandomNumber(1, 6)); break;
                 case 14: treasure = EquipmentService.GetWeaponByNameSetDurability("Elven Bow", DefaultWeaponDurability - RandomHelper.GetRandomNumber(1, 2)); break;
@@ -1217,9 +1241,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         Value = itemName == "Relic" ? 350 : 450,
                         Description = relicData[1]
                     };
-                    break;
-                case "Coin":
-                    newItem = new Equipment { Name = "Coin", Encumbrance = 0, Durability = 0, Value = 1 };
                     break;
                 case "Potion Recipe - Weak":
                     newItem = new Equipment { Name = $"Weak Potion Recipe: {await _alchemy.GetNonStandardPotionAsync()}", Encumbrance = 0, Durability = 0, Value = 0, Description = "The actual components involved shall be chosen by the player", MaxDurability = 0 };

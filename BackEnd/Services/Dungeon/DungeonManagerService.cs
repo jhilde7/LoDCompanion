@@ -366,7 +366,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// Initiates the resting process for the party within the dungeon.
         /// </summary>
         /// <returns>A string summarizing the outcome of the rest attempt.</returns>
-        public string InitiateDungeonRest()
+        public async Task<string> InitiateDungeonRestAsync()
         {
             if (CurrentRoom != null && CurrentRoom.IsEncounter)
             {
@@ -379,7 +379,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Call the resting service, specifying the Dungeon context
-            var restResult = _partyResting.AttemptRest(_dungeonState.HeroParty, RestingContext.Dungeon, _dungeonState);
+            var restResult = await _partyResting.AttemptRest(_dungeonState.HeroParty, RestingContext.Dungeon, _dungeonState);
 
             if (restResult.WasInterrupted)
             {

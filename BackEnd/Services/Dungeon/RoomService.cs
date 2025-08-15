@@ -4,6 +4,7 @@ using SixLabors.ImageSharp;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.GameData;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -105,7 +106,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int SearchRoll { get; set; } = 0;
         public int TreasureRoll { get; set; } = 0;
         public Trap CurrentTrap { get; set; } = new Trap("No Trap", 0, 0, string.Empty); // Default trap, no trap present initially
-        public List<string> SearchResults { get; set; } = new List<string>();
+        public List<Equipment> SearchResults { get; set; } = new List<Equipment>();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
         public Dictionary<GridPosition, GridSquare> Grid { get; set; } = new Dictionary<GridPosition, GridSquare>();

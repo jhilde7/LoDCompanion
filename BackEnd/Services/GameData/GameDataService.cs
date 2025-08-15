@@ -297,12 +297,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
-                    Name = PerkName.LivingOnNothing,
-                    Effect = "Accustomed to hardship, your hero can sustain theirselves on almost nothing. Spending an Energy Point to activate this Perk is considered the same as consuming a ration.",
-                    Comment = "The Energy Point cannot be regained in the same rest in which it was spent."
-                },
-                new Perk(){
-                    Category = PerkCategory.Sneaky,
                     Name = PerkName.LootGoblin,
                     Effect = "Whenever told to roll for an amount of gold, your hero may decide to re-roll the result once.",
                     Comment = "The decision to use this Perk is done after the first dice roll. Second result will stand."

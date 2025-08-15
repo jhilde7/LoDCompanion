@@ -37,10 +37,16 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly UserRequestService _userRequest;
         private readonly PowerActivationService _powerActivation;
 
-        public PartyRestingService(ThreatService threatService, WanderingMonsterService wanderingMonsterService)
+        public PartyRestingService(
+            ThreatService threatService, 
+            WanderingMonsterService wanderingMonsterService, 
+            UserRequestService userRequestService, 
+            PowerActivationService powerActivationService)
         {
             _threat = threatService;
             _wanderingMonster = wanderingMonsterService;
+            _userRequest = userRequestService;
+            _powerActivation = powerActivationService;
         }
 
         /// <summary>
