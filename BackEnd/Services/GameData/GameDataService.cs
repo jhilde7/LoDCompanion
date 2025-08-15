@@ -104,7 +104,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Combat,
                     Name = PerkName.DeadlyStrike,
                     Effect = "Adds +25 CS to your next attack.",
-                    Comment = ""
+                    Comment = "",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.DeadlyStrike, -1, skillBonus: (Skill.CombatSkill, 25))
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -296,12 +297,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
-                    Name = PerkName.DeadlyStrike,
-                    Effect = "Adds +25 CS to your next attack.",
-                    Comment = ""
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,

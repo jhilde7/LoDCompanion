@@ -187,10 +187,14 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 result.IsHit = true;
 
+                // Blood lust is activated on to-hit rolls of 5 or less, unless perk is active
                 if (attacker.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.TasteForBlood) && result.AttackRoll <= 10) result.BloodLust = true;
                 else if (result.AttackRoll <= 5) result.BloodLust = true;
                 else result.BloodLust = false;
             }
+
+            var deadlyStrike = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DeadlyStrike);
+            if(deadlyStrike != null) attacker.ActiveStatusEffects.Remove(deadlyStrike);
 
             return result;
         }
