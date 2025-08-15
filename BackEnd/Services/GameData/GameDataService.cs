@@ -117,7 +117,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Combat,
                     Name = PerkName.PerfectAim,
                     Effect = "Your hero's aim is spot on. Add +25 to RS to your next Ranged Attack.",
-                    Comment = ""
+                    Comment = "",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.PerfectAim, -1, skillBonus: (Skill.RangedSkill, 25))
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -290,12 +291,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
-                    Name = PerkName.PerfectAim,
-                    Effect = "Your hero's aim is spot on. Add +25 to RS to your next Ranged Attack.",
-                    Comment = ""
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,

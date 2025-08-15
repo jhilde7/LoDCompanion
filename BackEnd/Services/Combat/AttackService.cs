@@ -194,7 +194,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             var deadlyStrike = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DeadlyStrike);
-            if(deadlyStrike != null) attacker.ActiveStatusEffects.Remove(deadlyStrike);
+            if(deadlyStrike != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(deadlyStrike);
+            var perfectAim = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PerfectAim);
+            if (perfectAim != null && weapon is RangedWeapon) attacker.ActiveStatusEffects.Remove(perfectAim);
 
             return result;
         }
