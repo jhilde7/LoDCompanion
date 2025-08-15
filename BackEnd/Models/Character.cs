@@ -5,6 +5,7 @@ using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.AspNetCore.Rewrite;
+using System;
 using System.Collections;
 using System.Reflection.Emit;
 using System.Text;
@@ -600,36 +601,15 @@ namespace LoDCompanion.BackEnd.Models
             if (roll == null)
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
+                CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
             }
-            CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
 
-            if(Party != null && Party.Heroes.Any(h => h.Perks.Any(p => p.Name == PerkName.Encouragement)))
+            if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
             {
-                var heroesWithPerk = Party.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.Encouragement));
-
-                foreach (var hero in heroesWithPerk)
-                {
-                    var perk = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Encouragement);
-                    if (perk != null && perk.ActiveStatusEffect != null && hero.CurrentEnergy >= 1)
-                    {
-                        var result = await new UserRequestService().RequestChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name.ToString()}", new List<string>() { "Yes", "No" });
-                        if (result == "Yes")
-                        {
-                            await activation.ActivatePerkAsync(hero, perk, target: this);
-                        } 
-                    }
-                }
+                await AskForPartyEncouragementAsync(activation);
             }
 
-            foreach (var effect in ActiveStatusEffects)
-            {
-                switch (effect.Category)
-                {
-                    case StatusEffectType.ThePowerOfIphy: roll -= 10; break;
-                    case StatusEffectType.PowerOfFaith: if(!wasTerror)roll = 0; break; // resist fear completely, but if was terror initially treat as fear without the complete resist.
-                    case StatusEffectType.Encouragement: roll -= 10; ActiveStatusEffects.Remove(effect); break;
-                }
-            }
+            roll -= GetResistFearModifiations(wasTerror);
 
             if (TestResolve((int)roll))
             {
@@ -648,9 +628,35 @@ namespace LoDCompanion.BackEnd.Models
             if (roll == null)
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
+                CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
             }
-            CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
 
+            if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
+            {
+                await AskForPartyEncouragementAsync(activation);
+            }
+
+            if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.PowerOfFaith))
+            {
+                return await ResistFearAsync(fearCauser, activation, roll, wasTerror: true); // Treats terror as fear
+            }
+            else
+            {
+                roll += GetResistFearModifiations();
+            }
+
+            if (TestResolve((int)roll + 20))
+            {
+                AfraidOfTheseMonsters.Add(fearCauser);
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task AskForPartyEncouragementAsync(PowerActivationService activation)
+        {
             if (Party != null && Party.Heroes.Any(h => h.Perks.Any(p => p.Name == PerkName.Encouragement)))
             {
                 var heroesWithPerk = Party.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.Encouragement));
@@ -668,25 +674,21 @@ namespace LoDCompanion.BackEnd.Models
                     }
                 }
             }
+        }
 
+        public int GetResistFearModifiations(bool wasTerror = false)
+        {
+            int modification = 0;
             foreach (var effect in ActiveStatusEffects)
             {
                 switch (effect.Category)
                 {
-                    case StatusEffectType.ThePowerOfIphy: roll -= 10; break;
-                    case StatusEffectType.PowerOfFaith: return await ResistFearAsync(fearCauser, activation, roll, wasTerror: true); // Treats terror as fear
-                    case StatusEffectType.Encouragement: roll -= 10; ActiveStatusEffects.Remove(effect); break;
+                    case StatusEffectType.ThePowerOfIphy: modification -= 10; break;
+                    case StatusEffectType.PowerOfFaith: if (!wasTerror) modification -= 100; break; // resist fear completely, but if was terror initially treat as fear without the complete resist.
+                    case StatusEffectType.Encouragement: modification -= 10; ActiveStatusEffects.Remove(effect); break;
                 }
             }
-
-            if (TestResolve((int)roll + 20))
-            {
-                AfraidOfTheseMonsters.Add(fearCauser);
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
-                return false;
-            }
-
-            return true;
+            return modification;
         }
 
         public int GetDamageBonusFromSTR()
