@@ -288,19 +288,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         }
 
         /*
-         new Perk(){
-                    Category = PerkCategory.Leader,
-                    Name = PerkName.CallToAction,
-                    Effect = "Your hero lets out a battle shout that gives another hero a chance to spring into immediate action. You may use this Perk when activating the hero. Once the 2 AP has been spent, you may take a hero token from the bag and activate another hero within LOS of the hero using this Perk.",
-                    Comment = "",
-                    TargetType = TargetType.Ally
-                },
-                new Perk(){
-                    Category = PerkCategory.Leader,
-                    Name = PerkName.KeepCalmAndCarryOn,
-                    Effect = "Your hero's Resolve keeps the party together. You may increase Party Morale with +2.",
-                    Comment = "This may not increase morale above starting morale."
-                },
                 new Perk(){
                     Category = PerkCategory.Leader,
                     Name = PerkName.Rally,

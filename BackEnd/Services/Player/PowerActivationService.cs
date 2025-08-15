@@ -13,10 +13,12 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class PowerActivationService
     {
         private readonly InitiativeService _initiative;
+        private readonly PartyManagerService _partyManager;
 
-        public PowerActivationService(InitiativeService initiativeService)
+        public PowerActivationService(InitiativeService initiativeService, PartyManagerService partyManagerService)
         {
             _initiative = initiativeService;
+            _partyManager = partyManagerService;
         }
 
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
@@ -33,7 +35,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case PerkName.CallToAction:
                     success = _initiative.ForceNextActorType(ActorType.Hero);
                     break;
-            };
+                case PerkName.KeepCalmAndCarryOn:
+                    success = _partyManager.UpdateMorale(2);
+                    break;
+            }
+            ;
             if (success)
             {
                 hero.CurrentEnergy--;

@@ -36,6 +36,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
         public event Action<Hero?>? OnSelectedHeroChanged;
+        public int MoraleMax { get; set; }
+        public int Morale {  get; set; }
 
 
         // Inject the state into the service's constructor
@@ -97,6 +99,15 @@ namespace LoDCompanion.BackEnd.Services.Player
                 gameState.CurrentParty.Coins += hero.Coins;
                 hero.Coins = 0;
             }
+        }
+
+        internal bool UpdateMorale(int v)
+        {
+            if(Morale == MoraleMax) return false;
+
+            Morale += v;
+            if(Morale > MoraleMax) Morale = MoraleMax;
+            return true;
         }
     }
 }
