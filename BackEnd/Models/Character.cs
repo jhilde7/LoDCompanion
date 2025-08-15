@@ -590,6 +590,7 @@ namespace LoDCompanion.BackEnd.Models
 
         internal async Task<bool> ResistFearAsync(Monster fearCauser, PowerActivationService activation, int? roll = null, bool wasTerror = false)
         {
+            await Task.Yield();
             fearCauser.PassiveSpecials.TryGetValue(MonsterSpecialName.CauseFear, out int level);
             if (this.Level > level) return true;
 
@@ -619,6 +620,7 @@ namespace LoDCompanion.BackEnd.Models
 
         internal async Task<bool> ResistTerrorAsync(Monster fearCauser, PowerActivationService activation, int? roll = null)
         {
+            await Task.Yield();
             fearCauser.PassiveSpecials.TryGetValue(MonsterSpecialName.CauseTerror, out int level);
             if (this.Level > level) return true;
             
@@ -645,7 +647,8 @@ namespace LoDCompanion.BackEnd.Models
             if (!TestResolve((int)roll + 20))
             {
                 if (await AskForPartyPerkAsync(activation, PerkName.Rally))
-                    return await ResistTerrorAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);
+                    {return await ResistTerrorAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);}
+                
                 AfraidOfTheseMonsters.Add(fearCauser);
                 await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
                 return false;
@@ -666,6 +669,7 @@ namespace LoDCompanion.BackEnd.Models
                     if (perk != null && perk.ActiveStatusEffect != null && hero.CurrentEnergy >= 1)
                     {
                         var result = await new UserRequestService().RequestChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name.ToString()}", new List<string>() { "Yes", "No" });
+                        await Task.Yield();
                         if (result == "Yes")
                         {
                             return await activation.ActivatePerkAsync(hero, perk, target: this);
