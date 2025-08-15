@@ -47,12 +47,12 @@ namespace LoDCompanion.BackEnd.Services.Player
             else if (bandage.Name.Contains("linen")) hpGained = RandomHelper.RollDie(DiceType.D8);
             else if (bandage.Name.Contains("Herbal wrap")) hpGained = RandomHelper.RollDie(DiceType.D10);
 
-            var fateForger = healer.Perks.FirstOrDefault(p => p.Name == PerkName.FateForger);
-            if(fateForger != null && healer.CurrentEnergy > 0)
+            var healerPerk = healer.Perks.FirstOrDefault(p => p.Name == PerkName.Healer);
+            if(healerPerk != null && healer.CurrentEnergy > 0)
             {
-                if(await userRequest.RequestYesNoChoiceAsync($"Does {healer.Name} wish to activate {fateForger.Name.ToString()} which will add 3 to the healing roll of {hpGained}?"))
+                if(await userRequest.RequestYesNoChoiceAsync($"Does {healer.Name} wish to activate {healerPerk.Name.ToString()} which will add 3 to the healing roll of {hpGained}?"))
                 {
-                    if(await activation.ActivatePerkAsync(healer, fateForger))
+                    if(await activation.ActivatePerkAsync(healer, healerPerk))
                     {
                         hpGained += 3;
                     }
