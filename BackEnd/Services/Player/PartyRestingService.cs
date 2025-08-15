@@ -62,19 +62,20 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             // check party perks to determine if a ration is needed
             var livingOnNothingList = party.Heroes.Where(h => h.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing) != null);
-            bool useLivingOnNothing = false;
+            (bool, Hero?) useLivingOnNothing = (false, null);
             foreach(var hero in livingOnNothingList)
             {
                 var livingOnNothing = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing);
                 if (livingOnNothing == null || hero.CurrentEnergy < 1) continue;
                 if (await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {livingOnNothing.Name.ToString()} perk, to avoid using a ration?"))
                 {
-                    useLivingOnNothing = await _powerActivation.ActivatePerkAsync(hero, livingOnNothing);
+                    useLivingOnNothing.Item1 = await _powerActivation.ActivatePerkAsync(hero, livingOnNothing);
+                    useLivingOnNothing.Item2 = hero;
                     break;
                 }
             }
 
-            if (!useLivingOnNothing)
+            if (!useLivingOnNothing.Item1)
             {
                 // Check for Rations
                 var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i.Name == "Ration");
@@ -122,6 +123,11 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                 // Restore Energy
                 int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
+                if (useLivingOnNothing.Item2 == hero)
+                {
+                    energyToRestore = Math.Max(0, energyToRestore - 1);
+                }
+
                 for (int i = 0; i < energyToRestore; i++)
                 {
                     if (RandomHelper.RollDie(DiceType.D6) <= 3) hero.CurrentEnergy++;
