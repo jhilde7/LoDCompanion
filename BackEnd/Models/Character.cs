@@ -606,13 +606,15 @@ namespace LoDCompanion.BackEnd.Models
 
             if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
             {
-                await AskForPartyEncouragementAsync(activation);
+                await AskForPartyPerkAsync(activation, PerkName.Encouragement);
             }
 
             roll -= GetResistFearModifiations(wasTerror);
 
-            if (TestResolve((int)roll))
+            if (!TestResolve((int)roll))
             {
+                if (await AskForPartyPerkAsync(activation, PerkName.Rally))
+                    return await ResistFearAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);
                 AfraidOfTheseMonsters.Add(fearCauser);
                 return false;
             }
@@ -633,7 +635,7 @@ namespace LoDCompanion.BackEnd.Models
 
             if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
             {
-                await AskForPartyEncouragementAsync(activation);
+                await AskForPartyPerkAsync(activation, PerkName.Encouragement);
             }
 
             if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.PowerOfFaith))
@@ -645,8 +647,10 @@ namespace LoDCompanion.BackEnd.Models
                 roll += GetResistFearModifiations();
             }
 
-            if (TestResolve((int)roll + 20))
+            if (!TestResolve((int)roll + 20))
             {
+                if (await AskForPartyPerkAsync(activation, PerkName.Rally))
+                    return await ResistTerrorAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);
                 AfraidOfTheseMonsters.Add(fearCauser);
                 await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
                 return false;
@@ -655,25 +659,29 @@ namespace LoDCompanion.BackEnd.Models
             return true;
         }
 
-        public async Task AskForPartyEncouragementAsync(PowerActivationService activation)
+        public async Task<bool> AskForPartyPerkAsync(PowerActivationService activation, PerkName perkName)
         {
-            if (Party != null && Party.Heroes.Any(h => h.Perks.Any(p => p.Name == PerkName.Encouragement)))
+            if (Party != null && Party.Heroes.Any(h => h.Perks.Any(p => p.Name == perkName)))
             {
-                var heroesWithPerk = Party.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.Encouragement));
+                var heroesWithPerk = Party.Heroes.Where(h => h.Perks.Any(p => p.Name == perkName));
 
                 foreach (var hero in heroesWithPerk)
                 {
-                    var perk = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Encouragement);
+                    var perk = hero.Perks.FirstOrDefault(p => p.Name == perkName);
                     if (perk != null && perk.ActiveStatusEffect != null && hero.CurrentEnergy >= 1)
                     {
                         var result = await new UserRequestService().RequestChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name.ToString()}", new List<string>() { "Yes", "No" });
                         if (result == "Yes")
                         {
-                            await activation.ActivatePerkAsync(hero, perk, target: this);
+                            return await activation.ActivatePerkAsync(hero, perk, target: this);
                         }
+                        else continue;
                     }
+                    else continue;
                 }
             }
+
+            return false;
         }
 
         public int GetResistFearModifiations(bool wasTerror = false)

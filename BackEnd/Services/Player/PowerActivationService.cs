@@ -24,22 +24,28 @@ namespace LoDCompanion.BackEnd.Services.Player
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
         {
             bool success = false;
-            if (perk.ActiveStatusEffect != null)
+            if (hero.Perks.Any(p => p.Name == perk.Name))
             {
-                var effect = perk.ActiveStatusEffect;
-                success = await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect, this) != "Already affected"; 
+                if (perk.ActiveStatusEffect != null)
+                {
+                    var effect = perk.ActiveStatusEffect;
+                    success = await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect, this) != "Already affected";
+                }
+
+                switch (perk.Name)
+                {
+                    case PerkName.CallToAction:
+                        success = _initiative.ForceNextActorType(ActorType.Hero);
+                        break;
+                    case PerkName.KeepCalmAndCarryOn:
+                        success = _partyManager.UpdateMorale(2);
+                        break;
+                    case PerkName.Rally:
+                        success = true;
+                        break;
+                }
             }
 
-            switch (perk.Name)
-            {
-                case PerkName.CallToAction:
-                    success = _initiative.ForceNextActorType(ActorType.Hero);
-                    break;
-                case PerkName.KeepCalmAndCarryOn:
-                    success = _partyManager.UpdateMorale(2);
-                    break;
-            }
-            ;
             if (success)
             {
                 hero.CurrentEnergy--;

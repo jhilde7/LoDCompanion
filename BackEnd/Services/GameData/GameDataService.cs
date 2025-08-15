@@ -289,13 +289,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
                 new Perk(){
-                    Category = PerkCategory.Leader,
-                    Name = PerkName.Rally,
-                    Effect = "The hero tries to encourage a comrade to action! A hero that has failed a Fear or Terror Test may immediately retake that test.",
-                    Comment = "May be used outside of the ordinary acting order whenever a fear or test is necessary.",
-                    TargetType = TargetType.Ally,
-                },
-                new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.IgnoreWounds,
                     Effect = "Hero gains Natural Armour +2",
