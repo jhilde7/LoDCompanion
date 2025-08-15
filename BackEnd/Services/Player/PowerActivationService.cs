@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Utilities;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -16,12 +17,18 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly InitiativeService _initiative;
         private readonly PartyManagerService _partyManager;
         private readonly DungeonManagerService _dungeonManager;
+        private readonly UserRequestService _userRequest;
 
-        public PowerActivationService(InitiativeService initiativeService, PartyManagerService partyManagerService, DungeonManagerService dungeonManagerService)
+        public PowerActivationService(
+            InitiativeService initiativeService, 
+            PartyManagerService partyManagerService, 
+            DungeonManagerService dungeonManagerService,
+            UserRequestService userRequestService)
         {
             _initiative = initiativeService;
             _partyManager = partyManagerService;
             _dungeonManager = dungeonManagerService;
+            _userRequest = userRequestService;
         }
 
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
@@ -46,6 +53,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                         break;
                     case PerkName.LuckyGit:
                         success = _dungeonManager.UpdateThreat(-2);
+                        break;
+                    case PerkName.GodsFavorite:
+                        var resultRoll = await _userRequest.RequestRollAsync("Roll for threat decrease amount.", "1d6");
+                        await Task.Yield();
+                        success = _dungeonManager.UpdateThreat(-resultRoll.Roll);
                         break;
                     default:
                         success = true;

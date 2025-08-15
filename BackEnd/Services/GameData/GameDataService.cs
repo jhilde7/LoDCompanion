@@ -297,12 +297,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Faith,
-                    Name = PerkName.GodsFavorite,
-                    Effect = "Your hero is well attuned to the gods, and they always seem to listen to their. Once again, their prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",
-                    Comment = ""
-                },
-                new Perk(){
-                    Category = PerkCategory.Faith,
                     Name = PerkName.FateForger,
                     Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
                     Comment = "Used as soon as the Scenario die has been rolled."
