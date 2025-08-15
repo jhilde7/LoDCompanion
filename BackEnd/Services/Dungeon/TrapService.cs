@@ -101,12 +101,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             
             var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
             if (sixthSense != null)
-            {
-                var choice = await _diceRoll.RequestChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your chance to avoid the trap?", new List<string>() { "Yes", "No" });
-                if (choice == "Yes" && (await _powerActivation.ActivatePerkAsync(hero, sixthSense)))
+            {                
+                if (await _diceRoll.RequestYesNoChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your chance to avoid the trap?") 
+                    && (await _powerActivation.ActivatePerkAsync(hero, sixthSense)))
                 {
                     perceptionSkill += 20;
                 }
+                await Task.Yield();
             }
 
             // In a real game loop, you would apply damage or status effects to the hero here.

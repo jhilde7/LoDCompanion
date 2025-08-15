@@ -53,12 +53,14 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
                 if (sixthSense != null)
                 {
-                    var choice = await diceRoll.RequestChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your dodge chance?", new List<string>() { "Yes", "No" }); 
-                    if (choice == "Yes" && (await activation.ActivatePerkAsync(hero, sixthSense)))
+                    if (await diceRoll.RequestYesNoChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your dodge chance?") 
+                        && (await activation.ActivatePerkAsync(hero, sixthSense)))
                     {
                         dodgeSkill += 20;
                     }
                 }
+                await Task.Yield();
+
                 int roll = rollResult.Roll;
                 if (roll <= 80 && roll <= dodgeSkill)
                 {

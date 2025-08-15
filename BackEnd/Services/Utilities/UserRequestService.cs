@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using System.Collections.Generic;
 
 namespace LoDCompanion.BackEnd.Services.Utilities
 {
@@ -93,6 +94,12 @@ namespace LoDCompanion.BackEnd.Services.Utilities
 
             OnRollRequested?.Invoke();
             return await CurrentChoiceRequest.CompletionSource.Task;
+        }
+
+        internal async Task<bool> RequestYesNoChoiceAsync(string prompt)
+        {
+            string result = await RequestChoiceAsync(prompt, new List<string> { "Yes", "No" });
+            return result == "Yes";
         }
     }
 }
