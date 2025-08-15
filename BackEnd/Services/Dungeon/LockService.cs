@@ -1,14 +1,17 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class LockService
     {
+        private readonly UserRequestService _diceRoll;
         // Constructor for dependency injection of RandomHelper
-        public LockService()
+        public LockService(UserRequestService userRequestService)
         {
+            _diceRoll = userRequestService;
         }
 
         /// <summary>
@@ -17,7 +20,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero attempting to pick the lock.</param>
         /// <param name="lockModifier">A modifier to the lockpicking difficulty (e.g., from the lock itself).</param>
         /// <returns>True if the lock is successfully picked, false otherwise.</returns>
-        public bool PickLock(Hero hero, int lockModifier)
+        public async Task<bool> PickLock(Hero hero, int lockModifier)
         {
             if (hero == null)
             {
@@ -36,22 +39,25 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             // Original logic: "LockPicksSkill - PickLockSkillModifier" looks like a typo, assuming it means hero's PickLocksSkill
             // Assuming Hero has a PickLocksSkill property or it's part of Dexterity/Profession
-            int skill = hero.GetSkill(Skill.PickLocks); // Example: sum of Dex and profession/talent bonus
+            int skill = hero.GetSkill(Skill.PickLocks);
 
-            int pickLockRoll = RandomHelper.GetRandomNumber(1, 100); // Roll a d100
+            int pickLockRoll = (await _diceRoll.RequestRollAsync("Roll for pick lock attempt.", "1d100", skill: Skill.PickLocks)).Roll;
+            await Task.Yield();
 
             // Base roll + skill - lockModifier
             int successThreshold = skill - lockModifier;
+            
+            lockPicks.Quantity--;
+            var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.CleverFingers);
+            if (cleverFingers != null) hero.ActiveStatusEffects.Remove(cleverFingers);
 
             if (pickLockRoll <= 80 && pickLockRoll <= successThreshold)
             {
-                lockPicks.Quantity--; // Consume one lock pick on success (or on attempt, depending on rules)
                 Console.WriteLine($"{hero.Name} successfully picked the lock!");
                 return true;
             }
             else
             {
-                lockPicks.Quantity--; // Consume one lock pick on failure
                 Console.WriteLine($"{hero.Name} failed to pick the lock. Lock pick broken.");
                 return false;
             }

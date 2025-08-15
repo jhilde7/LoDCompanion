@@ -151,7 +151,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Sneaky,
                     Name = PerkName.CleverFingers,
                     Effect = "Relying on their experience, their fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
-                    Comment = "Use before rolling."
+                    Comment = "Use before rolling.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.CleverFingers, -1, skillBonus: (Skill.PickLocks, 25))
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
@@ -293,18 +294,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
-                    Name = PerkName.StunningStrike,
-                    Effect = "Your hero may choose to stun the enemy instead of inflicting wounds. Your hero performs a Standard Attack with a -10 CS penalty and if the attack is successful, the enemy must pass a RES test or it may perform NO actions during its next turn.",
-                    Comment = "Only melee weapons. Does not work on X-Large creatures and Large creatures only lose 1 AP."
-                },
-                new Perk(){
-                    Category = PerkCategory.Sneaky,
-                    Name = PerkName.CleverFingers,
-                    Effect = "Relying on their experience, their fingers dance across the mechanism. Add +25 bonus to a single pick lock or disarming trap attempt.",
-                    Comment = "Use before rolling."
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,

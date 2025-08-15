@@ -75,7 +75,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public async Task<bool> DisarmTrapAsync(Hero hero, Trap trap)
         {
             var rollResult = await _diceRoll.RequestRollAsync("Roll pick locks test", "1d100");
-            if (rollResult.Roll <= 80 && rollResult.Roll <= hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier)
+            int trapDisarmTarget = hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier;
+
+            var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.CleverFingers);
+            if (cleverFingers != null) hero.ActiveStatusEffects.Remove(cleverFingers);
+
+            if (rollResult.Roll <= 80 && rollResult.Roll <= trapDisarmTarget)
             {
                 trap.IsDisarmed = true;
                 return true;
