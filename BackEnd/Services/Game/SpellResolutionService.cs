@@ -707,16 +707,16 @@ namespace LoDCompanion.BackEnd.Services.Game
 
         private GridSquare GetRandomPlacement(Character caster)
         {
-            var roomGrid = caster.Room.Grid;
+            var roomGrid = caster.Room.Grid.Keys.ToList();
             roomGrid.Shuffle();
 
             // Find a random empty square to place the monster
             int i = 0;
-            while (roomGrid[i].IsOccupied || roomGrid[i].IsWall)
+            while (caster.Room.Grid[roomGrid[i]].IsOccupied || caster.Room.Grid[roomGrid[i]].IsWall)
             {
                 i++;
             }
-            var placementPosition = roomGrid[i];
+            var placementPosition = caster.Room.Grid[roomGrid[i]];
 
             return placementPosition;
         }

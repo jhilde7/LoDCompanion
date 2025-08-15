@@ -473,7 +473,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             var roomGrid = monster.Room.Grid.ToList(); // Create a copy to shuffle
             roomGrid.Shuffle();
-            GridSquare? placementSquare = roomGrid.FirstOrDefault(sq => !sq.IsOccupied && !sq.IsWall && !sq.MovementBlocked);
+            GridSquare? placementSquare = roomGrid.FirstOrDefault(sq => !sq.Value.IsOccupied && !sq.Value.IsWall && !sq.Value.MovementBlocked).Value;
 
             if (placementSquare != null && monster.Room.MonstersInRoom != null)
             {

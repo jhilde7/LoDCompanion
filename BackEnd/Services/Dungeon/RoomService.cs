@@ -108,7 +108,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public List<string> SearchResults { get; set; } = new List<string>();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
-        public List<GridSquare> Grid { get; set; } = new List<GridSquare>();
+        public Dictionary<GridPosition, GridSquare> Grid { get; set; } = new Dictionary<GridPosition, GridSquare>();
         public int Width { get; set; }
         public int Height { get; set; }
         public GridPosition GridOffset { get; set; } = new GridPosition(0, 0, 0);
