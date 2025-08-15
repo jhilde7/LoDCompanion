@@ -109,13 +109,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
-                    Name = PerkName.Frenzy,
-                    Effect = "Working herself into a frenzy, your hero flails wildly at their enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
-                    Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle.",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
                     Name = PerkName.HuntersEye,
                     Effect = "Your hero may shoot two arrows when performing a Ranged Attack with a bow. Both arrows must target the same enemy. Roll for each attack separately.",
                     Comment = "Can only be activated when using a bow or a sling."
@@ -297,13 +290,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
-                    Name = PerkName.Frenzy,
-                    Effect = "Working herself into a frenzy, your hero flails wildly at their enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
-                    Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle.",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -733,7 +719,15 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MaxArmourType = 3,
                     MaxMeleeWeaponType = 5,
                     EquipmentChoices = [ "Weapon of Choice" ],
-                    StartingPerkList = [GetPerkByName(PerkName.Frenzy)],
+                    StartingPerkList = [
+                        new Perk(){
+                            Category = PerkCategory.Combat,
+                            Name = PerkName.Frenzy,
+                            Effect = "Working themselves into a frenzy, the barabarian flails wildly at their enemies. For every attack that damages the enemy, she may attack again. This attack does not have to be at the same target. While frenzied, the hero may only move or attack and may do nothing else, including parrying or dodging.",
+                            Comment = "Barbarians only. Takes 1 AP to activate. Lasts for one battle.",
+                            ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true)
+                        }
+                    ],
                     LevelUpCost = new Dictionary<string, int>(){
                       {"STR", 2 },
                       {"DEX", 2},
