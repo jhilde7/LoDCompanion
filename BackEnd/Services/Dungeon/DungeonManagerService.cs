@@ -352,7 +352,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _threat.IncreaseThreat(_dungeonState, 1);
         }
 
-        public void IncreaseThreat(int amount)
+        public bool UpdateThreat(int amount)
         {
             _dungeonState.ThreatLevel += amount;
             if (_dungeonState.ThreatLevel >= _dungeonState.WhenSpawnWanderingMonster)
@@ -360,6 +360,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 // Trigger wandering monster logic...
                 _dungeonState.ThreatLevel -= 5;
             }
+            return true;
         }
 
         /// <summary>

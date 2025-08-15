@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.GameData;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -14,11 +15,13 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         private readonly InitiativeService _initiative;
         private readonly PartyManagerService _partyManager;
+        private readonly DungeonManagerService _dungeonManager;
 
-        public PowerActivationService(InitiativeService initiativeService, PartyManagerService partyManagerService)
+        public PowerActivationService(InitiativeService initiativeService, PartyManagerService partyManagerService, DungeonManagerService dungeonManagerService)
         {
             _initiative = initiativeService;
             _partyManager = partyManagerService;
+            _dungeonManager = dungeonManagerService;
         }
 
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
@@ -41,7 +44,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     case PerkName.KeepCalmAndCarryOn:
                         success = _partyManager.UpdateMorale(2);
                         break;
-                    case PerkName.Rally:
+                    case PerkName.LuckyGit:
+                        success = _dungeonManager.UpdateThreat(-2);
+                        break;
+                    default:
                         success = true;
                         break;
                 }

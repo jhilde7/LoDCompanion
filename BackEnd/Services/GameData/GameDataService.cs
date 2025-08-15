@@ -297,18 +297,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
-                    Name = PerkName.LootGoblin,
-                    Effect = "Whenever told to roll for an amount of gold, your hero may decide to re-roll the result once.",
-                    Comment = "The decision to use this Perk is done after the first dice roll. Second result will stand."
-                },
-                new Perk(){
-                    Category = PerkCategory.Sneaky,
-                    Name = PerkName.LuckyGit,
-                    Effect = "As always, lady fortune is smiling at your hero. Reduce the Threat Level by 2.",
-                    Comment = ""
-                },
-                new Perk(){
-                    Category = PerkCategory.Sneaky,
                     Name = PerkName.QuickDodge,
                     Effect = "Quick reflexes may make all the difference. Hero may dodge, even if the normal dodge is expended.",
                     Comment = "May be used when attacked."
