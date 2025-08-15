@@ -197,7 +197,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
                         resultMessage = attackResult.OutcomeMessage;
 
-                        if (character.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BattleFury) != null)
+                        if (character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury))
                         {
                             apCost = 1; // Battle Fury reduces the AP cost of Power Attacks to 1
                         }

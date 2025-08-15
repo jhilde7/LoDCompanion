@@ -299,13 +299,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
-                    Name = PerkName.BattleFury,
-                    Effect = "Using their inner energy, your hero may perform 2 Power Attacks in one turn as if they only cost 1 AP.",
-                    Comment = "",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.BattleFury, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
                     Name = PerkName.DeadlyStrike,
                     Effect = "Adds +25 CS to your next attack.",
                     Comment = ""
