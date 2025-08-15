@@ -48,6 +48,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public string OutcomeMessage { get; set; } = string.Empty;
         public int ToHitChance { get; set; }
         public int AttackRoll { get; set; }
+        public bool BloodLust { get; set; }
     }
 
     public class AttackService
@@ -145,7 +146,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
             else if (target is Monster monsterTarget && weapon != null)
             {
-                result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, weapon, context, dungeon);
+                result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, weapon, context, dungeon, result);
             }
 
             if (weapon is RangedWeapon rangedWeapon)
@@ -185,6 +186,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
             else
             {
                 result.IsHit = true;
+
+                if (attacker.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.TasteForBlood) && result.AttackRoll <= 10) result.BloodLust = true;
+                else if (result.AttackRoll <= 5) result.BloodLust = true;
+                else result.BloodLust = false;
             }
 
             return result;
@@ -267,11 +272,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon)
+        private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(
+            Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon, AttackResult result)
         {
-            var result = new AttackResult { IsHit = true };
             int finalDamage = 0; 
-            (finalDamage, context) = await CalculateHeroDamageAsync(attacker, target, weapon, context);
+            (finalDamage, context) = await CalculateHeroDamageAsync(attacker, target, weapon, context, result);
             
             result.DamageDealt = finalDamage;
 
@@ -497,13 +502,18 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
         /// </summary>
-        private async Task<(int, CombatContext)> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context)
+        private async Task<(int, CombatContext)> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context, AttackResult result)
         {
             int damage = 0;
             if (weapon.DamageDice != null)
             {
                 var rollResult = await _diceRoll.RequestRollAsync($"You Hit {target.Name}, now roll for damage", weapon.DamageDice); await Task.Yield();
                 damage = rollResult.Roll;
+                if (result.BloodLust)
+                {
+                    rollResult = await _diceRoll.RequestRollAsync($"You are lusting for blood. Roll damage again and the highest roll will be used.", weapon.DamageDice); await Task.Yield();
+                    if (rollResult.Roll > damage) damage = rollResult.Roll;
+                }
             }
             else
             {

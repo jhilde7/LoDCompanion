@@ -291,25 +291,11 @@ namespace LoDCompanion.BackEnd.Services.GameData
         /*
                 new Perk(){
                     Category = PerkCategory.Common,
-                    Name = PerkName.SixthSense,
-                    Effect = "May add +20 to a dodge result when attacked or +20 to a Perception Test when avoiding a triggered trap.",
-                    Comment = ""
-                },
-                ,
-                new Perk(){
-                    Category = PerkCategory.Common,
                     Name = PerkName.Taunt,
                     Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack their ignoring normal targeting procedure.",
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Common,
-                    Name = PerkName.TasteForBlood,
-                    Effect = "Character evokes blood lust on a To Hit' roll of 01-10 instead of 01-05 for an entire battle.",
-                    Comment = "Must be used before Damage Roll but lasts the entire battle.",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.TasteForBlood, -1, removeAfterCombat: true)
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
