@@ -6,6 +6,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.Extensions.Options;
+using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
@@ -160,12 +161,30 @@ namespace LoDCompanion.BackEnd.Services.Player
             // Execute the action logic
             switch (character, actionType)
             {
-                case (Hero, ActionType.StandardAttack):
                 case (Monster, ActionType.StandardAttack):
+                case (Hero, ActionType.StandardAttack):
                     if (primaryTarget is Character)
                     {
                         resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
                         if (character.CurrentAP <= 0) break;
+                        var hero = (Hero)character;
+                        var huntersEye = hero.Perks.FirstOrDefault(p => p.Name == PerkName.HuntersEye);
+                        if(huntersEye != null && weapon != null 
+                            && weapon is RangedWeapon bowSling && (bowSling.AmmoType == AmmoType.Arrow || bowSling.AmmoType == AmmoType.SlingStone)
+                            && hero.CurrentEnergy >= 1)
+                        {
+                            var result = await _diceRoll.RequestChoiceAsync(
+                                $"Does {hero.Name} want to use {huntersEye.Name.ToString()} against {((Character)primaryTarget).Name}?",
+                                new List<string>() { "Yes", "No" }); await Task.Yield();
+                            if (result == "Yes")
+                            {
+                                if (await _powerActivation.ActivatePerkAsync(hero, huntersEye))
+                                {
+                                    await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
+                                    await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
+                                }
+                            }
+                        }
 
                         AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
                         if (startingAP > character.CurrentAP)
@@ -487,8 +506,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
                     {
                         rangedWeapon1.reloadAmmo();
-                        if (character is Monster) rangedWeapon1.IsLoaded = true;
-                        resultMessage = $" and reloads their {rangedWeapon1.Name}.";
+                        if (character is Monster) 
+                        {
+                            rangedWeapon1.IsLoaded = true;
+                            resultMessage = $" and reloads their {rangedWeapon1.Name}.";
+                        }
                     }
                     else
                     {

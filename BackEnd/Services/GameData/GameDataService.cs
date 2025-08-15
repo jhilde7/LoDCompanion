@@ -293,12 +293,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
-                    Name = PerkName.HuntersEye,
-                    Effect = "Your hero may shoot two arrows when performing a Ranged Attack with a bow. Both arrows must target the same enemy. Roll for each attack separately.",
-                    Comment = "Can only be activated when using a bow or a sling."
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
                     Name = PerkName.PerfectAim,
                     Effect = "Your hero's aim is spot on. Add +25 to RS to your next Ranged Attack.",
                     Comment = ""
