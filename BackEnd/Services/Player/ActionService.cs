@@ -191,7 +191,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case (Hero, ActionType.PowerAttack):
                 case (Monster, ActionType.PowerAttack):
-                    if (character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character)
+                    if ((character.CurrentAP >= GetActionCost(actionType) 
+                        || (character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury) && character.CurrentAP > 0)
+                        ) && primaryTarget is Character)
                     {
                         AttackResult attackResult = await _attack.PerformPowerAttackAsync(character, weapon, (Character)primaryTarget, dungeon);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
