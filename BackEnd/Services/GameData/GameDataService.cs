@@ -297,13 +297,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
-                    Name = PerkName.HideInTheShadows,
-                    Effect = "Your hero finds that perfect spot to avoid drawing attention. No enemy will target them if they are more than 2 squares away when they start their turn. If your model is adjacent to an enemy, that enemy will always attack another adjacent model if there is one. If not, the Perk will not work.",
-                    Comment = "",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.HideInShadows, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Sneaky,
                     Name = PerkName.LivingOnNothing,
                     Effect = "Accustomed to hardship, your hero can sustain theirselves on almost nothing. Spending an Energy Point to activate this Perk is considered the same as consuming a ration.",
                     Comment = "The Energy Point cannot be regained in the same rest in which it was spent."

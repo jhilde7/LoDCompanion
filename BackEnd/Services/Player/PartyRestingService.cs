@@ -1,6 +1,8 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.GameData;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -30,13 +32,15 @@ namespace LoDCompanion.BackEnd.Services.Player
     /// </summary>
     public class PartyRestingService
     {
-        private readonly ThreatService _threatService;
-        private readonly WanderingMonsterService _wanderingMonsterService;
+        private readonly ThreatService _threat;
+        private readonly WanderingMonsterService _wanderingMonster;
+        private readonly UserRequestService _userRequest;
+        private readonly PowerActivationService _powerActivation;
 
         public PartyRestingService(ThreatService threatService, WanderingMonsterService wanderingMonsterService)
         {
-            _threatService = threatService;
-            _wanderingMonsterService = wanderingMonsterService;
+            _threat = threatService;
+            _wanderingMonster = wanderingMonsterService;
         }
 
         /// <summary>
@@ -46,7 +50,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="context">The context in which the rest is taking place.</param>
         /// <param name="dungeonState">The current dungeon state, required if resting in a dungeon.</param>
         /// <returns>A RestResult object detailing the outcome.</returns>
-        public RestResult AttemptRest(Party party, RestingContext context, DungeonState? dungeonState = null)
+        public async Task<RestResult> AttemptRest(Party party, RestingContext context, DungeonState? dungeonState = null)
         {
             var result = new RestResult();
 
@@ -56,16 +60,33 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            // Step 1: Check for Rations
-            var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i.Name == "Ration");
-            if (ration == null || ration.Quantity <= 0)
+            // check party perks to determine if a ration is needed
+            var livingOnNothingList = party.Heroes.Where(h => h.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing) != null);
+            bool useLivingOnNothing = false;
+            foreach(var hero in livingOnNothingList)
             {
-                result.Message = "The party has no rations and cannot rest.";
-                return result;
+                var livingOnNothing = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing);
+                if (livingOnNothing == null || hero.CurrentEnergy < 1) continue;
+                if (await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {livingOnNothing.Name.ToString()} perk, to avoid using a ration?"))
+                {
+                    useLivingOnNothing = await _powerActivation.ActivatePerkAsync(hero, livingOnNothing);
+                    break;
+                }
             }
-            ration.Quantity--; // Consume one ration
 
-            // Step 2: Context-specific checks (Threat, Interruption)
+            if (!useLivingOnNothing)
+            {
+                // Check for Rations
+                var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i.Name == "Ration");
+                if (ration == null || ration.Quantity <= 0)
+                {
+                    result.Message = "The party has no rations and cannot rest.";
+                    return result;
+                }
+                ration.Quantity--; // Consume one ration 
+            }
+
+            // Context-specific checks (Threat, Interruption)
             if (context == RestingContext.Dungeon)
             {
                 if (dungeonState == null)
@@ -75,9 +96,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
 
                 // Lower Threat Level
-                _threatService.DecreaseThreat(dungeonState, 5);
+                _threat.DecreaseThreat(dungeonState, 5);
                 // Make a threat roll
-                result.ThreatEvent = _threatService.ProcessScenarioRoll(dungeonState, false);
+                result.ThreatEvent = _threat.ProcessScenarioRoll(dungeonState, false);
                 // Move Wandering Monsters and check for interruption
                 // bool monsterSpotted = _wanderingMonsterService.MoveWanderingMonsters(dungeonState, 3);
                 // if (monsterSpotted) { ... return interrupted result ... }
