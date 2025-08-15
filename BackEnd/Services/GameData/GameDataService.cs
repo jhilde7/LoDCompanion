@@ -296,13 +296,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
                 },
                 new Perk(){
-                    Category = PerkCategory.Sneaky,
-                    Name = PerkName.StrikeToInjure,
-                    Effect = "Your hero targets the enemy with extreme precision, striking the most vulnerable area. Ignore the enemy's armour for all your attacks this turn.",
-                    Comment = "Must be declared before attacking",
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.StrikeToInjure, 1)
-                },
-                new Perk(){
                     Category = PerkCategory.Faith,
                     Name = PerkName.GodsFavorite,
                     Effect = "Your hero is well attuned to the gods, and they always seem to listen to their. Once again, their prayer is heard, and all problems seem smaller. Decrease the Threat Level by 1d6.",

@@ -147,7 +147,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
             else if (target is Monster monsterTarget && weapon != null)
             {
-                result = await ResolveAttackAgainstMonsterAsync(attacker, monsterTarget, weapon, context, dungeon, result);
+                result = await ResolveAttackAgainstMonsterAsync((Hero)attacker, monsterTarget, weapon, context, dungeon, result);
             }
 
             if (weapon is RangedWeapon rangedWeapon)
@@ -283,7 +283,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         }
 
         private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(
-            Character attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon, AttackResult result)
+            Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon, AttackResult result)
         {
             int finalDamage = 0; 
             (finalDamage, context) = await CalculateHeroDamageAsync(attacker, target, weapon, context, result);
@@ -512,7 +512,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// Calculates the final damage dealt by a successful hit, including all bonuses and armor reduction.
         /// </summary>
-        private async Task<(int, CombatContext)> CalculateHeroDamageAsync(Character attacker, Character target, Weapon weapon, CombatContext context, AttackResult result)
+        private async Task<(int, CombatContext)> CalculateHeroDamageAsync(Hero attacker, Character target, Weapon weapon, CombatContext context, AttackResult result)
         {
             int damage = 0;
             if (weapon.DamageDice != null)
@@ -578,6 +578,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             // Apply Armour Piercing from the context
             context.ArmourValue = Math.Max(0, targetArmor - context.ArmourPiercingValue);
+
+            if(attacker.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StrikeToInjure))
+            {
+                context.ArmourValue = 0;
+            }
 
             return (damage, context);
         }
