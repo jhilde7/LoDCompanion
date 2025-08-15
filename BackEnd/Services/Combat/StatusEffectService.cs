@@ -139,7 +139,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         TasteForBlood,
         Encouragement,
         ShieldWall,
-        StrikeToInjure
+        StrikeToInjure,
+        PowerfulBlow
     }
 
     /// <summary>
@@ -152,7 +153,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public (BasicStat, int)? StatBonus { get; set; } // Optional value for effects that change stats.
         public (Skill, int)? SkillBonus { get; set; } // Optional value for effects that change skills.
         public int? Damage { get; set; } // Optional value for effects that deal damage.
-        public DiceType? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
+        public string? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
         public bool RemoveAfterCombat { get; set; }
         public bool RemoveAfterNextBattle { get; set; }
 
@@ -162,7 +163,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             (BasicStat, int)? statBonus = null,
             (Skill, int)? skillBonus = null,
             int? damage = null,
-            DiceType? diceToRoll = null,
+            string? diceToRoll = null,
             bool removeAfterCombat = false,
             bool removeAfterNextBattle = false)
         {

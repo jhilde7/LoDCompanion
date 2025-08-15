@@ -124,7 +124,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Combat,
                     Name = PerkName.PowerfulBlow,
                     Effect = "Your hero's next attack made, they attack with all their strength, causing 1d6 extra damage.",
-                    Comment = "Must be decided before the attack is made."
+                    Comment = "Must be decided before the attack is made.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.PowerfulBlow, -1, diceToRoll: "1d6")
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,
@@ -291,12 +292,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
-                    Category = PerkCategory.Combat,
-                    Name = PerkName.PowerfulBlow,
-                    Effect = "Your hero's next attack made, they attack with all their strength, causing 1d6 extra damage.",
-                    Comment = "Must be decided before the attack is made."
                 },
                 new Perk(){
                     Category = PerkCategory.Combat,

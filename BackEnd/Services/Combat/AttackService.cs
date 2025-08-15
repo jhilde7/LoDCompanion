@@ -1,10 +1,11 @@
-﻿using System.Text;
-using LoDCompanion.BackEnd.Models;
+﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using Microsoft.AspNetCore.Rewrite;
+using System.Text;
 
 namespace LoDCompanion.BackEnd.Services.Combat
 {
@@ -182,6 +183,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
+
+                var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PowerfulBlow);
+                if (powerfulBlow != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(powerfulBlow);
             }
             else
             {
@@ -526,6 +530,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 damage = weapon.RollDamage();
             }
             damage += attacker.GetStat(BasicStat.DamageBonus);
+
+            var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PowerfulBlow);
+            if (powerfulBlow != null)
+            {
+                string dice = powerfulBlow.DiceToRoll != null ? powerfulBlow.DiceToRoll : "1d6";
+                var rollResult = await _diceRoll.RequestRollAsync($"{target.Name} hits with a powerful blow that does extra damage, roll for extra damage", dice); await Task.Yield();
+                attacker.ActiveStatusEffects.Remove(powerfulBlow);
+                damage += rollResult.Roll;
+            }
 
             if (weapon is MeleeWeapon meleeWeapon && attacker is Hero hero)
             {
