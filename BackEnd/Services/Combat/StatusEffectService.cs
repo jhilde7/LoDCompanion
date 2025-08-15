@@ -231,7 +231,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         {
                             bool resisted = false;
                             resisted = await hero.ResistFearAsync(monster, activation);
-                            if (resisted) hero.AfraidOfTheseMonsters.Remove(monster); Console.WriteLine($"{hero.Name} is no longer afraid of {monster.Name}");
+                            if (resisted) 
+                            {
+                                hero.AfraidOfTheseMonsters.Remove(monster);
+                                Console.WriteLine($"{hero.Name} is no longer afraid of {monster.Name}");
+                            }
                         }
                         break;
                     case StatusEffectType.PowerOfFaith: hero.AfraidOfTheseMonsters.Clear(); break;
