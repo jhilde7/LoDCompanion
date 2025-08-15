@@ -29,8 +29,23 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new DefenseResult();
             if (hero.HasDodgedThisBattle)
             {
-                result.OutcomeMessage = $"{hero.Name} has already dodged this battle.";
-                return result;
+                var quickDodge = hero.Perks.FirstOrDefault(p => p.Name == PerkName.QuickDodge);
+                if (quickDodge != null && hero.CurrentEnergy > 0)
+                {
+                    if (await diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to activate {quickDodge.Name.ToString()}, to add another dodge attempt for this battle?"))
+                    {
+                        if (await activation.ActivatePerkAsync(hero, quickDodge))
+                        {
+                            hero.HasDodgedThisBattle = false;
+                        }
+                    }
+                }
+
+                if (hero.HasDodgedThisBattle)
+                {
+                    result.OutcomeMessage = $"{hero.Name} has already dodged this battle.";
+                    return result; 
+                }
             }
 
             if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))

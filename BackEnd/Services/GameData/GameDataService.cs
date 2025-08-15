@@ -297,12 +297,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Sneaky,
-                    Name = PerkName.QuickDodge,
-                    Effect = "Quick reflexes may make all the difference. Hero may dodge, even if the normal dodge is expended.",
-                    Comment = "May be used when attacked."
-                },
-                new Perk(){
-                    Category = PerkCategory.Sneaky,
                     Name = PerkName.StrikeToInjure,
                     Effect = "Your hero targets the enemy with extreme precision, striking the most vulnerable area. Ignore the enemy's armour for all your attacks this turn.",
                     Comment = "Must be declared before attacking",
