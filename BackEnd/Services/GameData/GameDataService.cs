@@ -239,8 +239,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
-                    Name = PerkName.InTuneWiththeiragic,
-                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk their Sanity.",
+                    Name = PerkName.InTuneWithTheMagic,
+                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning theirselves to the magic that way, they open their mind enough to risk their Sanity.",
                     Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
                 },
                 new Perk(){
@@ -305,15 +305,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
-                    Name = PerkName.InTuneWiththeiragic,
+                    Name = PerkName.InTuneWithTheMagic,
                     Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk their Sanity.",
                     Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
-                },
-                new Perk(){
-                    Category = PerkCategory.Arcane,
-                    Name = PerkName.QuickFocus,
-                    Effect = "The wizard has the ability of extreme Focus, increasing the chance to succeed with a spell. Add +10 Arcane Arts Skill without spending an action on focus. Risk for miscast is still increased.",
-                    Comment = "Used at the same time as casting a spell. Only lasts for that spell."
                 },
                 new Perk(){
                     Category = PerkCategory.Alchemist,
@@ -906,7 +900,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         DispelMaster,
         EnergyToMana,
         InnerPower,
-        InTuneWiththeiragic,
+        InTuneWithTheMagic,
         QuickFocus,
         CarefulTouch,
         Connoisseur,

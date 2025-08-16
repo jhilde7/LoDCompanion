@@ -4,20 +4,37 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
-@inject SpellCastingService SpellCastingService
+@inject SpellCastingService SpellCasting
+@inject PowerActivationService PowerActivation
 
-@if (SpellCastingService.CurrentDiceRequest != null)
+@if (SpellCasting.CurrentDiceRequest != null)
 {
     <div class="modal-backdrop show"></div>
     <div class="modal show" tabindex="-1" style="display: block;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@SpellCastingService.CurrentDiceRequest.Prompt</h5>
+                    <h5 class="modal-title">@SpellCasting.CurrentDiceRequest.Prompt</h5>
                 </div>
                 <div class="modal-body">
                     <p><strong>Spell:</strong> @CurrentSpell.Name (CV: @CurrentSpell.CastingValue, Mana: @ManaCost)</p>
                     <hr />
+
+                    @* --- Quick Focus Perk Section --- *@
+                    @if (HasQuickFocus)
+                    {
+                        <h6>Perks</h6>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="quickFocusSwitch" @bind="_useQuickFocus">
+                            <label class="form-check-label" for="quickFocusSwitch">
+                                Use Quick Focus (+10 Success, +5% Miscast, 0 AP)
+                            </label>
+                        </div>
+                        <p class="small text-muted">
+                            Your Quick Focus perk allows you to gain the benefit of 1 focus action by using 1 energy instead of AP.
+                        </p>
+                        <hr />
+                    }
 
                     @* --- Focus Points Section --- *@
                     <h6>Focus</h6>
@@ -77,10 +94,12 @@
 @code {
     private int _focusPoints = 0;
     private int _powerLevels = 0;
+    private bool _useQuickFocus = false;
 
-    private Hero Caster => SpellCastingService.CurrentDiceRequest!.Caster;
-    private Spell CurrentSpell => SpellCastingService.CurrentDiceRequest!.Spell;
+    private Hero Caster => SpellCasting.CurrentDiceRequest!.Caster;
+    private Spell CurrentSpell => SpellCasting.CurrentDiceRequest!.Spell;
 
+    private bool HasQuickFocus => Caster.Perks.Any(p => p.Name == PerkName.QuickFocus);
     private bool IsPowerCastable => CurrentSpell.School is MagicSchool.Destruction or MagicSchool.Restoration;
     private int MaxPowerLevels => Math.Min(5, Caster.GetStat(BasicStat.Level));
 
@@ -91,13 +110,13 @@
 
     protected override void OnInitialized()
     {
-        SpellCastingService.OnCastingRequestChanged += StateHasChanged;
+        SpellCasting.OnCastingRequestChanged += StateHasChanged;
     }
 
     private void AdjustFocus(int amount)
     {
         _focusPoints += amount;
-        _focusPoints = Math.Clamp(_focusPoints, 0, 999);
+        _focusPoints = Math.Clamp(_focusPoints, 0, 99);
     }
 
     private void AdjustPower(int amount)
@@ -106,22 +125,29 @@
         _powerLevels = Math.Clamp(_powerLevels, 0, MaxPowerLevels);
     }
 
-    private void Confirm()
+    private async Task Confirm()
     {
         var result = new SpellCastingResult
             {
                 FocusPoints = _focusPoints,
                 PowerLevels = _powerLevels
             };
+
+        if(_useQuickFocus)
+        {
+            var quickFocus = Caster.Perks.FirstOrDefault(p => p.Name == PerkName.QuickFocus);
+            if (quickFocus != null) await PowerActivation.ActivatePerkAsync(Caster, quickFocus);
+        }
+
         ResetState();
-        SpellCastingService.CompleteSelection(result);
+        SpellCasting.CompleteSelection(result);
     }
 
     private void Cancel()
     {
         var result = new SpellCastingResult { WasCancelled = true };
         ResetState();
-        SpellCastingService.CompleteSelection(result);
+        SpellCasting.CompleteSelection(result);
     }
 
     private void ResetState()
@@ -132,6 +158,6 @@
 
     public void Dispose()
     {
-        SpellCastingService.OnCastingRequestChanged -= StateHasChanged;
+        SpellCasting.OnCastingRequestChanged -= StateHasChanged;
     }
 }
