@@ -311,12 +311,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Alchemist,
-                    Name = PerkName.CarefulTouch,
-                    Effect = "By taking a little extra time, that specific specimen can be perfect. Chance of getting an Exquisite Ingredient or Part is increased to 20.",
-                    Comment = "Declare before harvesting or gathering."
-                },
-                new Perk(){
-                    Category = PerkCategory.Alchemist,
                     Name = PerkName.Connoisseur,
                     Effect = "The alchemist has a knack for identifying potions brewed by others. Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
                     Comment = "Energy Point is spent at the same time as you try to identify the potion."

@@ -707,7 +707,21 @@ namespace LoDCompanion.BackEnd.Services.Player
                             avaialbleCorpses.Shuffle();
                             var skillTarget = hero.GetSkill(Skill.Alchemy);
                             var resultRoll = await _diceRoll.RequestRollAsync("Roll for alchemy skill test.", "1d100", skill: Skill.Alchemy);
+                            await Task.Yield();
+
                             var equisiteRange = 10;
+
+                            var carefulTouch = hero.Perks.FirstOrDefault(p => p.Name == PerkName.CarefulTouch);
+                            if (carefulTouch != null && hero.CurrentEnergy > 0)
+                            {
+                                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {carefulTouch.Name.ToString()}");
+                                await Task.Yield();
+                                if(choiceResult)
+                                {
+                                    if (await _powerActivation.ActivatePerkAsync(hero, carefulTouch)) equisiteRange = 20;
+                                }
+                            }
+
                             if (resultRoll.Roll <= skillTarget)
                             {
                                 var parts = new List<Part>();
