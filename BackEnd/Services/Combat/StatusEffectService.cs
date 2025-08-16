@@ -142,7 +142,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         StrikeToInjure,
         PowerfulBlow,
         StunningStrike,
-        DispelMaster
+        DispelMaster,
+        InnerPower
     }
 
     /// <summary>

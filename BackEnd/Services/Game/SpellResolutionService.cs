@@ -133,6 +133,15 @@ namespace LoDCompanion.BackEnd.Services.Game
         {
             var outcome = new StringBuilder();
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
+            var innerPower = caster.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.InnerPower);
+            int addDamage = 0;
+
+            if (innerPower != null && spell.HasProperty(SpellProperty.MagicMissile))
+            {
+                var resultRoll = await _diceRoll.RequestRollAsync("Roll for your inner power", $"{innerPower.DiceToRoll}"); 
+                await Task.Yield();
+                addDamage = resultRoll.Roll;
+            }
 
             if (spell.Name == "Lightning Bolt")
             {
@@ -142,9 +151,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                 if (singleTarget != null)
                 {
                     var resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt primary damage",
-                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); await Task.Yield();
+                        $"{spell.Properties?[SpellProperty.DiceCount]}d{spell.Properties?[SpellProperty.DiceMaxValue]}"); 
+                    await Task.Yield();
                     int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
+                    if (spell.HasProperty(SpellProperty.MagicMissile)) primaryDamage += addDamage;
                     await singleTarget.TakeDamageAsync(primaryDamage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType);
                     outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
                     hitTargets.Add(singleTarget);
@@ -154,9 +165,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                     if (secondTarget != null)
                     {
                         resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt secondary damage",
-                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); await Task.Yield();
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue]}"); 
+                        await Task.Yield();
                         int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
+                        if (spell.HasProperty(SpellProperty.MagicMissile)) secondDamage += addDamage;
                         await secondTarget.TakeDamageAsync(secondDamage, (_floatingText, secondTarget.Position), _powerActivation, damageType: spell.DamageType);
                         outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
                         hitTargets.Add(secondTarget);
@@ -166,9 +179,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                         if (thirdTarget != null)
                         {
                             resultRoll = await _diceRoll.RequestRollAsync("Roll for Lightning Bolt tertiary damage",
-                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); await Task.Yield();
+                        $"{spell.Properties?[SpellProperty.AOEDiceCount2]}d{spell.Properties?[SpellProperty.AOEDiceMaxValue2]}"); 
+                            await Task.Yield();
                             int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
+                            if (spell.HasProperty(SpellProperty.MagicMissile)) thirdDamage += addDamage;
                             await thirdTarget.TakeDamageAsync(thirdDamage, (_floatingText, thirdTarget.Position), _powerActivation, damageType: spell.DamageType);
                             outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
                         }
@@ -204,6 +219,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             await GetAOEDamageAsync(caster, spell);
 
                         damage += options.PowerLevels;
+                        if (spell.HasProperty(SpellProperty.MagicMissile)) damage += addDamage;
 
                         await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: spell.DamageType);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
@@ -213,10 +229,12 @@ namespace LoDCompanion.BackEnd.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = await GetDirectDamageAsync(caster, spell) + options.PowerLevels;
+                if (spell.HasProperty(SpellProperty.MagicMissile)) damage += addDamage;
                 await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
+            if (innerPower != null) caster.ActiveStatusEffects.Remove(innerPower);
             return new SpellCastResult { IsSuccess = true, OutcomeMessage = outcome.ToString() };
         }
 

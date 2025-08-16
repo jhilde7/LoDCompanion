@@ -1508,6 +1508,20 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 return result;
             }
 
+            if (Properties != null && HasProperty(SpellProperty.MagicMissile))
+            {
+                var innerPower = caster.Perks.FirstOrDefault(p => p.Name == PerkName.InnerPower);
+                if (innerPower != null)
+                {
+                    var useInnerPower = await diceRoll.RequestYesNoChoiceAsync($"Does {caster.Name} wish to call upon their {innerPower.Name.ToString()} perk?");
+                    await Task.Yield();
+                    if (useInnerPower)
+                    {
+                        await activation.ActivatePerkAsync(caster, innerPower);
+                    }
+                } 
+            }
+
             // --- Calculate Target Skill and Miscast Chance ---
             int arcaneArts = caster.GetSkill(Skill.ArcaneArts);
             if (monster != null && caster.AfraidOfTheseMonsters.Contains(monster)) arcaneArts -= 10;

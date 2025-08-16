@@ -234,7 +234,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Arcane,
                     Name = PerkName.InnerPower,
                     Effect = "The wizard increases the power of their magic missiles, causing an extra 1d6 Damage.",
-                    Comment = "Must be declared before the spell is cast."
+                    Comment = "Must be declared before the spell is cast.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.InnerPower, -1, diceToRoll: "1d6")
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
@@ -301,12 +302,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Name = PerkName.FateForger,
                     Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
                     Comment = "Used as soon as the Scenario die has been rolled."
-                },
-                new Perk(){
-                    Category = PerkCategory.Arcane,
-                    Name = PerkName.InnerPower,
-                    Effect = "The wizard increases the power of their magic missiles, causing an extra 1d6 Damage.",
-                    Comment = "Must be declared before the spell is cast."
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
