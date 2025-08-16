@@ -592,6 +592,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public class Ingredient : AlchemyItem
     {
+        public bool Exquisite { get; set; }
         public Ingredient()
         {
             IsIngredient = true;
@@ -601,6 +602,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
     public class Part : AlchemyItem
     {
         public SpeciesName Origin { get; set; } = SpeciesName.Unknown;
+        public bool Exquisite {  set; get; }
 
         public Part()
         {

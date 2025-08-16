@@ -715,7 +715,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 {
                                     if(i == 0 && resultRoll.Roll <= equisiteRange)
                                     {
-                                        parts.AddRange(await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species));
+                                        var part = (await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species))[0];
+                                        part.Exquisite = true;
+                                        parts.Add(part);
                                     }
                                     else
                                     {
