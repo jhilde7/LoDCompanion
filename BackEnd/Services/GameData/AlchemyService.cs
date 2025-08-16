@@ -185,7 +185,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return parts;
         }
 
-        private string GetPart()
+        private PartName GetPart()
         {
             int roll = RandomHelper.GetRandomNumber(0, Parts.Count - 1);
             return Parts[roll].Name;
@@ -268,16 +268,16 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             return new List<Part>()
             {
-                new Part() { Name = "Brain" },
-                new Part() { Name = "Kidney" },
-                new Part() { Name = "Saliva" },
-                new Part() { Name = "Blood" },
-                new Part() { Name = "Skin" },
-                new Part() { Name = "Nails" },
-                new Part() { Name = "Hair" },
-                new Part() { Name = "Eye" },
-                new Part() { Name = "Tongue" },
-                new Part() { Name = "Heart" }
+                new Part() { Name = PartName.Brain },
+                new Part() { Name = PartName.Kidney },
+                new Part() { Name = PartName.Saliva},
+                new Part() { Name = PartName.Blood },
+                new Part() { Name = PartName.Skin },
+                new Part() { Name = PartName.Nails },
+                new Part() { Name = PartName.Hair },
+                new Part() { Name = PartName.Eye },
+                new Part() { Name = PartName.Tongue },
+                new Part() { Name = PartName.Heart }
             };
         }
 
@@ -718,8 +718,23 @@ namespace LoDCompanion.BackEnd.Services.GameData
         }
     }
 
+    public enum PartName
+    {
+        Brain,
+        Kidney,
+        Saliva,
+        Blood,
+        Skin,
+        Nails, 
+        Hair, 
+        Eye,
+        Tongue,
+        Heart
+    }
+
     public class Part : AlchemyItem
     {
+        public new PartName Name { get; set; }
         public SpeciesName Origin { get; set; } = SpeciesName.Unknown;
         public bool Exquisite {  set; get; }
 
