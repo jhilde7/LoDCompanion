@@ -48,7 +48,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         Frenzy,
         UsePerk,
         ShieldBash,
-        StunningStrike
+        StunningStrike,
+        HarvestParts
     }
 
     public class ActionInfo
@@ -486,6 +487,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                             rangedWeapon.reloadAmmo();
                             if (character is Monster) rangedWeapon.IsLoaded = true;
                             resultMessage = $"{character.Name} spends a moment to reload their {rangedWeapon.Name}.";
+                            apCost = rangedWeapon.ReloadTime;
                         }
                         else
                         {
@@ -504,11 +506,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
                     {
                         rangedWeapon1.reloadAmmo();
-                        if (character is Monster) 
-                        {
-                            rangedWeapon1.IsLoaded = true;
-                            resultMessage = $" and reloads their {rangedWeapon1.Name}.";
-                        }
+                        rangedWeapon1.IsLoaded = true;
+                        resultMessage = $" and reloads their {rangedWeapon1.Name}.";
                     }
                     else
                     {
@@ -727,23 +726,23 @@ namespace LoDCompanion.BackEnd.Services.Player
             return actionType switch
             {
                 ActionType.StandardAttack => 1,
-                ActionType.PowerAttack => 2,
-                ActionType.ChargeAttack => 2,
                 ActionType.Shove => 1,
                 ActionType.Move => 1,
                 ActionType.OpenDoor => 1,
-                ActionType.PickLock => 2,
-                ActionType.DisarmTrap => 2,
-                ActionType.SearchRoom => 2,
                 ActionType.SearchFurniture => 1,
                 ActionType.SearchCorpse => 1,
                 ActionType.HealOther => 1,
+                ActionType.Aim => 1,
+                ActionType.HarvestParts => 1,
+                ActionType.PowerAttack => 2,
+                ActionType.ChargeAttack => 2,
+                ActionType.PickLock => 2,
+                ActionType.DisarmTrap => 2,
+                ActionType.SearchRoom => 2,
                 ActionType.HealSelf => 2,
                 ActionType.EquipGear => 2,
                 ActionType.AddItemToQuickSlot => 2,
                 ActionType.IdentifyItem => 0,
-                ActionType.Reload => 1,
-                ActionType.Aim => 1,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
                 ActionType.UsePerk => 0,
