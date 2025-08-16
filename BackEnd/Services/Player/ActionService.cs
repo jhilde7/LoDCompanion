@@ -6,6 +6,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -727,10 +728,29 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 var parts = new List<Part>();
                                 for (int i = 0; i < Math.Min(avaialbleCorpses.Count, 3); i++)
                                 {
-                                    if(i == 0 && resultRoll.Roll <= equisiteRange)
+                                    if (i == 0)
                                     {
                                         var part = (await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species))[0];
-                                        part.Exquisite = true;
+                                        var surgeon = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Surgeon);
+                                        if (surgeon != null)
+                                        {
+                                            var useSurgeon = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wich to use the perk {surgeon.Name.ToString()}");
+                                            await Task.Yield();
+                                            if (useSurgeon)
+                                            {
+                                                if(await _powerActivation.ActivatePerkAsync(hero, surgeon))
+                                                {
+                                                    string choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList());
+                                                    await Task.Yield();
+                                                    Enum.TryParse(choiceResult, out PartName selectedName);
+                                                    part.Name = selectedName;
+                                                }
+                                            }
+                                        }
+                                        if (resultRoll.Roll <= equisiteRange)
+                                        {
+                                            part.Exquisite = true; 
+                                        }
                                         parts.Add(part);
                                     }
                                     else

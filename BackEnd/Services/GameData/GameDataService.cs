@@ -334,12 +334,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Effect = "Good mixing skills make all the difference. The alchemist may choose to reroll the result when rolling to see what potions have been created.",
                     Comment = "Energy may be spent after the first dice roll. The second result stands."
                 },
-                new Perk(){
-                    Category = PerkCategory.Alchemist,
-                    Name = PerkName.Surgeon,
-                    Effect = "Taking a deep breath to calm the nerves, the alchemist can remove most parts with precision. The alchemist may choose what part to harvest.",
-                    Comment = "Only works on one enemy per Energy Point spent."
-                }
          */
 
         public List<Perk> GetPerksByCategory(PerkCategory category)
