@@ -75,6 +75,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             foreach (var hero in heroes)
             {
                 hero.HasDodgedThisBattle = false;
+                if (hero.ProfessionName == "Wizard" && hero.Spells != null) hero.CanCastSpell = true;
             }
 
             PrepareCharactersForCombat(heroes, monsters);

@@ -141,7 +141,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         ShieldWall,
         StrikeToInjure,
         PowerfulBlow,
-        StunningStrike
+        StunningStrike,
+        DispelMaster
     }
 
     /// <summary>

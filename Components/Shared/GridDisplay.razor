@@ -18,7 +18,6 @@
 @inject SpellCastingService SpellCastingService
 @inject MovementHighlightingService MovementHighlighting
 
-
 <style>
     .grid-container {
         position: relative;
@@ -244,7 +243,7 @@
                 Move (@(ActionService.GetActionCost(ActionType.Move)) AP)
             </Item>
 
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.Spells != null)
+            @if (activeHero.Spells != null && activeHero.CanCastSpell)
             {
                 <Item>
                     <span>Cast Spell</span>
@@ -325,8 +324,7 @@
                     }
                 }
 
-                if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1
-                && activeHero.Spells != null && activeHero.Spells.Any())
+                if (activeHero.CurrentAP >= 1 && activeHero.Spells != null && activeHero.CanCastSpell)
                 {
                     <Item>
                         <span>Cast Spell</span>
@@ -391,8 +389,7 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1
-                && activeHero.Spells != null && activeHero.Spells.Any())
+            @if (activeHero.CurrentAP >= 1 && activeHero.Spells != null && activeHero.CanCastSpell)
             {
                 <Item>
                     <span>Cast Spell</span>
@@ -432,8 +429,7 @@
                 </Item>
             }
 
-            @if (activeHero.ProfessionName == "Wizard" && activeHero.CurrentAP >= 1
-                && activeHero.Spells != null && activeHero.Spells.Any())
+            @if (activeHero.CurrentAP >= 1 && activeHero.Spells != null && activeHero.CanCastSpell)
             {
                 <Item>
                     <span>Cast Spell</span>

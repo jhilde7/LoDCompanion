@@ -221,7 +221,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Arcane,
                     Name = PerkName.DispelMaster,
                     Effect = "The wizard is very skilled in the art of countering enemy magic.",
-                    Comment = "The wizard gets +10 when rolling to dispel when this Perk is used."
+                    Comment = "The wizard gets +10 when rolling to dispel when this Perk is used.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.DispelMaster, -1, skillBonus: (Skill.ArcaneArts, 10))
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
@@ -300,12 +301,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Name = PerkName.FateForger,
                     Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
                     Comment = "Used as soon as the Scenario die has been rolled."
-                },
-                new Perk(){
-                    Category = PerkCategory.Arcane,
-                    Name = PerkName.DispelMaster,
-                    Effect = "The wizard is very skilled in the art of countering enemy magic.",
-                    Comment = "The wizard gets +10 when rolling to dispel when this Perk is used."
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,

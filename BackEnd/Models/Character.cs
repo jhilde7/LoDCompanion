@@ -479,6 +479,7 @@ namespace LoDCompanion.BackEnd.Models
         public bool ReceivedPerfectRollSkill { get; set; }
         public bool ReceivedPerfectRollStat { get; set; }
         public Monster MonsterLastFought { get; set; } = new Monster();
+        public bool CanCastSpell { get; set; } = false;
 
         // Constructor
         public Hero() : base() { }

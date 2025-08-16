@@ -713,6 +713,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 character.CurrentAP -= apCost;
                 if(actionType != ActionType.PowerAttack) character.IsVulnerableAfterPowerAttack = false;
+                if (character is Hero hero && hero.ProfessionName == "Wizard") hero.CanCastSpell = true;
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";

@@ -473,12 +473,54 @@ namespace LoDCompanion.BackEnd.Services.Game
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(target);
             if (centerPosition == null)
             {
-                return new SpellCastResult { OutcomeMessage = "Invalid target for spell." };
+                return new SpellCastResult { IsSuccess = false, OutcomeMessage = "Invalid target for spell." };
             }
             var affectedCharacters = GetCharactersInArea(spell.TargetType, centerPosition, spell.Properties?.GetValueOrDefault(SpellProperty.Radius) ?? 0);
 
             // Spend AP Cost
             caster.SpendActionPoints(spell.CostAP);
+
+            // Attempt to cast the spell
+            if (RandomHelper.RollDie(DiceType.D100) > caster.GetSkill(Skill.RangedSkill))
+            {
+                return new SpellCastResult { IsSuccess = false, OutcomeMessage = $"{caster.Name} fails to cast spell {spell.Name}." };
+            }
+
+            // Dispel spell logic
+            if (target is Hero hero && hero.Party != null && hero.Party.Heroes.Any(h => h.ProfessionName == "Wizard"))
+            {
+                foreach (var wizard in hero.Party.Heroes.Where(h => h.ProfessionName == "Wizard"))
+                {
+                    var attemptDispel = await _diceRoll.RequestYesNoChoiceAsync($"Does {wizard.Name} want to try and attempt to dispel {spell.Name}, " +
+                        $"this attempt will prevent {wizard.Name} from casting spells onm there next activation.");
+                    await Task.Yield();
+                    if (attemptDispel)
+                    {
+                        var dispelMaster = wizard.Perks.FirstOrDefault(p => p.Name == PerkName.DispelMaster);
+                        if(dispelMaster != null)
+                        {
+                            var activateDispelMaster = await _diceRoll.RequestYesNoChoiceAsync($"Does {wizard.Name} wish to activate {dispelMaster.Name.ToString()}");
+                            await Task.Yield();
+                            if (activateDispelMaster)
+                            {
+                                await _powerActivation.ActivatePerkAsync(wizard, dispelMaster);
+                            }
+                        }
+                        wizard.CanCastSpell = false;
+                        var rollResult = await _diceRoll.RequestRollAsync($"Roll {Skill.ArcaneArts.ToString()} test", "1d100", skill: Skill.ArcaneArts);
+                        await Task.Yield();
+                        var skillTarget = wizard.GetSkill(Skill.ArcaneArts);
+
+                        var activeDispelMaster = wizard.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DispelMaster);
+                        if (activeDispelMaster != null) wizard.ActiveStatusEffects.Remove(activeDispelMaster);
+
+                        if (rollResult.Roll <= skillTarget)
+                        {
+                            return new SpellCastResult { IsSuccess = false, OutcomeMessage = $"{wizard.Name} foils the casting of spell {spell.Name}." };
+                        }
+                    }
+                }
+            }
 
             if (spell.TargetType == TargetType.Ally && singleTarget != null && singleTarget is Monster allyTarget)
             {
