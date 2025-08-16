@@ -292,7 +292,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Common,
                     Name = PerkName.Taunt,
-                    Effect = "Your hero knows exactly how to trigger the enemy. Your hero can force an enemy, that is not locked in close combat, to attack their ignoring normal targeting procedure.",
+                    Effect = 
+        "Your hero can force an enemy, that is not locked in close combat, to attack their ignoring normal targeting procedure.",
                     Comment = "Chose which enemy to taunt before rolling.",
                     TargetType = TargetType.SingleTarget,
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
@@ -306,20 +307,20 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Perk(){
                     Category = PerkCategory.Arcane,
                     Name = PerkName.InTuneWithTheMagic,
-                    Effect = "Caster may use Focus before trying to identify a Magic Item. However, when attuning herself to the magic that way, she opens the mind enough to risk their Sanity.",
-                    Comment = "Works just as if casting a spell but introduces miscast to the roll as well. 1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
+                    Effect = 
+        "Caster may use Focus before trying to identify a Magic Item. 
+        However, when attuning herself to the magic that way, she opens the mind enough to risk their Sanity.",
+                    Comment = 
+        "Works just as if casting a spell but introduces miscast to the roll as well. 
+        1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
                 },
                 new Perk(){
                     Category = PerkCategory.Alchemist,
                     Name = PerkName.Connoisseur,
-                    Effect = "The alchemist has a knack for identifying potions brewed by others. Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
+                    Effect = 
+        "The alchemist has a knack for identifying potions brewed by others. 
+        Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
                     Comment = "Energy Point is spent at the same time as you try to identify the potion."
-                },
-                new Perk(){
-                    Category = PerkCategory.Alchemist,
-                    Name = PerkName.PerfectHealer,
-                    Effect = "Your hero's perfect mixing increases the potency of their potions. The Healing Potion heals +3 HP.",
-                    Comment = "Used at the same time as the potion is mixed."
                 },
                 new Perk(){
                     Category = PerkCategory.Alchemist,

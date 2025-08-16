@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.ComponentModel;
@@ -603,8 +604,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
         /// <param name="alchemist">The hero attempting to brew the potion.</param>
         /// <param name="recipe">The alchemical recipe to be brewed.</param>
         /// <returns>A string message indicating the success or failure of the brewing attempt.</returns>
-        public async Task<string> BrewPotion(Hero alchemist, PotionStrength strength, List<AlchemyItem> components, AlchemicalRecipe? recipe = null)
+        public async Task<string> BrewPotion(Hero alchemist, PotionStrength strength, List<AlchemyItem> components, PowerActivationService activation, AlchemicalRecipe? recipe = null)
         {
+            var addedProperties = new Dictionary<PotionProperty, int>(); 
             // Validate Components
             if (!ValidateComponents(strength, components, recipe, out string validationError))
             {
@@ -623,6 +625,12 @@ namespace LoDCompanion.BackEnd.Services.GameData
             if (recipe != null)
             {
                 alchemySkill += 10; // +10 modifier for using a recipe
+            }
+            
+            var perfectHealer = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PerfectHealer);
+            if (perfectHealer != null )
+            {
+                addedProperties.TryAdd(PotionProperty.HealHP, 3);
             }
 
             var resultRoll = await _diceRoll.RequestRollAsync("Attempting to brew potion...", "1d100");
@@ -665,6 +673,20 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     EffectDescription = randomPotion.EffectDescription,
                     Value = randomPotion.Value,
                 };
+            }
+
+            if (newPotion.EffectDescription.Contains("Heals") && perfectHealer != null)
+            {
+                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {alchemist.Name} wish to attempt to use his perk {perfectHealer.Name.ToString()}");
+                if(choiceResult)
+                {
+                    if(await activation.ActivatePerkAsync(alchemist, perfectHealer))
+                    {
+                        var key = PotionProperty.HealHP;
+                        if (newPotion.PotionProperties != null) newPotion.PotionProperties.TryAdd(key, addedProperties.FirstOrDefault(p => p.Key == key).Value);
+                        else new Dictionary<PotionProperty, int>() { {key, addedProperties.FirstOrDefault(p => p.Key == key).Value } };
+                    }
+                }
             }
 
             // Add Potion to Inventory
@@ -718,34 +740,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public enum PotionProperty
     {
-
-        Thrown,
-        AcidicDamage,
-        FireDamage,
-        PoisonDamage,
-        AbsorbsMagic,
-        AddWeaponProperty,
-        IncreaseStat,
-        CureDisease,
-        CurePoison,
-        DragonsBreath,
-        Invulnerable,
-        IncreaseEnergy,
-        FireProtection,
-        HealHP,
-        RestoreMana,
-        Invisibility,
-        Frenzy,
-        Restoration,
-        Corrosion,
-        ObscureLOS
+        HealHP
     }
 
     public class Potion : AlchemyItem
     {
         public PotionStrength Strength { get; set; } = PotionStrength.None;
         public string EffectDescription { get; set; } = string.Empty;
-        public PotionProperty? PotionProperties { get; set; }
+        public Dictionary<PotionProperty, int>? PotionProperties { get; set; }
         public ActiveStatusEffect? ActiveStatusEffect { get; set; }
 
         public Potion()
