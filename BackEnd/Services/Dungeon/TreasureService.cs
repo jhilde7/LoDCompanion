@@ -1,8 +1,9 @@
 ﻿using LoDCompanion.BackEnd.Models;
-using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Game;
-using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
+using LoDCompanion.BackEnd.Services.Utilities;
+using System.Collections.Generic;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -20,7 +21,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         Fine,
         Wonderful,
         Turog,
-        TheMasterLocksmith
+        TheMasterLocksmith,
+        TheAlchemistOutlaw
     }
 
     public class TreasureService
@@ -241,6 +243,28 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     rewards.AddRange(await SearchCorpseAsync(TreasureType.T5, hero, searchRoll));
                     item = EquipmentService.GetWeaponByName("The Flames of Zul");
                     if (item != null) rewards.Add(item);
+                    break;
+                case TreasureType.TheAlchemistOutlaw:
+                    rewards.AddRange(new List<Weapon>() {_weaponFactory.CreateModifiedRangedWeapon(
+                        "Crossbow Pistol", "Poisonous Crossbow Pistol",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        }),
+                        _weaponFactory.CreateModifiedMeleeWeapon(
+                        "Dagger", "Poisonous Dagger",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
+                        }) });
+                    rewards.AddRange(await _alchemy.GetRandomPotions(4, PotionStrength.Standard));
+                    rewards.Add(new AlchemicalRecipe
+                        {
+                            Name = $"Black Acathus gas Recipe",
+                            Strength = PotionStrength.Standard,
+                            Components = new List<AlchemyItem>() { new Ingredient() { Name = "Black Acathus Leaf" } }
+                        });
+                    rewards.Add(new Ingredient() { Name = "Black Acathus Leaf", Quantity = 4 });
                     break;
                 default:
                     break;
