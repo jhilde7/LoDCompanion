@@ -246,11 +246,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
     public class Corpse : Searchable
     {
+        public Monster OriginMonster { get; set; }
 
-        public Corpse(string name, TreasureType treasureType)
+        public Corpse(Monster monster)
         {
-            Name = name;
-            TreasureType = treasureType;
+            Name = $"{monster.Name} Corpse";
+            OriginMonster = monster;
+            TreasureType = monster.TreasureType;
             HasBeenSearched = false;
             Treasures = new List<string>();
         }

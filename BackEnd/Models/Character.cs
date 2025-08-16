@@ -1038,7 +1038,7 @@ namespace LoDCompanion.BackEnd.Models
         public List<Weapon> Weapons { get; set; } = new List<Weapon>();
         public Weapon? ActiveWeapon { get; set; }
         public List<MonsterSpell> Spells { get; set; } = new List<MonsterSpell>(); // List of actual spell names
-        public Corpse Body { get; set; } = new Corpse("Corpse", TreasureType.None);
+        public Corpse? Body { get; set; }
         private TreasureType _treasureType = TreasureType.None;
         public TreasureType TreasureType
         {
@@ -1046,7 +1046,7 @@ namespace LoDCompanion.BackEnd.Models
             set
             {
                 _treasureType = value;
-                Body = new Corpse($"{Name} corpse", _treasureType);
+                Body = new Corpse(this);
             }
         }
         public List<string> Treasures { get; set; } = new List<string>();

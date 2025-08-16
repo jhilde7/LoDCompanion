@@ -93,10 +93,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 MonstersInCombat.Remove(deceasedMonster);
                 CombatLog.Add($"{deceasedMonster.Name} has been slain!");
 
-                Corpse corpse = deceasedMonster.Body;
-                corpse.Position = deceasedMonster.Position ?? new GridPosition(0, 0, 0);
-                corpse.Room = deceasedMonster.Room;
-                corpse.UpdateOccupiedSquares();
+                if (deceasedMonster.Body != null)
+                {
+                    Corpse corpse = deceasedMonster.Body;
+                    corpse.Position = deceasedMonster.Position ?? new GridPosition(0, 0, 0);
+                    corpse.Room = deceasedMonster.Room;
+                    corpse.UpdateOccupiedSquares(); 
+                }
 
                 deceasedMonster.OnDeath -= HandleDeath;
 
