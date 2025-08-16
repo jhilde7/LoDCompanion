@@ -2538,6 +2538,29 @@ namespace LoDCompanion.BackEnd.Services.GameData
         }
 
         /// <summary>
+        /// Creates a new weapon instance from a base template and applies modifications.
+        /// </summary>
+        /// <param name="baseWeaponName">The name of the weapon to use as a template.</param>
+        /// <param name="newName">The new name for the modified weapon.</param>
+        /// <param name="modifications">An action to apply custom changes to the new weapon.</param>
+        /// <returns>A new, modified RangedWeapon instance, or null if the base weapon doesn't exist.</returns>
+        public RangedWeapon CreateModifiedRangedWeapon(
+            string baseWeaponName,
+            string newName,
+            Action<RangedWeapon> modifications)
+        {
+            var template = EquipmentService.GetWeaponByName(baseWeaponName) as RangedWeapon ?? new RangedWeapon();
+
+            var newWeapon = template.Clone();
+
+            newWeapon.Name = newName;
+
+            modifications(newWeapon);
+
+            return newWeapon;
+        }
+
+        /// <summary>
         /// Creates a new, randomized Magic Staff by combining a base staff with magical properties.
         /// </summary>
         /// <returns>A fully constructed MagicStaff object, or null if the base staff is not found.</returns>
