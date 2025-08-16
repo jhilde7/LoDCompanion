@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -1812,7 +1813,12 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public string Id { get; } = Guid.NewGuid().ToString();
         public string Category { get; set; } = "Common";
         public ShopCategory Shop { get; set; } = ShopCategory.General;
-        public string Name { get; set; } = string.Empty;
+        private string _trueName = string.Empty;
+        public string Name
+        {
+            get => Identified ? _trueName : "Unidentified";
+            set => _trueName = value;
+        }
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
         public int Durability { get; set; } = 1;
@@ -1825,6 +1831,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public string MagicEffect { get; set; } = string.Empty;
         public Inventory? Storage { get; set; }
         public Dictionary<EquipmentProperty, int> Properties { get; set; } = new Dictionary<EquipmentProperty, int>();
+        public bool Identified { get; set; } = true;
+        public bool AttemptedToIdentify { get; set; } = false;
 
         public Equipment()
         {
@@ -1847,6 +1855,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newEquipment.MagicEffect = MagicEffect;
             newEquipment.Storage = Storage;
             newEquipment.Properties = new Dictionary<EquipmentProperty, int>(Properties);
+            newEquipment.Identified = Identified;
 
             return newEquipment;
         }
@@ -1854,11 +1863,18 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Category}] {Name} | ");
-            sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
-            if (!string.IsNullOrEmpty(MagicEffect))
+            if (Identified)
             {
-                sb.Append($" | Effect: {MagicEffect}");
+                sb.Append($"[{Category}] {Name} | ");
+                sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
+                if (!string.IsNullOrEmpty(MagicEffect))
+                {
+                    sb.Append($" | Effect: {MagicEffect}");
+                } 
+            }
+            else
+            {
+                sb.Append("Unidentified item");
             }
             return sb.ToString();
         }
@@ -1961,23 +1977,31 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newAmmo.Description = Description;
             newAmmo.MagicEffect = MagicEffect;
             newAmmo.Properties = new Dictionary<AmmoProperty, int>(Properties);
+            newAmmo.Identified = Identified;
             return newAmmo;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder(base.ToString());
-            sb.Append($"[{Category}] {Name} | ");
-            sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
-            if (!string.IsNullOrEmpty(MagicEffect))
-            {
-                sb.Append($" | Effect: {MagicEffect}");
+            if(Identified)
+            { 
+                sb.Append($"[{Category}] {Name} | ");
+                sb.Append($"Value: {Value} | Dur: {Durability}/{MaxDurability}");
+                if (!string.IsNullOrEmpty(MagicEffect))
+                {
+                    sb.Append($" | Effect: {MagicEffect}");
+                }
+                sb.Append($" | Ammo Category: {AmmoType}");
+                if (HasProperty(AmmoProperty.Silver)) sb.Append(", Silver");
+                if (HasProperty(AmmoProperty.Barbed)) sb.Append(", Barbed");
+                if (HasProperty(AmmoProperty.SuperiorSlingStone)) sb.Append(", Superior");
+                if (HasProperty(AmmoProperty.HolyWater)) sb.Append(", Holy Water added");
             }
-            sb.Append($" | Ammo Category: {AmmoType}");
-            if (HasProperty(AmmoProperty.Silver)) sb.Append(", Silver");
-            if (HasProperty(AmmoProperty.Barbed)) sb.Append(", Barbed");
-            if (HasProperty(AmmoProperty.SuperiorSlingStone)) sb.Append(", Superior");
-            if (HasProperty(AmmoProperty.HolyWater)) sb.Append(", Holy Water added");
+            else
+            {
+                sb.Append("Unidentified Ammo");
+            }
             return sb.ToString();
         }
 
@@ -2095,32 +2119,41 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newMeleeWeapon.DamageDice = DamageDice;
             newMeleeWeapon.DamageBonus = DamageBonus;
             newMeleeWeapon.Properties = new Dictionary<WeaponProperty, int>(Properties);
+            newMeleeWeapon.Identified = Identified;
             return newMeleeWeapon;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
-            sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
-
-            if (Properties.Any())
+            
+            if (Identified)
             {
-                var propsAsStrings = new List<string>();
-                foreach (var prop in Properties)
+                sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
+                sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
+
+                if (Properties.Any())
                 {
-                    if (prop.Value > 0)
+                    var propsAsStrings = new List<string>();
+                    foreach (var prop in Properties)
                     {
-                        // Special formatting for properties with a value
-                        propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
+                        if (prop.Value > 0)
+                        {
+                            // Special formatting for properties with a value
+                            propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
+                        }
+                        else
+                        {
+                            // Simple properties
+                            propsAsStrings.Add(prop.Key.ToString());
+                        }
                     }
-                    else
-                    {
-                        // Simple properties
-                        propsAsStrings.Add(prop.Key.ToString());
-                    }
+                    sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
                 }
-                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
+            }
+            else
+            {
+                sb.Append("Unidentified melee weapon");
             }
 
             return sb.ToString();
@@ -2192,32 +2225,41 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newMagicStaff.StaffType = StaffType;
             newMagicStaff.ContainedSpell = ContainedSpell;
             newMagicStaff.MagicStaffProperties = new Dictionary<MagicStaffProperty, int>(MagicStaffProperties);
+            newMagicStaff.Identified = Identified;
             return newMagicStaff;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder(base.ToString());
-            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
-            sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
-
-            if (Properties.Any())
+            
+            if (Identified)
             {
-                var propsAsStrings = new List<string>();
-                foreach (var prop in Properties)
+                sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
+                sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
+
+                if (Properties.Any())
                 {
-                    if (prop.Value > 0)
+                    var propsAsStrings = new List<string>();
+                    foreach (var prop in Properties)
                     {
-                        // Special formatting for properties with a value
-                        propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
+                        if (prop.Value > 0)
+                        {
+                            // Special formatting for properties with a value
+                            propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
+                        }
+                        else
+                        {
+                            // Simple properties
+                            propsAsStrings.Add(prop.Key.ToString());
+                        }
                     }
-                    else
-                    {
-                        // Simple properties
-                        propsAsStrings.Add(prop.Key.ToString());
-                    }
+                    sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
                 }
-                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
+            }
+            else
+            {
+                sb.Append("Unidentified melee weapon");
             }
             return sb.ToString();
         }
@@ -2258,38 +2300,47 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newRangedWeapon.ElvenBowstring = ElvenBowstring;
             newRangedWeapon.AimAttachment = AimAttachment;
             newRangedWeapon.ReloadTime = ReloadTime;
+            newRangedWeapon.Identified = Identified;
             return newRangedWeapon;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
-            sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
-            sb.AppendLine($" | Ammo Category: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
-            if (ElvenBowstring) sb.Append(" | Elven Bowstring");
-            if (AimAttachment) sb.Append(" | Aim Attachment");
-            if (!string.IsNullOrEmpty(MagicEffect))
+            
+            if (Identified)
             {
-                sb.AppendLine($" | Magic Effect: {MagicEffect}");
-            }
-            if (Properties.Any())
-            {
-                var propsAsStrings = new List<string>();
-                foreach (var prop in Properties)
+                sb.Append($"[{Name}] Class: {Class} | Dmg: {MinDamage}-{MaxDamage}");
+                sb.Append($" | Val: {Value} | Dur: {Durability}/{Durability} | Enc: {Encumbrance}");
+                sb.AppendLine($" | Ammo Category: {AmmoType} | Reload Time: {ReloadTime} AP | Loaded: {IsLoaded}");
+                if (ElvenBowstring) sb.Append(" | Elven Bowstring");
+                if (AimAttachment) sb.Append(" | Aim Attachment");
+                if (!string.IsNullOrEmpty(MagicEffect))
                 {
-                    if (prop.Value > 0)
-                    {
-                        // Special formatting for properties with a value
-                        propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
-                    }
-                    else
-                    {
-                        // Simple properties
-                        propsAsStrings.Add(prop.Key.ToString());
-                    }
+                    sb.AppendLine($" | Magic Effect: {MagicEffect}");
                 }
-                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
+                if (Properties.Any())
+                {
+                    var propsAsStrings = new List<string>();
+                    foreach (var prop in Properties)
+                    {
+                        if (prop.Value > 0)
+                        {
+                            // Special formatting for properties with a value
+                            propsAsStrings.Add($"{prop.Key}: +{prop.Value}");
+                        }
+                        else
+                        {
+                            // Simple properties
+                            propsAsStrings.Add(prop.Key.ToString());
+                        }
+                    }
+                    sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
+                }
+            }
+            else
+            {
+                sb.Append("Unidentified ranged weapon");
             }
             return sb.ToString();
         }
@@ -2386,28 +2437,37 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newArmour.Availability = Availability;
             newArmour.Durability = Durability;
             newArmour.Properties = new Dictionary<ArmourProperty, int>(Properties);
+            newArmour.Identified = Identified;
             return newArmour;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Category}] {Name} | ");
-            sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
-            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
-            if (!string.IsNullOrEmpty(MagicEffect))
+            
+            if (Identified)
             {
-                sb.AppendLine($" | Magic Effect: {MagicEffect}");
-            }
-
-            if (Properties.Any())
-            {
-                var propsAsStrings = new List<string>();
-                foreach (var prop in Properties)
+                sb.Append($"[{Category}] {Name} | ");
+                sb.AppendLine($"Class: {ArmourClass} | DEF: {DefValue}");
+                sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+                if (!string.IsNullOrEmpty(MagicEffect))
                 {
-                    propsAsStrings.Add(prop.Key.ToString());
+                    sb.AppendLine($" | Magic Effect: {MagicEffect}");
                 }
-                sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
+
+                if (Properties.Any())
+                {
+                    var propsAsStrings = new List<string>();
+                    foreach (var prop in Properties)
+                    {
+                        propsAsStrings.Add(prop.Key.ToString());
+                    }
+                    sb.Append(" | Properties: ").Append(string.Join(", ", propsAsStrings));
+                }
+            }
+            else
+            {
+                sb.Append("Unidentified armour");
             }
             return sb.ToString();
         }
@@ -2474,20 +2534,29 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newShield.WeaponClass = WeaponClass;
             newShield.Durability = Durability;
             newShield.Properties = new Dictionary<ShieldProperty, int>(Properties);
+            newShield.Identified = Identified;
             return newShield;
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append($"[{Category}] {Name} | ");
-            sb.AppendLine($"Class: {WeaponClass} | DEF: {DefValue}");
-            sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
-            if (!string.IsNullOrEmpty(MagicEffect))
+            
+            if (Identified)
             {
-                sb.AppendLine($" | Magic Effect: {MagicEffect}");
+                sb.Append($"[{Category}] {Name} | ");
+                sb.AppendLine($"Class: {WeaponClass} | DEF: {DefValue}");
+                sb.AppendLine($"Value: {Value} | Durability: {Durability}/{MaxDurability} | Enc: {Encumbrance}");
+                if (!string.IsNullOrEmpty(MagicEffect))
+                {
+                    sb.AppendLine($" | Magic Effect: {MagicEffect}");
+                }
+                if (HasProperty(ShieldProperty.Huge)) sb.AppendLine("Properties: Huge");
             }
-            if (HasProperty(ShieldProperty.Huge)) sb.AppendLine("Properties: Huge");
+            else
+            {
+                sb.Append("Unidentified shield");
+            }
             return sb.ToString();
         }
 
