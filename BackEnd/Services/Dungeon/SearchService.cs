@@ -247,6 +247,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public class Corpse : Searchable
     {
         public Monster OriginMonster { get; set; }
+        public bool HasBeenHarvested { get; set; }
 
         public Corpse(Monster monster)
         {

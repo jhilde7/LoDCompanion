@@ -76,6 +76,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly SpellResolutionService _spellResolution;
         private readonly PowerActivationService _powerActivation;
         private readonly PartyManagerService _partyManager;
+        private readonly AlchemyService _alchemy;
 
         public ActionService(
             DungeonManagerService dungeonManagerService,
@@ -88,7 +89,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             SpellCastingService spellCastingService,
             SpellResolutionService spellResolutionService,
             PowerActivationService powerActivationService,
-            PartyManagerService partyManager)
+            PartyManagerService partyManager,
+            AlchemyService alchemyService)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -101,6 +103,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             _spellResolution = spellResolutionService;
             _powerActivation = powerActivationService;
             _partyManager = partyManager;
+            _alchemy = alchemyService;
         }
 
         /// <summary>
@@ -692,6 +695,51 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         resultMessage = "Cannot perform action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.HarvestParts):
+                    if (hero.Inventory.Backpack.Any(e => e.Name == "Alchemist Tool"))
+                    {
+                        var avaialbleCorpses = hero.Room.CorpsesInRoom?.Where(c => !c.HasBeenHarvested).ToList();
+                        if (avaialbleCorpses != null && avaialbleCorpses.Any())
+                        {
+                            avaialbleCorpses.Shuffle();
+                            var skillTarget = hero.GetSkill(Skill.Alchemy);
+                            var resultRoll = await _diceRoll.RequestRollAsync("Roll for alchemy skill test.", "1d100", skill: Skill.Alchemy);
+                            var equisiteRange = 10;
+                            if (resultRoll.Roll <= skillTarget)
+                            {
+                                var parts = new List<Part>();
+                                for (int i = 0; i < Math.Min(avaialbleCorpses.Count, 3); i++)
+                                {
+                                    if(i == 0 && resultRoll.Roll <= equisiteRange)
+                                    {
+                                        parts.AddRange(await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species));
+                                    }
+                                    else
+                                    {
+                                        parts.AddRange(await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species));
+                                    }
+                                    avaialbleCorpses[i].HasBeenHarvested = true;
+                                }
+
+                                foreach(var part in parts)
+                                {
+                                    BackpackHelper.AddItem(hero.Inventory.Backpack, part);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            resultMessage = "Cannot perform action as there are no harvestable corpses in this room.";
+                            actionWasSuccessful = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Cannot harvest parts wihtout the appropriate equipment: Alchemist Tool";
                         actionWasSuccessful = false;
                     }
                     break;
