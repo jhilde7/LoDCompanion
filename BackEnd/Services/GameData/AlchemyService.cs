@@ -162,7 +162,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return ingredients;
         }
 
-        private static string GetIngredient()
+        private static IngredientName GetIngredient()
         {
             int roll = RandomHelper.GetRandomNumber(0, Ingredients.Count - 1);
             return Ingredients[roll].Name;
@@ -284,26 +284,26 @@ namespace LoDCompanion.BackEnd.Services.GameData
         private static List<Ingredient> GetIngredientsList()
         {
             return new List<Ingredient> {
-                new Ingredient() { Name = "Lunarberry" },
-                new Ingredient() { Name = "Dragon Stalk" },
-                new Ingredient() { Name = "Ember Bark" },
-                new Ingredient() { Name = "Mountain Barberry" },
-                new Ingredient() { Name = "Salty Wyrmwood" },
-                new Ingredient() { Name = "Ashen Ginger" },
-                new Ingredient() { Name = "Spicy Windroot" },
-                new Ingredient() { Name = "Wintercress" },
-                new Ingredient() { Name = "Sweet Ivy" },
-                new Ingredient() { Name = "Monk's Laurel" },
-                new Ingredient() { Name = "Nightshade" },
-                new Ingredient() { Name = "Weeping Clover" },
-                new Ingredient() { Name = "Snakeberry" },
-                new Ingredient() { Name = "Bitterweed" },
-                new Ingredient() { Name = "Arching Pokeroot" },
-                new Ingredient() { Name = "Toxic Hogweed" },
-                new Ingredient() { Name = "Blue Coneflower" },
-                new Ingredient() { Name = "Giant Raspberry" },
-                new Ingredient() { Name = "Bright Gallberry" },
-                new Ingredient() { Name = "Barbed Wormwood" },
+                new Ingredient() { Name = IngredientName.Lunarberry },
+                new Ingredient() { Name = IngredientName.DragonStalk },
+                new Ingredient() { Name = IngredientName.EmberBark },
+                new Ingredient() { Name = IngredientName.MountainBarberry },
+                new Ingredient() { Name = IngredientName.SaltyWyrmwood },
+                new Ingredient() { Name = IngredientName.AshenGinger },
+                new Ingredient() { Name = IngredientName.SpicyWindroot },
+                new Ingredient() { Name = IngredientName.Wintercress },
+                new Ingredient() { Name = IngredientName.SweetIvy },
+                new Ingredient() { Name = IngredientName.MonksLaurel },
+                new Ingredient() { Name = IngredientName.Nightshade },
+                new Ingredient() { Name = IngredientName.WeepingClover },
+                new Ingredient() { Name = IngredientName.Snakeberry },
+                new Ingredient() { Name = IngredientName.Bitterweed },
+                new Ingredient() { Name = IngredientName.ArchingPokeroot },
+                new Ingredient() { Name = IngredientName.ToxicHogweed },
+                new Ingredient() { Name = IngredientName.BlueConeflower },
+                new Ingredient() { Name = IngredientName.GiantRaspberry },
+                new Ingredient() { Name = IngredientName.BrightGallberry },
+                new Ingredient() { Name = IngredientName.BarbedWormwood },
             };
         }
 
@@ -709,8 +709,33 @@ namespace LoDCompanion.BackEnd.Services.GameData
         }
     }
 
+    public enum IngredientName
+    {
+        Lunarberry,
+        DragonStalk,
+        EmberBark,
+        MountainBarberry,
+        SaltyWyrmwood,
+        AshenGinger,
+        SpicyWindroot,
+        Wintercress,
+        SweetIvy,
+        MonksLaurel,
+        Nightshade,
+        WeepingClover,
+        Snakeberry,
+        Bitterweed,
+        ArchingPokeroot,
+        ToxicHogweed,
+        BlueConeflower,
+        GiantRaspberry,
+        BrightGallberry,
+        BarbedWormwood,
+    }
+
     public class Ingredient : AlchemyItem
     {
+        public new IngredientName Name { get; set; }
         public bool Exquisite { get; set; }
         public Ingredient()
         {
