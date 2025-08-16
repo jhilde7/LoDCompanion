@@ -781,7 +781,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public enum PotionProperty
     {
-        HealHP
+        HealHP,
+        Throwable,
+        AmmoCoating
     }
 
     public class Potion : AlchemyItem

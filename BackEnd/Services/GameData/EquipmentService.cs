@@ -216,7 +216,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Name = "Alchemist Tool",
                         Encumbrance = 5,
                         Durability = 6,
-                        Description = "Necessary to harvest parts and ingredients.",
+                        Description = "Necessary to harvest parts and ingredients. As well as mixing potions",
                         Value = 200,
                         Availability = 3
                     },
@@ -561,14 +561,15 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Availability = 3,
                         Storage = new Player.Inventory()
                     },
-                    new Equipment(){
+                    new Potion(){
                         Category = "Common",
                         Name = "Holy Water",
                         Encumbrance = 0,
                         Durability = 1,
                         Description = "This can be thrown in the same way as throwing a potion, but you can also dip 5 arrows into it. If thrown, it causes 1d3 Hit Points to any undead, but only in the square it hits. Arrows dipped add +1 DMG to all Undead (treated as non-mundane weapons as well).",
                         Value = 25,
-                        Availability = 3
+                        Availability = 3,
+                        PotionProperties = new Dictionary<PotionProperty, int>() { {PotionProperty.Throwable, 0 }, { PotionProperty.AmmoCoating, 5 } }
                     },
                     new Equipment(){
                         Category = "Dark Guild",
