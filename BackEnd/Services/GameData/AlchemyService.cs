@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.ComponentModel;
@@ -715,10 +716,37 @@ namespace LoDCompanion.BackEnd.Services.GameData
         Supreme
     }
 
+    public enum PotionProperty
+    {
+
+        Thrown,
+        AcidicDamage,
+        FireDamage,
+        PoisonDamage,
+        AbsorbsMagic,
+        AddWeaponProperty,
+        IncreaseStat,
+        CureDisease,
+        CurePoison,
+        DragonsBreath,
+        Invulnerable,
+        IncreaseEnergy,
+        FireProtection,
+        HealHP,
+        RestoreMana,
+        Invisibility,
+        Frenzy,
+        Restoration,
+        Corrosion,
+        ObscureLOS
+    }
+
     public class Potion : AlchemyItem
     {
         public PotionStrength Strength { get; set; } = PotionStrength.None;
         public string EffectDescription { get; set; } = string.Empty;
+        public PotionProperty? PotionProperties { get; set; }
+        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
 
         public Potion()
         {
