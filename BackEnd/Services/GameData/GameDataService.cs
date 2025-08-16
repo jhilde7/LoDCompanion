@@ -304,12 +304,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 },
                 new Perk(){
                     Category = PerkCategory.Arcane,
-                    Name = PerkName.EnergyToMana,
-                    Effect = "The wizard has the ability to turn energy into Mana. For each Energy Point spent, the wizard gains 5 Mana.",
-                    Comment = "The wizard may spend any number of Energy Points in one go."
-                },
-                new Perk(){
-                    Category = PerkCategory.Arcane,
                     Name = PerkName.InnerPower,
                     Effect = "The wizard increases the power of their magic missiles, causing an extra 1d6 Damage.",
                     Comment = "Must be declared before the spell is cast."

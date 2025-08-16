@@ -59,6 +59,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                         await Task.Yield();
                         success = _dungeonManager.UpdateThreat(-resultRoll.Roll);
                         break;
+                    case PerkName.EnergyToMana:
+                        var missingMana = hero.GetStat(BasicStat.Mana) - (hero.CurrentMana ?? 0);
+                        hero.CurrentMana += (int)MathF.Min(missingMana, 5);
+                        success = true;
+                        break;
                     default:
                         success = true;
                         break;
