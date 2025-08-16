@@ -1722,6 +1722,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Bandit",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -1743,6 +1744,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Bandit Archer",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -1764,6 +1766,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Bandit Leader",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -1787,6 +1790,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Banshee",
+                    Species = SpeciesName.Banshee,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 18 },
@@ -1818,6 +1822,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Bat swarm",
+                    Species = SpeciesName.GiantBat,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 10 },
@@ -1844,6 +1849,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Beastman",
+                    Species = SpeciesName.Beastman,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 15 },
@@ -1865,6 +1871,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Beastman Chieftain",
+                    Species = SpeciesName.Beastman,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 20 },
@@ -1887,6 +1894,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Beastman Guard",
+                    Species = SpeciesName.Beastman,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 18 },
@@ -1910,6 +1918,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Berserker",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 14 },
@@ -1934,6 +1943,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Bloated Demon",
+                    Species = SpeciesName.Demon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 32 },
@@ -1962,6 +1972,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Blood Demon",
+                    Species = SpeciesName.Demon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 12 },
@@ -1990,6 +2001,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Cave Bear",
+                    Species = SpeciesName.CaveBear,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 20 },
@@ -2017,6 +2029,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Cave Goblin",
+                    Species = SpeciesName.CaveGoblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 8 },
@@ -2041,6 +2054,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Cave Goblin Archer",
+                    Species = SpeciesName.CaveGoblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 8 },
@@ -2065,6 +2079,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Centaur",
+                    Species = SpeciesName.Centaur,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.HitPoints, 20 },
@@ -2092,6 +2107,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Centaur Archer",
+                    Species = SpeciesName.Centaur,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 7 },
@@ -2119,6 +2135,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Common Troll",
+                    Species = SpeciesName.CommonTroll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2152,6 +2169,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Basilisk",
+                    Species = SpeciesName.Basilisk,
                     MinDamage = 1,
                     MaxDamage = 8,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2181,6 +2199,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dark Elf",
+                    Species = SpeciesName.DarkElf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2202,6 +2221,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dark Elf Archer",
+                    Species = SpeciesName.DarkElf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2223,6 +2243,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dark Elf Assassin",
+                    Species = SpeciesName.DarkElf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2247,6 +2268,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dark Elf Captain",
+                    Species = SpeciesName.DarkElf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2268,6 +2290,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dark Elf Sniper",
+                    Species = SpeciesName.DarkElf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2289,6 +2312,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dark Elf Warlock",
+                    Species = SpeciesName.DarkElf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2310,6 +2334,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dire Wolf",
+                    Species = SpeciesName.DireWolf,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2337,6 +2362,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dragon",
+                    Species = SpeciesName.Dragon,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2370,6 +2396,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Drider",
+                    Species = SpeciesName.Drider,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2397,6 +2424,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Fallen Knight",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -2419,6 +2447,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Warlock",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -2440,6 +2469,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Earth Elemental",
+                    Species = SpeciesName.Unknown,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2467,6 +2497,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Fire Elemental",
+                    Species = SpeciesName.Unknown,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2494,6 +2525,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Water Elemental",
+                    Species = SpeciesName.Unknown,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2522,6 +2554,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Wind Elemental",
+                    Species = SpeciesName.Unknown,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2549,6 +2582,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gargoyle",
+                    Species = SpeciesName.Gargoyle,
                     MinDamage = 1,
                     MaxDamage = 12,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2572,6 +2606,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ettin",
+                    Species = SpeciesName.Ettin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2604,6 +2639,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant",
+                    Species = SpeciesName.Giant,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2635,6 +2671,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Centipede",
+                    Species = SpeciesName.GiantCentipede,
                     MinDamage = 1,
                     MaxDamage = 10,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -2661,6 +2698,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Frogling",
+                    Species = SpeciesName.Frogling,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2689,6 +2727,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gecko",
+                    Species = SpeciesName.Gecko,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2710,6 +2749,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gecko Archer",
+                    Species = SpeciesName.Gecko,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2731,6 +2771,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gecko Assassin",
+                    Species = SpeciesName.Gecko,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -2759,6 +2800,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ghost",
+                    Species = SpeciesName.Ghost,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2786,6 +2828,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ghoul",
+                    Species = SpeciesName.Ghoul,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -2815,6 +2858,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Leech",
+                    Species = SpeciesName.GiantLeech,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 3 },
@@ -2842,6 +2886,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Pox Rat",
+                    Species = SpeciesName.GiantPoxRat,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2867,6 +2912,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Rat",
+                    Species = SpeciesName.GiantRat,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2893,6 +2939,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Scorpion",
+                    Species = SpeciesName.GiantScorpion,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 4 },
@@ -2920,6 +2967,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Snake",
+                    Species = SpeciesName.GiantSnake,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -2946,6 +2994,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Spider",
+                    Species = SpeciesName.GiantSpider,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -2978,6 +3027,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Toad",
+                    Species = SpeciesName.GiantToad,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -3009,6 +3059,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Giant Wolf",
+                    Species = SpeciesName.GiantWolf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 9 },
@@ -3034,6 +3085,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gigantic Snake",
+                    Species = SpeciesName.GiganticSnake,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -3067,6 +3119,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Sand Worm",
+                    Species = SpeciesName.GiganticSnake,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -3099,6 +3152,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gigantic Spider",
+                    Species = SpeciesName.GiganticSpider,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -3128,6 +3182,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gnoll",
+                    Species = SpeciesName.Gnoll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -3150,6 +3205,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gnoll Archer",
+                    Species = SpeciesName.Gnoll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -3172,6 +3228,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gnoll Sergeant",
+                    Species = SpeciesName.Gnoll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3195,6 +3252,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gnoll Shaman",
+                    Species = SpeciesName.Gnoll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -3217,6 +3275,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Goblin",
+                    Species = SpeciesName.Goblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3241,6 +3300,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Goblin Archer",
+                    Species = SpeciesName.Goblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3265,6 +3325,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Goblin Shaman",
+                    Species = SpeciesName.Goblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3286,6 +3347,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Greater Demon",
+                    Species = SpeciesName.Demon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -3314,6 +3376,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Griffon",
+                    Species = SpeciesName.Griffon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -3342,6 +3405,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Harpy",
+                    Species = SpeciesName.Harpy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3370,6 +3434,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Hydra",
+                    Species = SpeciesName.Hydra,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3399,6 +3464,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Lesser Plague Demon",
+                    Species = SpeciesName.Demon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3426,6 +3492,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Lurker",
+                    Species = SpeciesName.Lurker,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3455,6 +3522,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Medusa",
+                    Species = SpeciesName.Medusa,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3480,6 +3548,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Mimic",
+                    Species = SpeciesName.Mimic,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 2 },
@@ -3506,6 +3575,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Minotaur",
+                    Species = SpeciesName.Minotaur,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -3537,6 +3607,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Minotaur Skeleton",
+                    Species = SpeciesName.MinotaurSkeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -3567,6 +3638,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Mummy",
+                    Species = SpeciesName.Mummy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3597,6 +3669,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Mummy Priest",
+                    Species = SpeciesName.Mummy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3623,6 +3696,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Mummy Queen",
+                    Species = SpeciesName.Mummy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -3650,6 +3724,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Naga",
+                    Species = SpeciesName.Naga,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -3674,6 +3749,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Necromancer",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3697,6 +3773,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ogre",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3727,6 +3804,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ogre Berserker",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3760,6 +3838,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ogre Chieftain",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -3790,6 +3869,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Orc",
+                    Species = SpeciesName.Orc,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -3812,6 +3892,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Orc Brute",
+                    Species = SpeciesName.Orc,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3835,6 +3916,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Orc Chieftain",
+                    Species = SpeciesName.Orc,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3861,6 +3943,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Orc Shaman",
+                    Species = SpeciesName.Orc,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3882,6 +3965,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Plague Demon",
+                    Species = SpeciesName.Demon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -3908,6 +3992,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Psyker",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -3931,6 +4016,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Raptor",
+                    Species = SpeciesName.Raptor,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 6 },
@@ -3955,6 +4041,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "River Troll",
+                    Species = SpeciesName.RiverTroll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -3990,6 +4077,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Salamander",
+                    Species = SpeciesName.Salamander,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4023,6 +4111,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Satyr",
+                    Species = SpeciesName.Satyr,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -4047,6 +4136,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Satyr Archer",
+                    Species = SpeciesName.Satyr,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -4071,6 +4161,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Saurian",
+                    Species = SpeciesName.Saurian,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 0 },
@@ -4093,6 +4184,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Saurian Elite",
+                    Species = SpeciesName.Saurian,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4115,6 +4207,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Saurian Priest",
+                    Species = SpeciesName.Saurian,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -4137,6 +4230,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Saurian Warchief",
+                    Species = SpeciesName.Saurian,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4159,6 +4253,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Shambler",
+                    Species = SpeciesName.Shambler,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 2 },
@@ -4188,6 +4283,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Skeleton",
+                    Species = SpeciesName.Skeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -4216,6 +4312,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Skeleton Archer",
+                    Species = SpeciesName.Skeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -4244,6 +4341,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Slime",
+                    Species = SpeciesName.Slime,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -4269,6 +4367,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Sphinx",
+                    Species = SpeciesName.Sphinx,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4298,6 +4397,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Stone Golem",
+                    Species = SpeciesName.StoneGolem,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -4326,6 +4426,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Stone Troll",
+                    Species = SpeciesName.StoneTroll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -4360,6 +4461,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Tomb Guardian",
+                    Species = SpeciesName.TombGuardian,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4387,6 +4489,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Vampire",
+                    Species = SpeciesName.Vampire,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -4419,6 +4522,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Vampire Fledgling",
+                    Species = SpeciesName.Vampire,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4451,6 +4555,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Werewolf",
+                    Species = SpeciesName.Werewolf,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4479,6 +4584,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Wight",
+                    Species = SpeciesName.Wight,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4509,6 +4615,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Wraiths",
+                    Species = SpeciesName.Wraith,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4538,6 +4645,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Wyvern",
+                    Species = SpeciesName.Wyvern,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -4566,6 +4674,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Zombie",
+                    Species = SpeciesName.Zombie,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4594,6 +4703,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Zombie Ogre",
+                    Species = SpeciesName.ZombieOgre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4623,6 +4733,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "The Brood Mother",
+                    Species = SpeciesName.GiantRat,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -4649,33 +4760,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Grop",
-                    BasicStats = new Dictionary<BasicStat, int>
-                    {
-                        { BasicStat.DamageBonus, 1 },
-                        { BasicStat.NaturalArmour, 1 },
-                        { BasicStat.Move, 4 },
-                        { BasicStat.Dexterity, 25 },
-                        { BasicStat.Resolve, 40 },
-                        { BasicStat.HitPoints, 16 }
-                    },
-                    SkillStats = new Dictionary<Skill, int>
-                    {
-                        { Skill.CombatSkill, 45 },
-                        { Skill.RangedSkill, 35 }
-                    },
-                    ToHitPenalty = -5,
-                    Type = EncounterType.Bandits_Brigands,
-                    Behavior = MonsterBehaviorType.HumanoidMelee,
-                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
-                    HasShield = true,
-                    ArmourValue = 2,
-                    XP = 110,
-                    TreasureType = TreasureType.T2
-                },
-                new Monster()
-                {
                     Name = "Ulfric",
+                    Species = SpeciesName.Zombie,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4700,12 +4786,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ActiveStatusEffects = new List<ActiveStatusEffect>() {
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
                     },
+                    ArmourValue = 2,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
                     XP = 110,
                     TreasureType = TreasureType.T2
                 },
                 new Monster()
                 {
                     Name = "Imgrahil the Apprentice",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -4727,7 +4816,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         weapon =>
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
-                        }) },
+                        })},
                     Spells = new List<MonsterSpell>()
                     {
                         SpellService.GetMonsterSpellByName("Raise dead"),
@@ -4741,6 +4830,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ambar the Ettin",
+                    Species = SpeciesName.Ettin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -4777,7 +4867,35 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Grop",
+                    Species = SpeciesName.Orc,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.NaturalArmour, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 25 },
+                        { BasicStat.Resolve, 40 },
+                        { BasicStat.HitPoints, 16 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 35 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Bandits_Brigands,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
+                    HasShield = true,
+                    ArmourValue = 2,
+                    XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
                     Name = "Digg",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4796,14 +4914,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
-                    ArmourValue = 2,
                     HasShield = true,
+                    ArmourValue = 2,
                     XP = 110,
                     TreasureType = TreasureType.T2
                 },
                 new Monster()
                 {
                     Name = "Kraghul the Mighty",
+                    Species = SpeciesName.Minotaur,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 4 },
@@ -4835,6 +4954,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Belua",
+                    Species = SpeciesName.GiganticSpider,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -4865,6 +4985,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Briggo",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4896,6 +5017,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gorm",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -4929,6 +5051,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Goldfrid the Short",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -4955,6 +5078,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Madame Isabelle",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -4981,6 +5105,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gaul the Mauler",
+                    Species = SpeciesName.Orc,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -4998,14 +5123,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.HumanoidMelee,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
-                    ArmourValue = 2,
                     HasShield = true,
+                    ArmourValue = 2,
                     XP = 150,
                     TreasureType = TreasureType.T4
                 },
                 new Monster()
                 {
                     Name = "Molgor The Fiend of Summerhall",
+                    Species = SpeciesName.Minotaur,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5041,7 +5167,43 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Beast of Turog Hall",
+                    Species = SpeciesName.CommonTroll,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 3 },
+                        { BasicStat.NaturalArmour, 2 },
+                        { BasicStat.Move, 6 },
+                        { BasicStat.Dexterity, 20 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 40 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.Beast,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Regeneration, 0},
+                        { MonsterSpecialName.CauseFear, 3 },
+                        { MonsterSpecialName.Stupid, 0},
+                        { MonsterSpecialName.Large, 0}
+                    },
+                    ActiveAbilities = new List<SpecialActiveAbility>()
+                    {
+                        SpecialActiveAbility.Bellow
+                    },
+                    XP = 700,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
                     Name = "Turog",
+                    Species = SpeciesName.Skeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -5076,6 +5238,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ragnalf the Mad",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -5101,6 +5264,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Queen Khaba",
+                    Species = SpeciesName.Mummy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5129,6 +5293,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "The Mapmaker",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5146,41 +5311,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Beast of Turog Hall",
-                    BasicStats = new Dictionary<BasicStat, int>
-                    {
-                        { BasicStat.DamageBonus, 3 },
-                        { BasicStat.NaturalArmour, 2 },
-                        { BasicStat.Move, 6 },
-                        { BasicStat.Dexterity, 20 },
-                        { BasicStat.Resolve, 50 },
-                        { BasicStat.HitPoints, 40 }
-                    },
-                    SkillStats = new Dictionary<Skill, int>
-                    {
-                        { Skill.CombatSkill, 50 }
-                    },
-                    ToHitPenalty = -5,
-                    Type = EncounterType.MainQuest,
-                    Behavior = MonsterBehaviorType.Beast,
-                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
-                    ArmourValue = 2,
-                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
-                        { MonsterSpecialName.Regeneration, 0},
-                        { MonsterSpecialName.CauseFear, 3 },
-                        { MonsterSpecialName.Stupid, 0},
-                        { MonsterSpecialName.Large, 0}
-                    },
-                    ActiveAbilities = new List<SpecialActiveAbility>()
-                    {
-                        SpecialActiveAbility.Bellow
-                    },
-                    XP = 700,
-                    TreasureType = TreasureType.T2
-                },
-                new Monster()
-                {
                     Name = "Undead Wyvern",
+                    Species = SpeciesName.Skeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5212,6 +5344,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Dregrir the Wyzard",
+                    Species = SpeciesName.Goblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5236,6 +5369,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Klatche the Ogre",
+                    Species = SpeciesName.Ogre,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -5265,6 +5399,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Easta Rubeet",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5291,6 +5426,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "The Master Locksmith",
+                    Species = SpeciesName.Mummy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -5319,6 +5455,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "The Guardian Scorpion",
+                    Species = SpeciesName.GiantScorpion,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -5346,6 +5483,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Queen Khezira",
+                    Species = SpeciesName.Mummy,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 2 },
@@ -5369,12 +5507,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 7 },
                         { MonsterSpecialName.Regeneration, 0}
                     },
+                    ArmourValue = 1,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword")?.Clone() ?? new Weapon() },
                     XP = 1000,
                     TreasureType = TreasureType.T5
                 },
                 new Monster()
                 {
                     Name = "Chadepho",
+                    Species = SpeciesName.Drider,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5405,36 +5546,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Marla the Witch",
-                    BasicStats = new Dictionary<BasicStat, int>
-                    {
-                        { BasicStat.Move, 4 },
-                        { BasicStat.Dexterity, 40 },
-                        { BasicStat.Resolve, 55 },
-                        { BasicStat.HitPoints, 18 }
-                    },
-                    SkillStats = new Dictionary<Skill, int>
-                    {
-                        { Skill.CombatSkill, 45 },
-                        { Skill.RangedSkill, 50 }
-                    },
-                    ToHitPenalty = 5,
-                    Type = EncounterType.MainQuest,
-                    Behavior = MonsterBehaviorType.MagicUser,
-                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
-                    ArmourValue = 1,
-                    Spells = new List<MonsterSpell>()
-                    {
-                        SpellService.GetMonsterSpellByName("Mute"),
-                        SpellService.GetMonsterSpellByName("Seduce"),
-                        SpellService.GetMonsterSpellByName("Blind"),
-                    },
-                    XP = 200,
-                    TreasureType = TreasureType.T4
-                },
-                new Monster()
-                {
                     Name = "Lord Brenann",
+                    Species = SpeciesName.Skeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -5465,6 +5578,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "The Captain",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5489,6 +5603,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Novelm Slateshadow",
+                    Species = SpeciesName.Skeleton,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -5523,7 +5638,38 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Marla the Witch",
+                    Species = SpeciesName.Human,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 40 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 18 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = 5,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 1,
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Mute"),
+                        SpellService.GetMonsterSpellByName("Seduce"),
+                        SpellService.GetMonsterSpellByName("Blind"),
+                    },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
                     Name = "Adras the Witch",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5554,6 +5700,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Phylax the Witch",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5582,7 +5729,38 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Ghammi the Witch",
+                    Species = SpeciesName.Human,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 60 },
+                        { BasicStat.HitPoints, 14 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.MagicUser,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
+                    ArmourValue = 2,
+                    Spells = new List<MonsterSpell>()
+                    {
+                        SpellService.GetMonsterSpellByName("Healing hand"),
+                        SpellService.GetMonsterSpellByName("Fireball"),
+                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                    },
+                    XP = 200,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
                     Name = "The Elder Witch",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5612,36 +5790,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Ghammi the Witch",
-                    BasicStats = new Dictionary<BasicStat, int>
-                    {
-                        { BasicStat.Move, 4 },
-                        { BasicStat.Dexterity, 50 },
-                        { BasicStat.Resolve, 60 },
-                        { BasicStat.HitPoints, 14 }
-                    },
-                    SkillStats = new Dictionary<Skill, int>
-                    {
-                        { Skill.CombatSkill, 70 },
-                        { Skill.RangedSkill, 55 }
-                    },
-                    ToHitPenalty = -10,
-                    Type = EncounterType.MainQuest,
-                    Behavior = MonsterBehaviorType.MagicUser,
-                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new Weapon() },
-                    ArmourValue = 2,
-                    Spells = new List<MonsterSpell>()
-                    {
-                        SpellService.GetMonsterSpellByName("Healing hand"),
-                        SpellService.GetMonsterSpellByName("Fireball"),
-                        SpellService.GetMonsterSpellByName("Mirrored self"),
-                    },
-                    XP = 200,
-                    TreasureType = TreasureType.T4
-                },
-                new Monster()
-                {
                     Name = "Goblin Chieftain",
+                    Species = SpeciesName.Goblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5664,6 +5814,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ribbit",
+                    Species = SpeciesName.Demon,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5680,19 +5831,25 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.HumanoidRanged,
                     Weapons = new List<Weapon>() {
-                        EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon()
+                        EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new Weapon(),
+                        _weapon.CreateModifiedRangedWeapon(
+                        "Sling", "Spiked Balls",
+                        weapon =>
+                        {
+                            weapon.ReloadTime = 0;
+                        }),
                     },
                     ArmourValue = 3,
                     PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
                         { MonsterSpecialName.CauseFear, 5 }
                     },
-                    SpecialRules = new List<string>() { "Throws spiked balls (1d8), no reload time" },
                     XP = 140,
                     TreasureType = TreasureType.None
                 },
                 new Monster()
                 {
                     Name = "The Alchemist Outlaw",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 5 },
@@ -5708,7 +5865,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ToHitPenalty = -10,
                     Type = EncounterType.MainQuest,
                     Behavior = MonsterBehaviorType.HumanoidRanged,
-                    Weapons = new List<Weapon>() { _weapon.CreateModifiedMeleeWeapon(
+                    Weapons = new List<Weapon>() { _weapon.CreateModifiedRangedWeapon(
                         "Crossbow Pistol", "Poisonous Crossbow Pistol",
                         weapon =>
                         {
@@ -5724,11 +5881,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 1,
                     SpecialRules = new List<string>() { "1 Healing Potion", "1 Vial of Black Acanthus Gas" },
                     XP = 140,
-                    TreasureType = TreasureType.None
+                    TreasureType = TreasureType.TheAlchemistOutlaw
                 },
                 new Monster()
                 {
                     Name = "Ancient Stone Golem",
+                    Species = SpeciesName.StoneGolem,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5758,6 +5916,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Trogskegg",
+                    Species = SpeciesName.StoneTroll,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5797,6 +5956,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Gneeb the Manslayer",
+                    Species = SpeciesName.Goblin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 1 },
@@ -5831,6 +5991,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Ada the Necromancer",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 3 },
@@ -5869,7 +6030,38 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Jarl Knut",
+                    Species = SpeciesName.Skeleton,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 50 },
+                        { BasicStat.Resolve, 50 },
+                        { BasicStat.HitPoints, 30 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 70 },
+                        { Skill.RangedSkill, 55 }
+                    },
+                    ToHitPenalty = -15,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HigherUndead,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new Weapon() },
+                    HasShield = true,
+                    ArmourValue = 2,
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                    },
+                    XP = 140,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
                     Name = "The Apostle",
+                    Species = SpeciesName.Vampire,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.DamageBonus, 2 },
@@ -5904,6 +6096,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "The Master",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.NaturalArmour, 1 },
@@ -5934,6 +6127,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 new Monster()
                 {
                     Name = "Emil the Caretaker",
+                    Species = SpeciesName.Human,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
                         { BasicStat.Move, 4 },
@@ -5955,6 +6149,31 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     XP = 110,
+                    TreasureType = TreasureType.T2
+                },
+                new Monster()
+                {
+                    Name = "The Bandit",
+                    Species = SpeciesName.Human,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 45 },
+                        { BasicStat.Resolve, 35 },
+                        { BasicStat.HitPoints, 15 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 60 },
+                        { Skill.RangedSkill, 0 }
+                    },
+                    ToHitPenalty = -10,
+                    Type = EncounterType.MainQuest,
+                    Behavior = MonsterBehaviorType.HumanoidMelee,
+                    ArmourValue = 3,
+                    HasShield = true,
+                    Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
+                    XP = 130,
                     TreasureType = TreasureType.T2
                 }
             };
