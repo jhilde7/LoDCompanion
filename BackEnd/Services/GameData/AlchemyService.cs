@@ -165,14 +165,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return Ingredients[roll].Name;
         }
 
-        public async Task<Part[]> GetPartsAsync(int count, string? origin = null)
+        public async Task<Part[]> GetPartsAsync(int count, SpeciesName? origin = null)
         {
             Part[] parts = new Part[count];
             for (int i = 0; i < count; i++)
             {
                 if (origin != null)
                 {
-                    parts[i] = new Part() { Origin = origin, Name = GetPart(), IsPart = true };
+                    parts[i] = new Part() { Origin = (SpeciesName)origin, Name = GetPart(), IsPart = true };
                 }
                 else
                 {
@@ -188,76 +188,76 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return Parts[roll].Name;
         }
 
-        private async Task<string> GetOriginAsync()
+        private async Task<SpeciesName> GetOriginAsync()
         {
             var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d100"); await Task.Yield();
             int roll = result.Roll;
             return roll switch
             {
-                1 => "Banshee",
-                2 => "Basilisk",
-                3 => "Beast man",
-                4 => "Cave Bear",
-                <= 10 => "Cave Goblin",
-                11 => "Centaur",
-                12 => "Common Troll",
-                13 => "Dire Wolf",
-                14 => "Dark Elf",
-                15 => "Dragon",
-                16 => "Dryder",
-                17 => "Ettin",
-                18 => "Frogling",
-                19 => "Gargoyle",
-                20 => "Gecko",
-                21 => "Ghost",
-                22 => "Ghoul",
-                23 => "Giant",
-                <= 35 => "Giant Bat",
-                36 => "Giant Centipede",
-                37 => "Giant Leech",
-                <= 48 => "Giant Pox Rat",
-                <= 55 => "Giant Rat",
-                56 => "Giant Scorpion",
-                <= 58 => "Giant Snake",
-                59 => "Giant Spider",
-                60 => "Giant Toad",
-                61 => "Giant Wolf",
-                62 => "Gigantic Snake",
-                63 => "Gigantic Spider",
-                64 => "Gnoll",
-                65 => "Goblin",
-                66 => "Griffon",
-                67 => "Harpy",
-                68 => "Hydra",
-                69 => "Lurker",
-                70 => "Medusa",
-                71 => "Mimic",
-                72 => "Minotaur",
-                73 => "Minotaur Skeleton",
-                74 => "Mummy",
-                75 => "Naga",
-                76 => "Ogre",
-                77 => "Orc",
-                78 => "Raptor",
-                79 => "River Troll",
-                80 => "Salamander",
-                81 => "Satyr",
-                82 => "Saurian",
-                83 => "Shambler",
-                84 => "Skeleton",
-                85 => "Slime",
-                86 => "Sphinx",
-                87 => "Stone Golem",
-                88 => "Stone Troll",
-                89 => "Tomb Guardian",
-                90 => "Vampire",
-                91 => "Werewolf",
-                92 => "Wight",
-                93 => "Wraith",
-                94 => "Wyvern",
-                <= 99 => "Zombie",
-                100 => "Zombie Ogre",
-                _ => "Unknown"
+                1 => SpeciesName.Banshee,
+                2 => SpeciesName.Basilisk,
+                3 => SpeciesName.Beastman,
+                4 => SpeciesName.CaveBear,
+                <= 10 => SpeciesName.CaveGoblin,
+                11 => SpeciesName.Centaur,
+                12 => SpeciesName.CommonTroll,
+                13 => SpeciesName.DireWolf,
+                14 => SpeciesName.DarkElf,
+                15 => SpeciesName.Dragon,
+                16 => SpeciesName.Drider,
+                17 => SpeciesName.Ettin,
+                18 => SpeciesName.Frogling,
+                19 => SpeciesName.Gargoyle,
+                20 => SpeciesName.Gecko,
+                21 => SpeciesName.Ghost,
+                22 => SpeciesName.Ghoul,
+                23 => SpeciesName.Giant,
+                <= 35 => SpeciesName.GiantBat,
+                36 => SpeciesName.GiantCentipede,
+                37 => SpeciesName.GiantLeech,
+                <= 48 => SpeciesName.GiantPoxRat,
+                <= 55 => SpeciesName.GiantRat,
+                56 => SpeciesName.GiantScorpion,
+                <= 58 => SpeciesName.GiantSnake,
+                59 => SpeciesName.GiantSpider,
+                60 => SpeciesName.GiantToad,
+                61 => SpeciesName.GiantWolf,
+                62 => SpeciesName.GiganticSnake,
+                63 => SpeciesName.GiganticSpider,
+                64 => SpeciesName.Gnoll,
+                65 => SpeciesName.Goblin,
+                66 => SpeciesName.Griffon,
+                67 => SpeciesName.Harpy,
+                68 => SpeciesName.Hydra,
+                69 => SpeciesName.Lurker,
+                70 => SpeciesName.Medusa,
+                71 => SpeciesName.Mimic,
+                72 => SpeciesName.Minotaur,
+                73 => SpeciesName.MinotaurSkeleton,
+                74 => SpeciesName.Mummy,
+                75 => SpeciesName.Naga,
+                76 => SpeciesName.Ogre,
+                77 => SpeciesName.Orc,
+                78 => SpeciesName.Raptor,
+                79 => SpeciesName.RiverTroll,
+                80 => SpeciesName.Salamander,
+                81 => SpeciesName.Satyr,
+                82 => SpeciesName.Saurian,
+                83 => SpeciesName.Shambler,
+                84 => SpeciesName.Skeleton,
+                85 => SpeciesName.Slime,
+                86 => SpeciesName.Sphinx,
+                87 => SpeciesName.StoneGolem,
+                88 => SpeciesName.StoneTroll,
+                89 => SpeciesName.TombGuardian,
+                90 => SpeciesName.Vampire,
+                91 => SpeciesName.Werewolf,
+                92 => SpeciesName.Wight,
+                93 => SpeciesName.Wraith,
+                94 => SpeciesName.Wyvern,
+                <= 99 => SpeciesName.Zombie,
+                100 => SpeciesName.ZombieOgre,
+                _ => SpeciesName.Unknown
             };
         }
 
@@ -600,7 +600,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public class Part : AlchemyItem
     {
-        public string Origin { get; set; } = "Unknown";
+        public SpeciesName Origin { get; set; } = SpeciesName.Unknown;
 
         public Part()
         {
