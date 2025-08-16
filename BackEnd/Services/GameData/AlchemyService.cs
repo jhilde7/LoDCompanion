@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using System.Xml.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-using LoDCompanion.BackEnd.Models;
+﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.ComponentModel;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace LoDCompanion.BackEnd.Services.GameData
 {
@@ -472,7 +473,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         public static List<Potion> GetAllDistinctPotions()
         {
-            // Uses LINQ's DistinctBy to get only the first entry for each unique potion name.
             return GetAllPotions().DistinctBy(p => p.Name).ToList();
         }
 
@@ -531,46 +531,142 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return strengths;
         }
 
+        private bool ValidateComponents(PotionStrength strength, List<AlchemyItem> components, AlchemicalRecipe? recipe, out string errorMessage)
+        {
+            var parts = components.Where(c => c is Part);
+            var ingredients = components.Where(c => c is Ingredient);
+
+            int partCount = parts.Count();
+            int ingredientCount = ingredients.Count();
+
+            if (recipe != null)
+            {
+                var requiredComponents = recipe.Components.GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.Count());
+                var providedComponents = components.GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.Count());
+
+                if (requiredComponents.Count != providedComponents.Count)
+                {
+                    errorMessage = "The provided components do not match the recipe.";
+                    return false;
+                }
+
+                foreach (var required in requiredComponents)
+                {
+                    if (!providedComponents.ContainsKey(required.Key) || providedComponents[required.Key] != required.Value)
+                    {
+                        errorMessage = $"Missing or incorrect quantity of {required.Key}.";
+                        return false;
+                    }
+                }
+                errorMessage = string.Empty;
+                return true;
+            }
+            else
+            {
+                switch (strength)
+                {
+                    case PotionStrength.Weak:
+                        if (partCount == 1 && ingredientCount == 1)
+                        {
+                            errorMessage = string.Empty;
+                            return true;
+                        }
+                        errorMessage = "Weak potions require 1 part and 1 ingredient.";
+                        return false;
+                    case PotionStrength.Standard:
+                        if ((partCount == 1 && ingredientCount == 2) || (partCount == 2 && ingredientCount == 1))
+                        {
+                            errorMessage = string.Empty;
+                            return true;
+                        }
+                        errorMessage = "Standard potions require either 1 part and 2 ingredients, or 2 parts and 1 ingredient.";
+                        return false;
+                    case PotionStrength.Supreme:
+                        if (partCount + ingredientCount == 4 && partCount > 0 && ingredientCount > 0)
+                        {
+                            errorMessage = string.Empty;
+                            return true;
+                        }
+                        errorMessage = "Supreme potions require a total of 4 components, with at least one part and one ingredient.";
+                        return false;
+                    default:
+                        errorMessage = "Invalid potion strength selected.";
+                        return false;
+                }
+            }
+        }
+
         /// <summary>
         /// Attempts to brew a potion from a given recipe.
         /// </summary>
         /// <param name="alchemist">The hero attempting to brew the potion.</param>
         /// <param name="recipe">The alchemical recipe to be brewed.</param>
         /// <returns>A string message indicating the success or failure of the brewing attempt.</returns>
-        public string BrewPotion(Hero alchemist, AlchemicalRecipe recipe)
+        public async Task<string> BrewPotion(Hero alchemist, PotionStrength strength, List<AlchemyItem> components, AlchemicalRecipe? recipe = null)
         {
-            // 1. Check if the alchemist has the required components in their backpack
-            foreach (var component in recipe.Components)
+            // Validate Components
+            if (!ValidateComponents(strength, components, recipe, out string validationError))
             {
-                var requiredItem = alchemist.Inventory.Backpack.FirstOrDefault(item => item.Name == component.Name && item.Quantity > 0);
-                if (requiredItem == null)
-                {
-                    return $"Brewing failed: Missing component - {component.Name}.";
-                }
+                return $"Brewing failed: {validationError}";
             }
 
-            // 2. Consume the components
-            foreach (var component in recipe.Components)
+            // Check for Empty Bottle
+            var emptyBottle = alchemist.Inventory.Backpack.FirstOrDefault(item => item.Name == "Empty Bottle" && item.Quantity > 0);
+            if (emptyBottle == null)
             {
-                var itemInBackpack = alchemist.Inventory.Backpack.First(item => item.Name == component.Name);
-                itemInBackpack.Quantity--;
-                if (itemInBackpack.Quantity <= 0)
-                {
-                    alchemist.Inventory.Backpack.Remove(itemInBackpack);
-                }
+                return "Brewing failed: No empty bottle available.";
             }
 
-            // 3. Create the new potion
-            var newPotion = new Potion
+            // Perform Alchemy Skill Roll
+            int alchemySkill = alchemist.GetSkill(Skill.Alchemy);
+            if (recipe != null)
             {
-                Name = recipe.Name,
-                Strength = recipe.Strength,
-                EffectDescription = recipe.EffectDescription,
-                Value = recipe.Value,
-                // ... copy other relevant properties from the recipe
-            };
+                alchemySkill += 10; // +10 modifier for using a recipe
+            }
 
-            // 4. Add the new potion to the alchemist's backpack
+            var resultRoll = await _diceRoll.RequestRollAsync("Attempting to brew potion...", "1d100");
+            await Task.Yield();
+            int skillRoll = resultRoll.Roll;
+
+            if (skillRoll > alchemySkill)
+            {
+                return "Brewing failed: The alchemical process was unsuccessful.";
+            }
+
+            // Consume Components and Bottle
+            foreach (var component in components)
+            {
+                BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, component);
+            }
+            BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, emptyBottle);
+
+            // Create the Potion
+            Potion newPotion;
+            if (recipe != null)
+            {
+                newPotion = new Potion
+                {
+                    Identified = true,
+                    Name = recipe.Name,
+                    Strength = recipe.Strength,
+                    EffectDescription = recipe.EffectDescription,
+                    Value = recipe.Value,
+                };
+            }
+            else
+            {
+                var randomPotion = await GetPotionByStrengthAsync(strength);
+                newPotion = new Potion
+                {
+                    Identified = false,
+                    Name = randomPotion.Name,
+                    Strength = strength,
+                    EffectDescription = randomPotion.EffectDescription,
+                    Value = randomPotion.Value,
+                };
+            }
+
+            // Add Potion to Inventory
             BackpackHelper.AddItem(alchemist.Inventory.Backpack, newPotion);
 
             return $"Successfully brewed: {newPotion.Strength} {newPotion.Name}.";
@@ -629,9 +725,38 @@ namespace LoDCompanion.BackEnd.Services.GameData
             IsPotion = true;
         }
 
+        public override Potion Clone()
+        {
+            var newPotion = new Potion();
+            newPotion.Strength = Strength;
+            newPotion.EffectDescription = EffectDescription;
+            newPotion.Category = Category;
+            newPotion.Shop = Shop;
+            newPotion.Name = Name;
+            newPotion.Encumbrance = Encumbrance;
+            newPotion.Value = Value;
+            newPotion.Availability = Availability;
+            newPotion.MaxDurability = MaxDurability;
+            newPotion.Durability = Durability;
+            newPotion.Quantity = Quantity;
+            newPotion.Description = Description;
+            newPotion.MagicEffect = MagicEffect;
+            newPotion.Storage = Storage;
+            newPotion.Properties = new Dictionary<EquipmentProperty, int>(Properties);
+            newPotion.Identified = Identified;
+            return newPotion;
+        }
+
         public override string ToString()
         {
-            return $"{Strength} {Name}: {EffectDescription}";
+            if (Identified)
+            {
+                return $"{Strength} {Name}: {EffectDescription}";
+            }
+            else
+            {
+                return "Unidentified Potion";
+            }
         }
     }
 
