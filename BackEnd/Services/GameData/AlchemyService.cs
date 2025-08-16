@@ -731,6 +731,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         GiantRaspberry,
         BrightGallberry,
         BarbedWormwood,
+        BlackAcathusLeaf,
     }
 
     public class Ingredient : AlchemyItem

@@ -172,7 +172,7 @@ else
     private List<Part> AvailableParts { get; set; } = new();
 
     private Dictionary<string, int> SelectedPotions { get; set; } = new();
-    private Dictionary<string, int> SelectedParts { get; set; } = new();
+    private Dictionary<PartName, int> SelectedParts { get; set; } = new();
 
     private const int MaxSelections = 3;
 
@@ -1096,7 +1096,7 @@ else
         HandlePotionSelectionChanged(SelectedPotions);
     }
 
-    private void IncrementPart(string itemName)
+    private void IncrementPart(PartName itemName)
     {
         if (TotalPartsSelected >= MaxSelections) return;
 
@@ -1112,7 +1112,7 @@ else
         HandlePartSelectionChanged(SelectedParts);
     }
 
-    private void DecrementPart(string itemName)
+    private void DecrementPart(PartName itemName)
     {
         if (SelectedParts.ContainsKey(itemName) && SelectedParts[itemName] > 0)
         {
@@ -1134,7 +1134,7 @@ else
     }
 
     // This method is bound to the OnPartSelectionChanged event from the selector.
-    private void HandlePartSelectionChanged(Dictionary<string, int> selectedParts)
+    private void HandlePartSelectionChanged(Dictionary<PartName, int> selectedParts)
     {
         SelectedParts = selectedParts;
         UpdateAlchemistEquipment();

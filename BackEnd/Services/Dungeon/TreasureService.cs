@@ -262,9 +262,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         {
                             Name = $"Black Acathus gas Recipe",
                             Strength = PotionStrength.Standard,
-                            Components = new List<AlchemyItem>() { new Ingredient() { Name = "Black Acathus Leaf" } }
+                            Components = new List<AlchemyItem>() { new Ingredient() { Name = IngredientName.BlackAcathusLeaf } }
                         });
-                    rewards.Add(new Ingredient() { Name = "Black Acathus Leaf", Quantity = 4 });
+                    rewards.Add(new Ingredient() { Name = IngredientName.BlackAcathusLeaf, Quantity = 4 });
                     break;
                 default:
                     break;
@@ -1270,16 +1270,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     newItem = new Equipment { Name = $"Weak Potion Recipe: {await _alchemy.GetNonStandardPotionAsync()}", Encumbrance = 0, Durability = 0, Value = 0, Description = "The actual components involved shall be chosen by the player", MaxDurability = 0 };
                     break;
                 case "Ingredient":
-                    newItem = new Ingredient { Name = "Ingredient", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = AlchemyService.GetIngredients(1)[0].Clone();
                     break;
                 case "Part":
-                    newItem = new Part { Name = "Part", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = (await _alchemy.GetPartsAsync(1))[0].Clone();
                     break;
                 case "Ingredient - Exquisite":
-                    newItem = new Ingredient { Name = "Ingredient - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = AlchemyService.GetIngredients(1)[0].Clone(); ((Ingredient)newItem).Exquisite = true;
                     break;
                 case "Part - Exquisite":
-                    newItem = new Part { Name = "Part - Exquisite", Encumbrance = 0, Durability = 0, Value = 0, MaxDurability = 0 };
+                    newItem = (await _alchemy.GetPartsAsync(1))[0].Clone(); ((Part)newItem).Exquisite = true;
                     break;
                 case "Amulet":
                     newItem = new Equipment { Name = "Amulet", Encumbrance = 0, Durability = 0, Value = 100, Description = "Can be enchanted", MaxDurability = 0 };
