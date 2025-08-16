@@ -164,8 +164,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             // Execute the action logic
             switch (character, actionType)
             {
-                case (Monster, ActionType.StandardAttack):
-                case (Hero, ActionType.StandardAttack):
+                case (Character, ActionType.StandardAttack):
                     if (primaryTarget is Character)
                     {
                         resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
@@ -210,8 +209,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero, ActionType.PowerAttack):
-                case (Monster, ActionType.PowerAttack):
+                case (Character, ActionType.PowerAttack):
                     if ((character.CurrentAP >= GetActionCost(actionType) 
                         || (character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury) && character.CurrentAP > 0)
                         ) && primaryTarget is Character)
@@ -231,8 +229,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero, ActionType.ChargeAttack):
-                case (Monster, ActionType.ChargeAttack):
+                case (Character, ActionType.ChargeAttack):
                     if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character)
                     {
                         AttackResult attackResult = await _attack.PerformChargeAttackAsync(character, weapon, (Character)primaryTarget, dungeon);
@@ -249,8 +246,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero, ActionType.Shove):
-                case (Monster, ActionType.Shove):
+                case (Character, ActionType.Shove):
                     if (primaryTarget is Character targetToShove && character.Position != null)
                     {
                         AttackResult attackResult = await _attack.PerformShoveAsync(character, targetToShove, dungeon);
@@ -385,9 +381,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-
-                case (Hero, ActionType.OpenDoor):
-                case (Monster, ActionType.OpenDoor):
+                case (Character, ActionType.OpenDoor):
                     if (primaryTarget is Door door)
                     {
                         await _dungeonManager.InteractWithDoorAsync(door, character);
@@ -467,19 +461,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                     resultMessage = $"{hero.Name} ends their turn.";
                     apCost = hero.CurrentAP;
                     break;
-                case (Hero, ActionType.Parry):
-                case (Monster, ActionType.Parry):
+                case (Character, ActionType.Parry):
                     character.CombatStance = CombatStance.Parry;
                     apCost = character.CurrentAP;
                     resultMessage = $"{character.Name} entered parry stance";
                     break;
-                case (Hero, ActionType.Aim):
-                case (Monster, ActionType.Aim):
+                case (Character, ActionType.Aim):
                     character.CombatStance = CombatStance.Aiming;
                     resultMessage = $"{character.Name} takes careful aim.";
                     break;
-                case (Hero, ActionType.Reload):
-                case (Monster, ActionType.Reload):
+                case (Character, ActionType.Reload):
                     if (weapon is RangedWeapon rangedWeapon)
                     {
                         if (!rangedWeapon.IsLoaded)
@@ -501,8 +492,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero, ActionType.ReloadWhileMoving):
-                case (Monster, ActionType.ReloadWhileMoving):
+                case (Character, ActionType.ReloadWhileMoving):
                     if (weapon is RangedWeapon rangedWeapon1 && !rangedWeapon1.IsLoaded)
                     {
                         rangedWeapon1.reloadAmmo();
