@@ -282,34 +282,65 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             foreach (var hero in HeroesInCombat)
             {
-                foreach (var effect in hero.ActiveStatusEffects)
+                HandleEndOfCombatWeaponCoating(hero);
+
+                await HandleEndOfCombatActiveEffectAsync(hero);
+            }
+        }
+
+        private void HandleEndOfCombatWeaponCoating(Hero hero)
+        {
+            if (hero.Inventory.EquippedWeapon != null && hero.Inventory.EquippedWeapon.WeaponCoating != null && hero.Inventory.EquippedWeapon.WeaponCoating.RemoveAfterCombat)
+            {
+                hero.Inventory.EquippedWeapon.WeaponCoating = null;
+            }
+
+            foreach (var item in hero.Inventory.Backpack)
+            {
+                if (item is Weapon weapon && weapon.WeaponCoating != null && weapon.WeaponCoating.RemoveAfterCombat)
                 {
-                    if (effect.Category == StatusEffectType.GodsChampion)
+                    weapon.WeaponCoating = null;
+                }
+            }
+
+            foreach (var item in hero.Inventory.QuickSlots)
+            {
+                if (item is Weapon weapon && weapon.WeaponCoating != null && weapon.WeaponCoating.RemoveAfterCombat)
+                {
+                    weapon.WeaponCoating = null;
+                }
+            }
+        }
+
+        private async Task HandleEndOfCombatActiveEffectAsync(Hero hero)
+        {
+            foreach (var effect in hero.ActiveStatusEffects)
+            {
+                if (effect.Category == StatusEffectType.GodsChampion)
+                {
+                    hero.CurrentEnergy--;
+                    if (hero.CurrentEnergy < 0)
                     {
-                        hero.CurrentEnergy--;
-                        if( hero.CurrentEnergy < 0)
-                        {
-                            hero.CurrentEnergy = 0;
-                            await StatusEffectService.AttemptToApplyStatusAsync(hero, 
-                                new ActiveStatusEffect(StatusEffectType.NeedRest, -1, statBonus: (BasicStat.Constitution, -(int)Math.Floor(hero.GetStat(BasicStat.Constitution) / 2d))),
-                                _powerActivation);
-                        }
+                        hero.CurrentEnergy = 0;
+                        await StatusEffectService.AttemptToApplyStatusAsync(hero,
+                            new ActiveStatusEffect(StatusEffectType.NeedRest, -1, statBonus: (BasicStat.Constitution, -(int)Math.Floor(hero.GetStat(BasicStat.Constitution) / 2d))),
+                            _powerActivation);
                     }
-                    //Remove all active combat effects
-                    if (effect.RemoveAfterCombat)
-                    {
-                        StatusEffectService.RemoveActiveStatusEffect(hero, effect);
-                    }
-                    //Activate after effects battle is over
-                    if (effect.Category == StatusEffectType.Diseased)
-                    {
-                        hero.ActivateDiseasedEffect();
-                    }
-                    //update remove after next battle to remove next battle
-                    if(effect.RemoveAfterNextBattle)
-                    {
-                        effect.RemoveAfterCombat = true;
-                    }
+                }
+                //Remove all active combat effects
+                if (effect.RemoveAfterCombat)
+                {
+                    StatusEffectService.RemoveActiveStatusEffect(hero, effect);
+                }
+                //Activate after effects battle is over
+                if (effect.Category == StatusEffectType.Diseased)
+                {
+                    hero.ActivateDiseasedEffect();
+                }
+                //update remove after next battle to remove next battle
+                if (effect.RemoveAfterNextBattle)
+                {
+                    effect.RemoveAfterCombat = true;
                 }
             }
         }
