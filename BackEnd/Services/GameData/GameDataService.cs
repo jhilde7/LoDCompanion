@@ -834,8 +834,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
             Lightning,
             Acid,
             Poison,
-            Magic
-        }
+            Magic,
+        Holy
+    }
 
 
     public enum PerkCategory
