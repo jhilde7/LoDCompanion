@@ -1793,6 +1793,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public Dictionary<EquipmentProperty, int> Properties { get; set; } = new Dictionary<EquipmentProperty, int>();
         public bool Identified { get; set; } = true;
         public bool AttemptedToIdentify { get; set; } = false;
+        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
 
         public Equipment()
         {
@@ -1919,6 +1920,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
     {
         public AmmoType AmmoType { get; set; } = AmmoType.Arrow; // Default ammo type, can be set in constructor
         public new Dictionary<AmmoProperty, int> Properties { get; set; } = new Dictionary<AmmoProperty, int>();
+        public ActiveStatusEffect? AppliedEffectOnHit { get; set; }
 
         public Ammo() { } // Default constructor
 
