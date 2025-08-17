@@ -1916,11 +1916,19 @@ namespace LoDCompanion.BackEnd.Services.GameData
         HolyWater
     }
 
+    public class AmmoCoating
+    {
+        public int CoatingAmount { get; set; }
+        public int DamageBonus { get; set; }
+        public DamageType? DamageType { get; set; }
+        public ActiveStatusEffect? AppliedEffect { get; set; }
+    }
+
     public class Ammo : Equipment
     {
         public AmmoType AmmoType { get; set; } = AmmoType.Arrow; // Default ammo type, can be set in constructor
         public new Dictionary<AmmoProperty, int> Properties { get; set; } = new Dictionary<AmmoProperty, int>();
-        public ActiveStatusEffect? AppliedEffectOnHit { get; set; }
+        public AmmoCoating? AmmoCoating { get; set; }
 
         public Ammo() { } // Default constructor
 
@@ -1940,6 +1948,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newAmmo.MagicEffect = MagicEffect;
             newAmmo.Properties = new Dictionary<AmmoProperty, int>(Properties);
             newAmmo.Identified = Identified;
+            newAmmo.AmmoCoating = AmmoCoating;
             return newAmmo;
         }
 
@@ -1958,7 +1967,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 if (HasProperty(AmmoProperty.Silver)) sb.Append(", Silver");
                 if (HasProperty(AmmoProperty.Barbed)) sb.Append(", Barbed");
                 if (HasProperty(AmmoProperty.SuperiorSlingStone)) sb.Append(", Superior");
-                if (HasProperty(AmmoProperty.HolyWater)) sb.Append(", Holy Water added");
             }
             else
             {
@@ -2008,6 +2016,15 @@ namespace LoDCompanion.BackEnd.Services.GameData
         TempDamageBonus
     }
 
+    public class WeaponCoating
+    {
+        public int CoatingAmount { get; set; }
+        public int DamageBonus { get; set; }
+        public DamageType? DamageType { get; set; }
+        public ActiveStatusEffect? AppliedEffect { get; set; }
+        public bool RemoveAfterCombat { get; set; }
+    }
+
     public class Weapon : Equipment
     {
         public bool IsRanged { get; set; }
@@ -2019,6 +2036,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int MaxDamage { get; set; }
         public new virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
         public ActiveStatusEffect? AppliedEffectOnHit { get; set; }
+        public WeaponCoating? WeaponCoating { get; set; }
 
         public virtual int RollDamage()
         {
