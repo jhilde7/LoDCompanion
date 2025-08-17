@@ -50,7 +50,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         UsePerk,
         ShieldBash,
         StunningStrike,
-        HarvestParts
+        HarvestParts,
+        ThrowPotion
     }
 
     public class ActionInfo
@@ -78,6 +79,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly PowerActivationService _powerActivation;
         private readonly PartyManagerService _partyManager;
         private readonly AlchemyService _alchemy;
+        private readonly PotionActivationService _potionActivation;
 
         public ActionService(
             DungeonManagerService dungeonManagerService,
@@ -91,7 +93,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             SpellResolutionService spellResolutionService,
             PowerActivationService powerActivationService,
             PartyManagerService partyManager,
-            AlchemyService alchemyService)
+            AlchemyService alchemyService,
+            PotionActivationService potionActivation)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -105,6 +108,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             _powerActivation = powerActivationService;
             _partyManager = partyManager;
             _alchemy = alchemyService;
+            _potionActivation = potionActivation;
         }
 
         /// <summary>
@@ -707,7 +711,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         {
                             avaialbleCorpses.Shuffle();
                             var skillTarget = hero.GetSkill(Skill.Alchemy);
-                            var resultRoll = await _diceRoll.RequestRollAsync("Roll for alchemy skill test.", "1d100", skill: Skill.Alchemy);
+                            var resultRoll = await _diceRoll.RequestRollAsync("Roll for alchemy skill test.", "1d100", skill: (hero, Skill.Alchemy));
                             await Task.Yield();
 
                             var equisiteRange = 10;
@@ -779,6 +783,56 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case (Hero hero, ActionType.ThrowPotion):
+                    if (primaryTarget is GridPosition position && secondaryTarget is Potion potion)
+                    {
+                        var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
+                        await Task.Yield();
+                        int rsSkill = hero.GetSkill(Skill.RangedSkill);
+
+                        if (hero.Position != null)
+                        {
+                            var los = GridService.HasLineOfSight(hero.Position, position, dungeon.DungeonGrid);
+                            if (los.ObstructionPenalty < 0)
+                            {
+                                rsSkill -= 10;
+                            }
+                        }
+
+                        // Check if throwing through a door
+                        var throwThroughDoor = hero.Room.Doors.FirstOrDefault(d => d.Position.Contains(position));
+                        if (throwThroughDoor != null && hero.Position != null)
+                        {
+                            bool isAdjacentToDoor = throwThroughDoor.Position.Any(p => GridService.IsAdjacent(hero.Position, p));
+                            if (!isAdjacentToDoor)
+                            {
+                                rsSkill -= 10;
+                            }
+
+                            if (rsRoll.Roll > rsSkill)
+                            {
+                                // Missed throw through a door, hits a square in front of the door
+                                var doorSquares = throwThroughDoor.Position.ToList();
+                                position = doorSquares[RandomHelper.GetRandomNumber(0, doorSquares.Count - 1)];
+                                resultMessage = $"{hero.Name} misses! The potion hits the doorway at {position}.";
+                            }
+                        }
+                        else if (rsRoll.Roll > rsSkill)
+                        {
+                            var neighbors = GridService.GetNeighbors(position, dungeon.DungeonGrid).ToList();
+                            neighbors.Shuffle();
+                            position = neighbors.FirstOrDefault() ?? position;
+                            resultMessage = $"{hero.Name} misses! The potion lands at {position}.";
+                        }
+
+                        resultMessage += await _potionActivation.BreakPotionAsync(hero, potion, position, dungeon);
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target for ThrowPotion action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
             }
 
 
@@ -808,6 +862,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.HealOther => 1,
                 ActionType.Aim => 1,
                 ActionType.HarvestParts => 1,
+                ActionType.ThrowPotion => 1,
                 ActionType.PowerAttack => 2,
                 ActionType.ChargeAttack => 2,
                 ActionType.PickLock => 2,
