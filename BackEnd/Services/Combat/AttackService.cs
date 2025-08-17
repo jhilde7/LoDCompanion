@@ -174,7 +174,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             result.ToHitChance = baseSkill + situationalModifier;
             var resultRoll = await _diceRoll.RequestRollAsync(
                 "Roll to-hit.", "1d100",
-                hero: attacker, skill: weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill); 
+                skill: (attacker, weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill)); 
             await Task.Yield();
             result.AttackRoll = resultRoll.Roll;
 
@@ -251,7 +251,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 context = ApplyArmorToLocation(target, location, context, weapon);
                 if(attacker.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.GhostlyTouch))
                 {
-                    var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: target, stat: BasicStat.Resolve); await Task.Yield();
+                    var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", stat: (target, BasicStat.Resolve)); await Task.Yield();
                     if (target.TestResolve(rollResult.Roll))
                     {
                         result.DamageDealt = await target.TakeDamageAsync(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), _powerActivation, ignoreAllArmour: true);
@@ -850,7 +850,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     // DEX test to avoid falling prone
                     var resultRoll = await _diceRoll.RequestRollAsync(
                         $"Roll a DEX test for {hero.Name} to stay standing.", "1d100",
-                        hero: hero, stat: BasicStat.Dexterity); 
+                        stat: (hero, BasicStat.Dexterity)); 
                     await Task.Yield();
                     result.OutcomeMessage += await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Prone, 1), _powerActivation, resultRoll.Roll);
 

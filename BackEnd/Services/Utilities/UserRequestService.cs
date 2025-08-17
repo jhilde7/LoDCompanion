@@ -9,9 +9,8 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public string DiceNotation { get; set; } = "1d100";
         public bool IsCancellable { get; set; } = false;
         public TaskCompletionSource<DiceRollResult> CompletionSource { get; } = new TaskCompletionSource<DiceRollResult>();
-        public Hero? HeroAttemptingRoll { get; internal set; }
-        public Skill? SkillBeingUsed { get; internal set; }
-        public BasicStat? StatBeingUsed { get; internal set; }
+        public (Hero, Skill)? SkillBeingUsed { get; internal set; }
+        public (Hero, BasicStat)? StatBeingUsed { get; internal set; }
     }
 
     public class DiceRollResult
@@ -39,14 +38,13 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         /// </summary>
         /// <returns>The result of the dice roll.</returns>
         public Task<DiceRollResult> RequestRollAsync(string prompt, string diceNotation = "1d100", bool canCancel = false, 
-            Hero? hero = null, Skill? skill = null, BasicStat? stat = null)
+            (Hero, Skill)? skill = null, (Hero, BasicStat)? stat = null)
         {
             CurrentDiceRequest = new DiceRollRequest
             {
                 Prompt = prompt,
                 DiceNotation = diceNotation,
                 IsCancellable = canCancel,
-                HeroAttemptingRoll = hero,
                 SkillBeingUsed = skill,
                 StatBeingUsed = stat
             };
@@ -62,10 +60,17 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         {
             if (CurrentDiceRequest != null)
             {
-                if (CurrentDiceRequest.HeroAttemptingRoll != null)
+                if (CurrentDiceRequest.SkillBeingUsed.HasValue)
                 {
-                    CurrentDiceRequest.HeroAttemptingRoll.CheckPerfectRoll(result.Roll, skill: CurrentDiceRequest.SkillBeingUsed, stat: CurrentDiceRequest.StatBeingUsed);
+                    Hero hero = CurrentDiceRequest.SkillBeingUsed.Value.Item1;
+                    hero.CheckPerfectRoll(result.Roll, skill: CurrentDiceRequest.SkillBeingUsed.Value.Item2);
                 }
+                else if (CurrentDiceRequest.StatBeingUsed.HasValue)
+                {
+                    Hero hero = CurrentDiceRequest.StatBeingUsed.Value.Item1;
+                    hero.CheckPerfectRoll(result.Roll, stat: CurrentDiceRequest.StatBeingUsed.Value.Item2);
+                }
+
 
                 CurrentDiceRequest.CompletionSource.SetResult(result);
                 CurrentDiceRequest = null;

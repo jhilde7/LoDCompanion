@@ -308,7 +308,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync(
                                 "Roll a resolve test to resist the effects", "1d100",
-                                hero: heroToSave, stat: BasicStat.Resolve);
+                                stat: (heroToSave, BasicStat.Resolve));
                             await Task.Yield();
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= heroToSave.GetStat(BasicStat.Resolve))
@@ -329,7 +329,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync(
                                 "Roll a resolve test to resist the effects", "1d100",
-                                hero: heroToResist, stat: BasicStat.Resolve); 
+                                stat: (heroToResist, BasicStat.Resolve)); 
                             await Task.Yield();
                             int resolveRoll = rollResult.Roll;
                             if (resolveRoll <= character.GetStat(BasicStat.Resolve))
@@ -355,9 +355,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync(
                                 "Roll a strength test to resist the effects", "1d100",
-                                hero: heroBeingSwallowed1, stat: BasicStat.Strength);
+                                stat: (heroBeingSwallowed1, BasicStat.Strength));
                             await Task.Yield();
-                            heroBeingSwallowed1.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Strength);
                             int strTest1 = rollResult.Roll;
                             if (strTest1 <= heroBeingSwallowed1.GetStat(BasicStat.Strength))
                             {
@@ -374,9 +373,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         {
                             var rollResult = await new UserRequestService().RequestRollAsync(
                                 "Roll a strength test to resist the effects", "1d100", 
-                                hero: heroBeingSwallowed2, stat: BasicStat.Strength); 
+                                stat: (heroBeingSwallowed2, BasicStat.Strength)); 
                             await Task.Yield();
-                            heroBeingSwallowed2.CheckPerfectRoll(rollResult.Roll, stat: BasicStat.Strength);
                             int strTest2 = rollResult.Roll;
                             if (strTest2 <= heroBeingSwallowed2.GetStat(BasicStat.Strength) / 2)
                             {

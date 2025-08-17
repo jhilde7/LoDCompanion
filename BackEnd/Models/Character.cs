@@ -606,7 +606,6 @@ namespace LoDCompanion.BackEnd.Models
             if (roll == null)
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
-                CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
             }
 
             if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
@@ -636,7 +635,6 @@ namespace LoDCompanion.BackEnd.Models
             if (roll == null)
             {
                 roll = RandomHelper.RollDie(DiceType.D100);
-                CheckPerfectRoll((int)roll, stat: BasicStat.Resolve);
             }
 
             if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))

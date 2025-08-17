@@ -120,7 +120,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 {
                     var rollResult = await _diceRoll.RequestRollAsync(
                                 "Roll a resolve test to resist the effects", "1d100",
-                                hero: hero, stat: BasicStat.Resolve);
+                                stat: (hero, BasicStat.Resolve));
                     await Task.Yield();
                     outcome += StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Stunned, 1), _powerActivation, rollResult.Roll);
                 }
@@ -299,7 +299,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 var rollResult = await _diceRoll.RequestRollAsync(
                                 "Roll a resolve test to resist the effects", "1d100",
-                                hero: hero, stat: BasicStat.Resolve);
+                                stat: (hero, BasicStat.Resolve));
                 await Task.Yield();
                 if (hero.TestResolve(rollResult.Roll) && hero.Position != null)
                 {
@@ -395,7 +395,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
                 var rollResult = await _diceRoll.RequestRollAsync(
                                 "Roll a resolve test to resist the effects", "1d100",
-                                hero: targetHero, stat: BasicStat.Resolve);
+                                stat: (targetHero, BasicStat.Resolve));
                 await Task.Yield();
 
                 int duration = RandomHelper.RollDie(DiceType.D6);
@@ -425,7 +425,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     // Apply poison effect
                     var rollResult = await _diceRoll.RequestRollAsync(
                         "Roll a constitution test to resist the effects", "1d100", 
-                        hero: target, stat: BasicStat.Constitution); 
+                        stat: (target, BasicStat.Constitution)); 
                     await Task.Yield();
 
                     // The logic for applying poison, including the CON test, is now handled in StatusEffectService
@@ -450,7 +450,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             // The hero must make a RES test.
             var rollResult = await _diceRoll.RequestRollAsync(
                                 "Roll a resolve test to resist the effects", "1d100",
-                                hero: target, stat: BasicStat.Resolve);
+                                stat: (target, BasicStat.Resolve));
             await Task.Yield();
             outcome += await StatusEffectService.AttemptToApplyStatusAsync(target, new ActiveStatusEffect(StatusEffectType.Incapacitated, -1), _powerActivation, resistRoll: rollResult.Roll);
 

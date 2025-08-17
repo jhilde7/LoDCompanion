@@ -61,7 +61,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             var rollResult = await diceRoll.RequestRollAsync(
                 "Attempt to dodge the attack.", "1d100", canCancel: true,
-                hero: hero, skill: Skill.Dodge); 
+                skill: (hero, Skill.Dodge)); 
             await Task.Yield();
             if (!rollResult.WasCancelled)
             {

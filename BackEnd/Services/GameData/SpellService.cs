@@ -1529,7 +1529,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             int miscastThreshold = 95 - focusPoints * 5 - powerLevels * 2;
 
             // --- Perform the Casting Roll ---
-            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100", hero: caster, skill: Skill.ArcaneArts); await Task.Yield();
+            var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100", skill: (caster, Skill.ArcaneArts)); await Task.Yield();
             int roll = resultRoll.Roll;
 
             // --- Check for Miscast First ---
@@ -1550,10 +1550,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     if (caster.Party != null)
                     {
                         var priest = caster.Party.Heroes.FirstOrDefault(h => h.ProfessionName == "Warrior Priest");
-                        resultRoll = await diceRoll.RequestRollAsync("Roll for resolve test", "1d100", hero: priest, stat: BasicStat.Resolve); await Task.Yield();
-                        if (priest != null && priest.Position != null && priest.TestResolve(resultRoll.Roll))
+                        if (priest != null && priest.Position != null)
                         {
-                            await priest.TakeDamageAsync(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), activation, ignoreAllArmour: true);
+                            resultRoll = await diceRoll.RequestRollAsync("Roll for resolve test", "1d100", stat: (priest, BasicStat.Resolve)); 
+                            await Task.Yield();
+                            if (priest.TestResolve(resultRoll.Roll))
+                            {
+                                await priest.TakeDamageAsync(RandomHelper.RollDie(DiceType.D4), (new FloatingTextService(), priest.Position), activation, ignoreAllArmour: true); 
+                            }
                         }
                     }
                 }

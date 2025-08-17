@@ -41,7 +41,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // Assuming Hero has a PickLocksSkill property or it's part of Dexterity/Profession
             int skill = hero.GetSkill(Skill.PickLocks);
 
-            int pickLockRoll = (await _diceRoll.RequestRollAsync("Roll for pick lock attempt.", "1d100", skill: Skill.PickLocks)).Roll;
+            int pickLockRoll = (await _diceRoll.RequestRollAsync("Roll for pick lock attempt.", "1d100", skill: (hero, Skill.PickLocks))).Roll;
             await Task.Yield();
 
             // Base roll + skill - lockModifier

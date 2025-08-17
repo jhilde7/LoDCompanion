@@ -525,7 +525,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             }
                         }
                         wizard.CanCastSpell = false;
-                        var rollResult = await _diceRoll.RequestRollAsync($"Roll {Skill.ArcaneArts.ToString()} test", "1d100", skill: Skill.ArcaneArts);
+                        var rollResult = await _diceRoll.RequestRollAsync($"Roll {Skill.ArcaneArts.ToString()} test", "1d100", skill: (wizard, Skill.ArcaneArts));
                         await Task.Yield();
                         var skillTarget = wizard.GetSkill(Skill.ArcaneArts);
 

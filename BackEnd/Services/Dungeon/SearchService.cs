@@ -64,7 +64,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     searchTarget += 10;
                 } 
             }
-            var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100", hero: hero, skill: Skill.Perception); await Task.Yield();
+            var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100", skill: (hero, Skill.Perception)); await Task.Yield();
             int searchRoll = resultRoll.Roll;
 
 
