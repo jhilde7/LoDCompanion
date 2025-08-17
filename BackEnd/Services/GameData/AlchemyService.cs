@@ -667,7 +667,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 var randomPotion = await GetPotionByStrengthAsync(strength);
                 newPotion = new Potion
                 {
-                    Identified = false,
+                    Identified = true,
                     Name = randomPotion.Name,
                     Strength = strength,
                     EffectDescription = randomPotion.EffectDescription,
