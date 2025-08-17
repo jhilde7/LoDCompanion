@@ -408,7 +408,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle.", 
                     PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.WeaponCoating, 1 }, { PotionProperty.FireDamage, 0 } } },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle.", 
-                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.AmmoCoating, 5 }, { PotionProperty.WeaponCoating, 1 }, { PotionProperty.Poison, -1 } }  },
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.AmmoCoating, 5 }, { PotionProperty.WeaponCoating, 1 } }, ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Poisoned, -1) },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage).",
                     ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.DragonBreath, -1)},
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns.",
@@ -775,7 +775,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public PotionStrength Strength { get; set; } = PotionStrength.None;
         public string EffectDescription { get; set; } = string.Empty;
         public Dictionary<PotionProperty, int>? PotionProperties { get; set; }
-        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
 
         public Potion()
         {
