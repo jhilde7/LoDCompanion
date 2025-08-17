@@ -875,6 +875,11 @@ namespace LoDCompanion.BackEnd.Models
             };
         }
 
+        public void GainExperience(int experience)
+        {
+            SetStat(BasicStat.Experience, GetStat(BasicStat.Experience) + experience);
+        }
+
         internal void CheckPerfectRoll(int roll, Skill? skill = null, BasicStat? stat = null)
         {
             if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.CharusWalkWithUs) && roll <= 10 && roll > 5) CurrentEnergy += 1;
