@@ -825,13 +825,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 3,
                     MaxDamage = 8,
                     DamageDice = "1d6",
-                    DamageBonus = 2,
                     Encumbrance = 7,
                     Class = 2,
                     Value = 70,
                     Availability = 4,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
+                        { WeaponProperty.DamageBonus, 2 },
                         { WeaponProperty.DualWield, 2 },
                         { WeaponProperty.Edged, 0 },
                         { WeaponProperty.Sword, 0 },
@@ -846,13 +846,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 2,
                     MaxDamage = 7,
                     DamageDice = "1d6",
-                    DamageBonus = 1,
                     Encumbrance = 5,
                     Class = 1,
                     Value = 130,
                     Availability = 3,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
+                        { WeaponProperty.DamageBonus, 1 },
                         { WeaponProperty.Fast, 0 },
                         { WeaponProperty.DualWield, 2 },
                         { WeaponProperty.Edged, 0 },
@@ -868,57 +868,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 3,
                     MaxDamage = 10,
                     DamageDice = "1d8",
-                    DamageBonus = 2,
                     Encumbrance = 8,
                     Class = 3,
                     Value = 90,
                     Availability = 5,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 }
-                    }
-                },
-                new MeleeWeapon()
-                {
-                    Category = "Treasure",
-                    Shop = ShopCategory.Weapons,
-                    Name = "The Goblins Scimitar",
-                    Description = "This scimitar once belonged to the Goblin King, Teezmeald. He wielded it in their famous last fight against the great Elf warrior, Aelynthi Bihorn. As Elves despise all things of Goblin making, Bihorn left the blade where the king fell. Whoever, or whatever, snatched the blade from their withered corpse will never be known, but this artifact continues to crave blood, no matter who wields it.",
-                    //TODO: The wielder of this weapon gains the perk Frenzy
-                    MinDamage = 3,
-                    MaxDamage = 10,
-                    DamageDice = "1d8",
-                    DamageBonus = 2,
-                    Encumbrance = 8,
-                    Class = 3,
-                    Value = 0,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
-                        { WeaponProperty.Edged, 0 },
-                        { WeaponProperty.Sword, 0 },
-                        { WeaponProperty.Metal, 0 }
-                    }
-                },
-                new MeleeWeapon()
-                {
-                    Category = "Treasure",
-                    Shop = ShopCategory.Weapons,
-                    Name = "The Flames of Zul",
-                    Description = "When examining the fallen Mummy, the heroes find a sword strapped to its back. The sword is unnaturally cold and the metal is almost black. When given a test swing, a flame suddenly bursts out from it. As soon as the blade is held still, the flame vanishes.",
-                    //TODO: All DMG is causes is regarded as fir DMG.
-                    MinDamage = 3,
-                    MaxDamage = 10,
-                    DamageDice = "1d8",
-                    DamageBonus = 2,
-                    Encumbrance = 8,
-                    Class = 3,
-                    Value = 0,
-                    Availability = 0,
-                    Properties = new Dictionary<WeaponProperty, int>
-                    {
+                        { WeaponProperty.DamageBonus, 2 },
                         { WeaponProperty.Edged, 0 },
                         { WeaponProperty.Sword, 0 },
                         { WeaponProperty.Metal, 0 }
@@ -951,13 +907,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 2,
                     MaxDamage = 11,
                     DamageDice = "1d10",
-                    DamageBonus = 1,
                     Encumbrance = 10,
                     Class = 4,
                     Value = 100,
                     Availability = 4,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
+                        { WeaponProperty.DamageBonus, 1 },
                         { WeaponProperty.BFO, 0 },
                         { WeaponProperty.Edged, 0 },
                         { WeaponProperty.Axe, 0 },
@@ -1094,13 +1050,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 3,
                     MaxDamage = 14,
                     DamageDice = "1d12",
-                    DamageBonus = 2,
                     Encumbrance = 20,
                     Class = 5,
                     Value = 200,
                     Availability = 3,
                     Properties = new Dictionary<WeaponProperty, int>
                     {
+                        { WeaponProperty.DamageBonus, 2 },
                         { WeaponProperty.Slow, 0 },
                         { WeaponProperty.BFO, 0 },
                         { WeaponProperty.Edged, 0 },
@@ -1213,7 +1169,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 3,
                     MaxDamage = 12,
                     DamageDice = "1d10",
-                    DamageBonus = 2,
                     Encumbrance = 7,
                     Class = 6,
                     Value = 700,
@@ -1223,7 +1178,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     ElvenBowstring = true,
                     AmmoType = AmmoType.Arrow,
                     Properties = new Dictionary<WeaponProperty, int>() {
-                        { WeaponProperty.ArmourPiercing, 1 }
+                        { WeaponProperty.ArmourPiercing, 1 },
+                        { WeaponProperty.DamageBonus, 2 },
                     }
                   },
                   new RangedWeapon(){
@@ -1233,7 +1189,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 2,
                     MaxDamage = 9,
                     DamageDice = "1d8",
-                    DamageBonus = 1,
                     Encumbrance = 5,
                     Class = 2,
                     Value = 350,
@@ -1241,7 +1196,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     ReloadTime = 2,
                     Description = "",
                     AmmoType = AmmoType.Bolt,
-                    Properties = new Dictionary<WeaponProperty, int>() { { WeaponProperty.SecondaryWeapon, 0 } }
+                    Properties = new Dictionary<WeaponProperty, int>() {
+                        { WeaponProperty.DamageBonus, 1 },
+                        { WeaponProperty.SecondaryWeapon, 0 } 
+                    }
                   },
                   new RangedWeapon(){
                     Category = "Common",
@@ -1250,7 +1208,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MinDamage = 4,
                     MaxDamage = 13,
                     DamageDice = "1d10",
-                    DamageBonus = 3,
                     Encumbrance = 15,
                     Class = 6,
                     Value = 250,
@@ -1259,6 +1216,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "",
                     AmmoType = AmmoType.Bolt,
                     Properties = new Dictionary<WeaponProperty, int>() {
+                        { WeaponProperty.DamageBonus, 3 },
                         { WeaponProperty.ArmourPiercing, 1 }
                     }
                   },
@@ -2032,7 +1990,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         Ensnare,
         Reach,
         Edged,
-        SlayerTreated,
         Axe,
         Sword,
         Blunt,
@@ -2042,7 +1999,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
         ArmourPiercing,
         Cursed,
         Poisoned,
-        Diseased
+        Diseased,
+        FireDamage,
+        DamageBonus,
+        TempDamageBonus
     }
 
     public class Weapon : Equipment
@@ -2052,7 +2012,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public new int Durability { get; set; } = 6;
         public int Class { get; set; }
         public string? DamageDice { get; set; }
-        public int DamageBonus { get; set; }
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public new virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
@@ -2118,7 +2077,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newMeleeWeapon.Encumbrance = Encumbrance;
             newMeleeWeapon.Durability = Durability;
             newMeleeWeapon.DamageDice = DamageDice;
-            newMeleeWeapon.DamageBonus = DamageBonus;
             newMeleeWeapon.Properties = new Dictionary<WeaponProperty, int>(Properties);
             newMeleeWeapon.Identified = Identified;
             return newMeleeWeapon;
@@ -2164,20 +2122,26 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             if (HasProperty(WeaponProperty.Mithril))
             {
-                MinDamage += 1;
-                MaxDamage += 1;
-                DamageBonus += 1;
+                if (!Properties.TryAdd(WeaponProperty.DamageBonus, 1))
+                {
+                    Properties.TryGetValue(WeaponProperty.DamageBonus, out int value);
+                    value += 1;
+                    Properties[WeaponProperty.DamageBonus] = value;
+                }
                 Encumbrance -= 2;
             }
         }
 
         public void SetSlayerTreatedModifier()
         {
-            if (HasProperty(WeaponProperty.SlayerTreated))
+            if (!HasAppliedSlayerModifier)
             {
-                MinDamage += 1;
-                MaxDamage += 1;
-                DamageBonus += 1;
+                if(!Properties.TryAdd(WeaponProperty.DamageBonus, 1))
+                {
+                    Properties.TryGetValue(WeaponProperty.DamageBonus, out int value);
+                    value += 1;
+                    Properties[WeaponProperty.DamageBonus] = value;
+                }
                 HasAppliedSlayerModifier = true;
             }
         }
@@ -2295,7 +2259,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newRangedWeapon.MinDamage = MinDamage;
             newRangedWeapon.MaxDamage = MaxDamage;
             newRangedWeapon.DamageDice = DamageDice;
-            newRangedWeapon.DamageBonus = DamageBonus;
             newRangedWeapon.AmmoType = AmmoType;
             newRangedWeapon.Ammo = Ammo;
             newRangedWeapon.ElvenBowstring = ElvenBowstring;
