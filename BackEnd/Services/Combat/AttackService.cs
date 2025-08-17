@@ -37,6 +37,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public bool HasAimed { get; set; }
         public int ObstaclesInLineOfSight { get; set; }
         public bool IsTouch { get; set; }
+        public bool IsThrown { get; set; }
     }
 
     /// <summary>
