@@ -351,7 +351,14 @@ namespace LoDCompanion.BackEnd.Models
             }
             if (poisonDamage)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1), activation);
+                if (this is Hero)
+                {
+                    await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1), activation); 
+                }
+                else
+                {
+                    await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, -1, damage: 1), activation);
+                }
             }
             if (diseaseDamage)
             {
