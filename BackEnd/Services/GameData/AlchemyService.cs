@@ -767,7 +767,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         CurePoison,
         CureDisease,
         HealHPBonus,
-        Experience
+        Experience,
+        HolyDamage
     }
 
     public class Potion : AlchemyItem
