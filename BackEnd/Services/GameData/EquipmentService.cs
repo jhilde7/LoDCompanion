@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Security.Claims;
@@ -2015,6 +2016,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int MinDamage { get; set; }
         public int MaxDamage { get; set; }
         public new virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
+        public ActiveStatusEffect? AppliedEffectOnHit { get; set; }
 
         public virtual int RollDamage()
         {
