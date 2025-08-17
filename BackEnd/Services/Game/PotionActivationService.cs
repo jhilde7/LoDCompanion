@@ -20,9 +20,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<string> DrinkPotionAsync(Hero hero, Potion potion)
         {
-            // Consume the potion
-            BackpackHelper.TakeOneItem(hero.Inventory.Backpack, potion);
-
             // Apply the potion's effects
             if (potion.PotionProperties != null)
             {
@@ -136,7 +133,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public Weapon CoatWeapon(Hero hero, Potion potion, Weapon weapon)
         {
-            BackpackHelper.TakeOneItem(hero.Inventory.Backpack, potion);
             StatusEffectType effectType = StatusEffectType.Poisoned;
             if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.FireDamage))
             {
@@ -148,7 +144,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public Ammo CoatAmmo(Hero hero, Potion potion, Ammo ammo)
         {
-            BackpackHelper.TakeOneItem(hero.Inventory.Backpack, potion);
             if (potion.Name == "Holy Water")
             {
                 ammo.Properties.TryAdd(AmmoProperty.Silver, 1);
