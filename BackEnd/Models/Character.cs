@@ -307,6 +307,7 @@ namespace LoDCompanion.BackEnd.Models
             bool acidDamage = combatContext != null && combatContext.IsAcidicDamage || damageType == DamageType.Acid;
             bool frostDamage = combatContext != null && combatContext.IsFrostDamage || damageType == DamageType.Frost;
             bool poisonDamage = combatContext != null && combatContext.IsPoisonousAttack || damageType == DamageType.Poison;
+            bool holyDamage = damageType == DamageType.Holy;
             bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
 
             if (!fireDamage || !acidDamage || !ignoreAllArmour)
@@ -316,6 +317,12 @@ namespace LoDCompanion.BackEnd.Models
             if (!fireDamage || !ignoreAllArmour)
             {
                 damage -= combatContext?.ArmourValue ?? 0; // Apply any armour value from the combat context 
+            }
+
+            var isUndead = this is Monster monster && monster.IsUndead;
+            if (holyDamage && !isUndead)
+            {
+                return 0;
             }
 
             CurrentHP -= damage;
