@@ -351,21 +351,31 @@ namespace LoDCompanion.BackEnd.Models
             }
             if (poisonDamage)
             {
-                if (this is Hero)
-                {
-                    await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1), activation); 
-                }
-                else
-                {
-                    await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, -1, damage: 1), activation);
-                }
+                await ApplyPoisonEffectAsync(activation);
             }
             if (diseaseDamage)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Diseased, -1), activation);
+                await ApplyDiseaseEffectAsync(activation);
             }
 
             return damage; // Return the amount of damage taken
+        }
+
+        private async Task ApplyDiseaseEffectAsync(PowerActivationService activation)
+        {
+            await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Diseased, -1), activation);
+        }
+
+        private async Task ApplyPoisonEffectAsync(PowerActivationService activation)
+        {
+            if (this is Hero)
+            {
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, RandomHelper.RollDie(DiceType.D10), damage: 1), activation);
+            }
+            else
+            {
+                await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Poisoned, -1, damage: 1), activation);
+            }
         }
 
         private async Task ApplyFrostEffectAsync(PowerActivationService activation)
