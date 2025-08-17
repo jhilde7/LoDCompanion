@@ -59,19 +59,22 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private readonly MonsterSpecialService _monsterSpecial;
         private readonly SpellResolutionService _spellResolution;
         private readonly PowerActivationService _powerActivation;
+        private readonly PotionActivationService _potionActivation;
 
         public AttackService(
             FloatingTextService floatingTextService,
             UserRequestService diceRollService,
             MonsterSpecialService monsterSpecialService,
             SpellResolutionService spellResolutionService,
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            PotionActivationService potionActivation)
         {
             _floatingText = floatingTextService;
             _diceRoll = diceRollService;
             _monsterSpecial = monsterSpecialService;
             _spellResolution = spellResolutionService;
             _powerActivation = powerActivationService;
+            _potionActivation = potionActivation;
 
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
@@ -80,7 +83,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _monsterSpecial.OnTongueAttack += HandleTongueAttack;
             _monsterSpecial.OnWebAttack += HandleWebAttempt;
             _spellResolution.OnTouchAttack += HandleTouchAttack;
-            
         }
 
         /// <summary>
@@ -263,7 +265,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
-                    result.OutcomeMessage += CheckForQuickSlotDamage(target);
+                    result.OutcomeMessage += CheckForQuickSlotDamageAsync(target, dungeon);
                 }
             }
             else
@@ -494,7 +496,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// On a torso hit, rolls to see if an item in a quick slot is damaged.
         /// </summary>
-        private string CheckForQuickSlotDamage(Hero target)
+        private async Task<string> CheckForQuickSlotDamageAsync(Hero target, DungeonState? dungeon = null)
         {
             int slotRoll = RandomHelper.RollDie(DiceType.D10);
             if (slotRoll <= target.Inventory.QuickSlots.Count)
@@ -503,7 +505,20 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (item != null)
                 {
                     item.Durability--;
-                    return $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged.";
+                    string result = $"The blow also strikes {target.Name}'s gear! Their {item.Name} is damaged.";
+                    if (item.Durability < 0)
+                    {
+                        if (item is Potion potion && target.Position != null)
+                        {
+                            await _potionActivation.BreakPotionAsync(target, potion, target.Position, dungeon);
+                        }
+                        else
+                        {
+							target.Inventory.QuickSlots.Remove(item);
+                            result += $"\n {item.Name} breaks and is destroyed beyond repair.";
+						}
+                    }
+                    return result;
                 }
             }
             return "The hero's gear was spared from the impact.";
