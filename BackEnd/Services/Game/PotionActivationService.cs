@@ -133,24 +133,32 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public Weapon CoatWeapon(Hero hero, Potion potion, Weapon weapon)
         {
-            StatusEffectType effectType = StatusEffectType.Poisoned;
             if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.FireDamage))
             {
-                effectType = StatusEffectType.FireBurning;
+                weapon.WeaponCoating = new WeaponCoating();
+                weapon.WeaponCoating.DamageType = DamageType.Fire;
+                weapon.WeaponCoating.RemoveAfterCombat = true;
             }
-            weapon.Properties.Add((WeaponProperty)effectType, 1);
+            if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.Poison))
+            {
+                weapon.WeaponCoating = new WeaponCoating();
+                weapon.WeaponCoating.DamageType = DamageType.Poison;
+                weapon.WeaponCoating.RemoveAfterCombat = true;
+            }
             return weapon;
         }
 
         public Ammo CoatAmmo(Hero hero, Potion potion, Ammo ammo)
         {
-            if (potion.Name == "Holy Water")
+            ammo.AmmoCoating = new AmmoCoating() { CoatingAmount = Math.Min(ammo.Quantity, 5) };
+
+            if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.Poison))
             {
-                ammo.Properties.TryAdd(AmmoProperty.Silver, 1);
+                ammo.AmmoCoating.DamageType = DamageType.Poison;
             }
-            else
+            if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.HolyDamage))
             {
-                ammo.AppliedEffectOnHit = potion.ActiveStatusEffect;
+                ammo.AmmoCoating.DamageType = DamageType.Holy;
             }
             return ammo;
         }
