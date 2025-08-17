@@ -2018,7 +2018,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public class WeaponCoating
     {
-        public int CoatingAmount { get; set; }
         public int DamageBonus { get; set; }
         public DamageType? DamageType { get; set; }
         public ActiveStatusEffect? AppliedEffect { get; set; }
@@ -2101,6 +2100,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newMeleeWeapon.DamageDice = DamageDice;
             newMeleeWeapon.Properties = new Dictionary<WeaponProperty, int>(Properties);
             newMeleeWeapon.Identified = Identified;
+            newMeleeWeapon.WeaponCoating = WeaponCoating;
             return newMeleeWeapon;
         }
 
@@ -2213,6 +2213,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newMagicStaff.ContainedSpell = ContainedSpell;
             newMagicStaff.MagicStaffProperties = new Dictionary<MagicStaffProperty, int>(MagicStaffProperties);
             newMagicStaff.Identified = Identified;
+            newMagicStaff.WeaponCoating = WeaponCoating;
             return newMagicStaff;
         }
 
@@ -2287,6 +2288,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             newRangedWeapon.AimAttachment = AimAttachment;
             newRangedWeapon.ReloadTime = ReloadTime;
             newRangedWeapon.Identified = Identified;
+            newRangedWeapon.WeaponCoating = WeaponCoating;
             return newRangedWeapon;
         }
 
@@ -2342,6 +2344,11 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         public bool ConsumeAmmo(int quantity = 1)
         {
+            if(Ammo.AmmoCoating != null)
+            {
+                Ammo.AmmoCoating.CoatingAmount -= quantity;
+            }
+
             if (IsSlingUsingNormalAmmo())
             {
                 IsLoaded = false;
