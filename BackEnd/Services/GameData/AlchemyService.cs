@@ -556,9 +556,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         /// <param name="alchemist">The hero attempting to brew the potion.</param>
         /// <param name="recipe">The alchemical recipe to be brewed.</param>
         /// <returns>A string message indicating the success or failure of the brewing attempt.</returns>
-        public async Task<string> BrewPotion(Hero alchemist, PotionStrength strength, List<AlchemyItem> components, PowerActivationService activation, AlchemicalRecipe? recipe = null)
+        public async Task<string> BrewPotion(Hero alchemist, PotionStrength strength, List<AlchemyItem> components, PowerActivationService activation, AlchemicalRecipe? recipe = null, bool secondAttempt = false)
         {
-            var addedProperties = new Dictionary<PotionProperty, int>(); 
             // Validate Components
             if (!ValidateComponents(strength, components, recipe, out string validationError))
             {
@@ -578,12 +577,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
             {
                 alchemySkill += 10; // +10 modifier for using a recipe
             }
-            
-            var perfectHealer = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PerfectHealer);
-            if (perfectHealer != null )
-            {
-                addedProperties.TryAdd(PotionProperty.HealHP, 3);
-            }
 
             var resultRoll = await _diceRoll.RequestRollAsync("Attempting to brew potion...", "1d100");
             await Task.Yield();
@@ -591,45 +584,45 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
             if (skillRoll > alchemySkill)
             {
+                // Consume Components and Bottle
+                foreach (var component in components)
+                {
+                    BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, component);
+                }
+                BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, emptyBottle);
                 return "Brewing failed: The alchemical process was unsuccessful.";
             }
-
-            // Consume Components and Bottle
-            foreach (var component in components)
-            {
-                BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, component);
-            }
-            BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, emptyBottle);
 
             // Create the Potion
             Potion newPotion;
             if (recipe != null)
             {
-                newPotion = new Potion
-                {
-                    Identified = true,
-                    Name = recipe.Name,
-                    Strength = recipe.Strength,
-                    EffectDescription = recipe.EffectDescription,
-                    Value = recipe.Value,
-                };
+                newPotion = GetPotionByName(recipe.Name).Clone();
             }
             else
             {
-                var randomPotion = await GetPotionByStrengthAsync(strength);
-                newPotion = new Potion
-                {
-                    Identified = true,
-                    Name = randomPotion.Name,
-                    Strength = strength,
-                    EffectDescription = randomPotion.EffectDescription,
-                    Value = randomPotion.Value,
-                };
+                newPotion = (await GetPotionByStrengthAsync(strength)).Clone();
             }
 
+            var preciseMixing = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PreciseMixing);
+            if (preciseMixing != null && !secondAttempt)
+            {
+                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"You brewed a {newPotion.ToString()}, does {alchemist.Name} wish to attempt to use his perk {preciseMixing.Name.ToString()}");
+                await Task.Yield();
+                if (choiceResult)
+                {
+                    if (await activation.ActivatePerkAsync(alchemist, preciseMixing))
+                    {
+                        return await BrewPotion(alchemist, strength, components, activation, secondAttempt: true);
+                    }
+                }
+            }
+
+            var perfectHealer = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PerfectHealer);
             if (newPotion.PotionProperties != null && newPotion.PotionProperties.Any(p => p.Key == PotionProperty.HealHP) && perfectHealer != null)
             {
                 var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {alchemist.Name} wish to attempt to use his perk {perfectHealer.Name.ToString()}");
+                await Task.Yield();
                 if(choiceResult)
                 {
                     if(await activation.ActivatePerkAsync(alchemist, perfectHealer))
@@ -638,6 +631,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 }
             }
+
+            // Consume Components and Bottle
+            foreach (var component in components)
+            {
+                BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, component);
+            }
+            BackpackHelper.TakeOneItem(alchemist.Inventory.Backpack, emptyBottle);
 
             // Add Potion to Inventory
             BackpackHelper.AddItem(alchemist.Inventory.Backpack, newPotion);
@@ -692,6 +692,18 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             IsIngredient = true;
         }
+
+        public override string ToString()
+        {
+            if (Exquisite)
+            {
+                return $"Exquisite {Name.ToString()}";
+            }
+            else
+            {
+                return $"{Name.ToString()}";
+            }
+        }
     }
 
     public enum PartName
@@ -717,6 +729,18 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public Part()
         {
             IsPart = true;
+        }
+
+        public override string ToString()
+        {
+            if(Exquisite)
+            {
+                return $"Exquisite {Origin} {Name.ToString()}";
+            }
+            else
+            {
+                return $"{Origin} {Name.ToString()}"; 
+            }
         }
     }
 

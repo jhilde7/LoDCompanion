@@ -328,12 +328,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Effect = "With that extra second to aim, your alchemist can throw a bottle with a perfect arc. Grants a +10 RS bonus to your next attempt to throw a potion.",
                     Comment = "Only lasts for one potion and must be declared before throwing."
                 },
-                new Perk(){
-                    Category = PerkCategory.Alchemist,
-                    Name = PerkName.PreciseMixing,
-                    Effect = "Good mixing skills make all the difference. The alchemist may choose to reroll the result when rolling to see what potions have been created.",
-                    Comment = "Energy may be spent after the first dice roll. The second result stands."
-                },
          */
 
         public List<Perk> GetPerksByCategory(PerkCategory category)
