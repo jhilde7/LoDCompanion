@@ -143,7 +143,17 @@ namespace LoDCompanion.BackEnd.Services.Combat
         PowerfulBlow,
         StunningStrike,
         DispelMaster,
-        InnerPower
+        InnerPower,
+        Strength,
+        Constitution,
+        Dexterity,
+        Wisdom,
+        Resolve,
+        Energy,
+        DragonBreath,
+        DragonSkin,
+        FireProtection,
+        Invisible
     }
 
     /// <summary>

@@ -311,165 +311,117 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             return new List<Potion>()
             {
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Health",
-                    Durability = 1,
-                    Value = 75,
-                    Availability = 4,
-                    IsPotion = true,
-                    Strength = PotionStrength.Weak,
-                    EffectDescription = "Heals 1d4 Hit Points."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Health",
-                    Durability = 1,
-                    Value = 100,
-                    Availability = 4,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Heals 1d6 Hit Points."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Health",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Supreme,
-                    EffectDescription = "Heals 1d10 Hit Points."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Restoration",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 1,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Restores a hero to full health and removes any disease or poison."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Cure Disease",
-                    Durability = 1,
-                    Value = 75,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Weak,
-                    EffectDescription = "75% chance to remove all effects of disease."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Cure Disease",
-                    Durability = 1,
-                    Value = 100,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Removes all effects of disease."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Cure Disease",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 2,
-                    IsPotion = true,
-                    Strength = PotionStrength.Supreme,
-                    EffectDescription = "Removes all effects of disease and heals 1d3 HP."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Cure Poison",
-                    Durability = 1,
-                    Value = 75,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Weak,
-                    EffectDescription = "75% chance to remove all effects of poison."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Cure Poison",
-                    Durability = 1,
-                    Value = 100,
-                    Availability = 3,
-                    IsPotion = true,
-                    Strength = PotionStrength.Standard,
-                    EffectDescription = "Removes all effects of poison."
-                },
-                new Potion(){
-                    Category = "Common",
-                    Shop = ShopCategory.Potions,
-                    Name = "Potion of Cure Poison",
-                    Durability = 1,
-                    Value = 200,
-                    Availability = 2,
-                    IsPotion = true,
-                    Strength = PotionStrength.Supreme,
-                    EffectDescription = "Removes all effects of poison and heals 1d3 HP."
-                },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Health", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Heals 1d4 Hit Points.", Availability = 4,
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.HealHP, 4 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Health", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Heals 1d6 Hit Points.", Availability = 4,
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.HealHP, 6 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Health", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Heals 1d10 Hit Points.", Availability = 3,
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.HealHP, 10 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Restoration", Strength = PotionStrength.Standard, Value = 200, EffectDescription = "Restores a hero to full health and removes any disease or poison.", Availability = 1, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CureDisease, 100 }, { PotionProperty.CurePoison, 100 }, { PotionProperty.HealHP, 999 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Disease", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "75% chance to remove all effects of disease.", Availability = 3, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CureDisease, 75 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Disease", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Removes all effects of disease.", Availability = 3, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CureDisease, 100 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Disease", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Removes all effects of disease and heals 1d3 HP.", Availability = 2, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CureDisease, 100 }, { PotionProperty.HealHP, 3 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Poison", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "75% chance to remove all effects of poison.", Availability = 3, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CurePoison, 75 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Poison", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Removes all effects of poison.", Availability = 3, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CurePoison, 100 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Poison", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Removes all effects of poison and heals 1d3 HP.", Availability = 2, 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CurePoison, 100 }, { PotionProperty.HealHP, 3 } } },
 
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Strength until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Strength until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Strength", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Strength until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Constitution until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Constitution until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Constitution", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Constitution until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +5 Dexterity until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +10 Dexterity until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Dexterity", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +15 Dexterity until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Wisdom until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Wisdom until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Wisdom", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Wisdom until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle." },
-
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana." },
-
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Acidic damage in the target square and half to adjacent squares." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Fire damage in the target square and half to adjacent squares." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d10 Fire damage in the target square and half to adjacent squares." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES." },
-
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Bottle of Experience", Strength = PotionStrength.Supreme, Value = 500, EffectDescription = "Instantly grants +300 XP. Can only be used once between dungeons." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Bottle of the Void", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Any spell cast during the battle suffers a -20 modifier." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Elixir of Speed", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 Movement for the rest of the dungeon." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Elixir of the Archer", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 DMG to one ranged weapon until you leave the dungeon." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage)." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Fire Protection", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Ignores the secondary damage effect from being on fire for one battle." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Potion of Rage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants the Frenzy Perk for one battle without spending energy." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Vial of Corrosion", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Automatically opens one lock." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight." },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", IsPotion = true, Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon." },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Strength", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Strength until the end of the next battle.", 
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Strength, -1, statBonus: (BasicStat.Strength, 10), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Strength", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Strength until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Strength, -1, statBonus: (BasicStat.Strength, 15), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Strength", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Strength until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Strength, -1, statBonus: (BasicStat.Strength, 20), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Constitution", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Constitution until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Constitution, -1, statBonus: (BasicStat.Constitution, 10), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Constitution", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Constitution until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Constitution, -1, statBonus: (BasicStat.Constitution, 15), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Constitution", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Constitution until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Constitution, -1, statBonus: (BasicStat.Constitution, 20), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dexterity", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +5 Dexterity until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Dexterity, -1, statBonus: (BasicStat.Dexterity, 5), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dexterity", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +10 Dexterity until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Dexterity, -1, statBonus: (BasicStat.Dexterity, 10), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dexterity", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +15 Dexterity until the end of the next battle.", 
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Dexterity, -1, statBonus :(BasicStat.Dexterity, 15), removeAfterNextBattle : true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Wisdom", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Wisdom until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Wisdom, -1, statBonus: (BasicStat.Wisdom, 10), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Wisdom", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Wisdom until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Wisdom, -1, statBonus: (BasicStat.Wisdom, 15), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Wisdom", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Wisdom until the end of the next battle.", 
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Wisdom, -1, statBonus :(BasicStat.Wisdom, 20), removeAfterNextBattle : true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Courage", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +10 Resolve until the end of the next battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Resolve, -1, statBonus: (BasicStat.Resolve, 10), removeAfterNextBattle: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Courage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +15 Resolve until the end of the next battle.", 
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Resolve, -1, statBonus :(BasicStat.Resolve, 15), removeAfterNextBattle : true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Courage", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +20 Resolve until the end of the next battle.", 
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Resolve, -1, statBonus :(BasicStat.Resolve, 20), removeAfterNextBattle : true) },
+                                                                       
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Energy", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Grants +1 Energy until the end of the dungeon.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Energy, 1 } }, ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Energy, -1, statBonus: (BasicStat.Energy, 1)) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Energy", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants +2 Energy until the end of the dungeon.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Energy, 2 } }, ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Energy, -1, statBonus: (BasicStat.Energy, 2)) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Energy", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Grants +3 Energy until the end of the dungeon.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Energy, 3 } }, ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Energy, -1, statBonus: (BasicStat.Energy, 3)) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Mana", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "Restores 1d20 Mana.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Mana, 20 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Mana", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Restores 2d20 Mana.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Mana, 40 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Mana", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Restores 3d20 Mana.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Mana, 60 } } },
+                                                                       
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Acidic damage in the target square and half to adjacent squares.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 }, { PotionProperty.AcidDamage, 6 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d8 Acidic damage in the target square and half to adjacent squares.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 }, { PotionProperty.AcidDamage, 8 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Acidic Bomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Acidic damage in the target square and half to adjacent squares.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 }, { PotionProperty.AcidDamage, 12 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Firebomb (Tr)", Strength = PotionStrength.Weak, Value = 60, EffectDescription = "Explodes for 1d6 Fire damage in the target square and half to adjacent squares.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 }, { PotionProperty.FireDamage, 6 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Firebomb (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Explodes for 1d8 Fire damage in the target square and half to adjacent squares.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 }, { PotionProperty.FireDamage, 8 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Firebomb (Tr)", Strength = PotionStrength.Supreme, Value = 180, EffectDescription = "Explodes for 1d12 Fire damage in the target square and half to adjacent squares.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 }, { PotionProperty.FireDamage, 12 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Smoke (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Creates a thick smoke in a 3x3 area, obscuring LOS and giving -20 CS to fights within. Lasts 4 turns.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Disorientation (Tr)", Strength = PotionStrength.Standard, Value = 90, EffectDescription = "Target must pass a RES test or forfeit their next turn. Adjacent models test at +20 RES.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Throwable, 9 } } },
+                                                                       
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Alchemical Dust", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Allows a reroll on a search check for one room or corridor." },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Bottle of Experience", Strength = PotionStrength.Weak, Value = 250, EffectDescription = "Instantly grants +100 XP. Can only be used once between dungeons.",
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Experience, 100 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Bottle of Experience", Strength = PotionStrength.Standard, Value = 350, EffectDescription = "Instantly grants +200 XP. Can only be used once between dungeons.",
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Experience, 200 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Bottle of Experience", Strength = PotionStrength.Supreme, Value = 500, EffectDescription = "Instantly grants +300 XP. Can only be used once between dungeons.",
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.Experience, 300 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Bottle of the Void", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Any spell cast during the battle suffers a -20 modifier." },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Elixir of Speed", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 Movement for the rest of the dungeon.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Speed, -1, statBonus: (BasicStat.Move, 1))},
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Elixir of the Archer", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants +1 DMG to one ranged weapon until you leave the dungeon.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.WeaponCoating, -1 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Liquid Fire", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one melee weapon, causing it to deal Fire Damage for one battle.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.WeaponCoating, 1 }, { PotionProperty.FireDamage, 0 } } },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Poison", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Coats one weapon or 5 arrows. Enemies hit lose 1 HP per turn for the rest of the battle.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.AmmoCoating, 5 }, { PotionProperty.WeaponCoating, 1 }, { PotionProperty.Poison, -1 } }  },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dragon's Breath", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants a single-use fire breath attack (1d8 or 2x1d4 damage).",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.DragonBreath, -1)},
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Dragon Skin", Strength = PotionStrength.Standard, Value = 150, EffectDescription = "The drinker ignores all HP damage for 3 turns.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.DragonSkin, 3) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Fire Protection", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Ignores the secondary damage effect from being on fire for one battle.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.FireProtection, -1, removeAfterCombat: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Potion of Rage", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Grants the Frenzy Perk for one battle without spending energy.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Frenzy, -1, removeAfterCombat: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Vial of Corrosion", Strength = PotionStrength.Standard, Value = 60, EffectDescription = "Automatically opens one lock." },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Vial of Invisibility", Strength = PotionStrength.Standard, Value = 100, EffectDescription = "Become invisible for one battle, but cannot fight.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Invisible, -1, removeAfterCombat: true) },
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Uncommon", Name = "Weapon Oil", Strength = PotionStrength.Standard, Value = 80, EffectDescription = "Grants a +1 DMG modifier to one edged weapon until you leave the dungeon.", 
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.WeaponCoating, -1 } } },
             };
         }
 
@@ -675,16 +627,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 };
             }
 
-            if (newPotion.EffectDescription.Contains("Heals") && perfectHealer != null)
+            if (newPotion.PotionProperties != null && newPotion.PotionProperties.Any(p => p.Key == PotionProperty.HealHP) && perfectHealer != null)
             {
                 var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {alchemist.Name} wish to attempt to use his perk {perfectHealer.Name.ToString()}");
                 if(choiceResult)
                 {
                     if(await activation.ActivatePerkAsync(alchemist, perfectHealer))
                     {
-                        var key = PotionProperty.HealHP;
-                        if (newPotion.PotionProperties != null) newPotion.PotionProperties.TryAdd(key, addedProperties.FirstOrDefault(p => p.Key == key).Value);
-                        else new Dictionary<PotionProperty, int>() { {key, addedProperties.FirstOrDefault(p => p.Key == key).Value } };
+                        newPotion.PotionProperties.TryAdd(PotionProperty.HealHPBonus, 3);
                     }
                 }
             }
@@ -783,7 +733,17 @@ namespace LoDCompanion.BackEnd.Services.GameData
     {
         HealHP,
         Throwable,
-        AmmoCoating
+        AmmoCoating,
+        WeaponCoating,
+        FireDamage,
+        AcidDamage,
+        Poison,
+        Energy,
+        Mana,
+        CurePoison,
+        CureDisease,
+        HealHPBonus,
+        Experience
     }
 
     public class Potion : AlchemyItem
@@ -796,6 +756,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public Potion()
         {
             IsPotion = true;
+            Durability = 1;
         }
 
         public override Potion Clone()
