@@ -324,6 +324,10 @@ namespace LoDCompanion.BackEnd.Models
             {
                 return 0;
             }
+            else if( holyDamage && isUndead && (combatContext == null || (combatContext != null && !combatContext.IsThrown)))
+            {
+                damage += 1;
+            }
 
             CurrentHP -= damage;
             if (CurrentHP <= 0)
