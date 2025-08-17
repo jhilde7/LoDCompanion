@@ -320,7 +320,7 @@ namespace LoDCompanion.BackEnd.Models
             }
 
             var isUndead = this is Monster monster && monster.IsUndead;
-            if (holyDamage && !isUndead)
+            if (holyDamage && !isUndead && combatContext != null && combatContext.IsThrown)
             {
                 return 0;
             }
