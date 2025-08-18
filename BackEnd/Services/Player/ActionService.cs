@@ -50,7 +50,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         ThrowPotion,
         DragonBreath,
         Taunt,
-        BreakDownDoor
+        BreakDownDoor,
+        StandUp
     }
 
     public class ActionInfo
@@ -594,6 +595,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case (Character, ActionType.StandUp):
+                    if (character.CombatStance == CombatStance.Prone)
+                    {
+                        character.CombatStance = CombatStance.Normal;
+                        resultMessage = "Character is now standing.";
+                    }
+                    else
+                    {
+                        resultMessage = "Character is already standing.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
 
             }
 
@@ -1089,6 +1102,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.EquipGear => 1,
                 ActionType.AddItemToQuickSlot => 1,
                 ActionType.BreakDownDoor => 1,
+                ActionType.StandUp => 1,
                 ActionType.PowerAttack => 2,
                 ActionType.ChargeAttack => 2,
                 ActionType.PickLock => 2,
