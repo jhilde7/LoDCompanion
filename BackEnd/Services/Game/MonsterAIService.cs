@@ -641,7 +641,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             return await MoveTowardsAsync(monster, target, heroes);
         }
 
-        private Hero? ChooseTarget(Monster monster, List<Hero> heroes, int? range = null)
+        public Hero? ChooseTarget(Monster monster, List<Hero> heroes, int? range = null)
         {
             if (!heroes.Any(h => h.CurrentHP > 0) || monster.Position == null)
             {

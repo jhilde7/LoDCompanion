@@ -354,29 +354,29 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             if (!availableMonsters.Any()) return null;
 
-            // 1. Magic User or Ranged Weapon
+            // Magic User or Ranged Weapon
             var magicOrRanged = availableMonsters
                 .FirstOrDefault(m => m.Spells.Any() || m.Weapons.Any(w => w is RangedWeapon));
             if (magicOrRanged != null) return magicOrRanged;
 
-            // 2. Adjacent to a hero and could make room
+            // Adjacent to a hero and could make room
             var canMakeRoom = availableMonsters
                 .FirstOrDefault(m => IsAdjacentToHero(m, heroes) && CanMakeRoom(m, heroes));
             if (canMakeRoom != null) return canMakeRoom;
 
-            // 3. Adjacent to a hero
+            // Adjacent to a hero
             var adjacent = availableMonsters
                 .FirstOrDefault(m => IsAdjacentToHero(m, heroes));
             if (adjacent != null) return adjacent;
 
-            // 4. Closest to a hero and can charge
+            // Closest to a hero and can charge
             var canCharge = availableMonsters
                 .Where(m => CanCharge(m, heroes))
                 .OrderBy(m => GetDistanceToClosestHero(m, heroes))
                 .FirstOrDefault();
             if (canCharge != null) return canCharge;
 
-            // 5. Can move its full movement
+            // Can move its full movement
             var canMoveFull = availableMonsters
                 .OrderByDescending(m => m.GetStat(BasicStat.Move)) // Prioritize faster monsters
                 .FirstOrDefault(m => CanMoveFullPath(m));
@@ -388,30 +388,75 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
         private bool CanMakeRoom(Monster monster, List<Hero> heroes)
         {
-            // This is a more complex grid analysis function.
-            // It would check if the monster can move to a position that opens up
-            // a path for another monster to attack a hero.
-            // For now, we can default to false.
+            var grid = _dungeon.DungeonGrid;
+            var allCharacters = _dungeon.AllCharactersInDungeon;
+            if (monster.Position == null) return false;
+
+            // Get all squares the monster can move to
+            var reachableSquares = GridService.GetAllWalkableSquares(monster, grid, allCharacters);
+
+            foreach (var potentialPosition in reachableSquares.Keys)
+            {
+                // Temporarily move the monster to the new position
+                var originalPosition = monster.Position;
+                monster.Position = potentialPosition;
+
+                // Check if this new position opens up a line of sight for another monster to attack a hero
+                foreach (var otherMonster in MonstersInCombat.Where(m => m != monster && m.Position != null))
+                {
+                    foreach (var hero in heroes)
+                    {
+                        if (hero.Position != null && otherMonster.Position != null 
+                            && GridService.HasLineOfSight(otherMonster.Position, hero.Position, grid).CanShoot)
+                        {
+                            // If a line of sight is opened, this is a valid "make room" move
+                            monster.Position = originalPosition; // Move the monster back
+                            return true;
+                        }
+                    }
+                }
+
+                // Move the monster back to its original position
+                monster.Position = originalPosition;
+            }
+
             return false;
         }
 
         private bool CanCharge(Monster monster, List<Hero> heroes)
         {
-            // Checks if a monster has a clear path to charge a hero.
-            // A charge is typically a straight line move ending in an attack.
-            var target = GetClosestHero(monster, heroes);
+            var grid = _dungeon.DungeonGrid;
+            var target = _monsterAI.ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null) return false;
 
             int distance = GridService.GetDistance(monster.Position, target.Position);
-            return !GridService.IsAdjacent(monster.Position, target.Position) && distance <= monster.GetStat(BasicStat.Move) && GridService.HasClearPath(monster.Position, target.Position, _dungeon.DungeonGrid);
+            if (GridService.IsAdjacent(monster.Position, target.Position) || distance > monster.GetStat(BasicStat.Move))
+            {
+                return false;
+            }
+
+            // Use GetLine to ensure a straight path for the charge
+            var lineOfCharge = GridService.GetLine(monster.Position, target.Position);
+            // Check if any square in the line of charge is blocked
+            foreach (var square in lineOfCharge)
+            {
+                var gridSquare = GridService.GetSquareAt(square, grid);
+                if (gridSquare == null || gridSquare.MovementBlocked)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool CanMoveFullPath(Monster monster)
         {
-            // This would check if the monster has enough open space around it
-            // to move its full movement distance without being blocked by other units or terrain.
-            // This is a complex analysis; a simpler version might just check for a few empty adjacent squares.
-            return true; // Placeholder
+            var grid = _dungeon.DungeonGrid;
+            var allCharacters = _dungeon.AllCharactersInDungeon;
+            // Use GetAllWalkableSquares to see if the monster has enough open space
+            var reachableSquares = GridService.GetAllWalkableSquares(monster, grid, allCharacters);
+            return reachableSquares.Count >= monster.GetStat(BasicStat.Move);
         }
 
         /// <summary>

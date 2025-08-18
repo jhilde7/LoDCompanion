@@ -459,7 +459,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// Gets all grid points along a 3D line using Bresenham's 3D algorithm.
         /// </summary>
         /// <returns>An enumerable list of GridPositions forming the line.</returns>
-        private static IEnumerable<GridPosition> GetLine(GridPosition start, GridPosition end)
+        public static IEnumerable<GridPosition> GetLine(GridPosition start, GridPosition end)
         {
             int x1 = start.X, y1 = start.Y, z1 = start.Z;
             int x2 = end.X, y2 = end.Y, z2 = end.Z;
