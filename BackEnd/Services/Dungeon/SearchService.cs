@@ -341,18 +341,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         }
     }
 
-    public enum ChestProperty
-    {
-        None,
-        Locked,
-        Trapped,
-        LockModifier,
-        LockHP,
-    }
-
     public class Chest : Furniture
     {
-        public Dictionary<ChestProperty, int>? Properties { get; set; }
+        public Trap? Trap { get; set; }
+        public Lock Lock { get; set; } = new Lock();
 
         public Chest()
         {
@@ -362,16 +354,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         //TODO: Implement logic to handle searching a chest
         public void SetLockState(int lockModifier, int lockHP)
         {
-            Properties ??= new Dictionary<ChestProperty, int>();
-            Properties.TryAdd(ChestProperty.Locked, 0);
-            Properties.TryAdd(ChestProperty.LockModifier, lockModifier);
-            Properties.TryAdd(ChestProperty.LockHP, lockHP);
+            Lock.LockModifier = lockModifier;
+            Lock.LockHP = lockHP;
         }
 
         public void SetTrapState()
         {
-            Properties ??= new Dictionary<ChestProperty, int>();
-            Properties.TryAdd(ChestProperty.Trapped, 0);
+            // TODO: Trap = new Trap();
         }
     }    
 }

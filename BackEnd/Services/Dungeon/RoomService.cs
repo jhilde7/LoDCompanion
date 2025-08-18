@@ -149,11 +149,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public enum DoorProperty
     {
         None,
-        Locked,
-        Trapped,
         Open,
-        LockModifier,
-        LockHP,
         MagicallySealed,
     }
 
@@ -167,7 +163,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         // In a web project, this would represent the connections in your dungeon graph.
         public GridPosition[] Position { get; set; } = { new GridPosition(0, 0, 0), new GridPosition(1, 0, 0) };
         public List<Room> ConnectedRooms { get; set; } = new List<Room>();
-        public Trap? Trap { get; set; } // Represents a trap on the door, if any
+        public Trap? Trap { get; set; }
+        public Lock Lock { get; set; } = new Lock();
 
         // Constructor
         public Door()
@@ -179,18 +176,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         // which performs the rolls and sets these properties.
         public void SetLockState(int lockModifier, int lockHP)
         {
-            Properties ??= new Dictionary<DoorProperty, int>();
-            Properties.TryAdd(DoorProperty.Locked, 0);
-            Properties.TryAdd(DoorProperty.LockModifier, lockModifier);
-            Properties.TryAdd(DoorProperty.LockHP, lockHP);
+            Lock.LockModifier = lockModifier;
+            Lock.LockHP = lockHP;
         }
 
         // This method would be called by a service (e.g., DungeonManagerService or a specific DoorService)
         // which performs the rolls and sets these properties.
         public void SetTrapState()
         {
-            Properties ??= new Dictionary<DoorProperty, int>();
-            Properties.TryAdd(DoorProperty.Trapped, 0);
+            // TODO: Trap = new Trap();
         }
 
         // Provides the next connected room (for doors). The actual logic for selecting
