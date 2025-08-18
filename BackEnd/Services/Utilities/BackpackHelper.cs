@@ -34,9 +34,9 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             }
         }
 
-        internal static Equipment? TakeOneItem(List<Equipment> backpack, Equipment item)
+        internal static Equipment? TakeOneItem(List<Equipment?> backpack, Equipment item)
         {
-            var itemInBackPack = backpack.FirstOrDefault(i => i.Name == item.Name);
+            var itemInBackPack = backpack.FirstOrDefault(i => i != null && i.Name == item.Name);
 
             if (itemInBackPack != null)
             {
