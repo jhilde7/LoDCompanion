@@ -291,15 +291,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
                 new Perk(){
-                    Category = PerkCategory.Common,
-                    Name = PerkName.Taunt,
-                    Effect = 
-        "Your hero can force an enemy, that is not locked in close combat, to attack their ignoring normal targeting procedure.",
-                    Comment = "Chose which enemy to taunt before rolling.",
-                    TargetType = TargetType.SingleTarget,
-                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Taunt, 1)
-                },
-                new Perk(){
                     Category = PerkCategory.Faith,
                     Name = PerkName.FateForger,
                     Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",

@@ -648,6 +648,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                 return null;
             }
 
+            var tauntEffect = monster.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Taunt);
+            if (tauntEffect != null && monster.TauntedBy != null && monster.TauntedBy.CurrentHP > 0)
+            {
+                // The monster is taunted and MUST target the taunting hero if possible.
+                return monster.TauntedBy;
+            }
+
             var potentialTargets = FilterTargetsByHideInShadows(monster, heroes);
             var targetableHeroes = potentialTargets.Where(h => h.CurrentHP > 0 && h.Position != null).ToList();
             if (!targetableHeroes.Any()) return null;

@@ -1082,7 +1082,8 @@ namespace LoDCompanion.BackEnd.Models
         }
         public List<string> Treasures { get; set; } = new List<string>();
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
-        public HateCategory HateCategory { get; set; } = HateCategory.Bandits;
+		public Hero? TauntedBy { get; set; } // The hero this monster is forced to target
+		public HateCategory HateCategory { get; set; } = HateCategory.Bandits;
 
         public Monster()
         {

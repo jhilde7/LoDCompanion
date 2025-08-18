@@ -54,7 +54,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         StunningStrike,
         HarvestParts,
         ThrowPotion,
-        DragonBreath
+        DragonBreath,
+        Taunt
     }
 
     public class ActionInfo
@@ -559,6 +560,17 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Hero hero, ActionType.DragonBreath):
                     (resultMessage, actionWasSuccessful) = await DragonBreath(dungeon, resultMessage, actionWasSuccessful, hero);
                     break;
+                case (Hero hero, ActionType.Taunt):
+                    if (primaryTarget is Monster targetMonster && dungeon.HeroParty != null && hero.CurrentEnergy > 0)
+                    {
+                        (resultMessage, actionWasSuccessful) = await Taunt(dungeon.HeroParty.Heroes, hero, targetMonster);
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target for Taunt action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
 
             }
 
@@ -567,10 +579,48 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 character.CurrentAP -= apCost;
                 if(actionType != ActionType.PowerAttack) character.IsVulnerableAfterPowerAttack = false;
-                if (character is Hero hero && hero.ProfessionName == "Wizard") hero.CanCastSpell = true;
+                if (character is Hero hero && hero.ProfessionName == "Wizard" && hero.CurrentAP <= 0) hero.CanCastSpell = true;
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";
+        }
+
+        private async Task<(string resultMessage, bool actionWasSuccessful)> Taunt(List<Hero> heroParty, Hero hero, Monster targetMonster)
+        {
+            string resultMessage = string.Empty;
+            bool actionWasSuccessful = true;
+            var taunt = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Taunt);
+            if (taunt == null)
+            {
+                resultMessage = $"{hero.Name} doesn't have the taunt ability.";
+                actionWasSuccessful = false;
+                return (resultMessage, actionWasSuccessful);
+            }
+
+            // Rule: "not locked in close combat"
+            bool isAdjacentToAnyHero = heroParty.Any(h => h.Position != null && targetMonster.Position != null && GridService.IsAdjacent(targetMonster.Position, h.Position));
+
+            if (isAdjacentToAnyHero)
+            {
+                resultMessage = $"{targetMonster.Name} is already locked in close combat and cannot be taunted.";
+                actionWasSuccessful = false;
+                return (resultMessage, actionWasSuccessful);
+            }
+
+            if (await _powerActivation.ActivatePerkAsync(hero, taunt))
+            {
+                var tauntEffect = taunt.ActiveStatusEffect ?? new ActiveStatusEffect(StatusEffectType.Taunt, 1);
+                await StatusEffectService.AttemptToApplyStatusAsync(targetMonster, tauntEffect, _powerActivation);
+                targetMonster.TauntedBy = hero;
+                resultMessage = $"{hero.Name} taunts {targetMonster.Name}, forcing it to attack them!";
+                return (resultMessage, actionWasSuccessful); 
+            }
+            else
+            {
+                resultMessage = $"{taunt.Name.ToString()} failed to activate";
+                actionWasSuccessful = false;
+                return (resultMessage, actionWasSuccessful);
+            }
         }
 
         private async Task<(string resultMessage, bool actionWasSuccessful)> DragonBreath(DungeonState dungeon, string resultMessage, bool actionWasSuccessful, Hero hero)
