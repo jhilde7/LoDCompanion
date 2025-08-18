@@ -18,17 +18,20 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly PartyManagerService _partyManager;
         private readonly DungeonManagerService _dungeonManager;
         private readonly UserRequestService _userRequest;
+        private readonly SpellCastingService _spellCasting;
 
         public PowerActivationService(
             InitiativeService initiativeService, 
             PartyManagerService partyManagerService, 
             DungeonManagerService dungeonManagerService,
-            UserRequestService userRequestService)
+            UserRequestService userRequestService,
+            SpellCastingService spellCastingService)
         {
             _initiative = initiativeService;
             _partyManager = partyManagerService;
             _dungeonManager = dungeonManagerService;
             _userRequest = userRequestService;
+            _spellCasting = spellCastingService;
         }
 
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
@@ -100,6 +103,23 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return false;
+        }
+
+        public async Task<int> RequestInTuneWithTheMagicActivationAsync(Hero hero, Perk perk)
+        {
+            var choiceResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name}?");
+            await Task.Yield();
+            if (choiceResult)
+            {
+                // Use SpellCastingService to get focus points
+                var castingOptions = await _spellCasting.RequestCastingOptionsAsync(hero, new Spell { Name = "Identify Item" });
+                if (!castingOptions.WasCancelled)
+                {
+                    await ActivatePerkAsync(hero, perk);
+                    return castingOptions.FocusPoints;
+                }
+            }
+            return 0; // Return 0 focus points if the user cancels or doesn't use the perk
         }
     }
 }

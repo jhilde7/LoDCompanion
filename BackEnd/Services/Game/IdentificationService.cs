@@ -1,44 +1,85 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 
 namespace LoDCompanion.BackEnd.Services.Game
 {
     public class IdentificationService
     {
-        public IdentificationService() { }
+        private readonly UserRequestService _diceRoll;
+        private readonly PowerActivationService _powerActivation;
+        public IdentificationService(UserRequestService userRequestService, PowerActivationService powerActivationService) 
+        { 
+            _diceRoll = userRequestService;
+            _powerActivation = powerActivationService;
+        }
 
         /// <summary>
         /// Attempts to identify an item using the hero's relevant skill.
         /// </summary>
-        public string IdentifyItem(Hero hero, Equipment item)
+        public async Task<string> IdentifyItemAsync(Hero hero, Equipment item)
         {
             int skillValue;
             string skillUsed;
 
-            if (item is Potion)
+            if (!item.Identified)
             {
-                skillValue = hero.GetSkill(Skill.Alchemy);
-                skillUsed = "Alchemy";
-            }
-            else if (!string.IsNullOrEmpty(item.MagicEffect))
-            {
-                skillValue = hero.GetSkill(Skill.ArcaneArts);
-                skillUsed = "Arcane Arts";
+                if (item is Potion)
+                {
+                    skillValue = hero.GetSkill(Skill.Alchemy);
+                    skillUsed = Skill.Alchemy.ToString();
+                    if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Connoisseur))
+                    {
+                        skillValue += 10;
+                    }
+                }
+                else
+                {
+                    skillValue = hero.GetSkill(Skill.ArcaneArts);
+                    skillUsed = Skill.ArcaneArts.ToString();
+                    var inTunePerk = hero.Perks.FirstOrDefault(p => p.Name == PerkName.InTuneWithTheMagic);
+                    if (inTunePerk != null)
+                    {
+                        int focusPoints = await _powerActivation.RequestInTuneWithTheMagicActivationAsync(hero, inTunePerk);
+                        skillValue += focusPoints * 10;
+
+                        var miscastResult = await _diceRoll.RequestRollAsync("Roll for miscast check.", "1d100");
+                        await Task.Yield();
+                        // Check for miscast if InTuneWithTheMagic was used
+                        if (focusPoints > 0)
+                        {
+                            int miscastThreshold = 95 - (focusPoints * 5);
+                            if (miscastResult.Roll >= miscastThreshold)
+                            {
+                                int sanityLoss = (int)Math.Ceiling((double)RandomHelper.RollDie(DiceType.D6) / 2);
+                                await hero.TakeSanityDamage(sanityLoss, (new FloatingTextService(), hero.Position), _powerActivation);
+                                return $"Miscast! While trying to identify the item, {hero.Name} loses {sanityLoss} sanity!";
+                            }
+                        }
+                    }
+
+                } 
             }
             else
             {
                 return $"{item.Name} does not appear to be magical and does not need to be identified.";
             }
 
-            // Example difficulty - this could be based on the item's level or rarity.
-            int difficulty = 50;
-            int roll = RandomHelper.RollDie(DiceType.D100);
+            var rollResult = await _diceRoll.RequestRollAsync($"Roll for {skillUsed} skill check.", "1d100");
+            await Task.Yield();
 
-            if (roll <= skillValue - difficulty)
+            if (rollResult.Roll <= skillValue)
             {
-                // In a real implementation, you would set an "IsIdentified = true" flag on the item.
-                return $"{hero.Name} successfully identified the {item.Name} using {skillUsed}!";
+                item.Identified = true;
+                if (item is Potion potion)
+                {
+                    return $"item successfully identified: {potion.ToString()}!";
+                }
+                else
+                {
+                    return $"item successfully identified: {item.Name}!";
+                }
             }
             else
             {
@@ -46,4 +87,5 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
         }
     }
+
 }
