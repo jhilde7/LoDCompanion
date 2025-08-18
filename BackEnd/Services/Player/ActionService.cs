@@ -6,6 +6,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -248,7 +249,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Character, ActionType.Move):
                     if (primaryTarget is GridPosition && character.Position != null && character.Room != null)
                     {
-                        (resultMessage, actionWasSuccessful) = Move(character, (GridPosition)primaryTarget, dungeon);                        
+                        (resultMessage, actionWasSuccessful) = await Move(character, (GridPosition)primaryTarget, dungeon, weapon is RangedWeapon ? (RangedWeapon)weapon : null);                        
                     }
                     else
                     {
@@ -811,7 +812,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return (resultMessage, apCost);
         }
 
-        private (string resultMessage, bool actionWasSuccessful) Move(Character character, GridPosition position, DungeonState dungeon)
+        private async Task<(string resultMessage, bool actionWasSuccessful)> Move(
+            Character character, GridPosition position, DungeonState dungeon, RangedWeapon? rangedWeapon = null)
         {
             string resultMessage = string.Empty;
             bool actionWasSuccessful = true;
@@ -836,15 +838,19 @@ namespace LoDCompanion.BackEnd.Services.Player
                     character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
                     availableMovement = character.CurrentMovePoints;
                     resultMessage = moveResult.Message;
+
+                    if (rangedWeapon != null)
+                    {
+                        if (!rangedWeapon.IsLoaded)
+                        {
+                            resultMessage += await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
+                        }
+                    }
+
                     if (availableMovement <= 0)
                     {
                         character.HasMadeFirstMoveAction = true;
                         character.ResetMovementPoints();
-                    }
-                    else
-                    {
-                        resultMessage = moveResult.Message;
-                        actionWasSuccessful = false; // Don't deduct AP if movement points remain
                     }
                 }
                 else
