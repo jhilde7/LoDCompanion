@@ -70,7 +70,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
-            if (success)
+            if (success && hero.CurrentEnergy > 0)
             {
                 hero.CurrentEnergy--;
                 return true; 

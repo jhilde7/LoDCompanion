@@ -140,7 +140,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // This would be determined by checking if there are active monsters in the room.
             bool isInBattle = false;
 
-            var threatResult = _threat.ProcessScenarioRoll(_dungeonState, isInBattle);
+            var threatResult = _threat.ProcessScenarioRoll(_dungeonState, isInBattle, HeroParty);
 
             if (threatResult != null)
             {

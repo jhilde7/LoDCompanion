@@ -105,7 +105,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 // Lower Threat Level
                 _threat.DecreaseThreat(dungeonState, 5);
                 // Make a threat roll
-                result.ThreatEvent = _threat.ProcessScenarioRoll(dungeonState, false);
+                result.ThreatEvent = _threat.ProcessScenarioRoll(dungeonState, false, party);
                 // Move Wandering Monsters and check for interruption
                 // bool monsterSpotted = _wanderingMonsterService.MoveWanderingMonsters(dungeonState, 3);
                 // if (monsterSpotted) { ... return interrupted result ... }

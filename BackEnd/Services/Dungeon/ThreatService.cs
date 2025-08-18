@@ -1,6 +1,8 @@
-﻿using LoDCompanion.BackEnd.Models;
+﻿using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -21,9 +23,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     /// </summary>
     public class ThreatService
     {
-        public ThreatService()
+        private readonly UserRequestService _userRequest;
+        private readonly PowerActivationService _powerActivation;
+
+        public ThreatService(UserRequestService userRequestService, PowerActivationService powerActivationService)
         {
-            // Constructor can be used for dependency injection if needed later.
+            _userRequest = userRequestService;
+            _powerActivation = powerActivationService;
         }
 
         /// <summary>
@@ -58,16 +64,35 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="dungeonState">The current state of the dungeon.</param>
         /// <param name="isInBattle">Whether the party is currently in combat.</param>
         /// <returns>A ThreatEventResult object if an event was triggered, otherwise null.</returns>
-        public ThreatEventResult? ProcessScenarioRoll(DungeonState dungeonState, bool isInBattle)
+        public async Task<ThreatEventResult> ProcessScenarioRoll(DungeonState dungeonState, bool isInBattle, Party? heroParty)
         {
-            // As per the PDF, roll a d10 Scenario Die.
             int scenarioRoll = RandomHelper.RollDie(DiceType.D10);
             Console.WriteLine($"Scenario Roll: {scenarioRoll}");
+
+            if (heroParty != null && scenarioRoll >= 9)
+            {
+                var heroesWithFateFroger = heroParty.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.FateForger)); 
+                foreach (var hero in heroesWithFateFroger)
+                {
+                    var fateForger = hero.Perks.FirstOrDefault(p => p.Name == PerkName.FateForger);
+                    if (fateForger != null)
+                    {
+                        var choiceResult = await _userRequest.RequestYesNoChoiceAsync($"Scenario die rolled a negative result, does {hero.Name} wish to activate {fateForger.ToString()}");
+                        if(choiceResult)
+                        {
+                            if(await _powerActivation.ActivatePerkAsync(hero, fateForger))
+                            {
+                                scenarioRoll = RandomHelper.RollDie(DiceType.D10);
+                            }
+                        }
+                    }
+                }
+            }
 
             // A roll of 9 or 10 triggers a Threat Level roll.
             if (scenarioRoll < 9)
             {
-                return null; // Nothing happens on a 1-8.
+                return new ThreatEventResult(); // Nothing happens on a 1-8.
             }
 
             // Perform the Threat Level roll (d20).

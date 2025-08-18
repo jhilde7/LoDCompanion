@@ -291,12 +291,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         /*
                 new Perk(){
-                    Category = PerkCategory.Faith,
-                    Name = PerkName.FateForger,
-                    Effect = "By spending an Energy Point, the priest can force a reroll of the Scenario die.",
-                    Comment = "Used as soon as the Scenario die has been rolled."
-                },
-                new Perk(){
                     Category = PerkCategory.Arcane,
                     Name = PerkName.InTuneWithTheMagic,
                     Effect = 
