@@ -271,7 +271,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Category = PerkCategory.Alchemist,
                     Name = PerkName.Pitcher,
                     Effect = "With that extra second to aim, your alchemist can throw a bottle with a perfect arc. Grants a +10 RS bonus to your next attempt to throw a potion.",
-                    Comment = "Only lasts for one potion and must be declared before throwing."
+                    Comment = "Only lasts for one potion and must be declared before throwing.",
+                    ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Pitcher, -1, skillBonus: (Skill.RangedSkill, 10))
                 },
                 new Perk(){
                     Category = PerkCategory.Alchemist,
@@ -321,12 +322,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         "The alchemist has a knack for identifying potions brewed by others. 
         Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
                     Comment = "Energy Point is spent at the same time as you try to identify the potion."
-                },
-                new Perk(){
-                    Category = PerkCategory.Alchemist,
-                    Name = PerkName.Pitcher,
-                    Effect = "With that extra second to aim, your alchemist can throw a bottle with a perfect arc. Grants a +10 RS bonus to your next attempt to throw a potion.",
-                    Comment = "Only lasts for one potion and must be declared before throwing."
                 },
          */
 

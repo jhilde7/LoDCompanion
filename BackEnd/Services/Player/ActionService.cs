@@ -962,13 +962,19 @@ namespace LoDCompanion.BackEnd.Services.Player
             string resultMessage = string.Empty;
             var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
             await Task.Yield();
-            int rsSkill = hero.GetSkill(Skill.RangedSkill);
 
+            var pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Pitcher);
             var pitcher = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Pitcher);
-            if(pitcher != null)
+            if(pitcher != null && pitcherActive == null)
             {
-                var choiceResult = _diceRoll.RequestYesNoChoiceAsync($"Does {hero} wish to use {pitcher.ToString()}");
+                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero} wish to use {pitcher.ToString()}");
+                if(choiceResult)
+                {
+                    await _powerActivation.ActivatePerkAsync(hero, pitcher);
+                }
             }
+
+            int rsSkill = hero.GetSkill(Skill.RangedSkill);
 
             if (hero.Position != null)
             {
@@ -1003,6 +1009,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                 neighbors.Shuffle();
                 position = neighbors.FirstOrDefault() ?? position;
                 resultMessage = $"{hero.Name} misses! The potion lands at {position}.";
+            }
+
+            pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Pitcher);
+            if (pitcherActive != null)
+            {
+                hero.ActiveStatusEffects.Remove(pitcherActive);
             }
 
             resultMessage += await _potionActivation.BreakPotionAsync(hero, potion, position, dungeon);
