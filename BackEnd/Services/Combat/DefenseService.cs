@@ -32,7 +32,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 var quickDodge = hero.Perks.FirstOrDefault(p => p.Name == PerkName.QuickDodge);
                 if (quickDodge != null && hero.CurrentEnergy > 0)
                 {
-                    if (await diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to activate {quickDodge.Name.ToString()}, to add another dodge attempt for this battle?"))
+                    if (await diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to activate {quickDodge.ToString()}?"))
                     {
                         if (await activation.ActivatePerkAsync(hero, quickDodge))
                         {
@@ -68,7 +68,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
                 if (sixthSense != null)
                 {
-                    if (await diceRoll.RequestYesNoChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your dodge chance?") 
+                    if (await diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use {sixthSense.ToString()}?") 
                         && (await activation.ActivatePerkAsync(hero, sixthSense)))
                     {
                         dodgeSkill += 20;

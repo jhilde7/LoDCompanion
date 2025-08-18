@@ -607,7 +607,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             var preciseMixing = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PreciseMixing);
             if (preciseMixing != null && !secondAttempt)
             {
-                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"You brewed a {newPotion.ToString()}, does {alchemist.Name} wish to attempt to use his perk {preciseMixing.Name.ToString()}");
+                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"You brewed a {newPotion.ToString()}, does {alchemist.Name} wish to attempt to use his perk {preciseMixing.ToString()}");
                 await Task.Yield();
                 if (choiceResult)
                 {
@@ -621,7 +621,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             var perfectHealer = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PerfectHealer);
             if (newPotion.PotionProperties != null && newPotion.PotionProperties.Any(p => p.Key == PotionProperty.HealHP) && perfectHealer != null)
             {
-                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {alchemist.Name} wish to attempt to use his perk {perfectHealer.Name.ToString()}");
+                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {alchemist.Name} wish to use {perfectHealer.ToString()}");
                 await Task.Yield();
                 if(choiceResult)
                 {

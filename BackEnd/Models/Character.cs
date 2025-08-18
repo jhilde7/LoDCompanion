@@ -697,7 +697,7 @@ namespace LoDCompanion.BackEnd.Models
                     if (perk != null && perk.ActiveStatusEffect != null && hero.CurrentEnergy >= 1)
                     {
                         await Task.Yield();
-                        if (await new UserRequestService().RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name.ToString()}"))
+                        if (await new UserRequestService().RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.ToString()}"))
                         {
                             return await activation.ActivatePerkAsync(hero, perk, target: this);
                         }

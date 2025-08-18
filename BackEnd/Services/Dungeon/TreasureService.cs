@@ -67,7 +67,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         if (lootGoblin == null || hero.CurrentEnergy < 1) continue;
 
                         if (await _diceRoll.RequestYesNoChoiceAsync($"Current Coin roll is {amount - bonusCoins ?? 0}, there is a maximum of {maxCoinRoll}. " +
-                            $"Does {hero.Name} wish to activate {lootGoblin.Name.ToString()}? The second roll will override the current role."))
+                            $"Does {hero.Name} wish to activate {lootGoblin.ToString()}?"))
                         {
                             if (await _powerActivation.ActivatePerkAsync(hero, lootGoblin))
                             {

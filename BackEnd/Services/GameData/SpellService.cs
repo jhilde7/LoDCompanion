@@ -1513,7 +1513,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 var innerPower = caster.Perks.FirstOrDefault(p => p.Name == PerkName.InnerPower);
                 if (innerPower != null)
                 {
-                    var useInnerPower = await diceRoll.RequestYesNoChoiceAsync($"Does {caster.Name} wish to call upon their {innerPower.Name.ToString()} perk?");
+                    var useInnerPower = await diceRoll.RequestYesNoChoiceAsync($"Does {caster.Name} wish to use {innerPower.ToString()}?");
                     await Task.Yield();
                     if (useInnerPower)
                     {

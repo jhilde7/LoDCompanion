@@ -107,7 +107,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
             if (sixthSense != null)
             {                
-                if (await _diceRoll.RequestYesNoChoiceAsync($"Do you want to use {sixthSense.Name.ToString()} to add +20 to your chance to avoid the trap?") 
+                if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use {sixthSense.ToString()}?") 
                     && (await _powerActivation.ActivatePerkAsync(hero, sixthSense)))
                 {
                     perceptionSkill += 20;

@@ -517,7 +517,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         var dispelMaster = wizard.Perks.FirstOrDefault(p => p.Name == PerkName.DispelMaster);
                         if(dispelMaster != null)
                         {
-                            var activateDispelMaster = await _diceRoll.RequestYesNoChoiceAsync($"Does {wizard.Name} wish to activate {dispelMaster.Name.ToString()}");
+                            var activateDispelMaster = await _diceRoll.RequestYesNoChoiceAsync($"Does {wizard.Name} wish to activate {dispelMaster.ToString()}");
                             await Task.Yield();
                             if (activateDispelMaster)
                             {

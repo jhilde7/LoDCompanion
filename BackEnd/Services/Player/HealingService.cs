@@ -50,7 +50,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             var healerPerk = healer.Perks.FirstOrDefault(p => p.Name == PerkName.Healer);
             if(healerPerk != null && healer.CurrentEnergy > 0)
             {
-                if(await userRequest.RequestYesNoChoiceAsync($"Does {healer.Name} wish to activate {healerPerk.Name.ToString()} which will add 3 to the healing roll of {hpGained}?"))
+                if(await userRequest.RequestYesNoChoiceAsync($"Does {healer.Name} wish to activate {healerPerk.ToString()}?"))
                 {
                     if(await activation.ActivatePerkAsync(healer, healerPerk))
                     {

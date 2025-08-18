@@ -73,7 +73,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 var livingOnNothing = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing);
                 if (livingOnNothing == null || hero.CurrentEnergy < 1) continue;
-                if (await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {livingOnNothing.Name.ToString()} perk, to avoid using a ration?"))
+                if (await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {livingOnNothing.ToString()}?"))
                 {
                     useLivingOnNothing.Item1 = await _powerActivation.ActivatePerkAsync(hero, livingOnNothing);
                     useLivingOnNothing.Item2 = hero;

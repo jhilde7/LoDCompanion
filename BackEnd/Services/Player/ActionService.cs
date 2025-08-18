@@ -477,7 +477,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                             apCost = 1;
                         }
                         resultMessage = await _powerActivation.ActivatePerkAsync(hero, perkToUse, (Character?)primaryTarget) ? 
-                            $"{hero.Name} activated {perkToUse.Name.ToString()}" : $"{perkToUse.Name.ToString()} activation was unsuccessful";
+                            $"{hero.Name} activated {perkToUse.ToString()}" : $"{perkToUse.ToString()} activation was unsuccessful";
                     }
                     else
                     {
@@ -716,7 +716,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 if (huntersEye != null && weapon != null && hero.CurrentEnergy >= 1
                     && weapon is RangedWeapon bowSling && (bowSling.AmmoType == AmmoType.Arrow || bowSling.AmmoType == AmmoType.SlingStone))
                 {
-                    if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} want to use {huntersEye.Name.ToString()} against {(target).Name}?"))
+                    if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} want to use {huntersEye.ToString()} against {(target).Name}?"))
                     {
                         await Task.Yield();
                         if (await _powerActivation.ActivatePerkAsync(hero, huntersEye))
@@ -897,7 +897,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             var carefulTouch = hero.Perks.FirstOrDefault(p => p.Name == PerkName.CarefulTouch);
             if (carefulTouch != null && hero.CurrentEnergy > 0)
             {
-                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {carefulTouch.Name.ToString()}");
+                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {carefulTouch.ToString()}");
                 await Task.Yield();
                 if (choiceResult)
                 {
@@ -917,7 +917,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         var surgeon = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Surgeon);
                         if (surgeon != null)
                         {
-                            var useSurgeon = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wich to use the perk {surgeon.Name.ToString()}");
+                            var useSurgeon = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wich to use the perk {surgeon.ToString()}");
                             await Task.Yield();
                             if (useSurgeon)
                             {
@@ -963,6 +963,12 @@ namespace LoDCompanion.BackEnd.Services.Player
             var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
             await Task.Yield();
             int rsSkill = hero.GetSkill(Skill.RangedSkill);
+
+            var pitcher = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Pitcher);
+            if(pitcher != null)
+            {
+                var choiceResult = _diceRoll.RequestYesNoChoiceAsync($"Does {hero} wish to use {pitcher.ToString()}");
+            }
 
             if (hero.Position != null)
             {
