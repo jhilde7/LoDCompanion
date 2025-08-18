@@ -6,6 +6,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -610,16 +611,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Monster monster, ActionType.PickupWeapon):
-                    if (monster.DroppedWeapon != null)
+                case (Character, ActionType.PickupWeapon):
+                    if (character.DroppedWeapon != null)
                     {
-                        var enemies = GetEnemiesForZOC(monster);
+                        var enemies = GetEnemiesForZOC(character);
                         bool adjacentEnemy = false;
-                        if (monster.Position != null)
+                        if (character.Position != null)
                         {
                             foreach (var enemy in enemies)
                             {
-                                if (enemy.Position != null && GridService.IsAdjacent(monster.Position, enemy.Position))
+                                if (enemy.Position != null && GridService.IsAdjacent(character.Position, enemy.Position))
                                 {
                                     adjacentEnemy = true;
                                     break;
@@ -629,24 +630,81 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                         if (adjacentEnemy)
                         {
-                            var dexRoll = RandomHelper.RollDie(DiceType.D100);
-                            if (dexRoll <= monster.GetStat(BasicStat.Dexterity))
+                            bool pickedUpWeapon = false;
+                            if (character is Monster)
                             {
-                                monster.ActiveWeapon = monster.DroppedWeapon;
-                                monster.DroppedWeapon = null;
-                                resultMessage = $"{monster.Name} successfully picked up their weapon.";
+                                Monster monster = (Monster)character;
+                                var dexRoll = RandomHelper.RollDie(DiceType.D100);
+                                if (dexRoll <= character.GetStat(BasicStat.Dexterity))
+                                {
+                                    monster.ActiveWeapon = monster.DroppedWeapon;
+                                    pickedUpWeapon = true;
+                                }
+                                else
+                                {
+                                    pickedUpWeapon = false;
+                                } 
                             }
                             else
                             {
-                                resultMessage = $"{monster.Name} failed to pick up their weapon.";
-                                actionWasSuccessful = false;
+                                Hero hero = (Hero)character;
+                                var dexRoll = await _diceRoll.RequestRollAsync("Roll dexterity check.", "1d100", stat: (hero, BasicStat.Dexterity));
+                                await Task.Yield();
+                                if (dexRoll.Roll <= character.GetStat(BasicStat.Dexterity))
+                                {
+                                    if (hero.Inventory.EquippedWeapon == null)
+                                    {
+                                        hero.Inventory.EquippedWeapon = hero.DroppedWeapon; 
+                                    }
+                                    else
+                                    {
+                                        if (hero.DroppedWeapon != null)
+                                        {
+                                            BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon); 
+                                        }
+                                    }
+                                    pickedUpWeapon = true;
+                                }
+                                else
+                                {
+                                    pickedUpWeapon = false;
+                                }
+                            }
+
+                            if (pickedUpWeapon)
+                            {
+                                character.DroppedWeapon = null;
+                                resultMessage = $"{character.Name} successfully picked up their weapon.";
+                            }
+                            else
+                            {
+                                resultMessage = $"{character.Name} failed to pick up their weapon.";
                             }
                         }
                         else
                         {
-                            monster.ActiveWeapon = monster.DroppedWeapon;
-                            monster.DroppedWeapon = null;
-                            resultMessage = $"{monster.Name} picked up their weapon.";
+                            if (character is Monster)
+                            {
+                                Monster monster = (Monster)character;
+                                monster.ActiveWeapon = character.DroppedWeapon; 
+                            }
+                            else
+                            {
+                                Hero hero = (Hero)character;
+                                if (hero.Inventory.EquippedWeapon == null)
+                                {
+                                    hero.Inventory.EquippedWeapon = hero.DroppedWeapon;
+                                }
+                                else
+                                {
+                                    if (hero.DroppedWeapon != null)
+                                    {
+                                        BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
+                                    }
+                                }
+                            }
+                            character.DroppedWeapon = null;
+                            resultMessage = $"{character.Name} picked up their weapon.";
                         }
                     }
                     else

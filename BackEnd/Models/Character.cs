@@ -112,6 +112,8 @@ namespace LoDCompanion.BackEnd.Models
         public bool IsVulnerableAfterPowerAttack { get; set; }
         public bool HasMadeFirstMoveAction { get; set; }
         public FacingDirection Facing { get; set; } = FacingDirection.North;
+        public Weapon? DroppedWeapon { get; set; }
+
         public event Action<Character>? OnDeath;
         public bool CanAct => CurrentAP > 0;
         public bool Wounded => CurrentHP <= GetStat(BasicStat.HitPoints) / 2;
@@ -1085,7 +1087,6 @@ namespace LoDCompanion.BackEnd.Models
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
 		public Hero? TauntedBy { get; set; } // The hero this monster is forced to target
 		public HateCategory HateCategory { get; set; } = HateCategory.Bandits;
-        public Weapon? DroppedWeapon { get; set; }
 
         public Monster()
         {
