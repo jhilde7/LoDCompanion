@@ -8,6 +8,7 @@ using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Frozen;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
@@ -51,7 +52,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         ShieldBash,
         StunningStrike,
         HarvestParts,
-        ThrowPotion
+        ThrowPotion,
+        DragonBreath
     }
 
     public class ActionInfo
@@ -121,7 +123,6 @@ namespace LoDCompanion.BackEnd.Services.Player
         public async Task<string> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null, CombatContext? combatContext = null)
         {
             string resultMessage = "";
-            int startingAP = character.CurrentAP;
             int apCost = GetActionCost(actionType);
             if (character.CurrentAP < apCost)
             {
@@ -175,45 +176,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Character, ActionType.StandardAttack):
                     if (primaryTarget is Character)
                     {
-                        resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
-                        if (character.CurrentAP <= 0) break;
-                        var hero = (Hero)character;
-                        var huntersEye = hero.Perks.FirstOrDefault(p => p.Name == PerkName.HuntersEye);
-                        if(huntersEye != null && weapon != null 
-                            && weapon is RangedWeapon bowSling && (bowSling.AmmoType == AmmoType.Arrow || bowSling.AmmoType == AmmoType.SlingStone)
-                            && hero.CurrentEnergy >= 1)
-                        {
-                            if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} want to use {huntersEye.Name.ToString()} against {((Character)primaryTarget).Name}?"))
-                            {
-                                await Task.Yield();
-                                if (await _powerActivation.ActivatePerkAsync(hero, huntersEye))
-                                {
-                                    await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
-                                    await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
-                                }
-                            }
-                            await Task.Yield();
-                        }
-
-                        AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, (Character)primaryTarget, dungeon, combatContext);
-                        if (startingAP > character.CurrentAP)
-                        {
-                            resultMessage += "\n" + attackResult.OutcomeMessage;
-                        }
-                        else
-                        {
-                            resultMessage = attackResult.OutcomeMessage;
-                        }
-
-                        if (attackResult.IsHit && character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
-                        {
-                            apCost = 0;
-                            resultMessage += $"\n {character.Name} is in a frenzy and can act again";
-                        }
+                        (resultMessage, apCost) = await StandardAttack(dungeon, character, (Character)primaryTarget, combatContext, weapon);                        
                     }
                     else
                     {
-                        resultMessage = "Invalid target or no weapon equipped for attack.";
+                        resultMessage = "Invalid target for attack.";
                         actionWasSuccessful = false;
                     }
                     break;
@@ -279,109 +246,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero, ActionType.Move):
+                case (Character, ActionType.Move):
                     if (primaryTarget is GridPosition && character.Position != null && character.Room != null)
                     {
-                        // Determine available movement points for this action
-                        int availableMovement = character.CurrentMovePoints;
-                        if (character.HasMadeFirstMoveAction) // Rule: Second move is half distance
-                        {
-                            availableMovement /= 2;
-                        }
-
-                        if (_dungeonManager.DungeonState != null)
-                        {
-                            // Determine enemies for ZOC calculation
-                            var enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
-                            if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
-                            {
-                                enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
-                            }
-                            List<GridPosition> path = GridService.FindShortestPath(character.Position, (GridPosition)primaryTarget, dungeon.DungeonGrid, enemies);
-
-                            MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
-
-                            if (moveResult.WasSuccessful)
-                            {
-                                character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
-                                availableMovement = character.CurrentMovePoints;
-                                resultMessage = moveResult.Message;
-                                if (availableMovement <= 0)
-                                {
-                                    character.HasMadeFirstMoveAction = true;
-                                    character.ResetMovementPoints();
-                                }
-                                else
-                                {
-                                    resultMessage = moveResult.Message;
-                                    actionWasSuccessful = false; // Don't deduct AP if movement points remain
-                                }
-                            }
-                            else
-                            {
-                                resultMessage = moveResult.Message;
-                                actionWasSuccessful = false; // Don't deduct AP if no move was made
-                            }
-                        }
-                        else
-                        {
-                            actionWasSuccessful = false; // Don't deduct AP if no move was made
-                        }
-                    }
-                    else
-                    {
-                        resultMessage = "Invalid destination for move action.";
-                        actionWasSuccessful = false;
-                    }
-                    break;
-                case (Monster, ActionType.Move):
-                    if (primaryTarget is GridPosition && character.Position != null && character.Room != null)
-                    {
-                        // Determine available movement points for this action
-                        int availableMovement = character.CurrentMovePoints;
-                        if (character.HasMadeFirstMoveAction) // Rule: Second move is half distance
-                        {
-                            availableMovement /= 2;
-                        }
-
-                        if (_dungeonManager.DungeonState != null && _dungeonManager.DungeonState.HeroParty != null)
-                        {
-                            // Determine enemies for ZOC calculation
-                            var enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList();
-                            if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
-                            {
-                                enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
-                            }
-                            List<GridPosition> path = GridService.FindShortestPath(character.Position, (GridPosition)primaryTarget, dungeon.DungeonGrid, enemies);
-
-                            MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
-
-                            if (moveResult.WasSuccessful)
-                            {
-                                character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
-                                availableMovement = character.CurrentMovePoints;
-                                resultMessage = moveResult.Message;
-                                if (availableMovement <= 0)
-                                {
-                                    character.HasMadeFirstMoveAction = true;
-                                    character.ResetMovementPoints();
-                                }
-                                else
-                                {
-                                    resultMessage = moveResult.Message;
-                                    actionWasSuccessful = false; // Don't deduct AP if movement points remain
-                                }
-                            }
-                            else
-                            {
-                                resultMessage = moveResult.Message;
-                                actionWasSuccessful = false; // Don't deduct AP if no move was made
-                            }
-                        }
-                        else
-                        {
-                            actionWasSuccessful = false; // Don't deduct AP if no move was made
-                        }
+                        (resultMessage, actionWasSuccessful) = Move(character, (GridPosition)primaryTarget, dungeon);                        
                     }
                     else
                     {
@@ -515,56 +383,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Hero hero, ActionType.CastSpell):
                     if (secondaryTarget is Spell spellToCast)
                     {
-                        SpellCastingResult options = await _spellCasting.RequestCastingOptionsAsync(hero, spellToCast); await Task.Yield();
-
-                        if (options.WasCancelled)
-                        {
-                            resultMessage = $"{hero.Name} decided not to cast the spell.";
-                            actionWasSuccessful = false;
-                        }
-                        else
-                        {
-                            SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, _powerActivation, options.FocusPoints, options.PowerLevels, 
-                                monster: (primaryTarget is Monster) ? (Monster)primaryTarget : null);
-                            resultMessage = spellCastResult.OutcomeMessage;
-
-                            if (spellCastResult.ManaSpent <= 0)
-                            {
-                                actionWasSuccessful = false;
-                            }
-                            else
-                            {
-                                if (primaryTarget != null)
-                                {
-                                    if (options.FocusPoints <= 0)
-                                    {
-                                        if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
-                                        {
-                                            apCost = 1; // Quick spells cost 1 AP if there is no focus points added
-                                        }
-                                        else
-                                        {
-                                            apCost = 2; // Regular spells cost 2 AP if there is no focus points added
-                                        }
-                                        await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
-                                    }
-                                    else if (options.FocusPoints >= 1)
-                                    {
-                                        hero.ChanneledSpell = new ChanneledSpell(hero, spellToCast, primaryTarget, options);
-                                        if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
-                                        {
-                                            apCost = 2;
-                                            hero.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used
-                                        }
-                                    }
-
-                                    if (hero.ChanneledSpell != null && hero.ChanneledSpell.FocusActionsRemaining <= 0)
-                                    {
-                                        await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
-                                    }
-                                }
-                            }
-                        }
+                        (resultMessage, apCost, actionWasSuccessful) = await CastSpell(primaryTarget, resultMessage, apCost, actionWasSuccessful, hero, spellToCast);
                     }
                     else
                     {
@@ -709,66 +528,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         var avaialbleCorpses = hero.Room.CorpsesInRoom?.Where(c => !c.HasBeenHarvested).ToList();
                         if (avaialbleCorpses != null && avaialbleCorpses.Any())
                         {
-                            avaialbleCorpses.Shuffle();
-                            var skillTarget = hero.GetSkill(Skill.Alchemy);
-                            var resultRoll = await _diceRoll.RequestRollAsync("Roll for alchemy skill test.", "1d100", skill: (hero, Skill.Alchemy));
-                            await Task.Yield();
-
-                            var equisiteRange = 10;
-
-                            var carefulTouch = hero.Perks.FirstOrDefault(p => p.Name == PerkName.CarefulTouch);
-                            if (carefulTouch != null && hero.CurrentEnergy > 0)
-                            {
-                                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {carefulTouch.Name.ToString()}");
-                                await Task.Yield();
-                                if(choiceResult)
-                                {
-                                    if (await _powerActivation.ActivatePerkAsync(hero, carefulTouch)) equisiteRange = 20;
-                                }
-                            }
-
-                            if (resultRoll.Roll <= skillTarget)
-                            {
-                                var parts = new List<Part>();
-                                for (int i = 0; i < Math.Min(avaialbleCorpses.Count, 3); i++)
-                                {
-                                    if (i == 0)
-                                    {
-                                        var part = (await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species))[0];
-                                        var surgeon = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Surgeon);
-                                        if (surgeon != null)
-                                        {
-                                            var useSurgeon = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wich to use the perk {surgeon.Name.ToString()}");
-                                            await Task.Yield();
-                                            if (useSurgeon)
-                                            {
-                                                if(await _powerActivation.ActivatePerkAsync(hero, surgeon))
-                                                {
-                                                    string choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList());
-                                                    await Task.Yield();
-                                                    Enum.TryParse(choiceResult, out PartName selectedName);
-                                                    part.Name = selectedName;
-                                                }
-                                            }
-                                        }
-                                        if (resultRoll.Roll <= equisiteRange)
-                                        {
-                                            part.Exquisite = true; 
-                                        }
-                                        parts.Add(part);
-                                    }
-                                    else
-                                    {
-                                        parts.AddRange(await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species));
-                                    }
-                                    avaialbleCorpses[i].HasBeenHarvested = true;
-                                }
-
-                                foreach(var part in parts)
-                                {
-                                    BackpackHelper.AddItem(hero.Inventory.Backpack, part);
-                                }
-                            }
+                            resultMessage = await HarvestPartsAsync(hero, avaialbleCorpses);
                         }
                         else
                         {
@@ -784,55 +544,20 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case (Hero hero, ActionType.ThrowPotion):
+
                     if (primaryTarget is GridPosition position && secondaryTarget is Potion potion)
                     {
-                        var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
-                        await Task.Yield();
-                        int rsSkill = hero.GetSkill(Skill.RangedSkill);
-
-                        if (hero.Position != null)
-                        {
-                            var los = GridService.HasLineOfSight(hero.Position, position, dungeon.DungeonGrid);
-                            if (los.ObstructionPenalty < 0)
-                            {
-                                rsSkill -= 10;
-                            }
-                        }
-
-                        // Check if throwing through a door
-                        var throwThroughDoor = hero.Room.Doors.FirstOrDefault(d => d.Position.Contains(position));
-                        if (throwThroughDoor != null && hero.Position != null)
-                        {
-                            bool isAdjacentToDoor = throwThroughDoor.Position.Any(p => GridService.IsAdjacent(hero.Position, p));
-                            if (!isAdjacentToDoor)
-                            {
-                                rsSkill -= 10;
-                            }
-
-                            if (rsRoll.Roll > rsSkill)
-                            {
-                                // Missed throw through a door, hits a square in front of the door
-                                var doorSquares = throwThroughDoor.Position.ToList();
-                                position = doorSquares[RandomHelper.GetRandomNumber(0, doorSquares.Count - 1)];
-                                resultMessage = $"{hero.Name} misses! The potion hits the doorway at {position}.";
-                            }
-                        }
-                        else if (rsRoll.Roll > rsSkill)
-                        {
-                            var neighbors = GridService.GetNeighbors(position, dungeon.DungeonGrid).ToList();
-                            neighbors.Shuffle();
-                            position = neighbors.FirstOrDefault() ?? position;
-                            resultMessage = $"{hero.Name} misses! The potion lands at {position}.";
-                        }
-
-                        resultMessage += await _potionActivation.BreakPotionAsync(hero, potion, position, dungeon);
+                        resultMessage = await ThrowPotionAsync(hero, position, potion, dungeon);
                     }
                     else
                     {
                         resultMessage = "Invalid target for ThrowPotion action.";
                         actionWasSuccessful = false;
-                    }
+                    }                    
                     break;
+                case (Hero hero, ActionType.DragonBreath):
+                    break;
+
             }
 
 
@@ -844,6 +569,315 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";
+        }
+
+        private async Task<(string resultMessage, int apCost)> StandardAttack(DungeonState dungeon, Character character, Character target, CombatContext? combatContext, Weapon? weapon)
+        {
+            int startingAP = character.CurrentAP;
+            int apCost = 1;
+            string resultMessage = string.Empty;
+
+            if (weapon != null && weapon is RangedWeapon)
+            {
+                resultMessage = await PerformActionAsync(dungeon, character, ActionType.Reload);
+                if (character.CurrentAP <= 0)
+                {
+                    resultMessage += $"\n {character.Name} is reloading...";
+                    return (resultMessage, 0);
+                } 
+            }
+
+            if (character is Hero hero)
+            {
+                var huntersEye = hero.Perks.FirstOrDefault(p => p.Name == PerkName.HuntersEye);
+                if (huntersEye != null && weapon != null && hero.CurrentEnergy >= 1
+                    && weapon is RangedWeapon bowSling && (bowSling.AmmoType == AmmoType.Arrow || bowSling.AmmoType == AmmoType.SlingStone))
+                {
+                    if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} want to use {huntersEye.Name.ToString()} against {(target).Name}?"))
+                    {
+                        await Task.Yield();
+                        if (await _powerActivation.ActivatePerkAsync(hero, huntersEye))
+                        {
+                            await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
+                            await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
+                        }
+                    }
+                    await Task.Yield();
+                } 
+            }
+
+            AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
+            if (startingAP > character.CurrentAP)
+            {
+                resultMessage += "\n" + attackResult.OutcomeMessage;
+            }
+            else
+            {
+                resultMessage = attackResult.OutcomeMessage;
+            }
+
+            if (attackResult.IsHit && character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+            {
+                apCost = 0;
+                resultMessage += $"\n {character.Name} is in a frenzy and can act again";
+            }
+
+            return (resultMessage, apCost);
+        }
+
+        private (string resultMessage, bool actionWasSuccessful) Move(Character character, GridPosition position, DungeonState dungeon)
+        {
+            string resultMessage = string.Empty;
+            bool actionWasSuccessful = true;
+
+            if (character.Position != null)
+            {
+                // Determine available movement points for this action
+                int availableMovement = character.CurrentMovePoints;
+                if (character.HasMadeFirstMoveAction) // Rule: Second move is half distance
+                {
+                    availableMovement /= 2;
+                }
+
+                var enemies = GetEnemiesForZOC(character);
+                
+                List<GridPosition> path = GridService.FindShortestPath(character.Position, position, dungeon.DungeonGrid, enemies);
+
+                MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
+
+                if (moveResult.WasSuccessful)
+                {
+                    character.SpendMovementPoints(moveResult.MovementPointsSpent); // A new method you'll add to Character
+                    availableMovement = character.CurrentMovePoints;
+                    resultMessage = moveResult.Message;
+                    if (availableMovement <= 0)
+                    {
+                        character.HasMadeFirstMoveAction = true;
+                        character.ResetMovementPoints();
+                    }
+                    else
+                    {
+                        resultMessage = moveResult.Message;
+                        actionWasSuccessful = false; // Don't deduct AP if movement points remain
+                    }
+                }
+                else
+                {
+                    resultMessage = moveResult.Message;
+                    actionWasSuccessful = false; // Don't deduct AP if no move was made
+                }
+            }
+            else
+            {
+                resultMessage += "Error in finding Hero Party";
+                actionWasSuccessful = false; // Don't deduct AP if no move was made
+            }
+
+            return (resultMessage, actionWasSuccessful);
+        }
+
+        private List<Character> GetEnemiesForZOC(Character character)
+        {
+            var enemies = new List<Character> ();
+            // Determine enemies for ZOC calculation
+            if (_dungeonManager.DungeonState != null && _dungeonManager.DungeonState.HeroParty != null)
+            {
+                if (character is Monster)
+                {
+                    enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList();
+                    if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
+                    {
+                        enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
+                    }
+                }
+                else if (character is Hero)
+                {
+                    enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
+                    if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
+                    {
+                        enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
+                    }
+                } 
+            }
+
+            return enemies;
+        }
+
+        private async Task<(string resultMessage, int apCost, bool actionWasSuccessful)> CastSpell(object? primaryTarget, string resultMessage, int apCost, bool actionWasSuccessful, Hero hero, Spell spellToCast)
+        {
+            SpellCastingResult options = await _spellCasting.RequestCastingOptionsAsync(hero, spellToCast); await Task.Yield();
+
+            if (options.WasCancelled)
+            {
+                resultMessage = $"{hero.Name} decided not to cast the spell.";
+                actionWasSuccessful = false;
+            }
+            else
+            {
+                SpellCastResult spellCastResult = await spellToCast.CastSpellAsync(hero, _diceRoll, _powerActivation, options.FocusPoints, options.PowerLevels,
+                    monster: (primaryTarget is Monster) ? (Monster)primaryTarget : null);
+                resultMessage = spellCastResult.OutcomeMessage;
+
+                if (spellCastResult.ManaSpent <= 0)
+                {
+                    resultMessage = spellCastResult.OutcomeMessage;
+                    actionWasSuccessful = false;
+                }
+                else
+                {
+                    if (primaryTarget != null)
+                    {
+                        if (options.FocusPoints <= 0)
+                        {
+                            if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
+                            {
+                                apCost = 1; // Quick spells cost 1 AP if there is no focus points added
+                            }
+                            else
+                            {
+                                apCost = 2; // Regular spells cost 2 AP if there is no focus points added
+                            }
+                            await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
+                        }
+                        else if (options.FocusPoints >= 1)
+                        {
+                            hero.ChanneledSpell = new ChanneledSpell(hero, spellToCast, primaryTarget, options);
+                            if (spellToCast.Properties != null && spellToCast.Properties.ContainsKey(SpellProperty.QuickSpell))
+                            {
+                                apCost = 2;
+                                hero.ChanneledSpell.FocusActionsRemaining--; // Deduct focus action if used
+                            }
+                        }
+
+                        if (hero.ChanneledSpell != null && hero.ChanneledSpell.FocusActionsRemaining <= 0)
+                        {
+                            spellCastResult = await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
+                            resultMessage = spellCastResult.OutcomeMessage;
+                        }
+                    }
+                }
+            }
+
+            return (resultMessage, apCost, actionWasSuccessful);
+        }
+
+        private async Task<string> HarvestPartsAsync(Hero hero, List<Corpse> avaialbleCorpses)
+        {
+            string resultMessage = string.Empty;
+            avaialbleCorpses.Shuffle();
+            var skillTarget = hero.GetSkill(Skill.Alchemy);
+            var resultRoll = await _diceRoll.RequestRollAsync("Roll for alchemy skill test.", "1d100", skill: (hero, Skill.Alchemy));
+            await Task.Yield();
+
+            var equisiteRange = 10;
+
+            var carefulTouch = hero.Perks.FirstOrDefault(p => p.Name == PerkName.CarefulTouch);
+            if (carefulTouch != null && hero.CurrentEnergy > 0)
+            {
+                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {carefulTouch.Name.ToString()}");
+                await Task.Yield();
+                if (choiceResult)
+                {
+                    if (await _powerActivation.ActivatePerkAsync(hero, carefulTouch)) equisiteRange = 20;
+                }
+            }
+
+
+            if (resultRoll.Roll <= skillTarget)
+            {
+                var parts = new List<Part>();
+                for (int i = 0; i < Math.Min(avaialbleCorpses.Count, 3); i++)
+                {
+                    if (i == 0)
+                    {
+                        var part = (await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species))[0];
+                        var surgeon = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Surgeon);
+                        if (surgeon != null)
+                        {
+                            var useSurgeon = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wich to use the perk {surgeon.Name.ToString()}");
+                            await Task.Yield();
+                            if (useSurgeon)
+                            {
+                                if (await _powerActivation.ActivatePerkAsync(hero, surgeon))
+                                {
+                                    string choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList());
+                                    await Task.Yield();
+                                    Enum.TryParse(choiceResult, out PartName selectedName);
+                                    part.Name = selectedName;
+                                }
+                            }
+                        }
+                        if (resultRoll.Roll <= equisiteRange)
+                        {
+                            part.Exquisite = true;
+                        }
+                        parts.Add(part);
+                    }
+                    else
+                    {
+                        parts.AddRange(await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species));
+                    }
+                    avaialbleCorpses[i].HasBeenHarvested = true;
+                }
+
+                foreach (var part in parts)
+                {
+                    BackpackHelper.AddItem(hero.Inventory.Backpack, part);
+                    resultMessage += $"{hero.Name} harvested {part.ToString()}";
+                }
+            }            
+            else
+            {
+                resultMessage += $"{hero.Name} failed to harvest any parts.";
+            }
+
+            return resultMessage;
+        }
+
+        private async Task<string> ThrowPotionAsync(Hero hero, GridPosition position, Potion potion, DungeonState dungeon)
+        {
+            string resultMessage = string.Empty;
+            var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
+            await Task.Yield();
+            int rsSkill = hero.GetSkill(Skill.RangedSkill);
+
+            if (hero.Position != null)
+            {
+                var los = GridService.HasLineOfSight(hero.Position, position, dungeon.DungeonGrid);
+                if (los.ObstructionPenalty < 0)
+                {
+                    rsSkill -= 10;
+                }
+            }
+
+            // Check if throwing through a door
+            var throwThroughDoor = hero.Room.Doors.FirstOrDefault(d => d.Position.Contains(position));
+            if (throwThroughDoor != null && hero.Position != null)
+            {
+                bool isAdjacentToDoor = throwThroughDoor.Position.Any(p => GridService.IsAdjacent(hero.Position, p));
+                if (!isAdjacentToDoor)
+                {
+                    rsSkill -= 10;
+                }
+
+                if (rsRoll.Roll > rsSkill)
+                {
+                    // Missed throw through a door, hits a square in front of the door
+                    var doorSquares = throwThroughDoor.Position.ToList();
+                    position = doorSquares[RandomHelper.GetRandomNumber(0, doorSquares.Count - 1)];
+                    resultMessage = $"{hero.Name} misses! The potion hits the doorway at {position}.";
+                }
+            }
+            else if (rsRoll.Roll > rsSkill)
+            {
+                var neighbors = GridService.GetNeighbors(position, dungeon.DungeonGrid).ToList();
+                neighbors.Shuffle();
+                position = neighbors.FirstOrDefault() ?? position;
+                resultMessage = $"{hero.Name} misses! The potion lands at {position}.";
+            }
+
+            resultMessage += await _potionActivation.BreakPotionAsync(hero, potion, position, dungeon);
+            return resultMessage;
         }
 
         /// <summary>
