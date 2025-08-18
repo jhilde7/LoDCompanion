@@ -19,6 +19,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int EncounterChanceModifier { get; set; } = 0;
         public int ScenarioRollModifier { get; set; } = 0;
         public int WhenSpawnWanderingMonster { get; set; }
+        public bool SpawnWanderingMonster => ThreatLevel >= MaxThreatLevel;
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }
         public Queue<Room> ExplorationDeck { get; set; } = new Queue<Room>();
@@ -160,15 +161,30 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
                 if (threatResult.SpawnTrap)
                 {
-                    // Call your trap logic here
+                    if (_dungeon.HeroParty != null && _dungeon.HeroParty.Heroes.Any())
+                    {
+                        var heroes = _dungeon.HeroParty.Heroes;
+                        heroes.Shuffle();
+                        var randomHero = heroes[0];
+                        var trap = Trap.GetRandomTrap();
+
+                        await _trap.TriggerTrapAsync(randomHero, trap);
+                    }
                 }
                 if (threatResult.ShouldAddExplorationCards)
                 {
                     AddExplorationCardsToPiles();
                 }
-                // After hero actions, move any wandering monsters.
-                _wanderingMonster.MoveWanderingMonsters(_dungeon);
             }
+
+            if (_dungeon.SpawnWanderingMonster)
+            {
+                _wanderingMonster.SpawnWanderingMonster(_dungeon);
+                _threat.DecreaseThreat(5);
+            }
+
+            // After hero actions, move any wandering monsters.
+            _wanderingMonster.MoveWanderingMonsters(_dungeon);
         }
 
         /// <summary>
