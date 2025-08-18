@@ -300,14 +300,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         "Works just as if casting a spell but introduces miscast to the roll as well. 
         1 Action of Focus will give a miscast on 95-00. Increase the risk with 5 for each action."
                 },
-                new Perk(){
-                    Category = PerkCategory.Alchemist,
-                    Name = PerkName.Connoisseur,
-                    Effect = 
-        "The alchemist has a knack for identifying potions brewed by others. 
-        Grants a +10 bonus to the Alchemy roll on your next attempt to identify a potion (only one per Energy Point).",
-                    Comment = "Energy Point is spent at the same time as you try to identify the potion."
-                },
          */
 
         public List<Perk> GetPerksByCategory(PerkCategory category)

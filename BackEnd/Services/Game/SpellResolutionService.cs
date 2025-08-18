@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System;
 using System.Text;
 
 namespace LoDCompanion.BackEnd.Services.Game
@@ -509,21 +510,8 @@ namespace LoDCompanion.BackEnd.Services.Game
             {
                 foreach (var wizard in hero.Party.Heroes.Where(h => h.ProfessionName == "Wizard"))
                 {
-                    var attemptDispel = await _diceRoll.RequestYesNoChoiceAsync($"Does {wizard.Name} want to try and attempt to dispel {spell.Name}, " +
-                        $"this attempt will prevent {wizard.Name} from casting spells onm there next activation.");
-                    await Task.Yield();
-                    if (attemptDispel)
+                    if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.DispelMaster))
                     {
-                        var dispelMaster = wizard.Perks.FirstOrDefault(p => p.Name == PerkName.DispelMaster);
-                        if(dispelMaster != null)
-                        {
-                            var activateDispelMaster = await _diceRoll.RequestYesNoChoiceAsync($"Does {wizard.Name} wish to activate {dispelMaster.ToString()}");
-                            await Task.Yield();
-                            if (activateDispelMaster)
-                            {
-                                await _powerActivation.ActivatePerkAsync(wizard, dispelMaster);
-                            }
-                        }
                         wizard.CanCastSpell = false;
                         var rollResult = await _diceRoll.RequestRollAsync($"Roll {Skill.ArcaneArts.ToString()} test", "1d100", skill: (wizard, Skill.ArcaneArts));
                         await Task.Yield();

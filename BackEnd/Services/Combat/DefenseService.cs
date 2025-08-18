@@ -29,16 +29,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new DefenseResult();
             if (hero.HasDodgedThisBattle)
             {
-                var quickDodge = hero.Perks.FirstOrDefault(p => p.Name == PerkName.QuickDodge);
-                if (quickDodge != null && hero.CurrentEnergy > 0)
+                if (await activation.RequestPerkActivationAsync(hero, PerkName.QuickDodge))
                 {
-                    if (await diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to activate {quickDodge.ToString()}?"))
-                    {
-                        if (await activation.ActivatePerkAsync(hero, quickDodge))
-                        {
-                            hero.HasDodgedThisBattle = false;
-                        }
-                    }
+                    hero.HasDodgedThisBattle = false;
                 }
 
                 if (hero.HasDodgedThisBattle)
@@ -65,16 +58,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
             await Task.Yield();
             if (!rollResult.WasCancelled)
             {
-                var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
-                if (sixthSense != null)
+                if (await activation.RequestPerkActivationAsync(hero, PerkName.SixthSense))
                 {
-                    if (await diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use {sixthSense.ToString()}?") 
-                        && (await activation.ActivatePerkAsync(hero, sixthSense)))
-                    {
-                        dodgeSkill += 20;
-                    }
+                    dodgeSkill += 20;
                 }
-                await Task.Yield();
 
                 int roll = rollResult.Roll;
                 if (roll <= 80 && roll <= dodgeSkill)
@@ -152,19 +139,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
             if (hero.HasParriedThisTurn)
             {
-                var shieldWall = hero.Perks.FirstOrDefault(p => p.Name == PerkName.ShieldWall);
-                if (shieldWall != null)
-                {
-                    if (!await new UserRequestService().RequestYesNoChoiceAsync($"Do you wish to activate {PerkName.ShieldWall.ToString()} perk to attempt another parry this turn?"))
-                    {
-                        await Task.Yield();
-                        return new DefenseResult { OutcomeMessage = "Cannot parry more then once per turn." };
-                    }
-                    
-                    await activation.ActivatePerkAsync(hero, shieldWall);
-                    await Task.Yield();
-                }
-                else
+                if (!await activation.RequestPerkActivationAsync(hero, PerkName.ShieldWall))
                 {
                     return new DefenseResult { OutcomeMessage = "Cannot parry more then once per turn." };
                 }

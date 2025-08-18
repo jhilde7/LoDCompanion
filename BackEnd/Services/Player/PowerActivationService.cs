@@ -11,7 +11,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         Perk,
         Prayer
     }
-    
+
     public class PowerActivationService
     {
         private readonly InitiativeService _initiative;
@@ -84,6 +84,22 @@ namespace LoDCompanion.BackEnd.Services.Player
             await StatusEffectService.AttemptToApplyStatusAsync(target ?? hero, effect, this);
             hero.CurrentEnergy--;
             return $"{hero.Name} prayed for {prayer.Name}!";
+        }
+
+        public async Task<bool> RequestPerkActivationAsync(Hero hero, PerkName perkName)
+        {
+            var perk = hero.Perks.FirstOrDefault(p => p.Name == perkName);
+            if (perk != null)
+            {
+                var choiceResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.ToString()}");
+                await Task.Yield();
+                if (choiceResult)
+                {
+                    return await ActivatePerkAsync(hero, perk);
+                }
+            }
+
+            return false;
         }
     }
 }

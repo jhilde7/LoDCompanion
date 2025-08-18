@@ -71,21 +71,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (heroParty != null && scenarioRoll >= 9)
             {
-                var heroesWithFateFroger = heroParty.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.FateForger)); 
-                foreach (var hero in heroesWithFateFroger)
+                var requestResult = await heroParty.Heroes[0].AskForPartyPerkAsync(_powerActivation, PerkName.FateForger);
+                if (requestResult.Item1)
                 {
-                    var fateForger = hero.Perks.FirstOrDefault(p => p.Name == PerkName.FateForger);
-                    if (fateForger != null)
-                    {
-                        var choiceResult = await _userRequest.RequestYesNoChoiceAsync($"Scenario die rolled a negative result, does {hero.Name} wish to activate {fateForger.ToString()}");
-                        if(choiceResult)
-                        {
-                            if(await _powerActivation.ActivatePerkAsync(hero, fateForger))
-                            {
-                                scenarioRoll = RandomHelper.RollDie(DiceType.D10);
-                            }
-                        }
-                    }
+                    scenarioRoll = RandomHelper.RollDie(DiceType.D10);
                 }
             }
 

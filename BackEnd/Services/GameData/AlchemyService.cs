@@ -618,19 +618,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 }
             }
 
-            var perfectHealer = alchemist.Perks.FirstOrDefault(p => p.Name == PerkName.PerfectHealer);
-            if (newPotion.PotionProperties != null && newPotion.PotionProperties.Any(p => p.Key == PotionProperty.HealHP) && perfectHealer != null)
-            {
-                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {alchemist.Name} wish to use {perfectHealer.ToString()}");
-                await Task.Yield();
-                if(choiceResult)
+			if (await activation.RequestPerkActivationAsync(alchemist, PerkName.PerfectHealer))
+			{
+				if (newPotion.PotionProperties != null && newPotion.PotionProperties.Any(p => p.Key == PotionProperty.HealHP))
                 {
-                    if(await activation.ActivatePerkAsync(alchemist, perfectHealer))
-                    {
-                        newPotion.PotionProperties.TryAdd(PotionProperty.HealHPBonus, 3);
-                    }
+                    newPotion.PotionProperties.TryAdd(PotionProperty.HealHPBonus, 3);
                 }
-            }
+			}
 
             // Consume Components and Bottle
             foreach (var component in components)

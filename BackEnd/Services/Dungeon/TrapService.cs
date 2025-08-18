@@ -103,16 +103,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
             trap.IsTriggered = true;
             var perceptionSkill = hero.GetSkill(Skill.Perception);
-            
-            var sixthSense = hero.Perks.FirstOrDefault(p => p.Name == PerkName.SixthSense);
-            if (sixthSense != null)
-            {                
-                if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use {sixthSense.ToString()}?") 
-                    && (await _powerActivation.ActivatePerkAsync(hero, sixthSense)))
-                {
-                    perceptionSkill += 20;
-                }
-                await Task.Yield();
+
+            if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.SixthSense))
+            {
+                perceptionSkill += 20;
             }
 
             // In a real game loop, you would apply damage or status effects to the hero here.

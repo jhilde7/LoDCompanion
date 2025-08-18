@@ -319,7 +319,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Hero hero, ActionType.IdentifyItem):
                     if (primaryTarget is Equipment itemToIdentify)
                     {
-                        resultMessage = _identification.IdentifyItem(hero, itemToIdentify);
+                        resultMessage = await _identification.IdentifyItemAsync(hero, itemToIdentify);
                     }
                     else
                     {
@@ -760,23 +760,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 } 
             }
 
-            if (character is Hero hero)
-            {
-                var huntersEye = hero.Perks.FirstOrDefault(p => p.Name == PerkName.HuntersEye);
-                if (huntersEye != null && weapon != null && hero.CurrentEnergy >= 1
+            if (character is Hero hero && weapon != null && hero.CurrentEnergy >= 1
                     && weapon is RangedWeapon bowSling && (bowSling.AmmoType == AmmoType.Arrow || bowSling.AmmoType == AmmoType.SlingStone))
+            {
+                if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.HuntersEye))
                 {
-                    if (await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} want to use {huntersEye.ToString()} against {(target).Name}?"))
-                    {
-                        await Task.Yield();
-                        if (await _powerActivation.ActivatePerkAsync(hero, huntersEye))
-                        {
-                            await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
+                    await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
                             await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
-                        }
-                    }
-                    await Task.Yield();
-                } 
+                }
             }
 
             AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
@@ -944,17 +935,10 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             var equisiteRange = 10;
 
-            var carefulTouch = hero.Perks.FirstOrDefault(p => p.Name == PerkName.CarefulTouch);
-            if (carefulTouch != null && hero.CurrentEnergy > 0)
+            if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.CarefulTouch))
             {
-                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {carefulTouch.ToString()}");
-                await Task.Yield();
-                if (choiceResult)
-                {
-                    if (await _powerActivation.ActivatePerkAsync(hero, carefulTouch)) equisiteRange = 20;
-                }
+                equisiteRange = 20;
             }
-
 
             if (resultRoll.Roll <= skillTarget)
             {
@@ -964,21 +948,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (i == 0)
                     {
                         var part = (await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species))[0];
-                        var surgeon = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Surgeon);
-                        if (surgeon != null)
+                        if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Surgeon))
                         {
-                            var useSurgeon = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero.Name} wich to use the perk {surgeon.ToString()}");
+                            string choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList());
                             await Task.Yield();
-                            if (useSurgeon)
-                            {
-                                if (await _powerActivation.ActivatePerkAsync(hero, surgeon))
-                                {
-                                    string choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList());
-                                    await Task.Yield();
-                                    Enum.TryParse(choiceResult, out PartName selectedName);
-                                    part.Name = selectedName;
-                                }
-                            }
+                            Enum.TryParse(choiceResult, out PartName selectedName);
+                            part.Name = selectedName;
                         }
                         if (resultRoll.Roll <= equisiteRange)
                         {
@@ -1014,14 +989,9 @@ namespace LoDCompanion.BackEnd.Services.Player
             await Task.Yield();
 
             var pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Pitcher);
-            var pitcher = hero.Perks.FirstOrDefault(p => p.Name == PerkName.Pitcher);
-            if(pitcher != null && pitcherActive == null)
+            if (pitcherActive == null)
             {
-                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Does {hero} wish to use {pitcher.ToString()}");
-                if(choiceResult)
-                {
-                    await _powerActivation.ActivatePerkAsync(hero, pitcher);
-                }
+                await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Pitcher);
             }
 
             int rsSkill = hero.GetSkill(Skill.RangedSkill);

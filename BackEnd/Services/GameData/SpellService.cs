@@ -1510,16 +1510,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
             if (Properties != null && HasProperty(SpellProperty.MagicMissile))
             {
-                var innerPower = caster.Perks.FirstOrDefault(p => p.Name == PerkName.InnerPower);
-                if (innerPower != null)
-                {
-                    var useInnerPower = await diceRoll.RequestYesNoChoiceAsync($"Does {caster.Name} wish to use {innerPower.ToString()}?");
-                    await Task.Yield();
-                    if (useInnerPower)
-                    {
-                        await activation.ActivatePerkAsync(caster, innerPower);
-                    }
-                } 
+                await activation.RequestPerkActivationAsync(caster, PerkName.InnerPower);
             }
 
             // --- Calculate Target Skill and Miscast Chance ---

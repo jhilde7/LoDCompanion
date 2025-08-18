@@ -134,13 +134,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return null; // Position is not in any known room.
         }
 
-        public void ProcessTurn()
+        public async Task ProcessTurnAsync()
         {
             // For now, we'll assume the party is not in battle for the scenario roll.
             // This would be determined by checking if there are active monsters in the room.
             bool isInBattle = false;
 
-            var threatResult = _threat.ProcessScenarioRoll(_dungeonState, isInBattle, HeroParty);
+            var threatResult = await _threat.ProcessScenarioRoll(_dungeonState, isInBattle, HeroParty);
 
             if (threatResult != null)
             {

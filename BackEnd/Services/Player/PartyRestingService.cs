@@ -1,7 +1,8 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Dungeon;
-using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.GameData;
+using LoDCompanion.BackEnd.Services.Utilities;
+using System;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -67,21 +68,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             // check party perks to determine if a ration is needed
-            var livingOnNothingList = party.Heroes.Where(h => h.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing) != null);
-            (bool, Hero?) useLivingOnNothing = (false, null);
-            foreach(var hero in livingOnNothingList)
-            {
-                var livingOnNothing = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LivingOnNothing);
-                if (livingOnNothing == null || hero.CurrentEnergy < 1) continue;
-                if (await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {livingOnNothing.ToString()}?"))
-                {
-                    useLivingOnNothing.Item1 = await _powerActivation.ActivatePerkAsync(hero, livingOnNothing);
-                    useLivingOnNothing.Item2 = hero;
-                    break;
-                }
-            }
-
-            if (!useLivingOnNothing.Item1)
+            var requestResult = await party.Heroes[0].AskForPartyPerkAsync(_powerActivation, PerkName.LivingOnNothing);
+            if (requestResult.Item1)
             {
                 // Check for Rations
                 var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i.Name == "Ration");
@@ -105,7 +93,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 // Lower Threat Level
                 _threat.DecreaseThreat(dungeonState, 5);
                 // Make a threat roll
-                result.ThreatEvent = _threat.ProcessScenarioRoll(dungeonState, false, party);
+                result.ThreatEvent = await _threat.ProcessScenarioRoll(dungeonState, false, party);
                 // Move Wandering Monsters and check for interruption
                 // bool monsterSpotted = _wanderingMonsterService.MoveWanderingMonsters(dungeonState, 3);
                 // if (monsterSpotted) { ... return interrupted result ... }
@@ -129,7 +117,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                 // Restore Energy
                 int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
-                if (useLivingOnNothing.Item2 == hero)
+                if (requestResult.Item2 == hero)
                 {
                     energyToRestore = Math.Max(0, energyToRestore - 1);
                 }

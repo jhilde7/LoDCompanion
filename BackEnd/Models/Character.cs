@@ -638,8 +638,11 @@ namespace LoDCompanion.BackEnd.Models
 
             if (!TestResolve((int)roll))
             {
-                if (await AskForPartyPerkAsync(activation, PerkName.Rally))
-                    return await ResistFearAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);
+                var requestResult = await AskForPartyPerkAsync(activation, PerkName.Rally);
+                if (requestResult.Item1)
+                { 
+                    return await ResistFearAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll); 
+                }
                 AfraidOfTheseMonsters.Add(fearCauser);
                 return false;
             }
@@ -674,8 +677,11 @@ namespace LoDCompanion.BackEnd.Models
 
             if (!TestResolve((int)roll + 20))
             {
-                if (await AskForPartyPerkAsync(activation, PerkName.Rally))
-                    {return await ResistTerrorAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);}
+				var requestResult = await AskForPartyPerkAsync(activation, PerkName.Rally);
+				if (requestResult.Item1)
+				{
+                    return await ResistTerrorAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);
+                }
                 
                 AfraidOfTheseMonsters.Add(fearCauser);
                 await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
@@ -685,7 +691,7 @@ namespace LoDCompanion.BackEnd.Models
             return true;
         }
 
-        public async Task<bool> AskForPartyPerkAsync(PowerActivationService activation, PerkName perkName)
+        public async Task<(bool, Hero?)> AskForPartyPerkAsync(PowerActivationService activation, PerkName perkName)
         {
             if (Party != null && Party.Heroes.Any(h => h.Perks.Any(p => p.Name == perkName)))
             {
@@ -693,21 +699,16 @@ namespace LoDCompanion.BackEnd.Models
 
                 foreach (var hero in heroesWithPerk)
                 {
-                    var perk = hero.Perks.FirstOrDefault(p => p.Name == perkName);
-                    if (perk != null && perk.ActiveStatusEffect != null && hero.CurrentEnergy >= 1)
-                    {
-                        await Task.Yield();
-                        if (await new UserRequestService().RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.ToString()}"))
-                        {
-                            return await activation.ActivatePerkAsync(hero, perk, target: this);
-                        }
-                        else continue;
-                    }
+
+					if (await activation.RequestPerkActivationAsync(hero, perkName))
+					{
+						return (true, hero);
+					}
                     else continue;
                 }
             }
 
-            return false;
+            return (false, null);
         }
 
         public int GetResistFearModifiations(bool wasTerror = false)
