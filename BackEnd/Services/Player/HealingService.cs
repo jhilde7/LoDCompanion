@@ -6,7 +6,11 @@ namespace LoDCompanion.BackEnd.Services.Player
 {
     public class HealingService
     {
-        public HealingService() { }
+        private readonly UserRequestService _userRequest;
+        public HealingService(UserRequestService userRequestService) 
+        { 
+            _userRequest = userRequestService;
+        }
 
         /// <summary>
         /// Attempts to apply a bandage from one hero to a target hero.
@@ -19,7 +23,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             Equipment? bandage = null;
             if (!healer.Inventory.QuickSlots.Any())
             {
-                bandage = healer.Inventory.Backpack.FirstOrDefault(i => i.Name.Contains("Bandage"));
+                // Consume one use of the bandage.
+                bandage = BackpackHelper.TakeOneItem(
+                    healer.Inventory.QuickSlots, 
+                    healer.Inventory.QuickSlots.FirstOrDefault(i => i != null && i.Name.Contains("Bandage"))?? new Equipment()
+                    );
             }
             
             if (bandage == null)
@@ -27,16 +35,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return $"{healer.Name} has no bandages in their quick slots.";
             }
 
-            // Consume one use of the bandage.
-            bandage.Quantity--;
-            if (bandage.Quantity <= 0)
-            {
-                healer.Inventory.QuickSlots.Remove(bandage);
-            }
-
             // Perform a Heal skill check.
-            int healRoll = RandomHelper.RollDie(DiceType.D100);
-            if (healRoll > healer.GetSkill(Skill.Heal))
+            var rollResult = await _userRequest.RequestRollAsync("Roll heal skill check.", "1d100", skill: (healer, Skill.Heal));
+            if (rollResult.Roll > healer.GetSkill(Skill.Heal))
             {
                 return $"{healer.Name}'s attempt to heal {target.Name} failed, and the bandage was wasted.";
             }
@@ -54,6 +55,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             // Apply healing to the target.
             target.Heal(hpGained);
+            target.CurrentAP--;
 
             return $"{healer.Name} successfully heals {target.Name} for {hpGained} HP.";
         }
