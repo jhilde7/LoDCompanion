@@ -3,6 +3,7 @@ using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.Combat;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -29,7 +30,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
     public class DungeonManagerService
     {
-        private readonly GameDataService _gameData;
         private readonly WanderingMonsterService _wanderingMonster;
         private readonly EncounterService _encounter;
         private readonly RoomFactoryService _roomFactory;
@@ -40,6 +40,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly PartyRestingService _partyResting;
         private readonly LeverService _lever;
         private readonly DungeonState _dungeonState;
+        private readonly CombatManagerService _combatManager;
 
         public event Action? OnDungeonStateChanged;
 
@@ -51,7 +52,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public DungeonManagerService(
             DungeonState dungeonState,
-            GameDataService gameData,
             WanderingMonsterService wanderingMonster,
             EncounterService encounterService,
             RoomFactoryService roomFactoryService,
@@ -60,9 +60,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             ThreatService threatService,
             TrapService trapService,
             PartyRestingService partyResting,
-            LeverService leverService)
+            LeverService leverService,
+            CombatManagerService combatManagerService)
         {
-            _gameData = gameData;
             _wanderingMonster = wanderingMonster;
             _encounter = encounterService;
             _roomFactory = roomFactoryService;
@@ -72,6 +72,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _trap = trapService;
             _partyResting = partyResting;
             _lever = leverService;
+            _combatManager = combatManagerService;
 
             _dungeonState = dungeonState;
         }
@@ -135,10 +136,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         }
 
         public async Task ProcessTurnAsync()
-        {
-            // For now, we'll assume the party is not in battle for the scenario roll.
-            // This would be determined by checking if there are active monsters in the room.
-            bool isInBattle = false;
+        {            
+            bool isInBattle = !_combatManager.IsCombatOver;
 
             var threatResult = await _threat.ProcessScenarioRoll(isInBattle, HeroParty);
 
