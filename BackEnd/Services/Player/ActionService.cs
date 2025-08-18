@@ -82,6 +82,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly PotionActivationService _potionActivation;
         private readonly LockService _lock;
 
+        public event Func<Monster, List<GridPosition>, Task<bool>>? OnMonsterMovement;
+
         public ActionService(
             DungeonManagerService dungeonManagerService,
             SearchService searchService,
@@ -843,6 +845,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 var enemies = GetEnemiesForZOC(character);
                 
                 List<GridPosition> path = GridService.FindShortestPath(character.Position, position, dungeon.DungeonGrid, enemies);
+
+                if (character is Monster movingMonster && OnMonsterMovement != null)
+                {
+                    if (await OnMonsterMovement.Invoke(movingMonster, path))
+                    {
+                        return ("Movement interrupted by Overwatch!", false);
+                    }
+                }
 
                 MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
 

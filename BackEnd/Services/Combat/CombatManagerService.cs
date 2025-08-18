@@ -54,6 +54,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _powerActivation = powerActivationService;
 
             _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
+            _playerAction.OnMonsterMovement += HandleMonsterMovement;
         }
 
 
@@ -491,6 +492,26 @@ namespace LoDCompanion.BackEnd.Services.Combat
                .Where(h => h.Position != null && h.CurrentHP > 0 && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Pit) != null)
                .OrderBy(h => GridService.GetDistance(monster.Position, h.Position!))
                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Checks if any hero on Overwatch can interrupt a monster moving along a specific path.
+        /// </summary>
+        /// <param name="movingMonster">The monster that is taking its turn.</param>
+        /// <param name="path">The sequence of GridPositions the monster intends to move through.</param>
+        /// <returns>The hero that can interrupt, or null if none can.</returns>
+        private async Task<bool> HandleMonsterMovement(Monster movingMonster, List<GridPosition> path)
+        {
+            var interruptingHero = CheckForOverwatchInterrupt(movingMonster, path);
+            if (interruptingHero != null)
+            {
+                CombatLog.Add($"{interruptingHero.Name} on Overwatch spots {movingMonster.Name}!");
+                await _playerAction.PerformActionAsync(_dungeon, interruptingHero, ActionType.StandardAttack, movingMonster);
+                interruptingHero.CombatStance = CombatStance.Normal;
+                OnCombatStateChanged?.Invoke();
+                return true; // Movement was interrupted
+            }
+            return false; // Movement was not interrupted
         }
 
         /// <summary>
