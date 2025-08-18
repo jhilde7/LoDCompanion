@@ -150,6 +150,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         None,
         Open,
+        BashedDown,
         MagicallySealed,
     }
 
