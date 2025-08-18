@@ -5,14 +5,7 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Frozen;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Xml.Linq;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
