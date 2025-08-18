@@ -377,16 +377,16 @@ namespace LoDCompanion.BackEnd.Services.Game
                     // These are self/ally buffs with durations, handled by the default case.
                     break;
                 case "Open Lock":
-                    if (target is Door door && door.Properties != null)
+                    if (target is Door door)
                     {
                         // Logic to unlock a door
-                        if (door.Properties.ContainsKey(DoorProperty.Locked)) door.Properties.Remove(DoorProperty.Locked);
+                        door.Lock.LockHP = 0;
                         result.OutcomeMessage = $"{caster.Name} magically unlocks the door!";
                     }
-                    else if (target is Chest chest && chest.Properties != null)
+                    else if (target is Chest chest)
                     {
                         // Logic to unlock a door
-                        if (chest.Properties.ContainsKey(ChestProperty.Locked)) chest.Properties.Remove(ChestProperty.Locked);
+                        chest.Lock.LockHP = 0;
                         result.OutcomeMessage = $"{caster.Name} magically unlocks the chest!";
                     }
                     else
