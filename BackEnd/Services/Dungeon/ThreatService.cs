@@ -25,11 +25,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         private readonly UserRequestService _userRequest;
         private readonly PowerActivationService _powerActivation;
+        private readonly DungeonState _dungeon;
 
-        public ThreatService(UserRequestService userRequestService, PowerActivationService powerActivationService)
+        public ThreatService(UserRequestService userRequestService, PowerActivationService powerActivationService, DungeonState dungeon)
         {
             _userRequest = userRequestService;
             _powerActivation = powerActivationService;
+            _dungeon = dungeon;
         }
 
         /// <summary>
@@ -37,10 +39,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="dungeonState">The current state of the dungeon.</param>
         /// <param name="amount">The amount to increase the threat by.</param>
-        public void IncreaseThreat(DungeonState dungeonState, int amount)
+        public void IncreaseThreat(int amount)
         {
-            dungeonState.ThreatLevel += amount;
-            Console.WriteLine($"Threat increased by {amount}. New Threat Level: {dungeonState.ThreatLevel}");
+            _dungeon.ThreatLevel += amount;
+            Console.WriteLine($"Threat increased by {amount}. New Threat Level: {_dungeon.ThreatLevel}");
         }
 
         /// <summary>
@@ -48,14 +50,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="dungeonState">The current state of the dungeon.</param>
         /// <param name="amount">The amount to decrease the threat by.</param>
-        public void DecreaseThreat(DungeonState dungeonState, int amount)
+        public void DecreaseThreat(int amount)
         {
-            dungeonState.ThreatLevel -= amount;
-            if (dungeonState.ThreatLevel < dungeonState.MinThreatLevel)
-            {
-                dungeonState.ThreatLevel = dungeonState.MinThreatLevel;
-            }
-            Console.WriteLine($"Threat decreased by {amount}. New Threat Level: {dungeonState.ThreatLevel}");
+            var missingThreat = _dungeon.ThreatLevel - _dungeon.MinThreatLevel;
+            amount = Math.Min(amount, missingThreat);
+            _dungeon.ThreatLevel -= amount;
+            Console.WriteLine($"Threat decreased by {amount}. New Threat Level: {_dungeon.ThreatLevel}");
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="dungeonState">The current state of the dungeon.</param>
         /// <param name="isInBattle">Whether the party is currently in combat.</param>
         /// <returns>A ThreatEventResult object if an event was triggered, otherwise null.</returns>
-        public async Task<ThreatEventResult> ProcessScenarioRoll(DungeonState dungeonState, bool isInBattle, Party? heroParty)
+        public async Task<ThreatEventResult> ProcessScenarioRoll(bool isInBattle, Party? heroParty)
         {
             int scenarioRoll = RandomHelper.RollDie(DiceType.D10);
             Console.WriteLine($"Scenario Roll: {scenarioRoll}");
@@ -86,23 +86,23 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             // Perform the Threat Level roll (d20).
             int threatRoll = RandomHelper.RollDie(DiceType.D20);
-            Console.WriteLine($"Threat Roll: {threatRoll} (Current Threat: {dungeonState.ThreatLevel})");
+            Console.WriteLine($"Threat Roll: {threatRoll} (Current Threat: {_dungeon.ThreatLevel})");
 
             if (threatRoll == 20)
             {
-                DecreaseThreat(dungeonState, 5);
+                DecreaseThreat(5);
                 return new ThreatEventResult { Description = "A moment of calm. Threat decreases by 5." };
             }
 
-            if (threatRoll <= dungeonState.ThreatLevel)
+            if (threatRoll <= _dungeon.ThreatLevel)
             {
                 // A threat event is triggered!
-                return ResolveThreatEvent(dungeonState, isInBattle);
+                return ResolveThreatEvent(isInBattle);
             }
             else
             {
                 // The roll was above the threat level, so the threat increases.
-                IncreaseThreat(dungeonState, 1);
+                IncreaseThreat(1);
                 return new ThreatEventResult { Description = "The heroes feel a growing sense of dread... (Threat increased by 1)" };
             }
         }
@@ -110,7 +110,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <summary>
         /// Resolves a triggered threat event based on whether the party is in combat.
         /// </summary>
-        private ThreatEventResult ResolveThreatEvent(DungeonState dungeonState, bool isInBattle)
+        private ThreatEventResult ResolveThreatEvent(bool isInBattle)
         {
             ThreatEventResult result;
             if (isInBattle)
@@ -123,7 +123,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Decrease the threat level after the event is resolved.
-            DecreaseThreat(dungeonState, result.ThreatDecrease);
+            DecreaseThreat(result.ThreatDecrease);
             return result;
         }
 

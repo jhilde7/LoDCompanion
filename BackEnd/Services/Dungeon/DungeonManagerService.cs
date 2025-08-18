@@ -140,7 +140,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // This would be determined by checking if there are active monsters in the room.
             bool isInBattle = false;
 
-            var threatResult = await _threat.ProcessScenarioRoll(_dungeonState, isInBattle, HeroParty);
+            var threatResult = await _threat.ProcessScenarioRoll(isInBattle, HeroParty);
 
             if (threatResult != null)
             {
@@ -175,7 +175,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             door.Properties ??= new Dictionary<DoorProperty, int>();
 
             // Increase Threat Level
-            _threat.IncreaseThreat(_dungeonState, 1);
+            _threat.IncreaseThreat(1);
 
             // Roll for Trap (d6)
             if (RandomHelper.RollDie(DiceType.D6) == 6)
@@ -188,8 +188,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     if (!_trap.DetectTrap(hero, door.Trap))
                     {
-                        // Failed to detect, trap is sprung!
-                        door.Properties.Remove(DoorProperty.Trapped);
+                        // Failed to detect, trap is sprung!                        
                         return await _trap.TriggerTrapAsync(hero, door.Trap);
                     }
                     else
@@ -219,11 +218,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Resolve Lock
-            if (door.Properties != null && door.Properties.ContainsKey(DoorProperty.Locked))
+            if (door.Properties != null && door.Lock.IsLocked)
             {
                 // The door is locked. The game must now wait for player input
                 // (e.g., Pick Lock, Bash, Cast Spell). This method's job is done for now.
-                return $"The door is locked (Difficulty: {door.Properties[DoorProperty.LockModifier]}, HP: {door.Properties[DoorProperty.LockHP]}).";
+                return $"The door is locked (Difficulty: {door.Lock.LockModifier}, HP: {door.Lock.LockHP}).";
             }
 
             // Open the door and reveal the next room
@@ -349,7 +348,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public void WinBattle()
         {
-            _threat.IncreaseThreat(_dungeonState, 1);
+            _threat.IncreaseThreat(1);
         }
 
         public bool UpdateThreat(int amount)
@@ -431,7 +430,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // Process the consequences of the event
             if (result.ThreatIncrease > 0)
             {
-                _threat.IncreaseThreat(_dungeonState, result.ThreatIncrease);
+                _threat.IncreaseThreat(result.ThreatIncrease);
             }
             if (result.ShouldSpawnWanderingMonster)
             {

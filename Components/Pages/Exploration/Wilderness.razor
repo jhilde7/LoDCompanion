@@ -90,12 +90,12 @@
         //TODO: use this to display a box of information about the Monster clicked
     }
 
-    private async Task HandleHeroClick(Hero hero)
+    private void HandleHeroClick(Hero hero)
     {
         if (CombatManager.IsAwaitingHeroSelection)
         {
             PartyManager.SelectedHero = PartyManager.Party?.Heroes.FirstOrDefault(h => h == hero);
-            await CombatManager.SetActiveHeroAsync(hero);
+            CombatManager.SetActiveHeroAsync(hero);
         }
     }
 
