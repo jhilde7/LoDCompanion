@@ -30,6 +30,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public event Action? OnCombatStateChanged;
         public Hero? ActiveHero { get; private set; }
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();
+        private HashSet<Character> CharactersWithProcessedEffectsThisTurn = new HashSet<Character>();
 
         public CombatManagerService(
             InitiativeService initiativeService,
@@ -150,6 +151,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             CombatLog.Add("--- New Turn ---");
             MonstersThatHaveActedThisTurn.Clear();
+            CharactersWithProcessedEffectsThisTurn.Clear();
 
             foreach (var hero in HeroesInCombat)
             {
@@ -256,7 +258,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         monsterToAct.IsVulnerableAfterPowerAttack = false;
 
                         CombatLog.Add($"{monsterToAct.Name} prepares to act...");
-                        await StatusEffectService.ProcessActiveStatusEffectsAsync(monsterToAct, _powerActivation);
+                        if (CharactersWithProcessedEffectsThisTurn.Add(monsterToAct))
+                        {
+                            await StatusEffectService.ProcessActiveStatusEffectsAsync(monsterToAct, _powerActivation); 
+                        }
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
                         CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
@@ -506,7 +511,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <summary>
         /// This NEW public method is called by the UI when a player clicks on a valid hero.
         /// </summary>
-        public async Task SetActiveHeroAsync(Hero hero)
+        public void SetActiveHeroAsync(Hero hero)
         {
             // Ensure we are in the correct state and the hero is valid
             if (!IsAwaitingHeroSelection || !HeroesInCombat.Contains(hero) || hero.CurrentAP <= 0)
@@ -524,11 +529,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
             ActiveHero = hero;
             _movementHighlighting.HighlightWalkableSquares(hero, _dungeon);
 
-            // Perform standard start-of-turn logic
-            /*
-            TODO: This should be handled in a separate location as the hero can be selected but not actioned upon  and another hero selected
-            await StatusEffectService.ProcessStatusEffectsAsync(ActiveHero);
-            */
             CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
             OnCombatStateChanged?.Invoke();
         }
@@ -538,6 +538,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             if (ActiveHero != null && ActiveHero.CurrentAP > 0)
             {
+                // Process status effects only once per hero per turn, before their first action.
+                if (CharactersWithProcessedEffectsThisTurn.Add(ActiveHero))
+                {
+                    await StatusEffectService.ProcessActiveStatusEffectsAsync(ActiveHero, _powerActivation);
+                    CombatLog.Add($"Processing status effects for {ActiveHero.Name}.");
+                }
+
                 _movementHighlighting.ClearHighlights();
                 CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget));
                 //if hero performs an action then no other hero can be selected until next hero selection phase
