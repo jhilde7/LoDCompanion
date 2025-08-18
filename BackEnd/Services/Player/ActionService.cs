@@ -48,7 +48,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         HarvestParts,
         ThrowPotion,
         DragonBreath,
-        Taunt
+        Taunt,
+        BreakDownDoor
     }
 
     public class ActionInfo
@@ -77,6 +78,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly PartyManagerService _partyManager;
         private readonly AlchemyService _alchemy;
         private readonly PotionActivationService _potionActivation;
+        private readonly LockService _lock;
 
         public ActionService(
             DungeonManagerService dungeonManagerService,
@@ -91,7 +93,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             PowerActivationService powerActivationService,
             PartyManagerService partyManager,
             AlchemyService alchemyService,
-            PotionActivationService potionActivation)
+            PotionActivationService potionActivation,
+            LockService lockService)
         {
             _dungeonManager = dungeonManagerService;
             _search = searchService;
@@ -106,6 +109,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             _partyManager = partyManager;
             _alchemy = alchemyService;
             _potionActivation = potionActivation;
+            _lock = lockService;
         }
 
         /// <summary>
@@ -253,9 +257,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case (Character, ActionType.OpenDoor):
-                    if (primaryTarget is Door door)
+                    if (primaryTarget is Door)
                     {
-                        await _dungeonManager.InteractWithDoorAsync(door, character);
+                        await _dungeonManager.InteractWithDoorAsync((Door)primaryTarget, character);
                     }
                     else
                     {
@@ -518,7 +522,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
                 case (Hero hero, ActionType.HarvestParts):
-                    if (hero.Inventory.Backpack.Any(e => e.Name == "Alchemist Tool"))
+                    if (hero.Inventory.Backpack.Any(e => e != null && e.Name == "Alchemist Tool"))
                     {
                         var avaialbleCorpses = hero.Room.CorpsesInRoom?.Where(c => !c.HasBeenHarvested).ToList();
                         if (avaialbleCorpses != null && avaialbleCorpses.Any())
@@ -561,6 +565,31 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         resultMessage = "Invalid target for Taunt action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Character, ActionType.BreakDownDoor):
+                    if (primaryTarget is Door)
+                    {
+                        var door = (Door)primaryTarget;
+                        if (door.Lock.IsLocked && weapon is MeleeWeapon)
+                        {
+                            if (await _lock.BashLock(character, door.Lock, (MeleeWeapon)weapon)) 
+                            { 
+                                door.Properties ??= new Dictionary<DoorProperty, int>();
+                                door.Properties.TryAdd(DoorProperty.BashedDown, 0);
+                            }
+                        }
+                        else
+                        {
+                            resultMessage = "Target door is not locked.";
+                            resultMessage += await PerformActionAsync(dungeon, character, ActionType.OpenDoor, primaryTarget);
+                            actionWasSuccessful = false;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Target is not a door to break down.";
                         actionWasSuccessful = false;
                     }
                     break;
@@ -1051,14 +1080,15 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.Aim => 1,
                 ActionType.HarvestParts => 1,
                 ActionType.ThrowPotion => 1,
+                ActionType.EquipGear => 1,
+                ActionType.AddItemToQuickSlot => 1,
+                ActionType.BreakDownDoor => 1,
                 ActionType.PowerAttack => 2,
                 ActionType.ChargeAttack => 2,
                 ActionType.PickLock => 2,
                 ActionType.DisarmTrap => 2,
                 ActionType.SearchRoom => 2,
                 ActionType.HealSelf => 2,
-                ActionType.EquipGear => 2,
-                ActionType.AddItemToQuickSlot => 2,
                 ActionType.IdentifyItem => 0,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,
