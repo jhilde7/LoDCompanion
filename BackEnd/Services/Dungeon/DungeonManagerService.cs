@@ -17,6 +17,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int MaxThreatLevel { get; set; }
         public int ThreatLevel { get; set; }
         public int EncounterChanceModifier { get; set; } = 0;
+        public int ScenarioRollModifier { get; set; } = 0;
         public int WhenSpawnWanderingMonster { get; set; }
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }

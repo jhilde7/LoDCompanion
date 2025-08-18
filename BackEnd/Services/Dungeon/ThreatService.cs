@@ -67,7 +67,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <returns>A ThreatEventResult object if an event was triggered, otherwise null.</returns>
         public async Task<ThreatEventResult> ProcessScenarioRoll(bool isInBattle, Party? heroParty)
         {
-            int scenarioRoll = RandomHelper.RollDie(DiceType.D10);
+            int scenarioRoll = RandomHelper.RollDie(DiceType.D10) + _dungeon.ScenarioRollModifier;
             Console.WriteLine($"Scenario Roll: {scenarioRoll}");
 
             if (heroParty != null && scenarioRoll >= 9)
@@ -75,7 +75,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 var requestResult = await heroParty.Heroes[0].AskForPartyPerkAsync(_powerActivation, PerkName.FateForger);
                 if (requestResult.Item1)
                 {
-                    scenarioRoll = RandomHelper.RollDie(DiceType.D10);
+                    scenarioRoll = RandomHelper.RollDie(DiceType.D10) + _dungeon.ScenarioRollModifier;
                 }
             }
 
