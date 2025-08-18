@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Frozen;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
@@ -556,6 +557,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }                    
                     break;
                 case (Hero hero, ActionType.DragonBreath):
+                    (resultMessage, actionWasSuccessful) = await DragonBreath(dungeon, resultMessage, actionWasSuccessful, hero);
                     break;
 
             }
@@ -569,6 +571,127 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";
+        }
+
+        private async Task<(string resultMessage, bool actionWasSuccessful)> DragonBreath(DungeonState dungeon, string resultMessage, bool actionWasSuccessful, Hero hero)
+        {
+            var dragonBreathEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DragonBreath);
+            if (dragonBreathEffect == null)
+            {
+                resultMessage = $"{hero.Name} has not consumed a Potion of Dragon's Breath.";
+                actionWasSuccessful = false;
+                return (resultMessage, actionWasSuccessful);
+            }
+
+            if (hero.Position == null)
+            {
+                resultMessage = "Cannot use Dragon Breath without a position.";
+                actionWasSuccessful = false;
+                return (resultMessage, actionWasSuccessful);
+            }
+
+            // Generate all possible attack options
+            var adjacentSquares = GridService.GetNeighbors(hero.Position, dungeon.DungeonGrid)
+                .Where(sq => !(dungeon.DungeonGrid.GetValueOrDefault(sq)?.MovementBlocked ?? true))
+                .ToList();
+
+            var spotAttackOptions = new List<GridPosition>(adjacentSquares);
+            var jetAttackOptions = new List<(GridPosition, GridPosition)>();
+
+            // Find all pairs of adjacent squares that are also adjacent to each other
+            for (int i = 0; i < adjacentSquares.Count; i++)
+            {
+                for (int j = i + 1; j < adjacentSquares.Count; j++)
+                {
+                    if (GridService.IsAdjacent(adjacentSquares[i], adjacentSquares[j]))
+                    {
+                        jetAttackOptions.Add((adjacentSquares[i], adjacentSquares[j]));
+                    }
+                }
+            }
+
+            if (!spotAttackOptions.Any())
+            {
+                resultMessage = "There are no valid adjacent squares to attack.";
+                actionWasSuccessful = false;
+                return (resultMessage, actionWasSuccessful);
+            }
+
+            bool actionTaken = false;
+            var outcome = new StringBuilder();
+
+            // Present Jet Attack options to the player first
+            foreach (var (pos1, pos2) in jetAttackOptions)
+            {
+                var occupants1 = string.Join(", ", dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos1)).Select(c => c.Name));
+                var occupants2 = string.Join(", ", dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos2)).Select(c => c.Name));
+                var prompt1 = !string.IsNullOrEmpty(occupants1) ? $" (hitting {occupants1})" : "";
+                var prompt2 = !string.IsNullOrEmpty(occupants2) ? $" (hitting {occupants2})" : "";
+
+                if (await _diceRoll.RequestYesNoChoiceAsync($"Perform a jet attack hitting squares {pos1}{prompt1} and {pos2}{prompt2}?"))
+                {
+                    outcome.AppendLine($"{hero.Name} breathes a jet of fire!");
+
+                    var charactersOnPos1 = dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos1)).ToList();
+                    int damage1 = RandomHelper.RollDie(DiceType.D4);
+                    foreach (var characterInTarget in charactersOnPos1)
+                    {
+                        await characterInTarget.TakeDamageAsync(damage1, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: DamageType.Fire);
+                        outcome.AppendLine($"{characterInTarget.Name} is hit for {damage1} fire damage.");
+                    }
+
+                    var charactersOnPos2 = dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos2)).ToList();
+                    int damage2 = RandomHelper.RollDie(DiceType.D4);
+                    foreach (var characterInTarget in charactersOnPos2)
+                    {
+                        await characterInTarget.TakeDamageAsync(damage2, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: DamageType.Fire);
+                        outcome.AppendLine($"{characterInTarget.Name} is hit for {damage2} fire damage.");
+                    }
+
+                    actionTaken = true;
+                    break;
+                }
+            }
+
+            // If no jet attack was chosen, present Spot Attack options
+            if (!actionTaken)
+            {
+                foreach (var spotOption in spotAttackOptions)
+                {
+                    var occupants = string.Join(", ", dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(spotOption)).Select(c => c.Name));
+                    var prompt = !string.IsNullOrEmpty(occupants) ? $" (hitting {occupants})" : "";
+
+                    if (await _diceRoll.RequestYesNoChoiceAsync($"Perform a spot attack on square {spotOption}{prompt}?"))
+                    {
+                        outcome.AppendLine($"{hero.Name} breathes a gout of flame!");
+
+                        var charactersOnPos = dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(spotOption)).ToList();
+                        int damage = RandomHelper.RollDie(DiceType.D8);
+                        foreach (var characterInTarget in charactersOnPos)
+                        {
+                            await characterInTarget.TakeDamageAsync(damage, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: DamageType.Fire);
+                            outcome.AppendLine($"{characterInTarget.Name} is hit for {damage} fire damage.");
+                        }
+
+                        actionTaken = true;
+                        break;
+                    }
+                }
+            }
+
+            // Finalize the action based on player choice
+            if (actionTaken)
+            {
+                hero.ActiveStatusEffects.Remove(dragonBreathEffect);
+                resultMessage = outcome.ToString();
+            }
+            else
+            {
+                resultMessage = $"{hero.Name} decides not to use Dragon Breath.";
+                actionWasSuccessful = false; // No AP is consumed if the action is cancelled
+            }
+
+            return (resultMessage, actionWasSuccessful);
         }
 
         private async Task<(string resultMessage, int apCost)> StandardAttack(DungeonState dungeon, Character character, Character target, CombatContext? combatContext, Weapon? weapon)
