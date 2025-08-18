@@ -574,15 +574,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
-            foreach(Equipment equipment in State.Hero.Inventory.Backpack)
+            foreach(var equipment in State.Hero.Inventory.Backpack)
             {
-                if (equipment is MeleeWeapon || equipment is RangedWeapon || equipment is Armour)
+                if (equipment != null)
                 {
-                    equipment.Durability = RandomHelper.RollDie(DiceType.D4);
-                }
-                else
-                {
-                    equipment.Durability = 1;
+                    if (equipment is MeleeWeapon || equipment is RangedWeapon || equipment is Armour)
+                    {
+                        equipment.Durability = RandomHelper.RollDie(DiceType.D4);
+                    }
+                    else
+                    {
+                        equipment.Durability = 1;
+                    } 
                 }
             }
 

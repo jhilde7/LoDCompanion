@@ -565,7 +565,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             }
 
             // Check for Empty Bottle
-            var emptyBottle = alchemist.Inventory.Backpack.FirstOrDefault(item => item.Name == "Empty Bottle" && item.Quantity > 0);
+            var emptyBottle = alchemist.Inventory.Backpack.FirstOrDefault(item => item != null && item.Name == "Empty Bottle" && item.Quantity > 0);
             if (emptyBottle == null)
             {
                 return "Brewing failed: No empty bottle available.";

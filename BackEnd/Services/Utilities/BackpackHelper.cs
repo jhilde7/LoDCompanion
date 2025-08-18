@@ -4,9 +4,9 @@ namespace LoDCompanion.BackEnd.Services.Utilities
 {
     public static class BackpackHelper
     {
-        public static void AddItem(List<Equipment> backpack, Equipment itemToAdd)
+        public static void AddItem(List<Equipment?> backpack, Equipment itemToAdd)
         {
-            var existingItem = backpack.FirstOrDefault(item => item.Name == itemToAdd.Name);
+            var existingItem = backpack.FirstOrDefault(item => item != null && item.Name == itemToAdd.Name);
 
             if (existingItem != null && existingItem.Durability == itemToAdd.Durability)
             {
@@ -20,7 +20,7 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             }
         }
 
-        public static void RemoveSingleItem(List<Equipment> backpack, Equipment itemToRemove)
+        public static void RemoveSingleItem(List<Equipment?> backpack, Equipment itemToRemove)
         {
             var existingItem = backpack.FirstOrDefault(item => item == itemToRemove);
 

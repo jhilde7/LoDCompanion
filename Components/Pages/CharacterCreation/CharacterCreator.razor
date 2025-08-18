@@ -935,11 +935,14 @@ else
                     <p>
                     @foreach(var item in currentHero.Inventory.Backpack)
                         {
-                            <span class="badge badge-pill badge-primary">
+                            @if(item != null)
+                            {
+                                <span class="badge badge-pill badge-primary">
                                 <span title="@item.ToString()">
                                     @item.GetDisplayName()
                                 </span>
-                            </span>
+                                </span>
+                            }
                         }
                     </p>
                 }

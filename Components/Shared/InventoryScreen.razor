@@ -196,8 +196,11 @@
     var hero = PartyManager.SelectedHero;
     foreach (var item in hero.Inventory.Backpack)
     {
-        heroSlotSelections.TryAdd(item.Id, 1);
-        containerSlotSelections.TryAdd(item.Id, 1);
+        if (item != null)
+        {
+            heroSlotSelections.TryAdd(item.Id, 1);
+            containerSlotSelections.TryAdd(item.Id, 1);
+        }
     }
 
     <div class="inventory-backdrop" @onclick="UIService.HideInventoryAsync">
@@ -240,43 +243,46 @@
 
             <h4>Backpack</h4>
             <div class="backpack-grid">
-                @foreach (var item in hero.Inventory.Backpack.OrderBy(i => i.Name))
+                @foreach (var item in hero.Inventory.Backpack.OrderBy(i => i?.Name))
                 {
-                    <div class="inventory-slot">
-                        <button class="slot-action-button equip" @onclick="() => EquipItem(item)">+</button>
-                        <div class="item-name">@item.Name</div>
-                        @if (item.Quantity > 1)
-                        {
-                            <div class="item-quantity">x @item.Quantity</div>
-                        }
-
-                        <div class="quick-slot-actions">
-                            <div class="quick-slot-row">
-                                <span>Hero QS:</span>
-                                <input type="number" class="quick-slot-input"
-                                       min="1" max="@hero.Inventory.QuickSlots.Count"
-                                       @bind="heroSlotSelections[item.Id]" />
-                                <button class="quick-slot-assign-button" title="Assign to Hero Quick Slot"
-                                        @onclick="() => AssignItemToQuickSlot(item, heroSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
-                                    +
-                                </button>
-                            </div>
-                            @if (hero.Inventory.EquippedStorage?.Storage != null)
+                    @if (item != null)
+                    {
+                        <div class="inventory-slot">
+                            <button class="slot-action-button equip" @onclick="() => EquipItem(item)">+</button>
+                            <div class="item-name">@item.Name</div>
+                            @if (item.Quantity > 1)
                             {
-                                var container = hero.Inventory.EquippedStorage;
+                                <div class="item-quantity">x @item.Quantity</div>
+                            }
+
+                            <div class="quick-slot-actions">
                                 <div class="quick-slot-row">
-                                    <span>Belt QS:</span>
+                                    <span>Hero QS:</span>
                                     <input type="number" class="quick-slot-input"
-                                           min="1" max="@container.Storage.QuickSlots.Count"
-                                           @bind="containerSlotSelections[item.Id]" />
-                                    <button class="quick-slot-assign-button" title="Assign to @container.Name Slot"
-                                            @onclick="() => AssignItemToEquipmentQuickSlot(item, container, containerSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
+                                           min="1" max="@hero.Inventory.QuickSlots.Count"
+                                           @bind="heroSlotSelections[item.Id]" />
+                                    <button class="quick-slot-assign-button" title="Assign to Hero Quick Slot"
+                                            @onclick="() => AssignItemToQuickSlot(item, heroSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
                                         +
                                     </button>
                                 </div>
-                            }
+                                @if (hero.Inventory.EquippedStorage?.Storage != null)
+                                {
+                                    var container = hero.Inventory.EquippedStorage;
+                                    <div class="quick-slot-row">
+                                        <span>Belt QS:</span>
+                                        <input type="number" class="quick-slot-input"
+                                               min="1" max="@container.Storage.QuickSlots.Count"
+                                               @bind="containerSlotSelections[item.Id]" />
+                                        <button class="quick-slot-assign-button" title="Assign to @container.Name Slot"
+                                                @onclick="() => AssignItemToEquipmentQuickSlot(item, container, containerSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
+                                            +
+                                        </button>
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
 
@@ -387,8 +393,11 @@
         {
             foreach (var item in PartyManager.SelectedHero.Inventory.Backpack)
             {
-                heroSlotSelections.TryAdd(item.Id, 1);
-                containerSlotSelections.TryAdd(item.Id, 1);
+                if (item != null)
+                {
+                    heroSlotSelections.TryAdd(item.Id, 1);
+                    containerSlotSelections.TryAdd(item.Id, 1);
+                }
             }
         }
     }

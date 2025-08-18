@@ -16,7 +16,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Equipment? EquippedStorage { get; set; }
 
         // Carried Items
-        public List<Equipment> Backpack { get; set; } = new List<Equipment>();
+        public List<Equipment?> Backpack { get; set; } = new List<Equipment?>();
         public List<Equipment?> QuickSlots { get; set; } = [.. new Equipment?[3]];
         public int MaxQuickSlots => QuickSlots.Count;
 
@@ -233,7 +233,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private bool EquipAmmo(Hero hero, Ammo ammoToEquip)
         {
             EmptyQuiver(hero, hero.Inventory);
-            var backpackStack = (Ammo?)hero.Inventory.Backpack.FirstOrDefault(a => a.Name == ammoToEquip.Name);
+            var backpackStack = (Ammo?)hero.Inventory.Backpack.FirstOrDefault(a => a != null && a.Name == ammoToEquip.Name);
             if (backpackStack != null)
             {
                 int quantityToMove = Math.Min(10, backpackStack.Quantity);
