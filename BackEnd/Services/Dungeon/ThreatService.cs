@@ -12,7 +12,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public class ThreatEventResult
     {
         public string Description { get; set; } = "Nothing happens.";
-        public int ThreatDecrease { get; set; } = 0;
         public bool SpawnWanderingMonster { get; set; } = false;
         public bool SpawnTrap { get; set; } = false;
         public bool ShouldAddExplorationCards { get; internal set; }
@@ -100,12 +99,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 // A threat event is triggered!
                 return ResolveThreatEvent(isInBattle);
             }
-            else
-            {
-                // The roll was above the threat level, so the threat increases.
-                IncreaseThreat(1);
-                return new ThreatEventResult { Description = "The heroes feel a growing sense of dread... (Threat increased by 1)" };
-            }
+
+            return new ThreatEventResult { Description = "Nothing happens" };
         }
 
         /// <summary>
@@ -123,8 +118,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 result = ResolveOutOfBattleEvent();
             }
 
-            // Decrease the threat level after the event is resolved.
-            DecreaseThreat(result.ThreatDecrease);
             return result;
         }
 
@@ -140,28 +133,28 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 case int n when n >= 1 && n <= 12:
                     result.Description = "A Wandering Monster has appeared!";
-                    result.ThreatDecrease = 5;
+                    DecreaseThreat(5);
                     result.SpawnWanderingMonster = true;
                     break;
                 case int n when n >= 13 && n <= 15:
                     result.Description = "The dungeon shifts... Add one extra Exploration Card on top of each pile.";
-                    result.ThreatDecrease = 5;
+                    DecreaseThreat(5);
                     result.ShouldAddExplorationCards = true;
                     break;
                 case int n when n >= 16 && n <= 17:
                     result.Description = "The air grows heavy. The risk of encounters has gone up by 10% for the rest of the quest.";
-                    result.ThreatDecrease = 6;
+                    DecreaseThreat(6);
                     _dungeon.EncounterChanceModifier += 10;
                     break;
                 case int n when n >= 18 && n <= 19:
                     result.Description = "A hero has sprung a trap!";
-                    result.ThreatDecrease = 7;
+                    DecreaseThreat(7);
                     result.SpawnTrap = true;
                     break;
                 case 20:
                     result.Description = "A strange energy fills the dungeon. Add +1 on all Scenario die rolls for the remainder of the dungeon.";
-                    result.ThreatDecrease = 10;
-                    // Note: A property in DungeonState should track this modifier.
+                    DecreaseThreat(10);
+                    _dungeon.ScenarioRollModifier += 1;
                     break;
             }
             return result;
@@ -179,40 +172,40 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 case 1:
                     result.Description = "A disturbance in the Void! Spell Casters may do nothing during the coming turn.";
-                    result.ThreatDecrease = 2;
+                    DecreaseThreat(2);
                     break;
                 case 2:
                     result.Description = "A greenish tint appears on the enemies' weapons! They gain the Poisonous Special Rule.";
-                    result.ThreatDecrease = 2;
+                    DecreaseThreat(2);
                     break;
                 case 3:
                     result.Description = "Forged under pressure! One enemy gains +15 CS until dead.";
-                    result.ThreatDecrease = 3;
+                    DecreaseThreat(3);
                     break;
                 case int n when n >= 4 && n <= 5:
                     result.Description = "Divine intervention? One wounded enemy heals 1d10 Hit Points.";
-                    result.ThreatDecrease = 3;
+                    DecreaseThreat(3);
                     break;
                 case 6:
                     result.Description = "Frenzy! One enemy gains the Frenzy Special Rule until dead.";
-                    result.ThreatDecrease = 3;
+                    DecreaseThreat(3);
                     break;
                 case 7:
                     result.Description = "Disarmed! A random hero drops their weapon and must spend an action to retrieve it.";
-                    result.ThreatDecrease = 3;
+                    DecreaseThreat(3);
                     break;
                 case 8:
                     result.Description = "Fearsome! One enemy gains the Fear Special Rule.";
-                    result.ThreatDecrease = 4;
+                    DecreaseThreat(4);
                     break;
                 case 9:
                     result.Description = "Reinforcements! A new encounter appears at a random door.";
-                    result.ThreatDecrease = 4;
+                    DecreaseThreat(4);
                     // Note: This would trigger logic in DungeonManagerService to spawn more monsters.
                     break;
                 case 10:
                     result.Description = "Onwards! All enemies gain +10 CS until the end of the battle.";
-                    result.ThreatDecrease = 6;
+                    DecreaseThreat(6);
                     break;
             }
             return result;
