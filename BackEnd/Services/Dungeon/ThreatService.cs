@@ -151,7 +151,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case int n when n >= 16 && n <= 17:
                     result.Description = "The air grows heavy. The risk of encounters has gone up by 10% for the rest of the quest.";
                     result.ThreatDecrease = 6;
-                    // Note: A property in DungeonState should track this modifier.
+                    _dungeon.EncounterChanceModifier += 10;
                     break;
                 case int n when n >= 18 && n <= 19:
                     result.Description = "A hero has sprung a trap!";

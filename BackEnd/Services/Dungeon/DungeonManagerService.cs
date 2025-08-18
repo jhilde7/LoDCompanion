@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.Combat;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -15,6 +16,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int MinThreatLevel { get; set; }
         public int MaxThreatLevel { get; set; }
         public int ThreatLevel { get; set; }
+        public int EncounterChanceModifier { get; set; } = 0;
         public int WhenSpawnWanderingMonster { get; set; }
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }
@@ -39,16 +41,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly TrapService _trap;
         private readonly PartyRestingService _partyResting;
         private readonly LeverService _lever;
-        private readonly DungeonState _dungeonState;
+        private readonly DungeonState _dungeon;
         private readonly CombatManagerService _combatManager;
         private readonly RoomService _room;
+        private readonly UserRequestService _userRequest;
 
         public event Action? OnDungeonStateChanged;
 
-        public Party? HeroParty => _dungeonState.HeroParty;
-        public Room? StartingRoom => _dungeonState.StartingRoom;
-        public Room? CurrentRoom => _dungeonState.CurrentRoom;
-        public DungeonState? DungeonState => _dungeonState;
+        public Party? HeroParty => _dungeon.HeroParty;
+        public Room? StartingRoom => _dungeon.StartingRoom;
+        public Room? CurrentRoom => _dungeon.CurrentRoom;
+        public DungeonState? DungeonState => _dungeon;
 
 
         public DungeonManagerService(
@@ -63,8 +66,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             PartyRestingService partyResting,
             LeverService leverService,
             CombatManagerService combatManagerService,
-            RoomService roomService)
+            RoomService roomService,
+            UserRequestService userRequestService)
         {
+            _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
             _encounter = encounterService;
             _roomFactory = roomFactoryService;
@@ -76,27 +81,26 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _lever = leverService;
             _combatManager = combatManagerService;
             _room = roomService;
-
-            _dungeonState = dungeonState;
+            _userRequest = userRequestService;
         }
 
         // Create a new method to start a quest
         public void StartQuest(Party heroParty, Quest quest)
         {
             // 1. Initialize the basic dungeon state
-            _dungeonState.HeroParty = heroParty;
-            _dungeonState.MinThreatLevel = 1;
-            _dungeonState.MaxThreatLevel = 10; // This can be overridden by quest specifics
-            _dungeonState.ThreatLevel = 0;
-            _dungeonState.WhenSpawnWanderingMonster = 5; // This can also be overridden
+            _dungeon.HeroParty = heroParty;
+            _dungeon.MinThreatLevel = 1;
+            _dungeon.MaxThreatLevel = 10; // This can be overridden by quest specifics
+            _dungeon.ThreatLevel = 0;
+            _dungeon.WhenSpawnWanderingMonster = 5; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
             List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
-            _dungeonState.ExplorationDeck = new Queue<Room>(explorationDeck);
+            _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
 
             // 3. Create and set the starting room
-            _dungeonState.StartingRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
-            _dungeonState.CurrentRoom = _dungeonState.StartingRoom;
+            _dungeon.StartingRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
+            _dungeon.CurrentRoom = _dungeon.StartingRoom;
         }
 
         public void InitializeDungeon(Party initialHeroes, Quest quest)
@@ -107,15 +111,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Initialize threat levels and wandering monster trigger
-            _dungeonState.HeroParty = initialHeroes;
-            _dungeonState.MinThreatLevel = 1; // Example default
-            _dungeonState.MaxThreatLevel = 10; // Example default
-            _dungeonState.ThreatLevel = 0; // Starting low
-            _dungeonState.WhenSpawnWanderingMonster = 5; // Example default
+            _dungeon.HeroParty = initialHeroes;
+            _dungeon.MinThreatLevel = 1; // Example default
+            _dungeon.MaxThreatLevel = 10; // Example default
+            _dungeon.ThreatLevel = 0; // Starting low
+            _dungeon.WhenSpawnWanderingMonster = 5; // Example default
 
-            if (_dungeonState.CurrentRoom != null)
+            if (_dungeon.CurrentRoom != null)
             {
-                _dungeonState.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
+                _dungeon.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
             }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
@@ -126,7 +130,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public Room? FindRoomAtPosition(GridPosition position)
         {
             // This method iterates through all known rooms to find which one contains the coordinate.
-            foreach (Room room in _dungeonState.RoomsInDungeon) // Assumes DungeonState can provide all rooms
+            foreach (Room room in _dungeon.RoomsInDungeon) // Assumes DungeonState can provide all rooms
             {
                 // Check if the position is within the room's bounding box.
                 if (position.X >= room.GridOffset.X && position.X < room.GridOffset.X + room.Width &&
@@ -151,7 +155,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 if (threatResult.SpawnWanderingMonster)
                 {
-                    _wanderingMonster.SpawnWanderingMonster(_dungeonState);
+                    _wanderingMonster.SpawnWanderingMonster(_dungeon);
                 }
                 if (threatResult.SpawnTrap)
                 {
@@ -162,7 +166,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     AddExplorationCardsToPiles();
                 }
                 // After hero actions, move any wandering monsters.
-                _wanderingMonster.MoveWanderingMonsters(_dungeonState);
+                _wanderingMonster.MoveWanderingMonsters(_dungeon);
             }
         }
 
@@ -172,7 +176,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         private void AddExplorationCardsToPiles()
         {
-            if (_dungeonState.CurrentRoom == null || _dungeonState.ExplorationDeck == null) return;
+            if (_dungeon.CurrentRoom == null || _dungeon.ExplorationDeck == null) return;
 
             var explorationCards = new List<Room>();
             var explorationRooms = _room.GetExplorationDeckRooms();
@@ -180,7 +184,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (explorationRooms.Any())
             {
-                int numberToTake = Math.Min(explorationRooms.Count, _dungeonState.CurrentRoom.Doors.Count);
+                int numberToTake = Math.Min(explorationRooms.Count, _dungeon.CurrentRoom.Doors.Count);
                 if (numberToTake > 0)
                 {
                     foreach (RoomInfo roomInfo in explorationRooms.GetRange(0, numberToTake))
@@ -191,14 +195,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // The rule implies adding a card for each "pile", which corresponds to each door with cards.
-            foreach (var door in _dungeonState.CurrentRoom.Doors)
+            foreach (var door in _dungeon.CurrentRoom.Doors)
             {
                 if (door.ConnectedRooms.Any())
                 {
                     // Add the new card to the top of the pile (the beginning of the list)
-                    _dungeonState.ExplorationDeck.Enqueue(explorationCards[0]);
+                    _dungeon.ExplorationDeck.Enqueue(explorationCards[0]);
                     explorationCards.RemoveAt(0);
-                    Console.WriteLine($"A new path has been added to a door in {_dungeonState.CurrentRoom.Name}.");
+                    Console.WriteLine($"A new path has been added to a door in {_dungeon.CurrentRoom.Name}.");
                 }
             }
         }
@@ -269,16 +273,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             // Open the door and reveal the next room
             door.Properties?.TryAdd(DoorProperty.Open, 0);
-            RevealNextRoom(door);
+            await RevealNextRoomAsync(door);
             return "The door creaks open...";
         }
 
         /// <summary>
         /// Reveals the next room after a door has been successfully opened.
         /// </summary>
-        private List<Monster>? RevealNextRoom(Door openedDoor)
+        private async Task<List<Monster>?> RevealNextRoomAsync(Door openedDoor)
         {
-            if (_dungeonState.ExplorationDeck != null && _dungeonState.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null)
+            if (_dungeon.ExplorationDeck != null && _dungeon.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null)
             {
                 var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
@@ -287,20 +291,20 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     if(DungeonState != null) GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, DungeonState.DungeonGrid);
 
                     // Link the rooms logically
-                    if (_dungeonState.CurrentRoom != null)
+                    if (_dungeon.CurrentRoom != null)
                     {
                         openedDoor.ConnectedRooms.Add(newRoom);
-                        newRoom.ConnectedRooms.Add(_dungeonState.CurrentRoom);
+                        newRoom.ConnectedRooms.Add(_dungeon.CurrentRoom);
                     }
 
-                    _dungeonState.CurrentRoom = newRoom;
-                    _dungeonState.RoomsInDungeon.Add(newRoom);
-                    return CheckForEncounter(newRoom);
+                    _dungeon.CurrentRoom = newRoom;
+                    _dungeon.RoomsInDungeon.Add(newRoom);
+                    return await CheckForEncounter(newRoom);
                 }
             }
 
             // No more rooms in this path.
-            if (_dungeonState.CurrentRoom != null) _dungeonState.CurrentRoom.IsDeadEnd = true;
+            if (_dungeon.CurrentRoom != null) _dungeon.CurrentRoom.IsDeadEnd = true;
             return null;
         }
 
@@ -332,34 +336,35 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
         }
 
-        private List<Monster>? CheckForEncounter(Room newRoom)
+        private async Task<List<Monster>?> CheckForEncounter(Room newRoom)
         {
             if (!newRoom.RandomEncounter)
             {
-                _dungeonState.RoomsWithoutEncounters++;
+                _dungeon.RoomsWithoutEncounters++;
                 return null;
             }
 
-            int encounterChance = newRoom.Category == RoomCategory.Room ? 50 : 30;
+            int encounterChance = (newRoom.Category == RoomCategory.Room ? 50 : 30) + _dungeon.EncounterChanceModifier;
 
-            if (_dungeonState.RoomsWithoutEncounters >= 4)
+            if (_dungeon.RoomsWithoutEncounters >= 4)
             {
                 encounterChance += 10;
             }
 
-            int roll = RandomHelper.RollDie(DiceType.D100);
+            var rollResult = await _userRequest.RequestRollAsync("Roll for encounter.", "1d100");
+            await Task.Yield();
 
-            if (roll <= encounterChance)
+            if (rollResult.Roll <= encounterChance)
             {
                 // Encounter Triggered!
                 Console.WriteLine("Encounter! Monsters appear!");
-                _dungeonState.RoomsWithoutEncounters = 0;
+                _dungeon.RoomsWithoutEncounters = 0;
 
                 newRoom.MonstersInRoom = new List<Monster>();
 
-                if (_dungeonState.Quest != null)
+                if (_dungeon.Quest != null)
                 {
-                    newRoom.MonstersInRoom = _encounter.GetRandomEncounterByType(_dungeonState.Quest.EncounterType); 
+                    newRoom.MonstersInRoom = _encounter.GetRandomEncounterByType(_dungeon.Quest.EncounterType); 
                 }
                 else
                 {
@@ -371,7 +376,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     newRoom.IsEncounter = true;
 
                     // Hand off to the CombatManager to start the battle
-                    if (_dungeonState.HeroParty != null && _dungeonState.HeroParty.Heroes != null)
+                    if (_dungeon.HeroParty != null && _dungeon.HeroParty.Heroes != null)
                     {
                         return newRoom.MonstersInRoom;
                     }
@@ -384,7 +389,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             // No encounter
             Console.WriteLine("The room is quiet... for now.");
-            _dungeonState.RoomsWithoutEncounters++;
+            _dungeon.RoomsWithoutEncounters++;
             return null;
         }
 
@@ -395,11 +400,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public bool UpdateThreat(int amount)
         {
-            _dungeonState.ThreatLevel += amount;
-            if (_dungeonState.ThreatLevel >= _dungeonState.WhenSpawnWanderingMonster)
+            _dungeon.ThreatLevel += amount;
+            if (_dungeon.ThreatLevel >= _dungeon.WhenSpawnWanderingMonster)
             {
                 // Trigger wandering monster logic...
-                _dungeonState.ThreatLevel -= 5;
+                _dungeon.ThreatLevel -= 5;
             }
             return true;
         }
@@ -415,13 +420,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return "Cannot rest while enemies are present!";
             }
 
-            if (_dungeonState.HeroParty == null)
+            if (_dungeon.HeroParty == null)
             {
                 return "Cannot rest without a party.";
             }
 
             // Call the resting service, specifying the Dungeon context
-            var restResult = await _partyResting.AttemptRest(_dungeonState.HeroParty, RestingContext.Dungeon, _dungeonState);
+            var restResult = await _partyResting.AttemptRest(_dungeon.HeroParty, RestingContext.Dungeon, _dungeon);
 
             if (restResult.WasInterrupted)
             {
@@ -445,9 +450,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             bool partyHasClue = false; // party.Inventory.Any(item => item.Name == "Lever Clue");
 
             // Store the prepared deck in the DungeonState so the UI can interact with it.
-            _dungeonState.AvailableLevers = _lever.PrepareLeverDeck(partyHasClue);
+            _dungeon.AvailableLevers = _lever.PrepareLeverDeck(partyHasClue);
 
-            Console.WriteLine($"Levers activated! {_dungeonState.AvailableLevers.Count} levers are available.");
+            Console.WriteLine($"Levers activated! {_dungeon.AvailableLevers.Count} levers are available.");
         }
 
         /// <summary>
@@ -456,14 +461,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="leverIndex">The index of the lever to pull from the AvailableLevers list.</param>
         public void PullLever(int leverIndex)
         {
-            if (_dungeonState.AvailableLevers == null || leverIndex < 0 || leverIndex >= _dungeonState.AvailableLevers.Count)
+            if (_dungeon.AvailableLevers == null || leverIndex < 0 || leverIndex >= _dungeon.AvailableLevers.Count)
             {
                 return;
             }
 
             // Get the color and remove it from the deck
-            LeverColor pulledLeverColor = _dungeonState.AvailableLevers[leverIndex];
-            _dungeonState.AvailableLevers.RemoveAt(leverIndex);
+            LeverColor pulledLeverColor = _dungeon.AvailableLevers[leverIndex];
+            _dungeon.AvailableLevers.RemoveAt(leverIndex);
 
             // Resolve the event
             var result = _lever.PullLever(pulledLeverColor);
@@ -476,7 +481,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
             if (result.ShouldSpawnWanderingMonster)
             {
-                if (_dungeonState.StartingRoom != null) _wanderingMonster.SpawnWanderingMonster(_dungeonState);
+                if (_dungeon.StartingRoom != null) _wanderingMonster.SpawnWanderingMonster(_dungeon);
             }
             // ... handle other results like ShouldLockADoor, ShouldSpawnPortcullis, etc.
         }
