@@ -51,7 +51,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         DragonBreath,
         Taunt,
         BreakDownDoor,
-        StandUp
+        StandUp,
+        PickupWeapon
     }
 
     public class ActionInfo
@@ -606,6 +607,51 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         resultMessage = "Character is already standing.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Monster monster, ActionType.PickupWeapon):
+                    if (monster.DroppedWeapon != null)
+                    {
+                        var enemies = GetEnemiesForZOC(monster);
+                        bool adjacentEnemy = false;
+                        if (monster.Position != null)
+                        {
+                            foreach (var enemy in enemies)
+                            {
+                                if (enemy.Position != null && GridService.IsAdjacent(monster.Position, enemy.Position))
+                                {
+                                    adjacentEnemy = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (adjacentEnemy)
+                        {
+                            var dexRoll = RandomHelper.RollDie(DiceType.D100);
+                            if (dexRoll <= monster.GetStat(BasicStat.Dexterity))
+                            {
+                                monster.ActiveWeapon = monster.DroppedWeapon;
+                                monster.DroppedWeapon = null;
+                                resultMessage = $"{monster.Name} successfully picked up their weapon.";
+                            }
+                            else
+                            {
+                                resultMessage = $"{monster.Name} failed to pick up their weapon.";
+                                actionWasSuccessful = false;
+                            }
+                        }
+                        else
+                        {
+                            monster.ActiveWeapon = monster.DroppedWeapon;
+                            monster.DroppedWeapon = null;
+                            resultMessage = $"{monster.Name} picked up their weapon.";
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "No weapon to pick up.";
                         actionWasSuccessful = false;
                     }
                     break;

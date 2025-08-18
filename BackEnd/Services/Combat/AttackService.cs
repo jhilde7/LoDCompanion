@@ -133,7 +133,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
             else
             {
-                result = CalculateMonsterHitAttempt((Monster)attacker, weapon, (Hero)target, context);
+                result = await CalculateMonsterHitAttemptAsync((Monster)attacker, weapon, (Hero)target, context);
             }
 
             if (!result.IsHit)
@@ -216,7 +216,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <param name="target">The hero being targeted.</param>
         /// <param name="context">The context of the combat (e.g., power attack, charge).</param>
         /// <returns>An AttackResult containing the outcome of the to-hit roll.</returns>
-        public AttackResult CalculateMonsterHitAttempt(Monster attacker, Weapon? weapon, Hero target, CombatContext context)
+        public async Task<AttackResult> CalculateMonsterHitAttemptAsync(Monster attacker, Weapon? weapon, Hero target, CombatContext context)
         {
             var result = new AttackResult();
 
@@ -226,7 +226,23 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             result.AttackRoll = RandomHelper.RollDie(DiceType.D100);
 
-            if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
+            if (result.AttackRoll == 100)
+            {
+                if (attacker.ActiveWeapon != null)
+                {
+                    attacker.DroppedWeapon = attacker.ActiveWeapon;
+                    attacker.ActiveWeapon = null;
+                    result.OutcomeMessage = $"{attacker.Name} fumbles and drops their weapon!";
+                }
+                else
+                {
+                    attacker.CombatStance = CombatStance.Prone;
+                    await StatusEffectService.AttemptToApplyStatusAsync(attacker, new ActiveStatusEffect(StatusEffectType.Prone, -1), _powerActivation);
+                    result.OutcomeMessage = $"{attacker.Name} fumbles and falls prone!";
+                }
+                result.IsHit = false;
+            }
+            else if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
             {
                 result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
@@ -784,7 +800,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public async Task<AttackResult> HandleKickAttack(Monster attacker, Hero target)
         {
             var result = new AttackResult();
-            result = CalculateMonsterHitAttempt(attacker, null, target, new CombatContext());
+            result = await CalculateMonsterHitAttemptAsync(attacker, null, target, new CombatContext());
             if (!result.IsHit)
             {
                 if (!result.IsHit && target.Position != null)
@@ -802,7 +818,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public async Task<AttackResult> HandleSpitAttack(Monster attacker, Hero target)
         {
             var result = new AttackResult();
-            result = CalculateMonsterHitAttempt(attacker, null, target, new CombatContext());
+            result = await CalculateMonsterHitAttemptAsync(attacker, null, target, new CombatContext());
             if (!result.IsHit)
             {
                 if (!result.IsHit && target.Position != null)
@@ -832,7 +848,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 if (hero.Position == null) continue;
                 var heroesInZoc = DirectionService.IsInZoneOfControl(attacker.Position, hero);
-                result = CalculateMonsterHitAttempt(attacker, attacker.GetMeleeWeapon(), hero, new CombatContext());
+                result = await CalculateMonsterHitAttemptAsync(attacker, attacker.GetMeleeWeapon(), hero, new CombatContext());
 
                 // Heroes can attempt to dodge but not parry.
                 var defenseResult = await DefenseService.AttemptDodge(hero, _diceRoll, _powerActivation);
@@ -892,7 +908,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new AttackResult();
             var outcome = result.OutcomeMessage;
 
-            result = CalculateMonsterHitAttempt(monster, null, target, new CombatContext());
+            result = await CalculateMonsterHitAttemptAsync(monster, null, target, new CombatContext());
             if (result.IsHit)
             {
                 // Heroes can attempt to dodge but not parry.
@@ -945,14 +961,14 @@ namespace LoDCompanion.BackEnd.Services.Combat
             return result;
         }
 
-        public Task<AttackResult> HandleWebAttempt(Monster monster, Hero target)
+        public async Task<AttackResult> HandleWebAttempt(Monster monster, Hero target)
         {
-            var result = CalculateMonsterHitAttempt(monster, null, target, new CombatContext());
+            var result = await CalculateMonsterHitAttemptAsync(monster, null, target, new CombatContext());
             if (!result.IsHit && target.Position != null)
             {
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
             }
-            return Task.FromResult(result);
+            return result;
         }
 
         public async Task<AttackResult> HandleTouchAttack(Hero attacker, Monster target)

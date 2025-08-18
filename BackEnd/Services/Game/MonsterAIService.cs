@@ -71,6 +71,11 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// </summary>
         private async Task<string> DecideAndPerformAction(Monster monster, List<Hero> heroes, Room room)
         {
+            if (monster.DroppedWeapon != null)
+            {
+                return await _action.PerformActionAsync(_dungeon, monster, ActionType.PickupWeapon);
+            }
+
             Hero? target = ChooseTarget(monster, heroes);
             if (target == null)
             {
