@@ -123,6 +123,12 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
+                string makeRoomResult = await MakeRoomAsync(monster, target, heroes);
+                if (!string.IsNullOrEmpty(makeRoomResult))
+                {
+                    return makeRoomResult;
+                }
+
                 attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                 return attackResult.OutcomeMessage;
             }
@@ -176,6 +182,12 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
+                string makeRoomResult = await MakeRoomAsync(monster, target, heroes);
+                if (!string.IsNullOrEmpty(makeRoomResult))
+                {
+                    return makeRoomResult;
+                }
+
                 attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
                 return attackResult.OutcomeMessage;
             }
@@ -440,6 +452,54 @@ namespace LoDCompanion.BackEnd.Services.Game
                 // If no special ability was used, perform a standard attack.
                 return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
             }
+        }
+
+        /// <summary>
+        /// Handles the logic for a monster to move or shove to make room for other monsters.
+        /// </summary>
+        private async Task<string> MakeRoomAsync(Monster monster, Hero target, List<Hero> heroes)
+        {
+            // Only consider making room if there are other monsters waiting to act
+            var otherMonsters = _dungeon.RevealedMonsters.Where(m => m != monster && m.CurrentAP > 0).ToList();
+            if (!otherMonsters.Any())
+            {
+                return string.Empty;
+            }
+
+            // Check if the monster is blocking a path for another monster
+            foreach (var otherMonster in otherMonsters)
+            {
+                if (otherMonster.Position == null || monster.Position == null || target.Position == null)
+                {
+                    continue;
+                }
+
+                var pathToTarget = GridService.FindShortestPath(otherMonster.Position, target.Position, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
+                if (pathToTarget.Contains(monster.Position))
+                {
+                    // The monster is blocking the path, so try to move or shove
+                    var shoveResult = await _action.PerformActionAsync(_dungeon, monster, ActionType.Shove, target);
+                    if (shoveResult.Contains("successfully"))
+                    {
+                        return shoveResult;
+                    }
+                    else
+                    {
+                        // If shove fails or is not possible, try to move to a non-blocking adjacent square
+                        var adjacentSquares = GridService.GetNeighbors(monster.Position, _dungeon.DungeonGrid).ToList();
+                        adjacentSquares.Shuffle();
+                        foreach (var square in adjacentSquares)
+                        {
+                            if (GridService.GetSquareAt(square, _dungeon.DungeonGrid)?.IsOccupied == false)
+                            {
+                                return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, square);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
         }
 
         private string EndTurnFacing(Monster monster, List<Hero> heroes)
