@@ -6976,7 +6976,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _roomService = roomService;
         }
 
-        public Room? CreateRoom(string roomName)
+        public Room CreateRoom(string roomName)
         {
             Room room = new Room();
             RoomInfo roomDefinition = _roomService.GetRoomByName(roomName);

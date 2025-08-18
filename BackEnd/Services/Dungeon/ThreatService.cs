@@ -15,6 +15,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int ThreatDecrease { get; set; } = 0;
         public bool SpawnWanderingMonster { get; set; } = false;
         public bool SpawnTrap { get; set; } = false;
+        public bool ShouldAddExplorationCards { get; internal set; }
         // Add other properties here for more complex events, e.g., reinforcements
     }
 
@@ -145,7 +146,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case int n when n >= 13 && n <= 15:
                     result.Description = "The dungeon shifts... Add one extra Exploration Card on top of each pile.";
                     result.ThreatDecrease = 5;
-                    // Note: The calling service (DungeonManagerService) will need to handle this logic.
+                    result.ShouldAddExplorationCards = true;
                     break;
                 case int n when n >= 16 && n <= 17:
                     result.Description = "The air grows heavy. The risk of encounters has gone up by 10% for the rest of the quest.";

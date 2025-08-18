@@ -41,6 +41,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly LeverService _lever;
         private readonly DungeonState _dungeonState;
         private readonly CombatManagerService _combatManager;
+        private readonly RoomService _room;
 
         public event Action? OnDungeonStateChanged;
 
@@ -61,7 +62,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             TrapService trapService,
             PartyRestingService partyResting,
             LeverService leverService,
-            CombatManagerService combatManagerService)
+            CombatManagerService combatManagerService,
+            RoomService roomService)
         {
             _wanderingMonster = wanderingMonster;
             _encounter = encounterService;
@@ -73,6 +75,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _partyResting = partyResting;
             _lever = leverService;
             _combatManager = combatManagerService;
+            _room = roomService;
 
             _dungeonState = dungeonState;
         }
@@ -148,15 +151,55 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 if (threatResult.SpawnWanderingMonster)
                 {
-                    // Call your wandering monster logic here
                     _wanderingMonster.SpawnWanderingMonster(_dungeonState);
                 }
                 if (threatResult.SpawnTrap)
                 {
                     // Call your trap logic here
                 }
+                if (threatResult.ShouldAddExplorationCards)
+                {
+                    AddExplorationCardsToPiles();
+                }
                 // After hero actions, move any wandering monsters.
                 _wanderingMonster.MoveWanderingMonsters(_dungeonState);
+            }
+        }
+
+        /// <summary>
+        /// Adds one new, random Exploration Card to the top of each active door's deck.
+        /// This is triggered by a specific threat event.
+        /// </summary>
+        private void AddExplorationCardsToPiles()
+        {
+            if (_dungeonState.CurrentRoom == null || _dungeonState.ExplorationDeck == null) return;
+
+            var explorationCards = new List<Room>();
+            var explorationRooms = _room.GetExplorationDeckRooms();
+            explorationRooms.Shuffle();
+
+            if (explorationRooms.Any())
+            {
+                int numberToTake = Math.Min(explorationRooms.Count, _dungeonState.CurrentRoom.Doors.Count);
+                if (numberToTake > 0)
+                {
+                    foreach (RoomInfo roomInfo in explorationRooms.GetRange(0, numberToTake))
+                    {
+                        explorationCards.Add(_roomFactory.CreateRoom(roomInfo.Name));
+                    }
+                }
+            }
+
+            // The rule implies adding a card for each "pile", which corresponds to each door with cards.
+            foreach (var door in _dungeonState.CurrentRoom.Doors)
+            {
+                if (door.ConnectedRooms.Any())
+                {
+                    // Add the new card to the top of the pile (the beginning of the list)
+                    _dungeonState.ExplorationDeck.Enqueue(explorationCards[0]);
+                    explorationCards.RemoveAt(0);
+                    Console.WriteLine($"A new path has been added to a door in {_dungeonState.CurrentRoom.Name}.");
+                }
             }
         }
 
