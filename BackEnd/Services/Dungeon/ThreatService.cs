@@ -75,7 +75,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="dungeonState">The current state of the dungeon.</param>
         /// <param name="amount">The amount to increase the threat by.</param>
-        public void IncreaseThreat(int amount)
+        private void IncreaseThreat(int amount)
         {
             if(amount < 0)
             {
@@ -91,7 +91,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="dungeonState">The current state of the dungeon.</param>
         /// <param name="amount">The amount to decrease the threat by.</param>
-        public void DecreaseThreat(int amount)
+        private void DecreaseThreat(int amount)
         {
             var missingThreat = _dungeon.ThreatLevel - _dungeon.MinThreatLevel;
             amount = Math.Min(amount, missingThreat);
