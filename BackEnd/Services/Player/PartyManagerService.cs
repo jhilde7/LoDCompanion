@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -108,6 +109,12 @@ namespace LoDCompanion.BackEnd.Services.Player
             Morale += v;
             if(Morale > MoraleMax) Morale = MoraleMax;
             return true;
+        }
+
+        public DungeonState SetCurrentDungeon(DungeonState dungeon)
+        {
+            _gameStateManager.GameState.CurrentDungeon = dungeon;
+            return _gameStateManager.GameState.CurrentDungeon;
         }
     }
 }

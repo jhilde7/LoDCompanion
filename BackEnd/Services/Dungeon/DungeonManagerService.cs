@@ -58,7 +58,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
 
-        public DungeonState? Dungeon => _dungeon;
+        public DungeonState? Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
         public Room? StartingRoom => _dungeon.StartingRoom;
         public Room? CurrentRoom => _dungeon.CurrentRoom;
