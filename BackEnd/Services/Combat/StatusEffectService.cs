@@ -154,7 +154,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         DragonSkin,
         FireProtection,
         Invisible,
-        Pitcher
+        Pitcher,
+        ForgedUnderPressure
     }
 
     /// <summary>
