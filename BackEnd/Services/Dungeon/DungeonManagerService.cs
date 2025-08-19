@@ -49,12 +49,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
 
-        public event Action? OnDungeonStateChanged;
-
         public Party? HeroParty => _dungeon.HeroParty;
         public Room? StartingRoom => _dungeon.StartingRoom;
         public Room? CurrentRoom => _dungeon.CurrentRoom;
-        public DungeonState? DungeonState => _dungeon;
+        public DungeonState? Dungeon => _dungeon;
 
 
         public DungeonManagerService(
@@ -152,8 +150,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             bool isInBattle = !_combatManager.IsCombatOver;
             await HandleScenarioRoll(isInBattle);
 
-            // After hero actions, move any wandering monsters.
-            _wanderingMonster.MoveWanderingMonsters(_dungeon);
+            if (Dungeon != null)
+            {
+                // After hero actions, move any wandering monsters.
+                _wanderingMonster.ProcessWanderingMonsters(Dungeon.WanderingMonsters); 
+            }
         }
 
         public async Task<ThreatEventResult> HandleScenarioRoll(bool isInBattle)
@@ -167,7 +168,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 if (threatResult.SpawnWanderingMonster)
                 {
-                    _wanderingMonster.SpawnWanderingMonster(_dungeon);
+                    _wanderingMonster.SpawnWanderingMonster(this);
                 }
                 if (threatResult.SpawnTrap)
                 {
@@ -204,7 +205,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (_dungeon.SpawnWanderingMonster)
             {
-                _wanderingMonster.SpawnWanderingMonster(_dungeon);
+                _wanderingMonster.SpawnWanderingMonster(this);
                 _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WanderingMonsterSpawned);
             }
 
@@ -257,12 +258,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <returns>A string describing the result of the attempt.</returns>
         public async Task<string> InteractWithDoorAsync(Door door, Character character)
         {
-            if (door.Properties != null && door.Properties.ContainsKey(DoorProperty.Open)) return "The door is already open.";
-            
-            door.Properties ??= new Dictionary<DoorProperty, int>();
-
-            // Increase Threat Level
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
+            if (door.State == DoorState.Open) return "The door is already open.";
 
             // Roll for Trap (d6)
             if (RandomHelper.RollDie(DiceType.D6) == 6)
@@ -305,7 +301,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Resolve Lock
-            if (door.Properties != null && door.Lock.IsLocked)
+            if (door.Lock.IsLocked)
             {
                 // The door is locked. The game must now wait for player input
                 // (e.g., Pick Lock, Bash, Cast Spell). This method's job is done for now.
@@ -313,7 +309,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Open the door and reveal the next room
-            door.Properties?.TryAdd(DoorProperty.Open, 0);
+            door.Open();
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
             await RevealNextRoomAsync(door);
             return "The door creaks open...";
         }
@@ -329,7 +326,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 if (newRoom != null)
                 {
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
-                    if(DungeonState != null) GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, DungeonState.DungeonGrid);
+                    if(Dungeon != null) GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, Dungeon.DungeonGrid);
 
                     // Link the rooms logically
                     if (_dungeon.CurrentRoom != null)

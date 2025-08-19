@@ -2,49 +2,45 @@
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Reflection.Metadata.Ecma335;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class WanderingMonsterState
     {
         public string Id { get; } = Guid.NewGuid().ToString();
-        public Room? CurrentRoom { get; set; }
+        public DungeonManagerService DungeonManager { get; set; }
         public Monster? RevealedMonster { get; set; }
         public GridPosition CurrentPosition { get; set; } = new GridPosition(0, 0, 0);
-        public bool IsAtClosedDoor { get; set; } = false;
         public bool IsAtChasm { get; set; } = false;
         public int RemainingMovement { get; set; } = 4;
-
+        public bool NewRoom { get; set; } = false;
 
         public bool IsRevealed => RevealedMonster != null;
+        public Room? CurrentRoom => DungeonManager?.FindRoomAtPosition(CurrentPosition);
 
-        public WanderingMonsterState()
+        public WanderingMonsterState(DungeonManagerService dungeonManagerService)
         {
-
+            DungeonManager = dungeonManagerService;
         }
     }
 
     public class WanderingMonsterService
     {
         private readonly EncounterService _encounter;
-        private readonly DungeonState _dungeonState;
 
-        public WanderingMonsterService(DungeonState dungeonState, EncounterService encounter)
+        public WanderingMonsterService(EncounterService encounter)
         {
-            _dungeonState = dungeonState;
             _encounter = encounter;
         }
 
         /// <summary>
         /// Spawns a new wandering monster token at the dungeon's entrance.
         /// </summary>
-        /// <param name="dungeonState">The current state of the dungeon.</param>
-        public void SpawnWanderingMonster(DungeonState dungeonState)
+        public void SpawnWanderingMonster(DungeonManagerService dungeonManager)
         {
-            if (dungeonState.StartingRoom == null) return;
-
-            var newWanderingMonster = new WanderingMonsterState();
-            dungeonState.WanderingMonsters.Add(newWanderingMonster);
+            var newWanderingMonster = new WanderingMonsterState(dungeonManager);
+            dungeonManager.Dungeon?.WanderingMonsters.Add(newWanderingMonster);
 
             Console.WriteLine("A wandering monster token has been placed at the dungeon entrance.");
         }
@@ -54,27 +50,25 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="dungeon">The current state of the dungeon.</param>
         /// <returns>True if any monster spotted the party.</returns>
-        public bool MoveWanderingMonsters(DungeonState dungeon)
+        public bool ProcessWanderingMonsters(List<WanderingMonsterState> wanderingMonsters)
         {
             bool partySpotted = false;
-            if (dungeon.HeroParty == null || !dungeon.HeroParty.Heroes.Any() || dungeon.WanderingMonsters == null)
-            {
-                return false;
-            }
 
-            foreach (var monsterState in dungeon.WanderingMonsters)
+            foreach (var monsterState in wanderingMonsters)
             {
                 if (monsterState.IsRevealed) continue;
 
-                if (monsterState.IsAtClosedDoor)
+                int roll = RandomHelper.RollDie(DiceType.D6);
+                var adjacentDoor = GetDoorAdjacentToMonsterLocation(monsterState);
+                if (adjacentDoor != null && adjacentDoor.State == DoorState.Closed)
                 {
-                    // Monster is waiting at a door. Roll to see if it breaks through.
-                    // Rule: 2-6 on a d6 to open a standard door.
-                    if (RandomHelper.RollDie(DiceType.D6) >= 2)
+                    if (roll >= 5)
                     {
-                        monsterState.IsAtClosedDoor = false;
-                        // The door is now considered open. The monster will move on its next turn.
-                        Console.WriteLine("The wandering monster breaks through the door!");
+                        adjacentDoor.Open();
+                    }
+                    else if (adjacentDoor.State != DoorState.MagicallySealed && roll >= 2)
+                    {
+                        adjacentDoor.Open();
                     }
                     else
                     {
@@ -82,104 +76,196 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     continue; // End this monster's turn
                 }
-
-                if (monsterState.IsAtChasm)
-                {
-                    // Monster is at a chasm. Roll to see if it crosses.
-                    // Rule: Any roll to continue will get it across, but ends its move for the turn.
-                    monsterState.IsAtChasm = false; // It will cross or move on next turn
-                    // TODO: define chasm as to eliminate a NoEntry from blocking the A* algoritm
-                    // TODO: Find the square on the other side of the chasm and update monsterState.CurrentPosition
-                    Console.WriteLine("The wandering monster crosses the chasm and waits.");
-                    continue; // End this monster's turn
-                }
-
-                int moveRoll = RandomHelper.RollDie(DiceType.D6);
-                if (moveRoll >= 2 && dungeon.HeroParty != null)
-                {
-                    // Find the shortest path to any hero in the same room.
-                    List<GridPosition> shortestPath = new List<GridPosition>();
-
-                    foreach (var hero in dungeon.HeroParty.Heroes)
-                    {
-                        if (hero == null || hero.Position == null || hero.CurrentHP <= 0) continue;
-
-                        if (monsterState.CurrentRoom == null || monsterState.CurrentPosition == null) continue;
-
-                        List<GridPosition> currentPath = GridService.FindShortestPath(monsterState.CurrentPosition, hero.Position, dungeon.DungeonGrid, dungeon.HeroParty.Heroes.Cast<Character>().ToList());
-
-                        // If this is the first valid path found, or if it's shorter than the previous shortest path
-                        if (currentPath.Any() && (!shortestPath.Any() || currentPath.Count < shortestPath.Count))
-                        {
-                            shortestPath = currentPath;
-                        }
-                    }
-
-                    // If a valid path to a hero was found, move the monster
-                    if (shortestPath.Any() && shortestPath.Count > 1)
-                    {
-                        // Move the monster up to 4 squares along the path
-                        int squaresToMove = Math.Min(4, shortestPath.Count - 1);
-                        monsterState.CurrentPosition = shortestPath[squaresToMove];
-                        Console.WriteLine($"Wandering monster moves towards the party, now at ({monsterState.CurrentPosition.X}, {monsterState.CurrentPosition.Y}).");
-
-                        if (CheckForReveal(monsterState, dungeon))
-                        {
-                            partySpotted = true;
-                        }
-                    }
-                    else
-                    {
-                        // This handles cases where no heroes are in the same room, or no path exists.
-                        Console.WriteLine("Wandering monster has no path to any hero.");
-                        continue;
-                    }
-                }
                 else
                 {
-                    // TODO: Implement logic to move away from the party
-                    Console.WriteLine("Wandering monster token moves away from the party.");
+                    (bool useContinue, partySpotted) = MoveWanderingMonster(partySpotted, monsterState);
+                    if (useContinue)
+                    {
+                        continue;
+                    }
                 }
             }
             return partySpotted;
         }
 
-        /// <summary>
-        /// Checks if a wandering monster token should be revealed.
-        /// </summary>
-        private bool CheckForReveal(WanderingMonsterState monsterState, DungeonState dungeonState)
+        private (bool useContinue, bool partySpotted) MoveWanderingMonster(bool partySpotted, WanderingMonsterState monsterState)
         {
-            // Simplified reveal logic. Rule: "If it enters a room from where it has line of sight to
-            // the characters and they are within 10 squares, roll on the quest-specific Monster Table".
-            if (monsterState.CurrentRoom == dungeonState.CurrentRoom)
+            if (monsterState.DungeonManager.Dungeon == null) return (useContinue: true, partySpotted);
+            // Find the shortest path to any hero in the same room.
+            List<GridPosition> shortestPath = new List<GridPosition>();
+            var closestHero = new Hero();
+            foreach (var hero in monsterState.DungeonManager.Dungeon.HeroParty.Heroes)
             {
-                Console.WriteLine("The wandering monster has found the party!");
+                if (hero == null || hero.Position == null || hero.CurrentHP <= 0) continue;
 
-                // TODO: Replace with a roll on the actual quest's encounter table.
-                // For now, we'll just grab a random monster.
-                var monsterTemplates = new Dictionary<string, Monster>();
-                var weaponTemplates = new Dictionary<string, Weapon>();
+                if (monsterState.CurrentRoom == null || monsterState.CurrentPosition == null) continue;
 
-                List<Monster> monsters = new List<Monster>();
+                List<GridPosition> currentPath = GridService.FindShortestPath(
+                    monsterState.CurrentPosition,
+                    hero.Position,
+                    monsterState.DungeonManager.Dungeon.DungeonGrid,
+                    monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
+                    );
 
-                if (_dungeonState.Quest != null)
+                // If this is the first valid path found, or if it's shorter than the previous shortest path
+                if (currentPath.Any() && (!shortestPath.Any() || currentPath.Count < shortestPath.Count))
                 {
-                    monsters = _encounter.GetRandomEncounterByType(_dungeonState.Quest.EncounterType);
+                    shortestPath = currentPath;
+                    closestHero = hero; // Update the closest hero reference
+                }
+            }
+
+            int roll = RandomHelper.RollDie(DiceType.D6);
+
+            if (roll >= 2)
+            {
+                
+
+                // If a valid path to a hero was found, move the monster
+                if (shortestPath.Any() && shortestPath.Count > 1)
+                {
+                    var roomBeforeMove = monsterState.CurrentRoom;
+                    for (int i = 0; i < Math.Min(monsterState.RemainingMovement, shortestPath.Count - 1); i++)
+                    {
+                        // Move the monster up to 4 squares along the path
+                        monsterState.CurrentPosition = shortestPath[i];
+                        monsterState.RemainingMovement--;
+                        Console.WriteLine($"Wandering monster moves towards the party, now at ({monsterState.CurrentPosition.X}, {monsterState.CurrentPosition.Y}).");
+
+                        if (CheckForReveal(monsterState))
+                        {
+                            partySpotted = true;
+                        }
+                        else if (roomBeforeMove != monsterState.CurrentRoom)
+                        {
+                            return MoveWanderingMonster(partySpotted, monsterState);
+                        }
+                    }
                 }
                 else
                 {
-                    monsters = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
+                    // This handles cases where no path exists.
+                    Console.WriteLine("Wandering monster has no path to any hero.");
+                    return (useContinue: false, partySpotted);
+                }
+            }
+            else 
+            {
+                // monster moves away form the party
+                if (closestHero == null || closestHero.Position == null || monsterState.CurrentPosition == null)
+                {
+                    // No heroes to move away from, so the monster stays put this turn.
+                    Console.WriteLine("Wandering monster has no heroes to move away from.");
+                    return (useContinue: false, partySpotted);
                 }
 
-                if (monsters.Count > 0)
+                // Get all squares the monster can reach within its movement range.
+                var allReachableSquares = GridService.GetAllWalkableSquares(
+                    new Monster { Position = monsterState.CurrentPosition, CurrentMovePoints = monsterState.RemainingMovement }, // A temporary monster for pathfinding
+                    monsterState.DungeonManager.Dungeon.DungeonGrid,
+                    monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
+                );
+
+                if (!allReachableSquares.Any())
                 {
-                    monsterState.RevealedMonster = monsters[0];
-                    // TODO: Add the revealed monster to the current room's encounter list.
-                    // dungeonState.CurrentRoom.Monsters.Add(monsterState.RevealedMonster);
+                    Console.WriteLine("Wandering monster has nowhere to move.");
+                    return (useContinue: false, partySpotted);
+                }
+
+                // Find the square that is farthest away from the closest hero.
+                var farthestSquare = allReachableSquares.Keys
+                    .OrderByDescending(pos => GridService.GetDistance(pos, closestHero.Position))
+                    .FirstOrDefault();
+
+                if (farthestSquare == null)
+                {
+                    Console.WriteLine("Wandering monster could not determine a square to move away to.");
+                    return (useContinue: false, partySpotted);
+                }
+
+                // Find the path to the farthest square.
+                List<GridPosition> retreatPath = GridService.FindShortestPath(
+                    monsterState.CurrentPosition,
+                    farthestSquare,
+                    monsterState.DungeonManager.Dungeon.DungeonGrid,
+                    monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
+                );
+
+                // Move the monster along the retreat path.
+                if (retreatPath.Any() && retreatPath.Count > 1)
+                {
+                    for (int i = 0; i < Math.Min(monsterState.RemainingMovement, retreatPath.Count - 1); i++)
+                    {
+                        monsterState.CurrentPosition = retreatPath[i + 1];
+                        monsterState.RemainingMovement--;
+                        Console.WriteLine($"Wandering monster moves away from the party, now at ({monsterState.CurrentPosition.X}, {monsterState.CurrentPosition.Y}).");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Wandering monster is cornered and cannot move away.");
+                }
+            }
+
+            return (useContinue: false, partySpotted);
+        }
+
+        /// <summary>
+        /// Checks if a wandering monster token should be revealed.
+        /// </summary>
+        private bool CheckForReveal(WanderingMonsterState monsterState)
+        {
+            // Simplified reveal logic. Rule: "If it enters a room from where it has line of sight to
+            // the characters and they are within 10 squares, roll on the quest-specific Monster Table".
+            if (monsterState.DungeonManager.Dungeon != null && monsterState.CurrentRoom != null)
+            {
+                bool hasLineOfSight = false;
+                foreach (var hero in monsterState.DungeonManager.Dungeon.HeroParty.Heroes)
+                {
+                    if (hero.Position != null)
+                    {
+                        hasLineOfSight = GridService.GetDistance(monsterState.CurrentPosition, hero.Position) <= 10 &&
+                                    GridService.HasLineOfSight(monsterState.CurrentPosition, hero.Position, monsterState.DungeonManager.Dungeon.DungeonGrid).CanShoot; 
+                    }
+                }
+
+                if (hasLineOfSight)
+                {
+                    Console.WriteLine("The wandering monster has found the party!");
+                    monsterState.DungeonManager.SpawnRandomEncounter(monsterState.CurrentRoom); 
                 }
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Finds the specific door a wandering monster is currently waiting at.
+        /// </summary>
+        /// <param name="monsterState">The state of the wandering monster.</param>
+        /// <returns>The Door object the monster is at, or null if it is not at any door.</returns>
+        public Door? GetDoorAdjacentToMonsterLocation(WanderingMonsterState monsterState)
+        {
+            if (monsterState.CurrentRoom == null)
+            {
+                return null;
+            }
+
+            // Iterate through all doors in the monster's current room.
+            foreach (var door in monsterState.CurrentRoom.Doors)
+            {
+                // A door can occupy multiple grid positions (e.g., for double doors).
+                // Check if the monster's position is adjacent to any of these positions.
+                foreach (var doorPosition in door.Position)
+                {
+                    if (GridService.IsAdjacent(monsterState.CurrentPosition, doorPosition))
+                    {
+                        return door; // Found the door the monster is at.
+                    }
+                }
+            }
+
+            return null; // The monster is not currently at a door.
         }
     }
 }
