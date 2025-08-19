@@ -34,18 +34,18 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class PartyRestingService
     {
         private readonly ThreatService _threat;
-        private readonly WanderingMonsterService _wanderingMonster;
+        private readonly DungeonManagerService _dungeonManager;
         private readonly UserRequestService _userRequest;
         private readonly PowerActivationService _powerActivation;
 
         public PartyRestingService(
             ThreatService threatService, 
-            WanderingMonsterService wanderingMonsterService, 
+            DungeonManagerService dungeonManagerService, 
             UserRequestService userRequestService, 
             PowerActivationService powerActivationService)
         {
             _threat = threatService;
-            _wanderingMonster = wanderingMonsterService;
+            _dungeonManager = dungeonManagerService;
             _userRequest = userRequestService;
             _powerActivation = powerActivationService;
         }
@@ -57,7 +57,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="context">The context in which the rest is taking place.</param>
         /// <param name="dungeonState">The current dungeon state, required if resting in a dungeon.</param>
         /// <returns>A RestResult object detailing the outcome.</returns>
-        public async Task<RestResult> AttemptRest(Party party, RestingContext context, DungeonState? dungeonState = null)
+        public async Task<RestResult> AttemptRest(Party party, RestingContext context, DungeonState? dungeon = null)
         {
             var result = new RestResult();
 
@@ -81,34 +81,25 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ration.Quantity--; // Consume one ration 
             }
 
-            // Context-specific checks (Threat, Interruption)
-            if (context == RestingContext.Dungeon)
+            if (context == RestingContext.Dungeon && dungeon != null)
             {
-                if (dungeonState == null)
-                {
-                    result.Message = "Dungeon state is required for dungeon resting.";
-                    return result;
-                }
-
-                // Lower Threat Level
-                _threat.DecreaseThreat(5);
-                // Make a threat roll
-                result.ThreatEvent = await _threat.ProcessScenarioRoll(false, party);
-                // Move Wandering Monsters and check for interruption
-                // bool monsterSpotted = _wanderingMonsterService.MoveWanderingMonsters(dungeonState, 3);
-                // if (monsterSpotted) { ... return interrupted result ... }
+                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
+                var threatResult = await _dungeonManager.HandleScenarioRoll(isInBattle: false);
+                result.WasInterrupted = threatResult.ThreatEventTriggered;
             }
             else if (context == RestingContext.Wilderness)
             {
                 // TODO: Implement wilderness-specific interruption logic (e.g., random encounter roll)
             }
 
-            // --- If rest was not interrupted ---
-            result.WasSuccessful = true;
-            party.PartyMorale += 2;
-            result.Message = "The party rests successfully.";
+            if (!result.WasInterrupted)
+            {
+                result.WasSuccessful = true;
+                party.PartyMorale += 2;
+                result.Message = "The party rests successfully."; 
+            }
 
-            // Step 3: Apply healing and recovery
+            // Apply healing and recovery
             foreach (var hero in party.Heroes)
             {
                 // Restore HP
@@ -131,7 +122,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
 
                 // Handle Bleeding Out and Poison
-                // (Logic remains the same as before)
             }
 
             return result;

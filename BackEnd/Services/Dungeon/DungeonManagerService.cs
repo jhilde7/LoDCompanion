@@ -10,8 +10,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class DungeonState
     {
-        public Party? HeroParty { get; set; }
-        public Quest? Quest { get; set; }
+        public Party HeroParty { get; set; } = new Party();
+        public Quest Quest { get; set; } = new Quest();
         public int RoomsWithoutEncounters { get; set; } = 0;
         public int MinThreatLevel { get; set; }
         public int MaxThreatLevel { get; set; }
@@ -47,6 +47,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly CombatManagerService _combatManager;
         private readonly RoomService _room;
         private readonly UserRequestService _userRequest;
+        private readonly PlacementService _placement;
 
         public event Action? OnDungeonStateChanged;
 
@@ -69,7 +70,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             LeverService leverService,
             CombatManagerService combatManagerService,
             RoomService roomService,
-            UserRequestService userRequestService)
+            UserRequestService userRequestService,
+            PlacementService placement)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -84,6 +86,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _combatManager = combatManagerService;
             _room = roomService;
             _userRequest = userRequestService;
+            _placement = placement;
         }
 
         // Create a new method to start a quest
@@ -145,9 +148,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         }
 
         public async Task ProcessTurnAsync()
-        {            
+        {
             bool isInBattle = !_combatManager.IsCombatOver;
+            await HandleScenarioRoll(isInBattle);
 
+            // After hero actions, move any wandering monsters.
+            _wanderingMonster.MoveWanderingMonsters(_dungeon);
+        }
+
+        public async Task<ThreatEventResult> HandleScenarioRoll(bool isInBattle)
+        {
             var threatResult = await _threat.ProcessScenarioRoll(isInBattle, HeroParty);
 
             if (threatResult != null)
@@ -175,16 +185,30 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     AddExplorationCardsToPiles();
                 }
+                if (threatResult.SpawnRandomEncounter != null)
+                {
+                    SpawnRandomEncounter(threatResult.SpawnRandomEncounter);
+                }
+            }
+            else
+            {
+                return new ThreatEventResult
+                {
+                    Description = "No threat event occurred.",
+                    SpawnWanderingMonster = false,
+                    SpawnTrap = false,
+                    ShouldAddExplorationCards = false,
+                    SpawnRandomEncounter = null
+                };
             }
 
             if (_dungeon.SpawnWanderingMonster)
             {
                 _wanderingMonster.SpawnWanderingMonster(_dungeon);
-                _threat.DecreaseThreat(5);
+                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WanderingMonsterSpawned);
             }
 
-            // After hero actions, move any wandering monsters.
-            _wanderingMonster.MoveWanderingMonsters(_dungeon);
+            return threatResult;
         }
 
         /// <summary>
@@ -238,7 +262,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             door.Properties ??= new Dictionary<DoorProperty, int>();
 
             // Increase Threat Level
-            _threat.IncreaseThreat(1);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
 
             // Roll for Trap (d6)
             if (RandomHelper.RollDie(DiceType.D6) == 6)
@@ -297,7 +321,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <summary>
         /// Reveals the next room after a door has been successfully opened.
         /// </summary>
-        private async Task<List<Monster>?> RevealNextRoomAsync(Door openedDoor)
+        private async Task RevealNextRoomAsync(Door openedDoor)
         {
             if (_dungeon.ExplorationDeck != null && _dungeon.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null)
             {
@@ -316,13 +340,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                     _dungeon.CurrentRoom = newRoom;
                     _dungeon.RoomsInDungeon.Add(newRoom);
-                    return await CheckForEncounter(newRoom);
+                    await CheckForEncounter(newRoom);
                 }
             }
-
-            // No more rooms in this path.
-            if (_dungeon.CurrentRoom != null) _dungeon.CurrentRoom.IsDeadEnd = true;
-            return null;
         }
 
         /// <summary>
@@ -353,12 +373,84 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
         }
 
-        private async Task<List<Monster>?> CheckForEncounter(Room newRoom)
+        /// <summary>
+        /// Spawns a random encounter in a specified room.
+        /// </summary>
+        /// <param name="room">The room where the encounter will be spawned.</param>
+        /// <returns>A list of the monsters that were spawned.</returns>
+        public void SpawnRandomEncounter(Room room, EncounterType? encounterType = null)
+        {
+            room.MonstersInRoom = new List<Monster>();
+
+            if(encounterType != null)
+            {
+                room.MonstersInRoom = _encounter.GetRandomEncounterByType((EncounterType)encounterType);
+            }
+            else if (_dungeon.Quest != null)
+            {
+                room.MonstersInRoom = _encounter.GetRandomEncounterByType(_dungeon.Quest.EncounterType);
+            }
+            else
+            {
+                room.MonstersInRoom = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
+            }
+
+            if (room.MonstersInRoom.Any())
+            {
+                room.IsEncounter = true;
+                PlaceMonsters(room, room.MonstersInRoom);
+            }
+        }
+
+        /// <summary>
+        /// Places monsters in a room based on their behavior type.
+        /// </summary>
+        /// <param name="room">The room to place the monsters in.</param>
+        /// <param name="monsters">The list of monsters to be placed.</param>
+        private void PlaceMonsters(Room room, List<Monster> monsters)
+        {
+            var heroes = room.HeroesInRoom;
+            if (heroes == null || !heroes.Any())
+            {
+                // If there are no heroes in the room, we can't place monsters relative to them.
+                // As a fallback, we can place them randomly.
+                foreach (var monster in monsters)
+                {
+                    _placement.PlaceEntity(monster, room, new Dictionary<string, string>
+                    {
+                        { "PlacementRule", "RandomEdge" }
+                    });
+                }
+                return;
+            }
+
+            foreach (var monster in monsters)
+            {
+                var placementParams = new Dictionary<string, string>();
+
+                switch (monster.Behavior)
+                {
+                    case MonsterBehaviorType.HumanoidRanged:
+                    case MonsterBehaviorType.MagicUser:
+                        // Place as far as possible from the heroes' centroid
+                        placementParams["PlacementRule"] = "AsFarAsPossible";
+                        placementParams["PlacementTarget"] = heroes.First().Name; // Placeholder for targeting logic
+                        break;
+                    default: // Melee and other types
+                             // Place randomly, but at least 1 square away from heroes
+                        placementParams["PlacementRule"] = "RandomEdge";
+                        break;
+                }
+
+                _placement.PlaceEntity(monster, room, placementParams);
+            }
+        }
+
+        private async Task CheckForEncounter(Room newRoom)
         {
             if (!newRoom.RandomEncounter)
             {
                 _dungeon.RoomsWithoutEncounters++;
-                return null;
             }
 
             int encounterChance = (newRoom.Category == RoomCategory.Room ? 50 : 30) + _dungeon.EncounterChanceModifier;
@@ -377,42 +469,23 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 Console.WriteLine("Encounter! Monsters appear!");
                 _dungeon.RoomsWithoutEncounters = 0;
 
-                newRoom.MonstersInRoom = new List<Monster>();
-
-                if (_dungeon.Quest != null)
-                {
-                    newRoom.MonstersInRoom = _encounter.GetRandomEncounterByType(_dungeon.Quest.EncounterType); 
-                }
-                else
-                {
-                    newRoom.MonstersInRoom = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
-                }
-
-                if (newRoom.MonstersInRoom.Any())
-                {
-                    newRoom.IsEncounter = true;
-
-                    // Hand off to the CombatManager to start the battle
-                    if (_dungeon.HeroParty != null && _dungeon.HeroParty.Heroes != null)
-                    {
-                        return newRoom.MonstersInRoom;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error: Hero party is not initialized.");
-                    }
-                }
+                SpawnRandomEncounter(newRoom);
+            }
+            else
+            {
+                // No encounter
+                Console.WriteLine("No encounter this time.");
+                _dungeon.RoomsWithoutEncounters++;
             }
 
             // No encounter
             Console.WriteLine("The room is quiet... for now.");
             _dungeon.RoomsWithoutEncounters++;
-            return null;
         }
 
         public void WinBattle()
         {
-            _threat.IncreaseThreat(1);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WinBattle);
         }
 
         public bool UpdateThreat(int amount)
@@ -491,16 +564,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             var result = _lever.PullLever(pulledLeverColor);
             Console.WriteLine($"Pulled a {result.LeverColor} lever! Event: {result.Description}");
 
-            // Process the consequences of the event
-            if (result.ThreatIncrease > 0)
-            {
-                _threat.IncreaseThreat(result.ThreatIncrease);
-            }
-            if (result.ShouldSpawnWanderingMonster)
-            {
-                if (_dungeon.StartingRoom != null) _wanderingMonster.SpawnWanderingMonster(_dungeon);
-            }
-            // ... handle other results like ShouldLockADoor, ShouldSpawnPortcullis, etc.
+            //TODO: Handle the result of the lever pull, e.g., update dungeon state, trigger events, etc.
         }
     }
 }
