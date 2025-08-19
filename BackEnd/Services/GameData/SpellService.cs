@@ -1535,6 +1535,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);
                     await caster.TakeSanityDamage(sanityLoss, (new FloatingTextService(), caster.Position), activation); 
                     result.OutcomeMessage = $"Miscast! {caster.Name} loses {sanityLoss} sanity and their turn ends.";
+                    caster.Party?.PartyManager?.UpdateMorale(changeEvent: MoraleChangeEvent.Miscast);
                 }
                 else
                 {

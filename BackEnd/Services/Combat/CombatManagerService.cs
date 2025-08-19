@@ -12,7 +12,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private readonly InitiativeService _initiative;
         private readonly ActionService _playerAction;
         private readonly MonsterAIService _monsterAI;
-        private readonly DungeonState _dungeon;
+        private readonly DungeonManagerService _dungeonManager;
         private readonly FacingDirectionService _facing;
         private readonly SpellResolutionService _spellResolution;
         private readonly FloatingTextService _floatingText;
@@ -31,12 +31,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public Hero? ActiveHero { get; private set; }
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();
         private HashSet<Character> CharactersWithProcessedEffectsThisTurn = new HashSet<Character>();
+        public DungeonState _dungeon => _dungeonManager.Dungeon;
 
         public CombatManagerService(
             InitiativeService initiativeService,
             ActionService playerActionService,
             MonsterAIService monsterAIService,
-            DungeonState dungeonState,
+            DungeonManagerService dungeonManagerService,
             FacingDirectionService facingDirectionService,
             SpellResolutionService spellResolutionService,
             FloatingTextService floatingTextService,
@@ -46,7 +47,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _initiative = initiativeService;
             _playerAction = playerActionService;
             _monsterAI = monsterAIService;
-            _dungeon = dungeonState;
+            _dungeonManager = dungeonManagerService;
             _facing = facingDirectionService;
             _spellResolution = spellResolutionService;
             _floatingText = floatingTextService;
@@ -78,6 +79,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             {
                 hero.HasDodgedThisBattle = false;
                 if (hero.ProfessionName == "Wizard" && hero.Spells != null) hero.CanCastSpell = true;
+            }
+
+            if(monsters.Where(m => m.Species == SpeciesName.Demon).Any())
+            {
+                _dungeonManager.PartyManager.UpdateMorale(changeEvent:MoraleChangeEvent.CombatWithDemons);
             }
 
             PrepareCharactersForCombat(heroes, monsters);

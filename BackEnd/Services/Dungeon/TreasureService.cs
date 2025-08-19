@@ -404,6 +404,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public async Task<Equipment?> GetFineTreasureAsync()
         {
+            _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.FineTreasure);
             string itemName = "";
             int roll = RandomHelper.GetRandomNumber(1, 54);
             // Console.WriteLine($"Treasure roll {roll}");
@@ -575,6 +576,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public async Task<Equipment?> GetWonderfulTreasureAsync()
         {
+            _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.WonderfulTreasure);
             string itemName = "";
             int roll = RandomHelper.GetRandomNumber(1, 54);
             int defaultDurabilityDamageRoll = RandomHelper.GetRandomNumber(1, 3) - 1;

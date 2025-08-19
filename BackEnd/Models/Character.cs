@@ -335,7 +335,12 @@ namespace LoDCompanion.BackEnd.Models
             if (CurrentHP <= 0)
             {
                 CurrentHP = 0;
-                Die();
+                if (this is Hero hero && hero.Party != null && hero.Party.PartyManager != null) 
+                { 
+                    hero.Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDown); 
+                    // TODO: initiate Bleedout
+                }
+                else Die();
             }
 
             if (floatingText.Item2 != null)
@@ -426,6 +431,7 @@ namespace LoDCompanion.BackEnd.Models
         protected virtual void Die()
         {
             Console.WriteLine($"{Name} has been defeated!");
+            if(this is Hero hero && hero.Party != null && hero.Party.PartyManager != null) hero.Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDies);
             OnDeath?.Invoke(this);
         }
 
@@ -630,7 +636,9 @@ namespace LoDCompanion.BackEnd.Models
             if (Talents.Any(t => t.Name == TalentName.ResistDisease)) roll -= 10;
             if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
-            return TestConstitution((int)roll);
+            var resisted = TestConstitution((int)roll);
+            if (resisted && Party != null && Party.PartyManager != null) Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDiseased);
+            return resisted;
         }
 
         public bool ResistPoison(int? roll = null)
@@ -645,7 +653,9 @@ namespace LoDCompanion.BackEnd.Models
             if (Talents.Any(t => t.Name == TalentName.ResistPoison)) roll -= 10;
             if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
-            return TestConstitution((int)roll);
+            var resisted = TestConstitution((int)roll);
+            if (resisted && Party != null && Party.PartyManager != null) Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroPoisoned);
+            return resisted;
         }
 
         internal async Task<bool> ResistFearAsync(Monster fearCauser, PowerActivationService activation, int? roll = null, bool wasTerror = false)
@@ -673,6 +683,7 @@ namespace LoDCompanion.BackEnd.Models
                 { 
                     return await ResistFearAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll); 
                 }
+                if (Party != null && Party.PartyManager != null) Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroFear);
                 AfraidOfTheseMonsters.Add(fearCauser);
                 return false;
             }
@@ -712,7 +723,7 @@ namespace LoDCompanion.BackEnd.Models
 				{
                     return await ResistTerrorAsync(fearCauser, activation, roll: (await new UserRequestService().RequestRollAsync("Roll resolve test", "1d100")).Roll);
                 }
-                
+                if (Party != null && Party.PartyManager != null) Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroTerror);
                 AfraidOfTheseMonsters.Add(fearCauser);
                 await StatusEffectService.AttemptToApplyStatusAsync(this, new ActiveStatusEffect(StatusEffectType.Stunned, 1), activation);
                 return false;
