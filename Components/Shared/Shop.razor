@@ -94,7 +94,7 @@
                                             <h5 class="card-title" title=@item.ToString()>@item.Name</h5>
                                             @if (item is Weapon Weapon && CurrentHero != null)
                                             {
-                                                var wieldStatus = Hero.GetWieldStatus(CurrentHero.GetStat(BasicStat.Strength), Weapon);
+                                                var wieldStatus = CurrentHero.GetWieldStatus(Weapon);
                                                 <span class="badge rounded-pill @GetWeaponWieldStatusClass(wieldStatus)">
                                                     @wieldStatus
                                                 </span>

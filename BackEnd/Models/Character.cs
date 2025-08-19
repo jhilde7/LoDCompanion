@@ -485,8 +485,8 @@ namespace LoDCompanion.BackEnd.Models
         // Hero-specific States and Flags
         public int MaxArmourType => GetProfessionMaxArmourType(ProfessionName);
         public bool IsThief => ProfessionName == "Thief";
-        public int OneHandedWeaponClass => Get1HWeaponClass(GetStat(BasicStat.Strength));
-        public int TwoHandedWeaponClass => Get2HWeaponClass(GetStat(BasicStat.Strength));
+        public int OneHandedWeaponClass => Get1HWeaponClass();
+        public int TwoHandedWeaponClass => Get2HWeaponClass();
 
         // Collections of Hero-specific items/abilities
         public List<Talent> Talents { get; set; } = new List<Talent>();
@@ -526,12 +526,6 @@ namespace LoDCompanion.BackEnd.Models
             if (stat == BasicStat.Strength)
             {
                 CheckWeaponRequirements();
-                SetStat(BasicStat.DamageBonus, GetDamageBonusFromSTR());
-            }
-
-            if (stat == BasicStat.Constitution)
-            {
-                SetStat(BasicStat.NaturalArmour, GetNaturalArmourFromCON());
             }
 
             if (ProfessionName == "Wizard" && stat == BasicStat.Wisdom)
@@ -539,12 +533,12 @@ namespace LoDCompanion.BackEnd.Models
                 SetStat(BasicStat.Mana, GetStat(BasicStat.Wisdom));
             }
 
-            if (stat == BasicStat.Sanity)
+            if (stat == BasicStat.Sanity && CurrentSanity > value)
             {
                 CurrentSanity = value; // Ensure CurrentSanity is set to the new Sanity value
             }
 
-            if (stat == BasicStat.HitPoints)
+            if (stat == BasicStat.HitPoints && CurrentHP > value)
             {
                 CurrentHP = value; // Ensure CurrentHP is set to the new HitPoints value
             }
@@ -569,6 +563,15 @@ namespace LoDCompanion.BackEnd.Models
             if(stat == BasicStat.Resolve && WaveringResolve)
             {
                 value -= 10; // If the party is wavering, reduce Resolve by 10
+            }
+
+            if(stat == BasicStat.DamageBonus)
+            {
+                value = GetDamageBonusFromSTR();
+            }
+            else if (stat == BasicStat.NaturalArmour)
+            {
+                value = GetNaturalArmourFromCON();
             }
 
             return value;
@@ -777,9 +780,9 @@ namespace LoDCompanion.BackEnd.Models
             };
         }
 
-        public static int Get1HWeaponClass(int str)
+        public int Get1HWeaponClass()
         {
-            return str switch
+            return GetStat(BasicStat.Strength) switch
             {
                 < 30 => 1,
                 < 40 => 2,
@@ -788,9 +791,9 @@ namespace LoDCompanion.BackEnd.Models
             };
         }
 
-        public static int Get2HWeaponClass(int str)
+        public int Get2HWeaponClass()
         {
-            return str switch
+            return GetStat(BasicStat.Strength) switch
             {
                 < 30 => 2,
                 < 40 => 3,
@@ -799,13 +802,13 @@ namespace LoDCompanion.BackEnd.Models
             };
         }
 
-        public static string GetWieldStatus(int str, Weapon weapon)
+        public string GetWieldStatus(Weapon weapon)
         {
-            if (weapon.Class != 6 && Get2HWeaponClass(str) < weapon.Class)
+            if (weapon.Class != 6 && TwoHandedWeaponClass < weapon.Class)
             {
                 return "(Too weak to wield)";
             }
-            if (Get1HWeaponClass(str) >= weapon.Class)
+            if (OneHandedWeaponClass >= weapon.Class)
             {
                 return "(1-Handed)";
             }
@@ -820,7 +823,7 @@ namespace LoDCompanion.BackEnd.Models
         {
             var equippedWeapon = this.Inventory.EquippedWeapon;
 
-            if (equippedWeapon != null && GetWieldStatus(GetStat(BasicStat.Strength), equippedWeapon) == "(Too weak to wield)")
+            if (equippedWeapon != null && GetWieldStatus(equippedWeapon) == "(Too weak to wield)")
             {
                 new InventoryService().UnequipItem(this, equippedWeapon);
 
