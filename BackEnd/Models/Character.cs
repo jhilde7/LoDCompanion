@@ -152,7 +152,7 @@ namespace LoDCompanion.BackEnd.Models
         /// </summary>
         /// <param name="stat">The basic stat to retrieve.</param>
         /// <returns>The value of the stat plus any active status effect modifiers, or 0 if not found.</returns>
-        public int GetStat(BasicStat stat)
+        public virtual int GetStat(BasicStat stat)
         {
             if (!BasicStats.TryGetValue(stat, out int value)) return 0;
 
@@ -510,6 +510,7 @@ namespace LoDCompanion.BackEnd.Models
         public bool ReceivedPerfectRollStat { get; set; }
         public Monster MonsterLastFought { get; set; } = new Monster();
         public bool CanCastSpell { get; set; } = false;
+        public bool WaveringResolve => Party != null && Party.PartyManager != null && Party.PartyManager.PartyWavering;
 
         // Constructor
         public Hero() : base() { }
@@ -547,6 +548,30 @@ namespace LoDCompanion.BackEnd.Models
             {
                 CurrentHP = value; // Ensure CurrentHP is set to the new HitPoints value
             }
+        }
+
+        public override int GetStat(BasicStat stat)
+        {
+            if (!BasicStats.TryGetValue(stat, out int value)) return 0;
+
+            // Filter for effects that have a stat bonus for the specific stat being requested.
+            value += ActiveStatusEffects
+                .Where(e => e.StatBonus.HasValue && e.StatBonus.Value.Item1 == stat)
+                .Sum(e => e.StatBonus != null ? e.StatBonus.Value.Item2 : 0);
+
+            if (this is Hero hero)
+            {
+                value += hero.Talents
+                    .Where(e => e.StatBonus.HasValue && e.StatBonus.Value.Item1 == stat)
+                    .Sum(e => e.StatBonus != null ? e.StatBonus.Value.Item2 : 0);
+            }
+
+            if(stat == BasicStat.Resolve && WaveringResolve)
+            {
+                value -= 10; // If the party is wavering, reduce Resolve by 10
+            }
+
+            return value;
         }
 
         public override string ToString()

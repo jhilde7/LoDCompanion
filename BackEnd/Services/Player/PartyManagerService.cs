@@ -10,6 +10,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<Hero> Heroes { get; set; } = new List<Hero>();
         public int Coins { get; set; }
         public int PartyMaxMorale => GetMaxMorale();
+        public PartyManagerService? PartyManager { get; set; }
 
         public Party()
         {
@@ -63,7 +64,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         public event Action<Hero?>? OnSelectedHeroChanged;
         public int MoraleMax { get; set; }
         public int Morale {  get; set; }
-        public bool HeroRetreat => Morale < 1;
+        public bool PartyRetreat => Morale < 1;
+        public bool PartyWavering => Morale < Math.Floor(MoraleMax / 2d);
 
 
         // Inject the state into the service's constructor
@@ -81,6 +83,10 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             var gameState = _gameStateManager.GameState;
             gameState.CurrentParty = new Party();
+            if (Party != null)
+            {
+                Party.PartyManager = this; // Set the PartyManager reference 
+            }
         }
 
         public Party GetCurrentParty()
