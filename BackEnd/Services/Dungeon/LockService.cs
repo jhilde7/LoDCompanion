@@ -110,11 +110,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 if (crowbar != null)
                 {
                     damageToLock = 8 + baseDamage;
-                    _threat.IncreaseThreat(1);
+                    _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.BashLockWithCrowbar);
                 }
                 else
                 {
-                    _threat.IncreaseThreat(2);
+                    _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.BashLock);
                 }
             }
 
