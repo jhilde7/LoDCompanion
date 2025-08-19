@@ -396,16 +396,9 @@ namespace LoDCompanion.BackEnd.Services.Game
                     return result;
 
                 case "Seal Door":
-                    if (target is Door doorToSeal)
+                    if (target is Door doorToSeal && doorToSeal.State != DoorState.BashedDown)
                     {
-                        if (doorToSeal.Properties != null)
-                        {
-                            doorToSeal.Properties.TryAdd(DoorProperty.MagicallySealed, await GetDurationAsync(caster, spell));
-                        }
-                        else
-                        {
-                            doorToSeal.Properties = new Dictionary<DoorProperty, int> { { DoorProperty.MagicallySealed, await GetDurationAsync(caster, spell) } };
-                        }
+                        doorToSeal.State = DoorState.MagicallySealed;
                         result.OutcomeMessage = $"{caster.Name} magically seals a nearby door!";
                     }
                     else

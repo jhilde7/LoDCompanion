@@ -582,8 +582,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         {
                             if (await _lock.BashLock(character, door.Lock, (MeleeWeapon)weapon)) 
                             { 
-                                door.Properties ??= new Dictionary<DoorProperty, int>();
-                                door.Properties.TryAdd(DoorProperty.BashedDown, 0);
+                                door.State = DoorState.BashedDown;
                             }
                         }
                         else
@@ -999,11 +998,11 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             var enemies = new List<Character> ();
             // Determine enemies for ZOC calculation
-            if (_dungeonManager.DungeonState != null && _dungeonManager.DungeonState.HeroParty != null)
+            if (_dungeonManager.Dungeon != null && _dungeonManager.Dungeon.HeroParty != null)
             {
                 if (character is Monster)
                 {
-                    enemies = _dungeonManager.DungeonState.HeroParty.Heroes.Cast<Character>().ToList();
+                    enemies = _dungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList();
                     if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
                     {
                         enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
@@ -1011,7 +1010,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
                 else if (character is Hero)
                 {
-                    enemies = _dungeonManager.DungeonState.RevealedMonsters.Cast<Character>().ToList();
+                    enemies = _dungeonManager.Dungeon.RevealedMonsters.Cast<Character>().ToList();
                     if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
                     {
                         enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
