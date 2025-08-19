@@ -30,6 +30,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
 
         public List<Character> AllCharactersInDungeon => [.. RevealedMonsters, .. HeroParty?.Heroes ?? new List<Hero>()];
+
+        public Party? SetParty(Party? party)
+        {
+            if (party != null)
+            {
+                HeroParty = party; 
+            }
+            return HeroParty;
+        }
     }
 
     public class DungeonManagerService
@@ -37,7 +46,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly WanderingMonsterService _wanderingMonster;
         private readonly EncounterService _encounter;
         private readonly RoomFactoryService _roomFactory;
-        private readonly GameStateManagerService _gameManager;
+        private readonly PartyManagerService _partyManager;
         private readonly DungeonBuilderService _dungeonBuilder;
         private readonly ThreatService _threat;
         private readonly TrapService _trap;
@@ -49,10 +58,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
 
-        public Party? HeroParty => _dungeon.HeroParty;
+        public DungeonState? Dungeon => _dungeon;
+        public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
         public Room? StartingRoom => _dungeon.StartingRoom;
         public Room? CurrentRoom => _dungeon.CurrentRoom;
-        public DungeonState? Dungeon => _dungeon;
 
 
         public DungeonManagerService(
@@ -60,7 +69,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             WanderingMonsterService wanderingMonster,
             EncounterService encounterService,
             RoomFactoryService roomFactoryService,
-            GameStateManagerService gameStateManager,
+            PartyManagerService partyManagerService,
             DungeonBuilderService dungeonBuilder,
             ThreatService threatService,
             TrapService trapService,
@@ -75,7 +84,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _wanderingMonster = wanderingMonster;
             _encounter = encounterService;
             _roomFactory = roomFactoryService;
-            _gameManager = gameStateManager;
+            _partyManager = partyManagerService;
             _dungeonBuilder = dungeonBuilder;
             _threat = threatService;
             _trap = trapService;
