@@ -62,6 +62,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
         public Room? StartingRoom => _dungeon.StartingRoom;
         public Room? CurrentRoom => _dungeon.CurrentRoom;
+        public PartyManagerService PartyManager => _partyManager;
 
 
         public DungeonManagerService(
@@ -94,6 +95,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _room = roomService;
             _userRequest = userRequestService;
             _placement = placement;
+
+            _partyManager.SetMaxMorale();
         }
 
         // Create a new method to start a quest
@@ -186,7 +189,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         var heroes = _dungeon.HeroParty.Heroes;
                         heroes.Shuffle();
                         var randomHero = heroes[0];
-                        var trap = Trap.GetRandomTrap();
+                        var trap = new Trap();
 
                         await _trap.TriggerTrapAsync(randomHero, trap);
                     }
@@ -273,26 +276,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (RandomHelper.RollDie(DiceType.D6) == 6)
             {
                 door.SetTrapState();
-                door.Trap = Trap.GetRandomTrap(); 
+                door.Trap = new Trap(); 
 
                 // Resolve Trap
                 if (character is Hero hero)
                 {
-                    if (!_trap.DetectTrap(hero, door.Trap))
-                    {
-                        // Failed to detect, trap is sprung!                        
+                    if (door.Trap != null)
+                    {                       
                         return await _trap.TriggerTrapAsync(hero, door.Trap);
                     }
-                    else
-                    {
-                        // TODO: Trap detected. The UI would ask the player to disarm or trigger it.
-                        // For now, we assume they attempt to disarm.
-                        if (!await _trap.DisarmTrapAsync(hero, door.Trap))
-                        {
-                            return $"{hero.Name} failed to disarm the {door.Trap.Name} and triggered it!";
-                        }
-                        // On success, the trap is gone, and we proceed.
-                    } 
                 }
             }
 
@@ -522,7 +514,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
 
             // Call the resting service, specifying the Dungeon context
-            var restResult = await _partyResting.AttemptRest(_dungeon.HeroParty, RestingContext.Dungeon, _dungeon);
+            var restResult = await _partyResting.AttemptRest(RestingContext.Dungeon, _dungeon);
 
             if (restResult.WasInterrupted)
             {

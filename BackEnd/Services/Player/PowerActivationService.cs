@@ -52,7 +52,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         success = _initiative.ForceNextActorType(ActorType.Hero);
                         break;
                     case PerkName.KeepCalmAndCarryOn:
-                        success = _partyManager.UpdateMorale(2);
+                        success = _partyManager.UpdateMorale(2) > 0;
                         break;
                     case PerkName.LuckyGit:
                         success = _dungeonManager.UpdateThreat(-2);

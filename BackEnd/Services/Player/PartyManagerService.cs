@@ -9,13 +9,37 @@ namespace LoDCompanion.BackEnd.Services.Player
         public string Id { get; private set; }
         public List<Hero> Heroes { get; set; } = new List<Hero>();
         public int Coins { get; set; }
-        public int PartyMorale { get; set; }
+        public int PartyMaxMorale => GetMaxMorale();
 
         public Party()
         {
             Id = Guid.NewGuid().ToString();
         }
 
+        private int GetMaxMorale()
+        {
+            return Heroes.Sum(hero => (int)Math.Floor(hero.GetStat(BasicStat.Resolve) / 10d));
+        }
+    }
+
+    public enum MoraleChangeEvent
+    {
+        HeroDies,
+        HeroDown,
+        CombatWithDemons,
+        HeroTerror,
+        GoingHungry,
+        HeroFear,
+        HeroPoisoned,
+        HeroDiseased,
+        SprungTrap,
+        Miscast,
+        Trapped,
+        Rest,
+        FineTreasure,
+        DefeatLargeMonster,
+        DwarvenAle,
+        WonderfulTreasure
     }
 
     public class PartyManagerService
@@ -39,6 +63,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public event Action<Hero?>? OnSelectedHeroChanged;
         public int MoraleMax { get; set; }
         public int Morale {  get; set; }
+        public bool HeroRetreat => Morale < 1;
 
 
         // Inject the state into the service's constructor
@@ -102,13 +127,57 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
 
-        internal bool UpdateMorale(int v)
+        public void SetMaxMorale()
         {
-            if(Morale == MoraleMax) return false;
+            MoraleMax = Party?.PartyMaxMorale ?? 0;
+            Morale = MoraleMax;
+        }
 
-            Morale += v;
-            if(Morale > MoraleMax) Morale = MoraleMax;
-            return true;
+        internal int UpdateMorale(int? v = null, MoraleChangeEvent? changeEvent = null)
+        {
+            int missingMorale = MoraleMax - Morale;
+            if (v != null)
+            {
+                Morale += Math.Min((int)v, missingMorale);
+                return Morale;
+            }
+            else if (changeEvent != null)
+            {
+                switch (changeEvent)
+                {
+                    case MoraleChangeEvent.HeroDies:
+                        Morale -= 6;
+                        break;
+                    case MoraleChangeEvent.HeroDown:
+                        Morale -= 4;
+                        break;
+                    case MoraleChangeEvent.CombatWithDemons:
+                    case MoraleChangeEvent.HeroTerror:
+                    case MoraleChangeEvent.GoingHungry:
+                        Morale -= 2;
+                        break;
+                    case MoraleChangeEvent.HeroFear:
+                    case MoraleChangeEvent.HeroPoisoned:
+                    case MoraleChangeEvent.HeroDiseased:
+                    case MoraleChangeEvent.SprungTrap:
+                    case MoraleChangeEvent.Miscast:
+                    case MoraleChangeEvent.Trapped:
+                        Morale -= 1;
+                        break;
+                    case MoraleChangeEvent.Rest:
+                    case MoraleChangeEvent.FineTreasure:
+                        Morale = UpdateMorale(1);
+                        break;
+                    case MoraleChangeEvent.DefeatLargeMonster:
+                        Morale = UpdateMorale(2);
+                        break;
+                    case MoraleChangeEvent.DwarvenAle:
+                    case MoraleChangeEvent.WonderfulTreasure:
+                        Morale = UpdateMorale(3);
+                        break;
+                }
+            }
+            return Morale;
         }
 
         public DungeonState SetCurrentDungeon(DungeonState dungeon)

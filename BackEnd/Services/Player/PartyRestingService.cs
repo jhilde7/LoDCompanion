@@ -57,9 +57,10 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="context">The context in which the rest is taking place.</param>
         /// <param name="dungeonState">The current dungeon state, required if resting in a dungeon.</param>
         /// <returns>A RestResult object detailing the outcome.</returns>
-        public async Task<RestResult> AttemptRest(Party party, RestingContext context, DungeonState? dungeon = null)
+        public async Task<RestResult> AttemptRest(RestingContext context, DungeonState? dungeon = null)
         {
             var result = new RestResult();
+            var party = _dungeonManager.HeroParty;
 
             if (party == null || !party.Heroes.Any())
             {
@@ -86,6 +87,13 @@ namespace LoDCompanion.BackEnd.Services.Player
                 _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
                 var threatResult = await _dungeonManager.HandleScenarioRoll(isInBattle: false);
                 result.WasInterrupted = threatResult.ThreatEventTriggered;
+
+                if (!result.WasInterrupted)
+                {
+                    result.WasSuccessful = true;
+                    _dungeonManager.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.Rest);
+                    result.Message = "The party rests successfully.";
+                }
             }
             else if (context == RestingContext.Wilderness)
             {
@@ -94,34 +102,30 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             if (!result.WasInterrupted)
             {
-                result.WasSuccessful = true;
-                party.PartyMorale += 2;
-                result.Message = "The party rests successfully."; 
-            }
-
-            // Apply healing and recovery
-            foreach (var hero in party.Heroes)
-            {
-                // Restore HP
-                int hpGained = RandomHelper.RollDie(DiceType.D6);
-                hero.CurrentHP = Math.Min(hero.GetStat(BasicStat.HitPoints), hero.CurrentHP + hpGained);
-
-                // Restore Energy
-                int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
-                if (requestResult.Item2 == hero)
+                // Apply healing and recovery
+                foreach (var hero in party.Heroes)
                 {
-                    energyToRestore = Math.Max(0, energyToRestore - 1);
-                }
+                    // Restore HP
+                    int hpGained = RandomHelper.RollDie(DiceType.D6);
+                    hero.CurrentHP = Math.Min(hero.GetStat(BasicStat.HitPoints), hero.CurrentHP + hpGained);
 
-                for (int i = 0; i < energyToRestore; i++)
-                {
-                    if (RandomHelper.RollDie(DiceType.D6) <= 3) hero.CurrentEnergy++;
-                }
+                    // Restore Energy
+                    int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
+                    if (requestResult.Item2 == hero)
+                    {
+                        energyToRestore = Math.Max(0, energyToRestore - 1);
+                    }
 
-                // Restore Mana for Wizards
-                if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
+                    for (int i = 0; i < energyToRestore; i++)
+                    {
+                        if (RandomHelper.RollDie(DiceType.D6) <= 3) hero.CurrentEnergy++;
+                    }
 
-                // Handle Bleeding Out and Poison
+                    // Restore Mana for Wizards
+                    if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
+
+                    // Handle Bleeding Out and Poison
+                } 
             }
 
             return result;
