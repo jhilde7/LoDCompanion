@@ -105,7 +105,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool SearchRoomTrigger { get; set; } // Trigger for room search, handled by a service
         public int SearchRoll { get; set; } = 0;
         public int TreasureRoll { get; set; } = 0;
-        public Trap CurrentTrap { get; set; } = new Trap("No Trap", 0, 0, string.Empty); // Default trap, no trap present initially
+        public Trap? CurrentTrap { get; set; }
         public List<Equipment> SearchResults { get; set; } = new List<Equipment>();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
