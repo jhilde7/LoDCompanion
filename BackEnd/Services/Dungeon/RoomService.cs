@@ -146,9 +146,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         West
     }
 
-    public enum DoorProperty
+    public enum DoorState
     {
-        None,
+        Closed,
         Open,
         BashedDown,
         MagicallySealed,
@@ -158,7 +158,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         public string Category { get; set; } = string.Empty;
         public Orientation Orientation { get; set; }
-        public Dictionary<DoorProperty, int>? Properties { get; set; }
+        public DoorState State { get; set; } = DoorState.Closed;
 
         // List of rooms that this door/chest could lead to (for doors)
         // In a web project, this would represent the connections in your dungeon graph.
@@ -188,33 +188,21 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // TODO: Trap = new Trap();
         }
 
-        // Provides the next connected room (for doors). The actual logic for selecting
-        // the room and updating dungeon state will be in a service.
-        public Room? GetNextConnectedRoom()
-        {
-            if (ConnectedRooms != null && ConnectedRooms.Count > 0)
-            {
-                // In a real application, you might have logic to pick a specific room,
-                // e.g., based on player choice, pre-determined path, or specific game rules.
-                // For now, simply return the first connected room as an example.
-                return ConnectedRooms[0];
-            }
-            return null;
-        }
-
         // A simple method to toggle the open state. The logic to determine if it *can* be opened
         // (e.g., if unlocked) would reside in a service.
-        public void Open()
+        public bool Open()
         {
-            Properties ??= new Dictionary<DoorProperty, int>();
-            if (Properties.ContainsKey(DoorProperty.Open))
+            if (Lock.LockHP <= 0)
             {
-                Properties.Remove(DoorProperty.Open);
+                State = DoorState.Open;
+                return true;
             }
             else
             {
-                Properties.TryAdd(DoorProperty.Open, 0); // Default to open state
+                // If the door is locked, it cannot be opened.
+                return false;
             }
+            // TODO: if trapped handle trap activation logic here
         }
     }
 
