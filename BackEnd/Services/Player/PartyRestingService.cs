@@ -70,7 +70,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             // check party perks to determine if a ration is needed
             var requestResult = await party.Heroes[0].AskForPartyPerkAsync(_powerActivation, PerkName.LivingOnNothing);
-            if (requestResult.Item1)
+            if (!requestResult.Item1)
             {
                 // Check for Rations
                 var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i != null && i.Name == "Ration");
