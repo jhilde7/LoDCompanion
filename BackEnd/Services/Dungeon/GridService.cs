@@ -141,6 +141,36 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
         }
 
+        /// <summary>
+        /// Helper to get all squares on a specific edge of a room.
+        /// </summary>
+        public static List<GridPosition> GetEdgeSquaresForOrientation(Room room, Orientation orientation)
+        {
+            var edge = new List<GridPosition>();
+            int z = room.GridOffset.Z;
+
+            switch (orientation)
+            {
+                case Orientation.North: // Top edge
+                    for (int x = room.GridOffset.X; x < room.GridOffset.X + room.Width; x++)
+                        edge.Add(new GridPosition(x, room.GridOffset.Y, z));
+                    break;
+                case Orientation.South: // Bottom edge
+                    for (int x = room.GridOffset.X; x < room.GridOffset.X + room.Width; x++)
+                        edge.Add(new GridPosition(x, room.GridOffset.Y + room.Height - 1, z));
+                    break;
+                case Orientation.East:  // Right edge
+                    for (int y = room.GridOffset.Y; y < room.GridOffset.Y + room.Height; y++)
+                        edge.Add(new GridPosition(room.GridOffset.X + room.Width - 1, y, z));
+                    break;
+                case Orientation.West:  // Left edge
+                    for (int y = room.GridOffset.Y; y < room.GridOffset.Y + room.Height; y++)
+                        edge.Add(new GridPosition(room.GridOffset.X, y, z));
+                    break;
+            }
+            return edge;
+        }
+
         public static GridSquare? GetSquareAt(GridPosition position, Dictionary<GridPosition, GridSquare> grid)
         {
             grid.TryGetValue(position, out var square);

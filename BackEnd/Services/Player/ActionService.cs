@@ -1160,10 +1160,10 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             // Check if throwing through a door
-            var throwThroughDoor = hero.Room.Doors.FirstOrDefault(d => d.Position.Contains(position));
+            var throwThroughDoor = hero.Room.Doors.FirstOrDefault(d => d.PassagewaySquares.Contains(position));
             if (throwThroughDoor != null && hero.Position != null)
             {
-                bool isAdjacentToDoor = throwThroughDoor.Position.Any(p => GridService.IsAdjacent(hero.Position, p));
+                bool isAdjacentToDoor = throwThroughDoor.PassagewaySquares.Any(p => GridService.IsAdjacent(hero.Position, p));
                 if (!isAdjacentToDoor)
                 {
                     rsSkill -= 10;
@@ -1172,7 +1172,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 if (rsRoll.Roll > rsSkill)
                 {
                     // Missed throw through a door, hits a square in front of the door
-                    var doorSquares = throwThroughDoor.Position.ToList();
+                    var doorSquares = throwThroughDoor.PassagewaySquares.ToList();
                     position = doorSquares[RandomHelper.GetRandomNumber(0, doorSquares.Count - 1)];
                     resultMessage = $"{hero.Name} misses! The potion hits the doorway at {position}.";
                 }

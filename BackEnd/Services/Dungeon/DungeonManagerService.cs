@@ -196,7 +196,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
                 if (threatResult.ShouldAddExplorationCards)
                 {
-                    AddExplorationCardsToPiles();
+                    AddExplorationCardsToPiles(1);
                 }
                 if (threatResult.SpawnRandomEncounter != null)
                 {
@@ -228,7 +228,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// Adds one new, random Exploration Card to the top of each active door's deck.
         /// This is triggered by a specific threat event.
         /// </summary>
-        private void AddExplorationCardsToPiles()
+        public void AddExplorationCardsToPiles(int amount)
         {
             if (_dungeon.CurrentRoom == null || _dungeon.ExplorationDeck == null) return;
 
@@ -238,18 +238,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (explorationRooms.Any())
             {
-                int numberToTake = Math.Min(explorationRooms.Count, _dungeon.CurrentRoom.Doors.Count);
-                if (numberToTake > 0)
+                for (int i = 0; i < amount; i++)
                 {
-                    foreach (RoomInfo roomInfo in explorationRooms.GetRange(0, numberToTake))
-                    {
-                        explorationCards.Add(_roomFactory.CreateRoom(roomInfo.Name));
-                    }
+                    explorationCards.Add(_roomFactory.CreateRoom(explorationRooms[i].Name));
                 }
             }
 
+            var roomsWithClosedDoors = _dungeon.RoomsInDungeon
+                .Where(r => r.Doors.Any(d => d.State == DoorState.Closed))
+                .ToList();
+
             // The rule implies adding a card for each "pile", which corresponds to each door with cards.
-            foreach (var door in _dungeon.CurrentRoom.Doors)
+            foreach (var door in roomsWithClosedDoors)
             {
                 if (door.ConnectedRooms.Any())
                 {
@@ -321,24 +321,86 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         private async Task RevealNextRoomAsync(Door openedDoor)
         {
-            if (_dungeon.ExplorationDeck != null && _dungeon.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null)
+            // this should only happen on the very first door opened
+            if (openedDoor.ExplorationDeck == null)
+            {
+                return; // No exploration deck to draw from
+            }
+
+            if (openedDoor.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null && Dungeon !=null)
             {
                 var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
-                    if(Dungeon != null) GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, Dungeon.DungeonGrid);
+                    GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, Dungeon.DungeonGrid);
 
                     // Link the rooms logically
-                    if (_dungeon.CurrentRoom != null)
+                    newRoom.ConnectedRooms.Add(openedDoor.ConnectedRooms[0]);
+                    openedDoor.ConnectedRooms.Add(newRoom);
+                    newRoom.Doors.Add(openedDoor);
+                    openedDoor.PassagewaySquares = GetPassagewaySquares(openedDoor.ConnectedRooms[0], newRoom, Dungeon.DungeonGrid);
+
+                    Dungeon.CurrentRoom = newRoom;
+                    Dungeon.RoomsInDungeon.Add(newRoom);
+                    await CheckForEncounter(newRoom);
+
+                    // Handle the remaining deck for the new room's exits
+                    var remainingCards = openedDoor.ExplorationDeck.ToList();
+                    openedDoor.ExplorationDeck = null; // The old door's deck is now processed
+
+                    if (!remainingCards.Any() || newRoom.DoorCount < 1)
                     {
-                        openedDoor.ConnectedRooms.Add(newRoom);
-                        newRoom.ConnectedRooms.Add(_dungeon.CurrentRoom);
+                        // This path is a dead end as it has no more cards.
+                        newRoom.IsDeadEnd = true;
+                        return;
                     }
 
-                    _dungeon.CurrentRoom = newRoom;
-                    _dungeon.RoomsInDungeon.Add(newRoom);
-                    await CheckForEncounter(newRoom);
+                    var newDoors = newRoom.Doors.Where(d => d != openedDoor).ToList();
+                    
+                    if (newDoors.Count > 1)
+                    {
+                        // Create a separate queue for each new door.
+                        var doorDecks = new List<Queue<Room>>();
+                        for (int i = 0; i < newDoors.Count; i++)
+                        {
+                            doorDecks.Add(new Queue<Room>());
+                        }
+
+                        // Deal the remaining cards from the bottom of the deck (as per the rules).
+                        var cardList = remainingCards.ToList();
+                        int currentDeckIndex = 0;
+                        while (cardList.Any())
+                        {
+                            // Take the last card from the list (simulating dealing from the bottom).
+                            var cardToDeal = cardList.Last();
+                            cardList.RemoveAt(cardList.Count - 1);
+
+                            // Add it to the current door's deck.
+                            doorDecks[currentDeckIndex].Enqueue(cardToDeal);
+
+                            // Move to the next door's deck for the next card.
+                            currentDeckIndex = (currentDeckIndex + 1) % newDoors.Count;
+                        }
+
+                        // Assign the newly created decks to each door.
+                        for (int i = 0; i < newDoors.Count; i++)
+                        {
+                            newDoors[i].ExplorationDeck = doorDecks[i];
+                        }
+                    }
+                    else
+                    {
+                        newDoors[0].ExplorationDeck = openedDoor.ExplorationDeck; // Assign the exploration deck to the door
+                    }
+
+                    openedDoor.ExplorationDeck = null; // Clear the original door's exploration deck
+
+                    foreach (var exitDoor in newDoors)
+                    {
+                        // place doors at a random position on a random edge that does not have a door
+                        _placement.PlaceExitDoor(exitDoor, newRoom);
+                    }
                 }
             }
         }
@@ -348,27 +410,67 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         private GridPosition CalculateNewRoomOffset(Door door, Room newRoom)
         {
-            GridPosition primaryDoorPos = door.Position[0];
-            int newRoomWidth = newRoom.Width;
-            int newRoomHeight = newRoom.Height;
+            GridPosition doorReferencePos = door.PassagewaySquares[0];
+            Room currentRoom = door.ConnectedRooms[0];
 
             switch (door.Orientation)
             {
-                case Orientation.North:
-                    // Place the new room's bottom edge against the door
-                    return new GridPosition(primaryDoorPos.X - newRoomWidth / 2 + 1, primaryDoorPos.Y + 1, primaryDoorPos.Z);
-                case Orientation.South:
-                    // Place the new room's top edge against the door
-                    return new GridPosition(primaryDoorPos.X - newRoomWidth / 2 + 1, primaryDoorPos.Y - newRoomHeight, primaryDoorPos.Z);
-                case Orientation.East:
-                    // Place the new room's left edge against the door
-                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y - newRoomHeight / 2 + 1, primaryDoorPos.Z);
-                case Orientation.West:
-                    // Place the new room's right edge against the door
-                    return new GridPosition(primaryDoorPos.X - newRoomWidth, primaryDoorPos.Y - newRoomHeight / 2 + 1, primaryDoorPos.Z);
+                case Orientation.North: // Door is on the top edge of current room
+                    return new GridPosition(doorReferencePos.X, currentRoom.GridOffset.Y + currentRoom.Height + 1, currentRoom.GridOffset.Z);
+                case Orientation.South: // Door is on the bottom edge of current room
+                    return new GridPosition(doorReferencePos.X, currentRoom.GridOffset.Y - newRoom.Height - 1, currentRoom.GridOffset.Z);
+                case Orientation.East:  // Door is on the right edge of current room
+                    return new GridPosition(currentRoom.GridOffset.X + currentRoom.Width + 1, doorReferencePos.Y, currentRoom.GridOffset.Z);
+                case Orientation.West:  // Door is on the left edge of current room
+                    return new GridPosition(currentRoom.GridOffset.X - newRoom.Width - 1, doorReferencePos.Y, currentRoom.GridOffset.Z);
                 default:
-                    return new GridPosition(primaryDoorPos.X + 1, primaryDoorPos.Y, primaryDoorPos.Z);
+                    // Fallback case, though an orientation should always be set.
+                    return new GridPosition(currentRoom.GridOffset.X + currentRoom.Width + 1, currentRoom.GridOffset.Y, currentRoom.GridOffset.Z);
             }
+        }
+
+        /// <summary>
+        /// Determines the two global grid squares that form the passageway between two rooms.
+        /// This assumes the rooms are placed adjacently on the grid.
+        /// </summary>
+        /// <param name="currentRoom">The first room.</param>
+        /// <param name="newRoom">The second room, placed adjacent to the first.</param>
+        /// <param name="dungeonGrid">The global grid of the dungeon.</param>
+        /// <returns>A list containing the two GridPosition objects for the passageway, or an empty list if no valid opening is found.</returns>
+        public List<GridPosition> GetPassagewaySquares(Room currentRoom, Room newRoom, Dictionary<GridPosition, GridSquare> dungeonGrid)
+        {
+            var passageway = new List<GridPosition>();
+
+            // Iterate through the boundary of currentRoom to find adjacent squares in newRoom
+            for (int y = currentRoom.GridOffset.Y; y < currentRoom.GridOffset.Y + currentRoom.Height; y++)
+            {
+                for (int x = currentRoom.GridOffset.X; x < currentRoom.GridOffset.X + currentRoom.Width; x++)
+                {
+                    var currentPos = new GridPosition(x, y, currentRoom.GridOffset.Z);
+                    var neighbors = GridService.GetNeighbors(currentPos, dungeonGrid)
+                                               .Where(n => !n.Equals(currentPos)); // Exclude self
+
+                    foreach (var neighborPos in neighbors)
+                    {
+                        // Check if the neighbor is inside newRoom
+                        if (neighborPos.X >= newRoom.GridOffset.X && neighborPos.X < newRoom.GridOffset.X + newRoom.Width &&
+                            neighborPos.Y >= newRoom.GridOffset.Y && neighborPos.Y < newRoom.GridOffset.Y + newRoom.Height)
+                        {
+                            var squareA = GridService.GetSquareAt(currentPos, dungeonGrid);
+                            var squareB = GridService.GetSquareAt(neighborPos, dungeonGrid);
+
+                            // A valid passageway square must not be a wall in either room
+                            if (squareA != null && !squareA.IsWall && squareB != null && !squareB.IsWall)
+                            {
+                                passageway.Add(currentPos);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Return the first two valid squares found, ensuring we have a 2-square wide door
+            return passageway.Take(2).ToList();
         }
 
         /// <summary>

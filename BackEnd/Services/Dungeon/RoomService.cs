@@ -156,16 +156,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
     public class Door
     {
-        public string Category { get; set; } = string.Empty;
-        public Orientation Orientation { get; set; }
         public DoorState State { get; set; } = DoorState.Closed;
 
-        // List of rooms that this door/chest could lead to (for doors)
-        // In a web project, this would represent the connections in your dungeon graph.
-        public GridPosition[] Position { get; set; } = { new GridPosition(0, 0, 0), new GridPosition(1, 0, 0) };
+        // The global grid position of the doorway.
+        public List<GridPosition> PassagewaySquares { get; set; } = new List<GridPosition>();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>();
         public Trap? Trap { get; set; }
         public Lock Lock { get; set; } = new Lock();
+        public Queue<Room>? ExplorationDeck { get; set; }
+        public Orientation Orientation { get; internal set; }
 
         // Constructor
         public Door()

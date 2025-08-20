@@ -267,5 +267,86 @@ namespace LoDCompanion.BackEnd.Services.Game
             Console.WriteLine($"{entity.Name} id: {entity.Id} at {targetPosition.ToString()}!");
             return true;
         }
+
+        /// <summary>
+        /// Places a new exit door on a random, available edge of a room.
+        /// </summary>
+        /// <param name="door">The door object to be placed.</param>
+        /// <param name="room">The room to place the door on.</param>
+        public void PlaceExitDoor(Door door, Room room)
+        {
+            var existingOrientations = room.Doors.Select(d => d.Orientation).ToHashSet();
+            var availableOrientations = Enum.GetValues(typeof(Orientation))
+                                            .Cast<Orientation>()
+                                            .Where(o => !existingOrientations.Contains(o))
+                                            .ToList();
+
+            if (!availableOrientations.Any())
+            {
+                Console.WriteLine($"Warning: No available edges in {room.Name} to place a new door.");
+                return;
+            }
+
+            availableOrientations.Shuffle();
+            var chosenOrientation = availableOrientations.First();
+            door.Orientation = chosenOrientation;
+
+            List<GridPosition> edgeSquares = GridService.GetEdgeSquaresForOrientation(room, chosenOrientation);
+
+            // Find a valid 2-square segment on the chosen edge
+            for (int i = 0; i < edgeSquares.Count - 1; i++)
+            {
+                GridPosition pos1 = edgeSquares[i];
+                GridPosition pos2 = edgeSquares[i + 1];
+
+                // The squares immediately inside the room must also be clear
+                if (!IsDoorwaySpaceClear(pos1, chosenOrientation) || !IsDoorwaySpaceClear(pos2, chosenOrientation))
+                {
+                    continue;
+                }
+
+                // If all checks pass, this is a valid spot
+                door.PassagewaySquares = new List<GridPosition> { pos1, pos2 };
+                return;
+            }
+
+            // Fallback if no 2-square opening is found (e.g., due to furniture)
+            Console.WriteLine($"Warning: Could not find a valid 2-square opening on the {chosenOrientation} edge of {room.Name}.");
+        }
+
+
+        /// <summary>
+        /// Checks if an edge square and its immediate interior neighbor are both clear.
+        /// </summary>
+        private bool IsDoorwaySpaceClear(GridPosition edgePos, Orientation edgeOrientation)
+        {
+            // Check the edge square itself.
+            var edgeSquare = GridService.GetSquareAt(edgePos, _dungeon.DungeonGrid);
+            if (edgeSquare == null || edgeSquare.IsWall || edgeSquare.Furniture != null)
+            {
+                return false; // Edge is blocked by a wall or furniture.
+            }
+
+            // Determine the position of the square immediately inside the room.
+            GridPosition interiorPos;
+            switch (edgeOrientation)
+            {
+                case Orientation.North: interiorPos = new GridPosition(edgePos.X, edgePos.Y + 1, edgePos.Z); break;
+                case Orientation.South: interiorPos = new GridPosition(edgePos.X, edgePos.Y - 1, edgePos.Z); break;
+                case Orientation.East: interiorPos = new GridPosition(edgePos.X - 1, edgePos.Y, edgePos.Z); break;
+                case Orientation.West: interiorPos = new GridPosition(edgePos.X + 1, edgePos.Y, edgePos.Z); break;
+                default: return false;
+            }
+
+            // Check if the interior square is blocked.
+            var interiorSquare = GridService.GetSquareAt(interiorPos, _dungeon.DungeonGrid);
+            if (interiorSquare == null || interiorSquare.MovementBlocked)
+            {
+                return false; // Interior space is blocked.
+            }
+
+            // Both the edge and the space behind it are clear.
+            return true;
+        }
     }
 }

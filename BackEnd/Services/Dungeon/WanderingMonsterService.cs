@@ -256,7 +256,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 // A door can occupy multiple grid positions (e.g., for double doors).
                 // Check if the monster's position is adjacent to any of these positions.
-                foreach (var doorPosition in door.Position)
+                foreach (var doorPosition in door.PassagewaySquares)
                 {
                     if (GridService.IsAdjacent(monsterState.CurrentPosition, doorPosition))
                     {
