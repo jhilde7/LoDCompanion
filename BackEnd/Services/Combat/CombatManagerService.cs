@@ -159,6 +159,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             CombatLog.Add("--- New Turn ---");
             MonstersThatHaveActedThisTurn.Clear();
             CharactersWithProcessedEffectsThisTurn.Clear();
+            await _dungeonManager.HandleScenarioRoll(isInBattle: true);
 
             foreach (var hero in HeroesInCombat)
             {
