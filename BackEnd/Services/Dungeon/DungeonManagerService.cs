@@ -168,10 +168,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (Dungeon != null)
             {
                 // After hero actions, move any wandering monsters.
-                _wanderingMonster.ProcessWanderingMonsters(Dungeon.WanderingMonsters); 
+                if (_wanderingMonster.ProcessWanderingMonsters(Dungeon.WanderingMonsters))
+                {
+                    Dungeon.WanderingMonsters.Where(w => w.IsRevealed).ToList().ForEach(w => Dungeon.WanderingMonsters.Remove(w));
+                }
             }
 
-            Dungeon?.HeroParty.Heroes.ForEach(async hero => await StatusEffectService.ProcessActiveStatusEffectsAsync(hero, _powerActivation));
+            if (!isInBattle)
+            {
+                Dungeon?.HeroParty.Heroes.ForEach(async hero => await StatusEffectService.ProcessActiveStatusEffectsAsync(hero, _powerActivation)); 
+            }
         }
 
         public async Task<ThreatEventResult> HandleScenarioRoll(bool isInBattle)

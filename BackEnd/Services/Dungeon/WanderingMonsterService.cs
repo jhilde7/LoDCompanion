@@ -10,13 +10,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         public string Id { get; } = Guid.NewGuid().ToString();
         public DungeonManagerService DungeonManager { get; set; }
-        public Monster? RevealedMonster { get; set; }
         public GridPosition CurrentPosition { get; set; } = new GridPosition(0, 0, 0);
         public bool IsAtChasm { get; set; } = false;
         public int RemainingMovement { get; set; } = 4;
         public bool NewRoom { get; set; } = false;
-
-        public bool IsRevealed => RevealedMonster != null;
+        public bool IsRevealed { get; set; } = false;
         public Room? CurrentRoom => DungeonManager?.FindRoomAtPosition(CurrentPosition);
 
         public WanderingMonsterState(DungeonManagerService dungeonManagerService)
@@ -27,11 +25,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
     public class WanderingMonsterService
     {
-        private readonly EncounterService _encounter;
 
-        public WanderingMonsterService(EncounterService encounter)
+        public WanderingMonsterService()
         {
-            _encounter = encounter;
+            
         }
 
         /// <summary>
@@ -56,8 +53,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             foreach (var monsterState in wanderingMonsters)
             {
-                if (monsterState.IsRevealed) continue;
-
                 int roll = RandomHelper.RollDie(DiceType.D6);
                 var adjacentDoor = GetDoorAdjacentToMonsterLocation(monsterState);
                 if (adjacentDoor != null && adjacentDoor.State == DoorState.Closed)
@@ -223,7 +218,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         private bool CheckForReveal(WanderingMonsterState monsterState)
         {
-            // Simplified reveal logic. Rule: "If it enters a room from where it has line of sight to
+            // Rule: "If it enters a room from where it has line of sight to
             // the characters and they are within 10 squares, roll on the quest-specific Monster Table".
             if (monsterState.DungeonManager.Dungeon != null && monsterState.CurrentRoom != null)
             {
@@ -240,6 +235,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 if (hasLineOfSight)
                 {
                     Console.WriteLine("The wandering monster has found the party!");
+                    monsterState.IsRevealed = true;
                     monsterState.DungeonManager.SpawnRandomEncounter(monsterState.CurrentRoom); 
                 }
                 return true;
