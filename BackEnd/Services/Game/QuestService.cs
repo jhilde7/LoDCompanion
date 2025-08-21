@@ -54,7 +54,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         R30,
         TombGuardian,
         MainQuest,
-        Random
+        Random,
+        Mimic
     }
 
     public class Quest
