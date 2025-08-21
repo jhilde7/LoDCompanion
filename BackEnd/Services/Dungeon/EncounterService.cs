@@ -20,7 +20,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _passive = passive;
         }
 
-        public List<Monster> GetRandomEncounterByType(EncounterType type)
+        public List<Monster> GetRandomEncounterByType(EncounterType type, EncounterType? dungeonEncounterType = null)
         {
             List<Monster> encounters = new List<Monster>();
             Monster monster; // Used temporarily for individual monster creation with additional properties
@@ -1521,31 +1521,30 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     switch (roll)
                     {
                         case 1:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "FireElemental");
-                            break;
+                            return BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "FireElemental");
                         case 2:
-                            // This originally called dungeonManager.encounter.encounterType.
-                            // In a service-oriented approach, the calling service (e.g., DungeonManagerService)
-                            // would pass the appropriate current encounter type.
-                            encounters = GetRandomEncounterByType(type);
+                            if (dungeonEncounterType != null)
+                            {
+                                return GetRandomEncounterByType((EncounterType)dungeonEncounterType); 
+                            }
                             break;
                     }
                     break;
                 case EncounterType.R28:
-                    encounters = BuildMonsters(2, "Mummy", null, 0);
-                    break;
+                    return BuildMonsters(2, "Mummy", null, 0);
                 case EncounterType.R30:
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
                     {
                         case 6:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Snake");
-                            encounters.AddRange(GetRandomEncounterByType(type));
+                            if (dungeonEncounterType != null)
+                            {
+                                encounters.AddRange(GetRandomEncounterByType((EncounterType)dungeonEncounterType)); 
+                            }
                             break;
-                        case 4:
-                        case 5:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Snake");
-                            break;
+                        case >= 4:
+                            return BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Snake");
                         default:
                             break;
                     }
@@ -1556,12 +1555,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     {
                         case 4:
                         case <= 6:
-                            encounters = BuildMonsters(2, "Tomb Guardian", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 2);
-                            break;
+                            return BuildMonsters(2, "Tomb Guardian", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 2);
                         default:
                             break;
                     }
                     break;
+                case EncounterType.Mimic:
+                    return BuildMonsters(1, "Mimic");
                 default:
                     break;
             }
