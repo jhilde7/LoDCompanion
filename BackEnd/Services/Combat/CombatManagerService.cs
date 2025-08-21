@@ -170,6 +170,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     hero.HasMadeFirstMoveAction = false;
                     hero.ResetMovementPoints();
                 }
+                if (CharactersWithProcessedEffectsThisTurn.Add(hero))
+                {
+                    await StatusEffectService.ProcessActiveStatusEffectsAsync(hero, _powerActivation);
+                }
+                CharactersWithProcessedEffectsThisTurn.Add(hero);
                 if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics) 
                     || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
                 {
@@ -198,6 +203,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 monster.ResetActionPoints();
                 monster.HasMadeFirstMoveAction = false;
                 monster.ResetMovementPoints();
+                await StatusEffectService.ProcessActiveStatusEffectsAsync(monster, _powerActivation);
+                if (CharactersWithProcessedEffectsThisTurn.Add(monster))
+                {
+                    await StatusEffectService.ProcessActiveStatusEffectsAsync(monster, _powerActivation);
+                }
             }
 
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
@@ -291,6 +301,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private async Task ResolveCombatAsync()
         {
             CombatLog.Add("Combat is over!");
+
+            if(HeroesInCombat.Any(h => h.CurrentHP > 0))
+            {
+                _dungeonManager.WinBattle();
+                CombatLog.Add("The heroes have won the battle!");
+            }
 
             foreach (var hero in HeroesInCombat)
             {
