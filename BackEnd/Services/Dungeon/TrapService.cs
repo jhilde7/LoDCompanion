@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using Microsoft.AspNetCore.Rewrite;
 using System;
 using System.Text;
 
@@ -145,16 +146,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero who triggered the trap.</param>
         /// <param name="trap">The trap that was triggered.</param>
         /// <returns>A string describing the outcome of the trap.</returns>
-        public async Task<string> TriggerTrapAsync(Character character, Trap trap)
+        public async Task<string> TriggerTrapAsync(Character character, Trap trap, Chest? chest = null)
         {
             if (trap.Name == TrapType.Click) return $"{character.Name} triggered a trap, {trap.Description}.";
             if (character.Position == null) return $"{character.Name} is not in a valid position to trigger a trap.";
-            var pointOfEntry = character.Room.Doors
-                .Where(doors => doors.State == DoorState.Open)
-                .OrderBy(d => GridService.GetDistance(character.Position, d.PassagewaySquares[0]))
-                .FirstOrDefault();
-
-            var entryPosition = pointOfEntry?.PassagewaySquares[0] ?? character.Position;
 
             if (character is Hero hero && await DetectTrapAsync(hero, trap))
             {
@@ -173,23 +168,65 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
             }
 
-            var outcome = new StringBuilder();
-            switch (trap.Name)
-            {
-                case TrapType.Arrows:
-                case TrapType.PoisonDarts:
-                    outcome.Append(await FireProjectilesAsync(character.Room, entryPosition, trap));                    
-                    break;
-                case TrapType.CollapsingRoof:
-                    outcome.Append(await CollapsingRoof(character, trap));
-                    break;
-                case TrapType.FireBall:
-                    outcome.AppendLine(await FireBall(character, trap));
-                    break;
-                case TrapType.Labyrinth:
-                    _dungeonManager.AddExplorationCardsToPiles(2);
-                    break;
+            if(chest != null) trap.Position = chest.Position;
+            else trap.Position = character.Position;
 
+            var outcome = new StringBuilder();
+            bool newTrap = false;
+            while (newTrap)
+            {
+                switch (trap.Name)
+                {
+                    case TrapType.Arrows:
+                    case TrapType.PoisonDarts:
+                        outcome.AppendLine(trap.Description);
+                        outcome.Append(await HandleProjectileTrapAsync(character, trap));
+                        newTrap = false;
+                        break;
+                    case TrapType.CollapsingRoof:
+                        outcome.AppendLine(trap.Description);
+                        outcome.Append(await HandleCollapsingRoofTrapAsync(character, trap));
+                        newTrap = false;
+                        break;
+                    case TrapType.FireBall:
+                        outcome.AppendLine(trap.Description);
+                        outcome.AppendLine(await HandleFireBallTrapAsync(character, trap));
+                        newTrap = false;
+                        break;
+                    case TrapType.Labyrinth:
+                        outcome.AppendLine(trap.Description);
+                        _dungeonManager.AddExplorationCardsToPiles(2);
+                        newTrap = false;
+                        break;
+                    case TrapType.Mimic:
+                        if (chest != null)
+                        {
+                            outcome.AppendLine(trap.Description);
+                            _dungeonManager.SpawnMimicEncounter(chest);
+                            newTrap = false;
+                        }
+                        else
+                        {
+                            newTrap = true;
+                        }
+                        break;
+                    case TrapType.PoisonGas:
+                        outcome.AppendLine(trap.Description);
+                        outcome.AppendLine(HandlePoisonGasTrap(character));
+                        newTrap = false;
+                        break;
+                    case TrapType.TrapDoor:
+                    case TrapType.SpearTrap:
+                        outcome.AppendLine(trap.Description);
+                        outcome.AppendLine(await HandlePitTrapAsync(character, trap));
+                        newTrap = false;
+                        break;
+                    case TrapType.Skeletons:
+                        outcome.AppendLine(trap.Description);
+                        _dungeonManager.SpawnSkeletonsTrapEncounter(character.Room, RandomHelper.RollDice(trap.DamageDice) + 2);
+                        newTrap = false;
+                        break;
+                } 
             }
 
             if (character is Hero)
@@ -201,7 +238,66 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return outcome.ToString();
         }
 
-        private async Task<string> FireBall(Character character, Trap trap)
+        private async Task<string> HandlePitTrapAsync(Character character, Trap trap)
+        {
+            var randomCharacter = character.Room.CharactersInRoom
+                .FirstOrDefault(c => c.Position == GetRandomPositions(character, 1)
+                .FirstOrDefault(k => c.Position != null && k.Key == c.Position).Key);
+            if (randomCharacter != null)
+            {
+                int roll = 0;
+                if (randomCharacter is Hero)
+                {
+                    var hero = (Hero)randomCharacter;
+                    var rollResult = await _diceRoll.RequestRollAsync($"Roll DEX test for {hero.Name} to avoid spear trap.", "1d100",
+                        stat: (hero, BasicStat.Dexterity));
+                    await Task.Yield();
+                    roll = rollResult.Roll;
+                }
+                else
+                {
+                    roll = RandomHelper.RollDie(DiceType.D100);
+                }
+
+                if (!randomCharacter.TestDexterity(roll))
+                {
+                    int damage = RandomHelper.RollDice(trap.DamageDice);
+                    if (trap.Name == TrapType.SpearTrap)
+                    {
+                        damage = await randomCharacter.TakeDamageAsync(damage, (new FloatingTextService(), randomCharacter.Position), _powerActivation); 
+                    }
+                    else if (trap.Name == TrapType.TrapDoor)
+                    {
+                        damage = await randomCharacter.TakeDamageAsync(damage, (new FloatingTextService(), randomCharacter.Position), _powerActivation, ignoreAllArmour: true);
+                    }
+                    await StatusEffectService.AttemptToApplyStatusAsync(randomCharacter, new ActiveStatusEffect(StatusEffectType.Pit, -1), _powerActivation);
+                    return $"{randomCharacter.Name} falls into the pit and takes {damage} damage!";
+                }
+                else
+                {
+                    return $"{randomCharacter.Name} successfully dodged the spear trap!";
+                }
+            }
+
+            return $"Could not find a character to trigger the spear trap.";
+        }
+
+        private static string HandlePoisonGasTrap(Character character)
+        {
+            if (character.Room.Doors.Where(d => d.State == DoorState.BashedDown).Any())
+            {
+                character.Room.Doors.ForEach(d => d.State = DoorState.Closed);
+                character.Room.Doors.ForEach(d => d.Lock.LockHP = 20);
+                character.Room.CharactersInRoom.ForEach(c => c.ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.PoisonGas, -1)));
+                return string.Empty;
+            }
+            else
+            {
+                return "This room has a bashed down door, so the trap has no effect.";
+            }
+        }
+
+        private async Task<string> HandleFireBallTrapAsync(Character character, Trap trap)
         {
             var outcome = new StringBuilder();
             var positionKVP = GetRandomPositions(character, 1)[0];
@@ -226,7 +322,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return outcome.ToString();
         }
 
-        private async Task<string> CollapsingRoof(Character character, Trap trap)
+        private async Task<string> HandleCollapsingRoofTrapAsync(Character character, Trap trap)
         {
             int roll = RandomHelper.RollDie(DiceType.D6);
             StringBuilder outcome = new StringBuilder();
@@ -294,9 +390,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <summary>
         /// Handles the logic for firing a volley of projectiles across a room based on entry point.
         /// </summary>
-        private async Task<string> FireProjectilesAsync(Room room, GridPosition entryPosition, Trap trap)
+        private async Task<string> HandleProjectileTrapAsync(Character character, Trap trap)
         {
+            if (character.Position == null) return $"{character.Name} is not in a valid position to trigger a trap.";
+            var pointOfEntry = character.Room.Doors
+                .Where(doors => doors.State == DoorState.Open)
+                .OrderBy(d => GridService.GetDistance(character.Position, d.PassagewaySquares[0]))
+                .FirstOrDefault();
+
+            var entryPosition = pointOfEntry?.PassagewaySquares[0] ?? character.Position;
             var outcome = new StringBuilder();
+            var room = character.Room;
             var roomCenter = new GridPosition(room.GridOffset.X + room.Width / 2, room.GridOffset.Y + room.Height / 2, room.GridOffset.Z);
 
             // Determine which wall the entry point is on to find the firing edge.

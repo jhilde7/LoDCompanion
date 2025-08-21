@@ -155,7 +155,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         FireProtection,
         Invisible,
         Pitcher,
-        ForgedUnderPressure
+        ForgedUnderPressure,
+        PoisonGas
     }
 
     /// <summary>
@@ -393,10 +394,42 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         }
                         break;
 
-                        case StatusEffectType.MetheiasWard when character.CurrentHP < character.GetStat(BasicStat.HitPoints): character.CurrentHP += 1; break;
-                        case StatusEffectType.LitanyOfMetheia when character.CurrentHP < character.GetStat(BasicStat.HitPoints):
+                    case StatusEffectType.MetheiasWard when character.CurrentHP < character.GetStat(BasicStat.HitPoints): character.CurrentHP += 1; 
+                        break;
+                    case StatusEffectType.LitanyOfMetheia when character.CurrentHP < character.GetStat(BasicStat.HitPoints):
                             var resultRoll = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100"); await Task.Yield();
                             if (character.TestResolve(resultRoll.Roll)) character.CurrentHP += 1;
+                        break;
+                    case StatusEffectType.PoisonGas:
+                            await character.TakeDamageAsync(RandomHelper.RollDie(DiceType.D3), (_floatingText, character.Position), activation, ignoreAllArmour: true);
+                        break;
+                    case StatusEffectType.Pit:
+                        int roll = 0;
+                        if (character is Hero)
+                        {
+                            hero = (Hero)character;
+                            var rollResult = await new UserRequestService().RequestRollAsync(
+                                "Roll a dexterity test in an attempt to climb out of the pit", "1d100",
+                                stat: (hero, BasicStat.Dexterity));
+                            roll = rollResult.Roll;
+                        }
+                        else
+                        {
+                            roll = RandomHelper.RollDie(DiceType.D100);
+                        }
+
+                        if (character.TestDexterity(roll))
+                        {
+                            RemoveActiveStatusEffect(character, effect);
+                            character.CurrentAP = 0;
+                            Console.WriteLine($"{character.Name} climbs out of the pit!");
+                        }
+                        else
+                        {
+                            // The character remains in the pit, no action points this turn.
+                            character.CurrentAP = 0;
+                            Console.WriteLine($"{character.Name} fails to climb out of the pit and remains trapped.");
+                        }
                         break;
                 }
 

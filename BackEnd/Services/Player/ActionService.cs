@@ -53,7 +53,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         Taunt,
         BreakDownDoor,
         StandUp,
-        PickupWeapon
+        PickupWeapon,
+        AssistAllyOutOfPit
     }
 
     public class ActionInfo
@@ -577,20 +578,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Character, ActionType.BreakDownDoor):
                     if (primaryTarget is Door)
                     {
-                        var door = (Door)primaryTarget;
-                        if (door.Lock.IsLocked && weapon is MeleeWeapon)
-                        {
-                            if (await _lock.BashLock(character, door.Lock, (MeleeWeapon)weapon)) 
-                            { 
-                                door.State = DoorState.BashedDown;
-                            }
-                        }
-                        else
-                        {
-                            resultMessage = "Target door is not locked.";
-                            resultMessage += await PerformActionAsync(dungeon, character, ActionType.OpenDoor, primaryTarget);
-                            actionWasSuccessful = false;
-                        }
+                        (resultMessage, actionWasSuccessful) = await BreakDownDoorAsync(dungeon, character, (Door)primaryTarget, weapon);
                     }
                     else
                     {
@@ -613,102 +601,22 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Character, ActionType.PickupWeapon):
                     if (character.DroppedWeapon != null)
                     {
-                        var enemies = GetEnemiesForZOC(character);
-                        bool adjacentEnemy = false;
-                        if (character.Position != null)
-                        {
-                            foreach (var enemy in enemies)
-                            {
-                                if (enemy.Position != null && GridService.IsAdjacent(character.Position, enemy.Position))
-                                {
-                                    adjacentEnemy = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (adjacentEnemy)
-                        {
-                            bool pickedUpWeapon = false;
-                            if (character is Monster)
-                            {
-                                Monster monster = (Monster)character;
-                                var dexRoll = RandomHelper.RollDie(DiceType.D100);
-                                if (dexRoll <= character.GetStat(BasicStat.Dexterity))
-                                {
-                                    monster.ActiveWeapon = monster.DroppedWeapon;
-                                    pickedUpWeapon = true;
-                                }
-                                else
-                                {
-                                    pickedUpWeapon = false;
-                                } 
-                            }
-                            else
-                            {
-                                Hero hero = (Hero)character;
-                                var dexRoll = await _diceRoll.RequestRollAsync("Roll dexterity check.", "1d100", stat: (hero, BasicStat.Dexterity));
-                                await Task.Yield();
-                                if (dexRoll.Roll <= character.GetStat(BasicStat.Dexterity))
-                                {
-                                    if (hero.Inventory.EquippedWeapon == null)
-                                    {
-                                        hero.Inventory.EquippedWeapon = hero.DroppedWeapon; 
-                                    }
-                                    else
-                                    {
-                                        if (hero.DroppedWeapon != null)
-                                        {
-                                            BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon); 
-                                        }
-                                    }
-                                    pickedUpWeapon = true;
-                                }
-                                else
-                                {
-                                    pickedUpWeapon = false;
-                                }
-                            }
-
-                            if (pickedUpWeapon)
-                            {
-                                character.DroppedWeapon = null;
-                                resultMessage = $"{character.Name} successfully picked up their weapon.";
-                            }
-                            else
-                            {
-                                resultMessage = $"{character.Name} failed to pick up their weapon.";
-                            }
-                        }
-                        else
-                        {
-                            if (character is Monster)
-                            {
-                                Monster monster = (Monster)character;
-                                monster.ActiveWeapon = character.DroppedWeapon; 
-                            }
-                            else
-                            {
-                                Hero hero = (Hero)character;
-                                if (hero.Inventory.EquippedWeapon == null)
-                                {
-                                    hero.Inventory.EquippedWeapon = hero.DroppedWeapon;
-                                }
-                                else
-                                {
-                                    if (hero.DroppedWeapon != null)
-                                    {
-                                        BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
-                                    }
-                                }
-                            }
-                            character.DroppedWeapon = null;
-                            resultMessage = $"{character.Name} picked up their weapon.";
-                        }
+                        resultMessage = await PickupWeapon(character);
                     }
                     else
                     {
                         resultMessage = "No weapon to pick up.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.AssistAllyOutOfPit):
+                    if (primaryTarget is Hero)
+                    {
+                        (resultMessage, actionWasSuccessful) = await AssistAllyOutOfPitAsync(primaryTarget, hero);
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target for AssistAllyOutOfPit action.";
                         actionWasSuccessful = false;
                     }
                     break;
@@ -724,6 +632,188 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";
+        }
+
+        private async Task<(string resultMessage, bool actionWasSuccessful)> AssistAllyOutOfPitAsync(object primaryTarget, Hero hero)
+        {   
+            string resultMessage = string.Empty;
+            bool actionWasSuccessful = true;
+            var heroToAssist = (Hero)primaryTarget;
+            var rope = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name.Contains("Rope"));
+            if (rope != null)
+            {
+                if (rope.Name.Contains("old"))
+                {
+                    var roll = RandomHelper.RollDie(DiceType.D6);
+                    if (roll >= 5)
+                    {
+                        BackpackHelper.TakeOneItem(hero.Inventory.Backpack, rope);
+                        roll = RandomHelper.RollDie(DiceType.D6);
+                        int damage = await heroToAssist.TakeDamageAsync(roll, (new FloatingTextService(), heroToAssist.Position), _powerActivation);
+                        resultMessage = $"{hero.Name} assists {heroToAssist.Name} out of the pit using an old rope, but it breaks causing {heroToAssist.Name} to fall back in the pit causing {damage} damage.";
+                    }
+                    else
+                    {
+                        resultMessage = $"{hero.Name} assists {heroToAssist.Name} out of the pit using an old rope.";
+                    }
+                }
+                else
+                {
+                    resultMessage = $"{hero.Name} assists {heroToAssist.Name} out of the pit using a rope.";
+                }
+            }
+            else
+            {
+                resultMessage = $"{hero.Name} does not have a rope to assist {heroToAssist.Name} out of the pit.";
+                actionWasSuccessful = false;
+            }
+
+            return (resultMessage, actionWasSuccessful);
+        }
+
+        private async Task<(string resultMessage, bool actionWasSuccessful)> BreakDownDoorAsync(
+            DungeonState dungeon, Character character, Door primaryTarget, Weapon? weapon)
+        {
+            var door = primaryTarget;
+            string resultMessage = string.Empty;
+            bool actionWasSuccessful = true;
+            if (door.Lock.IsLocked && weapon is MeleeWeapon)
+            {
+                if (await _lock.BashLock(character, door.Lock, (MeleeWeapon)weapon))
+                {
+                    door.State = DoorState.BashedDown;
+
+                    // if the door that was bashed donw was in relation to the poison gas trap.
+                    var poisonGas = character.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
+                    if (poisonGas != null)
+                    {
+                        foreach (var characterInRoom in character.Room.CharactersInRoom)
+                        {
+                            var poisonGasEffect = characterInRoom.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
+                            if (poisonGasEffect != null)
+                            {
+                                StatusEffectService.RemoveActiveStatusEffect(characterInRoom, poisonGasEffect);
+                            }
+                        }
+                        resultMessage = $"{character.Name} bashed down the door, releasing the poison gas!";
+                    }
+                    else
+                    {
+                        resultMessage = $"{character.Name} successfully bashed down the door.";
+                    }
+                }
+                else
+                {
+                    resultMessage = $"{character.Name} failed to bash down the door, the lock has {door.Lock.LockHP} HP left.";
+                }
+            }
+            else
+            {
+                resultMessage = "Target door is not locked.";
+                resultMessage += await PerformActionAsync(dungeon, character, ActionType.OpenDoor, primaryTarget);
+                actionWasSuccessful = false;
+            }
+
+            return (resultMessage, actionWasSuccessful);
+        }
+
+        private async Task<string> PickupWeapon(Character character)
+        {
+            var resultMessage = string.Empty;
+            var enemies = GetEnemiesForZOC(character);
+            bool adjacentEnemy = false;
+            if (character.Position != null)
+            {
+                foreach (var enemy in enemies)
+                {
+                    if (enemy.Position != null && GridService.IsAdjacent(character.Position, enemy.Position))
+                    {
+                        adjacentEnemy = true;
+                        break;
+                    }
+                }
+            }
+
+            if (adjacentEnemy)
+            {
+                bool pickedUpWeapon = false;
+                if (character is Monster)
+                {
+                    Monster monster = (Monster)character;
+                    var dexRoll = RandomHelper.RollDie(DiceType.D100);
+                    if (dexRoll <= character.GetStat(BasicStat.Dexterity))
+                    {
+                        monster.ActiveWeapon = monster.DroppedWeapon;
+                        pickedUpWeapon = true;
+                    }
+                    else
+                    {
+                        pickedUpWeapon = false;
+                    }
+                }
+                else
+                {
+                    Hero hero = (Hero)character;
+                    var dexRoll = await _diceRoll.RequestRollAsync("Roll dexterity check.", "1d100", stat: (hero, BasicStat.Dexterity));
+                    await Task.Yield();
+                    if (dexRoll.Roll <= character.GetStat(BasicStat.Dexterity))
+                    {
+                        if (hero.Inventory.EquippedWeapon == null)
+                        {
+                            hero.Inventory.EquippedWeapon = hero.DroppedWeapon;
+                        }
+                        else
+                        {
+                            if (hero.DroppedWeapon != null)
+                            {
+                                BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
+                            }
+                        }
+                        pickedUpWeapon = true;
+                    }
+                    else
+                    {
+                        pickedUpWeapon = false;
+                    }
+                }
+
+                if (pickedUpWeapon)
+                {
+                    character.DroppedWeapon = null;
+                    resultMessage = $"{character.Name} successfully picked up their weapon.";
+                }
+                else
+                {
+                    resultMessage = $"{character.Name} failed to pick up their weapon.";
+                }
+            }
+            else
+            {
+                if (character is Monster)
+                {
+                    Monster monster = (Monster)character;
+                    monster.ActiveWeapon = character.DroppedWeapon;
+                }
+                else
+                {
+                    Hero hero = (Hero)character;
+                    if (hero.Inventory.EquippedWeapon == null)
+                    {
+                        hero.Inventory.EquippedWeapon = hero.DroppedWeapon;
+                    }
+                    else
+                    {
+                        if (hero.DroppedWeapon != null)
+                        {
+                            BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
+                        }
+                    }
+                }
+                character.DroppedWeapon = null;
+                resultMessage = $"{character.Name} picked up their weapon.";
+            }
+
+            return resultMessage;
         }
 
         private async Task<(string resultMessage, bool actionWasSuccessful)> Taunt(List<Hero> heroParty, Hero hero, Monster targetMonster)
@@ -1222,6 +1312,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.DisarmTrap => 2,
                 ActionType.SearchRoom => 2,
                 ActionType.HealSelf => 2,
+                ActionType.AssistAllyOutOfPit => 2,
                 ActionType.IdentifyItem => 0,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,

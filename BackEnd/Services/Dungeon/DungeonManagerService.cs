@@ -57,6 +57,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly RoomService _room;
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
+        private readonly PowerActivationService _powerActivation;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -79,7 +80,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             CombatManagerService combatManagerService,
             RoomService roomService,
             UserRequestService userRequestService,
-            PlacementService placement)
+            PlacementService placement,
+            PowerActivationService powerActivationService)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -95,6 +97,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _room = roomService;
             _userRequest = userRequestService;
             _placement = placement;
+            _powerActivation = powerActivationService;
 
             _partyManager.SetMaxMorale();
         }
@@ -167,6 +170,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 // After hero actions, move any wandering monsters.
                 _wanderingMonster.ProcessWanderingMonsters(Dungeon.WanderingMonsters); 
             }
+
+            Dungeon?.HeroParty.Heroes.ForEach(async hero => await StatusEffectService.ProcessActiveStatusEffectsAsync(hero, _powerActivation));
         }
 
         public async Task<ThreatEventResult> HandleScenarioRoll(bool isInBattle)
@@ -232,33 +237,32 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
             if (_dungeon.CurrentRoom == null || _dungeon.ExplorationDeck == null) return;
 
-            var explorationCards = new List<Room>();
+            var explorationCards = new Queue<Room>();
             var explorationRooms = _room.GetExplorationDeckRooms();
             explorationRooms.Shuffle();
 
-            if (explorationRooms.Any())
+            foreach (var room in explorationRooms)
             {
-                for (int i = 0; i < amount; i++)
-                {
-                    explorationCards.Add(_roomFactory.CreateRoom(explorationRooms[i].Name));
-                }
+                explorationCards.Enqueue(_roomFactory.CreateRoom(room.Name));
             }
 
-            var roomsWithClosedDoors = _dungeon.RoomsInDungeon
-                .Where(r => r.Doors.Any(d => d.State == DoorState.Closed))
+            var roomsExplorationDoors = _dungeon.RoomsInDungeon
+                .Where(r => r.Doors.Any(d => d.ExplorationDeck != null))
                 .ToList();
-
-            // The rule implies adding a card for each "pile", which corresponds to each door with cards.
-            foreach (var door in roomsWithClosedDoors)
+            foreach (var room in roomsExplorationDoors)
             {
-                if (door.ConnectedRooms.Any())
+                foreach (var door in room.Doors.Where(d => d.ExplorationDeck != null).ToList())
                 {
-                    // Add the new card to the top of the pile (the beginning of the list)
-                    _dungeon.ExplorationDeck.Enqueue(explorationCards[0]);
-                    explorationCards.RemoveAt(0);
-                    Console.WriteLine($"A new path has been added to a door in {_dungeon.CurrentRoom.Name}.");
+                    if (door.ExplorationDeck != null)
+                    {
+                        for (int i = 0; i < amount; i++)
+                        {
+                            var roomCard = explorationCards.Dequeue();
+                            door.ExplorationDeck.Prepend(roomCard);
+                        }
+                    }
                 }
-            }
+            }            
         }
 
         /// <summary>
@@ -481,18 +485,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public void SpawnRandomEncounter(Room room, EncounterType? encounterType = null)
         {
             room.MonstersInRoom = new List<Monster>();
+            var dungeonEncounterType = _dungeon.Quest.EncounterType;
 
-            if(encounterType != null)
+            if (room.EncounterType.HasValue)
             {
-                room.MonstersInRoom = _encounter.GetRandomEncounterByType((EncounterType)encounterType);
+                room.MonstersInRoom = _encounter.GetRandomEncounterByType(room.EncounterType.Value, dungeonEncounterType: dungeonEncounterType);
             }
-            else if (_dungeon.Quest != null)
+            else if(encounterType.HasValue)
             {
-                room.MonstersInRoom = _encounter.GetRandomEncounterByType(_dungeon.Quest.EncounterType);
+                room.MonstersInRoom = _encounter.GetRandomEncounterByType(encounterType.Value);
             }
             else
             {
-                room.MonstersInRoom = _encounter.GetRandomEncounterByType(EncounterType.Beasts);
+                room.MonstersInRoom = _encounter.GetRandomEncounterByType(dungeonEncounterType);
             }
 
             if (room.MonstersInRoom.Any())
@@ -665,6 +670,36 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             Console.WriteLine($"Pulled a {result.LeverColor} lever! Event: {result.Description}");
 
             //TODO: Handle the result of the lever pull, e.g., update dungeon state, trigger events, etc.
+        }
+
+        internal void SpawnMimicEncounter(Chest chest)
+        {
+            var mimic = _encounter.GetRandomEncounterByType(EncounterType.Mimic)[0];
+            mimic.Position = chest.Position;
+            mimic.Room = chest.Room;
+        }
+
+        internal void SpawnSkeletonsTrapEncounter(Room room, int amount)
+        {
+            var paramaters = new Dictionary<string, string>()
+            {
+                { "Name", "Skeleton" },
+                { "Count", amount.ToString() },
+                { "Armour", "1" },
+                { "Shield", "true" },
+                { "Weapons", "Broadsword" }
+            };
+            var skeletons = _encounter.GetEncounterByParams(paramaters);
+
+            foreach (var skeleton in skeletons)
+            {
+                var placementParams = new Dictionary<string, string>()
+                {
+                    { "PlacementRule", "RandomEdge" }
+                };
+
+                _placement.PlaceEntity(skeleton, room, placementParams);
+            }
         }
     }
 }
