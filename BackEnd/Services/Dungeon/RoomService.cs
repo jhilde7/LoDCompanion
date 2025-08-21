@@ -42,39 +42,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
 
         }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"--- Room: {Name} [{Category}] ---");
-            sb.Append($"Size: {Size[0]}x{Size[1]} | ");
-            sb.Append($"Doors: {DoorCount} | ");
-            sb.AppendLine($"Random Encounter: {RandomEncounter}");
-
-            if (!string.IsNullOrEmpty(Description))
-            {
-                sb.AppendLine($"Description: {Description}");
-            }
-            if (FurnitureList != null && FurnitureList.Any())
-            {
-                sb.AppendLine($"Furniture: {string.Join(", ", FurnitureList)}");
-            }
-            if (!string.IsNullOrEmpty(SpecialRules))
-            {
-                sb.AppendLine($"Special Rules: {SpecialRules}");
-            }
-
-            var modifiers = new List<string>();
-            if (ThreatLevelModifier > 0) modifiers.Add($"Threat: {ThreatLevelModifier:+#;-#;0}");
-            if (PartyMoraleModifier > 0) modifiers.Add($"Morale: {PartyMoraleModifier:+#;-#;0}");
-            if (EncounterModifier > 0) modifiers.Add($"Encounter: {EncounterModifier:+#;-#;0}");
-            if (modifiers.Any())
-            {
-                sb.AppendLine($"Modifiers: {string.Join(" | ", modifiers)}");
-            }
-
-            return sb.ToString();
-        }
     }
 
     public class Room
@@ -96,6 +63,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool IsDeadEnd { get; set; }
         public List<Furniture> FurnitureList { get; set; } = new List<Furniture>(); // List of furniture types in the room
         public bool RandomEncounter { get; set; } // Flag for whether a random encounter can occur
+        public EncounterType? EncounterType { get; set; } // used for room specific encounters
         public bool RollEncounter { get; set; } // Trigger for rolling an encounter, handled by a service
         public int EncounterRoll { get; set; } = 0;
         public int EncounterModifier { get; set; } = 0;
@@ -136,6 +104,39 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             return returnList;
         }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"--- Room: {Name} [{Category}] ---");
+            sb.Append($"Size: {Size[0]}x{Size[1]} | ");
+            sb.Append($"Doors: {DoorCount} | ");
+            sb.AppendLine($"Random Encounter: {RandomEncounter}");
+
+            if (!string.IsNullOrEmpty(Description))
+            {
+                sb.AppendLine($"Description: {Description}");
+            }
+            if (FurnitureList != null && FurnitureList.Any())
+            {
+                sb.AppendLine($"Furniture: {string.Join(", ", FurnitureList)}");
+            }
+            if (!string.IsNullOrEmpty(SpecialRules))
+            {
+                sb.AppendLine($"Special Rules: {SpecialRules}");
+            }
+
+            var modifiers = new List<string>();
+            if (ThreatLevelModifier > 0) modifiers.Add($"Threat: {ThreatLevelModifier:+#;-#;0}");
+            if (PartyMoraleModifier > 0) modifiers.Add($"Morale: {PartyMoraleModifier:+#;-#;0}");
+            if (EncounterModifier > 0) modifiers.Add($"Encounter: {EncounterModifier:+#;-#;0}");
+            if (modifiers.Any())
+            {
+                sb.AppendLine($"Modifiers: {string.Join(" | ", modifiers)}");
+            }
+
+            return sb.ToString();
+        }
     }
 
     public enum Orientation
@@ -172,23 +173,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         }
 
-        // This method would be called by a service (e.g., DungeonManagerService or a specific DoorService)
-        // which performs the rolls and sets these properties.
         public void SetLockState(int lockModifier, int lockHP)
         {
             Lock.LockModifier = lockModifier;
             Lock.LockHP = lockHP;
         }
 
-        // This method would be called by a service (e.g., DungeonManagerService or a specific DoorService)
-        // which performs the rolls and sets these properties.
         public void SetTrapState()
         {
-            // TODO: Trap = new Trap();
+            Trap = new Trap();
         }
 
-        // A simple method to toggle the open state. The logic to determine if it *can* be opened
-        // (e.g., if unlocked) would reside in a service.
         public bool Open()
         {
             if (Lock.LockHP <= 0)
@@ -201,7 +196,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 // If the door is locked, it cannot be opened.
                 return false;
             }
-            // TODO: if trapped handle trap activation logic here
         }
     }
 
@@ -258,6 +252,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // Encounters
             room.EncounterModifier = roomInfo.EncounterModifier;
             room.RandomEncounter = roomInfo.RandomEncounter;
+            room.EncounterType = roomInfo.EncounterType;
 
             // Doors and Dead Ends
             room.DoorCount = roomInfo.DoorCount;
@@ -278,145 +273,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             room.HasBeenSearched = false;
             room.IsEncounter = false; // Start with no active encounter
             return room;
-        }
-
-        public Room? CreateRoom(string roomName)
-        {
-            // Get the definition from your game data
-            RoomInfo? roomInfo = GetRoomByName(roomName);
-            if (roomInfo == null)
-            {
-                // Handle error: room definition not found
-                return null;
-            }
-
-            var newRoom = new Room();
-
-            // Initialize the room's properties from the definition
-            InitializeRoomData(roomInfo, newRoom);
-
-            // Generate the grid and place the furniture for this room
-            GridService.GenerateGridForRoom(newRoom); // Assuming GridService has this method
-
-            Console.WriteLine($"Room '{roomName}' created with a {newRoom.Width}x{newRoom.Height} grid.");
-            return newRoom;
-        }
-
-        public List<Door> HandlePartialDeadends(List<Door> workingDoors)
-        {
-            while (workingDoors.Any(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd))
-            {
-                Door deadEndDoor = workingDoors.First(d => d.ConnectedRooms != null && d.ConnectedRooms.Count > 0 && d.ConnectedRooms[0].IsDeadEnd);
-                List<Room> remainingCards = new List<Room>(deadEndDoor.ConnectedRooms);
-
-                deadEndDoor.ConnectedRooms.Clear();
-
-                // Distribute remaining cards to other doors
-                if (workingDoors.Count > 1)
-                {
-                    List<Door> otherDoors = workingDoors.Where(d => d != deadEndDoor).ToList();
-                    if (otherDoors.Any())
-                    {
-                        int doorIndex = 0;
-                        while (remainingCards.Count > 0)
-                        {
-                            if (otherDoors[doorIndex].ConnectedRooms == null)
-                            {
-                                otherDoors[doorIndex].ConnectedRooms = new List<Room>();
-                            }
-                            // Add to the bottom of the pile as per the rule
-                            otherDoors[doorIndex].ConnectedRooms.Add(remainingCards[0]);
-                            remainingCards.RemoveAt(0);
-                            doorIndex = (doorIndex + 1) % otherDoors.Count;
-                        }
-                    }
-                }
-            }
-
-            return workingDoors;
-        }
-
-        /// <summary>
-        /// This method encapsulates the original SplitDungeonBetweenDoors logic.
-        /// It modifies the current room's `Doors` and `ConnectedRooms` properties.
-        /// The actual creation of new `Door` instances (which were `Instantiate` calls)
-        /// will be handled by the calling service (e.g., `DungeonManagerService` or `RoomFactoryService`).
-        /// </summary>
-        public void SplitDungeonBetweenDoors(Room room, List<Room> availableDungeonCards, Func<Door> doorFactory, Func<string, Room> roomFactory)
-        {
-            if (room.IsObjectiveRoom || availableDungeonCards.Count == 0)
-            {
-                return;
-            }
-
-            // Copy to mutable lists for manipulation
-            List<Room> workingDungeonCards = new List<Room>(availableDungeonCards);
-            List<Door> workingDoors = new List<Door>(room.Doors); // Assuming 'Doors' is already populated
-
-            // 1. Handle dead ends (repeatedly if necessary) - Logic to create secret doors and redistribute cards
-            workingDoors = HandlePartialDeadends(workingDoors);
-            if (workingDoors.All(d => d.ConnectedRooms == null || d.ConnectedRooms.Count == 0 || d.ConnectedRooms[0].IsDeadEnd))
-            {
-                if (workingDungeonCards.Any())
-                {
-                    // Create a new secret door if all paths are dead ends
-                    Door newSecretDoor = doorFactory();
-                    newSecretDoor.ConnectedRooms = new List<Room>();
-                    workingDoors.Add(newSecretDoor);
-
-                    // Assign all remaining cards to this new secret door
-                    newSecretDoor.ConnectedRooms.AddRange(workingDungeonCards);
-                    workingDungeonCards.Clear();
-                }
-            }
-
-            // After handling dead ends, proceed with distributing remaining dungeon cards
-            if (workingDoors.Count > 1)
-            {
-                // 2. Distribute cards to multiple doors (near equal amounts)
-                List<Room>[] roomSplits = new List<Room>[workingDoors.Count];
-                for (int i = 0; i < roomSplits.Length; i++)
-                {
-                    roomSplits[i] = new List<Room>();
-                }
-
-                int index = 0;
-                while (workingDungeonCards.Count > 0)
-                {
-                    // Get the card from the BOTTOM of the deck (the last element in the list)
-                    int lastCardIndex = workingDungeonCards.Count - 1;
-                    Room cardToDeal = workingDungeonCards[lastCardIndex];
-
-                    // Add the card to the current door's split
-                    roomSplits[index].Add(cardToDeal);
-
-                    // Remove the card from the working deck
-                    workingDungeonCards.RemoveAt(lastCardIndex);
-
-                    // Move to the next door for the next card
-                    index = (index + 1) % roomSplits.Length;
-                }
-
-                // 3. Assign room splits to doors
-                for (int i = 0; i < workingDoors.Count; i++)
-                {
-                    workingDoors[i].ConnectedRooms = roomSplits[i];
-                }
-            }
-            else if (workingDoors.Count == 1)
-            {
-                // 4. Handle single-door case
-                workingDoors[0].ConnectedRooms = workingDungeonCards;
-            }
-            else
-            {
-                // No doors, or no cards to distribute
-                // This scenario might need specific handling depending on game rules.
-            }
-
-            // Update the actual Doors list of this RoomCorridor instance
-            room.Doors = workingDoors;
-            room.ConnectedRooms.Clear(); // Clear the main dungeon list as cards are now distributed to doors
         }
 
         internal IGameEntity? GetFurnitureInRoomByName(Room room, string name)
@@ -6968,7 +6824,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             Room room = new Room();
             RoomInfo roomDefinition = _roomService.GetRoomByName(roomName);
             _roomService.InitializeRoomData(roomDefinition, room);
-            room.Name = roomName;
 
             GridService.GenerateGridForRoom(room);
 
