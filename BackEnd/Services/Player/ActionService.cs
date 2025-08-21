@@ -71,7 +71,6 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class ActionService
     {
         private readonly DungeonManagerService _dungeonManager;
-        private readonly SearchService _search;
         private readonly HealingService _healing;
         private readonly InventoryService _inventory;
         private readonly IdentificationService _identification;
@@ -80,10 +79,12 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly SpellCastingService _spellCasting;
         private readonly SpellResolutionService _spellResolution;
         private readonly PowerActivationService _powerActivation;
-        private readonly PartyManagerService _partyManager;
         private readonly AlchemyService _alchemy;
         private readonly PotionActivationService _potionActivation;
         private readonly LockService _lock;
+        private readonly TrapService _trap;
+        private readonly SearchService _search;
+        private readonly PartyManagerService _partyManager;
 
         public event Func<Monster, List<GridPosition>, Task<bool>>? OnMonsterMovement;
 
@@ -101,10 +102,10 @@ namespace LoDCompanion.BackEnd.Services.Player
             PartyManagerService partyManager,
             AlchemyService alchemyService,
             PotionActivationService potionActivation,
-            LockService lockService)
+            LockService lockService,
+            TrapService trapService)
         {
             _dungeonManager = dungeonManagerService;
-            _search = searchService;
             _healing = healingService;
             _inventory = inventoryService;
             _identification = identificationService;
@@ -113,10 +114,12 @@ namespace LoDCompanion.BackEnd.Services.Player
             _spellCasting = spellCastingService;
             _spellResolution = spellResolutionService;
             _powerActivation = powerActivationService;
-            _partyManager = partyManager;
             _alchemy = alchemyService;
             _potionActivation = potionActivation;
             _lock = lockService;
+            _trap = trapService;
+            _partyManager = partyManager;
+            _search = searchService;
         }
 
         /// <summary>
@@ -617,6 +620,26 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         resultMessage = "Invalid target for AssistAllyOutOfPit action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.DisarmTrap):
+                    if (primaryTarget is Trap trap)
+                    {
+                        var trapTriggered = await _trap.DisarmTrapAsync(hero, trap);
+                        if (!trapTriggered)
+                        {
+                            resultMessage = $"{hero.Name} successfully disarmed the trap.";
+                        }
+                        else
+                        {
+                            resultMessage = $"{hero.Name} failed to disarm the trap.";
+                            resultMessage += await _trap.TriggerTrapAsync(hero, trap, trapTriggered);
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target for DisarmTrap action.";
                         actionWasSuccessful = false;
                     }
                     break;

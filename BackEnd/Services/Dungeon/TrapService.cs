@@ -35,6 +35,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int SanityLoss { get; set; } = 2; // Default sanity loss when a trap is triggered
         public string DamageDice { get; set; } = "1d6"; // Default damage dice for the trap
         public GridSquare? Square { get; set; } // Position of the trap in the dungeon
+        public bool isDisarmed { get; set; } = false; // Whether the trap has been disarmed
 
         public Trap()
         {
@@ -133,6 +134,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (rollResult.Roll <= 80 && rollResult.Roll <= trapDisarmTarget)
             {
+                trap.isDisarmed = true;
                 return true;
             }
             else
@@ -147,8 +149,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero who triggered the trap.</param>
         /// <param name="trap">The trap that was triggered.</param>
         /// <returns>A string describing the outcome of the trap.</returns>
-        public async Task<string> TriggerTrapAsync(Character character, Trap trap, Chest? chest = null)
+        public async Task<string> TriggerTrapAsync(Character character, Trap trap, bool trapTriggered = false, Chest? chest = null)
         {
+            if (trap.isDisarmed) return $"The trap is disarmed and has no effect.";
             if (trap.Name == TrapType.Click) return $"{character.Name} triggered a trap, {trap.Description}.";
             if (character.Position == null) return $"{character.Name} is not in a valid position to trigger a trap.";
             
@@ -160,22 +163,29 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 trap.Square = square;
             }
 
-            if (character is Hero hero && await DetectTrapAsync(hero, trap))
+            if (!trapTriggered)
             {
-                var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Trap was detected. Does {hero.Name} wish to attempt to disarm the trap?");
-                if (choiceResult)
+                if (character is Hero)
                 {
-                    if (await DisarmTrapAsync(hero, trap))
+                    var hero = (Hero)character;
+                    if (await DetectTrapAsync(hero, trap))
                     {
-                        square.Trap = null; // Remove the trap from the square
-                        return $"{hero.Name} successfully disarmed the {trap.Name} trap!";
+                        var choiceResult = await _diceRoll.RequestYesNoChoiceAsync($"Trap was detected. Does {hero.Name} wish to attempt to disarm the trap?");
+                        if (choiceResult)
+                        {
+                            if (await DisarmTrapAsync(hero, trap))
+                            {
+                                square.Trap = null; // Remove the trap from the square
+                                return $"{hero.Name} successfully disarmed the {trap.Name} trap!";
+                            }
+                        }
+                        else
+                        {
+                            if (chest != null && chest.Trap != null && chest.Trap.Name == TrapType.Mimic) await _dungeonManager.SpawnMimicEncounterAsync(chest, detected: true);
+                            return $"{hero.Name} chose not to disarm the {trap.Name} trap.";
+                        } 
                     }
-                }
-                else
-                {
-                    if(chest != null && chest.Trap != null && chest.Trap.Name == TrapType.Mimic) await _dungeonManager.SpawnMimicEncounterAsync(chest, detected: true);
-                    return $"{hero.Name} chose not to disarm the {trap.Name} trap.";
-                }
+                } 
             }
 
             var outcome = new StringBuilder();
@@ -240,7 +250,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (character is Hero)
             {
-                hero = (Hero)character;
+                var hero = (Hero)character;
                 await hero.TakeSanityDamage(trap.SanityLoss, (new FloatingTextService(), hero.Position), _powerActivation);
                 if (hero.Party != null && hero.Party.PartyManager != null) hero.Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.SprungTrap); 
             }
