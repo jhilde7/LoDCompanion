@@ -1037,7 +1037,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                 var enemies = GetEnemiesForZOC(character);
                 
-                List<GridPosition> path = GridService.FindShortestPath(character.Position, position, dungeon.DungeonGrid, enemies);
+                List<GridPosition> path = GridService.FindShortestPath(character, position, dungeon.DungeonGrid, enemies);
 
                 if (character is Monster movingMonster && OnMonsterMovement != null)
                 {

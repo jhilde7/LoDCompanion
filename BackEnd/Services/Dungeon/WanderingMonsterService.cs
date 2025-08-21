@@ -101,7 +101,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 if (monsterState.CurrentRoom == null || monsterState.CurrentPosition == null) continue;
 
                 List<GridPosition> currentPath = GridService.FindShortestPath(
-                    monsterState.CurrentPosition,
+                    new Monster() 
+                    {
+                        Position = monsterState.CurrentPosition,
+                        CurrentMovePoints = monsterState.RemainingMovement
+                    },
                     hero.Position,
                     monsterState.DungeonManager.Dungeon.DungeonGrid,
                     monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
@@ -185,7 +189,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 // Find the path to the farthest square.
                 List<GridPosition> retreatPath = GridService.FindShortestPath(
-                    monsterState.CurrentPosition,
+                    new Monster()
+                    {
+                        Position = monsterState.CurrentPosition,
+                        CurrentMovePoints = monsterState.RemainingMovement
+                    },
                     farthestSquare,
                     monsterState.DungeonManager.Dungeon.DungeonGrid,
                     monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()

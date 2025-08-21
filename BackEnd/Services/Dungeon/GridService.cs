@@ -66,12 +66,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public GridPosition Position { get; set; }
         public string? OccupyingCharacterId { get; set; }
         public Furniture? Furniture { get; set; }
+        public Trap? Trap { get; set; }
         public bool IsWall { get; set; }
 
         public bool LoSBlocked => IsWall || Furniture != null && Furniture.BlocksLoS;
         public bool MovementBlocked => IsWall || IsOccupied || Furniture != null && Furniture.NoEntry;
         public bool DoubleMoveCost => Furniture != null && Furniture.CanBeClimbed; //moving through cost 2x movement
         public bool IsObstacle => Furniture != null && Furniture.IsObstacle; //Affects ranged attacks passing through this square
+        public bool IsTrapped => Trap != null;
         public bool IsOccupied => OccupyingCharacterId != null;
 
         public GridSquare(int x, int y, int z)
@@ -88,8 +90,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="square">The grid square to evaluate.</param>
         /// <param name="enemies">A list of enemies to check for Zone of Control.</param>
         /// <returns>The number of movement points required to enter the square.</returns>
-        private static int GetMovementCost(GridSquare square, List<Character> enemies)
+        private static int GetMovementCost(GridSquare square, Character movingCharacter, List<Character> enemies)
         {
+            // Rule: Check for traps first.
+            if (square.Trap != null && movingCharacter is Monster monster)
+            {
+                // Lower Undead are the only monsters that do NOT avoid traps.
+                if (monster.Behavior != MonsterBehaviorType.LowerUndead)
+                {
+                    return int.MaxValue; // Effectively makes the square unwalkable for this monster.
+                }
+            }
+
             // Base cost is 1.
             int cost = 1;
 
@@ -218,7 +230,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     break; // End movement here.
                 }
 
-                int costForThisSquare = GetMovementCost(nextSquare, enemies);
+                int costForThisSquare = GetMovementCost(nextSquare, character, enemies);
 
                 if (result.MovementPointsSpent + costForThisSquare > maxMovementPoints)
                 {
@@ -330,9 +342,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// Finds the shortest path between two points using the A* algorithm,
         /// now correctly using your existing Node class and helper methods.
         /// </summary>
-        public static List<GridPosition> FindShortestPath(GridPosition start, GridPosition end, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
+        public static List<GridPosition> FindShortestPath(Character movingCharacter, GridPosition end, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
         {
-
+            var start = movingCharacter.Position;
+            if (start == null) return new List<GridPosition>();
             // The PriorityQueue stores nodes to visit, prioritized by their F-Score.
             var openSet = new PriorityQueue<Node, int>();
 
@@ -371,7 +384,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     if (neighborSquare == null || neighborSquare.MovementBlocked) continue;
 
                     // Calculate the cost to move to this neighbor.
-                    int movementCost = GetMovementCost(neighborSquare, enemies);
+                    int movementCost = GetMovementCost(neighborSquare, movingCharacter, enemies);
                     int tentativeGScore = currentNode.GScore + movementCost;
 
                     // Check if this new path to the neighbor is better than any previous one.
@@ -572,17 +585,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
         }
 
-        public static Dictionary<GridPosition, int> GetAllWalkableSquares(IGameEntity entity, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
+        public static Dictionary<GridPosition, int> GetAllWalkableSquares(Character movingCharacter, Dictionary<GridPosition, GridSquare> grid, List<Character> enemies)
         {
-            if(entity.Position == null) return new Dictionary<GridPosition, int>();
+            if(movingCharacter.Position == null) return new Dictionary<GridPosition, int>();
             var reachableSquares = new Dictionary<GridPosition, int>();
             // 'visited' tracks positions we've seen and the cost to reach them.
             var visited = new Dictionary<GridPosition, int>();
             var queue = new Queue<GridPosition>();
 
             // Start at the entity's current position with a cost of 0.
-            queue.Enqueue(entity.Position);
-            visited[entity.Position] = 0;
+            queue.Enqueue(movingCharacter.Position);
+            visited[movingCharacter.Position] = 0;
 
             while (queue.Count > 0)
             {
@@ -597,11 +610,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     if (neighborSquare == null || neighborSquare.MovementBlocked) continue;
 
                     // This is the base cost to enter the square.
-                    int movementCost = GetMovementCost(neighborSquare, enemies);
+                    int movementCost = GetMovementCost(neighborSquare, movingCharacter, enemies);
 
                     int newCost = currentCost + movementCost;
 
-                    if (entity is Character character && newCost <= character.CurrentMovePoints)
+                    if (newCost <= movingCharacter.CurrentMovePoints)
                     {
                         // ...and we haven't found a cheaper path to this square already...
                         if (!visited.ContainsKey(neighborPos) || newCost < visited[neighborPos])

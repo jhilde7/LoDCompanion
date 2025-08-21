@@ -33,7 +33,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public string? SpecialDescription { get; set; } // Description of the special effect if triggered
         public int SanityLoss { get; set; } = 2; // Default sanity loss when a trap is triggered
         public string DamageDice { get; set; } = "1d6"; // Default damage dice for the trap
-        public GridPosition? Position { get; set; } // Position of the trap in the dungeon
+        public GridSquare? Square { get; set; } // Position of the trap in the dungeon
 
         public Trap()
         {
@@ -150,6 +150,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
             if (trap.Name == TrapType.Click) return $"{character.Name} triggered a trap, {trap.Description}.";
             if (character.Position == null) return $"{character.Name} is not in a valid position to trigger a trap.";
+            
+            var square = GridService.GetSquareAt(character.Position, character.Room.Grid);
+            if (square == null) return $"{character.Name} is not in a valid position to trigger a trap.";
+            else
+            {
+                square.Trap = trap;
+                trap.Square = square;
+            }
 
             if (character is Hero hero && await DetectTrapAsync(hero, trap))
             {
@@ -158,18 +166,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     if (await DisarmTrapAsync(hero, trap))
                     {
+                        square.Trap = null; // Remove the trap from the square
                         return $"{hero.Name} successfully disarmed the {trap.Name} trap!";
                     }
                 }
                 else
                 {
-                    trap.Position = hero.Position;
-                    return $"{hero.Name} chose not to disarm the {trap.Name} trap.";
+                    if (chest == null)
+                    {
+                        return $"{hero.Name} chose not to disarm the {trap.Name} trap."; 
+                    }
                 }
             }
-
-            if(chest != null) trap.Position = chest.Position;
-            else trap.Position = character.Position;
 
             var outcome = new StringBuilder();
             bool newTrap = false;
@@ -226,8 +234,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         _dungeonManager.SpawnSkeletonsTrapEncounter(character.Room, RandomHelper.RollDice(trap.DamageDice) + 2);
                         newTrap = false;
                         break;
-                } 
+                }
             }
+
+            square.Trap = null; // Remove the trap from the square
 
             if (character is Hero)
             {

@@ -474,7 +474,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     continue;
                 }
 
-                var pathToTarget = GridService.FindShortestPath(otherMonster.Position, target.Position, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
+                var pathToTarget = GridService.FindShortestPath(otherMonster, target.Position, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
                 if (pathToTarget.Contains(monster.Position))
                 {
                     // The monster is blocking the path, so try to move or shove
@@ -605,7 +605,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 return $"{monster.Name} hesitates."; ;
             }
 
-            List<GridPosition> path = GridService.FindShortestPath(monster.Position, target.Position, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
+            List<GridPosition> path = GridService.FindShortestPath(monster, target.Position, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
 
             if (path == null || path.Count <= 1)
             {                
@@ -648,7 +648,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
             if(bestRetreatSpot != null)
             {
-                var pathToRetreat = GridService.FindShortestPath(monster.Position, bestRetreatSpot, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
+                var pathToRetreat = GridService.FindShortestPath(monster, bestRetreatSpot, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
 
                 if (pathToRetreat.Any())
                 {
@@ -686,7 +686,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             if (vantagePoints.Any())
             {
                 bestSpot = vantagePoints
-                    .OrderBy(pos => GridService.FindShortestPath(monster.Position, pos, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList()).Count)
+                    .OrderBy(pos => GridService.FindShortestPath(monster, pos, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList()).Count)
                     .FirstOrDefault();
                 if (bestSpot != null)
                 {
@@ -696,7 +696,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             else
             {
                 bestSpot = squaresWithLOS
-                    .OrderBy(pos => GridService.FindShortestPath(monster.Position, pos, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList()).Count)
+                    .OrderBy(pos => GridService.FindShortestPath(monster, pos, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList()).Count)
                     .FirstOrDefault();
                 if (bestSpot != null)
                 {
