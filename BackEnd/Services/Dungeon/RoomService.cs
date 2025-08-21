@@ -31,7 +31,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int DoorCount { get; set; }
         public List<Furniture>? FurnitureList { get; set; }
         public int EncounterModifier { get; set; }
-        public string? EncounterType { get; set; }
+        public EncounterType? EncounterType { get; set; }
         public bool HasLevers { get; set; }
         public bool RandomEncounter { get; set; } = true;
         public bool HasSpecial { get; set; }
@@ -1153,7 +1153,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Size = [ 4, 6 ],
                     DoorCount = 2,
                     EncounterModifier = 100,
-                    EncounterType = "C29",
+                    EncounterType = EncounterType.C29,
                     HasSpecial = true,
                     RandomEncounter = false,
                     FurnitureList = [
@@ -1803,7 +1803,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Size = [ 6, 6 ],
                     DoorCount = 1,
                     EncounterModifier = 10,
-                    EncounterType = "R17",
+                    EncounterType = EncounterType.R17,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Treasure Pile", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -1930,7 +1930,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     SpecialRules = "See card for special rules.",
                     Size = [ 6, 6 ],
                     DoorCount = 1,
-                    EncounterType = "R19",
+                    EncounterType = EncounterType.R19,
                     HasSpecial = true,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -1974,7 +1974,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     SpecialRules = "See card for special rules.",
                     Size = [ 12, 6 ],
                     DoorCount = 1,
-                    EncounterType = "R20",
+                    EncounterType = EncounterType.R20,
                     HasSpecial = true,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
@@ -2515,7 +2515,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Size = [ 6, 6 ],
                     DoorCount = 1,
                     EncounterModifier = 100,
-                    EncounterType = "R30",
+                    EncounterType = EncounterType.R30,
                     HasSpecial = true,
                     FurnitureList = [
                         GetFurnitureByNameSetPosition("Statue",
