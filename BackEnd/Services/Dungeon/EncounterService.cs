@@ -1523,9 +1523,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         case 1:
                             return BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "FireElemental");
                         case 2:
-                            if (dungeonEncounterType != null)
+                            if (dungeonEncounterType.HasValue)
                             {
-                                return GetRandomEncounterByType((EncounterType)dungeonEncounterType); 
+                                return GetRandomEncounterByType(dungeonEncounterType.Value); 
                             }
                             break;
                     }
@@ -1538,9 +1538,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     {
                         case 6:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Snake");
-                            if (dungeonEncounterType != null)
+                            if (dungeonEncounterType.HasValue)
                             {
-                                encounters.AddRange(GetRandomEncounterByType((EncounterType)dungeonEncounterType)); 
+                                encounters.AddRange(GetRandomEncounterByType(dungeonEncounterType.Value)); 
                             }
                             break;
                         case >= 4:
