@@ -369,6 +369,12 @@ namespace LoDCompanion.BackEnd.Models
                 await ApplyDiseaseEffectAsync(activation);
             }
 
+            var detectedEffect = ActiveStatusEffects.FirstOrDefault(m => m.Category == StatusEffectType.DetectedMimic);
+            if (detectedEffect != null)
+            {
+                StatusEffectService.RemoveActiveStatusEffect(this, detectedEffect);
+            }
+
             return damage; // Return the amount of damage taken
         }
 

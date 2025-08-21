@@ -672,11 +672,21 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             //TODO: Handle the result of the lever pull, e.g., update dungeon state, trigger events, etc.
         }
 
-        internal void SpawnMimicEncounter(Chest chest)
+        internal async Task SpawnMimicEncounterAsync(Chest chest, bool detected = false)
         {
             var mimic = _encounter.GetRandomEncounterByType(EncounterType.Mimic)[0];
             mimic.Position = chest.Position;
             mimic.Room = chest.Room;
+            if (detected) await StatusEffectService.AttemptToApplyStatusAsync(mimic, new ActiveStatusEffect(StatusEffectType.DetectedMimic, -1), _powerActivation);
+
+            if (chest.Position != null)
+            {
+                var square = GridService.GetSquareAt(chest.Position, _dungeon.DungeonGrid);
+                if ( square != null)
+                {
+                    square.Furniture = _room.GetFurnitureByName("Floor");
+                }
+            }
         }
 
         internal void SpawnSkeletonsTrapEncounter(Room room, int amount)

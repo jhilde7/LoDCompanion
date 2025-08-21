@@ -156,7 +156,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Invisible,
         Pitcher,
         ForgedUnderPressure,
-        PoisonGas
+        PoisonGas,
+        DetectedMimic
     }
 
     /// <summary>
@@ -430,6 +431,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             character.CurrentAP = 0;
                             Console.WriteLine($"{character.Name} fails to climb out of the pit and remains trapped.");
                         }
+                        break;
+                    case StatusEffectType.DetectedMimic:
+                        character.CurrentAP = 0; // No actions while Mimic is detected, andhas not taken any damage yet.
                         break;
                 }
 

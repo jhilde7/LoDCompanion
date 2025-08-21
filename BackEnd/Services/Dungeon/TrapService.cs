@@ -5,6 +5,7 @@ using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.AspNetCore.Rewrite;
+using SixLabors.ImageSharp.Processing.Processors.Convolution;
 using System;
 using System.Text;
 
@@ -172,10 +173,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
                 else
                 {
-                    if (chest == null)
-                    {
-                        return $"{hero.Name} chose not to disarm the {trap.Name} trap."; 
-                    }
+                    if(chest != null && chest.Trap != null && chest.Trap.Name == TrapType.Mimic) await _dungeonManager.SpawnMimicEncounterAsync(chest, detected: true);
+                    return $"{hero.Name} chose not to disarm the {trap.Name} trap.";
                 }
             }
 
@@ -210,7 +209,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         if (chest != null)
                         {
                             outcome.AppendLine(trap.Description);
-                            _dungeonManager.SpawnMimicEncounter(chest);
+                            await _dungeonManager.SpawnMimicEncounterAsync(chest);
                             newTrap = false;
                         }
                         else
