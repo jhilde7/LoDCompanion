@@ -2,6 +2,7 @@
 {
     public enum DiceType
     {
+        D2,
         D3,
         D4,
         D6,
@@ -48,7 +49,12 @@
 
         public static int RollDie(DiceType die)
         {
-            if (die == DiceType.D3)
+            if (die == DiceType.D2)
+            {
+                // D2 is not a standard die, but we can simulate it as a 1-2 range.
+                return GetRandomNumber(1, 2);
+            }
+            else if (die == DiceType.D3)
             {
                 // D3 is not a standard die, but we can simulate it as a 1-3 range.
                 return GetRandomNumber(1, 3);
