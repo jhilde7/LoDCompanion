@@ -317,7 +317,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.HealHP, 6 } } },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Health", Strength = PotionStrength.Supreme, Value = 200, EffectDescription = "Heals 1d10 Hit Points.", Availability = 3,
                     PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.HealHP, 10 } } },
-                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Restoration", Strength = PotionStrength.Standard, Value = 200, EffectDescription = "Restores a hero to full health and removes any disease or poison.", Availability = 1, 
+                new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Restoration", Strength = PotionStrength.Standard, Value = 200, EffectDescription = "Restores a hero to full health and removes any disease or poison.", Availability = 1,
                     PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CureDisease, 100 }, { PotionProperty.CurePoison, 100 }, { PotionProperty.HealHP, 999 } } },
                 new Potion(){ Shop = ShopCategory.Potions, Category = "Common", Name = "Potion of Cure Disease", Strength = PotionStrength.Weak, Value = 75, EffectDescription = "75% chance to remove all effects of disease.", Availability = 3, 
                     PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.CureDisease, 75 } } },
@@ -449,20 +449,37 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return list.FirstOrDefault(x => x.Strength == strength) ?? throw new NullReferenceException();
         }
 
-        public async Task<List<Potion>> GetRandomPotions(int count, PotionStrength quality)
+        public async Task<List<Potion>> GetRandomPotions(int count, PotionStrength? quality = null)
         {
             List<Potion> potions = new List<Potion>();
+            var allPotions = GetAllDistinctPotions();
+            allPotions.Shuffle();
             for (int i = 0; i < count; i++)
             {
-                switch (quality)
+                if (quality.HasValue)
                 {
-                    case PotionStrength.Weak:
-                    case PotionStrength.Supreme:
-                        potions.Add(GetPotionByNameStrength(await GetNonStandardPotionAsync(), quality));
-                        break;
-                    case PotionStrength.Standard:
-                        potions.Add(GetPotionByNameStrength(await GetStandardPotionAsync(), quality));
-                        break;
+                    var newPotion = new Potion();
+                    switch (quality.Value)
+                    {
+                        case PotionStrength.Weak:
+                        case PotionStrength.Supreme:
+                            newPotion = GetPotionByNameStrength(await GetNonStandardPotionAsync(), quality.Value);
+                            break;
+                        case PotionStrength.Standard:
+                            newPotion = GetPotionByNameStrength(await GetStandardPotionAsync(), quality.Value);
+                            break;
+                    }
+                    newPotion.Identified = false;
+                    potions.Add(newPotion);
+                }
+                else
+                {
+                    if (allPotions[i] != null) 
+                    { 
+                        var newPotion = allPotions[i].Clone(); 
+                        newPotion.Identified = false;
+                        potions.Add(newPotion);
+                    }
                 }
             }
             return potions;

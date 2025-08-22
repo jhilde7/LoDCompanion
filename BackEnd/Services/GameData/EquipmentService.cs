@@ -138,10 +138,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
             var masterItem = Armour.FirstOrDefault(x => x.Name == name);
             return masterItem != null ? masterItem.Clone() : null;
         }
-        public static Armour GetArmourByNameSetDurability(string name, int durability)
+        public static Armour? GetArmourByNameSetDurability(string name, int durability)
         {
-            Armour armour = Armour.FirstOrDefault(x => x.Name == name) ?? throw new NullReferenceException();
-            armour.Durability = durability;
+            Armour? armour = Armour.FirstOrDefault(x => x.Name == name);
+            if (armour != null)
+            {
+                armour.Durability = durability; 
+            }
             return armour;
         }
 
@@ -1782,7 +1785,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int Encumbrance { get; set; }
         public int MaxDurability { get; set; } = 6;
         public int Durability { get; set; } = 1;
-        public double Value { get; set; } = 0;
+        public int Value { get; set; } = 0;
         public int SellValue => CalculateSalePrice();
         public int RepairCost => CalculateInitialRepairCosts();
         public int Availability { get; set; } = 4;
