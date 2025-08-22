@@ -18,7 +18,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// Finds any IGameEntity (Monster, Hero, Furniture, etc.) by its unique name.
         /// </summary>
         /// <returns>The entity if found; otherwise, null.</returns>
-        IGameEntity? FindEntityInRoomByName(Room room, string name);
+        IGameEntity? FindEntityInRoomById(Room room, string name);
     }
 
     public class WorldStateService : IWorldStateService
@@ -34,18 +34,18 @@ namespace LoDCompanion.BackEnd.Services.Game
             _gameStateManager = gameStateManagerService;
         }
 
-        public IGameEntity? FindEntityInRoomByName(Room room, string name)
+        public IGameEntity? FindEntityInRoomById(Room room, string id)
         {
             IGameEntity? entity = null;
 
             // Search each manager in order until the entity is found.
-            entity = _room.GetFurnitureInRoomByName(room, name);
+            entity = _room.GetFurnitureInRoomById(room, id);
             if (entity != null) return entity;
 
-            entity = _room.GetMonsterInRoomByName(room, name);
+            entity = _room.GetMonsterInRoomById(room, id);
             if (entity != null) return entity;
 
-            entity = _room.GetHeroInRoomByName(room, name);
+            entity = _room.GetHeroInRoomById(room, id);
             if (entity != null) return entity;
 
             // Return null if no entity with that name exists.

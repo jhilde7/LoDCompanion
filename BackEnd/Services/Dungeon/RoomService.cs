@@ -275,19 +275,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return room;
         }
 
-        internal IGameEntity? GetFurnitureInRoomByName(Room room, string name)
+        internal IGameEntity? GetFurnitureInRoomById(Room room, string id)
         {
-            return room.FurnitureList.First(f => f.Name == name);
+            return room.FurnitureList.First(f => f.Id == id);
         }
 
-        internal IGameEntity? GetMonsterInRoomByName(Room room, string name)
+        internal IGameEntity? GetMonsterInRoomById(Room room, string id)
         {
-            return room.MonstersInRoom?.First(m => m.Name == name);
+            return room.MonstersInRoom?.First(m => m.Id == id);
         }
 
-        internal IGameEntity? GetHeroInRoomByName(Room room, string name)
+        internal IGameEntity? GetHeroInRoomById(Room room, string id)
         {
-            return room.HeroesInRoom?.First(h => h.Name == name);
+            return room.HeroesInRoom?.First(h => h.Id == id);
         }
 
         public List<RoomInfo> GetRooms()
@@ -6512,6 +6512,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
             var rooms = Rooms.Where(r => r.Category == RoomCategory.Wilderness);
             return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
+        }
+
+        internal Furniture? GetFurnitureByName(string v)
+        {
+            throw new NotImplementedException();
         }
     }
 

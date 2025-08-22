@@ -67,7 +67,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
                 case PlacementRule.RelativeToTarget:
                     string targetName = placementParams["PlacementTarget"];
-                    IGameEntity? targetEntity = _worldState.FindEntityInRoomByName(room, targetName);
+                    IGameEntity? targetEntity = _worldState.FindEntityInRoomById(room, targetName);
                     if (targetEntity != null)
                     {
                         potentialPositions = GetPositionsNearTarget(entity, targetEntity, _dungeon);
@@ -76,7 +76,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
                 case PlacementRule.AsFarAsPossible:
                     string awayFromName = placementParams["PlacementTarget"];
-                    IGameEntity? awayFromEntity = _worldState.FindEntityInRoomByName(room, awayFromName);
+                    IGameEntity? awayFromEntity = _worldState.FindEntityInRoomById(room, awayFromName);
                     if (awayFromEntity != null)
                     {
                         potentialPositions = GetFarAwayPositions(room, entity, awayFromEntity);
