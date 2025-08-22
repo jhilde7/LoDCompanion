@@ -58,6 +58,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
         private readonly PowerActivationService _powerActivation;
+        private readonly SearchService _search;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -81,7 +82,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             RoomService roomService,
             UserRequestService userRequestService,
             PlacementService placement,
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            SearchService search)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -98,6 +100,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _userRequest = userRequestService;
             _placement = placement;
             _powerActivation = powerActivationService;
+            _search = search;
 
             _partyManager.SetMaxMorale();
         }
@@ -690,7 +693,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 var square = GridService.GetSquareAt(chest.Position, _dungeon.DungeonGrid);
                 if ( square != null)
                 {
-                    square.Furniture = _room.GetFurnitureByName("Floor");
+                    square.Furniture = _search.GetFurnitureByName("Floor");
                 }
             }
         }
