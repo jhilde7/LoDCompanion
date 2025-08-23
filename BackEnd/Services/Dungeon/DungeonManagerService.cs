@@ -45,7 +45,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         private readonly WanderingMonsterService _wanderingMonster;
         private readonly EncounterService _encounter;
-        private readonly RoomFactoryService _roomFactory;
         private readonly PartyManagerService _partyManager;
         private readonly DungeonBuilderService _dungeonBuilder;
         private readonly ThreatService _threat;
@@ -58,7 +57,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
         private readonly PowerActivationService _powerActivation;
-        private readonly SearchService _search;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -71,7 +69,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             DungeonState dungeonState,
             WanderingMonsterService wanderingMonster,
             EncounterService encounterService,
-            RoomFactoryService roomFactoryService,
             PartyManagerService partyManagerService,
             DungeonBuilderService dungeonBuilder,
             ThreatService threatService,
@@ -82,13 +79,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             RoomService roomService,
             UserRequestService userRequestService,
             PlacementService placement,
-            PowerActivationService powerActivationService,
-            SearchService search)
+            PowerActivationService powerActivationService)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
             _encounter = encounterService;
-            _roomFactory = roomFactoryService;
             _partyManager = partyManagerService;
             _dungeonBuilder = dungeonBuilder;
             _threat = threatService;
@@ -100,7 +95,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _userRequest = userRequestService;
             _placement = placement;
             _powerActivation = powerActivationService;
-            _search = search;
 
             _partyManager.SetMaxMorale();
         }
@@ -120,7 +114,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
 
             // 3. Create and set the starting room
-            _dungeon.StartingRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
+            _dungeon.StartingRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
             _dungeon.CurrentRoom = _dungeon.StartingRoom;
         }
 
@@ -140,7 +134,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (_dungeon.CurrentRoom != null)
             {
-                _dungeon.CurrentRoom = _roomFactory.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
+                _dungeon.CurrentRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
             }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
@@ -252,7 +246,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             foreach (var room in explorationRooms)
             {
-                explorationCards.Enqueue(_roomFactory.CreateRoom(room.Name));
+                explorationCards.Enqueue(_room.CreateRoom(room.Name));
             }
 
             var roomsExplorationDoors = _dungeon.RoomsInDungeon
@@ -342,7 +336,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (openedDoor.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null && Dungeon !=null)
             {
-                var newRoom = _roomFactory.CreateRoom(nextRoomInfo.Name ?? string.Empty);
+                var newRoom = _room.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
@@ -693,7 +687,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 var square = GridService.GetSquareAt(chest.Position, _dungeon.DungeonGrid);
                 if ( square != null)
                 {
-                    square.Furniture = _search.GetFurnitureByName("Floor");
+                    square.Furniture = SearchService.GetFurnitureByName("Floor");
                 }
             }
         }
