@@ -27,8 +27,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         DisarmTrap,
         HealSelf,
         HealOther,
-        EquipGear,
-        AddItemToQuickSlot,
+        RearrangeGear,
         IdentifyItem,
         SetOverwatch,
         PowerAttack,
@@ -54,7 +53,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         BreakDownDoor,
         StandUp,
         PickupWeapon,
-        AssistAllyOutOfPit
+        AssistAllyOutOfPit,
+        DrinkFromFurniture,
     }
 
     public class ActionInfo
@@ -291,29 +291,13 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
-                case (Hero hero, ActionType.EquipGear):
+                case (Hero hero, ActionType.RearrangeGear):
                     if (primaryTarget is Equipment item)
                     {
                         if (_inventory.EquipItem(hero, item)) resultMessage = $"{item.Name} was equipped";
                         else
                         {
                             resultMessage = $"{item.Name} could not be equipped";
-                            actionWasSuccessful = false;
-                        }
-                    }
-                    else
-                    {
-                        resultMessage = "Action was unsuccessful";
-                        actionWasSuccessful = false;
-                    }
-                    break;
-                case (Hero hero, ActionType.AddItemToQuickSlot):
-                    if (primaryTarget is Equipment item1)
-                    {
-                        if (_inventory.EquipItem(hero, item1)) resultMessage = $"{item1.Name} was equipped";
-                        else
-                        {
-                            resultMessage = $"{item1.Name} could not be equipped";
                             actionWasSuccessful = false;
                         }
                     }
@@ -640,6 +624,95 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         resultMessage = "Invalid target for DisarmTrap action.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.SearchCorpse):
+                    if (primaryTarget is Corpse corpse && !corpse.HasBeenSearched)
+                    {
+                        var rollResult = await _diceRoll.RequestRollAsync($"Roll for treasure from searching {corpse.Name}", "1d10");
+                        await Task.Yield();
+                        var result = await _search.SearchCorpseAsync(hero, corpse, rollResult.Roll);
+
+                        if (!result.WasSuccessful)
+                        {
+                            resultMessage = $"search of {corpse.Name} was unsuccessful.";
+                            actionWasSuccessful = false;
+                        }
+                        else
+                        {
+                            resultMessage = result.Message;
+                            if (result.FoundItems != null)
+                            {
+                                foreach (var foundItem in result.FoundItems)
+                                {
+                                    if (foundItem != null)
+                                    {
+                                        BackpackHelper.AddItem(hero.Inventory.Backpack, foundItem); 
+                                    }
+                                } 
+                            }
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target, target must be a corpse.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.SearchFurniture):
+                    if (primaryTarget is Furniture furniture && !furniture.HasBeenSearched)
+                    {
+                        var rollResult = await _diceRoll.RequestRollAsync($"Roll for treasure from searching {furniture.Name}", "1d10");
+                        await Task.Yield();
+                        var result = await _search.SearchFurnitureAsync(hero, furniture, rollResult.Roll);
+
+                        if (!result.WasSuccessful)
+                        {
+                            resultMessage = $"search of {furniture.Name} was unsuccessful.";
+                            actionWasSuccessful = false;
+                        }
+                        else
+                        {
+                            resultMessage = result.Message;
+                            if (result.FoundItems != null)
+                            {
+                                foreach (var foundItem in result.FoundItems)
+                                {
+                                    if (foundItem != null)
+                                    {
+                                        BackpackHelper.AddItem(hero.Inventory.Backpack, foundItem);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target, target must be furniture.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.DrinkFromFurniture):
+                    if (primaryTarget is Furniture fountain && fountain.IsDrinkable)
+                    {
+                        var rollResult = await _diceRoll.RequestRollAsync($"Roll for results from drinking from the {fountain.Name}", "1d10");
+                        await Task.Yield();
+                        var result = await _search.DrinkFromFurniture(hero, fountain, rollResult.Roll);
+
+                        if (!result.WasSuccessful)
+                        {
+                            resultMessage = $"Drinking from the {fountain.Name} was unsuccessful.";
+                            actionWasSuccessful = false;
+                        }
+                        else
+                        {
+                            resultMessage = result.Message;
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target, target must be drinkable.";
                         actionWasSuccessful = false;
                     }
                     break;
@@ -1325,12 +1398,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.Aim => 1,
                 ActionType.HarvestParts => 1,
                 ActionType.ThrowPotion => 1,
-                ActionType.EquipGear => 1,
-                ActionType.AddItemToQuickSlot => 1,
                 ActionType.BreakDownDoor => 1,
                 ActionType.StandUp => 1,
                 ActionType.PowerAttack => 2,
                 ActionType.ChargeAttack => 2,
+                ActionType.RearrangeGear => 2,
                 ActionType.PickLock => 2,
                 ActionType.DisarmTrap => 2,
                 ActionType.SearchRoom => 2,
