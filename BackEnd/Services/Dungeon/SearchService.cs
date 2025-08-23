@@ -14,7 +14,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         public bool WasSuccessful { get; set; }
         public string Message { get; set; } = string.Empty;
-        public List<Equipment> FoundItems { get; set; } = new List<Equipment>();
+        public List<Equipment?>? FoundItems { get; set; }
+        public Dictionary<string, string>? SpawnMonster { get; internal set; }
+        public Dictionary<string, string>? SpawnPlacement { get; internal set; }
     }
 
     /// <summary>
@@ -24,6 +26,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         private readonly UserRequestService _diceRoll;
         private readonly TreasureService _treasure;
+        public List<Furniture> Furniture => GetFurniture();
 
         public SearchService(UserRequestService diceRollService, TreasureService treasure)
         {
@@ -127,7 +130,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="furniture">The furniture being searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public async Task<SearchResult> SearchFurnitureAsync(Furniture furniture)
+        public async Task<SearchResult> SearchFurnitureAsync(Hero hero, Furniture furniture, int searchRoll)
         {
             var result = new SearchResult();
             if (furniture.HasBeenSearched)
@@ -142,9 +145,23 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return result;
             }
 
-            result.WasSuccessful = true;
-            result.Message = $"You search the {furniture.Name}...";
-            result.FoundItems = await _treasure.FoundTreasureAsync(TreasureType.Mundane, 1); // TODO: need to get specific treasure table for furniture
+            result = await _treasure.SearchFurnitureAsync(hero, furniture, searchRoll); 
+
+            furniture.HasBeenSearched = true;
+            return result;
+        }
+
+        internal async Task<SearchResult> DrinkFromFurniture(Hero hero, Furniture furniture, int roll)
+        {
+            var result = new SearchResult();
+
+            if (!furniture.IsDrinkable)
+            {
+                result.Message = $"The {furniture.Name} cannot be drank from.";
+                return result;
+            }
+
+            result = await _treasure.DrinkFurnitureAsync(hero, furniture, roll);
 
             furniture.HasBeenSearched = true;
             return result;
@@ -156,21 +173,346 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero searching the corpse.</param>
         /// <param name="corpse">The corpse to be searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public async Task<SearchResult> SearchCorpseAsync(Hero hero, Corpse corpse)
+        public async Task<SearchResult> SearchCorpseAsync(Hero hero, Corpse corpse, int searchRoll)
         {
-            var result = new SearchResult();
             if (corpse.HasBeenSearched)
-            {
-                result.Message = "This corpse has already been looted.";
-                return result;
+            {                
+                return new SearchResult() { Message = "This corpse has already been looted." };
             }
-
-            result.WasSuccessful = true;
-            result.Message = $"{hero.Name} searches the remains...";
-            result.FoundItems = await _treasure.SearchCorpseAsync(corpse.TreasureType, hero, 0);
+            var result = await _treasure.SearchCorpseAsync(corpse.TreasureType, hero, searchRoll);
 
             corpse.HasBeenSearched = true;
             return result;
+        }
+
+        public List<Furniture> GetFurniture()
+        {
+            return new List<Furniture>()
+        {
+            new Furniture()
+            {
+                Name = "Altar",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Altar
+            },
+            new Furniture()
+            {
+                Name = "Archery Target",
+                IsObstacle = true,
+                IsSearchable = true,
+                TreasureType = TreasureType.ArcheryTarget
+            },
+            new Furniture()
+            {
+                Name = "Armour Rack",
+                IsObstacle = true,
+                IsSearchable = true,
+                TreasureType = TreasureType.ArmourRack
+            },
+            new Furniture()
+            {
+                Name = "Backpack",
+                IsSearchable = true,
+                TreasureType = TreasureType.Backpack
+            },
+            new Furniture()
+            {
+                Name = "Barrels",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Barrels
+            },
+            new Furniture()
+            {
+                Name = "Bed",
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Bed
+            },
+            new Furniture()
+            {
+                Name = "Bedroll",
+                IsSearchable = true,
+                TreasureType = TreasureType.Bedroll
+            },
+            new Furniture()
+            {
+                Name = "Bookshelf",
+                IsObstacle = true,
+                IsSearchable = true,
+                NoEntry = true,
+                TreasureType = TreasureType.Bookshelf
+            },
+            new Furniture()
+            {
+                Name = "Boulder",
+                CanBeClimbed = true,
+                BlocksLoS = true
+            },
+            new Furniture()
+            {
+                Name = "Boxes",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Boxes
+            },
+            new Furniture()
+            {
+                Name = "Brazier",
+                IsObstacle = true,
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Bridge"
+            },
+            new Furniture()
+            {
+                Name = "Chasm",
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Chair"
+            },
+            new Furniture()
+            {
+                Name = "Cage",
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Special
+            },
+            new Furniture()
+            {
+                Name = "Chest",
+                IsSearchable= true,
+                TreasureType = TreasureType.Chest
+            },
+            new Furniture()
+            {
+                Name = "Objective Chest",
+                IsSearchable= true,
+                TreasureType = TreasureType.ObjectiveChest
+            },
+            new Furniture()
+            {
+                Name = "Coffin",
+                IsSearchable= true,
+                TreasureType = TreasureType.Coffin,
+            },
+            new Furniture()
+            {
+                Name = "Dead Adventurer",
+                IsSearchable = true,
+                TreasureType = TreasureType.DeadAdventurer
+            },
+            new Furniture()
+            {
+                Name = "Debris",
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Drawer",
+                IsObstacle = true,
+                IsSearchable = true,
+                NoEntry = true,
+                TreasureType = TreasureType.Drawer
+            },
+            new Furniture()
+            {
+                Name = "Floor"
+            },
+            new Furniture()
+            {
+                Name = "Fountain",
+                IsObstacle = true,
+                IsSearchable = true,
+                TreasureType = TreasureType.Fountain,
+                IsDrinkable = true,
+                DrinkTreasureType = TreasureType.DrinkFountain,
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Grate (over a hole)",
+                IsSearchable= true,
+                TreasureType = TreasureType.GrateOverHole,
+            },
+            new Furniture()
+            {
+                Name = "Hearth",
+                IsObstacle = true,
+                IsSearchable = true,
+                NoEntry= true,
+                TreasureType = TreasureType.Hearth
+            },
+            new Furniture()
+            {
+                Name = "Lava",
+                SpecialRules = "Instant death for any character"
+            },
+            new Furniture()
+            {
+                Name = "Levers",
+                IsLevers = true
+            },
+            new Furniture()
+            {
+                Name = "Pillar",
+                IsObstacle= true,
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Pit",
+                SpecialRules = "See exploration card for rules"
+            },
+            new Furniture()
+            {
+                Name = "Pottery",
+                IsSearchable = true,
+                TreasureType = TreasureType.Pottery
+            },
+            new Furniture()
+            {
+                Name = "Rubble",
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Sarcophagus",
+                IsSearchable= true,
+                IsObstacle = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Sarcophagus
+            },
+            new Furniture()
+            {
+                Name = "Stairs"
+            },
+            new Furniture()
+            {
+                Name = "Statue",
+                IsObstacle = true,
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Tree",
+                IsObstacle = true
+            },
+            new Furniture()
+            {
+                Name = "Alchemist Table",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.AlchemistTable
+            },
+            new Furniture()
+            {
+                Name = "Dining Table",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.DiningTable
+            },
+            new Furniture()
+            {
+                Name = "Study Table",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.StudyTable
+            },
+            new Furniture()
+            {
+                Name = "Table",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.DiningTable
+            },
+            new Furniture()
+            {
+                Name = "Throne",
+                IsObstacle = true,
+                IsSearchable = true,
+                CanBeClimbed = true,
+                TreasureType = TreasureType.Throne
+            },
+            new Furniture()
+            {
+                Name = "Torture Tools",
+                NoEntry = true,
+                IsObstacle = true,
+                IsSearchable = true,
+                TreasureType = TreasureType.TortureTools
+            },
+            new Furniture()
+            {
+                Name = "Trap"
+            },
+            new Furniture()
+            {
+                Name = "Treasure Pile",
+                IsSearchable = true,
+                TreasureType = TreasureType.TreasurePile
+            },
+            new Furniture()
+            {
+                Name = "Water Basin",
+                IsObstacle = true,
+                IsDrinkable = true,
+                NoEntry = true,
+                DrinkTreasureType = TreasureType.DrinkWaterBasin
+            },
+            new Furniture()
+            {
+                Name = "Water",
+                NoEntry = true
+            },
+            new Furniture()
+            {
+                Name = "Weapon Rack",
+                IsSearchable = true,
+                TreasureType = TreasureType.WeaponRack
+            },
+            new Furniture()
+            {
+                Name = "Wall",
+                NoEntry = true,
+                BlocksLoS = true,
+            },
+            new Furniture()
+            {
+                Name = "Well",
+                IsSearchable = true,
+                IsObstacle = true,
+                NoEntry = true,
+                TreasureType = TreasureType.Well
+            }
+        };
+        }
+
+        public Furniture? GetFurnitureByName(string name)
+        {
+            return Furniture.FirstOrDefault(x => x.Name == name);
+        }
+
+        public Furniture? GetFurnitureByNameSetPosition(string name, List<GridPosition> gridPosition)
+        {
+            var furniture = GetFurnitureByName(name);
+            if (furniture != null)
+            {
+                furniture.OccupiedSquares = gridPosition; 
+            }
+            return furniture;
         }
     }
 
@@ -286,6 +628,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool IsObstacle { get; set; }
         public bool IsSearchable { get; set; }
         public bool IsDrinkable { get; set; }
+        public TreasureType? DrinkTreasureType { get; set; }
         public bool IsLevers { get; set; }
         public string SpecialRules { get; set; } = string.Empty;
         public bool CanBeClimbed { get; set; }
