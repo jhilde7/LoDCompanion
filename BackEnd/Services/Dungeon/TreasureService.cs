@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using RogueSharp.DiceNotation;
 using System.Collections.Generic;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
@@ -86,6 +87,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _powerActivation = powerActivationService;
         }
 
+        private async Task<Equipment?> GetCoins(string coinDice, int bonusCoins)
+        {
+            string[] diceParts = coinDice.ToLower().Split('d');
+            int.TryParse(diceParts[0], out int numberOfDice);
+            int.TryParse(diceParts[1], out int diceSides);
+            int maxCoinRoll = numberOfDice * diceSides;
+            return await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice(coinDice) + bonusCoins, maxCoinRoll: maxCoinRoll, coinDice: coinDice, bonusCoins: bonusCoins);
+        }
+
         public async Task<Equipment> GetTreasureAsync(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "", 
             int? maxCoinRoll = null, string? coinDice = null, int? bonusCoins = null)
         {
@@ -100,8 +110,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         var lootGoblin = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LootGoblin);
                         if (lootGoblin == null || hero.CurrentEnergy < 1) continue;
 
-                        if (await _diceRoll.RequestYesNoChoiceAsync($"Current Coin roll is {amount - bonusCoins ?? 0}, there is a maximum of {maxCoinRoll}. " +
-                            $"Does {hero.Name} wish to activate {lootGoblin.ToString()}? The second roll will override the current role."))
+                        if (await _diceRoll.RequestYesNoChoiceAsync($"Current Coin roll is {amount - bonusCoins ?? 0} out of a maximum of {maxCoinRoll}. " +
+                            $"Does {hero.Name} wish to activate {lootGoblin.ToString()} to roll a new coin roll? The second roll will override the current role."))
                         {
                             if (await _powerActivation.ActivatePerkAsync(hero, lootGoblin))
                             {
@@ -259,8 +269,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     break;
                 case TreasureType.Turog:
-                    var resultTurog = await _diceRoll.RequestRollAsync($"Roll for coins", "2d100"); await Task.Yield();
-                    rewards.Add(await GetTreasureAsync("Coin", 0, 1, resultTurog.Roll, maxCoinRoll: 200, coinDice: "2d100"));
+                    rewards.Add(await GetCoins("2d100", 0));
                     var item = EquipmentService.GetWeaponByName("The Goblin Scimitar");
                     if (item != null) rewards.Add(item);
                     break;
@@ -317,17 +326,25 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 switch (type)
                 {
-                    case TreasureType.Mundane: rewards.AddRange(await GetMundaneTreasureAsync()); break;
-                    case TreasureType.Fine: rewards.AddRange(await GetFineTreasureAsync()); break;
-                    case TreasureType.Wonderful: rewards.AddRange(await GetWonderfulTreasureAsync()); break;
-                    default:
-                        throw new ArgumentOutOfRangeException("type");
+                    case TreasureType.Mundane: rewards.AddRange(await GetMundaneTreasureAsync(count)); break;
+                    case TreasureType.Fine: rewards.AddRange(await GetFineTreasureAsync(count)); break;
+                    case TreasureType.Wonderful: rewards.AddRange(await GetWonderfulTreasureAsync(count)); break;
                 }
             }
+
+            if (count > 1)
+            {
+                // Thief's Luck: Multiple items are found, but the thief must pick one to keep
+                List<string> listofChoices = rewards.Where(r => r != null).Select(r => r!.Name).ToList();
+                var choiceResult = await _diceRoll.RequestChoiceAsync("Choose one item to keep", listofChoices); 
+                await Task.Yield();
+                return new List<Equipment>() { rewards.First(r => r != null && r.Name == choiceResult)!.Clone() };
+            }
+
             return rewards.Cast<Equipment>().ToList();
         }
 
-        public async Task<List<Equipment?>> GetMundaneTreasureAsync()
+        public async Task<List<Equipment?>> GetMundaneTreasureAsync(int count = 1)
         {
             int roll = RandomHelper.GetRandomNumber(1, 55);
             int defaultDurabilityDamageRoll = RandomHelper.GetRandomNumber(1, 4) + 1;
@@ -348,16 +365,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case 8: mundaneRewards.Add(EquipmentService.GetAmmoByNameSetQuantity("Bolt", 5)); break;
                 case 9: mundaneRewards.Add(EquipmentService.GetShieldByNameSetDurability("Buckler", armourDurability)); break;
                 case 10: mundaneRewards.Add(EquipmentService.GetArmourByNameSetDurability("Cloak", armourDurability)); break;
-                case 11: mundaneRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "2d20")).Roll, maxCoinRoll: 40, coinDice: "2d20")); await Task.Yield(); break;
-                case 12: mundaneRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "4d20")).Roll, maxCoinRoll: 80, coinDice: "4d20")); await Task.Yield(); break;
-                case 13: mundaneRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d100")).Roll, maxCoinRoll: 100, coinDice: "1d100")); await Task.Yield(); break;
+                case 11: mundaneRewards.Add(await GetCoins("2d20", 0)); break;
+                case 12: mundaneRewards.Add(await GetCoins("4d20", 0)); break;
+                case 13: mundaneRewards.Add(await GetCoins("1d100", 0)); await Task.Yield(); break;
                 case 14: mundaneRewards.Add(EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Crowbar", 6 - defaultDurabilityDamageRoll, RandomHelper.GetRandomNumber(1, 6))); break;
                 case 15: mundaneRewards.Add(EquipmentService.GetWeaponByNameSetDurability("Dagger", weaponDurability)); break;
                 case 16: mundaneRewards.Add(EquipmentService.GetEquipmentByNameSetQuantity("Empty Bottle", RandomHelper.GetRandomNumber(1, 6))); break;
-                case 17: mundaneRewards.AddRange(await GetFineTreasureAsync()); break;
+                case 17: mundaneRewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); break;
                 case 18: mundaneRewards.Add(EquipmentService.GetWeaponByNameSetDurability("Javelin", weaponDurability)); break;
                 case 19: mundaneRewards.Add(EquipmentService.GetEquipmentByName("Lamp Oil")); break;
                 case 20: mundaneRewards.Add(EquipmentService.GetEquipmentByName("Lantern")); break;
@@ -378,16 +392,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case 35: mundaneRewards.Add(EquipmentService.GetEquipmentByName("Whetstone")); break;
                 case 36: mundaneRewards.Add(EquipmentService.GetEquipmentByName("Wild game traps")); break;
                 case 37: mundaneRewards.Add(await CreateItemAsync("Wolf Pelt", quantity: RandomHelper.RollDie(DiceType.D3))); break;
-                case 38: mundaneRewards.AddRange(await GetWonderfulTreasureAsync()); break;
+                case 38: mundaneRewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); break;
                 case <= 40: mundaneRewards.Add(EquipmentService.GetAmmoByNameSetQuantity("Arrow", 5)); break;
                 case <= 42: mundaneRewards.Add(EquipmentService.GetEquipmentByNameSetQuantity("Bedroll", RandomHelper.RollDie(DiceType.D3))); break;
                 case <= 44: mundaneRewards.Add(await CreateItemAsync("Ring", value: 150)); break;
-                case <= 46:
-                    mundaneRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d20")).Roll, maxCoinRoll: 20, coinDice: "1d20")); await Task.Yield(); break;
-                case <= 48:
-                    mundaneRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "3d20")).Roll, maxCoinRoll: 60, coinDice: "3d20")); await Task.Yield(); break;
+                case <= 46: mundaneRewards.Add(await GetCoins("1d20", 0)); break;
+                case <= 48: mundaneRewards.Add(await GetCoins("3d20", 0)); break;
                 case <= 50: mundaneRewards.AddRange(await GetAlchemicalTreasureAsync(TreasureType.Ingredient, RandomHelper.RollDie(DiceType.D3))); break;
                 case <= 53: mundaneRewards.Add(EquipmentService.GetEquipmentByName("Torch")); break;
                 case 54: mundaneRewards.Add(GetPaddedArmour(armourDurability)); break;
@@ -403,7 +413,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return mundaneRewards;
         }
 
-        public async Task<List<Equipment?>> GetFineTreasureAsync()
+        public async Task<List<Equipment?>> GetFineTreasureAsync(int count = 1)
         {
             _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.FineTreasure);
             int roll = RandomHelper.GetRandomNumber(1, 55);
@@ -422,12 +432,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     var choiceResult = await _diceRoll.RequestChoiceAsync("Choose ammo type", new List<string>() { "Barbed Arrow", "Barbed Bolt", "Superior Sling Stone" }); await Task.Yield();
                     fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult, 5)); break;
                 case 6: fineRewards.Add(EquipmentService.GetEquipmentByName("Bedroll")); break;
-                case 7: fineRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "1d100")).Roll + 40, maxCoinRoll: 100, coinDice: "1d100", bonusCoins: 40)); await Task.Yield(); break;
-                case 8: fineRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "2d100")).Roll + 20, maxCoinRoll: 200, coinDice: "2d100", bonusCoins: 20)); await Task.Yield(); break;
-                case 9: fineRewards.Add(await GetTreasureAsync("Coin", 0, 1,
-                    (await _diceRoll.RequestRollAsync($"You found coins!", "3d100")).Roll, maxCoinRoll: 300, coinDice: "3d100")); await Task.Yield(); break;
+                case 7: fineRewards.Add(await GetCoins("1d100", 40)); break;
+                case 8: fineRewards.Add(await GetCoins("2d100", 20)); break;
+                case 9: fineRewards.Add(await GetCoins("3d100", 0)); break;
                 case 10: fineRewards.Add(EquipmentService.GetEquipmentByName("Door Mirror")); break;
                 case 11: fineRewards.Add(EquipmentService.GetEquipmentByName("Dwarven Ale")); break;
                 case 12: fineRewards.Add(await CreateItemAsync("Lock Picks - Dwarven", 1, 0, RandomHelper.RollDie(DiceType.D6))); break;
@@ -460,7 +467,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case 35: fineRewards.Add(GetRandomWizardStaff(weaponDurability)); break;
                 case <= 38: choiceResult = await _diceRoll.RequestChoiceAsync("Choose ammo type", new List<string>() { "Silver Arrow", "Silver Bolt", "Superior Sling Stone" }); await Task.Yield();
                     fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult, RandomHelper.RollDie(DiceType.D10))); break;
-                case <= 41: fineRewards.AddRange(await GetWonderfulTreasureAsync()); break;
+                case <= 41: fineRewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); break;
                 case <= 43: fineRewards.AddRange(await _alchemy.GetRandomPotions(1)); break;
                 case <= 49:
                     var weapon = new Weapon();
@@ -510,7 +517,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return fineRewards;
         }
 
-        public async Task<List<Equipment?>> GetWonderfulTreasureAsync()
+        public async Task<List<Equipment?>> GetWonderfulTreasureAsync(int count = 1)
         {
             _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.WonderfulTreasure);
             int roll = RandomHelper.GetRandomNumber(1, 54);
@@ -1294,6 +1301,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 await Task.Yield();
                 searchRoll = roll.Roll; 
             }
+            int count = hero.IsThief ? 2 : 1;
 
             var rewards = new List<Equipment?>();
 
@@ -1317,7 +1325,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         case <= 3: AlchemyService.GetIngredients(RandomHelper.RollDie(DiceType.D10)).ToList().ForEach(i => rewards.Add(i)); 
                             result.Message = "You found some alchemical ingredients!";
                             break;
-                        case <= 7: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("10d6"), maxCoinRoll: 60, coinDice: "10d6")); 
+                        case <= 7: rewards.Add(await GetCoins("10d6", 0));
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1348,10 +1356,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Backpack:
                     switch (searchRoll)
                     {
-                        case <= 5: rewards.AddRange(await GetMundaneTreasureAsync()); 
+                        case <= 5: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 7: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("1d100"), maxCoinRoll: 100, coinDice: "1d100")); 
+                        case <= 7: rewards.Add(await GetCoins("1d100", 0)); 
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1360,7 +1368,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Barrels:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetMundaneTreasureAsync()); 
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
                             result.Message = "You found some mundane treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1369,10 +1377,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Bed:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetMundaneTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 4: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("1d100"), maxCoinRoll: 100, coinDice: "1d100")); 
+                        case <= 4: rewards.Add(await GetCoins("1d100", 0)); 
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1381,10 +1389,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Bedroll:
                     switch (searchRoll)
                     {
-                        case <= 3: rewards.AddRange(await GetMundaneTreasureAsync());
+                        case <= 3: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 5: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("1d100"), maxCoinRoll: 100, coinDice: "1d100")); 
+                        case <= 5: rewards.Add(await GetCoins("1d100", 0)); 
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1393,7 +1401,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Bookshelf:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 5: rewards.Add(await CreateItemAsync("Scroll")); 
@@ -1414,7 +1422,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Boxes:
                     switch (searchRoll)
                     {
-                        case <= 4: rewards.AddRange(await GetMundaneTreasureAsync()); 
+                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
                             result.Message = "You found some mundane treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1423,13 +1431,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Chest:
                     switch (searchRoll)
                     {
-                        case 1: rewards.AddRange(await GetWonderfulTreasureAsync()); 
+                        case 1: rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); 
                             result.Message = "You found some wonderful treasure!";
                             break;
-                        case <= 4: rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetFineTreasureAsync()); 
+                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); 
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 8: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 8: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1438,7 +1446,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Coffin:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 8: result.Message = "You found nothing of any value."; break;
@@ -1460,7 +1468,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.DeadAdventurer:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 8: result.Message = "You found nothing of any value."; break;
@@ -1493,10 +1501,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Drawer:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 8: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("2d20"), maxCoinRoll: 40, coinDice: "2d20"));
+                        case <= 8: rewards.Add(await GetCoins("2d20", 0));
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1505,10 +1513,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Fountain:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 8: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("1d20"), maxCoinRoll: 20, coinDice: "1d20"));
+                        case <= 8: rewards.Add(await GetCoins("1d20", 0));
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1535,13 +1543,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.ObjectiveChest:
                     switch (searchRoll)
                     {
-                        case <= 3: rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetWonderfulTreasureAsync()); rewards.AddRange(await GetWonderfulTreasureAsync());
+                        case <= 3: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
                             result.Message = "You found some fine and wonerful treasure!";
                             break;
-                        case <= 7: rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetWonderfulTreasureAsync());
+                        case <= 7: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
                             result.Message = "You found some fine and wonerful treasure!";
                             break;
-                        case <= 10: rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 10: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1550,10 +1558,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Pottery:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetMundaneTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 4: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("1d20"), maxCoinRoll: 20, coinDice: "1d20"));
+                        case <= 4: rewards.Add(await GetCoins("1d20", 0));
                             result.Message = "You found some coins!";
                             break;
                         case <= 5: rewards.Add(EquipmentService.GetAnyEquipmentByName("Ration")); 
@@ -1565,10 +1573,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Sarcophagus:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetWonderfulTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
                             result.Message = "You found some wonderful treasure!";
                             break;
-                        case <= 5: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 5: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 8: result.Message = "You found nothing of any value."; break;
@@ -1594,15 +1602,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             int roll = RandomHelper.RollDie(DiceType.D6);
                             switch (roll)
                             {
-                                case <= 2:  rewards.AddRange(await GetWonderfulTreasureAsync());
+                                case <= 2:  rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
                                     result.Message = "You found some wonderful treasure!";
                                     break;
-                                case <= 6: rewards.AddRange(await GetFineTreasureAsync());
+                                case <= 6: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                                     result.Message = "You found some fine treasure!";
                                     break;
                             }
                             break;
-                        case <= 3: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("1d20"), maxCoinRoll: 20, coinDice: "1d20")); 
+                        case <= 3: rewards.Add(await GetCoins("1d20", 0)); 
                             result.Message = "You found some coins!";
                             break;
                         case <= 9: result.Message = "You found nothing of any value."; break;
@@ -1624,7 +1632,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.StudyTable:
                     switch (searchRoll)
                     {
-                        case <= 4: rewards.AddRange(await GetMundaneTreasureAsync());
+                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
                             result.Message = "You found some mundane treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1633,7 +1641,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.Throne:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1651,16 +1659,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.TreasurePile:
                     switch (searchRoll)
                     {
-                        case <= 2: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("4d100"), maxCoinRoll: 400, coinDice: "4d100"));
-                            rewards.AddRange(await GetWonderfulTreasureAsync());
+                        case <= 2: rewards.Add(await GetCoins("4d100", 0));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
                             result.Message = "You found some wonderful treasure and some cins!";
                             break;
-                        case <= 5: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("3d100"), maxCoinRoll: 300, coinDice: "3d100"));
-                            rewards.AddRange(await GetFineTreasureAsync()); rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 5: rewards.Add(await GetCoins("3d100", 0));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure and some coins!";
                             break;
-                        case <= 10: rewards.Add(await GetTreasureAsync("Coin", value: 1, amount: RandomHelper.RollDice("2d100"), maxCoinRoll: 200, coinDice: "2d100"));
-                            rewards.AddRange(await GetFineTreasureAsync());
+                        case <= 10: rewards.Add(await GetCoins("2d100", 0));
+                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
                             result.Message = "You found some fine treasure and some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
@@ -1682,7 +1690,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             furniture.TreasureType = TreasureType.Chest;
                             result.Message = "You peer down the well, and see something shiny at the bottom.";
                             return await SearchFurnitureAsync(hero, furniture, RandomHelper.RollDie(DiceType.D10));
-                        case <= 4: rewards.AddRange(await GetMundaneTreasureAsync()); 
+                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
                             result.Message = "You found some items at the bottom of the well.";
                             break;
                         case <= 9: result.Message = "You found nothing of any value."; break;
