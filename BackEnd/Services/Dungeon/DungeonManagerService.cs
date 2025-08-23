@@ -197,7 +197,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         var heroes = _dungeon.HeroParty.Heroes;
                         heroes.Shuffle();
                         var randomHero = heroes[0];
-                        var trap = new Trap();
+                        var trap = new Trap(true);
 
                         await _trap.TriggerTrapAsync(randomHero, trap);
                     }
