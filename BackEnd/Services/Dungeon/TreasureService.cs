@@ -87,7 +87,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _powerActivation = powerActivationService;
         }
 
-        private async Task<Equipment?> GetCoins(string coinDice, int bonusCoins)
+        public async Task<Equipment?> GetCoins(string coinDice, int bonusCoins)
         {
             string[] diceParts = coinDice.ToLower().Split('d');
             int.TryParse(diceParts[0], out int numberOfDice);
