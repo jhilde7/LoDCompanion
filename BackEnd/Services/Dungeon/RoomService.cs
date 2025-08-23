@@ -47,20 +47,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public class Room
     {
         public string Name { get; set; } = string.Empty; // Default to empty string for safety
-        public string ImagePath { get; set; } = string.Empty;
+        public string? ImagePath { get; set; } = string.Empty;
         public bool IsStartingTile { get; set; }
         public bool IsObjectiveRoom { get; set; }
         public bool HasLevers { get; set; } // Flag, actual lever logic in a service
         public RoomCategory Category { get; set; } = RoomCategory.Room; // Default type, can be "Room" or "Corridor"
-        public string Description { get; set; } = string.Empty;
-        public string SpecialRules { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
+        public string? SpecialRules { get; set; } = string.Empty;
         public bool HasSpecial { get; set; }
         public bool ActivateSpecial { get; set; } // Trigger for special room effects, handled by a service
         public int ThreatLevelModifier { get; set; }
         public int PartyMoraleModifier { get; set; }
         public int[] Size { get; set; } = new int[2]; // Represents width/length or dimensions
         public List<Door> Doors { get; set; } = new List<Door>();
-        public bool IsDeadEnd { get; set; }
         public List<Furniture> FurnitureList { get; set; } = new List<Furniture>(); // List of furniture types in the room
         public bool RandomEncounter { get; set; } // Flag for whether a random encounter can occur
         public EncounterType? EncounterType { get; set; } // used for room specific encounters
@@ -69,23 +68,20 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int EncounterModifier { get; set; } = 0;
         public bool IsEncounter { get; set; } // Indicates if an encounter is present
         public bool HasBeenSearched { get; set; }
-        public bool PartySearch { get; set; }
-        public bool SearchRoomTrigger { get; set; } // Trigger for room search, handled by a service
-        public int SearchRoll { get; set; } = 0;
-        public int TreasureRoll { get; set; } = 0;
-        public Trap? CurrentTrap { get; set; }
         public SearchResult SearchResults { get; set; } = new SearchResult();
-        public List<Room> ConnectedRooms { get; set; } = new List<Room>(); // Represents connected dungeon segments
+        public Trap? CurrentTrap { get; set; }
         public int DoorCount { get; set; }
         public Dictionary<GridPosition, GridSquare> Grid { get; set; } = new Dictionary<GridPosition, GridSquare>();
-        public int Width { get; set; }
-        public int Height { get; set; }
         public GridPosition GridOffset { get; set; } = new GridPosition(0, 0, 0);
         public List<Hero>? HeroesInRoom { get; set; }
         public List<Monster>? MonstersInRoom { get; set; }
         public List<Corpse>? CorpsesInRoom { get; set; }
         public List<Character> CharactersInRoom => GetInhabitants();
         public List<Searchable> SearchablesInRoom => GetSearchableObjects();
+        public List<Room> ConnectedRooms => Doors.SelectMany(d => d.ConnectedRooms).Where(r => r != this).Distinct().ToList();
+        public int Width => Size[0];
+        public int Height => Size[1];
+        public bool IsDeadEnd => DoorCount <= 0;
 
         private List<Searchable> GetSearchableObjects()
         {
@@ -209,19 +205,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public Room InitializeRoomData(RoomInfo roomInfo, Room room)
         {
             // Basic Information
-            room.Name = roomInfo.Name ?? string.Empty;
+            room.Name = roomInfo.Name;
             room.Category = roomInfo.Category;
-            room.Description = roomInfo.Description ?? string.Empty;
-            room.SpecialRules = roomInfo.SpecialRules ?? string.Empty;
+            room.Description = roomInfo.Description;
+            room.SpecialRules = roomInfo.SpecialRules;
             room.HasSpecial = roomInfo.HasSpecial;
-            room.ImagePath = roomInfo.ImagePath ?? string.Empty;
+            room.ImagePath = roomInfo.ImagePath;
 
             // Stats
             room.ThreatLevelModifier = roomInfo.ThreatLevelModifier;
             room.PartyMoraleModifier = roomInfo.PartyMoraleModifier;
-            room.Size = roomInfo.Size ?? new int[] { 1, 1 };
-            room.Width = room.Size[0];
-            room.Height = room.Size[1];
+            room.Size = roomInfo.Size;
 
             // Furniture
             room.FurnitureList.Clear();
@@ -247,17 +241,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             room.DoorCount = roomInfo.DoorCount;
             room.Doors.Clear(); // Clear any existing doors
 
-            if (room.DoorCount == 0)
-            {
-                room.IsDeadEnd = true;
-            }
-
             // Levers (If Applicable)
             room.HasLevers = roomInfo.HasLevers;
 
             // Set initial state for various triggers
             room.RollEncounter = false;
-            room.SearchRoomTrigger = false;
             room.ActivateSpecial = false; // Reset special activation on initialization
             room.HasBeenSearched = false;
             room.IsEncounter = false; // Start with no active encounter
