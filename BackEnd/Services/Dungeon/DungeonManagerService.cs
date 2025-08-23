@@ -277,36 +277,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <returns>A string describing the result of the attempt.</returns>
         public async Task<string> InteractWithDoorAsync(Door door, Character character)
         {
-            if (door.State == DoorState.Open) return "The door is already open.";
-
-            // Roll for Trap (d6)
-            if (RandomHelper.RollDie(DiceType.D6) == 6)
-            {
-                door.SetTrapState();
-                door.Trap = new Trap(); 
-
-                // Resolve Trap
-                if (character is Hero hero)
-                {
-                    if (door.Trap != null)
-                    {                       
-                        return await _trap.TriggerTrapAsync(hero, door.Trap);
-                    }
-                }
-            }
-
-            // Roll for Lock (d10)
-            int lockRoll = RandomHelper.RollDie(DiceType.D10);
-            if (lockRoll > 6)
-            {
-                switch (lockRoll)
-                {
-                    case 7: door.SetLockState(0, 10); break;
-                    case 8: door.SetLockState(-10, 15); break;
-                    case 9: door.SetLockState(-15, 20); break;
-                    case 10: door.SetLockState(-20, 25); break;
-                }
-            }
+            if (door.State == DoorState.Open) return "The door is already open.";                       
 
             // Resolve Lock
             if (door.Lock.IsLocked)
@@ -405,8 +376,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                     foreach (var exitDoor in newDoors)
                     {
-                        // place doors at a random position on a random edge that does not have a door
-                        _placement.PlaceExitDoor(exitDoor, newRoom);
+                        _room.AddDoorToRoom(newRoom, _placement, exitDoor.ExplorationDeck);
                     }
                 }
             }

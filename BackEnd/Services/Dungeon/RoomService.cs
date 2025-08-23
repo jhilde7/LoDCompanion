@@ -6503,16 +6503,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
         }
 
-        internal void AddTreasureRoom(Room currentRoom)
+        internal void AddDoorToRoom(Room room, PlacementService placement, Queue<Room>? explorationDeck = null)
         {
             var newDoor = new Door()
             {
-                ConnectedRooms = new List<Room> { currentRoom },
-                ExplorationDeck = new Queue<Room>(),
-                Lock = new Lock()
+                ConnectedRooms = new List<Room> { room },
+                ExplorationDeck = explorationDeck != null ? explorationDeck : new Queue<Room>()
             };            
-            _placement.PlaceExitDoor(newDoor, currentRoom);
-            newDoor.ExplorationDeck.Enqueue(CreateRoom("R10"));
+            placement.PlaceExitDoor(newDoor, room);
         }
         public Room CreateRoom(string roomName)
         {
