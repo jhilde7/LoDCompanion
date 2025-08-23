@@ -32,6 +32,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             LockHP = lockHP;
         }
 
+        public bool PickLock(int attemptRoll, int skill)
+        {
+            if (attemptRoll < skill + LockModifier)
+            {
+                LockHP = 0;
+                return true; 
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public int BashLock(int damage)
         {
             LockHP -= damage;
@@ -74,23 +87,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return false;
             }
 
-            // Original logic: "LockPicksSkill - PickLockSkillModifier" looks like a typo, assuming it means hero's PickLocksSkill
-            // Assuming Hero has a PickLocksSkill property or it's part of Dexterity/Profession
             int skill = hero.GetSkill(Skill.PickLocks);
-
-            int pickLockRoll = (await _diceRoll.RequestRollAsync("Roll for pick lock attempt.", "1d100", skill: (hero, Skill.PickLocks))).Roll;
-            await Task.Yield();
-
-            // Base roll + skill - lockModifier
-            int successThreshold = skill - lockToPick.LockModifier;
 
             BackpackHelper.TakeOneItem(hero.Inventory.Backpack, lockPicks);
             var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.CleverFingers);
             if (cleverFingers != null) hero.ActiveStatusEffects.Remove(cleverFingers);
 
-            if (pickLockRoll <= 80 && pickLockRoll <= successThreshold)
+            int pickLockRoll = (await _diceRoll.RequestRollAsync("Roll for pick lock attempt.", "1d100", skill: (hero, Skill.PickLocks))).Roll;
+            await Task.Yield();
+
+            if (pickLockRoll <= 80 && lockToPick.PickLock(pickLockRoll, skill))
             {
-                lockToPick.LockHP = 0;
                 Console.WriteLine($"{hero.Name} successfully picked the lock!");
                 return true;
             }
@@ -146,7 +153,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
             }
 
-            lockToBash.LockHP -= damageToLock;
+            lockToBash.BashLock(damageToLock);
 
             if (lockToBash.LockHP < 0)
             {
