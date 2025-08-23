@@ -7,9 +7,37 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class Lock
     {
-        public int LockModifier { get; set; }
-        public int LockHP { get; set; }
+        public int LockModifier { get; private set; }
+        public int LockHP { get; private set; }
         public bool IsLocked => LockHP > 0;
+
+        public Lock()
+        {
+            int lockRoll = RandomHelper.RollDie(DiceType.D10);
+            if (lockRoll > 6)
+            {
+                switch (lockRoll)
+                {
+                    case 7: SetLockState(0, 10); break;
+                    case 8: SetLockState(-10, 15); break;
+                    case 9: SetLockState(-15, 20); break;
+                    case 10: SetLockState(-20, 25); break;
+                }
+            }
+        }
+
+        public void SetLockState(int lockModifier, int lockHP)
+        {
+            LockModifier = lockModifier;
+            LockHP = lockHP;
+        }
+
+        public int BashLock(int damage)
+        {
+            LockHP -= damage;
+            if (LockHP < 0) LockHP = 0;
+            return LockHP;
+        }
     }
 
     public class LockService

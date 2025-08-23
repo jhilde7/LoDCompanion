@@ -37,10 +37,26 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public GridSquare? Square { get; set; } // Position of the trap in the dungeon
         public bool isDisarmed { get; set; } = false; // Whether the trap has been disarmed
 
-        public Trap()
+        public Trap(bool guaranteedTrap = false)
         {
-            GetRandomTrap();
+            if (guaranteedTrap)
+            {
+                GetRandomTrap();
+            } 
+            else
+            {
+                if (RandomHelper.RollDie(DiceType.D6) >= 6)
+                {
+                    GetRandomTrap();
+                }
+                else
+                {
+                    isDisarmed = true; // No trap present
+                }
+            }
+
         }
+
         public Trap(TrapType name, int skillModifier, int disarmModifier, string description, string? specialDescription = null)
         {
             Name = name;

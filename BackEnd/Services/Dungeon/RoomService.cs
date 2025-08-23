@@ -74,7 +74,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int SearchRoll { get; set; } = 0;
         public int TreasureRoll { get; set; } = 0;
         public Trap? CurrentTrap { get; set; }
-        public List<Equipment> SearchResults { get; set; } = new List<Equipment>();
+        public SearchResult SearchResults { get; set; } = new SearchResult();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>(); // Represents connected dungeon segments
         public int DoorCount { get; set; }
         public Dictionary<GridPosition, GridSquare> Grid { get; set; } = new Dictionary<GridPosition, GridSquare>();
@@ -162,7 +162,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         // The global grid position of the doorway.
         public List<GridPosition> PassagewaySquares { get; set; } = new List<GridPosition>();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>();
-        public Trap? Trap { get; set; }
+        public Trap Trap { get; set; } = new Trap();
         public Lock Lock { get; set; } = new Lock();
         public Queue<Room>? ExplorationDeck { get; set; }
         public Orientation Orientation { get; internal set; }
@@ -170,18 +170,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         // Constructor
         public Door()
         {
-
-        }
-
-        public void SetLockState(int lockModifier, int lockHP)
-        {
-            Lock.LockModifier = lockModifier;
-            Lock.LockHP = lockHP;
-        }
-
-        public void SetTrapState()
-        {
-            Trap = new Trap();
+            
         }
 
         public bool Open()
@@ -6514,26 +6503,22 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
         }
 
-        internal Furniture? GetFurnitureByName(string v)
+        internal void AddTreasureRoom(Room currentRoom)
         {
-            throw new NotImplementedException();
+            var newDoor = new Door()
+            {
+                ConnectedRooms = new List<Room> { currentRoom },
+                ExplorationDeck = new Queue<Room>(),
+                Lock = new Lock()
+            };            
+            _placement.PlaceExitDoor(newDoor, currentRoom);
+            newDoor.ExplorationDeck.Enqueue(CreateRoom("R10"));
         }
-    }
-
-    public class RoomFactoryService
-    {
-        private readonly RoomService _roomService;
-
-        public RoomFactoryService(RoomService roomService)
-        {
-            _roomService = roomService;
-        }
-
         public Room CreateRoom(string roomName)
         {
             Room room = new Room();
-            RoomInfo roomDefinition = _roomService.GetRoomByName(roomName);
-            _roomService.InitializeRoomData(roomDefinition, room);
+            RoomInfo roomDefinition = GetRoomByName(roomName);
+            InitializeRoomData(roomDefinition, room);
 
             GridService.GenerateGridForRoom(room);
 
