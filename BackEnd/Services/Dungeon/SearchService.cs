@@ -13,11 +13,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     /// </summary>
     public class SearchResult
     {
-        public bool WasSuccessful { get; set; }
+        public bool WasSuccessful { get; set; } = true;
         public string Message { get; set; } = string.Empty;
         public List<Equipment?>? FoundItems { get; set; }
-        public Dictionary<string, string>? SpawnMonster { get; internal set; }
-        public Dictionary<string, string>? SpawnPlacement { get; internal set; }
+        public Dictionary<string, string>? SpawnMonster { get; set; }
+        public Dictionary<string, string>? SpawnPlacement { get; set; }
+        public int SearchRoll { get; set; }
+        public int TreasureRoll { get; set; }
     }
 
     /// <summary>
@@ -28,15 +30,22 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _diceRoll;
         private readonly TreasureService _treasure;
         private readonly TrapService _trap;
-        private readonly DungeonManagerService _dungeonManager;
+        private readonly RoomService _room;
+        private readonly PlacementService _placement;
         public static List<Furniture> Furniture => GetFurniture();
 
-        public SearchService(UserRequestService diceRollService, TreasureService treasure, TrapService trapService, DungeonManagerService dungeonManagerService)
+        public SearchService(
+            UserRequestService diceRollService, 
+            TreasureService treasure, 
+            TrapService trapService, 
+            RoomService roomService,
+            PlacementService placementService)
         {
             _diceRoll = diceRollService;
             _treasure = treasure;
             _trap = trapService;
-            _dungeonManager = dungeonManagerService;
+            _room = roomService;
+            _placement = placementService;
         }
 
 
@@ -59,9 +68,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             var searchResults = new SearchResult() { FoundItems = new List<Equipment?>() };
             int searchTarget = hero.GetSkill(Skill.Perception);
             var heroSearching = hero;
-            if (hero.Party != null)
+            if (isPartySearch && room.HeroesInRoom != null)
             {
-                var heroWithHighestPerception = hero.Party.Heroes
+                var heroWithHighestPerception = room.HeroesInRoom
                     .Where(h => h != null)
                     .OrderByDescending(h => h.GetSkill(Skill.Perception))
                     .FirstOrDefault();
@@ -73,17 +82,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 if (isPartySearch)
                 {
-                    for (int i = 0; i < hero.Party.Heroes.Count(); i++)
+                    for (int i = 0; i < room.HeroesInRoom.Count(); i++)
                     {
                         if (i == 0) continue; // this is the initial perception skill check
                         else if (i == 1) searchTarget += 10;
                         else searchTarget += 5;
                     }
 
-                    var partyMemebrWithLantern = hero.Party.Heroes
+                    var partyMemebrWithLantern = room.HeroesInRoom
                         .FirstOrDefault(h => h.Inventory.OffHand != null && h.Inventory.OffHand.HasProperty(EquipmentProperty.Lantern));
 
-                    var partyMemebrWithTorch = hero.Party.Heroes
+                    var partyMemebrWithTorch = room.HeroesInRoom
                         .FirstOrDefault(h => h.Inventory.OffHand != null && h.Inventory.OffHand.HasProperty(EquipmentProperty.Torch));
 
                     if (partyMemebrWithLantern != null)
@@ -96,16 +105,28 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                 }
             }
-            var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100", skill: (hero, Skill.Perception)); await Task.Yield();
-            int searchRoll = resultRoll.Roll;
+            else
+            {
+                if (heroSearching.Inventory.OffHand != null && heroSearching.Inventory.OffHand.HasProperty(EquipmentProperty.Lantern))
+                {
+                    searchTarget += 10;
+                }
+                else if (heroSearching.Inventory.OffHand != null && heroSearching.Inventory.OffHand.HasProperty(EquipmentProperty.Torch))
+                {
+                    searchTarget += 5;
+                }
+            }
 
+            var resultRoll = await _diceRoll.RequestRollAsync("Attempt to search the room", "1d100", skill: (hero, Skill.Perception)); 
+            await Task.Yield();
+            searchResults.SearchRoll = resultRoll.Roll;
 
             if (room.Category == RoomCategory.Corridor)
             {
-                searchRoll += 10;
+                searchResults.SearchRoll += 10;
             }
 
-            if (searchRoll <= searchTarget)
+            if (searchResults.SearchRoll <= searchTarget)
             {
                 resultRoll = await _diceRoll.RequestRollAsync("Search successful, now roll for treasure", "1d100"); await Task.Yield();
                 int treasureRoll = resultRoll.Roll;
@@ -116,11 +137,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 switch (treasureRoll)
                 {
                     case <= 15:
-                        Console.WriteLine("You found a secret door leading to a small _treasure chamber. Place tile R10 adjacent to the current tile and add a door as usual. Re-roll if tile is in use. Once the heroes leave the treasure chamber, the door closes up and the tile can be removed.");
-                        // Note: The logic for creating a new room/door (GetRoom, Instantiate)
-                        // must be handled by DungeonManagerService. This just adds the text result.
-                        // You'd have to signal back to the DungeonManagerService to create this room.
-                        room.AddTreasureRoom();
+                        var treasureRoomDeck = new Queue<Room>();
+                        var tresureRoom = _room.CreateRoom("R10");
+                        treasureRoomDeck.Enqueue(tresureRoom);
+                        _room.AddDoorToRoom(room, _placement, explorationDeck: treasureRoomDeck);
+                        searchResults.Message = "You found a secret door.";
                         break;
                     case <= 25:
                         searchResults.FoundItems.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Fine, count));
@@ -130,29 +151,30 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                     case <= 45:
                         searchResults.Message += "You found a set of levers. (Interaction handled by a LeverService)";
-                        room.HasLevers = true; // Update room state
+                        room.HasLevers = true;
                         break;
                     case <= 50:
-                        searchResults.FoundItems.Add(await _treasure.GetTreasureAsync("Coin", 0, 1, RandomHelper.GetRandomNumber(4, 40)));
+                        searchResults.FoundItems.Add(await _treasure.GetCoins("4d10", 0));
                         break;
                     case <= 90:
                         searchResults.Message += "You found Nothing";
                         break;
                     case <= 100:
                         searchResults.Message += "You've sprung a trap!";
-                        room.CurrentTrap = new Trap();
+                        room.CurrentTrap = new Trap(true);
                         await _trap.TriggerTrapAsync(heroSearching, room.CurrentTrap);
                         break;
                     default:
-                        Console.WriteLine("You found Nothing");
+                        searchResults.Message += "You found Nothing";
                         break;
                 }
             }
             else
             {
-                Console.WriteLine("Search Failed");
+                searchResults.Message += "Search Failed";
+                searchResults.WasSuccessful = false;
             }
-            room.SearchRoomTrigger = false; // Reset trigger
+            room.SearchResults = searchResults;
             room.HasBeenSearched = true;
         }
 
@@ -167,12 +189,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (furniture.HasBeenSearched)
             {
                 result.Message = $"The {furniture.Name} has already been searched.";
+                result.WasSuccessful = false;
                 return result;
             }
 
             if (!furniture.IsSearchable)
             {
                 result.Message = $"The {furniture.Name} cannot be searched.";
+                result.WasSuccessful = false;
                 return result;
             }
 
@@ -182,19 +206,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return result;
         }
 
-        internal async Task<SearchResult> DrinkFromFurniture(Hero hero, Furniture furniture, int roll)
+        public async Task<SearchResult> DrinkFromFurniture(Hero hero, Furniture furniture, int roll)
         {
             var result = new SearchResult();
 
             if (!furniture.IsDrinkable)
             {
                 result.Message = $"The {furniture.Name} cannot be drank from.";
+                result.WasSuccessful = false;
                 return result;
             }
 
             result = await _treasure.DrinkFurnitureAsync(hero, furniture, roll);
 
-            furniture.HasBeenSearched = true;
             return result;
         }
 

@@ -55,6 +55,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         PickupWeapon,
         AssistAllyOutOfPit,
         DrinkFromFurniture,
+        SearchRoomWithParty,
     }
 
     public class ActionInfo
@@ -627,6 +628,32 @@ namespace LoDCompanion.BackEnd.Services.Player
                         actionWasSuccessful = false;
                     }
                     break;
+                case (Hero hero, ActionType.SearchRoomWithParty):
+                    if (primaryTarget is Room roomToSearchWithParty && !roomToSearchWithParty.HasBeenSearched && roomToSearchWithParty.HeroesInRoom != null)
+                    {
+                        (resultMessage, actionWasSuccessful) = await SearchRoom(hero, roomToSearchWithParty, isPartySearch: true);
+                        foreach (var member in roomToSearchWithParty.HeroesInRoom)
+                        {
+                            member.CurrentAP -= 2; // Each party member in the room(implies they participated in the search) loses 2 AP for a party search
+                        }
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target, target must be room and there must be heroes in the room.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.SearchRoom):
+                    if (primaryTarget is Room roomToSearch && !roomToSearch.HasBeenSearched)
+                    {
+                        (resultMessage, actionWasSuccessful) = await SearchRoom(hero, roomToSearch, isPartySearch: false);
+                    }
+                    else
+                    {
+                        resultMessage = "Invalid target, target must be room.";
+                        actionWasSuccessful = false;
+                    }
+                    break;
                 case (Hero hero, ActionType.SearchCorpse):
                     if (primaryTarget is Corpse corpse && !corpse.HasBeenSearched)
                     {
@@ -728,6 +755,35 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return $"{character.Name} performed {actionType}, {resultMessage}.";
+        }
+
+        private async Task<(string resultMessage, bool actionWasSuccessful)> SearchRoom(Hero hero, Room roomToSearch, bool isPartySearch = false)
+        {
+            string resultMessage = string.Empty;
+            bool actionWasSuccessful = true;
+            await _search.SearchRoomAsync(roomToSearch, hero, isPartySearch);
+            var result = roomToSearch.SearchResults;
+            if (!result.WasSuccessful)
+            {
+                resultMessage = $"search of {roomToSearch.Name} was unsuccessful.";
+                actionWasSuccessful = false;
+            }
+            else
+            {
+                resultMessage = result.Message;
+                if (result.FoundItems != null)
+                {
+                    foreach (var foundItem in result.FoundItems)
+                    {
+                        if (foundItem != null)
+                        {
+                            BackpackHelper.AddItem(hero.Inventory.Backpack, foundItem);
+                        }
+                    }
+                }
+            }
+
+            return (resultMessage, actionWasSuccessful);
         }
 
         private async Task<(string resultMessage, bool actionWasSuccessful)> AssistAllyOutOfPitAsync(object primaryTarget, Hero hero)
