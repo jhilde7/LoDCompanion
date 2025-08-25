@@ -3,29 +3,30 @@ using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Reflection.Metadata.Ecma335;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class WanderingMonsterState
     {
         public string Id { get; } = Guid.NewGuid().ToString();
-        public DungeonManagerService DungeonManager { get; set; }
+        public DungeonState Dungeon { get; set; }
         public GridPosition CurrentPosition { get; set; } = new GridPosition(0, 0, 0);
         public bool IsAtChasm { get; set; } = false;
         public int RemainingMovement { get; set; } = 4;
         public bool NewRoom { get; set; } = false;
         public bool IsRevealed { get; set; } = false;
-        public Room? CurrentRoom => DungeonManager?.FindRoomAtPosition(CurrentPosition);
+        public Room? CurrentRoom => Dungeon.FindRoomAtPosition(CurrentPosition);
 
-        public WanderingMonsterState(DungeonManagerService dungeonManagerService)
+        public WanderingMonsterState(DungeonState dungeonState)
         {
-            DungeonManager = dungeonManagerService;
+            Dungeon = dungeonState;
         }
     }
 
     public class WanderingMonsterService
     {
-
+        public event Action<Room>? OnSpawnRandomEncounter;
         public WanderingMonsterService()
         {
             
@@ -34,10 +35,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <summary>
         /// Spawns a new wandering monster token at the dungeon's entrance.
         /// </summary>
-        public void SpawnWanderingMonster(DungeonManagerService dungeonManager)
+        public void SpawnWanderingMonster(DungeonState dungeon)
         {
-            var newWanderingMonster = new WanderingMonsterState(dungeonManager);
-            dungeonManager.Dungeon?.WanderingMonsters.Add(newWanderingMonster);
+            var newWanderingMonster = new WanderingMonsterState(dungeon);
+            dungeon.WanderingMonsters.Add(newWanderingMonster);
 
             Console.WriteLine("A wandering monster token has been placed at the dungeon entrance.");
         }
@@ -47,7 +48,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="dungeon">The current state of the dungeon.</param>
         /// <returns>True if any monster spotted the party.</returns>
-        public bool ProcessWanderingMonsters(List<WanderingMonsterState> wanderingMonsters)
+        public async Task<bool> ProcessWanderingMonstersAsync(List<WanderingMonsterState> wanderingMonsters)
         {
             bool partySpotted = false;
 
@@ -73,7 +74,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
                 else
                 {
-                    (bool useContinue, partySpotted) = MoveWanderingMonster(partySpotted, monsterState);
+                    (bool useContinue, partySpotted) = await MoveWanderingMonsterAsync(partySpotted, monsterState);
                     if (useContinue)
                     {
                         continue;
@@ -83,13 +84,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return partySpotted;
         }
 
-        private (bool useContinue, bool partySpotted) MoveWanderingMonster(bool partySpotted, WanderingMonsterState monsterState)
+        private async Task<(bool useContinue, bool partySpotted)> MoveWanderingMonsterAsync(bool partySpotted, WanderingMonsterState monsterState)
         {
-            if (monsterState.DungeonManager.Dungeon == null) return (useContinue: true, partySpotted);
+            if (monsterState.Dungeon == null) return (useContinue: true, partySpotted);
             // Find the shortest path to any hero in the same room.
             List<GridPosition> shortestPath = new List<GridPosition>();
             var closestHero = new Hero();
-            foreach (var hero in monsterState.DungeonManager.Dungeon.HeroParty.Heroes)
+            foreach (var hero in monsterState.Dungeon.HeroParty.Heroes)
             {
                 if (hero == null || hero.Position == null || hero.CurrentHP <= 0) continue;
 
@@ -102,8 +103,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         CurrentMovePoints = monsterState.RemainingMovement
                     },
                     hero.Position,
-                    monsterState.DungeonManager.Dungeon.DungeonGrid,
-                    monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
+                    monsterState.Dungeon.DungeonGrid,
+                    monsterState.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
                     );
 
                 // If this is the first valid path found, or if it's shorter than the previous shortest path
@@ -137,7 +138,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         }
                         else if (roomBeforeMove != monsterState.CurrentRoom)
                         {
-                            return MoveWanderingMonster(partySpotted, monsterState);
+                            return await MoveWanderingMonsterAsync(partySpotted, monsterState);
                         }
                     }
                 }
@@ -161,8 +162,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 // Get all squares the monster can reach within its movement range.
                 var allReachableSquares = GridService.GetAllWalkableSquares(
                     new Monster { Position = monsterState.CurrentPosition, CurrentMovePoints = monsterState.RemainingMovement }, // A temporary monster for pathfinding
-                    monsterState.DungeonManager.Dungeon.DungeonGrid,
-                    monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
+                    monsterState.Dungeon.DungeonGrid,
+                    monsterState.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
                 );
 
                 if (!allReachableSquares.Any())
@@ -190,8 +191,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         CurrentMovePoints = monsterState.RemainingMovement
                     },
                     farthestSquare,
-                    monsterState.DungeonManager.Dungeon.DungeonGrid,
-                    monsterState.DungeonManager.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
+                    monsterState.Dungeon.DungeonGrid,
+                    monsterState.Dungeon.HeroParty.Heroes.Cast<Character>().ToList()
                 );
 
                 // Move the monster along the retreat path.
@@ -220,15 +221,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         {
             // Rule: "If it enters a room from where it has line of sight to
             // the characters and they are within 10 squares, roll on the quest-specific Monster Table".
-            if (monsterState.DungeonManager.Dungeon != null && monsterState.CurrentRoom != null)
+            if (monsterState.Dungeon != null && monsterState.CurrentRoom != null)
             {
                 bool hasLineOfSight = false;
-                foreach (var hero in monsterState.DungeonManager.Dungeon.HeroParty.Heroes)
+                foreach (var hero in monsterState.Dungeon.HeroParty.Heroes)
                 {
                     if (hero.Position != null)
                     {
                         hasLineOfSight = GridService.GetDistance(monsterState.CurrentPosition, hero.Position) <= 10 &&
-                                    GridService.HasLineOfSight(monsterState.CurrentPosition, hero.Position, monsterState.DungeonManager.Dungeon.DungeonGrid).CanShoot; 
+                                    GridService.HasLineOfSight(monsterState.CurrentPosition, hero.Position, monsterState.Dungeon.DungeonGrid).CanShoot; 
                     }
                 }
 
@@ -236,9 +237,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     Console.WriteLine("The wandering monster has found the party!");
                     monsterState.IsRevealed = true;
-                    monsterState.DungeonManager.SpawnRandomEncounter(monsterState.CurrentRoom); 
+                    if (OnSpawnRandomEncounter != null)
+                    {
+                        OnSpawnRandomEncounter(monsterState.CurrentRoom); 
+                    }
+                    return true;
                 }
-                return true;
             }
             return false;
         }

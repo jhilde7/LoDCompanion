@@ -116,6 +116,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             _partyManager.SetMaxMorale();
             _action.OnOpenDoor += HandleOpenDoor;
+            _wanderingMonster.OnSpawnRandomEncounter += HandleSpawnRandomEncounter;
+        }
+
+        private void HandleSpawnRandomEncounter(Room room)
+        {
+            SpawnRandomEncounter(room);
         }
 
         private async Task<bool> HandleOpenDoor(Door door)
@@ -171,7 +177,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (Dungeon != null)
             {
                 // After hero actions, move any wandering monsters.
-                if (_wanderingMonster.ProcessWanderingMonsters(Dungeon.WanderingMonsters))
+                if (await _wanderingMonster.ProcessWanderingMonstersAsync(Dungeon.WanderingMonsters))
                 {
                     Dungeon.WanderingMonsters.Where(w => w.IsRevealed).ToList().ForEach(w => Dungeon.WanderingMonsters.Remove(w));
                 }
@@ -194,7 +200,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 if (threatResult.SpawnWanderingMonster)
                 {
-                    _wanderingMonster.SpawnWanderingMonster(this);
+                    _wanderingMonster.SpawnWanderingMonster(Dungeon);
                 }
                 if (threatResult.SpawnTrap)
                 {
@@ -231,7 +237,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (_dungeon.SpawnWanderingMonster)
             {
-                _wanderingMonster.SpawnWanderingMonster(this);
+                _wanderingMonster.SpawnWanderingMonster(Dungeon);
                 _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WanderingMonsterSpawned);
             }
 
