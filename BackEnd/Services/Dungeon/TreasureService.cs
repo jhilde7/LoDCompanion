@@ -126,171 +126,161 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return await CreateItemAsync(itemName, durability, value, amount, description);
         }
 
-        public async Task<SearchResult> SearchCorpseAsync(TreasureType type, Hero hero, int searchRoll)
+        public async Task<SearchResult> SearchCorpseAsync(TreasureType type, SearchResult result)
         {
-            var searchResult = new SearchResult() { WasSuccessful = true };
-            var rewards = new List<Equipment?>();
-            if (searchRoll == 0 || searchRoll > 10)
+            if (result.SearchRoll == 0 || result.SearchRoll > 10)
             {
-                var resultRoll = await _diceRoll.RequestRollAsync($"Roll for treasure", "1d10"); await Task.Yield();
+                var resultRoll = await _diceRoll.RequestRollAsync($"Roll for treasure", "1d10"); 
                 await Task.Yield();
-                searchRoll = resultRoll.Roll;
+                result.SearchRoll = resultRoll.Roll;
             }
-            int count = 1;
+            int count = result.HeroIsThief ? 2 : 1;
 
             switch (type)
             {
                 case TreasureType.T1:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case 1:
                             var equipmentFound = GetRandomWeapon(DefaultWeaponDurability - RandomHelper.GetRandomNumber(1, 4));
-                            if (equipmentFound != null) rewards.Add(await GetTreasureAsync(equipmentFound.Name, equipmentFound.Durability));
+                            if (equipmentFound != null) result.FoundItems = [await GetTreasureAsync(equipmentFound.Name, equipmentFound.Durability)];
                             break;
                         case 2:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 20));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 20)];
                             break;
                         case 3:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 10));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 10)];
                             break;
                         case 4:
-                            rewards.Add(await GetTreasureAsync("Bandage (old rags)", 1));
+                            result.FoundItems = [await GetTreasureAsync("Bandage (old rags)", 1)];
                             break;
                         default:
-                            searchResult.Message = "You found nothing bu scrap.";
+                            result.Message = "You found nothing bu scrap.";
                             break;
                     }
                     break;
                 case TreasureType.T2:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case 1:
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             break;
                         case 2:
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)];
                             break;
                         case 3:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 50));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 50)];
                             break;
                         case 4:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 40));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 40)];
                             break;
                         case 5:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 20));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 20)];
                             break;
                         default:
-                            searchResult.Message = "You found nothing bu scrap.";
+                            result.Message = "You found nothing bu scrap.";
                             break;
                     }
                     break;
                 case TreasureType.T3:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case 1:
                         case 2:
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             break;
                         case 3:
                         case 4:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 100));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 100)];
                             break;
                         case 5:
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)];
                             break;
                         case 6:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 80));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 80)];
                             break;
                         case 7:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 60));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 60)];
                             break;
                         default:
-                            searchResult.Message = "You found nothing bu scrap.";
+                            result.Message = "You found nothing bu scrap.";
                             break;
                     }
                     break;
                 case TreasureType.T4:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case 1:
-                            rewards.Add(await GetTreasureAsync("Grimoire"));
+                            result.FoundItems = [await GetTreasureAsync("Grimoire")];
                             break;
                         case 2:
                         case 3:
-                            rewards.Add(await GetTreasureAsync("Scroll"));
+                            result.FoundItems = [await GetTreasureAsync("Scroll")];
                             break;
                         case 4:
-                            rewards.AddRange(await _alchemy.GetRandomPotions(RandomHelper.RollDie(DiceType.D2)));
+                            result.FoundItems = [.. await _alchemy.GetRandomPotions(RandomHelper.RollDie(DiceType.D2))];
                             break;
                         case 5:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 150));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 150)];
                             break;
                         case 6:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 100));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 100)];
                             break;
                         default:
-                            searchResult.Message = "You found nothing bu scrap.";
+                            result.Message = "You found nothing bu scrap.";
                             break;
                     }
                     break;
                 case TreasureType.T5:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case <= 2:
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Wonderful, count)];
                             count *= 2;
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             break;
                         case <= 4:
                             count *= 2;
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
-                            rewards.Add(await GetTreasureAsync("Grimoire"));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
+                            result.FoundItems = [await GetTreasureAsync("Grimoire")];
                             break;
                         case <= 7:
                             count *= 3;
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             break;
                         case  <= 10:
-                            rewards.Add(await GetTreasureAsync("Coin", 0, 1, 500));
+                            result.FoundItems = [await GetTreasureAsync("Coin", 0, 1, 500)];
                             break;
                         default:
                             break;
                     }
                     break;
                 case TreasureType.Part:
-                    if (searchRoll == 0)
-                    {
-                        var resultPart = await _diceRoll.RequestRollAsync($"Roll for part", "1d100"); await Task.Yield();
-                        searchRoll = resultPart.Roll;
-                    }
-                    if (searchRoll <= hero.GetSkill(Skill.Alchemy))
-                    {
-                        rewards.AddRange(await GetAlchemicalTreasureAsync(TreasureType.Part, 1, false));
-                    }
+                    result.Message = "Monster does not have any loot, but can be harvested for alchemical parts.";
                     break;
                 case TreasureType.Turog:
-                    rewards.Add(await GetCoins("2d100", 0));
+                    result.FoundItems = [await GetCoins("2d100", 0)];
                     var item = EquipmentService.GetWeaponByName("The Goblin Scimitar");
-                    if (item != null) rewards.Add(item);
+                    if (item != null) result.FoundItems = [item];
                     break;
                 case TreasureType.TheMasterLocksmith:
-                    var search = await SearchCorpseAsync(TreasureType.T5, hero, 0);
+                    var search = await SearchCorpseAsync(TreasureType.T5, result);
                     if (search.FoundItems != null)
                     {
                         foreach (var reward in search.FoundItems)
                         {
                             if (reward != null)
                             {
-                                rewards.Add(reward);
+                                result.FoundItems = [reward];
                             }
                         } 
                     }
                     item = EquipmentService.GetWeaponByName("The Flames of Zul");
-                    if (item != null) rewards.Add(item);
+                    if (item != null) result.FoundItems = [item];
                     break;
                 case TreasureType.TheAlchemistOutlaw:
-                    rewards.AddRange(await _alchemy.GetRandomPotions(4, PotionStrength.Standard)); 
-                    rewards.AddRange(new List<Weapon>() {_weaponFactory.CreateModifiedRangedWeapon(
+                    result.FoundItems = [.. await _alchemy.GetRandomPotions(4, PotionStrength.Standard)]; 
+                    result.FoundItems = [.. new List<Weapon>() {_weaponFactory.CreateModifiedRangedWeapon(
                         "Crossbow Pistol", "Poisonous Crossbow Pistol",
                         weapon =>
                         {
@@ -301,22 +291,22 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         weapon =>
                         {
                             weapon.Properties.TryAdd(WeaponProperty.Poisoned, 0);
-                        }) });
-                    rewards.Add(new AlchemicalRecipe
+                        }) }];
+                    result.FoundItems = [new AlchemicalRecipe
                         {
                             Name = $"Black Acathus gas Recipe",
                             Strength = PotionStrength.Standard,
                             Components = new List<AlchemyItem>() { new Ingredient() { Name = IngredientName.BlackAcathusLeaf } }
-                        });
-                    rewards.Add(new Ingredient() { Name = IngredientName.BlackAcathusLeaf, Quantity = 4 });
+                        }];
+                    result.FoundItems = [new Ingredient() { Name = IngredientName.BlackAcathusLeaf, Quantity = 4 }];
                     break;
                 default:
-                    searchResult.Message = "Invalid search.";
-                    searchResult.WasSuccessful = false;
+                    result.Message = "Invalid search.";
+                    result.WasSuccessful = false;
                     break;
             }
-            searchResult.FoundItems = rewards;
-            return searchResult;
+            result.FoundItems = result.FoundItems;
+            return result;
         }
 
         public async Task<List<Equipment>> FoundTreasureAsync(TreasureType type, int count)
@@ -1292,161 +1282,158 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return newItem;
         }
 
-        public async Task<SearchResult> SearchFurnitureAsync(Hero hero, Furniture furniture, int searchRoll)
+        public async Task<SearchResult> SearchFurnitureAsync(Furniture furniture, SearchResult result)
         {
-            var result = new SearchResult { WasSuccessful = false, Message = "Nothing found." };
-            if (searchRoll == 0 || searchRoll > 10)
+            if (result.SearchRoll == 0 || result.SearchRoll > 10)
             {
-                var roll = await _diceRoll.RequestRollAsync($"{hero.Name} is searching the {furniture.Name}. Roll 1d10.", "1d10");
+                var roll = await _diceRoll.RequestRollAsync($"{result.HeroSearching.Name} is searching the {furniture.Name}. Roll 1d10.", "1d10");
                 await Task.Yield();
-                searchRoll = roll.Roll; 
+                result.SearchRoll = roll.Roll; 
             }
-            int count = hero.IsThief ? 2 : 1;
-
-            var rewards = new List<Equipment?>();
+            int count = result.HeroIsThief ? 2 : 1;
 
             switch (furniture.TreasureType)
             {
                 case TreasureType.AlchemistTable:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 4: (await _alchemy.GetRandomPotions(RandomHelper.RollDie(DiceType.D3))).ForEach(i => rewards.Add(i)); 
+                        case <= 4: (await _alchemy.GetRandomPotions(RandomHelper.RollDie(DiceType.D3))).ForEach(i => result.FoundItems = [i]); 
                             result.Message = "You found some potions!";
                             break;
-                        case <= 7: AlchemyService.GetIngredients(RandomHelper.RollDie(DiceType.D10)).ToList().ForEach(i => rewards.Add(i)); 
+                        case <= 7: AlchemyService.GetIngredients(RandomHelper.RollDie(DiceType.D10)).ToList().ForEach(i => result.FoundItems = [i]); 
                             result.Message = "You found some alchemical ingredients!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Altar:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 3: AlchemyService.GetIngredients(RandomHelper.RollDie(DiceType.D10)).ToList().ForEach(i => rewards.Add(i)); 
+                        case <= 3: AlchemyService.GetIngredients(RandomHelper.RollDie(DiceType.D10)).ToList().ForEach(i => result.FoundItems = [i]); 
                             result.Message = "You found some alchemical ingredients!";
                             break;
-                        case <= 7: rewards.Add(await GetCoins("10d6", 0));
+                        case <= 7: result.FoundItems = [await GetCoins("10d6", 0)];
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.ArcheryTarget:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case <= 4:
                             var choiceRequest = await _diceRoll.RequestChoiceAsync("What type of ammo do you want?", new List<string> { "Arrow", "Bolt" });
                             await Task.Yield();
-                            rewards.Add(await GetTreasureAsync(choiceRequest, durability: 1, amount: RandomHelper.RollDice("1d10")));
+                            result.FoundItems = [await GetTreasureAsync(choiceRequest, durability: 1, amount: RandomHelper.RollDice("1d10"))];
                             result.Message = $"You found some {choiceRequest}s!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.ArmourRack:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case <= 4:
-                            GetArmourPiecesAsync(RandomHelper.RollDie(DiceType.D3), RandomHelper.RollDie(DiceType.D4)).ForEach(a => rewards.Add(a));
+                            GetArmourPiecesAsync(RandomHelper.RollDie(DiceType.D3), RandomHelper.RollDie(DiceType.D4)).ForEach(a => result.FoundItems = [a]);
                             result.Message = "You found some armour!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Backpack:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 5: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
+                        case <= 5: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)]; 
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 7: rewards.Add(await GetCoins("1d100", 0)); 
+                        case <= 7: result.FoundItems = [await GetCoins("1d100", 0)]; 
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Barrels:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)]; 
                             result.Message = "You found some mundane treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Bed:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)];
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 4: rewards.Add(await GetCoins("1d100", 0)); 
+                        case <= 4: result.FoundItems = [await GetCoins("1d100", 0)]; 
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Bedroll:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 3: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
+                        case <= 3: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)];
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 5: rewards.Add(await GetCoins("1d100", 0)); 
+                        case <= 5: result.FoundItems = [await GetCoins("1d100", 0)]; 
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Bookshelf:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 5: rewards.Add(await CreateItemAsync("Scroll")); 
+                        case <= 5: result.FoundItems = [await CreateItemAsync("Scroll")]; 
                             result.Message = "You found a scroll!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.BookStand:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 5: rewards.Add(await CreateItemAsync("Grimoire")); 
+                        case <= 5: result.FoundItems = [await CreateItemAsync("Grimoire")]; 
                             result.Message = "You found a grimoire!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Boxes:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
+                        case <= 4: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)]; 
                             result.Message = "You found some mundane treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Chest:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case 1: rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); 
+                        case 1: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Wonderful, count)]; 
                             result.Message = "You found some wonderful treasure!";
                             break;
-                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); 
+                        case <= 4: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)]; result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)]; 
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 8: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 8: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Coffin:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 8: result.Message = "You found nothing of any value."; break;
@@ -1466,9 +1453,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     break;
                 case TreasureType.DeadAdventurer:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 8: result.Message = "You found nothing of any value."; break;
@@ -1490,93 +1477,93 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     break;
                 case TreasureType.DiningTable:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 4: rewards.Add(EquipmentService.GetAnyEquipmentByName("Ration")); 
+                        case <= 4: result.FoundItems = [EquipmentService.GetAnyEquipmentByName("Ration")]; 
                             result.Message = "You found a ration!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Drawer:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 8: rewards.Add(await GetCoins("2d20", 0));
+                        case <= 8: result.FoundItems = [await GetCoins("2d20", 0)];
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Fountain:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
-                        case <= 8: rewards.Add(await GetCoins("1d20", 0));
+                        case <= 8: result.FoundItems = [await GetCoins("1d20", 0)];
                             result.Message = "You found some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.GrateOverHole:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 4: rewards.Add(EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", RandomHelper.RollDie(DiceType.D6))); 
+                        case <= 4: result.FoundItems = [EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", RandomHelper.RollDie(DiceType.D6))]; 
                             result.Message = "You found some lock picks!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Hearth:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.Add(EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.RollDie(DiceType.D4))); 
+                        case <= 2: result.FoundItems = [EquipmentService.GetEquipmentByNameSetQuantity("Ration", RandomHelper.RollDie(DiceType.D4))]; 
                             result.Message = "You found some rations!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.ObjectiveChest:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 3: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
+                        case <= 3: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count), .. await FoundTreasureAsync(TreasureType.Wonderful, count), .. await FoundTreasureAsync(TreasureType.Wonderful, count)];
                             result.Message = "You found some fine and wonerful treasure!";
                             break;
-                        case <= 7: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
+                        case <= 7: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count), .. await FoundTreasureAsync(TreasureType.Fine, count), .. await FoundTreasureAsync(TreasureType.Wonderful, count)];
                             result.Message = "You found some fine and wonerful treasure!";
                             break;
-                        case <= 10: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 10: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count), .. await FoundTreasureAsync(TreasureType.Fine, count), .. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Pottery:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)];
                             result.Message = "You found some mundane treasure!";
                             break;
-                        case <= 4: rewards.Add(await GetCoins("1d20", 0));
+                        case <= 4: result.FoundItems = [await GetCoins("1d20", 0)];
                             result.Message = "You found some coins!";
                             break;
-                        case <= 5: rewards.Add(EquipmentService.GetAnyEquipmentByName("Ration")); 
+                        case <= 5: result.FoundItems = [EquipmentService.GetAnyEquipmentByName("Ration")]; 
                             result.Message = "You found a ration!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Sarcophagus:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Wonderful, count)];
                             result.Message = "You found some wonderful treasure!";
                             break;
-                        case <= 5: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 5: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
                         case <= 8: result.Message = "You found nothing of any value."; break;
@@ -1596,21 +1583,21 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     break;
                 case TreasureType.Statue:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
                         case <= 1: 
                             int roll = RandomHelper.RollDie(DiceType.D6);
                             switch (roll)
                             {
-                                case <= 2:  rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
+                                case <= 2:  result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Wonderful, count)];
                                     result.Message = "You found some wonderful treasure!";
                                     break;
-                                case <= 6: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                                case <= 6: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                                     result.Message = "You found some fine treasure!";
                                     break;
                             }
                             break;
-                        case <= 3: rewards.Add(await GetCoins("1d20", 0)); 
+                        case <= 3: result.FoundItems = [await GetCoins("1d20", 0)]; 
                             result.Message = "You found some coins!";
                             break;
                         case <= 9: result.Message = "You found nothing of any value."; break;
@@ -1630,67 +1617,68 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     break;
                 case TreasureType.StudyTable:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count));
+                        case <= 4: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)];
                             result.Message = "You found some mundane treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Throne:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 2: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.TortureTools:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.AddRange(await _alchemy.GetPartsAsync(RandomHelper.RollDie(DiceType.D3), SpeciesName.Human)); 
+                        case <= 2: result.FoundItems = [.. await _alchemy.GetPartsAsync(RandomHelper.RollDie(DiceType.D3), SpeciesName.Human)]; 
                             result.Message = "You found some alchemical parts!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.TreasurePile:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 2: rewards.Add(await GetCoins("4d100", 0));
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count));
+                        case <= 2: result.FoundItems = [await GetCoins("4d100", 0)];
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Wonderful, count)];
                             result.Message = "You found some wonderful treasure and some cins!";
                             break;
-                        case <= 5: rewards.Add(await GetCoins("3d100", 0));
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count)); rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 5: result.FoundItems = [await GetCoins("3d100", 0)];
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)]; result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure and some coins!";
                             break;
-                        case <= 10: rewards.Add(await GetCoins("2d100", 0));
-                            rewards.AddRange(await FoundTreasureAsync(TreasureType.Fine, count));
+                        case <= 10: result.FoundItems = [await GetCoins("2d100", 0)];
+                            result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Fine, count)];
                             result.Message = "You found some fine treasure and some coins!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.WeaponRack:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 4: rewards.Add(GetRandomWeapon(DefaultWeaponDurability - RandomHelper.RollDie(DiceType.D4))); 
+                        case <= 4: result.FoundItems = [GetRandomWeapon(DefaultWeaponDurability - RandomHelper.RollDie(DiceType.D4))]; 
                             result.Message = "You found a weapon.";
                             break;
                         default: result.Message = "You found nothing of any value."; break;
                     }
                     break;
                 case TreasureType.Well:
-                    switch (searchRoll)
+                    switch (result.SearchRoll)
                     {
-                        case <= 1: 
-                            furniture.TreasureType = TreasureType.Chest;
+                        case <= 1:
+                            var chest = furniture;
+                            chest.TreasureType = TreasureType.Chest;
                             result.Message = "You peer down the well, and see something shiny at the bottom.";
-                            return await SearchFurnitureAsync(hero, furniture, RandomHelper.RollDie(DiceType.D10));
-                        case <= 4: rewards.AddRange(await FoundTreasureAsync(TreasureType.Mundane, count)); 
+                            return await SearchFurnitureAsync(chest, result);
+                        case <= 4: result.FoundItems = [.. await FoundTreasureAsync(TreasureType.Mundane, count)]; 
                             result.Message = "You found some items at the bottom of the well.";
                             break;
                         case <= 9: result.Message = "You found nothing of any value."; break;
@@ -1712,29 +1700,28 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             }
 
-            result.FoundItems = rewards;
+            result.FoundItems = result.FoundItems;
             return result;
         }
 
-        internal async Task<SearchResult> DrinkFurnitureAsync(Hero hero, Furniture furniture, int roll)
+        internal async Task<SearchResult> DrinkFurnitureAsync(Furniture furniture, SearchResult result)
         {
-            var result = new SearchResult { WasSuccessful = true };
             switch (furniture.DrinkTreasureType)
             {
                 case TreasureType.DrinkWaterBasin:
-                switch (roll)
+                switch (result.SearchRoll)
                 {
                     case <= 2:
-                        hero.Heal(RandomHelper.RollDie(DiceType.D6) + 1); hero.CurrentEnergy = hero.GetStat(BasicStat.Energy);
+                        result.HeroSearching.Heal(RandomHelper.RollDie(DiceType.D6) + 1); result.HeroSearching.CurrentEnergy = result.HeroSearching.GetStat(BasicStat.Energy);
                         result.Message = "You feel reinvigorated after drinking from the basin.";
                         break;
                     case <= 8: result.Message = "Drinking from the fountain has no effect."; break;
                     default:
-                        var rollResult = await _diceRoll.RequestRollAsync("Roll alchemy test.", "1d100", skill: (hero, Skill.Alchemy));
+                        var rollResult = await _diceRoll.RequestRollAsync("Roll alchemy test.", "1d100", skill: (result.HeroSearching, Skill.Alchemy));
                         await Task.Yield();
-                        if (rollResult.Roll > hero.GetSkill(Skill.Alchemy))
+                        if (rollResult.Roll > result.HeroSearching.GetSkill(Skill.Alchemy))
                         {
-                            await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Diseased, -1), _powerActivation);
+                            await StatusEffectService.AttemptToApplyStatusAsync(result.HeroSearching, new ActiveStatusEffect(StatusEffectType.Diseased, -1), _powerActivation);
                             result.Message = "The water was contaminated! You feel ill.";
                         }
                         else
@@ -1745,19 +1732,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
                 break;
                 case TreasureType.DrinkFountain:
-                    switch (roll)
+                    switch (result.SearchRoll)
                     {
                         case <= 2:
-                            hero.Heal(RandomHelper.RollDie(DiceType.D4) + 1); hero.CurrentEnergy = Math.Min(1, hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy);
+                            result.HeroSearching.Heal(RandomHelper.RollDie(DiceType.D4) + 1); result.HeroSearching.CurrentEnergy = Math.Min(1, result.HeroSearching.GetStat(BasicStat.Energy) - result.HeroSearching.CurrentEnergy);
                             result.Message = "You feel refreshed and regain some health and energy.";
                             break;
                         case <= 8: result.Message = "Drinking from the fountain has no effect."; break;
                         default:
-                            var rollResult = await _diceRoll.RequestRollAsync("Roll alchemy test.", "1d100", skill: (hero, Skill.Alchemy));
+                            var rollResult = await _diceRoll.RequestRollAsync("Roll alchemy test.", "1d100", skill: (result.HeroSearching, Skill.Alchemy));
                             await Task.Yield();
-                            if (rollResult.Roll > hero.GetSkill(Skill.Alchemy))
+                            if (rollResult.Roll > result.HeroSearching.GetSkill(Skill.Alchemy))
                             {
-                                await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Diseased, -1), _powerActivation);
+                                await StatusEffectService.AttemptToApplyStatusAsync(result.HeroSearching, new ActiveStatusEffect(StatusEffectType.Diseased, -1), _powerActivation);
                                 result.Message = "The water was contaminated! You feel ill.";
                             }
                             else

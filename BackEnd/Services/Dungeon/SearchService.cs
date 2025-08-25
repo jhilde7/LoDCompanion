@@ -14,12 +14,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public class SearchResult
     {
         public bool WasSuccessful { get; set; } = true;
-        public string Message { get; set; } = string.Empty;
+        public string Message { get; set; } = "Nothing found.";
         public List<Equipment?>? FoundItems { get; set; }
         public Dictionary<string, string>? SpawnMonster { get; set; }
         public Dictionary<string, string>? SpawnPlacement { get; set; }
         public int SearchRoll { get; set; }
         public int TreasureRoll { get; set; }
+        public Hero HeroSearching { get; set; } = new Hero();
+        public int SearchTarget { get; set; }
+        public int SearchModifier { get; set; }
+        public bool RoomSearchSuccessful => SearchRoll <= SearchTarget;
+        public bool PartyHasThief => HeroSearching.Party != null && HeroSearching.Party.Heroes.Any(h => h.IsThief);
+        public bool HeroIsThief => HeroSearching.ProfessionName == "Thief";
     }
 
     /// <summary>
@@ -65,9 +71,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return;
             }
 
-            var searchResults = new SearchResult() { FoundItems = new List<Equipment?>() };
-            int searchTarget = hero.GetSkill(Skill.Perception);
-            var heroSearching = hero;
+            var searchResults = new SearchResult();
+            searchResults.SearchTarget = hero.GetSkill(Skill.Perception);
+            searchResults.HeroSearching = hero;
             if (isPartySearch && room.HeroesInRoom != null)
             {
                 var heroWithHighestPerception = room.HeroesInRoom
@@ -75,9 +81,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     .OrderByDescending(h => h.GetSkill(Skill.Perception))
                     .FirstOrDefault();
                 if (heroWithHighestPerception != null) 
-                { 
-                    searchTarget = heroWithHighestPerception.GetSkill(Skill.Perception); 
-                    heroSearching = heroWithHighestPerception;
+                {
+                    searchResults.SearchTarget = heroWithHighestPerception.GetSkill(Skill.Perception);
+                    searchResults.HeroSearching = heroWithHighestPerception;
                 }
 
                 if (isPartySearch)
@@ -85,8 +91,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     for (int i = 0; i < room.HeroesInRoom.Count(); i++)
                     {
                         if (i == 0) continue; // this is the initial perception skill check
-                        else if (i == 1) searchTarget += 10;
-                        else searchTarget += 5;
+                        else if (i == 1) searchResults.SearchModifier += 10;
+                        else searchResults.SearchModifier += 5;
                     }
 
                     var partyMemebrWithLantern = room.HeroesInRoom
@@ -97,23 +103,23 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                     if (partyMemebrWithLantern != null)
                     {
-                        searchTarget += 10;
+                        searchResults.SearchModifier += 10;
                     }
                     else if (partyMemebrWithTorch != null)
                     {
-                        searchTarget += 5;
+                        searchResults.SearchModifier += 5;
                     }
                 }
             }
             else
             {
-                if (heroSearching.Inventory.OffHand != null && heroSearching.Inventory.OffHand.HasProperty(EquipmentProperty.Lantern))
+                if (searchResults.HeroSearching.Inventory.OffHand != null && searchResults.HeroSearching.Inventory.OffHand.HasProperty(EquipmentProperty.Lantern))
                 {
-                    searchTarget += 10;
+                    searchResults.SearchModifier += 10;
                 }
-                else if (heroSearching.Inventory.OffHand != null && heroSearching.Inventory.OffHand.HasProperty(EquipmentProperty.Torch))
+                else if (searchResults.HeroSearching.Inventory.OffHand != null && searchResults.HeroSearching.Inventory.OffHand.HasProperty(EquipmentProperty.Torch))
                 {
-                    searchTarget += 5;
+                    searchResults.SearchModifier += 5;
                 }
             }
 
@@ -126,15 +132,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 searchResults.SearchRoll += 10;
             }
 
-            if (searchResults.SearchRoll <= searchTarget)
+            if (searchResults.RoomSearchSuccessful)
             {
                 resultRoll = await _diceRoll.RequestRollAsync("Search successful, now roll for treasure", "1d100"); await Task.Yield();
-                int treasureRoll = resultRoll.Roll;
+                searchResults.TreasureRoll = resultRoll.Roll;
                 // Original logic from SearchRoom(string type, bool isThief, int roll)
-                var partyHasThief = hero.Party != null && hero.Party.Heroes.Any(h => h.IsThief);
-                int count = partyHasThief ? 2 : 1;
+                int count = searchResults.PartyHasThief ? 2 : 1;
 
-                switch (treasureRoll)
+                switch (searchResults.TreasureRoll)
                 {
                     case <= 15:
                         var treasureRoomDeck = new Queue<Room>();
@@ -144,17 +149,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         searchResults.Message = "You found a secret door.";
                         break;
                     case <= 25:
-                        searchResults.FoundItems.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Fine, count));
+                        searchResults.FoundItems = [.. await _treasure.FoundTreasureAsync(TreasureType.Fine, count)];
                         break;
                     case <= 40:
-                        searchResults.FoundItems.AddRange(await _treasure.FoundTreasureAsync(TreasureType.Mundane, count));
+                        searchResults.FoundItems = [.. await _treasure.FoundTreasureAsync(TreasureType.Mundane, count)];
                         break;
                     case <= 45:
                         searchResults.Message += "You found a set of levers. (Interaction handled by a LeverService)";
                         room.Lever = new Lever();
                         break;
                     case <= 50:
-                        searchResults.FoundItems.Add(await _treasure.GetCoins("4d10", 0));
+                        searchResults.FoundItems = [await _treasure.GetCoins("4d10", 0)];
                         break;
                     case <= 90:
                         searchResults.Message += "You found Nothing";
@@ -162,7 +167,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     case <= 100:
                         searchResults.Message += "You've sprung a trap!";
                         room.CurrentTrap = new Trap(true);
-                        await _trap.TriggerTrapAsync(heroSearching, room.CurrentTrap);
+                        await _trap.TriggerTrapAsync(searchResults.HeroSearching, room.CurrentTrap);
                         break;
                     default:
                         searchResults.Message += "You found Nothing";
@@ -183,9 +188,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="furniture">The furniture being searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public async Task<SearchResult> SearchFurnitureAsync(Hero hero, Furniture furniture, int searchRoll)
+        public async Task<SearchResult> SearchFurnitureAsync(Furniture furniture, SearchResult result)
         {
-            var result = new SearchResult();
             if (furniture.HasBeenSearched)
             {
                 result.Message = $"The {furniture.Name} has already been searched.";
@@ -200,16 +204,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return result;
             }
 
-            result = await _treasure.SearchFurnitureAsync(hero, furniture, searchRoll); 
+            result = await _treasure.SearchFurnitureAsync(furniture, result); 
 
             furniture.HasBeenSearched = true;
             return result;
         }
 
-        public async Task<SearchResult> DrinkFromFurniture(Hero hero, Furniture furniture, int roll)
+        public async Task<SearchResult> DrinkFromFurniture(Furniture furniture, SearchResult result)
         {
-            var result = new SearchResult();
-
             if (!furniture.IsDrinkable)
             {
                 result.Message = $"The {furniture.Name} cannot be drank from.";
@@ -217,7 +219,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return result;
             }
 
-            result = await _treasure.DrinkFurnitureAsync(hero, furniture, roll);
+            result = await _treasure.DrinkFurnitureAsync(furniture, result);
 
             return result;
         }
@@ -228,13 +230,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero searching the corpse.</param>
         /// <param name="corpse">The corpse to be searched.</param>
         /// <returns>A SearchResult object detailing the outcome.</returns>
-        public async Task<SearchResult> SearchCorpseAsync(Hero hero, Corpse corpse, int searchRoll)
+        public async Task<SearchResult> SearchCorpseAsync(Corpse corpse, SearchResult result)
         {
             if (corpse.HasBeenSearched)
             {                
                 return new SearchResult() { Message = "This corpse has already been looted." };
             }
-            var result = await _treasure.SearchCorpseAsync(corpse.TreasureType, hero, searchRoll);
+            result = await _treasure.SearchCorpseAsync(corpse.TreasureType, result);
 
             corpse.HasBeenSearched = true;
             return result;
@@ -653,27 +655,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             TreasureType = monster.TreasureType;
             HasBeenSearched = false;
             Treasures = new List<string>();
-        }
-
-        /// <summary>
-        /// Attempts to search the corpse for treasures.
-        /// </summary>
-        /// <param name="hero">The hero attempting to search.</param>
-        /// <param name="searchRoll">The result of the hero's search roll.</param>
-        /// <returns>A list of treasures found.</returns>
-        public async Task<List<string>> SearchCorpseAsync(Hero hero, int searchRoll, TreasureService treasure)
-        {
-            if (HasBeenSearched)
-            {
-                // Corpse already searched
-                return new List<string>();
-            }
-
-            await treasure.SearchCorpseAsync(TreasureType, hero, searchRoll);
-
-            HasBeenSearched = true;
-            Console.WriteLine($"{hero.Name} found: {string.Join(", ", Treasures)}");
-            return Treasures;
         }
     }
 
