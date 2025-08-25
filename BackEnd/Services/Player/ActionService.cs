@@ -69,12 +69,13 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class ActionResult
     {
         public string Message { get; set; } = string.Empty;
-        public bool WasSuccessful { get; set; }
+        public bool WasSuccessful { get; set; } = true;
         public int ApCost { get; set; }
         public SearchResult? SearchResult { get; set; }
         public LeverPullResult? LeverPullResult { get; set; }
         public AttackResult? AttackResult { get; set; }
         public HealResult? HealResult { get; set; }
+        public SpellCastResult? SpellResult { get; internal set; }
     }
 
         /// <summary>
