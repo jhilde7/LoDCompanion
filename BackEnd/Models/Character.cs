@@ -422,13 +422,12 @@ namespace LoDCompanion.BackEnd.Models
             }
         }
 
-        public void Heal(int amount)
+        public int Heal(int amount)
         {
-            CurrentHP += amount;
-            if (CurrentHP > GetStat(BasicStat.HitPoints))
-            {
-                CurrentHP = GetStat(BasicStat.HitPoints);
-            }
+            int missingHP = GetStat(BasicStat.HitPoints) - CurrentHP;
+            int amountToHeal = Math.Min(amount, missingHP);
+            CurrentHP += amountToHeal;
+            return amountToHeal;
         }
 
         /// <summary>
