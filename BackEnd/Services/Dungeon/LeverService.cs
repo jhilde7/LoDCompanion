@@ -37,13 +37,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// Resolves the event for pulling a lever of a specific color.
         /// </summary>
         /// <param name="color">The color of the lever pulled.</param>
-        /// <returns>A LeverPullResult object describing the outcome.</returns>
-        public LeverPullResult PullLever(Hero hero)
+        /// <returns>A LeverResult object describing the outcome.</returns>
+        public LeverResult PullLever(Hero hero)
         {
             if (hero.Party == null) throw new ArgumentNullException(nameof(hero.Party), "Hero must be part of a party to pull a lever.");
             var leverColors = PrepareLeverDeck();
             var color = leverColors[0];
-            var result = new LeverPullResult();
+            var result = new LeverResult();
             
             var partyMemebersHasClue = hero.Party.Heroes.Any(h => h.Inventory.Backpack.Contains(EquipmentService.GetEquipmentByName("Clue"))); // This should be set based on actual party state
             if (partyMemebersHasClue)
@@ -153,7 +153,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     /// <summary>
     /// Represents the outcome of pulling a lever.
     /// </summary>
-    public class LeverPullResult
+    public class LeverResult
     {
         public string Description { get; set; } = "Nothing happens.";
         public int ThreatIncrease { get; set; } = 0;

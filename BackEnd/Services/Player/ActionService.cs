@@ -72,7 +72,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool WasSuccessful { get; set; } = true;
         public int ApCost { get; set; }
         public SearchResult? SearchResult { get; set; }
-        public LeverPullResult? LeverPullResult { get; set; }
+        public LeverResult? LeverPullResult { get; set; }
         public AttackResult? AttackResult { get; set; }
         public HealResult? HealResult { get; set; }
         public SpellCastResult? SpellResult { get; internal set; }
