@@ -385,7 +385,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     else if (target is Chest chest)
                     {
-                        // Logic to unlock a door
+                        // Logic to unlock a chest
                         chest.Lock.PickLock(0, 100);
                         result.OutcomeMessage = $"{caster.Name} magically unlocks the chest!";
                     }
