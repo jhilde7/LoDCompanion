@@ -39,6 +39,24 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
             return HeroParty;
         }
+
+        /// <summary>
+        /// Finds the room that contains a specific grid position.
+        /// </summary>
+        public Room? FindRoomAtPosition(GridPosition position)
+        {
+            // This method iterates through all known rooms to find which one contains the coordinate.
+            foreach (Room room in RoomsInDungeon) // Assumes DungeonState can provide all rooms
+            {
+                // Check if the position is within the room's bounding box.
+                if (position.X >= room.GridOffset.X && position.X < room.GridOffset.X + room.Width &&
+                    position.Y >= room.GridOffset.Y && position.Y < room.GridOffset.Y + room.Height)
+                {
+                    return room;
+                }
+            }
+            return null; // Position is not in any known room.
+        }
     }
 
     public class DungeonManagerService
@@ -56,6 +74,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _userRequest;
         private readonly PlacementService _placement;
         private readonly PowerActivationService _powerActivation;
+        private readonly ActionService _action;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -77,7 +96,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             RoomService roomService,
             UserRequestService userRequestService,
             PlacementService placement,
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            ActionService actionService)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -92,8 +112,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _userRequest = userRequestService;
             _placement = placement;
             _powerActivation = powerActivationService;
+            _action = actionService;
 
             _partyManager.SetMaxMorale();
+            _action.OnOpenDoor += HandleOpenDoor;
+        }
+
+        private async Task<bool> HandleOpenDoor(Door door)
+        {
+            return await RevealNextRoomAsync(door);
         }
 
         // Create a new method to start a quest
@@ -134,24 +161,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 _dungeon.CurrentRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
             }
             // Any other initial dungeon setup logic here, e.g., connecting rooms
-        }
-
-        /// <summary>
-        /// Finds the room that contains a specific grid position.
-        /// </summary>
-        public Room? FindRoomAtPosition(GridPosition position)
-        {
-            // This method iterates through all known rooms to find which one contains the coordinate.
-            foreach (Room room in _dungeon.RoomsInDungeon) // Assumes DungeonState can provide all rooms
-            {
-                // Check if the position is within the room's bounding box.
-                if (position.X >= room.GridOffset.X && position.X < room.GridOffset.X + room.Width &&
-                    position.Y >= room.GridOffset.Y && position.Y < room.GridOffset.Y + room.Height)
-                {
-                    return room;
-                }
-            }
-            return null; // Position is not in any known room.
         }
 
         public async Task ProcessTurnAsync()
@@ -266,40 +275,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         }
 
         /// <summary>
-        /// Orchestrates the entire sequence of a hero attempting to open a door or chest.
-        /// This method follows the rules on page 87 of the PDF.
-        /// </summary>
-        /// <param name="door">The door or chest being opened.</param>
-        /// <param name="character">The hero performing the action.</param>
-        /// <returns>A string describing the result of the attempt.</returns>
-        public async Task<string> InteractWithDoorAsync(Door door, Character character)
-        {
-            if (door.State == DoorState.Open) return "The door is already open.";                       
-
-            // Resolve Lock
-            if (door.Lock.IsLocked)
-            {
-                // The door is locked. The game must now wait for player input
-                // (e.g., Pick Lock, Bash, Cast Spell). This method's job is done for now.
-                return $"The door is locked (Difficulty: {door.Lock.LockModifier}, HP: {door.Lock.LockHP}).";
-            }
-
-            // Open the door and reveal the next room
-            door.Open();
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
-            await RevealNextRoomAsync(door);
-            return "The door creaks open...";
-        }
-
-        /// <summary>
         /// Reveals the next room after a door has been successfully opened.
         /// </summary>
-        private async Task RevealNextRoomAsync(Door openedDoor)
+        private async Task<bool> RevealNextRoomAsync(Door openedDoor)
         {
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
             // this should only happen on the very first door opened
             if (openedDoor.ExplorationDeck == null)
             {
-                return; // No exploration deck to draw from
+                return false; // No exploration deck to draw from
             }
 
             if (openedDoor.ExplorationDeck.TryDequeue(out Room? nextRoomInfo) && nextRoomInfo != null && Dungeon !=null)
@@ -328,7 +312,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     {
                         // This path is a dead end as it has no more cards.
                         newRoom.DoorCount = 1;
-                        return;
+                        return true;
                     }
 
                     var newDoors = newRoom.Doors.Where(d => d != openedDoor).ToList();
@@ -376,7 +360,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         _room.AddDoorToRoom(newRoom, _placement, exitDoor.ExplorationDeck);
                     }
                 }
+                return true;
             }
+            else return false;
         }
 
         /// <summary>
