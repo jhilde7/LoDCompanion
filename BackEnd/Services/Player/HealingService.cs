@@ -30,7 +30,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="healer">The hero applying the bandage.</param>
         /// <param name="target">The hero receiving the healing.</param>
         /// <returns>A string describing the outcome.</returns>
-        public async Task<HealResult> ApplyBandageAsync(Hero healer, Hero target, UserRequestService userRequest, PowerActivationService activation)
+        public async Task<HealResult> ApplyBandageAsync(Hero healer, Hero target, PowerActivationService activation)
         {
             var result = new HealResult();
             result.Healer = healer;
