@@ -56,6 +56,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         AssistAllyOutOfPit,
         DrinkFromFurniture,
         SearchRoomWithParty,
+        PullLever,
     }
 
     public class ActionInfo
@@ -72,7 +73,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool WasSuccessful { get; set; } = true;
         public int ApCost { get; set; }
         public SearchResult? SearchResult { get; set; }
-        public LeverResult? LeverPullResult { get; set; }
+        public LeverResult? LeverResult { get; set; }
         public AttackResult? AttackResult { get; set; }
         public HealResult? HealResult { get; set; }
         public SpellCastResult? SpellResult { get; internal set; }
@@ -720,6 +721,17 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         result.Message = "Invalid target, target must be drinkable.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.PullLever):
+                    if (primaryTarget is Lever lever)
+                    {
+                        result.LeverResult = lever.PullLever(hero);
+                    }
+                    else
+                    {
+                        result.Message = "Invalid target, target must be a lever.";
                         result.WasSuccessful = false;
                     }
                     break;
