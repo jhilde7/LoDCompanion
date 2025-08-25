@@ -157,7 +157,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Pitcher,
         ForgedUnderPressure,
         PoisonGas,
-        DetectedMimic
+        DetectedMimic,
+        Caged
     }
 
     /// <summary>
@@ -343,7 +344,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                             }
                             else
                             {
-                                // The hero remains incapacitated. The combat manager will handle skipping their turn.
+                                character.CurrentAP = 0;
                                 Console.WriteLine($"{character.Name} remains incapacitated.");
                             }
                         }
@@ -435,6 +436,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     case StatusEffectType.DetectedMimic:
                         character.CurrentAP = 0; // No actions while Mimic is detected, andhas not taken any damage yet.
                         break;
+                    case StatusEffectType.Caged:
+                        character.CurrentAP = 0;
+                        Console.WriteLine($"{character.Name} is caged and cannot act.");
+                        break;
+
                 }
 
                 // Decrease duration and remove if expired.
