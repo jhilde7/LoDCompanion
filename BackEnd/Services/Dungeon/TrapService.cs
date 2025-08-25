@@ -322,7 +322,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (character.Room.Doors.Where(d => d.State == DoorState.BashedDown).Any())
             {
                 character.Room.Doors.ForEach(d => d.State = DoorState.Closed);
-                character.Room.Doors.ForEach(d => d.Lock.LockHP = 20);
+                character.Room.Doors.ForEach(d => d.Lock.SetLockState(d.Lock.LockModifier, 20));
                 character.Room.CharactersInRoom.ForEach(c => c.ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.PoisonGas, -1)));
                 return string.Empty;
             }
