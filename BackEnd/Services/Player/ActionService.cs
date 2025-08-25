@@ -55,6 +55,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         DrinkFromFurniture,
         SearchRoomWithParty,
         PullLever,
+        OpenPortcullis,
     }
 
     public class ActionInfo
@@ -95,6 +96,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly LockService _lock;
         private readonly TrapService _trap;
         private readonly SearchService _search;
+        private readonly ThreatService _threat;
 
         public event Func<Monster, List<GridPosition>, Task<bool>>? OnMonsterMovement;
         public event Func<Door, Task<bool>>? OnOpenDoor;
@@ -112,7 +114,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             AlchemyService alchemyService,
             PotionActivationService potionActivation,
             LockService lockService,
-            TrapService trapService)
+            TrapService trapService,
+            ThreatService threatService)
         {
             _healing = healingService;
             _inventory = inventoryService;
@@ -127,6 +130,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             _lock = lockService;
             _trap = trapService;
             _search = searchService;
+            _threat = threatService;
         }
 
         /// <summary>
@@ -295,6 +299,28 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         result.Message = "Action was unsuccessful";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.OpenPortcullis):
+                    if (primaryTarget is Door)
+                    {
+                        await OpenPortcullis((Door)primaryTarget, hero);
+                    }
+                    else
+                    {
+                        result.Message = "Target is not a door to break down.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Character, ActionType.BreakDownDoor):
+                    if (primaryTarget is Door)
+                    {
+                        result = await BreakDownDoorAsync(dungeon, character, (Door)primaryTarget, weapon);
+                    }
+                    else
+                    {
+                        result.Message = "Target is not a door to break down.";
                         result.WasSuccessful = false;
                     }
                     break;
@@ -585,17 +611,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.WasSuccessful = false;
                     }
                     break;
-                case (Character, ActionType.BreakDownDoor):
-                    if (primaryTarget is Door)
-                    {
-                        result = await BreakDownDoorAsync(dungeon, character, (Door)primaryTarget, weapon);
-                    }
-                    else
-                    {
-                        result.Message = "Target is not a door to break down.";
-                        result.WasSuccessful = false;
-                    }
-                    break;
                 case (Character, ActionType.StandUp):
                     if (character.CombatStance == CombatStance.Prone)
                     {
@@ -761,6 +776,32 @@ namespace LoDCompanion.BackEnd.Services.Player
                         }
                     }
                 }
+            }
+
+            return result;
+        }
+
+        private async Task<ActionResult> OpenPortcullis(Door door, Hero hero)
+        {
+            var result = new ActionResult();
+            if (hero.Party == null) return result;
+            var adjacentHeroes = hero.Party.Heroes.Where(h => h.Position != null && GridService.IsAdjacent(h.Position, door.PassagewaySquares[0]));
+            var rollResult = await _diceRoll.RequestRollAsync("Roll strength test.", "1d100", stat: (hero, BasicStat.Strength));
+            await Task.Yield();
+            int roll = rollResult.Roll;
+            for (int i = 0; i < adjacentHeroes.Count(); i++)
+            {
+                if (i == 0) continue;
+                else roll -= 10;
+            }
+            if (hero.TestStrength(roll))
+            {
+                result.Message = $"{hero.Name} lifts the Portcullis and the doorway is not open.";
+            }
+            else
+            {
+                result.Message = $"{hero.Name} fails to lift the portcullis and instead raises the threat level due to the loud bang made when it dropped.";
+                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
             }
 
             return result;
@@ -1450,6 +1491,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.Shove => 1,
                 ActionType.Move => 1,
                 ActionType.OpenDoor => 1,
+                ActionType.OpenPortcullis => 1,
                 ActionType.SearchFurniture => 1,
                 ActionType.SearchCorpse => 1,
                 ActionType.HealOther => 1,
