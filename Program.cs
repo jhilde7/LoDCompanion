@@ -50,7 +50,6 @@ builder.Services.AddSingleton<FacingDirectionService>();
 builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
 builder.Services.AddScoped<WanderingMonsterService>();
-builder.Services.AddScoped<RoomFactoryService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<QuestService>();
 builder.Services.AddScoped<QuestSetupService>();
