@@ -1,12 +1,16 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class Lever
     {
         public string EventDescription { get; private set; } = string.Empty; // Read-only property for the event description
+
+        public Func<Hero, LeverResult, Task>? OnLeverResult;
+        public Func<Hero, LeverResult, Task<SearchResult>>? OnFoundTreasure;
 
         public Lever()
         {
@@ -38,7 +42,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="color">The color of the lever pulled.</param>
         /// <returns>A LeverResult object describing the outcome.</returns>
-        public LeverResult PullLever(Hero hero)
+        public async Task<LeverResult> PullLever(Hero hero)
         {
             if (hero.Party == null) throw new ArgumentNullException(nameof(hero.Party), "Hero must be part of a party to pull a lever.");
             var leverColors = PrepareLeverDeck();
@@ -67,6 +71,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     case 3: 
                         result.Description = "A small compartment opens, revealing a Wonderful Treasure!";
                         result.FoundWonderfulTreasure = true;
+                        if (OnFoundTreasure != null) result.SearchResult = await OnFoundTreasure.Invoke(hero, result);
                         break;
                     case 4: 
                         result.Description = "A metallic sound echoes. The next locked door the heroes encounter will be unlocked.";
@@ -83,6 +88,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     case 7: 
                         result.Description = "A hidden compartment opens, revealing 1d3 potions!"; 
                         result.FoundPotions = true;
+                        if (OnFoundTreasure != null) result.SearchResult = await OnFoundTreasure.Invoke(hero, result);
                         break;
                     case 8: 
                         result.Description = "The party is blessed with good fortune, gaining a collective Luck Point for this dungeon.";
@@ -113,7 +119,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     case 15:
                         result.Description = "An eerie scream echoes, chilling the party to the bone. Party Morale -4, Sanity -1 for each hero.";
                         result.PartyMoraleDecrease = 4;
-                        result.SanityDecrease = 1;
+                        result.PartySanityDecrease = 1;
                         break;
                     case 16:
                         result.Description = "With a loud bang, portcullises slam down, blocking all doors in the room!";
@@ -137,6 +143,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                 }
             }
+            if (OnLeverResult != null) await OnLeverResult.Invoke(hero, result);
             return result;
         }
     }
@@ -159,8 +166,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int ThreatIncrease { get; set; } = 0;
         public int PartyMoraleDecrease { get; set; } = 0;
         public int SanityDecrease { get; set; } = 0;
+        public int PartySanityDecrease { get; set; } = 0;
         public bool SpawnWanderingMonster { get; set; }
-        public bool DoorTrapChanceIncrease { get; internal set; }
+        public bool DoorTrapChanceIncrease { get; set; }
         public bool AddExplorationCards { get; set; }
         public bool LockADoor { get; set; }
         public bool SpawnPortcullis { get; set; }
@@ -168,12 +176,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool TriggerCageTrap { get; set; }
         public bool CloseDungeonEntrance { get; set; }
         public bool CreateTreasureRoom { get; set; }
-        public bool FoundWonderfulTreasure { get; internal set; }
-        public bool NextLockedDoorIsUnlocked { get; internal set; }
-        public bool NextTrapWillBeDisarmed { get; internal set; }
-        public bool NextDoorIsUnlockedDisarmed { get; internal set; }
-        public bool FoundPotions { get; internal set; }
-        public bool PartyGainedLuckPoint { get; internal set; }
+        public bool FoundWonderfulTreasure { get; set; }
+        public bool NextLockedDoorIsUnlocked { get; set; }
+        public bool NextTrapWillBeDisarmed { get; set; }
+        public bool NextDoorIsUnlockedDisarmed { get; set; }
+        public bool FoundPotions { get; set; }
+        public bool PartyGainedLuckPoint { get; set; }
+        public SearchResult? SearchResult { get; set; }
     }
 
     /// <summary>

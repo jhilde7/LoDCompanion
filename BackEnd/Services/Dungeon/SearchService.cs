@@ -36,22 +36,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly UserRequestService _diceRoll;
         private readonly TreasureService _treasure;
         private readonly TrapService _trap;
-        private readonly RoomService _room;
-        private readonly PlacementService _placement;
         public static List<Furniture> Furniture => GetFurniture();
+        public Action<Room>? OnSpawnTreasureRoom;
 
         public SearchService(
             UserRequestService diceRollService, 
             TreasureService treasure, 
-            TrapService trapService, 
-            RoomService roomService,
-            PlacementService placementService)
+            TrapService trapService)
         {
             _diceRoll = diceRollService;
             _treasure = treasure;
             _trap = trapService;
-            _room = roomService;
-            _placement = placementService;
         }
 
 
@@ -142,10 +137,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 switch (searchResults.TreasureRoll)
                 {
                     case <= 15:
-                        var treasureRoomDeck = new Queue<Room>();
-                        var tresureRoom = _room.CreateRoom("R10");
-                        treasureRoomDeck.Enqueue(tresureRoom);
-                        _room.AddDoorToRoom(room, _placement, explorationDeck: treasureRoomDeck);
+                        if (OnSpawnTreasureRoom != null) OnSpawnTreasureRoom.Invoke(room);
                         searchResults.Message = "You found a secret door.";
                         break;
                     case <= 25:
@@ -166,7 +158,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                     case <= 100:
                         searchResults.Message += "You've sprung a trap!";
-                        room.CurrentTrap = new Trap(true);
+                        room.CurrentTrap = new Trap(guaranteedTrap: true);
                         await _trap.TriggerTrapAsync(searchResults.HeroSearching, room.CurrentTrap);
                         break;
                     default:

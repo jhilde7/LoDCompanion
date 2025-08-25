@@ -23,7 +23,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         PoisonGas,
         SpearTrap,
         TrapDoor,
-        Skeletons
+        Skeletons,
+        CageTrap
     }
     public class Trap
     {
@@ -37,22 +38,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public GridSquare? Square { get; set; } // Position of the trap in the dungeon
         public bool isDisarmed { get; set; } = false; // Whether the trap has been disarmed
 
-        public Trap(bool guaranteedTrap = false)
+        public Trap(int? trapChance = null, bool guaranteedTrap = false)
         {
-            if (guaranteedTrap)
+            if (guaranteedTrap 
+                || !guaranteedTrap && trapChance == null && RandomHelper.RollDie(DiceType.D6) >= 6
+                || !guaranteedTrap && trapChance != null && RandomHelper.RollDie(DiceType.D6) >= trapChance)
             {
                 GetRandomTrap();
-            } 
+            }
             else
             {
-                if (RandomHelper.RollDie(DiceType.D6) >= 6)
-                {
-                    GetRandomTrap();
-                }
-                else
-                {
-                    isDisarmed = true; // No trap present
-                }
+                isDisarmed = true; // No trap present
             }
 
         }
@@ -106,13 +102,16 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         private readonly UserRequestService _diceRoll;
         private readonly PowerActivationService _powerActivation;
-        private readonly DungeonManagerService _dungeonManager;
 
-        public TrapService (UserRequestService diceRoll, PowerActivationService powerActivation, DungeonManagerService dungeonManager)
+        public Action<Room, int>? OnSpawnSkeletonsTrapEncounter;
+        public Func<Chest, bool, Task>? OnSpawnMimicEncounterAsync;
+        public Action<int>? OnAddExplorationCardsToPiles;
+        public Action<Room>? OnSpawnCageTrapEncounter;
+
+        public TrapService (UserRequestService diceRoll, PowerActivationService powerActivation)
         {
             _diceRoll = diceRoll;
             _powerActivation = powerActivation;
-            _dungeonManager = dungeonManager;
         }
 
 
@@ -197,7 +196,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         }
                         else
                         {
-                            if (chest != null && chest.Trap != null && chest.Trap.Name == TrapType.Mimic) await _dungeonManager.SpawnMimicEncounterAsync(chest, detected: true);
+                            if (chest != null && chest.Trap != null && chest.Trap.Name == TrapType.Mimic) 
+                            { 
+                                if (OnSpawnMimicEncounterAsync != null) await OnSpawnMimicEncounterAsync.Invoke(chest, true); 
+                            }
                             return $"{hero.Name} chose not to disarm the {trap.Name} trap.";
                         } 
                     }
@@ -228,14 +230,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                     case TrapType.Labyrinth:
                         outcome.AppendLine(trap.Description);
-                        _dungeonManager.AddExplorationCardsToPiles(2);
+                        if (OnAddExplorationCardsToPiles != null) OnAddExplorationCardsToPiles.Invoke(2);
                         newTrap = false;
                         break;
                     case TrapType.Mimic:
                         if (chest != null)
                         {
                             outcome.AppendLine(trap.Description);
-                            await _dungeonManager.SpawnMimicEncounterAsync(chest);
+                            if (OnSpawnMimicEncounterAsync != null) await OnSpawnMimicEncounterAsync.Invoke(chest, false);
                             newTrap = false;
                         }
                         else
@@ -256,7 +258,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                     case TrapType.Skeletons:
                         outcome.AppendLine(trap.Description);
-                        _dungeonManager.SpawnSkeletonsTrapEncounter(character.Room, RandomHelper.RollDice(trap.DamageDice) + 2);
+                        if (OnSpawnSkeletonsTrapEncounter != null) OnSpawnSkeletonsTrapEncounter.Invoke(character.Room, RandomHelper.RollDice(trap.DamageDice) + 2);
+                        newTrap = false;
+                        break;
+                    case TrapType.CageTrap:
+                        outcome.AppendLine(trap.Description);
+                        if (OnSpawnCageTrapEncounter != null) OnSpawnCageTrapEncounter.Invoke(character.Room);
+                        await StatusEffectService.AttemptToApplyStatusAsync(character, new ActiveStatusEffect(StatusEffectType.Caged, -1, removeAfterCombat: true), _powerActivation);
                         newTrap = false;
                         break;
                 }
@@ -497,11 +505,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private async Task<string> FireSingleProjectileAsync(GridPosition startPos, GridPosition direction, Room room, Trap trap)
         {
             var currentPos = startPos;
-            if(_dungeonManager.Dungeon == null) return "Dungeon is not initialized.";
 
             while (true)
             {
-                var square = GridService.GetSquareAt(currentPos, _dungeonManager.Dungeon.DungeonGrid);
+                var square = GridService.GetSquareAt(currentPos, room.Grid);
                 if (square == null || square.IsWall || square.Furniture?.Name == "Pillar")
                 {
                     return "A projectile strikes a wall.";

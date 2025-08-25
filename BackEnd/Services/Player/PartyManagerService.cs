@@ -67,6 +67,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool PartyRetreat => Morale < 1;
         public bool PartyWavering => Morale < Math.Floor(MoraleMax / 2d);
 
+        public int PartyLuck { get; set; }
+
 
         // Inject the state into the service's constructor
         public PartyManagerService(GameStateManagerService gameStateManagerService)
@@ -139,12 +141,12 @@ namespace LoDCompanion.BackEnd.Services.Player
             Morale = MoraleMax;
         }
 
-        internal int UpdateMorale(int? v = null, MoraleChangeEvent? changeEvent = null)
+        internal int UpdateMorale(int? amount = null, MoraleChangeEvent? changeEvent = null)
         {
             int missingMorale = MoraleMax - Morale;
-            if (v != null)
+            if (amount != null)
             {
-                Morale += Math.Min((int)v, missingMorale);
+                Morale += Math.Min((int)amount, missingMorale);
                 return Morale;
             }
             else if (changeEvent != null)
@@ -152,15 +154,15 @@ namespace LoDCompanion.BackEnd.Services.Player
                 switch (changeEvent)
                 {
                     case MoraleChangeEvent.HeroDies:
-                        Morale -= 6;
+                        Morale = UpdateMorale(-6);
                         break;
                     case MoraleChangeEvent.HeroDown:
-                        Morale -= 4;
+                        Morale = UpdateMorale(-4);
                         break;
                     case MoraleChangeEvent.CombatWithDemons:
                     case MoraleChangeEvent.HeroTerror:
                     case MoraleChangeEvent.GoingHungry:
-                        Morale -= 2;
+                        Morale = UpdateMorale(-2);
                         break;
                     case MoraleChangeEvent.HeroFear:
                     case MoraleChangeEvent.HeroPoisoned:
@@ -168,7 +170,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     case MoraleChangeEvent.SprungTrap:
                     case MoraleChangeEvent.Miscast:
                     case MoraleChangeEvent.Trapped:
-                        Morale -= 1;
+                        Morale = UpdateMorale(-1);
                         break;
                     case MoraleChangeEvent.Rest:
                     case MoraleChangeEvent.FineTreasure:

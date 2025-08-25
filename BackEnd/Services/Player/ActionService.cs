@@ -732,7 +732,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Hero hero, ActionType.PullLever):
                     if (primaryTarget is Lever lever)
                     {
-                        result.LeverResult = lever.PullLever(hero);
+                        result.LeverResult = await lever.PullLever(hero);
+                        result.SearchResult = result.LeverResult.SearchResult;
                     }
                     else
                     {

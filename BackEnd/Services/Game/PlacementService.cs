@@ -16,7 +16,8 @@ namespace LoDCompanion.BackEnd.Services.Game
 
         // --- Target-Based Rules ---
         RelativeToTarget,
-        AsFarAsPossible
+        AsFarAsPossible,
+        RelativeToPosition
     }
 
     public class PlacementService
@@ -82,6 +83,37 @@ namespace LoDCompanion.BackEnd.Services.Game
                         potentialPositions = GetFarAwayPositions(room, entity, awayFromEntity);
                     }
                     break;
+
+                case PlacementRule.RelativeToPosition:
+                    string positionString = placementParams["PlacementPosition"];
+                    try
+                    {
+                        // Split the string by commas and remove any empty entries
+                        string[] parts = positionString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+                        if (parts.Length == 3)
+                        {
+                            // Parse each part into an integer for X, Y, and Z coordinates
+                            int x = int.Parse(parts[0].Trim());
+                            int y = int.Parse(parts[1].Trim());
+                            int z = int.Parse(parts[2].Trim());
+                            GridPosition position = new GridPosition(x, y, z);
+
+                            var finalPosition = GetNextAvailablePositionNear(position, room);
+                            if (finalPosition != null) potentialPositions = new List<GridPosition>() { finalPosition };
+                        }
+                        else
+                        {
+                            // Log an error if the position string is not in the expected "X,Y,Z" format
+                            Console.WriteLine($"Error: Invalid format for PlacementPosition: {positionString}");
+                        }
+                    }
+                    catch (FormatException ex)
+                    {
+                        // Catch any errors that occur during parsing and log them
+                        Console.WriteLine($"Error parsing PlacementPosition '{positionString}': {ex.Message}");
+                    }
+                    break;
             }
 
             if (potentialPositions.Any())
@@ -126,6 +158,55 @@ namespace LoDCompanion.BackEnd.Services.Game
         }
 
         // --- Private Helper Methods for Placement Logic ---
+        /// <summary>
+        /// Finds the next available and valid square adjacent to a starting position within a target room.
+        /// This uses a breadth-first search to find the closest available spot.
+        /// </summary>
+        private GridPosition? GetNextAvailablePositionNear(GridPosition startPosition, Room targetRoom)
+        {
+            var queue = new Queue<GridPosition>();
+            var visited = new HashSet<GridPosition>();
+
+            // Start the search from the squares adjacent to the door, inside the target room
+            var initialNeighbors = GridService.GetNeighbors(startPosition, _dungeon.DungeonGrid)
+                .Where(n =>
+                    n.X >= targetRoom.GridOffset.X && n.X < targetRoom.GridOffset.X + targetRoom.Width &&
+                    n.Y >= targetRoom.GridOffset.Y && n.Y < targetRoom.GridOffset.Y + targetRoom.Height)
+                .ToList();
+
+            foreach (var neighbor in initialNeighbors)
+            {
+                queue.Enqueue(neighbor);
+                visited.Add(neighbor);
+            }
+
+            while (queue.Count > 0)
+            {
+                var currentPos = queue.Dequeue();
+                var square = GridService.GetSquareAt(currentPos, _dungeon.DungeonGrid);
+
+                // If we find a valid, unoccupied square, return it immediately
+                if (square != null && !square.MovementBlocked && !square.IsOccupied)
+                {
+                    return currentPos;
+                }
+
+                // Add the next layer of neighbors to the queue to continue the search outwards
+                var nextNeighbors = GridService.GetNeighbors(currentPos, _dungeon.DungeonGrid);
+                foreach (var neighbor in nextNeighbors)
+                {
+                    if (!visited.Contains(neighbor) &&
+                        neighbor.X >= targetRoom.GridOffset.X && neighbor.X < targetRoom.GridOffset.X + targetRoom.Width &&
+                        neighbor.Y >= targetRoom.GridOffset.Y && neighbor.Y < targetRoom.GridOffset.Y + targetRoom.Height)
+                    {
+                        visited.Add(neighbor);
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+
+            return null; // No valid position found
+        }
 
         private List<GridPosition> GetCenterPositions(Room room, IGameEntity entity)
         {

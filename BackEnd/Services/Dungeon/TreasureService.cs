@@ -70,6 +70,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly ArmourFactory _armourFactory;
         private readonly PartyManagerService _partyManager;
         private readonly PowerActivationService _powerActivation;
+        private readonly Lever _lever;
 
         public TreasureService(
             AlchemyService alchemyService,
@@ -77,7 +78,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             WeaponFactory weaponFactory,
             ArmourFactory armourFactory,
             PartyManagerService partyManagerService,
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            Lever lever)
         {
             _alchemy = alchemyService;
             _diceRoll = diceRollService;
@@ -85,6 +87,24 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _armourFactory = armourFactory;
             _partyManager = partyManagerService;
             _powerActivation = powerActivationService;
+            _lever = lever;
+
+            _lever.OnFoundTreasure += HandleTreasureFound;
+        }
+
+        private async Task<SearchResult> HandleTreasureFound(Hero hero, LeverResult result)
+        {
+            var searchResult = new SearchResult();
+            if (result.FoundPotions)
+            {
+                searchResult.FoundItems = [.. await _alchemy.GetRandomPotions(3)];
+            }
+            else if (result.FoundWonderfulTreasure)
+            {
+                searchResult.FoundItems = [.. await GetWonderfulTreasureAsync( hero.IsThief ? 2 : 1)];
+            }
+
+            return searchResult;
         }
 
         public async Task<Equipment?> GetCoins(string coinDice, int bonusCoins)

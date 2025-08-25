@@ -49,6 +49,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         EnemyBecomesFearsome,
         Reinforcements,
         Onwards,
+        Lever,
     }
 
     /// <summary>
@@ -289,10 +290,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return result;
         }
 
-        public void UpdateThreatLevelByThreatActionType (ThreatActionType threatAction)
+        public void UpdateThreatLevelByThreatActionType (ThreatActionType threatAction, int changeAmount = 0)
         {
-            int changeAmount = 0;
-
             switch (threatAction)
             {
                 case ThreatActionType.WinBattle:
@@ -336,6 +335,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     break;
                 case ThreatActionType.Onwards:
                     changeAmount = -6;
+                    break;
+                case ThreatActionType.Lever:
                     break;
             }
 

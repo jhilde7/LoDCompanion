@@ -31,6 +31,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public List<Character> AllCharactersInDungeon => [.. RevealedMonsters, .. HeroParty?.Heroes ?? new List<Hero>()];
 
+        public bool CanSpawnWanderingMonster { get; set; } = true;
+        public int TrapChanceOnDoor { get; set; } = 6;
+        public bool NextDoorIsUnlockedDisarmed { get; set; }
+        public bool NextLockedDoorIsUnlocked { get; set; }
+        public bool NextTrapWillBeDisarmed { get; internal set; }
+
         public Party? SetParty(Party? party)
         {
             if (party != null)
@@ -75,6 +81,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly PlacementService _placement;
         private readonly PowerActivationService _powerActivation;
         private readonly ActionService _action;
+        private readonly Lever _lever;
+        private readonly SearchService _search;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -97,7 +105,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             UserRequestService userRequestService,
             PlacementService placement,
             PowerActivationService powerActivationService,
-            ActionService actionService)
+            ActionService actionService,
+            Lever lever,
+            SearchService searchService)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -113,20 +123,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _placement = placement;
             _powerActivation = powerActivationService;
             _action = actionService;
+            _lever = lever;
+            _search = searchService;
 
             _partyManager.SetMaxMorale();
             _action.OnOpenDoor += HandleOpenDoor;
             _wanderingMonster.OnSpawnRandomEncounter += HandleSpawnRandomEncounter;
-        }
-
-        private void HandleSpawnRandomEncounter(Room room)
-        {
-            SpawnRandomEncounter(room);
-        }
-
-        private async Task<bool> HandleOpenDoor(Door door)
-        {
-            return await RevealNextRoomAsync(door);
+            _lever.OnLeverResult += HandleLeverResultAsync;
+            _trap.OnSpawnSkeletonsTrapEncounter += HandleSkeletonsTrapSpawnEncounter;
+            _trap.OnSpawnMimicEncounterAsync += HandleMimicSpawnEncounterAsync;
+            _trap.OnAddExplorationCardsToPiles += AddExplorationCardsToPiles;
+            _trap.OnSpawnCageTrapEncounter += HandleCageTrapSpawnEncounter;
+            _search.OnSpawnTreasureRoom += SpawnTreasureRoom;
         }
 
         // Create a new method to start a quest
@@ -209,7 +217,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         var heroes = _dungeon.HeroParty.Heroes;
                         heroes.Shuffle();
                         var randomHero = heroes[0];
-                        var trap = new Trap(true);
+                        var trap = new Trap(guaranteedTrap: true);
 
                         await _trap.TriggerTrapAsync(randomHero, trap);
                     }
@@ -363,7 +371,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                     foreach (var exitDoor in newDoors)
                     {
-                        _room.AddDoorToRoom(newRoom, _placement, exitDoor.ExplorationDeck);
+                        _room.AddDoorToRoom(newRoom, _placement, Dungeon, exitDoor.ExplorationDeck);
                     }
                 }
                 return true;
@@ -444,7 +452,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="room">The room where the encounter will be spawned.</param>
         /// <returns>A list of the monsters that were spawned.</returns>
-        public void SpawnRandomEncounter(Room room, EncounterType? encounterType = null)
+        public void SpawnRandomEncounter(Room room, EncounterType? encounterType = null, Dictionary<string, string>? placementParams = null)
         {
             room.MonstersInRoom = new List<Monster>();
             var dungeonEncounterType = _dungeon.Quest.EncounterType;
@@ -465,7 +473,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (room.MonstersInRoom.Any())
             {
                 room.IsEncounter = true;
-                PlaceMonsters(room, room.MonstersInRoom);
+                PlaceMonsters(room, room.MonstersInRoom, placementParams);
             }
         }
 
@@ -474,7 +482,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// </summary>
         /// <param name="room">The room to place the monsters in.</param>
         /// <param name="monsters">The list of monsters to be placed.</param>
-        private void PlaceMonsters(Room room, List<Monster> monsters)
+        private void PlaceMonsters(Room room, List<Monster> monsters, Dictionary<string, string>? placementParams = null)
         {
             var heroes = room.HeroesInRoom;
             if (heroes == null || !heroes.Any())
@@ -491,25 +499,35 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return;
             }
 
-            foreach (var monster in monsters)
+            if (placementParams == null)
             {
-                var placementParams = new Dictionary<string, string>();
-
-                switch (monster.Behavior)
+                foreach (var monster in monsters)
                 {
-                    case MonsterBehaviorType.HumanoidRanged:
-                    case MonsterBehaviorType.MagicUser:
-                        // Place as far as possible from the heroes' centroid
-                        placementParams["PlacementRule"] = "AsFarAsPossible";
-                        placementParams["PlacementTarget"] = heroes.First().Name; // Placeholder for targeting logic
-                        break;
-                    default: // Melee and other types
-                             // Place randomly, but at least 1 square away from heroes
-                        placementParams["PlacementRule"] = "RandomEdge";
-                        break;
-                }
+                    placementParams ??= new Dictionary<string, string>();
 
-                _placement.PlaceEntity(monster, room, placementParams);
+                    switch (monster.Behavior)
+                    {
+                        case MonsterBehaviorType.HumanoidRanged:
+                        case MonsterBehaviorType.MagicUser:
+                            // Place as far as possible from the heroes' centroid
+                            placementParams["PlacementRule"] = "AsFarAsPossible";
+                            placementParams["PlacementTarget"] = heroes.First().Name; // Placeholder for targeting logic
+                            break;
+                        default: // Melee and other types
+                                 // Place randomly, but at least 1 square away from heroes
+                            placementParams["PlacementRule"] = "RandomEdge";
+                            break;
+                    }
+
+                    _placement.PlaceEntity(monster, room, placementParams);
+                } 
+            }
+            else
+            {
+                foreach (var monster in monsters)
+                {
+                    _placement.PlaceEntity(monster, room, placementParams);
+                }
             }
         }
 
@@ -566,7 +584,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return true;
         }
 
-        internal async Task SpawnMimicEncounterAsync(Chest chest, bool detected = false)
+        private async Task HandleMimicSpawnEncounterAsync(Chest chest, bool detected = false)
         {
             var mimic = _encounter.GetRandomEncounterByType(EncounterType.Mimic)[0];
             mimic.Position = chest.Position;
@@ -583,7 +601,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
         }
 
-        internal void SpawnSkeletonsTrapEncounter(Room room, int amount)
+        private void HandleSkeletonsTrapSpawnEncounter(Room room, int amount)
         {
             var paramaters = new Dictionary<string, string>()
             {
@@ -604,6 +622,97 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 _placement.PlaceEntity(skeleton, room, placementParams);
             }
+        }
+
+        private void HandleCageTrapSpawnEncounter(Room room)
+        {
+            foreach (var door in room.Doors)
+            {
+                var placementParams = new Dictionary<string, string>
+                {
+                    { "PlacementRule", "RelativeToPosition" },
+                    { "PlacementPosition", $"{door.PassagewaySquares[0].X},{door.PassagewaySquares[0].Y},{door.PassagewaySquares[0].Z}" }
+                }; 
+                var connectedRoom = door.ConnectedRooms.FirstOrDefault(r => r != room);
+                if (connectedRoom != null) SpawnRandomEncounter(connectedRoom, placementParams: placementParams);
+                door.Lock.SetLockState(0, 0);
+                door.Trap.isDisarmed = true;
+            }
+        }
+
+        private void SpawnTreasureRoom(Room room)
+        {
+            var treasureRoomDeck = new Queue<Room>();
+            var tresureRoom = _room.CreateRoom("R10");
+            treasureRoomDeck.Enqueue(tresureRoom);
+            Door newDoor = _room.AddDoorToRoom(room, _placement, Dungeon, explorationDeck: treasureRoomDeck);
+            newDoor.Trap.isDisarmed = true;
+            newDoor.Lock.SetLockState(0, 0);
+        }
+
+        private async Task HandleLeverResultAsync(Hero hero, LeverResult result)
+        {
+            if (result.AddExplorationCards) AddExplorationCardsToPiles(2);
+            if (result.CloseDungeonEntrance) Dungeon.CanSpawnWanderingMonster = false;
+            if (result.CreateTreasureRoom) SpawnTreasureRoom(hero.Room);
+            if (result.DoorTrapChanceIncrease) Dungeon.TrapChanceOnDoor = 5;
+            if (result.NextDoorIsUnlockedDisarmed) Dungeon.NextDoorIsUnlockedDisarmed = true;
+            if (result.NextLockedDoorIsUnlocked) Dungeon.NextLockedDoorIsUnlocked = true;
+            if (result.NextTrapWillBeDisarmed) Dungeon.NextTrapWillBeDisarmed = true;
+            if (result.PartyGainedLuckPoint) PartyManager.PartyLuck += 1;
+            if (result.SpawnPortcullis) hero.Room.Doors.ForEach(d => d.State = DoorState.Portcullis);
+            if (result.SpawnWanderingMonster) _wanderingMonster.SpawnWanderingMonster(Dungeon);
+            if (result.LockADoor)
+            {
+                var openDoor = hero.Room.Doors.FirstOrDefault(d => d.IsOpen);
+                if (openDoor != null)
+                {
+                    openDoor.State = DoorState.Closed;
+                    openDoor.Lock.SetLockState(25, 25);
+                }
+                else
+                {
+                    var doors = hero.Room.Doors;
+                    doors.Shuffle();
+                    doors[0].Lock.SetLockState(25, 25);
+                }
+            }
+            if (result.TriggerCageTrap)
+            {
+                var trap = new Trap(TrapType.CageTrap, 5, 10, $"A rattling noise makes {hero.Name} look up, only to realise that an iron case is descending from the ceiling.");
+                await _trap.TriggerTrapAsync(hero, trap, trapTriggered: true);
+            }
+            if (result.TriggerPitTrap)
+            {
+                if (PartyManager.Party != null)
+                {
+                    var heroes = PartyManager.Party.Heroes.ToList();
+                    while (heroes[0] == hero) heroes.Shuffle();
+                    var trap = new Trap(TrapType.TrapDoor, 5, 10, $"Suddenly the floor gives way under {heroes[0].Name}", "A random character must pass a DEX test or fall, taking 1d10 DMG (no armour/NA).") { DamageDice = "1d10" };
+                    await _trap.TriggerTrapAsync(heroes[0], trap, trapTriggered: true);
+                }
+            }
+
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Lever, result.ThreatIncrease);
+            PartyManager.UpdateMorale(amount: -result.PartyMoraleDecrease);
+            await hero.TakeSanityDamage(result.SanityDecrease, (new FloatingTextService(), hero.Position), _powerActivation);
+            if (result.PartySanityDecrease > 0 && PartyManager.Party != null)
+            {
+                foreach (var h in PartyManager.Party.Heroes)
+                {
+                    await h.TakeSanityDamage(result.PartySanityDecrease, (new FloatingTextService(), h.Position), _powerActivation);
+                }
+            }
+        }
+
+        private void HandleSpawnRandomEncounter(Room room)
+        {
+            SpawnRandomEncounter(room);
+        }
+
+        private async Task<bool> HandleOpenDoor(Door door)
+        {
+            return await RevealNextRoomAsync(door);
         }
     }
 }

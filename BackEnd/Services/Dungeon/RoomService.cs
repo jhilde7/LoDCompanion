@@ -149,6 +149,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         Open,
         BashedDown,
         MagicallySealed,
+        Portcullis,
+        CobwebCovered
     }
 
     public class Door
@@ -158,7 +160,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         // The global grid position of the doorway.
         public List<GridPosition> PassagewaySquares { get; set; } = new List<GridPosition>();
         public List<Room> ConnectedRooms { get; set; } = new List<Room>();
-        public Trap Trap { get; set; } = new Trap();
+        public Trap Trap { get; set; }
         public Lock Lock { get; set; } = new Lock();
         public Queue<Room>? ExplorationDeck { get; set; }
         public Orientation Orientation { get; internal set; }
@@ -167,9 +169,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool IsBashedDown => State == DoorState.BashedDown;
 
         // Constructor
-        public Door()
+        public Door(int trapChance)
         {
-            
+            Trap = new Trap(trapChance: trapChance);
         }
 
         public bool Open()
@@ -6494,14 +6496,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return Rooms[RandomHelper.GetRandomNumber(0, Rooms.Count - 1)];
         }
 
-        internal void AddDoorToRoom(Room room, PlacementService placement, Queue<Room>? explorationDeck = null)
+        internal Door AddDoorToRoom(Room room, PlacementService placement, DungeonState dungeon, Queue<Room>? explorationDeck = null)
         {
-            var newDoor = new Door()
+            var newDoor = new Door(trapChance: dungeon.TrapChanceOnDoor)
             {
                 ConnectedRooms = new List<Room> { room },
                 ExplorationDeck = explorationDeck != null ? explorationDeck : new Queue<Room>()
             };            
             placement.PlaceExitDoor(newDoor, room);
+            return newDoor;
         }
         public Room CreateRoom(string roomName)
         {
