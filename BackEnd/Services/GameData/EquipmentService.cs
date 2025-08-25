@@ -431,7 +431,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Name = "Partial Map",
                         Encumbrance = 0,
                         Durability = 6,
-                        Description = "See separate description.",
+                        Description = "This piece of map reveals parts of the dungeon that you haven't explored yet.",
                         Value = 75,
                         Availability = 4
                     },
