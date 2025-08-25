@@ -69,8 +69,9 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// <summary>
         /// The core AI decision tree that routes to the correct behavior.
         /// </summary>
-        private async Task<string> DecideAndPerformAction(Monster monster, List<Hero> heroes, Room room)
+        private async Task<ActionResult> DecideAndPerformAction(Monster monster, List<Hero> heroes, Room room)
         {
+            var result = new ActionResult();
             if (monster.DroppedWeapon != null)
             {
                 return await _action.PerformActionAsync(_dungeon, monster, ActionType.PickupWeapon);
@@ -79,7 +80,9 @@ namespace LoDCompanion.BackEnd.Services.Game
             Hero? target = ChooseTarget(monster, heroes);
             if (target == null)
             {
-                return $"{monster.Name} scans the room but finds no targets.";
+                result.Message = $"{monster.Name} scans the room but finds no targets.";
+                result.WasSuccessful = false;
+                return result;
             }
 
             // Delegate to the appropriate consolidated behavior handler.
@@ -99,13 +102,15 @@ namespace LoDCompanion.BackEnd.Services.Game
                     if (missile != null) return await ExecuteRangedBehaviorAsync(monster, target, heroes);
                     else return await ExecuteLowerUndeadBehaviorAsync(monster, target, heroes);
                 default:
-                    return $"{monster.Name} is confused and does nothing.";
+                    result.Message += $"{monster.Name} is confused and does nothing.";
+                    return result;
             }
         }
 
-        private async Task<string> ExecuteAggressiveMeleeBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> ExecuteAggressiveMeleeBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
-            if (monster.Position == null || target.Position == null) return string.Empty;
+            var result = new ActionResult();
+            if (monster.Position == null || target.Position == null) return new ActionResult() { WasSuccessful = false };
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
             monster.ActiveWeapon = monster.GetMeleeWeapon();
@@ -118,25 +123,27 @@ namespace LoDCompanion.BackEnd.Services.Game
                 }
                 else
                 {
-                    return await MoveTowardsAsync(monster, target, heroes);
+                    result = await MoveTowardsAsync(monster, target, heroes);
+                    return result;
                 } 
             }
             else
             {
-                string makeRoomResult = await MakeRoomAsync(monster, target, heroes);
-                if (!string.IsNullOrEmpty(makeRoomResult))
+                result = await MakeRoomAsync(monster, target, heroes);
+                if (result.WasSuccessful)
                 {
-                    return makeRoomResult;
+                    return result;
                 }
 
-                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                return attackResult.OutcomeMessage;
+                result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                return result;
             }
         }
 
-        private async Task<string> ExecuteLowerUndeadBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> ExecuteLowerUndeadBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
-            if (monster.Position == null || target.Position == null) return string.Empty;
+            var result = new ActionResult();
+            if (monster.Position == null || target.Position == null) return new ActionResult() { WasSuccessful = false };
             AttackResult attackResult = new AttackResult();
             int distance = GridService.GetDistance(monster.Position, target.Position);
             monster.ActiveWeapon = monster.GetMeleeWeapon();
@@ -147,15 +154,15 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
-                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                return attackResult.OutcomeMessage;
+                result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                return result;
             }
         }
 
-        private async Task<string> ExecuteHumanoidMeleeBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> ExecuteHumanoidMeleeBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
-            if (monster.Position == null || target.Position == null) return string.Empty;
-            AttackResult attackResult = new AttackResult();
+            var result = new ActionResult();
+            if (monster.Position == null || target.Position == null) return new ActionResult() { WasSuccessful = false };
             int distance = GridService.GetDistance(monster.Position, target.Position);
             monster.ActiveWeapon = monster.GetMeleeWeapon();
 
@@ -182,22 +189,25 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
-                string makeRoomResult = await MakeRoomAsync(monster, target, heroes);
-                if (!string.IsNullOrEmpty(makeRoomResult))
+                var makRoomResult = await MakeRoomAsync(monster, target, heroes);
+                if (makRoomResult.WasSuccessful)
                 {
-                    return makeRoomResult;
+                    return makRoomResult;
                 }
 
-                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                return attackResult.OutcomeMessage;
+                result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                return result;
             }
-            return $"{monster.Name} hesitates.";
+
+            result.Message = $"{monster.Name} hesitates.";
+            result.WasSuccessful = false;
+            return result;
         }
 
-        private async Task<string> ExecuteRangedBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> ExecuteRangedBehaviorAsync(Monster monster, Hero target, List<Hero> heroes)
         {
-            if (monster.Position == null || target.Position == null) return string.Empty;
-            AttackResult attackResult = new AttackResult();
+            var result = new ActionResult();
+            if (monster.Position == null || target.Position == null) return new ActionResult() { WasSuccessful = false };
             int distance = GridService.GetDistance(monster.Position, target.Position);
             Dictionary<Hero, int> distances = new Dictionary<Hero, int>();
             RangedWeapon? missile = (RangedWeapon?)monster.GetRangedWeapon();
@@ -219,15 +229,16 @@ namespace LoDCompanion.BackEnd.Services.Game
                     target = distances.FirstOrDefault(h => h.Value <= 2).Key;
                     if(await MoveAwayFromAsync(monster, target, heroes))
                     {
-                        return $"{monster.Name} retreats to {monster.Position} to keep its distance from {target.Name}";
+                        result.Message = $"{monster.Name} retreats to {monster.Position} to keep its distance from {target.Name}";
+                        return result;
                     }
                     else
                     {
                         if (target.Position != null && GridService.IsAdjacent(monster.Position, target.Position))
                         {
                             monster.ActiveWeapon = melee;
-                            attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                            return attackResult.OutcomeMessage;
+                            result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                            return result;
                         }
                         else
                         {
@@ -243,8 +254,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                 else if(GridService.IsAdjacent(monster.Position, target.Position))
                 {
                     monster.ActiveWeapon = melee;
-                    attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                    return attackResult.OutcomeMessage;
+                    result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                    return result;
                 }
                 else
                 {
@@ -277,14 +288,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     else
                     {
                         List<SpecialActiveAbility>? specialAttacks = monster.ActiveAbilities;
-                        string? specialAbilityMessage = null;
                         if (specialAttacks != null && specialAttacks.Count > 0)
                         {
-                            specialAbilityMessage = await AttemptSpecialAbility(monster, heroes, target, specialAttacks);
+                            var specialResult = await AttemptSpecialAbility(monster, heroes, target, specialAttacks);
 
-                            if (specialAbilityMessage != null)
+                            if (specialResult.WasSuccessful)
                             {
-                                return specialAbilityMessage;
+                                return specialResult;
                             }
                         }
 
@@ -305,9 +315,10 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
         }
 
-        private async Task<string> ExecuteMagicUserBehaviorAsync(Monster monster, Hero? target, List<Hero> heroes, Room room)
+        private async Task<ActionResult> ExecuteMagicUserBehaviorAsync(Monster monster, Hero? target, List<Hero> heroes, Room room)
         {
-            if (monster.Position == null || target == null) return string.Empty;
+            var result = new ActionResult();
+            if (monster.Position == null || target == null) return result;
             AttackResult attackResult = new AttackResult();
             var adjacentHeroes = heroes.Where(h => h.Position != null && target.Position != null && GridService.IsAdjacent(monster.Position, target.Position)).ToList();
             var losHeroes = heroes.Where(h => h.Position != null && GridService.HasLineOfSight(monster.Position, h.Position, _dungeon.DungeonGrid).CanShoot).ToList();
@@ -319,33 +330,36 @@ namespace LoDCompanion.BackEnd.Services.Game
             if (adjacentHeroes.Any())
             {
                 target = ChooseTarget(monster, adjacentHeroes); // Choose from adjacent heroes
-                if (target == null) { return $"{monster.Name} hesitates."; }
+                if (target == null) { return new ActionResult() { Message = $"{monster.Name} hesitates.", WasSuccessful = false }; }
 
                 switch (roll)
                 {
                     case <= 2: 
                         if(await MoveAwayFromAsync(monster, target, heroes))
                         {
-                            return $"{monster.Name} retreats to {monster.Position} to keep its distance from {target.Name}."; ;
+                            result.Message = $"{monster.Name} retreats to {monster.Position} to keep its distance from {target.Name}.";
+                            return result;
                         }
                         else
                         {
                             if (target.Position != null && GridService.IsAdjacent(monster.Position, target.Position))
                             {
-                                attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                                return attackResult.OutcomeMessage;
+                                result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                                return result;
                             }
                             else
                             {
-                                return $"{monster.Name} hesitates.";
+                                result.Message = $"{monster.Name} hesitates.";
+                                result.WasSuccessful = false;
+                                return result;
                             }
                         }                        
                     case <= 4:
                         spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.CloseCombat);
                         break;
-                    default: 
-                        attackResult = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
-                        return attackResult.OutcomeMessage;
+                    default:
+                        result = await HandleAdjacentMeleeAttackAsync(monster, target, heroes);
+                        return result;
                 }
             }
             else if(losHeroes.Any())
@@ -367,7 +381,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     case <= 4:
                         Hero? closestHero = ChooseTarget(monster, heroes);
                         if (closestHero != null) return await MoveToGetLineOfSightAsync(monster, closestHero, heroes);
-                        return $"{monster.Name} considers its next move."; 
+                        return new ActionResult() { Message = $"{monster.Name} considers its next move.", WasSuccessful = false }; 
                     default:
                         spellChoice = ChooseBestSpellAndTarget(monster, heroes, _dungeon.RevealedMonsters, MonsterSpellType.Support);
                         break;
@@ -378,8 +392,8 @@ namespace LoDCompanion.BackEnd.Services.Game
             {
                 MonsterSpell spell = spellChoice.First().Key;
                 GridPosition targetPosition = spellChoice.First().Value;
-                var result = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
-                return result.OutcomeMessage;
+                result.SpellResult = await _spell.ResolveMonsterSpellAsync(monster, spell, targetPosition);
+                return result;
             }
 
             // Fallback if no other action was taken (e.g., no valid spell target was found)
@@ -388,10 +402,10 @@ namespace LoDCompanion.BackEnd.Services.Game
                 return await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry);
             }
 
-            return $"{monster.Name} hesitates.";
+            return new ActionResult() { Message = $"{monster.Name} hesitates.", WasSuccessful = false };
         }
 
-        private async Task<AttackResult> HandleAdjacentMeleeAttackAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> HandleAdjacentMeleeAttackAsync(Monster monster, Hero target, List<Hero> heroes)
         {                
             bool isWounded = monster.CurrentHP <= monster.GetStat(BasicStat.HitPoints) / 2;
             int actionRoll = RandomHelper.RollDie(DiceType.D6);
@@ -403,67 +417,65 @@ namespace LoDCompanion.BackEnd.Services.Game
                     case MonsterBehaviorType.HumanoidMelee:
                         switch (attackTypeRoll)
                         {
-                            case 1: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry) };
-                            case <= 5: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
+                            case 1: return await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry);
+                            case <= 5: return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
                             default:
-                                if (isWounded) return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry) };
-                                else return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target) };
+                                if (isWounded) return await _action.PerformActionAsync(_dungeon, monster, ActionType.Parry);
+                                else return await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target);
                         }
                     case MonsterBehaviorType.Beast:
                         switch (attackTypeRoll)
                         {
                             case <= 4:
-                                if (isWounded) return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
-                                else return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target) };
-                            default: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
+                                if (isWounded) return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) ;
+                                else return await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target) ;
+                            default: return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) ;
                         }
                     case MonsterBehaviorType.LowerUndead:
                         switch (attackTypeRoll)
                         {
                             case <= 4:
-                                return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
-                            default: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target) };
+                                return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
+                            default: return await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target);
                         }
                     case MonsterBehaviorType.HigherUndead:
                         switch (attackTypeRoll)
                         {
-                            case <= 2: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target) };
-                            default: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
+                            case <= 2: return await _action.PerformActionAsync(_dungeon, monster, ActionType.PowerAttack, target);
+                            default: return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
                         }
-                    default: return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
+                    default: return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
                 }
             }
             else
             {
                 List<SpecialActiveAbility>? specialAttacks = monster.ActiveAbilities;
-                string? specialAbilityMessage = null;
                 if (specialAttacks != null && specialAttacks.Count > 0)
                 {
-                    specialAbilityMessage = await AttemptSpecialAbility(monster, heroes, target, specialAttacks);
+                    var specialAbilityResult = await AttemptSpecialAbility(monster, heroes, target, specialAttacks);
 
-                    if (specialAbilityMessage != null)
+                    if (specialAbilityResult.WasSuccessful)
                     {
-                        return new AttackResult()
-                        {
-                            OutcomeMessage = specialAbilityMessage
-                        };
+                        return specialAbilityResult;
                     }
                 }
                 // If no special ability was used, perform a standard attack.
-                return new AttackResult() { OutcomeMessage = await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target) };
+                return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, target);
             }
         }
 
         /// <summary>
         /// Handles the logic for a monster to move or shove to make room for other monsters.
         /// </summary>
-        private async Task<string> MakeRoomAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> MakeRoomAsync(Monster monster, Hero target, List<Hero> heroes)
         {
+            var result = new ActionResult();
             // Only consider making room if there are other monsters waiting to act
             var otherMonsters = _dungeon.RevealedMonsters.Where(m => m != monster && m.CurrentAP > 0).ToList();
             if (!otherMonsters.Any())
             {
-                return string.Empty;
+                result.WasSuccessful = false;
+                return result;
             }
 
             // Check if the monster is blocking a path for another monster
@@ -478,10 +490,10 @@ namespace LoDCompanion.BackEnd.Services.Game
                 if (pathToTarget.Contains(monster.Position))
                 {
                     // The monster is blocking the path, so try to move or shove
-                    var shoveResult = await _action.PerformActionAsync(_dungeon, monster, ActionType.Shove, target);
-                    if (shoveResult.Contains("successfully"))
+                    result = await _action.PerformActionAsync(_dungeon, monster, ActionType.Shove, target);
+                    if (result.WasSuccessful)
                     {
-                        return shoveResult;
+                        return result;
                     }
                     else
                     {
@@ -492,14 +504,14 @@ namespace LoDCompanion.BackEnd.Services.Game
                         {
                             if (GridService.GetSquareAt(square, _dungeon.DungeonGrid)?.IsOccupied == false)
                             {
-                                return await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, square);
+                                result.Message += await _action.PerformActionAsync(_dungeon, monster, ActionType.Move, square);
                             }
                         }
                     }
                 }
             }
 
-            return string.Empty;
+            return result;
         }
 
         private string EndTurnFacing(Monster monster, List<Hero> heroes)
@@ -598,18 +610,23 @@ namespace LoDCompanion.BackEnd.Services.Game
             return $"{monster.Name} ends their turn facing {monster.Facing}";
         }
 
-        private async Task<string> MoveTowardsAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> MoveTowardsAsync(Monster monster, Hero target, List<Hero> heroes)
         {
+            var result = new ActionResult();
             if (monster.Position == null || target.Position == null || monster.CurrentAP < 1)
             {
-                return $"{monster.Name} hesitates."; ;
+                result.Message = $"{monster.Name} hesitates.";
+                result.WasSuccessful = false;
+                return result;
             }
 
             List<GridPosition> path = GridService.FindShortestPath(monster, target.Position, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
 
             if (path == null || path.Count <= 1)
-            {                
-                return $"{monster.Name} has no valid path to {target.Name}.";
+            {
+                result.Message = $"{monster.Name} has no valid path to {target.Name}.";
+                result.WasSuccessful = false;
+                return result;
             }
 
             int stepsToTake = Math.Min(monster.GetStat(BasicStat.Move), path.Count() - 1);
@@ -661,9 +678,10 @@ namespace LoDCompanion.BackEnd.Services.Game
             return true;
         }
 
-        private async Task<string> MoveToGetLineOfSightAsync(Monster monster, Hero target, List<Hero> heroes)
+        private async Task<ActionResult> MoveToGetLineOfSightAsync(Monster monster, Hero target, List<Hero> heroes)
         {
-            if (monster.Position == null || target.Position == null) return string.Empty;
+            var result = new ActionResult();
+            if (monster.Position == null || target.Position == null) return new ActionResult() { WasSuccessful = false };
             var allReachableSquares = GridService.GetAllWalkableSquares(monster, _dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
 
             var squaresWithLOS = allReachableSquares.Keys
@@ -1025,9 +1043,9 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// <summary>
         /// Attempts to use a random special ability if conditions are met. Otherwise, performs a standard or aimed attack.
         /// </summary>
-        private async Task<string?> AttemptSpecialAbility(Monster monster, List<Hero> heroes, Hero target, List<SpecialActiveAbility> specialAttacks)
+        private async Task<ActionResult> AttemptSpecialAbility(Monster monster, List<Hero> heroes, Hero target, List<SpecialActiveAbility> specialAttacks)
         {
-            if(monster.Position == null) return null;
+            if(monster.Position == null) return new ActionResult() { WasSuccessful = false };
             specialAttacks.Shuffle();
 
             foreach (var ability in specialAttacks)
@@ -1106,14 +1124,14 @@ namespace LoDCompanion.BackEnd.Services.Game
                 if (isUsable && currentTarget != null)
                 {
                     // Found a usable special ability and target, execute it and return the result.
-                    string abilityResult = await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, currentTarget, ability, _dungeon);
+                    var abilityResult = await _monsterSpecial.ExecuteSpecialAbilityAsync(monster, heroes, currentTarget, ability, _dungeon);
 
                     if (abilityResult.ToLower().Contains("performs a standard attack"))
                     {
                         // Handle cases where the special ability defaults to a standard attack
-                        return abilityResult + await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, currentTarget);
+                        return await _action.PerformActionAsync(_dungeon, monster, ActionType.StandardAttack, currentTarget);
                     }
-                    return abilityResult;
+                    return new ActionResult() { Message = abilityResult };
                 }
                 else
                 {
@@ -1121,7 +1139,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     continue;
                 }
             }
-            return null;
+            return new ActionResult() { WasSuccessful = false };
         }
 
         private List<Hero> FilterTargetsByHideInShadows(Monster monster, List<Hero> potentialTargets)

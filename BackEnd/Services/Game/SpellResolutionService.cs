@@ -380,13 +380,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     if (target is Door door)
                     {
                         // Logic to unlock a door
-                        door.Lock.LockHP = 0;
+                        door.Lock.PickLock(0, 100);
                         result.OutcomeMessage = $"{caster.Name} magically unlocks the door!";
                     }
                     else if (target is Chest chest)
                     {
                         // Logic to unlock a door
-                        chest.Lock.LockHP = 0;
+                        chest.Lock.PickLock(0, 100);
                         result.OutcomeMessage = $"{caster.Name} magically unlocks the chest!";
                     }
                     else

@@ -635,7 +635,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
 
                 _movementHighlighting.ClearHighlights();
-                CombatLog.Add(await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget));
+                CombatLog.Add((await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget)).Message);
                 //if hero performs an action then no other hero can be selected until next hero selection phase
                 IsAwaitingHeroSelection = false;
 
