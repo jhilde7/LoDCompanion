@@ -32,7 +32,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public List<Furniture>? FurnitureList { get; set; }
         public int EncounterModifier { get; set; }
         public EncounterType? EncounterType { get; set; }
-        public bool HasLevers { get; set; }
+        public Lever? Lever { get; set; }
         public bool RandomEncounter { get; set; } = true;
         public bool HasSpecial { get; set; }
         public string? ImagePath { get; set; }
@@ -50,7 +50,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public string? ImagePath { get; set; } = string.Empty;
         public bool IsStartingTile { get; set; }
         public bool IsObjectiveRoom { get; set; }
-        public bool HasLevers { get; set; } // Flag, actual lever logic in a service
+        public Lever? Lever { get; set; }
         public RoomCategory Category { get; set; } = RoomCategory.Room; // Default type, can be "Room" or "Corridor"
         public string? Description { get; set; } = string.Empty;
         public string? SpecialRules { get; set; } = string.Empty;
@@ -162,6 +162,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public Lock Lock { get; set; } = new Lock();
         public Queue<Room>? ExplorationDeck { get; set; }
         public Orientation Orientation { get; internal set; }
+        
+        public bool IsOpen => State == DoorState.Open || State == DoorState.BashedDown;
+        public bool IsBashedDown => State == DoorState.BashedDown;
 
         // Constructor
         public Door()
@@ -242,7 +245,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             room.Doors.Clear(); // Clear any existing doors
 
             // Levers (If Applicable)
-            room.HasLevers = roomInfo.HasLevers;
+            room.Lever = roomInfo.Lever;
 
             // Set initial state for various triggers
             room.RollEncounter = false;
@@ -1464,7 +1467,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     SpecialRules = "Levers can be pulled, check card of instructions.",
                     Size = [ 6, 6 ],
                     DoorCount = 1,
-                    HasLevers = true,
+                    Lever = new Lever(),
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
@@ -2800,7 +2803,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ImagePath = "/Resources/Rooms/R6B.png",
                     Category = RoomCategory.Room,
                     SpecialRules = "Levers can be pulled, check card of instructions.",
-                    HasLevers = true,
+                    Lever = new Lever(),
                     HasSpecial = true,
                     Size = [ 6, 6 ],
                     DoorCount = 1,

@@ -151,7 +151,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                     case <= 45:
                         searchResults.Message += "You found a set of levers. (Interaction handled by a LeverService)";
-                        room.HasLevers = true;
+                        room.Lever = new Lever();
                         break;
                     case <= 50:
                         searchResults.FoundItems.Add(await _treasure.GetCoins("4d10", 0));

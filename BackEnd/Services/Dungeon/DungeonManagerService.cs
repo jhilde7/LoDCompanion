@@ -50,7 +50,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly ThreatService _threat;
         private readonly TrapService _trap;
         private readonly PartyRestingService _partyResting;
-        private readonly LeverService _lever;
         private readonly DungeonState _dungeon;
         private readonly CombatManagerService _combatManager;
         private readonly RoomService _room;
@@ -74,7 +73,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             ThreatService threatService,
             TrapService trapService,
             PartyRestingService partyResting,
-            LeverService leverService,
             CombatManagerService combatManagerService,
             RoomService roomService,
             UserRequestService userRequestService,
@@ -89,7 +87,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _threat = threatService;
             _trap = trapService;
             _partyResting = partyResting;
-            _lever = leverService;
             _combatManager = combatManagerService;
             _room = roomService;
             _userRequest = userRequestService;
@@ -327,10 +324,10 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     var remainingCards = openedDoor.ExplorationDeck.ToList();
                     openedDoor.ExplorationDeck = null; // The old door's deck is now processed
 
-                    if (!remainingCards.Any() || newRoom.DoorCount < 1)
+                    if (!remainingCards.Any())
                     {
                         // This path is a dead end as it has no more cards.
-                        newRoom.IsDeadEnd = true;
+                        newRoom.DoorCount = 1;
                         return;
                     }
 
