@@ -43,7 +43,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             if (hero.Party == null) throw new ArgumentNullException(nameof(hero.Party), "Hero must be part of a party to pull a lever.");
             var leverColors = PrepareLeverDeck();
             var color = leverColors[0];
-            var result = new LeverPullResult { LeverColor = color };
+            var result = new LeverPullResult();
             
             var partyMemebersHasClue = hero.Party.Heroes.Any(h => h.Inventory.Backpack.Contains(EquipmentService.GetEquipmentByName("Clue"))); // This should be set based on actual party state
             if (partyMemebersHasClue)
@@ -125,6 +125,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         break;
                     case 18:
                         result.Description = "An imperceptible click is heard. The dungeon's defenses are on high alert! All doors are now trapped on a roll of 5-6.";
+                        result.DoorTrapChanceIncrease = true;
                         break;
                     case 19:
                         result.Description = "Suddenly, the floor gives way beneath a random hero, who falls into a pit trap!";
@@ -155,12 +156,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public class LeverPullResult
     {
         public string Description { get; set; } = "Nothing happens.";
-        public LeverColor LeverColor { get; set; }
-        // Add properties to signal specific game state changes to the manager
         public int ThreatIncrease { get; set; } = 0;
         public int PartyMoraleDecrease { get; set; } = 0;
         public int SanityDecrease { get; set; } = 0;
         public bool SpawnWanderingMonster { get; set; }
+        public bool DoorTrapChanceIncrease { get; internal set; }
         public bool AddExplorationCards { get; set; }
         public bool LockADoor { get; set; }
         public bool SpawnPortcullis { get; set; }
