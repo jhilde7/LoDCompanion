@@ -790,6 +790,10 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             }
 
+            if (primaryTarget is Door)
+            {
+                ((Door)primaryTarget).OnTrapTriggered -= HandleDoorTrapTrigger;
+            }
 
             if (result.WasSuccessful)
             {

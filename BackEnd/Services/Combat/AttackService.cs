@@ -86,6 +86,17 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _spellResolution.OnTouchAttack += HandleTouchAttack;
         }
 
+        public void Dispose()
+        {
+            _monsterSpecial.OnEntangleAttack -= HandleEntangleAttempt;
+            _monsterSpecial.OnKickAttack -= HandleKickAttack;
+            _monsterSpecial.OnSpitAttack -= HandleSpitAttack;
+            _monsterSpecial.OnSweepingStrikeAttack -= HandleSweepingStrikeAttack;
+            _monsterSpecial.OnTongueAttack -= HandleTongueAttack;
+            _monsterSpecial.OnWebAttack -= HandleWebAttempt;
+            _spellResolution.OnTouchAttack -= HandleTouchAttack;
+        }
+
         /// <summary>
         /// Resolves a monster's standard attack against a hero.
         /// </summary>

@@ -92,6 +92,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _lever.OnFoundTreasure += HandleTreasureFound;
         }
 
+        public void Dispose()
+        {
+            _lever.OnFoundTreasure -= HandleTreasureFound;
+        }
+
         private async Task<SearchResult> HandleTreasureFound(Hero hero, LeverResult result)
         {
             var searchResult = new SearchResult();

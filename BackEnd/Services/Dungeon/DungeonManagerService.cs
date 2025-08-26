@@ -128,6 +128,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _search = searchService;
 
             _partyManager.SetMaxMorale();
+
             _action.OnOpenDoor += HandleOpenDoor;
             _action.OnRemoveCobwebs += HandleRemoveCobwebs;
             _wanderingMonster.OnSpawnRandomEncounter += HandleSpawnRandomEncounter;
@@ -138,6 +139,20 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _trap.OnSpawnCageTrapEncounter += HandleCageTrapSpawnEncounter;
             _search.OnSpawnTreasureRoom += SpawnTreasureRoom;
             _partyResting.OnDungeonRestAsync += HandleOnDungeonRestAsync;
+        }
+
+        public void Dispose()
+        {
+            _action.OnOpenDoor -= HandleOpenDoor;
+            _action.OnRemoveCobwebs -= HandleRemoveCobwebs;
+            _wanderingMonster.OnSpawnRandomEncounter -= HandleSpawnRandomEncounter;
+            _lever.OnLeverResult -= HandleLeverResultAsync;
+            _trap.OnSpawnSkeletonsTrapEncounter -= HandleSkeletonsTrapSpawnEncounter;
+            _trap.OnSpawnMimicEncounterAsync -= HandleMimicSpawnEncounterAsync;
+            _trap.OnAddExplorationCardsToPiles -= AddExplorationCardsToPiles;
+            _trap.OnSpawnCageTrapEncounter -= HandleCageTrapSpawnEncounter;
+            _search.OnSpawnTreasureRoom -= SpawnTreasureRoom;
+            _partyResting.OnDungeonRestAsync -= HandleOnDungeonRestAsync;
         }
 
         // Create a new method to start a quest

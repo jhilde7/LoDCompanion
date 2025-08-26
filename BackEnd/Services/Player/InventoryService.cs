@@ -28,6 +28,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             _equipment.OnEquipmentDestroyed += HandleDestroyedEquipment;
         }
 
+        public void Dispose()
+        {
+            _equipment.OnEquipmentDestroyed -= HandleDestroyedEquipment;
+        }
+
         public Inventory(int slots)
         {
             QuickSlots = [.. new Equipment?[slots]];

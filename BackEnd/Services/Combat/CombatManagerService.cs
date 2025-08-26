@@ -58,6 +58,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
             _playerAction.OnMonsterMovement += HandleMonsterMovement;
         }
 
+        public void Dispose()
+        {
+            _spellResolution.OnTimeFreezeCast -= HandleTimeFreeze;
+            _playerAction.OnMonsterMovement -= HandleMonsterMovement;
+        }
+
 
         public void SetupCombat(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
         {
