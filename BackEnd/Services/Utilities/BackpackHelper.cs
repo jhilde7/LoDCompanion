@@ -8,7 +8,7 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         {
             var existingItem = backpack.FirstOrDefault(item => item != null && item.Name == itemToAdd.Name);
 
-            if (existingItem != null && existingItem.Durability == itemToAdd.Durability)
+            if (existingItem != null && existingItem.Durability == itemToAdd.Durability && existingItem.Identified == itemToAdd.Identified)
             {
                 // Item exists, so just increase the quantity
                 existingItem.Quantity += itemToAdd.Quantity;

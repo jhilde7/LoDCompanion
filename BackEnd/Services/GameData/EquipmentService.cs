@@ -1795,6 +1795,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public Inventory? Storage { get; set; }
         public Dictionary<EquipmentProperty, int> Properties { get; set; } = new Dictionary<EquipmentProperty, int>();
         public bool Identified { get; set; } = true;
+        public bool IdentifyAttempted { get; set; } = false;
         public bool AttemptedToIdentify { get; set; } = false;
         public ActiveStatusEffect? ActiveStatusEffect { get; set; }
 

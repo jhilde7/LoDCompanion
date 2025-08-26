@@ -770,6 +770,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         if (foundItem != null)
                         {
+                            if (!foundItem.Identified) await PerformActionAsync(dungeon, character, ActionType.IdentifyItem, foundItem);
                             BackpackHelper.AddItem(result.SearchResult.HeroSearching.Inventory.Backpack, foundItem);
                         }
                     }

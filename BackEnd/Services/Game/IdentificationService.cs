@@ -16,49 +16,71 @@ namespace LoDCompanion.BackEnd.Services.Game
         }
 
         /// <summary>
-        /// Attempts to identify an item using the hero's relevant skill.
+        /// Attempts to identify an item using the parties relevant skill.
         /// </summary>
         public async Task<string> IdentifyItemAsync(Hero hero, Equipment item)
         {
             int skillValue;
             string skillUsed;
+            var highestSkilled = hero;
 
-            if (!item.Identified)
+            if (!item.Identified && hero.Party != null)
             {
                 if (item is Potion)
                 {
-                    skillValue = hero.GetSkill(Skill.Alchemy);
-                    skillUsed = Skill.Alchemy.ToString();
-                    if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Connoisseur))
+                    highestSkilled = hero.Party.Heroes
+                        .OrderBy(h => h.GetSkill(Skill.Alchemy))
+                        .FirstOrDefault();
+                    if (highestSkilled != null)
                     {
-                        skillValue += 10;
+                        skillValue = highestSkilled.GetSkill(Skill.Alchemy);
+                        skillUsed = Skill.Alchemy.ToString();
+                        if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Connoisseur))
+                        {
+                            skillValue += 10;
+                        }
+                    }
+                    else
+                    {
+                        skillValue = hero.GetSkill(Skill.Alchemy);
+                        skillUsed = Skill.Alchemy.ToString();
                     }
                 }
                 else
                 {
-                    skillValue = hero.GetSkill(Skill.ArcaneArts);
-                    skillUsed = Skill.ArcaneArts.ToString();
-                    var inTunePerk = hero.Perks.FirstOrDefault(p => p.Name == PerkName.InTuneWithTheMagic);
-                    if (inTunePerk != null)
+                    highestSkilled = hero.Party.Heroes
+                        .OrderBy(h => h.GetSkill(Skill.ArcaneArts))
+                        .FirstOrDefault();
+                    if (highestSkilled != null)
                     {
-                        int focusPoints = await _powerActivation.RequestInTuneWithTheMagicActivationAsync(hero, inTunePerk);
-                        skillValue += focusPoints * 10;
-
-                        var miscastResult = await _diceRoll.RequestRollAsync("Roll for miscast check.", "1d100");
-                        await Task.Yield();
-                        // Check for miscast if InTuneWithTheMagic was used
-                        if (focusPoints > 0)
+                        skillValue = highestSkilled.GetSkill(Skill.ArcaneArts);
+                        skillUsed = Skill.ArcaneArts.ToString();
+                        var inTunePerk = hero.Perks.FirstOrDefault(p => p.Name == PerkName.InTuneWithTheMagic);
+                        if (inTunePerk != null)
                         {
-                            int miscastThreshold = 95 - (focusPoints * 5);
-                            if (miscastResult.Roll >= miscastThreshold)
-                            {
-                                int sanityLoss = (int)Math.Ceiling((double)RandomHelper.RollDie(DiceType.D6) / 2);
-                                await hero.TakeSanityDamage(sanityLoss, (new FloatingTextService(), hero.Position), _powerActivation);
-                                return $"Miscast! While trying to identify the item, {hero.Name} loses {sanityLoss} sanity!";
-                            }
-                        }
-                    }
+                            int focusPoints = await _powerActivation.RequestInTuneWithTheMagicActivationAsync(hero, inTunePerk);
+                            skillValue += focusPoints * 10;
 
+                            var miscastResult = await _diceRoll.RequestRollAsync("Roll for miscast check.", "1d100");
+                            await Task.Yield();
+                            // Check for miscast if InTuneWithTheMagic was used
+                            if (focusPoints > 0)
+                            {
+                                int miscastThreshold = 95 - (focusPoints * 5);
+                                if (miscastResult.Roll >= miscastThreshold)
+                                {
+                                    int sanityLoss = (int)Math.Ceiling((double)RandomHelper.RollDie(DiceType.D6) / 2);
+                                    await hero.TakeSanityDamage(sanityLoss, (new FloatingTextService(), hero.Position), _powerActivation);
+                                    return $"Miscast! While trying to identify the item, {hero.Name} loses {sanityLoss} sanity!";
+                                }
+                            }
+                        } 
+                    }
+                    else
+                    {
+                        skillValue = hero.GetSkill(Skill.ArcaneArts);
+                        skillUsed = Skill.ArcaneArts.ToString();
+                    }
                 } 
             }
             else
@@ -83,6 +105,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else
             {
+                item.IdentifyAttempted = true;
                 return $"{hero.Name} failed to discern the properties of the {item.Name}.";
             }
         }
