@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Player;
+using LoDCompanion.BackEnd.Services.GameData;
 
 namespace LoDCompanion.BackEnd.Services.Combat
 {
@@ -198,6 +199,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
     public static class StatusEffectService
     {
+        public static Func<Hero, Potion, Task>? OnUseHealingPotion;
         /// <summary>
         /// Attempts to apply a status to a target, performing a CON test first.
         /// </summary>
@@ -439,6 +441,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     case StatusEffectType.Caged:
                         character.CurrentAP = 0;
                         Console.WriteLine($"{character.Name} is caged and cannot act.");
+                        break;
+                    case StatusEffectType.BleedingOut:
+                        if(character is Hero)
+                        {
+                            hero = (Hero)character;
+                            var healingPotion = hero.Inventory.QuickSlots.FirstOrDefault(i => i != null && i is Potion potion && potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.HealHP));
+                            if (healingPotion != null && OnUseHealingPotion != null) await OnUseHealingPotion.Invoke(hero, (Potion)healingPotion);
+                        }
+                        character.CurrentAP = 0;
                         break;
 
                 }

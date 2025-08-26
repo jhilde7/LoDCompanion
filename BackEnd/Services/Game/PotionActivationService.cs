@@ -16,6 +16,18 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             _powerActivation = powerActivation;
             _diceRoll = diceRoll;
+
+            StatusEffectService.OnUseHealingPotion += HandleUseHealingPotion;
+        }
+
+        public void Dispose()
+        {
+            StatusEffectService.OnUseHealingPotion -= HandleUseHealingPotion;
+        }
+
+        private async Task HandleUseHealingPotion(Hero hero, Potion potion)
+        {
+            await DrinkPotionAsync(hero, potion);
         }
 
         public async Task<string> DrinkPotionAsync(Hero hero, Potion potion)

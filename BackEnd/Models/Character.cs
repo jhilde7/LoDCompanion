@@ -302,7 +302,7 @@ namespace LoDCompanion.BackEnd.Models
         }
 
         // Common methods for all characters
-        public virtual async Task<int> TakeDamageAsync(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation, CombatContext? combatContext = null, DamageType? damageType = null, bool ignoreAllArmour = false)
+        public async Task<int> TakeDamageAsync(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation, CombatContext? combatContext = null, DamageType? damageType = null, bool ignoreAllArmour = false)
         {
             int naturalArmour = GetStat(BasicStat.NaturalArmour);
             bool fireDamage = combatContext != null && combatContext.IsFireDamage || damageType == DamageType.Fire;
@@ -335,10 +335,10 @@ namespace LoDCompanion.BackEnd.Models
             if (CurrentHP <= 0)
             {
                 CurrentHP = 0;
-                if (this is Hero hero && hero.Party != null && hero.Party.PartyManager != null) 
-                { 
-                    hero.Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDown); 
-                    // TODO: initiate Bleedout
+                if (this is Hero hero && hero.Party != null && hero.Party.PartyManager != null)
+                {
+                    hero.Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDown);
+                    await ActivateBleedingOut(activation, hero);
                 }
                 else Die();
             }
@@ -376,6 +376,17 @@ namespace LoDCompanion.BackEnd.Models
             }
 
             return damage; // Return the amount of damage taken
+        }
+
+        private async Task ActivateBleedingOut(PowerActivationService activation, Hero hero)
+        {
+            await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.BleedingOut, -1), activation);
+            var roll = RandomHelper.RollDie(DiceType.D4);
+            var stats = hero.BasicStats.Keys.ToList();
+            stats.Shuffle();
+            var statValue = GetStat(stats[0]);
+            var newValue = statValue - roll;
+            hero.SetStat(stats[0], newValue);
         }
 
         private async Task ApplyDiseaseEffectAsync(PowerActivationService activation)
