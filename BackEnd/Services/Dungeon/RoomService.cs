@@ -184,6 +184,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             else
             {
                 // If the door is locked, it cannot be opened.
+                State = DoorState.Closed;
                 return false;
             }
         }

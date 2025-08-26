@@ -50,6 +50,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         Reinforcements,
         Onwards,
         Lever,
+        RemoveCobwebs,
     }
 
     /// <summary>

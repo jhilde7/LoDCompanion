@@ -5,6 +5,7 @@ using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.Combat;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -128,6 +129,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             _partyManager.SetMaxMorale();
             _action.OnOpenDoor += HandleOpenDoor;
+            _action.OnRemoveCobwebs += HandleRemoveCobwebs;
             _wanderingMonster.OnSpawnRandomEncounter += HandleSpawnRandomEncounter;
             _lever.OnLeverResult += HandleLeverResultAsync;
             _trap.OnSpawnSkeletonsTrapEncounter += HandleSkeletonsTrapSpawnEncounter;
@@ -584,6 +586,26 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return true;
         }
 
+        private void SpawnGiantSpidersFromRemoveCobwebs(int amount, Room room)
+        {
+            var paramaters = new Dictionary<string, string>()
+            {
+                { "Name", "Giant Spider" },
+                { "Count", amount.ToString() }
+            };
+            var spiders = _encounter.GetEncounterByParams(paramaters);
+
+            foreach (var spider in spiders)
+            {
+                var placementParams = new Dictionary<string, string>()
+                {
+                    { "PlacementRule", "RandomSquare" }
+                };
+
+                _placement.PlaceEntity(spider, room, placementParams);
+            }
+        }
+
         private async Task HandleMimicSpawnEncounterAsync(Chest chest, bool detected = false)
         {
             var mimic = _encounter.GetRandomEncounterByType(EncounterType.Mimic)[0];
@@ -713,6 +735,22 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private async Task<bool> HandleOpenDoor(Door door)
         {
             return await RevealNextRoomAsync(door);
+        }
+
+        private async Task<bool> HandleRemoveCobwebs(Hero hero, Door door)
+        {
+            var rollResult = await _userRequest.RequestRollAsync("Roll to determine effect.", "1d10");
+            await Task.Yield();
+            int roll = rollResult.Roll;
+
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.RemoveCobwebs, 1);
+
+            if (roll >= 9) 
+            { 
+                SpawnGiantSpidersFromRemoveCobwebs(RandomHelper.RollDie(DiceType.D2), hero.Room); 
+                return true;
+            }
+            else return false;
         }
     }
 }

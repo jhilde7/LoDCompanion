@@ -56,6 +56,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         SearchRoomWithParty,
         PullLever,
         OpenPortcullis,
+        RemoveCobwebs,
     }
 
     public class ActionInfo
@@ -100,6 +101,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public event Func<Monster, List<GridPosition>, Task<bool>>? OnMonsterMovement;
         public event Func<Door, Task<bool>>? OnOpenDoor;
+        public event Func<Hero, Door, Task<bool>>? OnRemoveCobwebs;
 
         public ActionService(
             SearchService searchService,
@@ -279,37 +281,22 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Character, ActionType.OpenDoor):
                     if (primaryTarget is Door)
                     {
-                        var door = (Door)primaryTarget;
-                        if (door.State == DoorState.Open) return new ActionResult() { Message = "The door is already open.", WasSuccessful = false };
-
-                        // Resolve Lock
-                        if (door.Lock.IsLocked)
-                        {
-                            return new ActionResult() { Message = $"The door is locked (Difficulty: {door.Lock.LockModifier}, HP: {door.Lock.LockHP}).", WasSuccessful = false};
-                        }
-
-                        // Open the door and reveal the next room
-                        door.Open();
-                        
-                        if (OnOpenDoor != null && await OnOpenDoor.Invoke(door))
-                        {
-                            result.Message = result.Message = "The door creaks open...";
-                        }
+                        result = await OpenDoor((Door)primaryTarget);
                     }
                     else
                     {
-                        result.Message = "Action was unsuccessful";
+                        result.Message = "Target is not a door to open.";
                         result.WasSuccessful = false;
                     }
                     break;
                 case (Hero hero, ActionType.OpenPortcullis):
                     if (primaryTarget is Door)
                     {
-                        await OpenPortcullis((Door)primaryTarget, hero);
+                        result = await OpenPortcullis((Door)primaryTarget, hero);
                     }
                     else
                     {
-                        result.Message = "Target is not a door to break down.";
+                        result.Message = "Target is not a doorway.";
                         result.WasSuccessful = false;
                     }
                     break;
@@ -317,6 +304,17 @@ namespace LoDCompanion.BackEnd.Services.Player
                     if (primaryTarget is Door)
                     {
                         result = await BreakDownDoorAsync(dungeon, character, (Door)primaryTarget, weapon);
+                    }
+                    else
+                    {
+                        result.Message = "Target is not a door to break down.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Hero hero, ActionType.RemoveCobwebs):
+                    if (primaryTarget is Door)
+                    {
+                        result = await RemoveCobwebsAsync(hero, (Door)primaryTarget);
                     }
                     else
                     {
@@ -781,6 +779,46 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
+        private async Task<ActionResult> RemoveCobwebsAsync(Hero hero, Door door)
+        {
+            var result = new ActionResult();
+            if (OnRemoveCobwebs != null)
+            {
+                var isEncounter = await OnRemoveCobwebs.Invoke(hero, door);
+                if (isEncounter) result.Message = $"{hero.Name} removes the webs, but the spinners are not happy. Giant spiders descend form the ceiling and attack!";
+                else result.Message = $"{hero.Name} removes the webs. The doorway is now clear, but you hear faint shreiks which imply's somebody is unhappy with your actions.";
+                door.State = DoorState.Open;
+            }
+            else
+            {
+                result.Message = "Nothing happens.";
+                result.WasSuccessful = false;
+            }
+            return result;
+        }
+
+        private async Task<ActionResult> OpenDoor(Door door)
+        {
+            var result = new ActionResult();
+            if (door.State == DoorState.Open) return new ActionResult() { Message = "The door is already open.", WasSuccessful = false };
+
+            // Resolve Lock
+            if (door.Lock.IsLocked)
+            {
+                return new ActionResult() { Message = $"The door is locked (Difficulty: {door.Lock.LockModifier}, HP: {door.Lock.LockHP}).", WasSuccessful = false };
+            }
+
+            // Open the door and reveal the next room
+            door.Open();
+
+            if (OnOpenDoor != null && await OnOpenDoor.Invoke(door))
+            {
+                result.Message = result.Message = "The door creaks open...";
+            }
+
+            return result;
+        }
+
         private async Task<ActionResult> OpenPortcullis(Door door, Hero hero)
         {
             var result = new ActionResult();
@@ -802,6 +840,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 result.Message = $"{hero.Name} fails to lift the portcullis and instead raises the threat level due to the loud bang made when it dropped.";
                 _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
+                door.Open();
             }
 
             return result;
@@ -1508,6 +1547,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ActionType.SearchRoom => 2,
                 ActionType.HealSelf => 2,
                 ActionType.AssistAllyOutOfPit => 2,
+                ActionType.RemoveCobwebs => 2,
                 ActionType.IdentifyItem => 0,
                 ActionType.ReloadWhileMoving => 0,
                 ActionType.Pray => 0,

@@ -17,7 +17,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         // --- Target-Based Rules ---
         RelativeToTarget,
         AsFarAsPossible,
-        RelativeToPosition
+        RelativeToPosition,
+        RandomSquare
     }
 
     public class PlacementService
@@ -113,6 +114,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                         // Catch any errors that occur during parsing and log them
                         Console.WriteLine($"Error parsing PlacementPosition '{positionString}': {ex.Message}");
                     }
+                    break;
+
+                case PlacementRule.RandomSquare:
+                    var squares = room.Grid.Values.ToList();
+                    squares.Shuffle();
+                    while (squares[0].IsOccupied || squares[0].IsWall) squares.Shuffle();
+                    potentialPositions = new List<GridPosition>() { squares[0].Position };
                     break;
             }
 
