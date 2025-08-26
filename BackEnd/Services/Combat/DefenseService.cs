@@ -113,6 +113,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             if (roll >= 95) // Fumble on 95-100
             {
                 result.WeaponDamaged = true;
+                result.WasSuccessful = false;
+                weapon.TakeDamage(1);
                 result.OutcomeMessage = $"{hero.Name}'s parry fails and their {weapon.Name} is damaged!";
             }
             else if (roll <= 80 && roll <= hero.GetSkill(Skill.CombatSkill))
