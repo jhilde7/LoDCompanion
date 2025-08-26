@@ -1,4 +1,6 @@
-﻿namespace LoDCompanion.BackEnd.Services.Game
+﻿using LoDCompanion.BackEnd.Services.Player;
+
+namespace LoDCompanion.BackEnd.Services.Game
 {
     public readonly struct Hex
     {
@@ -64,20 +66,35 @@
         }
     }
 
+    public enum Compass
+    {
+        North,
+        NorthEast,
+        SouthEast,
+        South,
+        SouthWest,
+        NorthWest
+    }
+
     public class HexGridService
     {
         // Store your world map in a dictionary for easy lookups
         public Dictionary<Hex, HexTile> WorldGrid { get; } = new Dictionary<Hex, HexTile>();
 
         // Pre-defined direction vectors for finding neighbors easily
-        private static readonly List<Hex> HexDirections = new List<Hex>
+        private static readonly Dictionary<Compass, Hex> HexDirections = new Dictionary<Compass, Hex>
         {
-            new Hex(1, 0, -1), new Hex(1, -1, 0), new Hex(0, -1, 1),
-            new Hex(-1, 0, 1), new Hex(-1, 1, 0), new Hex(0, 1, -1)
+            { Compass.NorthEast, new Hex(1, -1, 0) },
+            { Compass.North, new Hex(0, -1, 1) },
+            { Compass.NorthWest, new Hex(-1, 0, 1) },
+            { Compass.SouthWest, new Hex(-1, 1, 0) },
+            { Compass.South, new Hex(0, 1, -1) },
+            { Compass.SouthEast, new Hex(1, 0, -1) }
         };
 
         // --- Grid Generation ---
-        public void GenerateMap(int radius)
+        //World has a radius of 41
+        public void GenerateMap(List<Settlement> settlements, int radius = 41)
         {
             WorldGrid.Clear();
             for (int q = -radius; q <= radius; q++)
@@ -89,6 +106,14 @@
                     var hex = new Hex(q, r, -q - r);
                     WorldGrid[hex] = new HexTile(hex);
                     // TODO: Add logic to assign terrain types
+                }
+
+                foreach (var settlement in settlements)
+                {
+                    foreach (var tile in settlement.HexTiles)
+                    {
+                        WorldGrid[tile.Position] = tile;
+                    }
                 }
             }
         }
@@ -104,7 +129,7 @@
         public List<HexTile> GetNeighbors(Hex hex)
         {
             var neighbors = new List<HexTile>();
-            foreach (var direction in HexDirections)
+            foreach (var direction in HexDirections.Values)
             {
                 var neighborHex = Hex.Add(hex, direction);
                 var tile = GetTileAt(neighborHex);
