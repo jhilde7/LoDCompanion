@@ -4756,7 +4756,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 2 }
                     },
                     XP = 115,
-                    TreasureType = TreasureType.Part
+                    TreasureType = TreasureType.Part,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4789,7 +4790,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 2,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Warhammer")?.Clone() ?? new Weapon() },
                     XP = 110,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4825,7 +4827,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Mirrored self"),
                     },
                     XP = 200,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4863,7 +4866,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.FreeBellow
                     },
                     XP = 550,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4890,7 +4894,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     HasShield = true,
                     ArmourValue = 2,
                     XP = 110,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4917,7 +4922,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     HasShield = true,
                     ArmourValue = 2,
                     XP = 110,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4949,7 +4955,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.Bellow
                     },
                     XP = 450,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -4980,7 +4987,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     SpecialRules = new List<string>() { "Summon children: Summons giant spider on behaviour roll of 5-6." },
                     XP = 900,
-                    TreasureType = TreasureType.Part
+                    TreasureType = TreasureType.Part,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5012,7 +5020,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.SweepingStrike
                     },
                     XP = 400,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5046,7 +5055,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.SweepingStrike
                     },
                     XP = 500,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5073,7 +5083,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     ArmourValue = 1,
                     XP = 120,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5100,7 +5111,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.Seduction
                     },
                     XP = 140,
-                    TreasureType = TreasureType.T3
+                    TreasureType = TreasureType.T3,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5126,7 +5138,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     HasShield = true,
                     ArmourValue = 2,
                     XP = 150,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5163,7 +5176,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.Bellow
                     },
                     XP = 450,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5198,7 +5212,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.Bellow
                     },
                     XP = 700,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5233,7 +5248,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         new ActiveStatusEffect(StatusEffectType.Frenzy, -1)
                     },
                     XP = 300,
-                    TreasureType = TreasureType.Turog
+                    TreasureType = TreasureType.Turog,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5259,7 +5275,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Spells = BuildSpellList(3, 2, 2),
                     SpecialRules = new List<string>() { "Raise dead" },
                     XP = 800,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5288,7 +5305,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 800,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5307,7 +5325,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Behavior = MonsterBehaviorType.HumanoidMelee,
                     SpecialRules = new List<string>() { "Dodge (45)" },
                     XP = 0,
-                    TreasureType = TreasureType.None
+                    TreasureType = TreasureType.None,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5339,7 +5358,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.XLarge, 0}
                     },
                     XP = 1400,
-                    TreasureType = TreasureType.Part
+                    TreasureType = TreasureType.Part,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5364,7 +5384,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 2,
                     Spells = BuildSpellList(2, 2, 2),
                     XP = 150,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5394,7 +5415,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.MultipleAttacks, 2 }
                     },
                     XP = 650,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5421,7 +5443,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 2,
                     SpecialRules = new List<string>() { "Frost DMG" },
                     XP = 190,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5450,7 +5473,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 600,
-                    TreasureType = TreasureType.TheMasterLocksmith
+                    TreasureType = TreasureType.TheMasterLocksmith,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5478,7 +5502,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.Poisonous, 0}
                     },
                     XP = 250,
-                    TreasureType = TreasureType.Part
+                    TreasureType = TreasureType.Part,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5510,7 +5535,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 1,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Broadsword")?.Clone() ?? new Weapon() },
                     XP = 1000,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5542,7 +5568,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.Large, 0}
                     },
                     XP = 650,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5573,7 +5600,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 250,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5598,7 +5626,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 2,
                     HasShield = true,
                     XP = 280,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5634,7 +5663,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 280,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5664,7 +5694,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Blind"),
                     },
                     XP = 200,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5695,7 +5726,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Summon demon"),
                     },
                     XP = 260,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5725,7 +5757,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Mirrored self"),
                     },
                     XP = 200,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5755,7 +5788,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Mirrored self"),
                     },
                     XP = 200,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5786,7 +5820,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Blind"),
                     },
                     XP = 350,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5844,7 +5879,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.CauseFear, 5 }
                     },
                     XP = 140,
-                    TreasureType = TreasureType.None
+                    TreasureType = TreasureType.None,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5881,7 +5917,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     ArmourValue = 1,
                     SpecialRules = new List<string>() { "1 Healing Potion", "1 Vial of Black Acanthus Gas" },
                     XP = 140,
-                    TreasureType = TreasureType.TheAlchemistOutlaw
+                    TreasureType = TreasureType.TheAlchemistOutlaw,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5911,7 +5948,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.Large, 0}
                     },
                     XP = 500,
-                    TreasureType = TreasureType.Part
+                    TreasureType = TreasureType.Part,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5951,7 +5989,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.Bellow
                     },
                     XP = 650,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -5986,7 +6025,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     HasShield = true,
                     SpecialRules = new List<string>() { "Cloak (Armour +1 from behind)" },
                     XP = 600,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -6026,7 +6066,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpellService.GetMonsterSpellByName("Fireball"),
                     },
                     XP = 1500,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -6056,7 +6097,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         { MonsterSpecialName.WeakToSilver, 0},
                     },
                     XP = 140,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -6091,7 +6133,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         SpecialActiveAbility.Seduction
                     },
                     XP = 1500,
-                    TreasureType = TreasureType.T5
+                    TreasureType = TreasureType.T5,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -6122,7 +6165,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Spells = BuildSpellList(3, 4, 0),
                     SpecialRules = new List<string>() { "Raise dead" },
                     XP = 200,
-                    TreasureType = TreasureType.T4
+                    TreasureType = TreasureType.T4,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -6149,7 +6193,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     XP = 110,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 },
                 new Monster()
                 {
@@ -6174,7 +6219,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     HasShield = true,
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new Weapon() },
                     XP = 130,
-                    TreasureType = TreasureType.T2
+                    TreasureType = TreasureType.T2,
+                    IsUnique = true
                 }
             };
         }

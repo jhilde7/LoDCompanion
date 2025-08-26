@@ -87,7 +87,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             PrepareCharactersForCombat(heroes, monsters);
-            _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat, didBashDoor);
+            _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat, didBashDoor, firstTurn: true);
 
             CombatLog.Add("The battle begins!");
 

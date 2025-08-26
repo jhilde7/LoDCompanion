@@ -27,7 +27,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <param name="heroes">The list of heroes in the combat.</param>
         /// <param name="monsters">The list of monsters in the combat.</param>
         /// <param name="didBashDoor">True if the heroes bashed down the door to enter combat.</param>
-        public void SetupInitiative(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
+        public void SetupInitiative(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false, bool firstTurn = false)
         {
             _initiativeTokens.Clear();
 
@@ -41,8 +41,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             // Add one token per monster
-            for (int i = 0; i < monsters.Count; i++)
+            foreach (var monster in monsters)
             {
+                if (monster.IsUnique) _initiativeTokens.Add(ActorType.Monster); // unique monsters give added chance of activation
                 _initiativeTokens.Add(ActorType.Monster);
             }
 
@@ -53,17 +54,20 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 _initiativeTokens.Add(ActorType.Monster);
             }
 
-            // Handle "Perfect Hearing" rule
-            bool heroHasPerfectHearing = heroes.Any(h => h.Talents.Any(t => t.Name == TalentName.PerfectHearing));
-            bool monsterHasPerfectHearing = monsters.Any(m => m.SpecialRules.Contains("Perfect Hearing"));
+            if (firstTurn)
+            {
+                // Handle "Perfect Hearing" rule
+                bool heroHasPerfectHearing = heroes.Any(h => h.Talents.Any(t => t.Name == TalentName.PerfectHearing));
+                bool monsterHasPerfectHearing = monsters.Any(m => m.SpecialRules.Contains("Perfect Hearing"));
 
-            if (heroHasPerfectHearing && !monsterHasPerfectHearing)
-            {
-                _initiativeTokens.Add(ActorType.Hero);
-            }
-            else if (monsterHasPerfectHearing && !heroHasPerfectHearing)
-            {
-                _initiativeTokens.Add(ActorType.Monster);
+                if (heroHasPerfectHearing && !monsterHasPerfectHearing)
+                {
+                    _initiativeTokens.Add(ActorType.Hero);
+                }
+                else if (monsterHasPerfectHearing && !heroHasPerfectHearing)
+                {
+                    _initiativeTokens.Add(ActorType.Monster);
+                } 
             }
 
             // Shuffle the tokens to randomize the turn order

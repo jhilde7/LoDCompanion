@@ -1131,6 +1131,7 @@ namespace LoDCompanion.BackEnd.Models
         public MonsterBehaviorType Behavior { get; set; } = MonsterBehaviorType.HumanoidMelee;
 		public Hero? TauntedBy { get; set; } // The hero this monster is forced to target
 		public HateCategory HateCategory { get; set; } = HateCategory.Bandits;
+        public bool IsUnique { get; set; }
 
         public Monster()
         {
