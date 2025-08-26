@@ -518,7 +518,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             break;
                         default: // Melee and other types
                                  // Place randomly, but at least 1 square away from heroes
-                            placementParams["PlacementRule"] = "RandomEdge";
+                            placementParams["PlacementRule"] = "RandomSquare";
                             break;
                     }
 
