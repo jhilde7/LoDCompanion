@@ -49,7 +49,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         Purple,
         White,
         Yellow,
-        Black
+        Black,
+        Turquoise
     }
 
     public class Settlement

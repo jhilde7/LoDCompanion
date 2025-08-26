@@ -4,29 +4,6 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 
 namespace LoDCompanion.BackEnd.Services.Game
 {
-    public enum QuestLocation
-    {
-        Caelkirk,
-        Coalfell,
-        Freyfall,
-        Irondale,
-        Rochdale,
-        SilverCity,
-        TheOutpost,
-        Windfair,
-        Whiteport,
-        AncientLands,
-        Random,
-        MainQuest,
-        CurrentTown,
-        OutsideRochdale,
-        White22,
-        White34,
-        White36,
-        White38,
-        White39,
-        White40
-    }
 
     public enum EncounterType
     {
@@ -58,10 +35,16 @@ namespace LoDCompanion.BackEnd.Services.Game
         Mimic
     }
 
+    public class QuestHexLocation
+    {
+        public HexTile HexTile { get; set; } = new HexTile(new Hex(0, 0, 0));
+        public Dictionary<QuestDiceColor, int> QuestLocations { get; set; } = new Dictionary<QuestDiceColor, int>();
+    }
+
     public class Quest
     {
         public bool IsSideQuest { get; set; }
-        public QuestLocation Location { get; set; }
+        public (QuestDiceColor, int)? ColorLocation { get; set; }
         public string Name { get; set; } = string.Empty;
         public QuestType QuestType { get; set; } = QuestType.Dungeon;
         public RoomInfo? StartingRoom { get; set; }
@@ -111,6 +94,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
         public List<Quest> Quests => GetQuests();
         public bool IsQuestActive => ActiveQuest != null;
+        public List<QuestHexLocation> QuestHexLocations => GetQuestHexLocations();
 
         public QuestService(
             DungeonManagerService dungeonManagerService,
@@ -220,7 +204,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     IsSideQuest = true,
                     Name = "The Missing Brother",
-                    Location = QuestLocation.MainQuest,
                     SpecialRules = "Once the card pile is done, place one extra Room Card somewhere within reach, without looking at it. Next, add Side Quest 1 to the pile. When you draw this, replace it with the extra Room Card. This is the Side Quest Objective Room. If the main objective room is found before this one, the heroes must decide whether to go home or continue searching for the Side Quest Room.",
                     RewardCoin = 100,
                     EncounterType = EncounterType.TheMissingBrother,
@@ -234,7 +217,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     IsSideQuest = true,
                     Name = "Slay the beast!",
-                    Location = QuestLocation.MainQuest,
                     SpecialRules = "Add Side Quest 1 card to the pile. When you draw this, put it aside and pull the next card. This card will now lead you to the Objective Room. There is one more door than normal in that room. That door will lead to the Side Quest Objective Room.",
                     RewardSpecial = "Bet dependent on monster: Giant spider (300c), Cave Monster (400c), Common Troll (500c), Minotaur (600c), Gigantic Snake (700c), Gigantic Spider (800c).",
                     EncounterType = EncounterType.SlayTheBeast,
@@ -248,7 +230,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     IsSideQuest = true,
                     Name = "The Mapmaker",
-                    Location = QuestLocation.MainQuest,
                     SpecialRules = "The party must keep the map maker alive in the journey from the city, through the dungeon, and back again. He should be represented with a model just like the heroes, and the players may move them in the way they see fit. He will always strive to be within 2 squares of a hero, as that makes them feel safe. He may not fight or interact with the enemy, although he may try to dodge as usual.",
                     RewardCoin = 500,
                     EncounterType = EncounterType.MainQuest,
@@ -258,7 +239,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     IsSideQuest = true,
                     Name = "Go Fetch!",
-                    Location = QuestLocation.MainQuest,
                     SpecialRules = "Make sure that R9 makes it into the pile of Exploration Cards. If you manage to find R9, you have also found the Objective Room for this side quest.",
                     RewardCoin = 350,
                     RewardSpecial = "If found, the heroes may use the standard Heater Shield (DEF 6, ENC 4).",
@@ -272,7 +252,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     IsSideQuest = true,
                     Name = "Manhunt",
-                    Location = QuestLocation.MainQuest,
                     SpecialRules = "Once the dungeon deck is done, take the same number of cards from the Dungeoneers Deck in a separate pile. Choose one specific card that represents the bandit and then mix that deck and place it next to the ordinary deck. Once you open a door, draw one card from this new deck. If you draw the card representing the bandit, you have found them. Roll for Encounters as usual, then place the bandit in the far end of the room.",
                     RewardCoin = 250,
                     EncounterType = EncounterType.MainQuest,
@@ -283,7 +262,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     IsSideQuest = true,
                     Name = "Mushrooms",
-                    Location = QuestLocation.MainQuest,
                     SpecialRules = "Once the Dungeon Deck is done, take the same number of cards from the Dungeoneers Deck in a separate deck. Choose one specific card that represents the Side Quest Objective and then mix that deck and place it next to the ordinary deck. Once you search a room or corridor, draw one card from this new deck. If the card you draw is the Side Quest Objective Card, you have found the mushrooms.",
                     RewardCoin = 250,
                     RewardSpecial = "A potent healing potion that heals 2d6 HP.",
@@ -395,7 +373,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Spring Cleaning",
-                    Location = QuestLocation.CurrentTown,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear regardless of the Scenario dice result. For this quest only, the party may gain the benefits of the 'Rest' rule (p. 86) without consuming any food rations.",
                     CorridorCount = 4,
@@ -415,7 +392,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Dead Rising",
-                    Location = QuestLocation.SilverCity,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
                     CorridorCount = 5,
@@ -434,7 +410,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Highwaymen",
-                    Location = QuestLocation.White34,
+                    ColorLocation = (QuestDiceColor.White, 34),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
                     CorridorCount = 6,
@@ -496,7 +472,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 {
                     Name = "The Burning Village",
                     QuestType = QuestType.WildernessQuest,
-                    Location = QuestLocation.OutsideRochdale,
                     StartingRoom = _room.GetRoomByName("Field With Trees"),
                     SpecialRules = "The heroes are allowed one rest before the battle, but no roll on the Travel Events Table is necessary. No Threat Level is used during this quest. The Scenario dice should still be rolled and a result of 9-0 triggers reinforcements for the Goblinoids. In that case, roll once more on the OaG Table and place them cantered along a random table edge.",
                     RewardSpecial = "If the heroes win, they receive 3 random potions and 1 Fine Treasure. If they flee, there is no reward.",
@@ -508,7 +483,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Apprentice",
-                    Location = QuestLocation.White22,
+                    ColorLocation = (QuestDiceColor.White, 22),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result. Any Encounter Table roll of 15-20 results in an encounter with the caretaker, plus the ordinary encounter. The caretaker, Emil, wields a sharpened shovel (Greataxe) and drops a bronze key upon death.",
                     CorridorCount = 6,
@@ -527,7 +502,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Sacrifice",
-                    Location = QuestLocation.White36,
+                    ColorLocation = (QuestDiceColor.White, 36),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -544,7 +519,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Master",
-                    Location = QuestLocation.White39,
+                    ColorLocation = (QuestDiceColor.White, 39),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice triggers an event on a roll of 8-0. If the heroes chose to stop the sacrifice in Quest 6A, roll twice on the Encounter Table for every encounter, choosing the higher result. The middle chest in room R10 is locked and can only be opened with the bronze key from Quest 5; it contains the Vanquisher.",
                     CorridorCount = 7,
@@ -564,14 +539,14 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Lair of the Spider Queen",
-                    Location = QuestLocation.White40,
+                    ColorLocation = (QuestDiceColor.White, 40),
                     RewardCoin = 1200,
                     NarrativeQuest = "The party has been contacted by an elderly wizard who tells them the story of Queen Araneae, who controlled spiders with a magical sceptre. He believes the sceptre is buried with them in a tomb north of the Ancient Lands and will reward the party handsomely for retrieving it. To begin the quest, travel to location White 40."
                 },
                 new Quest()
                 {
                     Name = "Level 1: The Entrance",
-                    Location = QuestLocation.White40,
+                    ColorLocation = (QuestDiceColor.White, 40),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Secondary Quest card 1 should be mixed in with the first half of the pile.",
                     CorridorCount = 7,
@@ -589,7 +564,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Level 2: The Basement",
-                    Location = QuestLocation.White40,
+                    ColorLocation = (QuestDiceColor.White, 40),
                     StartingRoom = _room.GetRoomByName("C18"),
                     SpecialRules = "The Secondary Quest card 1 should be mixed in with the stack before dividing it to add the normal objective card. A Wandering Monster will appear when the Threat Level reaches 10 and 16. The secondary objective involves fighting Kraghul the Mighty, a powerful Minotaur.",
                     CorridorCount = 7,
@@ -607,7 +582,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Level 3: The Tomb of the Spider Queen",
-                    Location = QuestLocation.White40,
+                    ColorLocation = (QuestDiceColor.White, 40),
                     StartingRoom = _room.GetRoomByName("C8"),
                     SpecialRules = "Whenever you have an encounter, roll a die. An odd number will result in 1d3 Giant Spiders; an even number will result in an encounter from the Undead Encounter List. All doors are considered cobweb covered openings. A Threat Level of 12 will trigger a Wandering Monster.",
                     CorridorCount = 7,
@@ -626,7 +601,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Stop the Heretics",
-                    Location = QuestLocation.Random,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear. In the Objective Room, the heroes have 10 turns to kill the caster. If they fail, the ritual succeeds, the caster collapses, and demons are summoned.",
                     CorridorCount = 6,
@@ -645,7 +619,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Master Alchemist",
-                    Location = QuestLocation.Random,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. To complete the objective, a hero must spend 2 actions next to the lava river and pass a DEX test to fill a special vial.",
                     CorridorCount = 7,
@@ -664,7 +637,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Preventing a Disaster",
-                    Location = QuestLocation.SilverCity,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. Ignore any special rules for the dead members of the Brotherhood; treat them as searchable dead adventurers. The objective room has tremors: if the Scenario Dice is 1-2, each hero must pass a DEX test or be toppled.",
                     CorridorCount = 7,
@@ -684,7 +656,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Rescuing the Prisoners",
-                    Location = QuestLocation.Random,
                     SpecialRules = "When the Threat Level reaches 14, a Wandering Monster appears. An encounter roll of 17-18 means you have met Briggo the ogre, and 19-20 means you have met Gorm the ogre bodyguard. Every time the Scenario dice is 1-3, one of the 10 prisoners is killed.",
                     CorridorCount = 8,
                     RoomCount = 8,
@@ -703,7 +674,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Pleasure House",
-                    Location = QuestLocation.SilverCity,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice is triggered on a result of 8-0.",
                     CorridorCount = 8,
@@ -723,7 +693,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Cleansing the Water",
-                    Location = QuestLocation.CurrentTown,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "A Wandering Monster will appear when the Threat Level reaches 14.",
                     CorridorCount = 7,
@@ -743,7 +712,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Baptising",
-                    Location = QuestLocation.Random,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -762,7 +730,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Returning the Relic",
-                    Location = QuestLocation.Random,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Due to the curse of the stone, all Luck Points are nullified until the stone is returned. The Scenario dice is triggered on a result of 8-0. After all enemies are defeated, a hero must stand before the statue and pass a DEX Test to replace the stone, which takes one turn. Failure increases the Threat Level by 1.",
                     CorridorCount = 8,
@@ -781,7 +748,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Slaying the Fiend",
-                    Location = QuestLocation.Random,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The fiend, Molgor, is a huge Minotaur with the Frenzy and Ferocious Charge rules. He has been wounded in a previous fight; roll on a table to determine how many starting wounds to subtract.",
                     CorridorCount = 8,
@@ -800,7 +766,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Closing the Portal",
-                    Location = QuestLocation.SilverCity,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Any encounter roll of an even 10 (10, 20, 30...) results in an encounter with random demons. To close the portal, a hero must spend 1d6+1 consecutive turns reading a scroll. If the reader is interrupted in any way, they must start over. Every other turn, a new demon emerges from the portal.",
                     CorridorCount = 8,
@@ -820,7 +785,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Retrieving the Family Heirloom",
-                    Location = QuestLocation.Random,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice is triggered on 8-0. The objective room contains six tombs. Take 6 playing cards (3 black, 1 red, 2 face cards) and shuffle them. Opening a tomb takes two heroes a full turn. Draw a card: Black means an empty tomb. Red means the sword is found. A face card means a mummy attacks.",
                     CorridorCount = 8,
@@ -839,7 +803,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Stopping the Necromancer",
-                    Location = QuestLocation.CurrentTown,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The floor of the objective room is covered in corpses, making combat difficult; heroes suffer a -10% penalty to CS and RS. A 'To Hit' roll of 90+ means the hero falls and must pass a DEX test to stand up. The Zombies will form a protective circle around Ragnalf and will not move. If Ragnalf dies, all zombies die as well.",
                     CorridorCount = 7,
@@ -858,7 +821,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Tomb Raiders",
-                    Location = QuestLocation.White38,
+                    ColorLocation = (QuestDiceColor.White, 38),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Opening a tomb takes two heroes a full turn. While in the objective room, the Scenario dice triggers an event on a roll of 1-4; any result that would increase the Threat Level instead summons a Wandering Monster.",
                     CorridorCount = 7,
@@ -877,7 +840,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Pyramid of Xantha",
-                    Location = QuestLocation.AncientLands,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Due to the abundance of treasure, you may re-roll 4 rolls on the Furniture Chart during the quest (a re-roll cannot be re-rolled). If the scenario roll is triggered in the objective room, the mummy of Xánthu himself (a Mummy Prince) will rise from a sarcophagus to join the fight.",
                     CorridorCount = 7,
@@ -896,7 +858,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Tomb of the Hierophant",
-                    Location = QuestLocation.AncientLands,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart. Mix a special deck of 14 playing cards (11 red, Ace/2/3 of Spades). Flip one card upon entering each new tile; if a spade is drawn, a special event occurs (finding a statue, triggering a fire trap, or finding a stone tablet).",
                     CorridorCount = 7,
@@ -916,7 +877,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Temple of Despair",
-                    Location = QuestLocation.AncientLands,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. A side quest card is added to the exploration deck; if drawn, it triggers a special encounter with a Mummy Priest and wraiths.",
                     CorridorCount = 6,
@@ -935,7 +895,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Halls of Amenhotep",
-                    Location = QuestLocation.AncientLands,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. The fifth time the initiative bag is reloaded, two Tomb Guardians awaken from the statues in the room and join the fight.",
                     CorridorCount = 6,
@@ -955,7 +914,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Crypt of Khaba",
-                    Location = QuestLocation.AncientLands,
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart. A special playing card deck is used; each time you enter a new tile, you flip a card. If the Ace of Spades is drawn, it triggers a special encounter with the undead Queen Khaba and them four wight bodyguards.",
                     CorridorCount = 6,
@@ -973,6 +931,457 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in them final resting place."
                 }
             };
+        }
+
+        private List<QuestHexLocation> GetQuestHexLocations()
+        {
+            return new List<QuestHexLocation>
+            {
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-22, -8, 30)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Red, 1 },
+                        { QuestDiceColor.White, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-15, -10, 25)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Red, 2 },
+                        { QuestDiceColor.White, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-19, -2, 21)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Red, 3 },
+                        { QuestDiceColor.White, 13 },
+                        { QuestDiceColor.Pink, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-24, 4, 20)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Red, 4 },
+                        { QuestDiceColor.White, 14 },
+                        { QuestDiceColor.Pink, 1 },
+                        { QuestDiceColor.Black, 1 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-13, -5, 18)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 11 },
+                        { QuestDiceColor.Pink, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-11, -8, 19)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 10 },
+                        { QuestDiceColor.Turquoise, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {                    
+                    HexTile = new HexTile(new Hex(-9, -14, 23)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 4 },
+                        { QuestDiceColor.Turquoise, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-3, -16, 19)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 5 },
+                        { QuestDiceColor.Turquoise, 4 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(0, -9, 9)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 9 },
+                        { QuestDiceColor.Turquoise, 1 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(5, -14, 9)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 8 },
+                        { QuestDiceColor.Turquoise, 6 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(7, -20, 13)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 6 },
+                        { QuestDiceColor.Turquoise, 5 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(20, -24, 4)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 20 },
+                        { QuestDiceColor.Blue, 1 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(15, -22, 6)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 7 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(0, -5, 5)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 16 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(3, -4, 1)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 17 },
+                        { QuestDiceColor.Blue, 6 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(6, -6, 0)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 18 },
+                        { QuestDiceColor.Blue, 5 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(9, -5, -4)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 19 },
+                        { QuestDiceColor.Blue, 4 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(16, -6, -10)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 22 },
+                        { QuestDiceColor.Blue, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(19, -11, -8)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 21 },
+                        { QuestDiceColor.Blue, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-24, 15, 9)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 28 },
+                        { QuestDiceColor.Black, 6 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-23, 17, 6)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 30 },
+                        { QuestDiceColor.Black, 5 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-9, 0, 9)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 15 },
+                        { QuestDiceColor.Pink, 4 },
+                        { QuestDiceColor.Black, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-14, 10, 4)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 26 },
+                        { QuestDiceColor.Purple, 3 },
+                        { QuestDiceColor.Black, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-17, 13, 4)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 27 },
+                        { QuestDiceColor.Purple, 4 },
+                        { QuestDiceColor.Black, 4 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-13, 14, -1)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 33 },
+                        { QuestDiceColor.Purple, 5 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-7, 13, -6)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 34 },
+                        { QuestDiceColor.Purple, 6 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-7, 5, 2)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 25 },
+                        { QuestDiceColor.Purple, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-5, 4, 1)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 24 },
+                        { QuestDiceColor.Purple, 1 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(5, 0, -5)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 23 },
+                        { QuestDiceColor.Green, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(3, 6, -9)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 35 },
+                        { QuestDiceColor.Green, 4 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(1, 5, -6)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 36 },
+                        { QuestDiceColor.Green, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(6, 2, -8)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 37 },
+                        { QuestDiceColor.Green, 1 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(7, 8, -15)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 39 },
+                        { QuestDiceColor.Green, 5 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(14, 7, -21)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 38 },
+                        { QuestDiceColor.Green, 6 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-25, 19, 6)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 29 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-22, 20, 2)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 31 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-16, 18, -2)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 32 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-14, 20, -6)) { Terrain = TerrainType.Road },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.White, 40 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-25, 31, -6)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 1 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-24, 34, -10)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 2 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-21, 35, -14)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 3 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-15, 28, -13)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 4 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-12, 30, -18)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 5 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(-4, 23, -19)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 6 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(3, 20, -23)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 7 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(7, 21, -28)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 8 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(7, 16, -23)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 9 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(18, 15, -33)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 10 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(16, 12, -28)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 11 }
+                    }
+                },
+                new QuestHexLocation()
+                {
+                    HexTile = new HexTile(new Hex(18, 8, -26)) { Terrain = TerrainType.Desert },
+                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    {
+                        { QuestDiceColor.Yellow, 12 }
+                    }
+                },
+            };
+        }
+
+        public HexTile? GetQuestHexLocationByColorNumber(int number, QuestDiceColor color)
+        {
+            var questLocation = QuestHexLocations.FirstOrDefault(q => q.QuestLocations.ContainsKey(color) && q.QuestLocations.ContainsValue(number));
+            return questLocation != null ? questLocation.HexTile : null;
         }
 
         public Quest GetQuestByName(string name)
