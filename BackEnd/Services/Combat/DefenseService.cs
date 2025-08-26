@@ -13,6 +13,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public bool WeaponDamaged { get; set; }
         public bool ShieldDamaged { get; set; }
         public string OutcomeMessage { get; set; } = string.Empty;
+        public int RemainingDamage { get; internal set; }
     }
 
     /// <summary>
@@ -161,14 +162,16 @@ namespace LoDCompanion.BackEnd.Services.Combat
             if (roll <= 80 && roll <= parrySkill)
             {
                 result.WasSuccessful = true;
-                result.DamageNegated = shield.DefValue;
-                result.OutcomeMessage = $"{hero.Name} blocks with their shield, negating {shield.DefValue} damage.";
+                result.DamageNegated = Math.Min(shield.DefValue, incomingDamage);
+                result.OutcomeMessage = $"{hero.Name} blocks with their shield, negating {result.DamageNegated} damage.";
 
                 // Check if the shield takes damage (spillover)
                 if (incomingDamage > shield.DefValue)
                 {
                     result.ShieldDamaged = true;
                     result.OutcomeMessage += " The shield takes the brunt of the force and is damaged!";
+                    shield.TakeDamage(1);
+                    result.RemainingDamage = incomingDamage - shield.DefValue;
                 }
             }
             else

@@ -173,33 +173,33 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new AttackResult();
 
             int baseSkill = weapon?.IsRanged ?? false ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
-            int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
+            int situationalModifier = CalculateHeroHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
             var resultRoll = await _diceRoll.RequestRollAsync(
                 "Roll to-hit.", "1d100",
                 skill: (attacker, weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill)); 
             await Task.Yield();
             result.AttackRoll = resultRoll.Roll;
+            result.IsHit = result.AttackRoll <= 85 && result.AttackRoll <= result.ToHitChance;
 
-            if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
+            if (target.Position != null && !result.IsHit)
             {
-                result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
 
+                // remove effect as the damage calculation will not take place, which will handle removal of this effect
                 var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PowerfulBlow);
                 if (powerfulBlow != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(powerfulBlow);
             }
             else
             {
-                result.IsHit = true;
-
                 // Blood lust is activated on to-hit rolls of 5 or less, unless perk is active
                 if (attacker.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.TasteForBlood) && result.AttackRoll <= 10) result.BloodLust = true;
                 else if (result.AttackRoll <= 5) result.BloodLust = true;
                 else result.BloodLust = false;
             }
 
+            // remove active effects as they were already added to the calculations and are spent
             var deadlyStrike = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DeadlyStrike);
             if(deadlyStrike != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(deadlyStrike);
             var perfectAim = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PerfectAim);
@@ -221,10 +221,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new AttackResult();
 
             int baseSkill = weapon?.IsRanged ?? false ? attacker.GetSkill(Skill.RangedSkill) : attacker.GetSkill(Skill.CombatSkill);
-            int situationalModifier = CalculateHitChanceModifier(attacker, weapon, target, context);
+            int situationalModifier = CalculateMonsterHitChanceModifier(attacker, weapon, target, context);
             result.ToHitChance = baseSkill + situationalModifier;
 
             result.AttackRoll = RandomHelper.RollDie(DiceType.D100);
+            result.IsHit = !(result.AttackRoll > 85 || result.AttackRoll > result.ToHitChance);
 
             if (result.AttackRoll == 100)
             {
@@ -240,17 +241,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     await StatusEffectService.AttemptToApplyStatusAsync(attacker, new ActiveStatusEffect(StatusEffectType.Prone, -1), _powerActivation);
                     result.OutcomeMessage = $"{attacker.Name} fumbles and falls prone!";
                 }
-                result.IsHit = false;
             }
-            else if (target.Position != null && (result.AttackRoll > 80 || result.AttackRoll > result.ToHitChance))
+            else if (target.Position != null && result.IsHit)
             {
-                result.IsHit = false;
                 result.OutcomeMessage = $"{attacker.Name}'s attack misses {target.Name}.";
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
-            }
-            else
-            {
-                result.IsHit = true;
             }
 
             return result;
@@ -261,12 +256,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
             var result = new AttackResult { IsHit = true };
 
             DefenseResult defenseResult = await ResolveHeroDefenseAsync(target, potentialDamage);
-            int damageAfterDefense = Math.Max(0, potentialDamage - defenseResult.DamageNegated);
+            int damageAfterDefense = defenseResult.RemainingDamage;
             result.OutcomeMessage = defenseResult.OutcomeMessage;
 
             if (target.Position != null && damageAfterDefense > 0)
             {
-                HitLocation location = DetermineHitLocation();
+                // if shield did not receive damage then there was no shield parry action, then roll for hit location
+                HitLocation location = HitLocation.Arms;
+                if (!defenseResult.ShieldDamaged) location = DetermineHitLocation();
+
                 context = ApplyArmorToLocation(target, location, context, weapon);
                 if(attacker.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.GhostlyTouch))
                 {
@@ -348,20 +346,19 @@ namespace LoDCompanion.BackEnd.Services.Combat
             return chargeMessage.ToString();
         }
 
-        public int CalculateHitChanceModifier(Character attacker, Weapon? weapon, Character target, CombatContext context)
+        public int CalculateHeroHitChanceModifier(Hero attacker, Weapon? weapon, Monster target, CombatContext context)
         {
             int modifier = 0;
-            Weapon? heroWeapon = null;
+            Weapon? heroWeapon = weapon;
             Weapon? monsterWeapon = null;
-            if (target is Hero hero)
-            {
-                heroWeapon = hero.Inventory.EquippedWeapon;
-            }
             if (target is Monster monster)
             {
                 monsterWeapon = monster.GetMeleeWeapon();
             }
 
+            modifier -= target.ToHitPenalty;
+            if (DirectionService.IsAttackingFromBehind(attacker, target)) modifier += 20;
+            if (attacker.Position != null && target.Position != null && attacker.Position.Z > target.Position.Z) modifier += 10;
 
             // Ranged-specific modifiers
             if (weapon != null && weapon is RangedWeapon)
@@ -372,28 +369,26 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     || targetMonster.PassiveSpecials.Any(n => n.Key == MonsterSpecialName.Large)))
                     modifier += 10;
                 if (context.HasAimed) modifier += 10;
-            }
-
-            if (DirectionService.IsAttackingFromBehind(attacker, target)) modifier += 20;
-            if (attacker.Position != null && target.Position != null && attacker.Position.Z > target.Position.Z) modifier += 10;
-
-            if (context.IsChargeAttack) modifier += 10;
-            if (context.IsPowerAttack) modifier += 20;
-            if (context.IsTouch) modifier += 20;
-            if (target.CombatStance == CombatStance.Prone) modifier += 30;
-            if (monsterWeapon != null)
-            {
-                if (monsterWeapon.Name == "Rapier") modifier -= 5;
-                if (monsterWeapon.Properties.ContainsKey(WeaponProperty.Slow)) modifier += 5;
-                if (monsterWeapon.Properties.ContainsKey(WeaponProperty.BFO)) modifier += 5;
-                if (monsterWeapon.Name == "Staff") modifier -= 5;
-            }
-            // If the hero performed a Power Attack, they are vulnerable.
-            if (target.IsVulnerableAfterPowerAttack)
-            {
-                modifier += 10;
+                if (target.PassiveSpecials.Where(p => p.Key == MonsterSpecialName.Large || p.Key == MonsterSpecialName.XLarge).Any()) modifier += 10;
             }
             else
+            {
+                if (context.IsChargeAttack) modifier += 10;
+                if (context.IsPowerAttack) modifier += 20;
+                if (context.IsTouch) modifier += 20;
+                if (target.CombatStance == CombatStance.Prone) modifier += 30;
+                if (monsterWeapon != null)
+                {
+                    if (monsterWeapon.Name == "Rapier") modifier -= 5;
+                    if (monsterWeapon.Properties.ContainsKey(WeaponProperty.Slow)) modifier += 5;
+                    if (monsterWeapon.Properties.ContainsKey(WeaponProperty.BFO)) modifier += 5;
+                    if (monsterWeapon.Name == "Staff") modifier -= 5;
+                }
+            }
+
+            
+            // If the hero performed a Power Attack, they are vulnerable.
+            if (!target.IsVulnerableAfterPowerAttack)
             {
                 if (!DirectionService.IsAttackingFromBehind(attacker, target))
                 {
@@ -415,15 +410,22 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
             }
 
-            // attacker against tagrget CS/RS effecting talents/perks/prayers
-            if(attacker is Monster m && m.IsUndead && target is Hero h
-                && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
+            // Fear modifier
+            if (attacker is Hero afraidHero && afraidHero.AfraidOfTheseMonsters.Contains(target))
             {
                 modifier -= 10;
             }
 
-            // Fear modifier
-            if(attacker is Hero afraidHero && afraidHero.AfraidOfTheseMonsters.Contains(target))
+            return modifier;
+        }
+
+        public int CalculateMonsterHitChanceModifier(Monster attacker, Weapon? weapon, Hero target, CombatContext context)
+        {
+            int modifier = 0;
+
+            // attacker against tagrget CS/RS effecting talents/perks/prayers
+            if (attacker is Monster m && m.IsUndead && target is Hero h
+                && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
             {
                 modifier -= 10;
             }
