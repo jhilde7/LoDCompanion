@@ -20,11 +20,22 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<Equipment?> QuickSlots { get; set; } = [.. new Equipment?[3]];
         public int MaxQuickSlots => QuickSlots.Count;
 
+        public bool CanBrewPotion => HasBrewPotionItems();
+
         public Inventory() { }
 
         public Inventory(int slots)
         {
             QuickSlots = [.. new Equipment?[slots]];
+        }
+
+        private bool HasBrewPotionItems()
+        {
+            return 
+                Backpack.Where(i => i is Part).Count() >= 1 
+                && Backpack.Where(i => i is Ingredient).Count() >= 1 
+                && Backpack.Where(i => i != null && i.Name == "Empty Bottle").Count() >= 1
+                && Backpack.FirstOrDefault(i => i != null && i.Name == "Alchemist Tool") != null;
         }
     }
 

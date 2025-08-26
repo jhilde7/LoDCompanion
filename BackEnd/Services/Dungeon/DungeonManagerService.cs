@@ -137,6 +137,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _trap.OnAddExplorationCardsToPiles += AddExplorationCardsToPiles;
             _trap.OnSpawnCageTrapEncounter += HandleCageTrapSpawnEncounter;
             _search.OnSpawnTreasureRoom += SpawnTreasureRoom;
+            _partyResting.OnDungeonRestAsync += HandleOnDungeonRestAsync;
         }
 
         // Create a new method to start a quest
@@ -751,6 +752,28 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return true;
             }
             else return false;
+        }
+
+        private async Task<RestResult> HandleOnDungeonRestAsync(PartyManagerService partyManager)
+        {
+            var result = new RestResult();
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
+            var threatResult = await HandleScenarioRoll(isInBattle: false);
+            result.WasInterrupted = threatResult.ThreatEventTriggered;
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (await _wanderingMonster.ProcessWanderingMonstersAsync(Dungeon.WanderingMonsters)) result.WasInterrupted = true;
+            }
+
+            if (!result.WasInterrupted)
+            {
+                result.WasSuccessful = true;
+                PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.Rest);
+                result.Message = "The party rests successfully.";
+            }
+
+            return result;
         }
     }
 }

@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.Combat;
 using System;
 using System.Threading.Tasks;
 
@@ -33,21 +34,21 @@ namespace LoDCompanion.BackEnd.Services.Player
     /// </summary>
     public class PartyRestingService
     {
-        private readonly ThreatService _threat;
-        private readonly DungeonManagerService _dungeonManager;
-        private readonly UserRequestService _userRequest;
         private readonly PowerActivationService _powerActivation;
+        private readonly PartyManagerService _partyManager;
+        private readonly UserRequestService _userRequest;
+
+        public event Func<PartyManagerService, Task<RestResult>>? OnDungeonRestAsync;
+        public event Action? OnBrewPotion;
 
         public PartyRestingService(
-            ThreatService threatService, 
-            DungeonManagerService dungeonManagerService, 
-            UserRequestService userRequestService, 
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            PartyManagerService partyManager,
+            UserRequestService userRequestService)
         {
-            _threat = threatService;
-            _dungeonManager = dungeonManagerService;
-            _userRequest = userRequestService;
             _powerActivation = powerActivationService;
+            _partyManager = partyManager;
+            _userRequest = userRequestService;
         }
 
         /// <summary>
@@ -57,10 +58,10 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="context">The context in which the rest is taking place.</param>
         /// <param name="dungeonState">The current dungeon state, required if resting in a dungeon.</param>
         /// <returns>A RestResult object detailing the outcome.</returns>
-        public async Task<RestResult> AttemptRest(RestingContext context, DungeonState? dungeon = null)
+        public async Task<RestResult> AttemptRest(RestingContext context)
         {
             var result = new RestResult();
-            var party = _dungeonManager.HeroParty;
+            var party = _partyManager.Party;
 
             if (party == null || !party.Heroes.Any())
             {
@@ -82,32 +83,51 @@ namespace LoDCompanion.BackEnd.Services.Player
                 ration.Quantity--; // Consume one ration 
             }
 
-            if (context == RestingContext.Dungeon && dungeon != null)
+            if (context == RestingContext.Dungeon && OnDungeonRestAsync != null)
             {
-                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
-                var threatResult = await _dungeonManager.HandleScenarioRoll(isInBattle: false);
-                result.WasInterrupted = threatResult.ThreatEventTriggered;
-
-                if (!result.WasInterrupted)
-                {
-                    result.WasSuccessful = true;
-                    _dungeonManager.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.Rest);
-                    result.Message = "The party rests successfully.";
-                }
+                result = await OnDungeonRestAsync.Invoke(_partyManager);                
             }
             else if (context == RestingContext.Wilderness)
             {
                 // TODO: Implement wilderness-specific interruption logic (e.g., random encounter roll)
             }
 
-            if (!result.WasInterrupted)
+            if (result.WasSuccessful)
             {
                 // Apply healing and recovery
                 foreach (var hero in party.Heroes)
                 {
+                    // Handle Bleeding Out and Poison
+                    var bleedingOut = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.BleedingOut);
+                    var poison = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Poisoned);
+
+                    if (bleedingOut != null)
+                    {
+                        var rollRequest = await _userRequest.RequestRollAsync($"{hero.Name}, roll constitution test.", "1d100");
+                        if (hero.TestConstitution(rollRequest.Roll, 10))
+                        {
+                            hero.Heal(RandomHelper.RollDie(DiceType.D4));
+                        }
+                        else
+                        {
+                            result.Message += $"{hero.Name} bleeds to death.";
+                        }
+                        StatusEffectService.RemoveActiveStatusEffect(hero, bleedingOut);
+                    }
+
+                    if (poison != null)
+                    {
+                        for (int i = 0; i < poison.Duration; i++)
+                        {
+                            await StatusEffectService.ProcessActiveStatusEffectsAsync(hero, _powerActivation);
+                        }
+
+                        result.Message += $"{hero.Name} recovers from their poison effect.";
+                    }
+
                     // Restore HP
                     int hpGained = RandomHelper.RollDie(DiceType.D6);
-                    hero.CurrentHP = Math.Min(hero.GetStat(BasicStat.HitPoints), hero.CurrentHP + hpGained);
+                    hero.Heal(hpGained);
 
                     // Restore Energy
                     int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
@@ -118,13 +138,21 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                     for (int i = 0; i < energyToRestore; i++)
                     {
-                        if (RandomHelper.RollDie(DiceType.D6) <= 3) hero.CurrentEnergy++;
+                        if (RandomHelper.RollDie(DiceType.D100) <= 50) hero.CurrentEnergy++;
                     }
 
                     // Restore Mana for Wizards
                     if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
 
-                    // Handle Bleeding Out and Poison
+                    //Brew potions
+                    if (hero.Inventory.CanBrewPotion)
+                    {
+                        if (OnBrewPotion != null && await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to brew a potion?"))
+                        {
+                            //TODO tie in UI to handle brewing potions
+                            OnBrewPotion.Invoke();
+                        }
+                    }
                 } 
             }
 
