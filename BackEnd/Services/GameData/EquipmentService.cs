@@ -511,7 +511,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Category = "Common",
                         Name = "Whetstone",
                         Encumbrance = 1,
-                        Durability = 1,
+                        Durability = 3,
                         Description = "During a short rest, you will be able to touch up your weapon. Repair close-combat weapons with 1d3 Points of Durability. 3 uses per stone.",
                         Value = 100,
                         Availability = 4,
@@ -1910,6 +1910,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             Durability -= amount;
             if (Durability < 0 && OnEquipmentDestroyed != null) OnEquipmentDestroyed.Invoke(this);
+        }
+
+        internal int Repair(int repairAmount)
+        {
+            var damage = MaxDurability - Durability;
+            var damageRepaired = Math.Min(repairAmount, damage);
+            Durability = damageRepaired;
+            return damageRepaired;
         }
     }
 

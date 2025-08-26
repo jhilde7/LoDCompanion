@@ -62,6 +62,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             var result = new RestResult();
             var party = _partyManager.Party;
+            var rationUsed = false;
 
             if (party == null || !party.Heroes.Any())
             {
@@ -81,6 +82,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     return result;
                 }
                 ration.Quantity--; // Consume one ration 
+                rationUsed = true;
             }
 
             if (context == RestingContext.Dungeon && OnDungeonRestAsync != null)
@@ -127,9 +129,11 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                     // Restore HP
                     int hpGained = RandomHelper.RollDie(DiceType.D6);
+                    if (party.Heroes.Where(h => h.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Cooking Gear") != null).Any() && rationUsed) hpGained += 3;
                     hero.Heal(hpGained);
 
                     // Restore Energy
+                    if (hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Bed Roll") != null) hero.CurrentEnergy = hero.GetStat(BasicStat.Energy);
                     int energyToRestore = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
                     if (requestResult.Item2 == hero)
                     {
@@ -153,7 +157,35 @@ namespace LoDCompanion.BackEnd.Services.Player
                             OnBrewPotion.Invoke();
                         }
                     }
-                } 
+
+                    // Use equipment
+                    var armourRepairKit = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Armour Repair Kit");
+                    var whetstone = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Whetstone");
+                    if (armourRepairKit != null)
+                    {
+                        if(await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {armourRepairKit.Name}?"))
+                        {
+                            await Task.Yield();
+                            foreach (var armour in hero.Inventory.EquippedArmour)
+                            {
+                                var repairAmount = RandomHelper.RollDie(DiceType.D3);
+                                var amountRepaired = armour.Repair(repairAmount);
+                                result.Message += $"{hero.Name} repairs their {armour.Name} for {amountRepaired} durability";
+                            }
+                        }
+                    }
+                    if (whetstone != null && hero.Inventory.EquippedWeapon is MeleeWeapon meleeWeapon)
+                    {
+                        if (await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their {whetstone.Name}?"))
+                        {
+                            await Task.Yield();
+                            var repairAmount = RandomHelper.RollDie(DiceType.D3);
+                            var amountRepaired = meleeWeapon.Repair(repairAmount);
+                            whetstone.TakeDamage(1);
+                            result.Message += $"{hero.Name} repairs their {meleeWeapon.Name} for {amountRepaired} durability";
+                        }
+                    }
+                }
             }
 
             return result;
