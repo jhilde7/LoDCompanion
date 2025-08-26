@@ -14,8 +14,8 @@ namespace LoDCompanion.BackEnd.Services.Player
     public enum RestingContext
     {
         Dungeon,
-        Wilderness
-
+        Wilderness,
+        Dessert
     }
 
     /// <summary>
@@ -71,27 +71,86 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             // check party perks to determine if a ration is needed
-            var requestResult = await party.Heroes[0].AskForPartyPerkAsync(_powerActivation, PerkName.LivingOnNothing);
-            if (!requestResult.Item1)
+            if (context == RestingContext.Wilderness)
             {
-                // Check for Rations
-                var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i != null && i.Name == "Ration");
-                if (ration == null || ration.Quantity <= 0)
+                var rollResult = await _userRequest.RequestRollAsync("Roll for foraging skill check", "1d100");
+                var roll = rollResult.Roll;
+                var heroWithHighestSkill = party.Heroes
+                    .OrderBy(h => h.GetSkill(Skill.Foraging))
+                    .First();
+                if (heroWithHighestSkill != null && roll <= heroWithHighestSkill.GetSkill(Skill.Foraging))
                 {
-                    result.Message = "The party has no rations and cannot rest.";
-                    return result;
+                    rationUsed = true;
                 }
-                ration.Quantity--; // Consume one ration 
-                rationUsed = true;
+            }
+            (bool, Hero?) requestResult = (false, null);
+
+            if (!rationUsed)
+            {
+                requestResult = await party.Heroes[0].AskForPartyPerkAsync(_powerActivation, PerkName.LivingOnNothing);
+                if (!requestResult.Item1)
+                {
+                    // Check for Rations
+                    var ration = party.Heroes.SelectMany(h => h.Inventory.Backpack).First(i => i != null && i.Name == "Ration");
+                    if (context == RestingContext.Dungeon && ration == null)
+                    {
+                        result.Message = "The party has no rations and cannot rest.";
+                        return result;
+                    }
+                    if (ration != null)
+                    {
+                        if (context == RestingContext.Dessert) 
+                        {
+                            if (ration.Quantity < 2)
+                            {
+                                rationUsed = false; 
+                            }
+                            else
+                            {
+                                ration.Quantity -= 2;
+                                rationUsed = true;
+                            }
+                        }
+                        else
+                        {
+                            ration.Quantity--;
+                            rationUsed = true;
+                        }
+                    }
+                }
             }
 
-            if (context == RestingContext.Dungeon && OnDungeonRestAsync != null)
+            if (rationUsed && context == RestingContext.Dungeon && OnDungeonRestAsync != null)
             {
                 result = await OnDungeonRestAsync.Invoke(_partyManager);                
             }
-            else if (context == RestingContext.Wilderness)
+            else
             {
-                // TODO: Implement wilderness-specific interruption logic (e.g., random encounter roll)
+                if (!rationUsed)
+                {
+                    foreach (var hero in party.Heroes)
+                    {
+                        var constitution = hero.GetStat(BasicStat.Constitution);
+                        var negativeBonus = (int)Math.Floor(constitution / 2d);
+                        await StatusEffectService.AttemptToApplyStatusAsync(
+                            hero, 
+                            new ActiveStatusEffect(StatusEffectType.Hungry, -1, statBonus: (BasicStat.Constitution, -negativeBonus)), 
+                            _powerActivation);
+                    }
+                    _partyManager.UpdateMorale(-4);
+                }
+                else
+                {
+                    foreach (var hero in party.Heroes)
+                    {
+                        var hungry = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Hungry);
+                        if (hungry != null)
+                        {
+                            StatusEffectService.RemoveActiveStatusEffect(hero, hungry);
+
+                        }
+                    }
+                }
             }
 
             if (result.WasSuccessful)

@@ -159,7 +159,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         ForgedUnderPressure,
         PoisonGas,
         DetectedMimic,
-        Caged
+        Caged,
+        Hungry
     }
 
     /// <summary>
