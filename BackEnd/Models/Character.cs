@@ -118,10 +118,10 @@ namespace LoDCompanion.BackEnd.Models
         public bool CanAct => CurrentAP > 0;
         public bool Wounded => CurrentHP <= GetStat(BasicStat.HitPoints) / 2;
 
-        public bool TestResolve(int roll) => roll <= GetStat(BasicStat.Resolve);
-        public bool TestConstitution(int roll) => roll <= GetStat(BasicStat.Constitution);
-        public bool TestStrength(int roll) => roll <= GetStat(BasicStat.Strength);
-        public bool TestDexterity(int roll) => roll <= GetStat(BasicStat.Dexterity);
+        public bool TestResolve(int roll, int modifier = 0) => roll <= GetStat(BasicStat.Resolve) + modifier;
+        public bool TestConstitution(int roll, int modifier = 0) => roll <= GetStat(BasicStat.Constitution) + modifier;
+        public bool TestStrength(int roll, int modifier = 0) => roll <= GetStat(BasicStat.Strength) + modifier;
+        public bool TestDexterity(int roll, int modifier = 0) => roll <= GetStat(BasicStat.Dexterity) + modifier;
 
 
         // Constructor (optional, but good practice for initialization)
