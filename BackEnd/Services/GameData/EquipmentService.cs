@@ -1799,6 +1799,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public bool AttemptedToIdentify { get; set; } = false;
         public ActiveStatusEffect? ActiveStatusEffect { get; set; }
 
+        public Action<Equipment>? OnEquipmentDestroyed;
+
         public Equipment()
         {
 
@@ -1902,6 +1904,12 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int GetPropertyValue(EquipmentProperty property)
         {
             return Properties.GetValueOrDefault(property, 0);
+        }
+
+        internal void TakeDamage(int amount)
+        {
+            Durability -= amount;
+            if (Durability < 0 && OnEquipmentDestroyed != null) OnEquipmentDestroyed.Invoke(this);
         }
     }
 
@@ -2575,7 +2583,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             return Properties.GetValueOrDefault(property, 0);
         }
-
     }
 
     public class WeaponFactory

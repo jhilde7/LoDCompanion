@@ -20,9 +20,13 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<Equipment?> QuickSlots { get; set; } = [.. new Equipment?[3]];
         public int MaxQuickSlots => QuickSlots.Count;
 
+        private readonly Equipment _equipment = new Equipment();
         public bool CanBrewPotion => HasBrewPotionItems();
 
-        public Inventory() { }
+        public Inventory() 
+        {
+            _equipment.OnEquipmentDestroyed += HandleDestroyedEquipment;
+        }
 
         public Inventory(int slots)
         {
@@ -37,6 +41,15 @@ namespace LoDCompanion.BackEnd.Services.Player
                 && Backpack.Where(i => i != null && i.Name == "Empty Bottle").Count() >= 1
                 && Backpack.FirstOrDefault(i => i != null && i.Name == "Alchemist Tool") != null;
         }
+
+        private void HandleDestroyedEquipment(Equipment equipment)
+        {
+            if (EquippedWeapon == equipment) EquippedWeapon = null;
+            else if (OffHand is Shield shield && shield == equipment) OffHand = null;
+            else if (QuickSlots.Contains(equipment)) QuickSlots.Remove(equipment);
+            else if (Backpack.Contains(equipment)) BackpackHelper.TakeOneItem(Backpack, equipment);
+            else if (EquippedArmour.Contains((Armour)equipment)) EquippedArmour.Remove((Armour)equipment);
+        }
     }
 
     /// <summary>
@@ -46,7 +59,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public InventoryService()
         {
-
+            
         }
 
         /// <summary>
