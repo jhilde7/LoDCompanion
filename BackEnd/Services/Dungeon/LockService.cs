@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.Player;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
@@ -70,21 +71,24 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <param name="hero">The hero attempting to pick the lock.</param>
         /// <param name="lockModifier">A modifier to the lockpicking difficulty (e.g., from the lock itself).</param>
         /// <returns>True if the lock is successfully picked, false otherwise.</returns>
-        public async Task<bool> PickLock(Hero hero, Lock lockToPick)
+        public async Task<ActionResult> PickLock(Hero hero, Lock lockToPick)
         {
+            var result = new ActionResult();
             if (hero == null)
             {
                 // In a real application, log this or throw a more specific exception
-                Console.WriteLine("Error: Hero is null in PickLock.");
-                return false;
+                result.Message = "Error: Hero is null in PickLock.";
+                result.WasSuccessful = false;
+                return result;
             }
 
             // Check if hero has lock picks
             var lockPicks = hero.Inventory.Backpack.Find(item => item != null && item.Name == "Lock Picks");
             if (lockPicks == null || lockPicks.Quantity <= 0)
             {
-                Console.WriteLine($"{hero.Name} has no Lock Picks!");
-                return false;
+                result.Message = $"{hero.Name} has no Lock Picks!";
+                result.WasSuccessful = false;
+                return result;
             }
 
             int skill = hero.GetSkill(Skill.PickLocks);
@@ -98,13 +102,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (pickLockRoll <= 80 && lockToPick.PickLock(pickLockRoll, skill))
             {
-                Console.WriteLine($"{hero.Name} successfully picked the lock!");
-                return true;
+                result.Message = $"{hero.Name} successfully picked the lock!";
+                result.WasSuccessful = true;
+                return result;
             }
             else
             {
-                Console.WriteLine($"{hero.Name} failed to pick the lock. Lock pick broken.");
-                return false;
+                result.Message = $"{hero.Name} failed to pick the lock. Lock pick broken.";
+                result.WasSuccessful = false;
+                return result;
             }
         }
 

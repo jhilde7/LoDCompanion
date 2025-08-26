@@ -167,6 +167,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         
         public bool IsOpen => State == DoorState.Open || State == DoorState.BashedDown;
         public bool IsBashedDown => State == DoorState.BashedDown;
+        public bool IsLocked => Lock.IsLocked;
 
         public event Func<Trap, Character, Task>? OnTrapTriggered;
 

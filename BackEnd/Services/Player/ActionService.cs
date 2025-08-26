@@ -283,6 +283,34 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.WasSuccessful = false;
                     }
                     break;
+                case (Hero hero, ActionType.PickLock):
+                    var pickLockResult = new ActionResult();
+                    if (primaryTarget is Door lockedDoor && lockedDoor.IsLocked)
+                    {
+                        pickLockResult = await PickLock(lockedDoor.Lock, hero);
+                        if (pickLockResult.WasSuccessful)
+                        {
+                            result.ApCost = 1;
+                            await PerformActionAsync(dungeon, hero, ActionType.OpenDoor, lockedDoor);
+                        }
+                    }
+                    else if (primaryTarget is Chest lockedChest && lockedChest.IsLocked)
+                    {
+                        pickLockResult = await PickLock(lockedChest.Lock, hero);
+                        if (pickLockResult.WasSuccessful)
+                        {
+                            result.ApCost = 1;
+                            await PerformActionAsync(dungeon, hero, ActionType.SearchFurniture, lockedChest);
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "Target is not locked.";
+                        result.WasSuccessful = false;
+                        break;
+                    }
+                    result.Message = pickLockResult.Message;
+                    break;
                 case (Character, ActionType.OpenDoor):
                     if (primaryTarget is Door)
                     {
@@ -783,6 +811,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return result;
+        }
+
+        private async Task<ActionResult> PickLock(Lock lockToPick, Hero hero)
+        {
+            return await _lock.PickLock(hero, lockToPick);
         }
 
         private async Task HandleDoorTrapTrigger(Trap trap, Character character)
