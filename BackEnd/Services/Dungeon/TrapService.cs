@@ -36,7 +36,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int SanityLoss { get; set; } = 2; // Default sanity loss when a trap is triggered
         public string DamageDice { get; set; } = "1d6"; // Default damage dice for the trap
         public GridSquare? Square { get; set; } // Position of the trap in the dungeon
-        public bool isDisarmed { get; set; } = false; // Whether the trap has been disarmed
+        public bool IsDisarmed { get; set; } = false; // Whether the trap has been disarmed
 
         public Trap(int? trapChance = null, bool guaranteedTrap = false)
         {
@@ -48,7 +48,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
             else
             {
-                isDisarmed = true; // No trap present
+                IsDisarmed = true; // No trap present
             }
 
         }
@@ -149,7 +149,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (rollResult.Roll <= 80 && rollResult.Roll <= trapDisarmTarget)
             {
-                trap.isDisarmed = true;
+                trap.IsDisarmed = true;
                 return true;
             }
             else
@@ -166,7 +166,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         /// <returns>A string describing the outcome of the trap.</returns>
         public async Task<string> TriggerTrapAsync(Character character, Trap trap, bool trapTriggered = false, Chest? chest = null)
         {
-            if (trap.isDisarmed) return $"The trap is disarmed and has no effect.";
+            if (trap.IsDisarmed) return $"The trap is disarmed and has no effect.";
             if (trap.Name == TrapType.Click) return $"{character.Name} triggered a trap, {trap.Description}.";
             if (character.Position == null) return $"{character.Name} is not in a valid position to trigger a trap.";
             

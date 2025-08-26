@@ -196,9 +196,27 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return result;
             }
 
-            result = await _treasure.SearchFurnitureAsync(furniture, result); 
+            if (furniture is Chest chest)
+            {
+                if (chest.Open())
+                {
+                    if (chest != null)
+                    {
+                        result = await _treasure.SearchFurnitureAsync(chest, result);
+                        chest.HasBeenSearched = true;
+                    }
+                }
+                else
+                {
+                    result.Message = "Chest is locked";
+                }
+            }
+            else
+            {
+                result = await _treasure.SearchFurnitureAsync(furniture, result);
+                furniture.HasBeenSearched = true;
+            }
 
-            furniture.HasBeenSearched = true;
             return result;
         }
 
@@ -716,10 +734,27 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         public Trap Trap { get; set; } = new Trap();
         public Lock Lock { get; set; } = new Lock();
+        public bool IsLocked => Lock.IsLocked;
+
+        public event Action<Trap>? OnTrapTriggered;
 
         public Chest()
         {
 
+        }
+
+        public bool Open()
+        {
+            if (!Lock.IsLocked)
+            {
+                if (!Trap.IsDisarmed && OnTrapTriggered != null) OnTrapTriggered.Invoke(Trap);
+                return true;
+            }
+            else
+            {
+                // If the door is locked, it cannot be opened.
+                return false;
+            }
         }
     }    
 }

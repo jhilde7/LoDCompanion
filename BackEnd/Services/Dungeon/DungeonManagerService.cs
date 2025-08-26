@@ -659,7 +659,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 var connectedRoom = door.ConnectedRooms.FirstOrDefault(r => r != room);
                 if (connectedRoom != null) SpawnRandomEncounter(connectedRoom, placementParams: placementParams);
                 door.Lock.SetLockState(0, 0);
-                door.Trap.isDisarmed = true;
+                door.Trap.IsDisarmed = true;
             }
         }
 
@@ -669,7 +669,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             var tresureRoom = _room.CreateRoom("R10");
             treasureRoomDeck.Enqueue(tresureRoom);
             Door newDoor = _room.AddDoorToRoom(room, _placement, Dungeon, explorationDeck: treasureRoomDeck);
-            newDoor.Trap.isDisarmed = true;
+            newDoor.Trap.IsDisarmed = true;
             newDoor.Lock.SetLockState(0, 0);
         }
 

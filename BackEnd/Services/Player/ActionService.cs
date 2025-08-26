@@ -164,6 +164,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 weapon = m.ActiveWeapon;
             }
 
+            if (primaryTarget is Door)
+            {
+                ((Door)primaryTarget).OnTrapTriggered += HandleDoorTrapTrigger;
+            }
+
             // This restricts the hero to only attacking or moving while in a frenzy.
             if (character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) &&
                 actionType != ActionType.StandardAttack && actionType != ActionType.Move && actionType != ActionType.EndTurn)
@@ -281,7 +286,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Character, ActionType.OpenDoor):
                     if (primaryTarget is Door)
                     {
-                        result = await OpenDoor((Door)primaryTarget);
+                        result = await OpenDoor((Door)primaryTarget, character);
                     }
                     else
                     {
@@ -300,10 +305,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.WasSuccessful = false;
                     }
                     break;
-                case (Character, ActionType.BreakDownDoor):
+                case (Hero hero, ActionType.BreakDownDoor):
                     if (primaryTarget is Door)
                     {
-                        result = await BreakDownDoorAsync(dungeon, character, (Door)primaryTarget, weapon);
+                        result = await BreakDownDoorAsync(dungeon, hero, (Door)primaryTarget, weapon);
                     }
                     else
                     {
@@ -635,7 +640,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Hero hero, ActionType.AssistAllyOutOfPit):
                     if (primaryTarget is Hero)
                     {
-                        result = await AssistAllyOutOfPitAsync(primaryTarget, hero);
+                        result = await AssistAllyOutOfPitAsync((Hero)primaryTarget, hero);
                     }
                     else
                     {
@@ -780,6 +785,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
+        private async Task HandleDoorTrapTrigger(Trap trap, Character character)
+        {
+            await _trap.TriggerTrapAsync(character, trap);
+        }
+
         private async Task<ActionResult> RemoveCobwebsAsync(Hero hero, Door door)
         {
             var result = new ActionResult();
@@ -798,7 +808,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> OpenDoor(Door door)
+        private async Task<ActionResult> OpenDoor(Door door, Character character)
         {
             var result = new ActionResult();
             if (door.State == DoorState.Open) return new ActionResult() { Message = "The door is already open.", WasSuccessful = false };
@@ -810,7 +820,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             // Open the door and reveal the next room
-            door.Open();
+            await door.OpenAsync(character);
 
             if (OnOpenDoor != null && await OnOpenDoor.Invoke(door))
             {
@@ -836,12 +846,12 @@ namespace LoDCompanion.BackEnd.Services.Player
             if (hero.TestStrength(roll))
             {
                 result.Message = $"{hero.Name} lifts the Portcullis and the doorway is not open.";
+                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
+                await door.OpenAsync(hero);
             }
             else
             {
                 result.Message = $"{hero.Name} fails to lift the portcullis and instead raises the threat level due to the loud bang made when it dropped.";
-                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
-                door.Open();
             }
 
             return result;
@@ -857,12 +867,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> AssistAllyOutOfPitAsync(object primaryTarget, Hero hero)
+        private async Task<ActionResult> AssistAllyOutOfPitAsync(Hero heroToAssist, Hero hero)
         {
             var result = new ActionResult();
             result.Message = string.Empty;
             result.WasSuccessful = true;
-            var heroToAssist = (Hero)primaryTarget;
             var rope = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name.Contains("Rope"));
             if (rope != null)
             {
@@ -896,23 +905,23 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
 
         private async Task<ActionResult> BreakDownDoorAsync(
-            DungeonState dungeon, Character character, Door primaryTarget, Weapon? weapon)
+            DungeonState dungeon, Hero hero, Door door, Weapon? weapon)
         {
             var result = new ActionResult();
-            var door = primaryTarget;
             result.Message = string.Empty;
             result.WasSuccessful = true;
             if (door.Lock.IsLocked && weapon is MeleeWeapon)
             {
-                if (await _lock.BashLock(character, door.Lock, (MeleeWeapon)weapon))
+                if (await _lock.BashLock(hero, door.Lock, (MeleeWeapon)weapon))
                 {
+                    await door.OpenAsync(hero);
                     door.State = DoorState.BashedDown;
 
                     // if the door that was bashed donw was in relation to the poison gas trap.
-                    var poisonGas = character.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
+                    var poisonGas = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
                     if (poisonGas != null)
                     {
-                        foreach (var characterInRoom in character.Room.CharactersInRoom)
+                        foreach (var characterInRoom in hero.Room.CharactersInRoom)
                         {
                             var poisonGasEffect = characterInRoom.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
                             if (poisonGasEffect != null)
@@ -920,22 +929,22 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 StatusEffectService.RemoveActiveStatusEffect(characterInRoom, poisonGasEffect);
                             }
                         }
-                        result.Message = $"{character.Name} bashed down the door, releasing the poison gas!";
+                        result.Message = $"{hero.Name} bashed down the door, releasing the poison gas!";
                     }
                     else
                     {
-                        result.Message = $"{character.Name} successfully bashed down the door.";
+                        result.Message = $"{hero.Name} successfully bashed down the door.";
                     }
                 }
                 else
                 {
-                    result.Message = $"{character.Name} failed to bash down the door, the lock has {door.Lock.LockHP} HP left.";
+                    result.Message = $"{hero.Name} failed to bash down the door, the lock has {door.Lock.LockHP} HP left.";
                 }
             }
             else
             {
                 result.Message = "Target door is not locked.";
-                result.Message += await PerformActionAsync(dungeon, character, ActionType.OpenDoor, primaryTarget);
+                result.Message += await PerformActionAsync(dungeon, hero, ActionType.OpenDoor, door);
                 result.WasSuccessful = false;
             }
 

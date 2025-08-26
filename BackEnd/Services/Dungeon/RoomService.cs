@@ -168,16 +168,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool IsOpen => State == DoorState.Open || State == DoorState.BashedDown;
         public bool IsBashedDown => State == DoorState.BashedDown;
 
+        public event Func<Trap, Character, Task>? OnTrapTriggered;
+
         // Constructor
         public Door(int trapChance)
         {
             Trap = new Trap(trapChance: trapChance);
         }
 
-        public bool Open()
+        public async Task<bool> OpenAsync(Character character)
         {
-            if (Lock.LockHP <= 0)
+            if (!Lock.IsLocked)
             {
+                if (!Trap.IsDisarmed && OnTrapTriggered != null) await OnTrapTriggered.Invoke(Trap, character);
                 State = DoorState.Open;
                 return true;
             }
