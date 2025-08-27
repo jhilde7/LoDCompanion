@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Models;
 
 namespace LoDCompanion.BackEnd.Services.Game
 {
@@ -125,12 +126,10 @@ namespace LoDCompanion.BackEnd.Services.Game
             switch (quest.QuestType)
             {
                 case QuestType.Dungeon:
-                    // For a dungeon, it tells the DungeonManager to build it.
                     _dungeonManager.InitializeDungeon(party, ActiveQuest);
                     break;
 
                 case QuestType.WildernessQuest:
-                    // For a single encounter, create a room and have the QuestSetupService populate it.
                     ActiveEncounterRoom = new Room();
                     _questSetup.ExecuteRoomSetup(quest, ActiveEncounterRoom);
 
@@ -139,7 +138,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                         // Check for any special quest rules that affect the start of combat.
                         bool hasSurpriseAttack = quest.SetupActions.First(q => q.ActionType == QuestSetupActionType.ModifyInitiative) != null; // Simple check for "First Blood"
 
-                        // Tell the CombatManager to begin the fight with the characters in the room.
                         _combatManager.SetupCombat(
                         ActiveEncounterRoom.HeroesInRoom,
                         ActiveEncounterRoom.MonstersInRoom,
@@ -153,6 +151,23 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
 
             OnQuestStateChanged?.Invoke();
+        }
+
+        internal void StartIndividualQuest(Hero hero, Quest quest)
+        {
+            ActiveEncounterRoom = new Room();
+            _questSetup.ExecuteRoomSetup(quest, ActiveEncounterRoom);
+
+            if (ActiveEncounterRoom != null && ActiveEncounterRoom.HeroesInRoom != null && ActiveEncounterRoom.MonstersInRoom != null)
+            {
+                _combatManager.SetupCombat(
+                ActiveEncounterRoom.HeroesInRoom,
+                ActiveEncounterRoom.MonstersInRoom);
+            }
+            else
+            {
+                Console.WriteLine("Error: Cannot start combat. Room or characters not initialized.");
+            }
         }
 
         /// <summary>

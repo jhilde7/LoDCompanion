@@ -157,9 +157,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Invisible,
         Pitcher,
         ForgedUnderPressure,
+        //--Trap--
         PoisonGas,
         DetectedMimic,
         Caged,
+        //--Other--
         Hungry,
         ItemEffect,
         Initiative,
@@ -168,7 +170,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         ResistPoison,
         ResistFearTerror,
         Sale,
-        FreshStocks
+        FreshStocks,
+        ShortageOfGoods,
+        Curse
     }
 
     /// <summary>
@@ -184,6 +188,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public string? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
         public bool RemoveAfterCombat { get; set; }
         public bool RemoveAfterNextBattle { get; set; }
+        public bool RemoveEndOfDungeon { get; set; }
         public bool RemoveEndDay { get; set; }
 
         public ActiveStatusEffect(
@@ -483,6 +488,33 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             character.ActiveStatusEffects.Remove(effect);
             if (character.CombatStance == CombatStance.Prone) character.CombatStance = CombatStance.Normal;
+        }
+
+        public static ActiveStatusEffect GetRandomCurseEffect()
+        {
+            var curseList = new List<ActiveStatusEffect>()
+            {
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.HitPoints, -2)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Wisdom, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Constitution, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Strength, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Dexterity, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.HitPoints, -3)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Resolve, -10)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Luck, -1)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, statBonus: (BasicStat.Energy, -1)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.CombatSkill, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.Foraging, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.RangedSkill, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.Dodge, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.PickLocks, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.Barter, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.Heal, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.Alchemy, -5)),
+                new ActiveStatusEffect(StatusEffectType.Curse, -1, skillBonus: (Skill.Perception, -5)),
+            };
+            curseList.Shuffle();
+            return curseList.First();
         }
     }
 }

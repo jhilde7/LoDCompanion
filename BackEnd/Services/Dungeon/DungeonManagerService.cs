@@ -12,7 +12,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     public class DungeonState
     {
         public Party HeroParty { get; set; } = new Party();
-        public Quest Quest { get; set; } = new Quest();
+        public Quest? Quest { get; set; }
         public int RoomsWithoutEncounters { get; set; } = 0;
         public int MinThreatLevel { get; set; }
         public int MaxThreatLevel { get; set; }
@@ -473,13 +473,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public void SpawnRandomEncounter(Room room, EncounterType? encounterType = null, Dictionary<string, string>? placementParams = null)
         {
             room.MonstersInRoom = new List<Monster>();
-            var dungeonEncounterType = _dungeon.Quest.EncounterType;
+            var dungeonEncounterType = EncounterType.Beasts;
+
+            if (_dungeon.Quest != null) dungeonEncounterType = _dungeon.Quest.EncounterType;
 
             if (room.EncounterType.HasValue)
             {
                 room.MonstersInRoom = _encounter.GetRandomEncounterByType(room.EncounterType.Value, dungeonEncounterType: dungeonEncounterType);
             }
-            else if(encounterType.HasValue)
+            else if (encounterType.HasValue)
             {
                 room.MonstersInRoom = _encounter.GetRandomEncounterByType(encounterType.Value);
             }
