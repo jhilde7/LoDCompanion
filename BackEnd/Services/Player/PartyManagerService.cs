@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 
@@ -9,6 +10,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         public string Id { get; private set; }
         public List<Hero> Heroes { get; set; } = new List<Hero>();
         public int Coins { get; set; }
+        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
+
         public int PartyMaxMorale => GetMaxMorale();
         public PartyManagerService? PartyManager { get; set; }
 
@@ -46,7 +49,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class PartyManagerService
     {
         private readonly GameStateManagerService _gameStateManager;
-        public Party? Party => _gameStateManager.GameState.CurrentParty;
+        public Party Party => _gameStateManager.GameState.CurrentParty ?? new Party();
         public Action? OnPartyChanged;
         private Hero? _selectedHero;
         public Hero? SelectedHero
@@ -61,13 +64,15 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
         }
-        public event Action<Hero?>? OnSelectedHeroChanged;
         public int MoraleMax { get; set; }
         public int Morale {  get; set; }
+        public int PartyLuck { get; set; }
+
         public bool PartyRetreat => Morale < 1;
         public bool PartyWavering => Morale < Math.Floor(MoraleMax / 2d);
+        public List<ActiveStatusEffect> ActivePartyEffects => Party.ActiveStatusEffects;
 
-        public int PartyLuck { get; set; }
+        public event Action<Hero?>? OnSelectedHeroChanged;
 
 
         // Inject the state into the service's constructor
