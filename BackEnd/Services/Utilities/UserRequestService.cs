@@ -33,11 +33,25 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public bool WasCancelled { get; set; } = false;
     }
 
+    public class NumberInputRequest
+    {
+        public string Prompt { get; set; } = "Enter a number";
+        public TaskCompletionSource<NumberInputResult> CompletionSource { get; } = new TaskCompletionSource<NumberInputResult>();
+    }
+
+    public class NumberInputResult
+    {
+        public int Amount { get; set; }
+        public bool WasCancelled { get; set; } = false;
+    }
+
     public class UserRequestService
     {
         public event Action? OnRollRequested;
+        public event Action? OnRequestChanged;
         public DiceRollRequest? CurrentDiceRequest { get; private set; }
         public ChooseOptionRequest? CurrentChoiceRequest { get; private set; }
+        public NumberInputRequest? CurrentNumberInputRequest { get; private set; }
 
         /// <summary>
         /// This is called by any part of the game that needs a dice roll.
@@ -124,6 +138,37 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         {
             var result = await RequestChoiceAsync(prompt, new List<string> { "Yes", "No" });
             return !result.WasCancelled && result.SelectedOption == "Yes";
+        }
+
+        public Task<NumberInputResult> RequestNumberInputAsync(string prompt)
+        {
+            CurrentNumberInputRequest = new NumberInputRequest
+            {
+                Prompt = prompt
+            };
+
+            OnRequestChanged?.Invoke();
+            return CurrentNumberInputRequest.CompletionSource.Task;
+        }
+
+        public void CompleteNumberInput(int amount)
+        {
+            if (CurrentNumberInputRequest != null)
+            {
+                CurrentNumberInputRequest.CompletionSource.SetResult(new NumberInputResult { Amount = amount });
+                CurrentNumberInputRequest = null;
+                OnRequestChanged?.Invoke();
+            }
+        }
+
+        public void CancelNumberInput()
+        {
+            if (CurrentNumberInputRequest != null)
+            {
+                CurrentNumberInputRequest.CompletionSource.SetResult(new NumberInputResult { WasCancelled = true });
+                CurrentNumberInputRequest = null;
+                OnRequestChanged?.Invoke();
+            }
         }
     }
 }
