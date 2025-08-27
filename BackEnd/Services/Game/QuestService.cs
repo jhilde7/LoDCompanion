@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
+using LoDCompanion.BackEnd.Services.Utilities;
 
 namespace LoDCompanion.BackEnd.Services.Game
 {
@@ -66,6 +67,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         public string NarrativeSetup { get; set; } = string.Empty;
         public string NarrativeAftermath { get; set; } = string.Empty;
         public List<QuestSetupAction> SetupActions { get; set; } = new();
+        public List<Quest>? SideQuests { get; set; }
 
         public Quest()
         {
@@ -1388,6 +1390,13 @@ namespace LoDCompanion.BackEnd.Services.Game
         public Quest GetQuestByName(string name)
         {
             return Quests.First(q => q.Name == name);
+        }
+
+        public Quest GetRandomSideQuest()
+        {
+            var sideQuests = Quests.Where(q => q.IsSideQuest).ToList();
+            sideQuests.Shuffle();
+            return sideQuests.First();
         }
     }
 }
