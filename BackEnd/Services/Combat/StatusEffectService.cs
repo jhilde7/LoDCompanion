@@ -166,7 +166,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         FireImmunity,
         CompleteFireImmunity,
         ResistPoison,
-        ResistFearTerror
+        ResistFearTerror,
+        Sale,
+        FreshStocks
     }
 
     /// <summary>
@@ -182,6 +184,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public string? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
         public bool RemoveAfterCombat { get; set; }
         public bool RemoveAfterNextBattle { get; set; }
+        public bool RemoveEndDay { get; set; }
 
         public ActiveStatusEffect(
             StatusEffectType type,
@@ -191,7 +194,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             int? damage = null,
             string? diceToRoll = null,
             bool removeAfterCombat = false,
-            bool removeAfterNextBattle = false)
+            bool removeAfterNextBattle = false,
+            bool removeEndDay = false)
         {
             Category = type;
             Duration = duration;
@@ -201,6 +205,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             DiceToRoll = diceToRoll;
             RemoveAfterCombat = removeAfterCombat;
             RemoveAfterNextBattle = removeAfterNextBattle;
+            RemoveEndDay = removeEndDay;
         }
     }
 
