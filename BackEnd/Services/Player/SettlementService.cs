@@ -63,6 +63,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int EventOn { get; set; }
         public string QuestDice { get; set; } = string.Empty;
         public QuestColor QuestColor { get; set; }
+        public int RejectedQuests { get; set; }
     }
 
     public class SettlementService
