@@ -38,13 +38,13 @@ namespace LoDCompanion.BackEnd.Services.Game
     public class QuestHexLocation
     {
         public HexTile HexTile { get; set; } = new HexTile(new Hex(0, 0, 0));
-        public Dictionary<QuestDiceColor, int> QuestLocations { get; set; } = new Dictionary<QuestDiceColor, int>();
+        public Dictionary<QuestColor, int> QuestLocations { get; set; } = new Dictionary<QuestColor, int>();
     }
 
     public class Quest
     {
         public bool IsSideQuest { get; set; }
-        public (QuestDiceColor, int)? ColorLocation { get; set; }
+        public (QuestColor, int)? ColorLocation { get; set; }
         public string Name { get; set; } = string.Empty;
         public QuestType QuestType { get; set; } = QuestType.Dungeon;
         public RoomInfo? StartingRoom { get; set; }
@@ -410,7 +410,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Highwaymen",
-                    ColorLocation = (QuestDiceColor.White, 34),
+                    ColorLocation = (QuestColor.White, 34),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
                     CorridorCount = 6,
@@ -483,7 +483,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Apprentice",
-                    ColorLocation = (QuestDiceColor.White, 22),
+                    ColorLocation = (QuestColor.White, 22),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result. Any Encounter Table roll of 15-20 results in an encounter with the caretaker, plus the ordinary encounter. The caretaker, Emil, wields a sharpened shovel (Greataxe) and drops a bronze key upon death.",
                     CorridorCount = 6,
@@ -502,7 +502,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Sacrifice",
-                    ColorLocation = (QuestDiceColor.White, 36),
+                    ColorLocation = (QuestColor.White, 36),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     CorridorCount = 7,
                     RoomCount = 7,
@@ -519,7 +519,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "The Master",
-                    ColorLocation = (QuestDiceColor.White, 39),
+                    ColorLocation = (QuestColor.White, 39),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Scenario dice triggers an event on a roll of 8-0. If the heroes chose to stop the sacrifice in Quest 6A, roll twice on the Encounter Table for every encounter, choosing the higher result. The middle chest in room R10 is locked and can only be opened with the bronze key from Quest 5; it contains the Vanquisher.",
                     CorridorCount = 7,
@@ -539,14 +539,14 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Lair of the Spider Queen",
-                    ColorLocation = (QuestDiceColor.White, 40),
+                    ColorLocation = (QuestColor.White, 40),
                     RewardCoin = 1200,
                     NarrativeQuest = "The party has been contacted by an elderly wizard who tells them the story of Queen Araneae, who controlled spiders with a magical sceptre. He believes the sceptre is buried with them in a tomb north of the Ancient Lands and will reward the party handsomely for retrieving it. To begin the quest, travel to location White 40."
                 },
                 new Quest()
                 {
                     Name = "Level 1: The Entrance",
-                    ColorLocation = (QuestDiceColor.White, 40),
+                    ColorLocation = (QuestColor.White, 40),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "The Secondary Quest card 1 should be mixed in with the first half of the pile.",
                     CorridorCount = 7,
@@ -564,7 +564,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Level 2: The Basement",
-                    ColorLocation = (QuestDiceColor.White, 40),
+                    ColorLocation = (QuestColor.White, 40),
                     StartingRoom = _room.GetRoomByName("C18"),
                     SpecialRules = "The Secondary Quest card 1 should be mixed in with the stack before dividing it to add the normal objective card. A Wandering Monster will appear when the Threat Level reaches 10 and 16. The secondary objective involves fighting Kraghul the Mighty, a powerful Minotaur.",
                     CorridorCount = 7,
@@ -582,7 +582,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Level 3: The Tomb of the Spider Queen",
-                    ColorLocation = (QuestDiceColor.White, 40),
+                    ColorLocation = (QuestColor.White, 40),
                     StartingRoom = _room.GetRoomByName("C8"),
                     SpecialRules = "Whenever you have an encounter, roll a die. An odd number will result in 1d3 Giant Spiders; an even number will result in an encounter from the Undead Encounter List. All doors are considered cobweb covered openings. A Threat Level of 12 will trigger a Wandering Monster.",
                     CorridorCount = 7,
@@ -821,7 +821,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new Quest()
                 {
                     Name = "Tomb Raiders",
-                    ColorLocation = (QuestDiceColor.White, 38),
+                    ColorLocation = (QuestColor.White, 38),
                     StartingRoom = _room.GetRoomByName("Start Tile"),
                     SpecialRules = "Opening a tomb takes two heroes a full turn. While in the objective room, the Scenario dice triggers an event on a roll of 1-4; any result that would increase the Threat Level instead summons a Wandering Monster.",
                     CorridorCount = 7,
@@ -940,445 +940,445 @@ namespace LoDCompanion.BackEnd.Services.Game
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-22, -8, 30)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Red, 1 },
-                        { QuestDiceColor.White, 2 }
+                        { QuestColor.Red, 1 },
+                        { QuestColor.White, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-15, -10, 25)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Red, 2 },
-                        { QuestDiceColor.White, 3 }
+                        { QuestColor.Red, 2 },
+                        { QuestColor.White, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-19, -2, 21)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Red, 3 },
-                        { QuestDiceColor.White, 13 },
-                        { QuestDiceColor.Pink, 2 }
+                        { QuestColor.Red, 3 },
+                        { QuestColor.White, 13 },
+                        { QuestColor.Pink, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-24, 4, 20)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Red, 4 },
-                        { QuestDiceColor.White, 14 },
-                        { QuestDiceColor.Pink, 1 },
-                        { QuestDiceColor.Black, 1 }
+                        { QuestColor.Red, 4 },
+                        { QuestColor.White, 14 },
+                        { QuestColor.Pink, 1 },
+                        { QuestColor.Black, 1 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-13, -5, 18)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 11 },
-                        { QuestDiceColor.Pink, 3 }
+                        { QuestColor.White, 11 },
+                        { QuestColor.Pink, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-11, -8, 19)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 10 },
-                        { QuestDiceColor.Turquoise, 2 }
+                        { QuestColor.White, 10 },
+                        { QuestColor.Turquoise, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {                    
                     HexTile = new HexTile(new Hex(-9, -14, 23)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 4 },
-                        { QuestDiceColor.Turquoise, 3 }
+                        { QuestColor.White, 4 },
+                        { QuestColor.Turquoise, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-3, -16, 19)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 5 },
-                        { QuestDiceColor.Turquoise, 4 }
+                        { QuestColor.White, 5 },
+                        { QuestColor.Turquoise, 4 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(0, -9, 9)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 9 },
-                        { QuestDiceColor.Turquoise, 1 }
+                        { QuestColor.White, 9 },
+                        { QuestColor.Turquoise, 1 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(5, -14, 9)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 8 },
-                        { QuestDiceColor.Turquoise, 6 }
+                        { QuestColor.White, 8 },
+                        { QuestColor.Turquoise, 6 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(7, -20, 13)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 6 },
-                        { QuestDiceColor.Turquoise, 5 }
+                        { QuestColor.White, 6 },
+                        { QuestColor.Turquoise, 5 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(20, -24, 4)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 20 },
-                        { QuestDiceColor.Blue, 1 }
+                        { QuestColor.White, 20 },
+                        { QuestColor.Blue, 1 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(15, -22, 6)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 7 }
+                        { QuestColor.White, 7 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(0, -5, 5)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 16 }
+                        { QuestColor.White, 16 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(3, -4, 1)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 17 },
-                        { QuestDiceColor.Blue, 6 }
+                        { QuestColor.White, 17 },
+                        { QuestColor.Blue, 6 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(6, -6, 0)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 18 },
-                        { QuestDiceColor.Blue, 5 }
+                        { QuestColor.White, 18 },
+                        { QuestColor.Blue, 5 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(9, -5, -4)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 19 },
-                        { QuestDiceColor.Blue, 4 }
+                        { QuestColor.White, 19 },
+                        { QuestColor.Blue, 4 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(16, -6, -10)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 22 },
-                        { QuestDiceColor.Blue, 3 }
+                        { QuestColor.White, 22 },
+                        { QuestColor.Blue, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(19, -11, -8)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 21 },
-                        { QuestDiceColor.Blue, 2 }
+                        { QuestColor.White, 21 },
+                        { QuestColor.Blue, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-24, 15, 9)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 28 },
-                        { QuestDiceColor.Black, 6 }
+                        { QuestColor.White, 28 },
+                        { QuestColor.Black, 6 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-23, 17, 6)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 30 },
-                        { QuestDiceColor.Black, 5 }
+                        { QuestColor.White, 30 },
+                        { QuestColor.Black, 5 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-9, 0, 9)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 15 },
-                        { QuestDiceColor.Pink, 4 },
-                        { QuestDiceColor.Black, 2 }
+                        { QuestColor.White, 15 },
+                        { QuestColor.Pink, 4 },
+                        { QuestColor.Black, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-14, 10, 4)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 26 },
-                        { QuestDiceColor.Purple, 3 },
-                        { QuestDiceColor.Black, 3 }
+                        { QuestColor.White, 26 },
+                        { QuestColor.Purple, 3 },
+                        { QuestColor.Black, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-17, 13, 4)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 27 },
-                        { QuestDiceColor.Purple, 4 },
-                        { QuestDiceColor.Black, 4 }
+                        { QuestColor.White, 27 },
+                        { QuestColor.Purple, 4 },
+                        { QuestColor.Black, 4 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-13, 14, -1)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 33 },
-                        { QuestDiceColor.Purple, 5 }
+                        { QuestColor.White, 33 },
+                        { QuestColor.Purple, 5 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-7, 13, -6)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 34 },
-                        { QuestDiceColor.Purple, 6 }
+                        { QuestColor.White, 34 },
+                        { QuestColor.Purple, 6 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-7, 5, 2)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 25 },
-                        { QuestDiceColor.Purple, 2 }
+                        { QuestColor.White, 25 },
+                        { QuestColor.Purple, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-5, 4, 1)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 24 },
-                        { QuestDiceColor.Purple, 1 }
+                        { QuestColor.White, 24 },
+                        { QuestColor.Purple, 1 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(5, 0, -5)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 23 },
-                        { QuestDiceColor.Green, 3 }
+                        { QuestColor.White, 23 },
+                        { QuestColor.Green, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(3, 6, -9)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 35 },
-                        { QuestDiceColor.Green, 4 }
+                        { QuestColor.White, 35 },
+                        { QuestColor.Green, 4 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(1, 5, -6)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 36 },
-                        { QuestDiceColor.Green, 2 }
+                        { QuestColor.White, 36 },
+                        { QuestColor.Green, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(6, 2, -8)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 37 },
-                        { QuestDiceColor.Green, 1 }
+                        { QuestColor.White, 37 },
+                        { QuestColor.Green, 1 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(7, 8, -15)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 39 },
-                        { QuestDiceColor.Green, 5 }
+                        { QuestColor.White, 39 },
+                        { QuestColor.Green, 5 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(14, 7, -21)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 38 },
-                        { QuestDiceColor.Green, 6 }
+                        { QuestColor.White, 38 },
+                        { QuestColor.Green, 6 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-25, 19, 6)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 29 }
+                        { QuestColor.White, 29 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-22, 20, 2)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 31 }
+                        { QuestColor.White, 31 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-16, 18, -2)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 32 }
+                        { QuestColor.White, 32 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-14, 20, -6)) { Terrain = TerrainType.Road },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.White, 40 }
+                        { QuestColor.White, 40 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-25, 31, -6)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 1 }
+                        { QuestColor.Yellow, 1 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-24, 34, -10)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 2 }
+                        { QuestColor.Yellow, 2 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-21, 35, -14)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 3 }
+                        { QuestColor.Yellow, 3 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-15, 28, -13)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 4 }
+                        { QuestColor.Yellow, 4 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-12, 30, -18)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 5 }
+                        { QuestColor.Yellow, 5 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(-4, 23, -19)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 6 }
+                        { QuestColor.Yellow, 6 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(3, 20, -23)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 7 }
+                        { QuestColor.Yellow, 7 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(7, 21, -28)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 8 }
+                        { QuestColor.Yellow, 8 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(7, 16, -23)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 9 }
+                        { QuestColor.Yellow, 9 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(18, 15, -33)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 10 }
+                        { QuestColor.Yellow, 10 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(16, 12, -28)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 11 }
+                        { QuestColor.Yellow, 11 }
                     }
                 },
                 new QuestHexLocation()
                 {
                     HexTile = new HexTile(new Hex(18, 8, -26)) { Terrain = TerrainType.Desert },
-                    QuestLocations = new Dictionary<QuestDiceColor, int>()
+                    QuestLocations = new Dictionary<QuestColor, int>()
                     {
-                        { QuestDiceColor.Yellow, 12 }
+                        { QuestColor.Yellow, 12 }
                     }
                 },
             };
         }
 
-        public HexTile? GetQuestHexLocationByColorNumber(int number, QuestDiceColor color)
+        public HexTile? GetQuestHexLocationByColorNumber(int number, QuestColor color)
         {
             var questLocation = QuestHexLocations.FirstOrDefault(q => q.QuestLocations.ContainsKey(color) && q.QuestLocations.ContainsValue(number));
             return questLocation != null ? questLocation.HexTile : null;

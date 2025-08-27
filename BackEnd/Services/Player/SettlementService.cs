@@ -1,4 +1,6 @@
 ﻿using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.Utilities;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -17,7 +19,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         Windfair
     }
 
-    public enum Services
+    public enum SettlementServices
     {
         Arena,
         Banks,
@@ -40,7 +42,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         TheAsylum,
     }
 
-    public enum QuestDiceColor
+    public enum QuestColor
     {
         Red,
         Green,
@@ -57,15 +59,31 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public List<HexTile> HexTiles { get; set; } = new List<HexTile>();
         public SettlementName Name { get; set; }
-        public List<Services> AvailableServices { get; set; } = new List<Services>();
+        public List<SettlementServices> AvailableServices { get; set; } = new List<SettlementServices>();
         public int EventOn { get; set; }
         public string QuestDice { get; set; } = string.Empty;
-        public QuestDiceColor QuestColor { get; set; }
+        public QuestColor QuestColor { get; set; }
     }
 
-    public class SettlementsService
+    public class SettlementService
     {
+        private readonly UserRequestService _userRequest;
+        private readonly QuestService _quest;
+
         public List<Settlement> Settlements => GetSettlements();
+
+        public SettlementService(UserRequestService userRequestService, QuestService questService)
+        {
+            _userRequest = userRequestService;
+            _quest = questService;
+        }
+
+        public async Task<HexTile?> GetRandomQuestLocation(Settlement settlement)
+        {
+            var rollResult = await _userRequest.RequestRollAsync("Roll for random quest", settlement.QuestDice);
+            await Task.Yield();
+            return _quest.GetQuestHexLocationByColorNumber(rollResult.Roll, settlement.QuestColor);
+        }
 
         public List<Settlement> GetSettlements()
         {
@@ -75,7 +93,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     Name = SettlementName.Birnheim,
                     EventOn = 12,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore, Services.Inn, Services.Temple },
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(14, -23, 9)) { Terrain = TerrainType.Town },
@@ -88,8 +106,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Caelkirk,
                     EventOn = 11,
                     QuestDice = "1d4",
-                    QuestColor = QuestDiceColor.Red,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore, Services.Inn },
+                    QuestColor = QuestColor.Red,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(0, -28, 28)) { Terrain = TerrainType.Town },
@@ -102,8 +120,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Coalfell,
                     EventOn = 12,
                     QuestDice = "1d6",
-                    QuestColor = QuestDiceColor.Green,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore, Services.Inn, Services.Temple },
+                    QuestColor = QuestColor.Green,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(0, 15, -15)) { Terrain = TerrainType.Town },
@@ -115,7 +133,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     Name = SettlementName.Durburim,
                     EventOn = 12,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore, Services.Inn, Services.Temple },
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(20, -10, -10)) { Terrain = TerrainType.Town },
@@ -128,8 +146,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Freyfell,
                     EventOn = 11,
                     QuestDice = "1d6",
-                    QuestColor = QuestDiceColor.Pink,
-                    AvailableServices = new List<Services> { Services.Arena, Services.Blacksmith, Services.GeneralStore, Services.Inn, Services.SickWards },
+                    QuestColor = QuestColor.Pink,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Arena, SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.SickWards },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(0, -15, 15)) { Terrain = TerrainType.Town },
@@ -145,8 +163,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Irondale,
                     EventOn = 12,
                     QuestDice = "1d6",
-                    QuestColor = QuestDiceColor.Blue,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore, Services.Inn, Services.Temple },
+                    QuestColor = QuestColor.Blue,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(0, -13, 13)) { Terrain = TerrainType.Town },
@@ -162,8 +180,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Rochdale,
                     EventOn = 12,
                     QuestDice = "1d6",
-                    QuestColor = QuestDiceColor.Purple,
-                    AvailableServices = new List<Services> { Services.GeneralStore, Services.Herbalist, Services.Inn, Services.SickWards, Services.MagicBrewery },
+                    QuestColor = QuestColor.Purple,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.GeneralStore, SettlementServices.Herbalist, SettlementServices.Inn, SettlementServices.SickWards, SettlementServices.MagicBrewery },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(-6, 7, -1)) { Terrain = TerrainType.Town },
@@ -176,8 +194,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.SilverCity,
                     EventOn = 8,
                     QuestDice = "2d20",
-                    QuestColor = QuestDiceColor.White,
-                    AvailableServices = new List<Services> { Services.Arena, Services.Banks, Services.Blacksmith, Services.FortuneTeller, Services.GeneralStore, Services.Guilds, Services.HorseRacing, Services.Inn, Services.InnerSanctum, Services.Temple },
+                    QuestColor = QuestColor.White,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Arena, SettlementServices.Banks, SettlementServices.Blacksmith, SettlementServices.FortuneTeller, SettlementServices.GeneralStore, SettlementServices.Guilds, SettlementServices.HorseRacing, SettlementServices.Inn, SettlementServices.InnerSanctum, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(0, 0, 0)) { Terrain = TerrainType.Town },
@@ -194,8 +212,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Whiteport,
                     EventOn = 10,
                     QuestDice = "1d6",
-                    QuestColor = QuestDiceColor.Black,
-                    AvailableServices = new List<Services> { Services.MagnificentAnimals, Services.GeneralStore, Services.Inn, Services.Temple },
+                    QuestColor = QuestColor.Black,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.MagnificentAnimals, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(-16, 0, 16)) { Terrain = TerrainType.Town },
@@ -208,8 +226,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.TheOutpost,
                     EventOn = 9,
                     QuestDice = "1d12",
-                    QuestColor = QuestDiceColor.Yellow,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore },
+                    QuestColor = QuestColor.Yellow,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(-1, 21, -21)) { Terrain = TerrainType.Town },
@@ -224,8 +242,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = SettlementName.Windfair,
                     EventOn = 12,
                     QuestDice = "1d6",
-                    QuestColor = QuestDiceColor.Blue,
-                    AvailableServices = new List<Services> { Services.Blacksmith, Services.GeneralStore, Services.Inn, Services.Scryer, Services.Temple },
+                    QuestColor = QuestColor.Blue,
+                    AvailableServices = new List<SettlementServices> { SettlementServices.Blacksmith, SettlementServices.GeneralStore, SettlementServices.Inn, SettlementServices.Scryer, SettlementServices.Temple },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(12, -8, -4)) { Terrain = TerrainType.Town },
