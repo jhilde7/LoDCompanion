@@ -158,7 +158,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             {
                 var currentHex = frontier.Dequeue();
 
-                foreach (var direction in HexDirections)
+                foreach (var direction in HexDirections.Values)
                 {
                     var neighborHex = Hex.Add(currentHex, direction);
 
@@ -204,30 +204,6 @@ namespace LoDCompanion.BackEnd.Services.Game
             path.Add(start);
             path.Reverse();
             return path;
-        }
-    }
-
-        /// <summary>
-        /// Helper method to get all tiles within a simple hex radius, ignoring movement cost.
-        /// </summary>
-        private List<HexTile> GetTilesInRadius(Hex center, int range)
-        {
-            var results = new List<HexTile>();
-            for (int q = -range; q <= range; q++)
-            {
-                int r1 = Math.Max(-range, -q - range);
-                int r2 = Math.Min(range, -q + range);
-                for (int r = r1; r <= r2; r++)
-                {
-                    var hex = Hex.Add(center, new Hex(q, r, -q - r));
-                    var tile = GetTileAt(hex);
-                    if (tile != null)
-                    {
-                        results.Add(tile);
-                    }
-                }
-            }
-            return results;
         }
     }
 }
