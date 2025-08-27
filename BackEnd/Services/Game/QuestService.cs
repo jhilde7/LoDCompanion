@@ -43,6 +43,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
     public class Quest
     {
+        public SettlementName? QuestOrigin { get; set; }
         public bool IsSideQuest { get; set; }
         public (QuestColor, int)? ColorLocation { get; set; }
         public string Name { get; set; } = string.Empty;
