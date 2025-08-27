@@ -9,10 +9,24 @@ namespace LoDCompanion.BackEnd.Services.Game
     {
         private readonly UserRequestService _diceRoll;
         private readonly PowerActivationService _powerActivation;
-        public IdentificationService(UserRequestService userRequestService, PowerActivationService powerActivationService) 
+        private readonly PartyManagerService _partyManager;
+        public IdentificationService(UserRequestService userRequestService, PowerActivationService powerActivationService, PartyManagerService partyManagerService) 
         { 
             _diceRoll = userRequestService;
             _powerActivation = powerActivationService;
+            _partyManager = partyManagerService;
+
+            BackpackHelper.OnIdentifyItemAsync += HandleIdentifyItemAsync;
+        }
+
+        public void Dispose()
+        {
+            BackpackHelper.OnIdentifyItemAsync -= HandleIdentifyItemAsync;
+        }
+
+        private async Task HandleIdentifyItemAsync(Equipment item)
+        {
+            if (_partyManager.Party != null) await IdentifyItemAsync(_partyManager.Party.Heroes[0], item);
         }
 
         /// <summary>

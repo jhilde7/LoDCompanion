@@ -807,8 +807,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         if (foundItem != null)
                         {
-                            if (!foundItem.Identified) await PerformActionAsync(dungeon, character, ActionType.IdentifyItem, foundItem);
-                            BackpackHelper.AddItem(result.SearchResult.HeroSearching.Inventory.Backpack, foundItem);
+                            await BackpackHelper.AddItem(result.SearchResult.HeroSearching.Inventory.Backpack, foundItem);
                         }
                     }
                 }
@@ -1038,7 +1037,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         {
                             if (hero.DroppedWeapon != null)
                             {
-                                BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
+                                await BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
                             }
                         }
                         pickedUpWeapon = true;
@@ -1077,7 +1076,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         if (hero.DroppedWeapon != null)
                         {
-                            BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
+                            await BackpackHelper.AddItem(hero.Inventory.Backpack, hero.DroppedWeapon);
                         }
                     }
                 }

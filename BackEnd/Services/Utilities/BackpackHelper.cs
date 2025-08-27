@@ -1,11 +1,14 @@
 ﻿using LoDCompanion.BackEnd.Services.GameData;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Utilities
 {
     public static class BackpackHelper
     {
-        public static void AddItem(List<Equipment?> backpack, Equipment itemToAdd)
+        public static event Func<Equipment, Task>? OnIdentifyItemAsync;
+        public static async Task AddItem(List<Equipment?> backpack, Equipment itemToAdd)
         {
+            if (!itemToAdd.Identified && OnIdentifyItemAsync != null) await OnIdentifyItemAsync.Invoke(itemToAdd);
             var existingItem = backpack.FirstOrDefault(item => item != null && item.Name == itemToAdd.Name);
 
             if (existingItem != null && existingItem.Durability == itemToAdd.Durability && existingItem.Identified == itemToAdd.Identified)
