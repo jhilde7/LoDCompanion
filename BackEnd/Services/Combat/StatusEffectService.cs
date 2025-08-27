@@ -160,7 +160,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
         PoisonGas,
         DetectedMimic,
         Caged,
-        Hungry
+        Hungry,
+        ItemEffect,
+        Initiative,
+        FireImmunity,
+        CompleteFireImmunity,
+        ResistPoison,
+        ResistFearTerror
     }
 
     /// <summary>

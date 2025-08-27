@@ -1797,7 +1797,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public bool Identified { get; set; } = true;
         public bool IdentifyAttempted { get; set; } = false;
         public bool AttemptedToIdentify { get; set; } = false;
-        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
+        public List<ActiveStatusEffect>? ActiveStatusEffect { get; set; }
 
         public Action<Equipment>? OnEquipmentDestroyed;
 

@@ -406,7 +406,7 @@
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.AssignItemToQuickSlot(PartyManager.SelectedHero, item, slotIndex);
+            Inventory.AssignItemToQuickSlotAsync(PartyManager.SelectedHero, item, slotIndex);
             // Re-initialize the selection for this item after it's moved
             heroSlotSelections[item.Id] = 1;
         }
@@ -416,7 +416,7 @@
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.AssignItemToEquipmentQuickSlot(PartyManager.SelectedHero, item, container, slotIndex);
+            Inventory.AssignItemToEquipmentQuickSlotAsync(PartyManager.SelectedHero, item, container, slotIndex);
             // Re-initialize the selection for this item after it's moved
             containerSlotSelections[item.Id] = 1;
         }
@@ -454,7 +454,7 @@
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.EquipItem(PartyManager.SelectedHero, item);
+            Inventory.EquipItemAsync(PartyManager.SelectedHero, item);
         }
     }
 
@@ -462,7 +462,7 @@
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.UnequipItem(PartyManager.SelectedHero, item);
+            Inventory.UnequipItemAsync(PartyManager.SelectedHero, item);
         }
     }
 

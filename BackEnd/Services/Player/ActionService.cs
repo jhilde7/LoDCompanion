@@ -372,7 +372,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Hero hero, ActionType.RearrangeGear):
                     if (primaryTarget is Equipment item)
                     {
-                        if (_inventory.EquipItem(hero, item)) result.Message = $"{item.Name} was equipped";
+                        if (await _inventory.EquipItemAsync(hero, item)) result.Message = $"{item.Name} was equipped";
                         else
                         {
                             result.Message = $"{item.Name} could not be equipped";

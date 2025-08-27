@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
@@ -62,9 +63,23 @@ namespace LoDCompanion.BackEnd.Services.Player
     /// </summary>
     public class InventoryService
     {
-        public InventoryService()
+        private readonly PowerActivationService _powerActivation;
+        Hero heroEvent = new Hero();
+        public InventoryService(PowerActivationService powerActivation)
         {
+            _powerActivation = powerActivation;
             
+            heroEvent.OnUnequipWeaponAsync += HandleUnequipWeaponAsync;
+        }
+
+        public void Dispose()
+        {
+            heroEvent.OnUnequipWeaponAsync -= HandleUnequipWeaponAsync;
+        }
+
+        private async Task HandleUnequipWeaponAsync(Hero hero, Weapon weapon)
+        {
+            await UnequipItemAsync(hero, weapon);
         }
 
         /// <summary>
@@ -74,7 +89,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="itemToSlot">The item to be moved to the quick slot.</param>
         /// <param name="slotIndex">The 0-based index of the quick slot to use.</param>
         /// <returns>True if the item was successfully slotted.</returns>
-        public bool AssignItemToQuickSlot(Hero hero, Equipment itemToSlot, int slotIndex)
+        public async Task<bool> AssignItemToQuickSlotAsync(Hero hero, Equipment itemToSlot, int slotIndex)
         {
             // Validate the slot index
             if (slotIndex < 0 || slotIndex >= hero.Inventory.MaxQuickSlots)
@@ -99,7 +114,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             var existingItem = hero.Inventory.QuickSlots[slotIndex];
             if (existingItem != null)
             {
-                BackpackHelper.AddItem(hero.Inventory.Backpack, existingItem);
+                await BackpackHelper.AddItem(hero.Inventory.Backpack, existingItem);
                 Console.WriteLine($"Moved {existingItem.Name} from quick slot back to backpack.");
             }
 
@@ -112,7 +127,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <summary>
         /// Assigns an item from the backpack to a specific slot within a container.
         /// </summary>
-        public bool AssignItemToEquipmentQuickSlot(Hero hero, Equipment itemToSlot, Equipment container, int slotIndex)
+        public async Task<bool> AssignItemToEquipmentQuickSlotAsync(Hero hero, Equipment itemToSlot, Equipment container, int slotIndex)
         {
             // Ensure the target container actually has storage.
             if (container != hero.Inventory.EquippedStorage ||
@@ -128,7 +143,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             var existingItem = container.Storage.QuickSlots[slotIndex];
             if (existingItem != null)
             {
-                BackpackHelper.AddItem(hero.Inventory.Backpack, existingItem);
+                await BackpackHelper.AddItem(hero.Inventory.Backpack, existingItem);
             }
 
             // Place the new item in the container's slot.
@@ -136,42 +151,49 @@ namespace LoDCompanion.BackEnd.Services.Player
             return true;
         }
 
-        public bool EquipItem(Hero hero, Equipment item)
+        public async Task<bool> EquipItemAsync(Hero hero, Equipment item)
         {
             bool success = false;
-            if (item is Ammo ammo) success = EquipAmmo(hero, ammo);
+            if (item is Ammo ammo) success = await EquipAmmoAsync(hero, ammo);
 
             // Take a single instance of the item from the backpack stack.
             Equipment? itemToEquip = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, item);
             if (itemToEquip == null) return false;
 
             // Route to the correct handler based on the item's type.
-            if (itemToEquip is Weapon weapon) success = EquipWeapon(hero, weapon);
-            else if (itemToEquip is Armour armour) success = EquipArmour(hero, armour);
-            else if (itemToEquip is Shield shield) success = EquipOffHand(hero, shield);
+            if (itemToEquip is Weapon weapon) success = await EquipWeaponAsync(hero, weapon);
+            else if (itemToEquip is Armour armour) success = await EquipArmourAsync(hero, armour);
+            else if (itemToEquip is Shield shield) success = await EquipOffHandAsync(hero, shield);
             else if (itemToEquip.HasProperty(EquipmentProperty.Lantern)
                 || itemToEquip.HasProperty(EquipmentProperty.Torch))
             {
-                success = EquipOffHand(hero, itemToEquip);
+                success = await EquipOffHandAsync(hero, itemToEquip);
             }
             else if (hero.ProfessionName == "Warrior Priest"
-                && itemToEquip.Name.Contains("Relic")) success = EquipRelic(hero, itemToEquip);
+                && itemToEquip.Name.Contains("Relic")) success = await EquipRelicAsync(hero, itemToEquip);
             else if (item.Storage != null)
             {
-                success = EquipStorageContainer(hero, item);
+                success = await EquipStorageContainerAsync(hero, item);
             }
 
 
             // If equipping failed for any reason, put the item back in the backpack.
             if (!success)
             {
-                BackpackHelper.AddItem(hero.Inventory.Backpack, itemToEquip);
+                await BackpackHelper.AddItem(hero.Inventory.Backpack, itemToEquip);
                 return false;
+            }
+            else if (itemToEquip.ActiveStatusEffect != null)
+            {
+                foreach (var effect in itemToEquip.ActiveStatusEffect)
+                {
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, effect, _powerActivation);
+                }
             }
             return true;
         }
 
-        public bool UnequipItem(Hero hero, Equipment itemToUnequip)
+        public async Task<bool> UnequipItemAsync(Hero hero, Equipment itemToUnequip)
         {
             bool removed = false;
 
@@ -184,7 +206,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         if (itemInContainer != null)
                         {
-                            BackpackHelper.AddItem(hero.Inventory.Backpack, itemInContainer);
+                            await BackpackHelper.AddItem(hero.Inventory.Backpack, itemInContainer);
                         }
                     }
                     // Clear the container's slots by filling it with nulls
@@ -217,41 +239,49 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             if (removed)
             {
-                BackpackHelper.AddItem(hero.Inventory.Backpack, itemToUnequip);
+                if (itemToUnequip.ActiveStatusEffect != null)
+                {
+                    foreach (var effect in itemToUnequip.ActiveStatusEffect)
+                    {
+                        StatusEffectService.RemoveActiveStatusEffect(hero, effect);
+                    }
+                }
+
+                await BackpackHelper.AddItem(hero.Inventory.Backpack, itemToUnequip);
                 Console.WriteLine($"Unequipped {itemToUnequip.Name}.");
                 return true;
             }
             return false;
         }
 
-        private bool FreeUpOffHand(Hero hero)
+        private async Task<bool> FreeUpOffHandAsync(Hero hero)
         {
             // Remove all offhand items (dual wield, shield, secondary, lantern, torch)
             if (hero.Inventory.OffHand != null)
             {
-                UnequipItem(hero, hero.Inventory.OffHand);
+                await UnequipItemAsync(hero, hero.Inventory.OffHand);
                 Console.WriteLine($"Unequipped {hero.Inventory.OffHand.Name} from {hero.Name}'s off-hand.");
             }
             return true;
         }
 
-        private bool EquipStorageContainer(Hero hero, Equipment containerToEquip)
+        private async Task<bool> EquipStorageContainerAsync(Hero hero, Equipment containerToEquip)
         {
             // If another container is already equipped, unequip it first.
             if (hero.Inventory.EquippedStorage != null)
             {
-                UnequipItem(hero, hero.Inventory.EquippedStorage);
+                await UnequipItemAsync(hero, hero.Inventory.EquippedStorage);
             }
 
             hero.Inventory.EquippedStorage = containerToEquip;
             return true;
         }
 
-        private bool EquipRelic(Hero hero, Equipment relicToEquip)
+        private async Task<bool> EquipRelicAsync(Hero hero, Equipment relicToEquip)
         {
             if (hero.Inventory.EquippedRelic != null)
             {
-                UnequipItem(hero, hero.Inventory.EquippedRelic);
+                await UnequipItemAsync(hero, hero.Inventory.EquippedRelic);
                 Console.WriteLine($"Unequipped {hero.Inventory.EquippedRelic.Name} from {hero.Name}'s relic slot.");
             }
             hero.Inventory.EquippedRelic = relicToEquip;
@@ -259,9 +289,9 @@ namespace LoDCompanion.BackEnd.Services.Player
             return true;
         }
 
-        private bool EquipAmmo(Hero hero, Ammo ammoToEquip)
+        private async Task<bool> EquipAmmoAsync(Hero hero, Ammo ammoToEquip)
         {
-            EmptyQuiver(hero, hero.Inventory);
+            await EmptyQuiverAsync(hero, hero.Inventory);
             var backpackStack = (Ammo?)hero.Inventory.Backpack.FirstOrDefault(a => a != null && a.Name == ammoToEquip.Name);
             if (backpackStack != null)
             {
@@ -276,16 +306,16 @@ namespace LoDCompanion.BackEnd.Services.Player
             return false;
         }
 
-        private bool EmptyQuiver(Hero hero, Inventory inventory)
+        private async Task<bool> EmptyQuiverAsync(Hero hero, Inventory inventory)
         {
             if (inventory.EquippedQuiver != null)
             {
-                UnequipItem(hero, inventory.EquippedQuiver);
+                await UnequipItemAsync(hero, inventory.EquippedQuiver);
             }
             return true;
         }
 
-        private bool EquipWeapon(Hero hero, Weapon weaponToEquip)
+        private async Task<bool> EquipWeaponAsync(Hero hero, Weapon weaponToEquip)
         {
             Weapon? equippedWeapon = hero.Inventory.EquippedWeapon;
             if (equippedWeapon == null)
@@ -304,19 +334,19 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
                 else if (melee.Class > hero.OneHandedWeaponClass) // equip two-handed weapon
                 {
-                    return EquipTwoHandedWeapon(hero, melee);
+                    return await EquipTwoHandedWeaponAsync(hero, melee);
                 }
                 else if (hero.Talents.Any(t => t.Name == TalentName.DualWield)
                     && melee.HasProperty(WeaponProperty.DualWield)
                      && hero.Inventory.EquippedWeapon != null)
                 {
-                    return EquipOffHand(hero, melee);
+                    return await EquipOffHandAsync(hero, melee);
                 }
                 else // replace one-handed weapon
                 {
                     if (equippedWeapon != null)
                     {
-                        UnequipItem(hero, equippedWeapon);
+                        await UnequipItemAsync(hero, equippedWeapon);
                         Console.WriteLine($"Unequipped {equippedWeapon.Name} from {hero.Name}'s equipped weapon slot.");
                     }
                     hero.Inventory.EquippedWeapon = weaponToEquip;
@@ -326,28 +356,28 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
             else if (weaponToEquip.Properties.ContainsKey(WeaponProperty.SecondaryWeapon))
             {
-                return EquipOffHand(hero, (RangedWeapon)weaponToEquip);
+                return await EquipOffHandAsync(hero, (RangedWeapon)weaponToEquip);
             }
             else // equipped ranged weapon
             {
-                return EquipTwoHandedWeapon(hero, weaponToEquip);
+                return await EquipTwoHandedWeaponAsync(hero, weaponToEquip);
             }
         }
 
-        private bool EquipTwoHandedWeapon(Hero hero, Weapon weaponToEquip)
+        private async Task<bool> EquipTwoHandedWeaponAsync(Hero hero, Weapon weaponToEquip)
         {
             Weapon? equippedWeapon = hero.Inventory.EquippedWeapon;
             if (equippedWeapon != null)
             {
-                UnequipItem(hero, equippedWeapon);
+                await UnequipItemAsync(hero, equippedWeapon);
             }
-            FreeUpOffHand(hero);
+            await FreeUpOffHandAsync(hero);
             hero.Inventory.EquippedWeapon = weaponToEquip;
             Console.WriteLine($"Equipped {weaponToEquip.Name} with both hands, to {hero.Name}'s equipped weapon slot.");
             return true;
         }
 
-        private bool EquipOffHand(Hero hero, Equipment itemToEquip)
+        private async Task<bool> EquipOffHandAsync(Hero hero, Equipment itemToEquip)
         {
             // Rule: Cannot equip an off-hand item if using a two-handed weapon.
             if (hero.Inventory.EquippedWeapon != null && hero.Inventory.EquippedWeapon.Class > hero.OneHandedWeaponClass)
@@ -359,7 +389,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             // Clear the off-hand slot before equipping the new item.
             if (hero.Inventory.OffHand != null)
             {
-                UnequipItem(hero, hero.Inventory.OffHand);
+                await UnequipItemAsync(hero, hero.Inventory.OffHand);
             }
 
             hero.Inventory.OffHand = itemToEquip;
@@ -376,7 +406,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             ArmourProperty.Cloak
         };
 
-        private bool EquipArmour(Hero hero, Armour armourToEquip)
+        private async Task<bool> EquipArmourAsync(Hero hero, Armour armourToEquip)
         {
             var slotToOccupy = armourToEquip.Properties.Keys.FirstOrDefault(p => _bodySlots.Contains(p));
             if (slotToOccupy == default)
@@ -394,7 +424,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 foreach (var item in itemsToUnequip)
                 {
-                    UnequipItem(hero, item); // This helper now handles its own console message.
+                    await UnequipItemAsync(hero, item); // This helper now handles its own console message.
                 }
             }
 

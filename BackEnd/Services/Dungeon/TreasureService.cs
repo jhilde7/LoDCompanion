@@ -779,7 +779,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return stone;
         }
 
-        public async Task<Equipment> GetMagicItemAsync(Equipment? item, bool isCursed = false)
+        public async Task<Equipment> GetMagicItemAsync(Equipment? item, bool isCursed = false, bool includeCurseRoll = true)
         {
             if (item == null) return new Equipment();
             string[] magic = new string[3];
@@ -788,100 +788,165 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             await Task.Yield();
             if (isCursed)
             {
-                roll = RandomHelper.RollDie(DiceType.D10);
-                switch (roll)
-                {
-                    case 1: magic[2] = "HP -2"; break;
-                    case 2: magic[2] = "WIS -5"; break;
-                    case 3: magic[2] = "CON -5"; break;
-                    case 4: magic[2] = "STR -5"; break;
-                    case 5: magic[2] = "DEX -5"; break;
-                    case 6: magic[2] = "HP -3"; break;
-                    case 7: magic[2] = "RES -10"; break;
-                    case 8:
-                        roll = RandomHelper.GetRandomNumber(1, 9);
-                        switch (roll)
-                        {
-                            case 1: magic[2] = "CS -5"; break;
-                            case 2: magic[2] = "RS -5"; break;
-                            case 3: magic[2] = "Dodge -5"; break;
-                            case 4: magic[2] = "Pick Locks -5"; break;
-                            case 5: magic[2] = "Barter -5"; break;
-                            case 6: magic[2] = "Heal -5"; break;
-                            case 7: magic[2] = "Alchemy -5"; break;
-                            case 8: magic[2] = "Perception -5"; break;
-                            case 9: magic[2] = "Foraging -5"; break;
-                        }
-                        break;
-                    case 9: magic[2] = "Luck -1"; break;
-                    case 10: magic[2] = "Energy -1"; break;
-                }
+                item = ApplyCurseToItem(item);
                 roll = RandomHelper.GetRandomNumber(1, 9); // Re-roll for positive effect if cursed, to fill magic[0] and magic[1]
             }
+            item.ActiveStatusEffect ??= new List<ActiveStatusEffect>();
 
-            if (item is Weapon)
+            if (item is Weapon weapon)
             {
+                weapon.ActiveStatusEffect ??= new List<ActiveStatusEffect>();
                 switch (roll)
                 {
-                    case 1: magic[0] = "Fire DMG"; magic[1] = "This weapon has a slight glow to it, as if radiating heat."; break;
-                    case 2: magic[0] = "DMG +2"; magic[1] = "When wielding this weapon, is is as if the hero can feel its taste for blood."; break;
-                    case 3: magic[0] = "DMG +1"; magic[1] = "A slight humming sound can be heard from this weapon, as if it powered up and ready to kill."; break;
-                    case 4: magic[0] = "CS/RS +10"; magic[1] = "This weapon feels as if it is one with your body, making every move as simple and perfect as they can be."; break;
-                    case 5: magic[0] = "CS/RS +5"; magic[1] = "The magic infused into this weapon causes every strike or shot to be all but perfect."; break;
-                    case 6: magic[0] = "ENC -5 and Class -1 (min 1)"; magic[1] = "The low weight of this weapon goes beyond your heroes' understanding. A weapon half the size would not even weigh this little."; break;
-                    case 7: magic[0] = "DUR +2 (total 10)"; magic[1] = "It is as if the magic in this weapon is unusually strong, binding it together in a way that your  hero has never experienced before."; break;
-                    case 8: magic[0] = "Fear/Terror test +10"; magic[1] = "One look at this weapon reassures your hero that nothing can stand between them and victory."; break;
-                    case 9: magic[0] = "+5 Parry for CC, +5 Dodge for ranged weapon"; magic[1] = "Imbued with powerful spells, this weapon is designed to protect its owner."; break;
-                    case 10: return await GetMagicItemAsync(item, isCursed: true);
+                    case 1: magic[0] = "Fire DMG"; magic[1] = "This weapon has a slight glow to it, as if radiating heat.";
+                        weapon.WeaponCoating = new WeaponCoating() { DamageType = DamageType.Fire, RemoveAfterCombat = false };
+                        break;
+                    case 2: magic[0] = "DMG +2"; magic[1] = "When wielding this weapon, is is as if the hero can feel its taste for blood.";
+                        weapon.Properties.TryGetValue(WeaponProperty.DamageBonus, out int damageBonus);
+                        if (damageBonus > 0) weapon.Properties.Remove(WeaponProperty.DamageBonus);
+                        damageBonus += 2;
+                        weapon.Properties.TryAdd(WeaponProperty.DamageBonus, damageBonus);
+                        break;
+                    case 3: magic[0] = "DMG +1"; magic[1] = "A slight humming sound can be heard from this weapon, as if it powered up and ready to kill.";
+                        weapon.Properties.TryGetValue(WeaponProperty.DamageBonus, out damageBonus);
+                        if (damageBonus > 0) weapon.Properties.Remove(WeaponProperty.DamageBonus);
+                        damageBonus += 1;
+                        weapon.Properties.TryAdd(WeaponProperty.DamageBonus, damageBonus);
+                        break;
+                    case 4: magic[0] = "CS/RS +10"; magic[1] = "This weapon feels as if it is one with your body, making every move as simple and perfect as they can be.";
+                        if (weapon is MeleeWeapon) weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.CombatSkill, 10)));
+                        else weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.RangedSkill, 10)));
+                        break;
+                    case 5: magic[0] = "CS/RS +5"; magic[1] = "The magic infused into this weapon causes every strike or shot to be all but perfect.";
+                        if (weapon is MeleeWeapon) weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.CombatSkill, 5)));
+                        else weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.RangedSkill, 5)));
+                        break;
+                    case 6: magic[0] = "ENC -5 and Class -1 (min 1)"; magic[1] = "The low weight of this weapon goes beyond your heroes' understanding. A weapon half the size would not even weigh this little.";
+                        weapon.Encumbrance -= 5;
+                        if (weapon.Class > 1) weapon.Class -= 1;
+                        break;
+                    case 7: magic[0] = "DUR +2 (total 10)"; magic[1] = "It is as if the magic in this weapon is unusually strong, binding it together in a way that your  hero has never experienced before.";
+                        weapon.MaxDurability += 2;
+                        break;
+                    case 8: magic[0] = "Fear/Terror test +10"; magic[1] = "One look at this weapon reassures your hero that nothing can stand between them and victory.";
+                        weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ResistFearTerror, -1));
+                        break;
+                    case 9: magic[0] = "+5 Parry for CC, +5 Dodge for ranged weapon"; magic[1] = "Imbued with powerful spells, this weapon is designed to protect its owner.";
+                        if (weapon is MeleeWeapon) weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Parry, 5)));
+                        else weapon.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Dodge, 5)));
+                        break;
+                    case 10: return includeCurseRoll ? await GetMagicItemAsync(item, isCursed: true) : await GetMagicItemAsync(item, includeCurseRoll: false);
                 }
-                ((Weapon)item).Properties.Add(WeaponProperty.Magic, 0);
+                weapon.Properties.Add(WeaponProperty.Magic, 0);
             }
-            else if (item is Armour)
+            else if (item is Armour armour)
             {
+                armour.ActiveStatusEffect ??= new List<ActiveStatusEffect>();
                 switch (roll)
                 {
-                    case 1: magic[0] = "DEF +2"; magic[1] = "This piece of armor simply radiates strength."; break;
-                    case 2: magic[0] = "DEF +1"; magic[1] = "This piece of armor can deflect any blow."; break;
-                    case 3: magic[0] = "-50% ENC"; magic[1] = "This armour seems lighter than even Mithril."; break;
-                    case 4: magic[0] = "DUR +1 (total 9)"; magic[1] = "Enchanted by a master enchanter, it will take tremendous effort to break this armor."; break;
-                    case 5: magic[0] = "Fire Immunity"; magic[1] = "From time to time, itr almost looks as if this armour is on fire even though it is cool to the touch. Maybe this is the reason that it is not susceptible to fire."; break;
-                    case 6: magic[0] = "CON +10 for poison roll tests"; magic[1] = "While forging this armour, powerful enchantments were imbued into it to thwart anyone trying to poison its wearer."; break;
-                    case 7: magic[0] = "CON +5"; magic[1] = "The enchantment in this armour reaches out to its wearer and strengthens their resilience."; break;
-                    case 8: magic[0] = "STR +5"; magic[1] = "As if the armour lends its strength, the wearer of this piece of armour becomes as strong as an ox"; break;
-                    case 9: magic[0] = "Dodge +5"; magic[1] = "Imbued with powerful spells, the armour gives a tingling sensation to its wearer when danger is near, giving them time to dodge the threat."; break;
-                    case 10: return await GetMagicItemAsync(item, isCursed: true);
+                    case 1: magic[0] = "DEF +2"; magic[1] = "This piece of armor simply radiates strength.";
+                        armour.DefValue += 2;
+                        break;
+                    case 2: magic[0] = "DEF +1"; magic[1] = "This piece of armor can deflect any blow.";
+                        armour.DefValue += 1;
+                        break;
+                    case 3: magic[0] = "-50% ENC"; magic[1] = "This armour seems lighter than even Mithril.";
+                        armour.Encumbrance = (int)Math.Ceiling(armour.Encumbrance / 2d);
+                        break;
+                    case 4: magic[0] = "DUR +1"; magic[1] = "Enchanted by a master enchanter, it will take tremendous effort to break this armor.";
+                        armour.MaxDurability += 1;
+                        break;
+                    case 5: magic[0] = "Fire Immunity"; magic[1] = "From time to time, itr almost looks as if this armour is on fire even though it is cool to the touch. Maybe this is the reason that it is not susceptible to fire.";
+                        armour.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.CompleteFireImmunity, -1));
+                        break;
+                    case 6: magic[0] = "CON +10 for poison roll tests"; magic[1] = "While forging this armour, powerful enchantments were imbued into it to thwart anyone trying to poison its wearer.";
+                        armour.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ResistPoison, -1));
+                        break;
+                    case 7: magic[0] = "CON +5"; magic[1] = "The enchantment in this armour reaches out to its wearer and strengthens their resilience.";
+                        armour.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Constitution, 5)));
+                        break;
+                    case 8: magic[0] = "STR +5"; magic[1] = "As if the armour lends its strength, the wearer of this piece of armour becomes as strong as an ox";
+                        armour.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Strength, 5)));
+                        break;
+                    case 9: magic[0] = "Dodge +5"; magic[1] = "Imbued with powerful spells, the armour gives a tingling sensation to its wearer when danger is near, giving them time to dodge the threat.";
+                        armour.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Dodge, 5)));
+                        break;
+                    case 10: return includeCurseRoll ? await GetMagicItemAsync(item, isCursed: true) : await GetMagicItemAsync(item, includeCurseRoll: false);
                 }
-                ((Armour)item).Properties.Add(ArmourProperty.Magic, 0);
+                armour.Properties.Add(ArmourProperty.Magic, 0);
             }
             else
             {
                 switch (roll)
                 {
-                    case 1: magic[0] = "HP +1"; magic[1] = "This item has been imbued by some of the life essence of the enchanter and lends it to the one wearing it."; break;
-                    case 2: magic[0] = "CON +5"; magic[1] = "A spell of resilience has been cast upon this item, giving the wearer the power to resist damage and illness alike."; break;
-                    case 3: magic[0] = "STR +5"; magic[1] = "Using this item grants the wearer the strength of several men."; break;
-                    case 4: magic[0] = "RES +5"; magic[1] = "Bolstering the mind against the horrors, this item lends a bit of spine to its user."; break;
-                    case 5: magic[0] = "DEX +5"; magic[1] = "This makes the user as nimble as a cat...almost."; break;
-                    case 6: magic[0] = "Energy +1"; magic[1] = "TRhis is an extraordinary item for sure. Used as a vessel for energy, it gives the user the endurance to perform that which a normal man could not."; break;
-                    case 7: magic[0] = "Luck +1"; magic[1] = "Clearly enchanted by a follower of Rhidnir, this item bestows a little bit of luck to its user."; break;
+                    case 1: magic[0] = "HP +1"; magic[1] = "This item has been imbued by some of the life essence of the enchanter and lends it to the one wearing it.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.HitPoints, 1)));
+                        break;
+                    case 2: magic[0] = "CON +5"; magic[1] = "A spell of resilience has been cast upon this item, giving the wearer the power to resist damage and illness alike.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Constitution, 5)));
+                        break;
+                    case 3: magic[0] = "STR +5"; magic[1] = "Using this item grants the wearer the strength of several men.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Strength, 5)));
+                        break;
+                    case 4: magic[0] = "RES +5"; magic[1] = "Bolstering the mind against the horrors, this item lends a bit of spine to its user.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Resolve, 5)));
+                        break;
+                    case 5: magic[0] = "DEX +5"; magic[1] = "This makes the user as nimble as a cat...almost.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Dexterity, 5)));
+                        break;
+                    case 6: magic[0] = "Energy +1"; magic[1] = "TRhis is an extraordinary item for sure. Used as a vessel for energy, it gives the user the endurance to perform that which a normal man could not.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Energy, 1)));
+                        break;
+                    case 7: magic[0] = "Luck +1"; magic[1] = "Clearly enchanted by a follower of Rhidnir, this item bestows a little bit of luck to its user.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Luck, 1)));
+                        break;
                     case 8:
                         roll = RandomHelper.GetRandomNumber(1, 9);
                         switch (roll)
                         {
-                            case 1: magic[0] = "CS +5"; break;
-                            case 2: magic[0] = "RS +5"; break;
-                            case 3: magic[0] = "Dodge +5"; break;
-                            case 4: magic[0] = "Pick Locks +5"; break;
-                            case 5: magic[0] = "Barter +5"; break;
-                            case 6: magic[0] = "Heal +5"; break;
-                            case 7: magic[0] = "Alchemy +5"; break;
-                            case 8: magic[0] = "Perception +5"; break;
-                            case 9: magic[0] = "Foraging +5"; break;
+                            case 1:
+                                magic[0] = "CS +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.CombatSkill, +5)));
+                                break;
+                            case 2:
+                                magic[0] = "RS +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.RangedSkill, +5)));
+                                break;
+                            case 3:
+                                magic[0] = "Dodge +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Dodge, +5)));
+                                break;
+                            case 4:
+                                magic[0] = "Pick Locks +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.PickLocks, +5)));
+                                break;
+                            case 5:
+                                magic[0] = "Barter +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Barter, +5)));
+                                break;
+                            case 6:
+                                magic[0] = "Heal +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Heal, +5)));
+                                break;
+                            case 7:
+                                magic[0] = "Alchemy +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Alchemy, +5)));
+                                break;
+                            case 8:
+                                magic[0] = "Perception +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Perception, +5)));
+                                break;
+                            case 9:
+                                magic[0] = "Foraging +5";
+                                item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Foraging, +5)));
+                                break;
                         }
                         magic[1] = "Through this enchantment, the wizards who created this lends some of their skill to its user.";
                         break;
-                    case 9: magic[0] = "Add 1 hero initiative token"; magic[1] = "A simple attempt to copy the Rings of Awareness, this item still has its benefits."; break;
-                    case 10: return await GetMagicItemAsync(item, isCursed: true);
+                    case 9: magic[0] = "Add 1 hero initiative token"; magic[1] = "A simple attempt to copy the Rings of Awareness, this item still has its benefits.";
+                        item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.Initiative, -1));
+                        break;
+                    case 10: return includeCurseRoll ? await GetMagicItemAsync(item, isCursed: true) : await GetMagicItemAsync(item, includeCurseRoll: false);
                 }
             }
 
@@ -890,14 +955,101 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 item.Value = item.Value * 3;
             }
-            item.Description = magic[1];
+            item.Description += magic[1];
             item.Identified = false;
             item.Name = $"Magic {item.Name} of " + magic[0];
             item.MagicEffect = magic[0];
-            if (isCursed)
+            return item;
+        }
+
+        public Equipment ApplyCurseToItem(Equipment item)
+        {
+            string description = item.Description;
+            item.ActiveStatusEffect ??= new List<ActiveStatusEffect>();
+            int roll = RandomHelper.RollDie(DiceType.D10);
+            switch (roll)
             {
-                item.Description += " Cursed: " + magic[2];
+                case 1: 
+                    description = "HP -2";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.HitPoints, -2)));
+                    break;
+                case 2: 
+                    description = "WIS -5";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Wisdom, -5)));
+                    break;
+                case 3: 
+                    description = "CON -5";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Constitution, -5)));
+                    break;
+                case 4: 
+                    description = "STR -5";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Strength, -5)));
+                    break;
+                case 5: 
+                    description = "DEX -5";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Dexterity, -5)));
+                    break;
+                case 6: 
+                    description = "HP -3";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.HitPoints, -3)));
+                    break;
+                case 7: 
+                    description = "RES -10";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Resolve, -10)));
+                    break;
+                case 8:
+                    roll = RandomHelper.GetRandomNumber(1, 9);
+                    switch (roll)
+                    {
+                        case 1: 
+                            description = "CS -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.CombatSkill, -5)));
+                            break;
+                        case 2: 
+                            description = "RS -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.RangedSkill, -5)));
+                            break;
+                        case 3: 
+                            description = "Dodge -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Dodge, -5)));
+                            break;
+                        case 4: 
+                            description = "Pick Locks -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.PickLocks, -5)));
+                            break;
+                        case 5: 
+                            description = "Barter -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Barter, -5)));
+                            break;
+                        case 6: 
+                            description = "Heal -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Heal, -5)));
+                            break;
+                        case 7: 
+                            description = "Alchemy -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Alchemy, -5)));
+                            break;
+                        case 8: 
+                            description = "Perception -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Perception, -5)));
+                            break;
+                        case 9: 
+                            description = "Foraging -5";
+                            item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, skillBonus: (Skill.Foraging, -5)));
+                            break;
+                    }
+                    break;
+                case 9: 
+                    description = "Luck -1";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Luck, -1)));
+                    break;
+                case 10: 
+                    description = "Energy -1";
+                    item.ActiveStatusEffect.Add(new ActiveStatusEffect(StatusEffectType.ItemEffect, -1, statBonus: (BasicStat.Energy, -1)));
+                    break;
             }
+
+            item.Description += $"Cursed: {description}. ";
             return item;
         }
 

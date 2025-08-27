@@ -53,7 +53,8 @@ namespace LoDCompanion.BackEnd.Models
         Perception,
         ArcaneArts,
         Foraging,
-        BattlePrayers
+        BattlePrayers,
+        Parry
     }
 
     public class Character : IGameEntity
@@ -312,6 +313,11 @@ namespace LoDCompanion.BackEnd.Models
             bool holyDamage = damageType == DamageType.Holy;
             bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
 
+            if (ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.CompleteFireImmunity) != null && fireDamage)
+            {
+                return 0;
+            }
+
             if (!fireDamage || !acidDamage || !ignoreAllArmour)
             {
                 damage -= naturalArmour; //natural armour is not affected by armour piercing 
@@ -348,7 +354,7 @@ namespace LoDCompanion.BackEnd.Models
                 floatingText.Item1.ShowText($"-{damage}", floatingText.Item2, "damage-text"); 
             }
 
-            if (fireDamage)
+            if (fireDamage && ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.FireProtection) == null)
             {
                 await ApllyFireEffectAsync(damage, activation);
             }
@@ -534,6 +540,8 @@ namespace LoDCompanion.BackEnd.Models
         public bool CanCastSpell { get; set; } = false;
         public bool WaveringResolve => Party != null && Party.PartyManager != null && Party.PartyManager.PartyWavering;
 
+        public event Func<Hero, Weapon, Task>? OnUnequipWeaponAsync;
+
         // Constructor
         public Hero() : base() { }
 
@@ -664,9 +672,9 @@ namespace LoDCompanion.BackEnd.Models
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
             CheckPerfectRoll((int)roll, stat: BasicStat.Constitution);
-            int con = GetStat(BasicStat.Constitution);
 
             if (Talents.Any(t => t.Name == TalentName.ResistPoison)) roll -= 10;
+            if (ActiveStatusEffects.Any(a => a.Category == StatusEffectType.ResistPoison)) roll -= 10;
             if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
             var resisted = TestConstitution((int)roll);
@@ -778,6 +786,7 @@ namespace LoDCompanion.BackEnd.Models
                     case StatusEffectType.ThePowerOfIphy: modification -= 10; break;
                     case StatusEffectType.PowerOfFaith: if (!wasTerror) modification -= 100; break; // resist fear completely, but if was terror initially treat as fear without the complete resist.
                     case StatusEffectType.Encouragement: modification -= 10; ActiveStatusEffects.Remove(effect); break;
+                    case StatusEffectType.ResistFearTerror: modification -= 10; break;
                 }
             }
             return modification;
@@ -852,7 +861,7 @@ namespace LoDCompanion.BackEnd.Models
 
             if (equippedWeapon != null && GetWieldStatus(equippedWeapon) == "(Too weak to wield)")
             {
-                new InventoryService().UnequipItem(this, equippedWeapon);
+                if (OnUnequipWeaponAsync != null) OnUnequipWeaponAsync.Invoke(this, equippedWeapon);
 
                 Console.WriteLine($"{Name} is no longer strong enough to wield the {equippedWeapon.Name} and has unequipped it.");
             }
