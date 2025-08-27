@@ -3,6 +3,7 @@ using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Net.NetworkInformation;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -15,6 +16,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Equipment? OffHand { get; set; }
         public Equipment? EquippedRelic { get; set; }
         public Equipment? EquippedStorage { get; set; }
+        public List<Equipment> EquippedRings { get; set; } = new List<Equipment>();
+        public Equipment? EquippedAmulet { get; set; }
 
         // Carried Items
         public List<Equipment?> Backpack { get; set; } = new List<Equipment?>();
@@ -173,7 +176,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 && itemToEquip.Name.Contains("Relic")) success = await EquipRelicAsync(hero, itemToEquip);
             else if (item.Storage != null)
             {
-                success = await EquipStorageContainerAsync(hero, item);
+                success = await EquipStorageContainerAsync(hero, itemToEquip);
+            }
+            else if (item.Name.Contains("Ring") || item.Name.Contains("Amulet") || item.Name.Contains("Necklace"))
+            {
+                success = await EquipRingAmuletAsync(hero, itemToEquip);
             }
 
 
@@ -236,6 +243,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                     removed = true;
                 }
             }
+            else if (hero.Inventory.EquippedRings.Contains(itemToUnequip))
+            {
+                hero.Inventory.EquippedRings.Remove(itemToUnequip);
+                removed = true;
+            }
+            else if (hero.Inventory.EquippedAmulet == itemToUnequip) { hero.Inventory.EquippedAmulet = null; removed = true; }
 
             if (removed)
             {
@@ -263,6 +276,41 @@ namespace LoDCompanion.BackEnd.Services.Player
                 Console.WriteLine($"Unequipped {hero.Inventory.OffHand.Name} from {hero.Name}'s off-hand.");
             }
             return true;
+        }
+
+        private async Task<bool> EquipRingAmuletAsync(Hero hero, Equipment item)
+        {            
+            if (item.Name.Contains("Ring"))
+            {
+                var ringBearer = hero.Talents.FirstOrDefault(t => t.Name == TalentName.RingBearer);
+                if (ringBearer != null)
+                {
+                    if (hero.Inventory.EquippedRings.Count > 1)
+                    {
+                        var ringList = new List<string> { hero.Inventory.EquippedRings[0].Name, hero.Inventory.EquippedRings[1].Name };
+                        var choiceResult = await new UserRequestService().RequestChoiceAsync($"Which ring would you like to swap?", ringList);
+                        var ringTounequip = hero.Inventory.EquippedRings.FirstOrDefault(r => r.Name == choiceResult);
+                        if (ringTounequip != null) await UnequipItemAsync(hero, ringTounequip);
+                    }
+                }
+                else
+                {
+                    foreach (var ring in hero.Inventory.EquippedRings)
+                    {
+                        await UnequipItemAsync(hero, ring);
+                    }
+                }
+                hero.Inventory.EquippedRings.Add(item);
+                return true;
+            }
+            else if (item.Name.Contains("Amulet") || item.Name.Contains("Necklace"))
+            {
+                if (hero.Inventory.EquippedAmulet != null) await UnequipItemAsync(hero, hero.Inventory.EquippedAmulet);
+                else hero.Inventory.EquippedAmulet = item;
+                return true;
+            }
+
+            return false;
         }
 
         private async Task<bool> EquipStorageContainerAsync(Hero hero, Equipment containerToEquip)
