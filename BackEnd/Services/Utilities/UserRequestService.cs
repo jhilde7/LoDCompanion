@@ -23,7 +23,14 @@ namespace LoDCompanion.BackEnd.Services.Utilities
     {
         public string Prompt { get; set; } = "Choose an option";
         public List<string> Options { get; set; } = new List<string>();
-        public TaskCompletionSource<string> CompletionSource { get; } = new TaskCompletionSource<string>();
+        public bool IsCancellable { get; set; } = false;
+        public TaskCompletionSource<ChoiceOptionResult> CompletionSource { get; } = new TaskCompletionSource<ChoiceOptionResult>();
+    }
+
+    public class ChoiceOptionResult
+    {
+        public string SelectedOption { get; set; } = string.Empty;
+        public bool WasCancelled { get; set; } = false;
     }
 
     public class UserRequestService
@@ -89,22 +96,34 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             }
         }
 
-        internal async Task<string> RequestChoiceAsync(string prompt, List<string> list)
+        internal async Task<ChoiceOptionResult> RequestChoiceAsync(string prompt, List<string> list, bool canCancel = false)
         {
             CurrentChoiceRequest = new ChooseOptionRequest
             {
                 Prompt = prompt,
-                Options = list
+                Options = list,
+                IsCancellable = canCancel,
             };
 
             OnRollRequested?.Invoke();
             return await CurrentChoiceRequest.CompletionSource.Task;
         }
 
+        public void CancelChoice()
+        {
+            var result = new ChoiceOptionResult { WasCancelled = true };
+            if (CurrentChoiceRequest != null)
+            {
+                CurrentChoiceRequest.CompletionSource.SetResult(result);
+                CurrentChoiceRequest = null;
+                OnRollRequested?.Invoke(); // Hides the modal
+            }
+        }
+
         internal async Task<bool> RequestYesNoChoiceAsync(string prompt)
         {
-            string result = await RequestChoiceAsync(prompt, new List<string> { "Yes", "No" });
-            return result == "Yes";
+            var result = await RequestChoiceAsync(prompt, new List<string> { "Yes", "No" });
+            return !result.WasCancelled && result.SelectedOption == "Yes";
         }
     }
 }

@@ -484,7 +484,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             State.StartingEquipment.Add(recipe);
         }
 
-        public Hero BuildPreviewHero()
+        public async Task<Hero> BuildPreviewHeroAsync()
         {
             if (State.SelectedWeapon != null)
             {
@@ -563,14 +563,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             // Add starting backpack items
             foreach (Equipment item in State.StartingEquipment)
             {
-                BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
+                await BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
             }
 
             if (State.SelectedProfession.StartingBackpackList != null)
             {
                 foreach (Equipment item in State.SelectedProfession.StartingBackpackList)
                 {
-                    BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
+                    await BackpackHelper.AddItem(State.Hero.Inventory.Backpack, item);
                 }
             }
 

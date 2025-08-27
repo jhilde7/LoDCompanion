@@ -289,7 +289,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         var ringList = new List<string> { hero.Inventory.EquippedRings[0].Name, hero.Inventory.EquippedRings[1].Name };
                         var choiceResult = await new UserRequestService().RequestChoiceAsync($"Which ring would you like to swap?", ringList);
-                        var ringTounequip = hero.Inventory.EquippedRings.FirstOrDefault(r => r.Name == choiceResult);
+                        var ringTounequip = hero.Inventory.EquippedRings.FirstOrDefault(r => r.Name == choiceResult.SelectedOption);
                         if (ringTounequip != null) await UnequipItemAsync(hero, ringTounequip);
                     }
                 }

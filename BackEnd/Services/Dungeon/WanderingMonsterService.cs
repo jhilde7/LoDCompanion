@@ -60,11 +60,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     if (roll >= 5)
                     {
-                        adjacentDoor.Open();
+                        await adjacentDoor.OpenAsync();
                     }
                     else if (adjacentDoor.State != DoorState.MagicallySealed && roll >= 2)
                     {
-                        adjacentDoor.Open();
+                        await adjacentDoor.OpenAsync();
                     }
                     else
                     {

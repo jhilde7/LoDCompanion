@@ -786,7 +786,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     else
                     {
                         return targetableHeroes
-                        .OrderByDescending(h => _attack.CalculateHitChanceModifier(monster, monster.GetRangedWeapon(), h, new CombatContext())) // Highest modifier is easiest
+                        .OrderByDescending(h => _attack.CalculateMonsterHitChanceModifier(monster, monster.GetRangedWeapon(), h, new CombatContext())) // Highest modifier is easiest
                         .ThenBy(h => h.CurrentHP) // Then by lowest HP
                         .FirstOrDefault();
                     }

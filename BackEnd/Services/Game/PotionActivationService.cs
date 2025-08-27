@@ -77,7 +77,10 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             if (potion.ActiveStatusEffect != null)
             {
-                await StatusEffectService.AttemptToApplyStatusAsync(hero, potion.ActiveStatusEffect, _powerActivation);
+                foreach (var effect in potion.ActiveStatusEffect)
+                { 
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, effect, _powerActivation); 
+                }
                 return $"{hero.Name} feels the effects of the {potion.Name}.";
             }
 

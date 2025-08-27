@@ -177,9 +177,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             Trap = new Trap(trapChance: trapChance);
         }
 
-        public async Task<bool> OpenAsync(Character character)
+        public async Task<bool> OpenAsync(Character? character = null)
         {
-            if (!Lock.IsLocked)
+            if (!Lock.IsLocked && character != null)
             {
                 if (!Trap.IsDisarmed && OnTrapTriggered != null) await OnTrapTriggered.Invoke(Trap, character);
                 State = DoorState.Open;

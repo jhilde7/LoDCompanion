@@ -248,7 +248,7 @@
                     @if (item != null)
                     {
                         <div class="inventory-slot">
-                            <button class="slot-action-button equip" @onclick="() => EquipItem(item)">+</button>
+                            <button class="slot-action-button equip" @onclick="() => EquipItemAsync(item)">+</button>
                             <div class="item-name">@item.Name</div>
                             @if (item.Quantity > 1)
                             {
@@ -262,7 +262,7 @@
                                            min="1" max="@hero.Inventory.QuickSlots.Count"
                                            @bind="heroSlotSelections[item.Id]" />
                                     <button class="quick-slot-assign-button" title="Assign to Hero Quick Slot"
-                                            @onclick="() => AssignItemToQuickSlot(item, heroSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
+                                            @onclick="() => AssignItemToQuickSlotAsync(item, heroSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
                                         +
                                     </button>
                                 </div>
@@ -275,7 +275,7 @@
                                                min="1" max="@container.Storage.QuickSlots.Count"
                                                @bind="containerSlotSelections[item.Id]" />
                                         <button class="quick-slot-assign-button" title="Assign to @container.Name Slot"
-                                                @onclick="() => AssignItemToEquipmentQuickSlot(item, container, containerSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
+                                                @onclick="() => AssignItemToEquipmentQuickSlotAsync(item, container, containerSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
                                             +
                                         </button>
                                     </div>
@@ -327,7 +327,7 @@
             // Unequip Button (Upper-Right)
             builder.OpenElement(5, "button");
             builder.AddAttribute(6, "class", "slot-action-button unequip");
-            builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, () => UnequipItem(item)));
+            builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, () => UnequipItemAsync(item)));
             builder.AddContent(8, "-");
             builder.CloseElement();
 
@@ -402,21 +402,21 @@
         }
     }
 
-    private void AssignItemToQuickSlot(Equipment item, int slotIndex)
+    private async Task AssignItemToQuickSlotAsync(Equipment item, int slotIndex)
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.AssignItemToQuickSlotAsync(PartyManager.SelectedHero, item, slotIndex);
+            await Inventory.AssignItemToQuickSlotAsync(PartyManager.SelectedHero, item, slotIndex);
             // Re-initialize the selection for this item after it's moved
             heroSlotSelections[item.Id] = 1;
         }
     }
 
-    private void AssignItemToEquipmentQuickSlot(Equipment item, Equipment container, int slotIndex)
+    private async Task AssignItemToEquipmentQuickSlotAsync(Equipment item, Equipment container, int slotIndex)
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.AssignItemToEquipmentQuickSlotAsync(PartyManager.SelectedHero, item, container, slotIndex);
+            await Inventory.AssignItemToEquipmentQuickSlotAsync(PartyManager.SelectedHero, item, container, slotIndex);
             // Re-initialize the selection for this item after it's moved
             containerSlotSelections[item.Id] = 1;
         }
@@ -450,19 +450,19 @@
         }
     };
 
-    private void EquipItem(Equipment item)
+    private async Task EquipItemAsync(Equipment item)
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.EquipItemAsync(PartyManager.SelectedHero, item);
+            await Inventory.EquipItemAsync(PartyManager.SelectedHero, item);
         }
     }
 
-    private void UnequipItem(Equipment item)
+    private async Task UnequipItemAsync(Equipment item)
     {
         if (PartyManager.SelectedHero != null)
         {
-            Inventory.UnequipItemAsync(PartyManager.SelectedHero, item);
+            await Inventory.UnequipItemAsync(PartyManager.SelectedHero, item);
         }
     }
 

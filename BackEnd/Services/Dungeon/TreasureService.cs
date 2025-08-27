@@ -353,7 +353,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 List<string> listofChoices = rewards.Where(r => r != null).Select(r => r!.Name).ToList();
                 var choiceResult = await _diceRoll.RequestChoiceAsync("Choose one item to keep", listofChoices); 
                 await Task.Yield();
-                return new List<Equipment>() { rewards.First(r => r != null && r.Name == choiceResult)!.Clone() };
+                return new List<Equipment>() { rewards.First(r => r != null && r.Name == choiceResult.SelectedOption)!.Clone() };
             }
 
             return rewards.Cast<Equipment>().ToList();
@@ -445,7 +445,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case 3: fineRewards.Add(EquipmentService.GetEquipmentByName("Armour Repair Kit")); break;
                 case <= 5:
                     var choiceResult = await _diceRoll.RequestChoiceAsync("Choose ammo type", new List<string>() { "Barbed Arrow", "Barbed Bolt", "Superior Sling Stone" }); await Task.Yield();
-                    fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult, 5)); break;
+                    fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult.SelectedOption, 5)); break;
                 case 6: fineRewards.Add(EquipmentService.GetEquipmentByName("Bedroll")); break;
                 case 7: fineRewards.Add(await GetCoins("1d100", 40)); break;
                 case 8: fineRewards.Add(await GetCoins("2d100", 20)); break;
@@ -481,7 +481,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case 34: fineRewards.Add(EquipmentService.GetEquipmentByName("Trap Disarming Kit")); break;
                 case 35: fineRewards.Add(GetRandomWizardStaff(weaponDurability)); break;
                 case <= 38: choiceResult = await _diceRoll.RequestChoiceAsync("Choose ammo type", new List<string>() { "Silver Arrow", "Silver Bolt", "Superior Sling Stone" }); await Task.Yield();
-                    fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult, RandomHelper.RollDie(DiceType.D10))); break;
+                    fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult.SelectedOption, RandomHelper.RollDie(DiceType.D10))); break;
                 case <= 41: fineRewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); break;
                 case <= 43: fineRewards.AddRange(await _alchemy.GetRandomPotions(1)); break;
                 case <= 49:
@@ -587,7 +587,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case <= 26: wonderfulRewards.Add(await CreateItemAsync("Power Stone", 0, 1000, RandomHelper.RollDie(DiceType.D3))); break;
                 case 27:
                     var choiceResult = await _diceRoll.RequestChoiceAsync("Choose ammo type", new List<string>() { "Silver Arrow", "Silver Bolt", "Superior Sling Stone" }); await Task.Yield();
-                    wonderfulRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult, RandomHelper.RollDie(DiceType.D10))); break;
+                    wonderfulRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult.SelectedOption, RandomHelper.RollDie(DiceType.D10))); break;
                 case 28: wonderfulRewards.Add(EquipmentService.GetEquipmentByNameSetDurabilitySetQuantity("Superior Trap Disarming Kit", 6 - RandomHelper.RollDie(DiceType.D3))); break;
                 case 29: wonderfulRewards.Add(EquipmentService.GetShieldByNameSetDurability("Tower Shield", armourDurability)); break;
                 case 30: wonderfulRewards.Add(await GetDragonScaleArmourAsync(10 - defaultDurabilityDamageRoll)); break;
@@ -1501,7 +1501,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         case <= 4:
                             var choiceRequest = await _diceRoll.RequestChoiceAsync("What type of ammo do you want?", new List<string> { "Arrow", "Bolt" });
                             await Task.Yield();
-                            result.FoundItems = [await GetTreasureAsync(choiceRequest, durability: 1, amount: RandomHelper.RollDice("1d10"))];
+                            result.FoundItems = [await GetTreasureAsync(choiceRequest.SelectedOption, durability: 1, amount: RandomHelper.RollDice("1d10"))];
                             result.Message = $"You found some {choiceRequest}s!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;

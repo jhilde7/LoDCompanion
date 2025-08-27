@@ -887,7 +887,7 @@ else
 
         @if(currentHero == null)
         {
-            currentHero = CreationService.BuildPreviewHero();
+            currentHero = CreationService.BuildPreviewHeroAsync();
         }
 
         <div class="card">
@@ -1205,7 +1205,7 @@ else
 
         if (currentStep == Step.Review)
         {
-            currentHero = CreationService.BuildPreviewHero();
+            currentHero = CreationService.BuildPreviewHeroAsync();
         }
     }
 
