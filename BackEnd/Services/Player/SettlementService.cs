@@ -1,5 +1,6 @@
 ﻿using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.Combat;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -97,17 +98,51 @@ namespace LoDCompanion.BackEnd.Services.Player
         public string? SpecialRules { get; internal set; }
     }
 
+    public class SettlementState
+    {
+        public int CurrentDay { get; set; } = 1;
+        public Dictionary<string, int> HeroActionPoints { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<string, (SettlementActionType, int)>();
+        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
+    }
+
     public class SettlementService
     {
         private readonly UserRequestService _userRequest;
         private readonly QuestService _quest;
+        private readonly SettlementState _settlement;
+        private readonly PartyManagerService _partyManager;
 
         public List<Settlement> Settlements => GetSettlements();
 
-        public SettlementService(UserRequestService userRequestService, QuestService questService)
+        public SettlementService(
+            UserRequestService userRequestService, 
+            QuestService questService,
+            SettlementState settlement,
+            PartyManagerService partyManager)
         {
             _userRequest = userRequestService;
             _quest = questService;
+            _settlement = settlement;
+            _partyManager = partyManager;
+        }
+
+        public void StartNewDay()
+        {
+            foreach (var effect in _settlement.ActiveStatusEffects.Where(e => e.RemoveEndDay))
+            {
+                _settlement.ActiveStatusEffects.Remove(effect);
+            }
+
+            _settlement.CurrentDay++;
+            _settlement.HeroActionPoints.Clear();
+            if (_partyManager.Party != null)
+            {
+                foreach (var hero in _partyManager.Party.Heroes)
+                {
+                    _settlement.HeroActionPoints[hero.Id] = 1;
+                }
+            }
         }
 
         public async Task<HexTile?> GetRandomQuestLocation(Settlement settlement)

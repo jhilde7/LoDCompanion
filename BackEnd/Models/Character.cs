@@ -499,7 +499,7 @@ namespace LoDCompanion.BackEnd.Models
     public class Hero : Character
     {
         // Basic Hero Information
-        public Party? Party { get; set; }
+        public Party Party { get; set; } = new Party();
         public string SpeciesName { get; set; } = string.Empty;
         public string ProfessionName { get; set; } = string.Empty;
         public int CurrentEnergy { get; set; } = 1;

@@ -3,15 +3,48 @@ using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Game;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
+    public class SettlementEventContext
+    {
+        public PartyManagerService PartyManager { get; set; }
+        public UserRequestService UserRequest { get; set; }
+        public TreasureService Treasure { get; set; }
+        public InventoryService Inventory { get; set; }
+        public QuestService Quest { get; set; }
+        public PowerActivationService PowerActivation { get; set; }
+        public string EventDescription { get; set; } = string.Empty;
+
+        public SettlementEventContext(
+            PartyManagerService partyManager,
+            UserRequestService userRequest,
+            TreasureService treasureService,
+            InventoryService inventory,
+            QuestService questService,
+            PowerActivationService powerActivationService) 
+        { 
+            PartyManager = partyManager;
+            UserRequest = userRequest;
+            Treasure = treasureService;
+            Inventory = inventory;
+            Quest = questService;
+            PowerActivation = powerActivationService;
+        }
+    }
+
     public class SettlementEvent
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public Func<PartyManagerService, UserRequestService, string, Task<string>>? Execute { get; set; }
+        public Func<SettlementEventContext, Task<SettlementEventResult>>? Execute { get; set; }
+    }
+
+    public class SettlementEventResult
+    {
+        public string Message {  get; set; } = string.Empty;
+        public ActiveStatusEffect? ActiveStatusEffect { get; set; }
+
     }
 
     public class SettlementEventService
@@ -42,6 +75,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<SettlementEvent> GetSettlementEvents()
         {
             var sideQuest = _quest.GetRandomSideQuest();
+            var result = new SettlementEventResult();
             return new List<SettlementEvent>
             {
                 new SettlementEvent
@@ -49,28 +83,29 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = "Stray dog",
                     Description = "Nothing special happens",
                         //"The party is followed through the streets by a stray dog after receiving a small treat from one of the heroes. It seems that you now are the proud owners of a dog. Randomise what kind of dog, using the Companions' Compendium. If you do not own this compendium, or if you already have a dog, treat this result as: 'Nothing special happens'.",
-                    //Execute = (partyManager, userRequest) => { /* Add logic for stray dog event */ }
+                    //Execute = (context.PartyManager, context.UserRequest) => { /* Add logic for stray dog event */ }
                 },
                 new SettlementEvent
                 {
                     Name = "Scrolls Salesman",
                     Description = "The heroes are approached by a man who sells magic scrolls.",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Execute = async (context) => 
                     {
                         var scrollsForSale = new List<Equipment>();
                         for (int i = 0; i < 3; i++)
                         {
-                            scrollsForSale.Add(await _treasure.CreateItemAsync("Scroll", value: 100)); 
+                            scrollsForSale.Add(await context.Treasure.CreateItemAsync("Scroll", value: 100)); 
                         }
                         //TODO: activate shop modal in UI populated with the list of scrolls
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Potion Salesman",
                     Description = "A man clad in purple robes informs the party that he sells premium potions.",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Execute = async (context) => 
                     {
                         var potionsForSale = new List<Potion>();
                         foreach(var potion in AlchemyService.Potions)
@@ -84,7 +119,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         }
                         await Task.Yield();
                         //TODO: activate shop modal in UI populated with the list of potions
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        return result;
                     }
                 },
                 new SettlementEvent
@@ -93,72 +129,70 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Description = "This old man claims to be selling magic trinkets. " +
                     "Most of the things he carries around seem quite plain and ordinary, but some of them do have a special feel to them. " +
                     "He charges 100 c for each trinket, but you are only allowed to buy 1 per hero. ",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Execute = async (context) =>
                     {
-                        if (partyManager.Party == null) return eventDescription;
-                        foreach (var hero in partyManager.Party.Heroes)
+                        result.Message = context.EventDescription;
+                        if (context.PartyManager.Party == null) return result;
+                        foreach (var hero in context.PartyManager.Party.Heroes)
                         {
-                            if (partyManager.Party.Coins >= 100 || hero.Coins >= 100)
+                            if (context.PartyManager.Party.Coins >= 100 || hero.Coins >= 100)
                             {
-                                if (await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to purchase a trinket?"))
+                                if (await context.UserRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to purchase a trinket?"))
                                 {
                                     await Task.Yield();
                                     if (hero.Coins >= 100) hero.Coins -= 100;
-                                    else partyManager.Party.Coins -= 100;
-                                    var choiceResult = await userRequest.RequestChoiceAsync("Choose a trinket.", new List<string>() { "Ring", "Amulet" });
-                                    await Task.Yield();
-                                    var trinket = new Equipment();
-                                    if (choiceResult == "Ring")
-                                    {
-                                       trinket = await _treasure.CreateItemAsync("Ring");
-                                    }
-                                    else
-                                    {
-                                        trinket = await _treasure.CreateItemAsync("Amulet");
-                                    }
+                                    else context.PartyManager.Party.Coins -= 100;
 
-                                    var rollResult = await userRequest.RequestRollAsync("Roll for random result", "1d12");
+                                    var choiceResult = await context.UserRequest.RequestChoiceAsync("Choose a trinket.", new List<string>() { "Ring", "Amulet" });
+                                    await Task.Yield();
+                                    var trinket = await context.Treasure.CreateItemAsync(choiceResult);
+
+                                    var rollResult = await context.UserRequest.RequestRollAsync("Roll for random result", "1d12");
                                     await Task.Yield();
                                     switch (rollResult.Roll)
                                     {
                                         case <= 5:
-                                            trinket = await _treasure.GetMagicItemAsync(trinket, includeCurseRoll: false);
+                                            trinket = await context.Treasure.GetMagicItemAsync(trinket, includeCurseRoll: false);
                                             break;
-                                        case <= 11: trinket.Value = 0; break;
+                                        case <= 11: 
+                                            trinket.Value = 0; 
+                                            break;
                                         case >=12:
-                                            trinket = _treasure.ApplyCurseToItem(trinket);
+                                            trinket = context.Treasure.ApplyCurseToItem(trinket);
                                             break;
                                     }
                                     await BackpackHelper.AddItem(hero.Inventory.Backpack, trinket);
-                                    await _inventory.EquipItemAsync(hero, trinket);
+                                    await context.Inventory.EquipItemAsync(hero, trinket);
                                 }
 	                        }
                         }
-                        return eventDescription;
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Sale!",
                     Description = "There seems to be a settlement-wide sale going on.",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Execute = async (context) => 
                     {
-                        partyManager.Party.ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.Sale, -1, removeEndDay: true));
                         await Task.Yield();
                         //TODO: apply to shop modal, "All stores sell their items at a 20% discount."
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        result.ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Sale, -1, removeEndDay: true);
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Fresh Stocks",
                     Description = "All stores have just received their refill and there is plenty to choose from.",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Execute = async (context) => 
                     {
-                        partyManager.Party.ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.FreshStocks, -1, removeEndDay: true));
                         await Task.Yield();
                         //TODO: apply to shop modal, "All availabilities are modified by +2. If this results in 6, the item is automatically in stock."
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        result.ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.FreshStocks, -1, removeEndDay: true);
+                        return result;
                     }
                 },
                 new SettlementEvent
@@ -166,97 +200,93 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Name = "Settlement Feast",
                     Description = "There is a celebration in the settlement and there are people everywhere." +
                     " If you stay the night, the good mood of the citizens will boost Party Morale.",
-                    Execute = async (partyManager, userRequest, eventDescription) =>
+                    Execute = async (context) =>
                     {
-                        var rollResult = await userRequest.RequestRollAsync("Roll for bed availability", "1d12");
+                        var rollResult = await context.UserRequest.RequestRollAsync("Roll for bed availability", "1d12");
                         await Task.Yield();
+
                         if (rollResult.Roll >= 9)
                         {
-                            // Logic to force party to leave, no actions can be taken except turning in quests and leveling up
+                            // TODO: Logic to force party to leave, no actions can be taken except turning in quests and leveling up
                         }
-                        else partyManager.UpdateMorale(2);
-                        return eventDescription;
+                        else context.PartyManager.UpdateMorale(2);
+
+                        result.Message = context.EventDescription;
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Side Quest",
                     Description = $"{sideQuest.NarrativeSetup}",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Execute = async (context) => 
                     {                        
-                        if (_quest.ActiveQuest != null && await userRequest.RequestYesNoChoiceAsync("Does the party want to add this side quest to their current quest?"))
+                        if (context.Quest.ActiveQuest != null 
+                            && await context.UserRequest.RequestYesNoChoiceAsync("Does the party want to add this side quest to their current quest?"))
                         {
-                            _quest.ActiveQuest.SideQuests ??= new List<Quest>();
-                            _quest.ActiveQuest.SideQuests.Add(sideQuest);
+                            context.Quest.ActiveQuest.SideQuests ??= new List<Quest>();
+                            context.Quest.ActiveQuest.SideQuests.Add(sideQuest);
                         }
                         await Task.Yield();
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Shortage of Goods",
                     Description = "The settlement has not had any trade caravans passing by for weeks, and the stores are nearly empty.",
-                    Execute = async (partyManager, userRequest, eventDescription) =>
+                    Execute = async (context) =>
                     {
-                        partyManager.Party.ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.ShortageOfGoods, -1, removeEndDay: true));
                         await Task.Yield();
                         //TODO: apply to shop modal, " All item availability are modified by -2. If this results in 0, the item is automatically out of stock. As a result, prices have also gone up, resulting in a +10% price modifier on all items."
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        result.ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.ShortageOfGoods, -1, removeEndDay: true);
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Thief",
                     Description = "The party realizes that a pickpocket has managed to get too close. Your collective purses feel lighter.",
-                    Execute = async (partyManager, userRequest, eventDescription) =>
+                    Execute = async (context) =>
                     {
-                        var rollResult = await userRequest.RequestRollAsync("Roll for stolen coins", "1d100");
-                        if (partyManager.Party != null)
+                        var rollResult = await context.UserRequest.RequestRollAsync("Roll for stolen coins", "1d100");
+                        if (context.PartyManager.Party != null)
                         {
-                            var remiaingCoin = rollResult.Roll;
-                            if (partyManager.Party.Coins >= rollResult.Roll)
+                            var remainingCoinToSteal = rollResult.Roll;
+                            if (context.PartyManager.Party.Coins > 0)
                             {
-                                partyManager.Party.Coins -= rollResult.Roll; 
+                                int stolenFromParty = Math.Min(remainingCoinToSteal, context.PartyManager.Party.Coins);
+                                context.PartyManager.Party.Coins -= stolenFromParty;
+                                remainingCoinToSteal -= stolenFromParty;
                             }
-                            else
+
+                            if (remainingCoinToSteal > 0)
                             {
-                                remiaingCoin -= partyManager.Party.Coins;
-                                partyManager.Party.Coins = 0;
-                            }
-                            if (remiaingCoin > 0)
-                            {
-                                var heroesByCoin = partyManager.Party.Heroes .OrderBy(h => h.Coins);
-                                foreach (var hero in heroesByCoin)
+                                foreach (var hero in context.PartyManager.Party.Heroes.OrderBy(h => h.Coins))
                                 {
-                                    if (hero.Coins >= remiaingCoin)
-                                    {
-                                        hero.Coins -= remiaingCoin;
-                                    }
-                                    else
-                                    {
-                                        remiaingCoin -= hero.Coins;
-                                        hero.Coins = 0;
-                                    }
-                                } 
-	                        }
+                                    if (remainingCoinToSteal <= 0) break;
+                                    int stolenFromHero = Math.Min(remainingCoinToSteal, hero.Coins);
+                                    hero.Coins -= stolenFromHero;
+                                    remainingCoinToSteal -= stolenFromHero;
+                                }
+                            }
                         }
                         await Task.Yield();
-                        return eventDescription;
+                        result.Message = $"{rollResult.Roll} coins have been stolen from the party!";
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Assassination attempt",
-                    Description = "It seems someone is holding a grudge against the heroes. " +
-                    "All other heroes that has has done the same activity that day may join the fight (i.e. been to the same guild, been to the same store etc). " +
-                    "Randomize each bandits' weapon by using the enemy equipment cards. Bandits with ranged weapons will also have daggers. " +
-                    "Use the city tile and place the heroes along one board edge and the bandits along the opposite edge. " +
-                    "The battle ends when all bandits are dead or all heroes have dropped to 0 HP. " +
-                    "The heroes will not die, but instead be nursed back to 1 HP by the locals. The bandits may be searched.",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Description = "It seems someone is holding a grudge against the heroes.",
+                    //TODO:"All other heroes that has has done the same activity that day may join the fight (i.e. been to the same guild, been to the same store etc). " +
+                    //TODO:"The heroes will not die, but instead be nursed back to 1 HP by the locals. The bandits may be searched.",
+                    Execute = async (context) => 
                     {  
-                        var heroesList = partyManager.Party.Heroes;
+                        var heroesList = context.PartyManager.Party.Heroes;
                         heroesList.Shuffle();
                         var heroAttacked = heroesList[0];
 
@@ -295,25 +325,26 @@ namespace LoDCompanion.BackEnd.Services.Player
                             }
                         };
 
-                        _quest.StartIndividualQuest(heroAttacked, newQuest);
+                        context.Quest.StartIndividualQuest(heroAttacked, newQuest);
                         await Task.Yield();
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        return result;
                     }
                 },
                 new SettlementEvent
                 {
                     Name = "Curse!",
-                    Description = "While walking down the street, a gnarly old woman suddenly points her finger at the party and screams: \"Heretics! I curse thee!\"." +
-                    " Roll on the Cursed Items Table once and apply the curse to all heroes until they exit the next dungeon.",
-                    Execute = async (partyManager, userRequest, eventDescription) => 
+                    Description = "While walking down the street, a gnarly old woman suddenly points her finger at the party and screams: \"Heretics! I curse thee!\".",
+                    Execute = async (context) => 
                     {
                         var curseEffect = StatusEffectService.GetRandomCurseEffect();
                         curseEffect.RemoveEndOfDungeon = true;
-                        foreach (var hero in partyManager.Party.Heroes)
+                        foreach (var hero in context.PartyManager.Party.Heroes)
                         {
-                            await StatusEffectService.AttemptToApplyStatusAsync(hero, curseEffect, _powerActivation);
+                            await StatusEffectService.AttemptToApplyStatusAsync(hero, curseEffect, context.PowerActivation);
                         }
-                        return eventDescription;
+                        result.Message = context.EventDescription;
+                        return result;
                     }
                 }
             };
@@ -323,7 +354,14 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             var events = GetSettlementEvents();
             var randomEvent = events[RandomHelper.GetRandomNumber(0, events.Count - 1)];
-            if(randomEvent.Execute != null) await randomEvent.Execute(_partyManager, _userRequest, randomEvent.Description);
+            if(randomEvent.Execute != null)
+            {
+                var eventContext = new SettlementEventContext( _partyManager, _userRequest, _treasure, _inventory, _quest, _powerActivation)
+                {
+                    EventDescription = randomEvent.Description
+                };
+                await randomEvent.Execute(eventContext); 
+            }
         }
     }
 }
