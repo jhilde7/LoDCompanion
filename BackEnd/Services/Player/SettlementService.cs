@@ -58,13 +58,30 @@ namespace LoDCompanion.BackEnd.Services.Player
         Turquoise
     }
 
+    public enum GodName
+    {
+        Ohlnir,
+        Rhidnir,
+        Iphy,
+        Metheia,
+        Charus,
+        Ramos
+    }
+
     public class ServiceLocation
     {
         public SettlementServiceName Name { get; set; }
         public List<SettlementActionType> AvailableActions { get; set; } = new List<SettlementActionType>();
-        public int AvailabilityModifier { get; set; }
-        public float PriceModifier { get; set; }
+        public int WeaponAvailabilityModifier { get; set; }
+        public int ArmourAvailabilityModifier { get; set; }
+        public int EquipmentAvailabilityModifier { get; set; }
+        public float WeaponPriceModifier { get; set; }
+        public float ArmourPriceModifier { get; set; }
+        public float EquipmentPriceModifier { get; set; }
         public string? SpecialRules { get; set; }
+        public GodName TempleDevotion { get; set; }
+        public int WeaponMaxDurabilityModifier { get; internal set; }
+        public int ArmourMaxDurabilityModifier { get; internal set; }
     }
 
     public class Settlement
@@ -77,6 +94,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public QuestColor QuestColor { get; set; }
         public int RejectedQuests { get; set; }
         public int InnPrice { get; set; }
+        public string? SpecialRules { get; internal set; }
     }
 
     public class SettlementService
@@ -105,25 +123,6 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 new Settlement
                 {
-                    Name = SettlementName.Birnheim,
-                    EventOn = 12,
-                    InnPrice = 65,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, AvailabilityModifier = -1, PriceModifier = 1.2f, SpecialRules = "Armours purchased in Birnheim are Dwarven-made and gain an additional +2 max durability. This is cumulative with any other modifiers." },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = -2, PriceModifier = 1.2f },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(14, -23, 9)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(13, -22, 9)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(14, -22, 8)) { Terrain = TerrainType.Town }
-                    }
-                },
-                new Settlement
-                {
                     Name = SettlementName.Caelkirk,
                     EventOn = 11,
                     QuestDice = "1d4",
@@ -131,8 +130,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, AvailabilityModifier = -2, PriceModifier = 1.1f },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = -2, PriceModifier = 1.1f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = -2, WeaponPriceModifier = 1.1f, ArmourAvailabilityModifier = -2, ArmourPriceModifier = 1.1f },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.1f, SpecialRules = "Fishing gear 50 c, availability 6" },
                         new ServiceLocation { Name = SettlementServiceName.Inn }
                     },
                     HexTiles = new List<HexTile>
@@ -151,35 +150,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                     InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, AvailabilityModifier = 1, PriceModifier = 0.9f, SpecialRules = "Weapons and weapons availability +1, Price -10%" },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = -2, PriceModifier = 1.2f },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = 1, WeaponPriceModifier = 0.9f, ArmourAvailabilityModifier = 1, ArmourPriceModifier = 0.9f },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2f },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir }
                     },
                     HexTiles = new List<HexTile>
                     {
                         new HexTile(new Hex(0, 15, -15)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(0, 14, -14)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(1, 14, -15)) { Terrain = TerrainType.Town }
-                    }
-                },
-                new Settlement
-                {
-                    Name = SettlementName.Durburim,
-                    EventOn = 12,
-                    InnPrice = 65,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, AvailabilityModifier = 1, PriceModifier = 1.2f, SpecialRules = "Weapons purchased in Durburim are Dwarven-made and gain an additional +2 Durability. This is cumulative with any other modifiers." },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = -1, PriceModifier = 1.2f },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(20, -10, -10)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(20, -11, -9)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(21, -11, -10)) { Terrain = TerrainType.Town }
                     }
                 },
                 new Settlement
@@ -193,7 +173,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         new ServiceLocation { Name = SettlementServiceName.Arena },
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = 1, PriceModifier = 0.9f },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = 1, EquipmentPriceModifier = 0.9f },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.SickWard }
                     },
@@ -219,7 +199,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
                         new ServiceLocation { Name = SettlementServiceName.GeneralStore },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Rhidnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Metheia }
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -229,6 +211,54 @@ namespace LoDCompanion.BackEnd.Services.Player
                         new HexTile(new Hex(0, -14, 14)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(-1, -12, 13)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(0, -12, 12)) { Terrain = TerrainType.Town }
+                    }
+                },
+                new Settlement
+                {
+                    Name = SettlementName.Whiteport,
+                    EventOn = 10,
+                    QuestDice = "1d6",
+                    QuestColor = QuestColor.Black,
+                    InnPrice = 15,
+                    AvailableServices = new List<ServiceLocation>
+                    {
+                        new ServiceLocation { Name = SettlementServiceName.AlbertasMagnificentAnimals },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = 1, EquipmentPriceModifier = 0.9f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.Inn },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Rhidnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Metheia }
+                    },
+                    HexTiles = new List<HexTile>
+                    {
+                        new HexTile(new Hex(-16, 0, 16)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(-16, -1, 17)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(-17, 1, 16)) { Terrain = TerrainType.Town }
+                    }
+                },
+                new Settlement
+                {
+                    Name = SettlementName.Windfair,
+                    EventOn = 12,
+                    QuestDice = "1d6",
+                    QuestColor = QuestColor.Blue,
+                    InnPrice = 35,
+                    AvailableServices = new List<ServiceLocation>
+                    {
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.1f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.Inn },
+                        new ServiceLocation { Name = SettlementServiceName.Scryer },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Charus }
+                    },
+                    HexTiles = new List<HexTile>
+                    {
+                        new HexTile(new Hex(12, -8, -4)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(12, -9, -3)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(13, -9, -4)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(12, -7, -5)) { Terrain = TerrainType.Town }
                     }
                 },
                 new Settlement
@@ -275,7 +305,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                         new ServiceLocation { Name = SettlementServiceName.InnerSanctum },
                         new ServiceLocation { Name = SettlementServiceName.HorseTrack },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Charus },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Metheia },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ramos },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Rhidnir }
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -290,35 +325,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 },
                 new Settlement
                 {
-                    Name = SettlementName.Whiteport,
-                    EventOn = 10,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Black,
-                    InnPrice = 15,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation { Name = SettlementServiceName.AlbertasMagnificentAnimals },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = 1, PriceModifier = 0.9f, SpecialRules = "Fishing gear 50 c, availability 6" },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(-16, 0, 16)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-16, -1, 17)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-17, 1, 16)) { Terrain = TerrainType.Town }
-                    }
-                },
-                new Settlement
-                {
                     Name = SettlementName.TheOutpost,
                     EventOn = 9,
                     QuestDice = "1d12",
                     QuestColor = QuestColor.Yellow,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, PriceModifier = 1.2f },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = -2, PriceModifier = 1.2f, SpecialRules = "Toll. If you are to head out to a Quest Site in the Ancient Lands (yellow 1-12), you will have to pay a toll to the King of 100 c per hero first. You must be a member of the league to be allowed to pass." }
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponPriceModifier = 1.2f, ArmourPriceModifier = 1.2f },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2f }
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -327,29 +341,55 @@ namespace LoDCompanion.BackEnd.Services.Player
                         new HexTile(new Hex(0, 20, -21)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(-2, 22, -21)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(-1, 22, -22)) { Terrain = TerrainType.Town }
+                    }, 
+                    SpecialRules = "Toll. If you are to head out to a Quest Site in the Ancient Lands (yellow 1-12), you will have to pay a toll to the King of 100 c per hero first. You must be a member of the league to be allowed to pass."
+                },
+                new Settlement
+                {
+                    Name = SettlementName.Durburim,
+                    EventOn = 12,
+                    InnPrice = 65,
+                    AvailableServices = new List<ServiceLocation>
+                    {
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = 1, WeaponPriceModifier = 1.2f, ArmourPriceModifier = 1.1f, WeaponMaxDurabilityModifier = 2 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.2f },
+                        new ServiceLocation { Name = SettlementServiceName.Inn },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Charus },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Metheia },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ramos },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Rhidnir }
+                    },
+                    HexTiles = new List<HexTile>
+                    {
+                        new HexTile(new Hex(20, -10, -10)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(20, -11, -9)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(21, -11, -10)) { Terrain = TerrainType.Town }
                     }
                 },
                 new Settlement
                 {
-                    Name = SettlementName.Windfair,
+                    Name = SettlementName.Birnheim,
                     EventOn = 12,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Blue,
-                    InnPrice = 35,
+                    InnPrice = 65,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, AvailabilityModifier = -1, PriceModifier = 1.1f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = -1, WeaponPriceModifier = 1.2f, ArmourAvailabilityModifier = 1, ArmourPriceModifier = 1.2f, ArmourMaxDurabilityModifier = 2 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2f },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Scryer },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Charus },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Metheia },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ramos },
+                        new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Rhidnir }
                     },
                     HexTiles = new List<HexTile>
                     {
-                        new HexTile(new Hex(12, -8, -4)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(12, -9, -3)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(13, -9, -4)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(12, -7, -5)) { Terrain = TerrainType.Town }
+                        new HexTile(new Hex(14, -23, 9)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(13, -22, 9)) { Terrain = TerrainType.Town },
+                        new HexTile(new Hex(14, -22, 8)) { Terrain = TerrainType.Town }
                     }
                 }
             };
@@ -360,199 +400,115 @@ namespace LoDCompanion.BackEnd.Services.Player
             return Settlements.First(s => s.Name == name);
         }
 
-        public List<ServiceLocation> GetSettlementServices()
+        public List<SettlementActionType> GetSettlementActionByServiceLocation(SettlementServiceName name)
         {
-            return new List<ServiceLocation>
+            return name switch
             {
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Arena,
-                    AvailableActions = new List<SettlementActionType>
+                SettlementServiceName.Arena => new List<SettlementActionType>
                     {
                         SettlementActionType.ArenaFighting,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Banks,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Banks => new List<SettlementActionType>
                     {
                         SettlementActionType.Banking,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Kennel,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Kennel => new List<SettlementActionType>
                     {
                         SettlementActionType.BuyDog,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.AlbertasMagnificentAnimals,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.AlbertasMagnificentAnimals => new List<SettlementActionType>
                     {
                         SettlementActionType.BuyFamiliar,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Blacksmith,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Blacksmith => new List<SettlementActionType>
                     {
                         SettlementActionType.BuySellArmour,
                         SettlementActionType.BuySellWeapons,
                         SettlementActionType.RepairEquipment
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.GeneralStore,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.GeneralStore => new List<SettlementActionType>
                     {
                         SettlementActionType.BuySellEquipment,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.MagicBrewery,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.MagicBrewery => new List<SettlementActionType>
                     {
                         SettlementActionType.BuySellEquipment,
                         SettlementActionType.IdentifyPotion
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.MervinsMagicalOddities,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.MervinsMagicalOddities => new List<SettlementActionType>
                     {
                         SettlementActionType.BuySellEquipment,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Herbalist,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Herbalist => new List<SettlementActionType>
                     {
                         SettlementActionType.BuyIngredients,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.SickWard,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.SickWard => new List<SettlementActionType>
                     {
                         SettlementActionType.CureDisease,
                         SettlementActionType.CurePoison
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Inn,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Inn => new List<SettlementActionType>
                     {
                         SettlementActionType.Gamble,
                         SettlementActionType.RestRecuperation,
                         SettlementActionType.TendThoseMemories,
                         SettlementActionType.EnchantObjects,
                         SettlementActionType.CreateScroll
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Temple,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Temple => new List<SettlementActionType>
                     {
                         SettlementActionType.Pray,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.FortuneTeller,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.FortuneTeller => new List<SettlementActionType>
                     {
                         SettlementActionType.ReadFortune,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.HorseTrack,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.HorseTrack => new List<SettlementActionType>
                     {
                         SettlementActionType.HorseRacing,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.Scryer,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.Scryer => new List<SettlementActionType>
                     {
                         SettlementActionType.IdentifyMagicItem,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.TheDarkGuild,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.TheDarkGuild => new List<SettlementActionType>
                     {
                         SettlementActionType.GuildBusiness,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.FightersGuild,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.FightersGuild => new List<SettlementActionType>
                     {
                         SettlementActionType.GuildBusiness,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.WizardsGuild,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.WizardsGuild => new List<SettlementActionType>
                     {
                         SettlementActionType.GuildBusiness,
                         SettlementActionType.ChargeMagicItem,
                         SettlementActionType.IdentifyMagicItem,
                         SettlementActionType.LearnSpell
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.AlchemistGuild,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.AlchemistGuild => new List<SettlementActionType>
                     {
                         SettlementActionType.GuildBusiness,
                         SettlementActionType.BuyIngredients,
                         SettlementActionType.IdentifyPotion
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.RangersGuild,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.RangersGuild => new List<SettlementActionType>
                     {
                         SettlementActionType.GuildBusiness,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.InnerSanctum,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.InnerSanctum => new List<SettlementActionType>
                     {
                         SettlementActionType.LearnPrayer,
-                    }
-                },
-                new ServiceLocation
-                {
-                    Name = SettlementServiceName.TheAsylum,
-                    AvailableActions = new List<SettlementActionType>
+                    },
+                SettlementServiceName.TheAsylum => new List<SettlementActionType>
                     {
                         SettlementActionType.TreatMentalConditions,
+                    },
+                _ => new List<SettlementActionType>
+                    {
+                        SettlementActionType.LevelUp,
                     }
-                },
             };
         }
     }
