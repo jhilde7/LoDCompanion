@@ -145,7 +145,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                                     var choiceResult = await context.UserRequest.RequestChoiceAsync("Choose a trinket.", new List<string>() { "Ring", "Amulet" });
                                     await Task.Yield();
-                                    var trinket = await context.Treasure.CreateItemAsync(choiceResult);
+                                    var trinket = await context.Treasure.CreateItemAsync(choiceResult.SelectedOption);
 
                                     var rollResult = await context.UserRequest.RequestRollAsync("Roll for random result", "1d12");
                                     await Task.Yield();

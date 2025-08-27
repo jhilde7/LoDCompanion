@@ -1,6 +1,7 @@
 ﻿using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Models;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -87,6 +88,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class Settlement
     {
+        public SettlementState State { get; set; } = new SettlementState();
         public List<HexTile> HexTiles { get; set; } = new List<HexTile>();
         public SettlementName Name { get; set; }
         public List<ServiceLocation> AvailableServices { get; set; } = new List<ServiceLocation>();
@@ -102,15 +104,15 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public int CurrentDay { get; set; } = 1;
         public Dictionary<string, int> HeroActionPoints { get; set; } = new Dictionary<string, int>();
-        public Dictionary<string, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<string, (SettlementActionType, int)>();
+        public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
+        public List<Bank>? Banks { get; set; }
     }
 
     public class SettlementService
     {
         private readonly UserRequestService _userRequest;
         private readonly QuestService _quest;
-        private readonly SettlementState _settlement;
         private readonly PartyManagerService _partyManager;
 
         public List<Settlement> Settlements => GetSettlements();
@@ -118,29 +120,27 @@ namespace LoDCompanion.BackEnd.Services.Player
         public SettlementService(
             UserRequestService userRequestService, 
             QuestService questService,
-            SettlementState settlement,
             PartyManagerService partyManager)
         {
             _userRequest = userRequestService;
             _quest = questService;
-            _settlement = settlement;
             _partyManager = partyManager;
         }
 
-        public void StartNewDay()
+        public void StartNewDay(Settlement settlement)
         {
-            foreach (var effect in _settlement.ActiveStatusEffects.Where(e => e.RemoveEndDay))
+            foreach (var effect in settlement.State.ActiveStatusEffects.Where(e => e.RemoveEndDay))
             {
-                _settlement.ActiveStatusEffects.Remove(effect);
+                settlement.State.ActiveStatusEffects.Remove(effect);
             }
 
-            _settlement.CurrentDay++;
-            _settlement.HeroActionPoints.Clear();
+            settlement.State.CurrentDay++;
+            settlement.State.HeroActionPoints.Clear();
             if (_partyManager.Party != null)
             {
                 foreach (var hero in _partyManager.Party.Heroes)
                 {
-                    _settlement.HeroActionPoints[hero.Id] = 1;
+                    settlement.State.HeroActionPoints[hero.Id] = 1;
                 }
             }
         }
@@ -356,6 +356,27 @@ namespace LoDCompanion.BackEnd.Services.Player
                         new HexTile(new Hex(-1, 0, 1)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(0, -1, 1)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(1, -1, 0)) { Terrain = TerrainType.Town }
+                    },
+                    State = new SettlementState()
+                    {
+                        Banks = new List<Bank>
+                        {
+                            new Bank()
+                            {
+                                Name = Bank.BankName.ChamberlingsReserve,
+                                Description = "This is the go-to bank for the noble people in the city. They have good security, but rather aggressive investment plans for your deposits. After all, most people who utilise this bank can afford to lose some money now and then. It is acceptable for the long-term win."
+                            },
+                            new Bank()
+                            {
+                                Name = Bank.BankName.SmartfallBank,
+                                Description = "Most commoners in the city use this bank, and indeed throughout the kingdom, as it exists in most of the larger cities. Security is somewhat lax; however, they make careful investments. Typically, deposits grow slowly but surely."
+                            },
+                            new Bank()
+                            {
+                                Name = Bank.BankName.TheVault,
+                                Description = "This bank invests your money in more dubious areas, with a high risk but also with a good profit, should the investments succeed. The security is moderately good."
+                            }
+                        }
                     }
                 },
                 new Settlement

@@ -4,7 +4,10 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using static LoDCompanion.BackEnd.Services.Player.Bank;
+using static LoDCompanion.BackEnd.Services.Player.SettlementActionService;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -58,26 +61,23 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class SettlementActionService
     {
-        private readonly SettlementState _settlement;
         private readonly UserRequestService _userRequest;
         private readonly TreasureService _treasure;
 
         public SettlementActionService(
-            SettlementState settlement, 
             UserRequestService userRequestService,
             TreasureService treasureService)
         {
-            _settlement = settlement;
             _userRequest = userRequestService;
             _treasure = treasureService;
         }
 
-        public async Task<SettlementActionResult> PerformSettlementActionAsync(Hero hero, SettlementActionType action, SettlementService serviceLocation)
+        public async Task<SettlementActionResult> PerformSettlementActionAsync(Hero hero, SettlementActionType action, Settlement settlement)
         {
             var result = new SettlementActionResult(action);
             result.ActionCost = SettlementActionCost(action);
 
-            if (_settlement.BusyHeroes.ContainsKey(hero.Id))
+            if (settlement.State.BusyHeroes.ContainsKey(hero))
             {
                 result.Message = $"{hero.Name} is busy with a multi-day task.";
                 result.WasSuccessful = false;
@@ -89,12 +89,52 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.ArenaFighting:
                     if (hero.Coins < 50 || hero.Party.Coins < 50)
                     {
-                        result.Message = $"{hero.Name} does nto have enough coin to participate";
+                        result.Message = $"{hero.Name} does not have enough coin to participate";
                         result.WasSuccessful = false;
                         return result;
                     }
                     else return await ArenaFighting(hero, result);
-                case SettlementActionType.Banking: 
+                case SettlementActionType.Banking:
+                    if (settlement.State.Banks == null)
+                    {
+                        result.Message = $"There are no banks at {settlement.Name}.";
+                        result.WasSuccessful = false;
+                        return result;
+                    }
+                    bool isBanking = true;
+                    while (isBanking)
+                    {
+                        var bankChoice = await _userRequest.RequestChoiceAsync("Which bank are you visiting?", settlement.State.Banks.Select(bank => bank.Name.ToString()).ToList(), canCancel: true);
+                        await Task.Yield();
+                        if (bankChoice.WasCancelled) isBanking = false;
+                        if (!bankChoice.WasCancelled)
+                        {
+                            Enum.TryParse<BankName>(bankChoice.SelectedOption, out var selectedBankName);
+                            var currentBank = settlement.State.Banks.FirstOrDefault(b => b.Name == selectedBankName);
+                            if (currentBank != null)
+                            {
+                                var actionChoice = await _userRequest.RequestChoiceAsync($"Your account has {await currentBank.CheckBalance()} available coins. What would you like to do?", new List<string> { "Deposit coins.", "Withdraw coins." }, canCancel: true);
+                                await Task.Yield();
+                                switch (actionChoice.SelectedOption)
+                                {
+                                    case "Deposit coins.":
+                                        var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?");
+                                        if (!depositResult.WasCancelled)
+                                        {
+                                            await currentBank.Deposit(depositResult.Amount);
+                                        }
+                                        break;
+                                    case "Withdraw coins.":
+                                        var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?");
+                                        if (!withdrawResult.WasCancelled)
+                                        {
+                                            await currentBank.WithdrawAsync(withdrawResult.Amount);
+                                        }
+                                        break;
+                                }
+                            } 
+                        }
+                    }
                     break;
                 case SettlementActionType.BuyDog: 
                     break;
@@ -167,7 +207,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             if (totalCoins >= 200) { choiceString.Add("200"); }
 
             var choiceResult = await _userRequest.RequestChoiceAsync("Choose your entry fee level.", choiceString);
-            var bet = int.Parse(choiceResult);
+            var bet = int.Parse(choiceResult.SelectedOption);
             var arena = new ArenaFight(bet, _treasure);
             while (!arena.IsComplete)
             {
@@ -355,6 +395,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return modifier;
             }
         }
+        
 
         public int SettlementActionCost(SettlementActionType action)
         {
@@ -391,6 +432,108 @@ namespace LoDCompanion.BackEnd.Services.Player
                 SettlementActionType.TreatMentalConditions => 5,
                 _ => 1
             };
+        }
+    }
+
+    public class Bank
+    {
+        public enum BankName
+        {
+            ChamberlingsReserve,
+            SmartfallBank,
+            TheVault
+        }
+
+        public BankName Name { get; set; } = BankName.ChamberlingsReserve;
+        public string Description { get; set; } = string.Empty;
+        public int AccountBalance { get; set; }
+        public bool HasCheckedBankAccount { get; set; }
+        public double ProfitLoss { get; set; }
+
+        public Bank() { }
+
+        public async Task<int> Deposit (int amount)
+        {
+            if (amount <= 0) return AccountBalance;
+
+            await CheckBalance();
+            AccountBalance += amount;
+            return AccountBalance;
+        }
+
+        public async Task<int> WithdrawAsync (int amount)
+        {
+            if (amount <= 0) return 0;
+
+            await CheckBalance();
+            var withdrawAmount = Math.Min(amount, AccountBalance);
+            AccountBalance -= withdrawAmount;
+            return withdrawAmount;
+        }
+
+        public async Task<int> CheckBalance()
+        {
+            if (!HasCheckedBankAccount)
+            {
+                HasCheckedBankAccount = true;
+                if (AccountBalance > 0)
+                {
+                    var rollResult = await new UserRequestService().RequestRollAsync("Roll for profit or loss chance.", "1d20");
+                    ProfitLoss = GetProfitLoss(rollResult.Roll);
+                    return (int)Math.Floor(AccountBalance * ProfitLoss); 
+                }
+            }
+
+            return AccountBalance;
+        }
+
+        private double GetProfitLoss(int roll)
+        {
+            switch (Name)
+            {
+                case BankName.ChamberlingsReserve:
+                    return roll switch
+                    {
+                        <= 4 => 1.2,
+                        <= 7 => 1.15,
+                        <= 10 => 1.10,
+                        <= 11 => 1.05,
+                        <= 12 => 1,
+                        <= 14 => 0.95,
+                        <= 17 => 0.90,
+                        <= 19 => 0.80,
+                        >= 20 => 0
+                    };
+                case BankName.SmartfallBank:
+                    return roll switch
+                    {
+                        <= 2 => 1.15,
+                        <= 4 => 1.10,
+                        <= 9 => 1.05,
+                        <= 14 => 1,
+                        <= 16 => 0.95,
+                        <= 17 => 0.90,
+                        >= 18 => 0
+
+                    };
+                case BankName.TheVault:
+                    return roll switch
+                    {
+                        <= 2 => 1.3,
+                        <= 4 => 1.2,
+                        <= 5 => 1.15,
+                        <= 6 => 1.10,
+                        <= 7 => 1.05,
+                        <= 10 => 1,
+                        <= 14 => 0.95,
+                        <= 16 => 0.90,
+                        <= 17 => 0.80,
+                        <= 18 => 0.70,
+                        >= 19 => 0
+
+                    };
+                default: return 1;
+            }
         }
     }
 }
