@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Utilities;
+using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Models;
 
 namespace LoDCompanion.BackEnd.Services.Game
@@ -46,6 +47,7 @@ namespace LoDCompanion.BackEnd.Services.Game
     public class Quest
     {
         public SettlementName? QuestOrigin { get; set; }
+        public bool IsComplete { get; set; }
         public bool IsSideQuest { get; set; }
         public (QuestColor, int)? ColorLocation { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -57,6 +59,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         public int RoomCount { get; set; }
         public List<RoomInfo>? RoomsToExclude { get; set; }
         public int RewardCoin { get; set; }
+        public List<Equipment?>? RewardItems { get; set; }
         public string RewardSpecial { get; set; } = string.Empty;
         public EncounterType EncounterType { get; set; }
         public RoomInfo? ObjectiveRoom { get; set; }
@@ -90,13 +93,14 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly RoomService _room;
         private readonly QuestSetupService _questSetup;
         private readonly CombatManagerService _combatManager;
+        private readonly TreasureService _treasure;
 
         public Quest? ActiveQuest { get; private set; }
         public Room? ActiveEncounterRoom { get; private set; }
         public bool IsObjectiveComplete { get; private set; }
         public event Action? OnQuestStateChanged;
 
-        public List<Quest> Quests => GetQuests();
+        public List<Quest> Quests => GetQuestsAsync();
         public bool IsQuestActive => ActiveQuest != null;
         public List<QuestHexLocation> QuestHexLocations => GetQuestHexLocations();
 
@@ -107,12 +111,14 @@ namespace LoDCompanion.BackEnd.Services.Game
             PlacementService placement,
             EncounterService encounter,
             QuestSetupService questSetup,
-            CombatManagerService combatManagerService)
+            CombatManagerService combatManagerService,
+            TreasureService treasureService)
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
             _questSetup = questSetup;
             _combatManager = combatManagerService;
+            _treasure = treasureService;
         }
 
         /// <summary>
@@ -214,7 +220,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             return rewardMessage;
         }
 
-        public List<Quest> GetQuests()
+        public async Task<List<Quest>> GetQuestsAsync()
         {
             return new List<Quest>
             {
@@ -259,6 +265,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Name = "Go Fetch!",
                     SpecialRules = "Make sure that R9 makes it into the pile of Exploration Cards. If you manage to find R9, you have also found the Objective Room for this side quest.",
                     RewardCoin = 350,
+                    RewardItems = new List<Equipment?>() { EquipmentService.GetShieldByName("Heater Shield") },
                     RewardSpecial = "If found, the heroes may use the standard Heater Shield (DEF 6, ENC 4).",
                     EncounterType = EncounterType.MainQuest,
                     ObjectiveRoom = _room.GetRoomByName("R9"),
@@ -282,7 +289,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Name = "Mushrooms",
                     SpecialRules = "Once the Dungeon Deck is done, take the same number of cards from the Dungeoneers Deck in a separate deck. Choose one specific card that represents the Side Quest Objective and then mix that deck and place it next to the ordinary deck. Once you search a room or corridor, draw one card from this new deck. If the card you draw is the Side Quest Objective Card, you have found the mushrooms.",
                     RewardCoin = 250,
-                    RewardSpecial = "A potent healing potion that heals 2d6 HP.",
+                    RewardItems = new List<Equipment?>() { new Potion(){ Shop = ShopCategory.Potions, Category = "Special", Name = "Potion of Health", Strength = PotionStrength.None, Value = 200, EffectDescription = "Heals 2d6 Hit Points.", Availability = 0,
+                    PotionProperties = new Dictionary<PotionProperty, int>() { { PotionProperty.HealHP, 6 }, { PotionProperty.DiceCount, 2 } } } },
                     EncounterType = EncounterType.MainQuest,
                     NarrativeQuest = "According to an alchemist you have happened upon, there is a mushroom that has very special properties. This mushroom could apparently revolutionise the brewing of healing potions. The mushroom only grows indoors in dark, damp areas and the dungeon you are heading to fits the bill perfectly. If you could bring a specimen back, he would reward you generously.",
                     NarrativeAftermath = "Found it! The Alchemist is very satisfied, and happily pays the money he promised...A day later a messenger boy catches up with you and hands you a package with a carefully wrapped potion. There is a note from the Alchemist as well, saying that this is their new healing potion. The potion is actually very potent and heals 2d6 HP once consumed."
@@ -396,7 +404,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 4,
                     RoomCount = 4,
                     RewardCoin = 100,
-                    RewardSpecial = "50 c extra per hero as gratitude for finding Johann. 10 rations to use on the road.",
+                    RewardItems = new() { EquipmentService.GetEquipmentByNameSetQuantity("Ration", 10) },
+                    RewardSpecial = "50 c extra per hero as gratitude for finding Johann.",
                     EncounterType = EncounterType.SpringCleaning,
                     ObjectiveRoom = _room.GetRoomByName("R5B"),
                     StartThreatLevel = 2,
@@ -543,7 +552,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 7,
                     RoomCount = 7,
                     RewardCoin = 2000,
-                    RewardSpecial = "The Vanquisher (magical longsword, +2 damage to Undead). A grimoire with one random spell. The Master's engraved dagger.",
+                    RewardItems = new() { await _treasure.CreateItemAsync("Grimoire") },
+                    RewardSpecial = "The Vanquisher (magical longsword, +2 damage to Undead). The Master's engraved dagger.",
                     EncounterType = EncounterType.Undead,
                     ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
                     StartThreatLevel = 6,
@@ -605,7 +615,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                     SpecialRules = "Whenever you have an encounter, roll a die. An odd number will result in 1d3 Giant Spiders; an even number will result in an encounter from the Undead Encounter List. All doors are considered cobweb covered openings. A Threat Level of 12 will trigger a Wandering Monster.",
                     CorridorCount = 7,
                     RoomCount = 7,
-                    RewardSpecial = "4d100 c and 3 Wonderful Treasures found in the sarcophagus.",
+                    RewardItems = [
+                        .. await _treasure.GetWonderfulTreasureAsync(1), 
+                        .. await _treasure.GetWonderfulTreasureAsync(1), 
+                        .. await _treasure.GetWonderfulTreasureAsync(1), 
+                        await _treasure.GetCoins("4d100", 0) ],
                     EncounterType = EncounterType.TheTombOfTheSpiderQueen,
                     ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
                     StartThreatLevel = 6,
@@ -844,7 +858,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                     SpecialRules = "Opening a tomb takes two heroes a full turn. While in the objective room, the Scenario dice triggers an event on a roll of 1-4; any result that would increase the Threat Level instead summons a Wandering Monster.",
                     CorridorCount = 7,
                     RoomCount = 5,
-                    RewardSpecial = "Any loot found.",
                     EncounterType = EncounterType.Undead,
                     ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
                     StartThreatLevel = 6,
@@ -862,7 +875,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     SpecialRules = "Due to the abundance of treasure, you may re-roll 4 rolls on the Furniture Chart during the quest (a re-roll cannot be re-rolled). If the scenario roll is triggered in the objective room, the mummy of Xánthu himself (a Mummy Prince) will rise from a sarcophagus to join the fight.",
                     CorridorCount = 7,
                     RoomCount = 7,
-                    RewardSpecial = "Any loot found. A hidden, beautiful chest can also be discovered and searched as an objective chest.",
+                    RewardSpecial = "A hidden, beautiful chest can also be discovered and searched as an objective chest.",
                     EncounterType = EncounterType.AncientLands,
                     ObjectiveRoom = _room.GetRoomByName("The Large Tomb"),
                     StartThreatLevel = 6,
@@ -899,7 +912,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. A side quest card is added to the exploration deck; if drawn, it triggers a special encounter with a Mummy Priest and wraiths.",
                     CorridorCount = 6,
                     RoomCount = 6,
-                    RewardSpecial = "Any loot found. The party also finds several valuable old books for the High Priests. However, upon leaving, each hero is afflicted with a random curse that lasts until the end of their next dungeon.",
+                    RewardSpecial = "The party also finds several valuable old books for the High Priests. However, upon leaving, each hero is afflicted with a random curse that lasts until the end of their next dungeon.",
                     EncounterType = EncounterType.AncientLands,
                     ObjectiveRoom = _room.GetRoomByName("R33"),
                     StartThreatLevel = 6,
@@ -918,7 +931,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 6,
                     RoomCount = 6,
                     RewardCoin = 500,
-                    RewardSpecial = "Lots of loot to be found after the battle.",
                     EncounterType = EncounterType.AncientLands,
                     ObjectiveRoom = _room.GetRoomByName("The Ancient Throne Room"),
                     StartThreatLevel = 6,
@@ -946,7 +958,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "Queen Khaba was a fascinating exception to the male rulers of the Ancient Lands. Her crypt has finally been identified, and it is said to be untouched for millennia. She was always pictured with a sceptre, and the heroes hope to find it with them remains.",
                     NarrativeObjectiveRoom = "The heroes have finally located the burial site of Queen Khaba. Her legendary sceptre may be awaiting liberation within one of the two sarcophagi.",
                     NarrativeSetup = "The party enters along the long edge. Roll twice on the Encounter Table and place the enemies randomly. If the party has not yet met Queen Khaba through the special card event, she will be present in this room next to them sarcophagus.",
-                    NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in them final resting place."
+                    NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in her final resting place."
                 }
             };
         }
