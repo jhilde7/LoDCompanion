@@ -5,7 +5,9 @@ using LoDCompanion.BackEnd.Services.Utilities;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using System.ComponentModel;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -284,26 +286,136 @@ namespace LoDCompanion.BackEnd.Services.GameData
         private static List<Ingredient> GetIngredientsList()
         {
             return new List<Ingredient> {
-                new Ingredient() { Name = IngredientName.Lunarberry },
-                new Ingredient() { Name = IngredientName.DragonStalk },
-                new Ingredient() { Name = IngredientName.EmberBark },
-                new Ingredient() { Name = IngredientName.MountainBarberry },
-                new Ingredient() { Name = IngredientName.SaltyWyrmwood },
-                new Ingredient() { Name = IngredientName.AshenGinger },
-                new Ingredient() { Name = IngredientName.SpicyWindroot },
-                new Ingredient() { Name = IngredientName.Wintercress },
-                new Ingredient() { Name = IngredientName.SweetIvy },
-                new Ingredient() { Name = IngredientName.MonksLaurel },
-                new Ingredient() { Name = IngredientName.Nightshade },
-                new Ingredient() { Name = IngredientName.WeepingClover },
-                new Ingredient() { Name = IngredientName.Snakeberry },
-                new Ingredient() { Name = IngredientName.Bitterweed },
-                new Ingredient() { Name = IngredientName.ArchingPokeroot },
-                new Ingredient() { Name = IngredientName.ToxicHogweed },
-                new Ingredient() { Name = IngredientName.BlueConeflower },
-                new Ingredient() { Name = IngredientName.GiantRaspberry },
-                new Ingredient() { Name = IngredientName.BrightGallberry },
-                new Ingredient() { Name = IngredientName.BarbedWormwood },
+                new Ingredient() { Name = IngredientName.Lunarberry, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.DragonStalk, Value = 25, Availability = 4 },
+                new Ingredient() { Name = IngredientName.EmberBark, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.MountainBarberry, Value = 25, Availability = 3 },
+                new Ingredient() { Name = IngredientName.SaltyWyrmwood, Value = 25, Availability = 2 },
+                new Ingredient() { Name = IngredientName.AshenGinger, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.SpicyWindroot, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.Wintercress, Value = 25, Availability = 4 },
+                new Ingredient() { Name = IngredientName.SweetIvy, Value = 25, Availability = 3 },
+                new Ingredient() { Name = IngredientName.MonksLaurel, Value = 25, Availability = 1 },
+                new Ingredient() { Name = IngredientName.Nightshade, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.WeepingClover, Value = 25, Availability = 4 },
+                new Ingredient() { Name = IngredientName.Snakeberry, Value = 25, Availability = 3 },
+                new Ingredient() { Name = IngredientName.Bitterweed, Value = 25, Availability = 4 },
+                new Ingredient() { Name = IngredientName.ArchingPokeroot, Value = 25, Availability = 4 },
+                new Ingredient() { Name = IngredientName.ToxicHogweed, Value = 25, Availability = 3 },
+                new Ingredient() { Name = IngredientName.BlueConeflower, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.GiantRaspberry, Value = 25, Availability = 5 },
+                new Ingredient() { Name = IngredientName.BrightGallberry, Value = 25, Availability = 3 },
+                new Ingredient() { Name = IngredientName.BarbedWormwood, Value = 25, Availability = 1 },
+            };
+        }
+
+        public static List<Ingredient> GetShopIngredients(int availabilityModifier = 0)
+        {
+            var shopInventory = new List<Ingredient>();
+            foreach (var ingredient in Ingredients)
+            {
+                var availabilityRoll = RandomHelper.RollDie(DiceType.D6);
+                if (availabilityModifier <= ingredient.Availability + availabilityModifier) shopInventory.Add(ingredient);
+            }
+            return shopInventory;
+        }
+
+        public static List<Part> GetShopParts(int availabilityModifier = 0)
+        {
+            var partSpeciesList = GetSpeciesNameAndAvailabilityByAvailability(availabilityModifier);
+            var shopInventory = new List<Part>();
+            foreach (var partSpecies in partSpeciesList)
+            {
+                var part = new Part();
+                part.Availability = partSpecies.Availability;
+                part.Origin = partSpecies.Name;
+                shopInventory.Add(part);
+            }
+            return shopInventory;
+        }
+
+        private static List<(SpeciesName Name, int Availability)> GetSpeciesNameAndAvailabilityByAvailability(int availabilityModifier = 0)
+        {
+            var list = new List<(SpeciesName, int)>();
+            foreach(SpeciesName name in Enum.GetValues(typeof(SpeciesName)))
+            {
+                var availabilityRoll = RandomHelper.RollDie(DiceType.D6);
+                if (availabilityRoll <= SpeciesNameAvailability(name) + availabilityModifier)
+                {
+                    list.Add((name, SpeciesNameAvailability(name)));
+                }
+            }
+            return list;
+        }
+
+        private static int SpeciesNameAvailability(SpeciesName name)
+        {
+            return name switch
+            {
+                SpeciesName.Banshee => 2,
+                SpeciesName.Basilisk => 3,
+                SpeciesName.Beastman => 5,
+                SpeciesName.CaveBear => 4,
+                SpeciesName.CaveGoblin => 5,
+                SpeciesName.Centaur => 3,
+                SpeciesName.CommonTroll => 4,
+                SpeciesName.DireWolf => 4,
+                SpeciesName.DarkElf => 3,
+                SpeciesName.Dragon => 1,
+                SpeciesName.Drider => 1,
+                SpeciesName.Ettin => 2,
+                SpeciesName.Frogling => 3,
+                SpeciesName.Gargoyle => 4,
+                SpeciesName.Gecko => 4,
+                SpeciesName.Ghost => 3,
+                SpeciesName.Ghoul => 4,
+                SpeciesName.Giant => 2,
+                SpeciesName.GiantBat => 5,
+                SpeciesName.GiantCentipede => 4,
+                SpeciesName.GiantLeech => 4,
+                SpeciesName.GiantPoxRat => 3,
+                SpeciesName.GiantRat => 5,
+                SpeciesName.GiantScorpion => 2,
+                SpeciesName.GiantSnake => 4,
+                SpeciesName.GiantSpider => 4,
+                SpeciesName.GiantToad => 3,
+                SpeciesName.GiantWolf => 4,
+                SpeciesName.GiganticSnake => 2,
+                SpeciesName.GiganticSpider => 2,
+                SpeciesName.Gnoll => 5,
+                SpeciesName.Goblin => 5,
+                SpeciesName.Griffon => 2,
+                SpeciesName.Harpy => 3,
+                SpeciesName.Hydra => 2,
+                SpeciesName.Lurker => 3,
+                SpeciesName.Medusa => 2,
+                SpeciesName.Mimic => 2,
+                SpeciesName.Minotaur => 3,
+                SpeciesName.MinotaurSkeleton => 3,
+                SpeciesName.Mummy => 3,
+                SpeciesName.Naga => 3,
+                SpeciesName.Ogre => 3,
+                SpeciesName.Orc => 5,
+                SpeciesName.Raptor => 4,
+                SpeciesName.RiverTroll => 3,
+                SpeciesName.Salamander => 5,
+                SpeciesName.Satyr => 4,
+                SpeciesName.Saurian => 3,
+                SpeciesName.Shambler => 4,
+                SpeciesName.Skeleton => 2,
+                SpeciesName.Slime => 3,
+                SpeciesName.Sphinx => 2,
+                SpeciesName.StoneGolem => 2,
+                SpeciesName.StoneTroll => 4,
+                SpeciesName.TombGuardian => 3,
+                SpeciesName.Vampire => 3,
+                SpeciesName.Werewolf => 5,
+                SpeciesName.Wight => 3,
+                SpeciesName.Wraith => 3,
+                SpeciesName.Wyvern => 2,
+                SpeciesName.Zombie => 1,
+                SpeciesName.ZombieOgre => 5,
+                _ => 0
             };
         }
 
@@ -719,6 +831,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public enum PartName
     {
+        Unknown,
         Brain,
         Kidney,
         Saliva,
