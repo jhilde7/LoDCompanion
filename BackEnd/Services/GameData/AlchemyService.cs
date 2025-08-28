@@ -315,7 +315,11 @@ namespace LoDCompanion.BackEnd.Services.GameData
             foreach (var ingredient in Ingredients)
             {
                 var availabilityRoll = RandomHelper.RollDie(DiceType.D6);
-                if (availabilityModifier <= ingredient.Availability + availabilityModifier) shopInventory.Add(ingredient);
+                var newIngredient = new Ingredient();
+                newIngredient.Name = ingredient.Name;
+                newIngredient.Value = ingredient.Value;
+                newIngredient.Availability = ingredient.Availability + availabilityModifier;
+                if (availabilityRoll <= newIngredient.Availability) shopInventory.Add(newIngredient);
             }
             return shopInventory;
         }
@@ -329,6 +333,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 var part = new Part();
                 part.Availability = partSpecies.Availability;
                 part.Origin = partSpecies.Name;
+                part.Value = 25;
                 shopInventory.Add(part);
             }
             return shopInventory;
@@ -342,7 +347,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 var availabilityRoll = RandomHelper.RollDie(DiceType.D6);
                 if (availabilityRoll <= SpeciesNameAvailability(name) + availabilityModifier)
                 {
-                    list.Add((name, SpeciesNameAvailability(name)));
+                    list.Add((name, SpeciesNameAvailability(name) + availabilityModifier));
                 }
             }
             return list;
@@ -417,6 +422,31 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 SpeciesName.ZombieOgre => 5,
                 _ => 0
             };
+        }
+
+        public static List<Potion> GetShopPotions(int availabilityModifier = 0)
+        {
+            var potionsList = GetAllPotions();
+            var shopInventory = new List<Potion>();
+            foreach (var potion in potionsList)
+            {
+                var newPotion = potion.Clone();
+                if (newPotion.Strength == PotionStrength.Standard) newPotion.Availability = 5;
+                else if (newPotion.Strength == PotionStrength.Supreme) newPotion.Availability = 4;
+                else newPotion.Availability = 6;
+                newPotion.Availability += availabilityModifier;
+
+                var availabilityRoll = RandomHelper.RollDie(DiceType.D6);
+                if (availabilityRoll <= newPotion.Availability) shopInventory.Add(newPotion);
+            }
+            return shopInventory;
+        }
+
+        public static List<AlchemyItem> GetGuildShopInventory (int availabilityModifier = 0)
+        {
+            var shopInventory = new List<AlchemyItem>();
+            shopInventory = [.. GetShopPotions(availabilityModifier), .. GetShopParts(availabilityModifier), ..GetShopIngredients(availabilityModifier)];
+            return shopInventory;
         }
 
         private static List<Potion> GetAllPotions()
