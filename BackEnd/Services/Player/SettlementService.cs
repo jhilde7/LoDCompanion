@@ -103,7 +103,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class SettlementState
     {
         public int CurrentDay { get; set; } = 1;
-        public Dictionary<string, int> HeroActionPoints { get; set; } = new Dictionary<string, int>();
+        public Dictionary<Hero, int> HeroActionPoints { get; set; } = new Dictionary<Hero, int>();
         public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
         public List<Bank>? Banks { get; set; }
@@ -129,9 +129,21 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public void StartNewDay(Settlement settlement)
         {
-            foreach (var effect in settlement.State.ActiveStatusEffects.Where(e => e.RemoveEndDay))
+            // Remove status effects that expire at the end of the day.
+            settlement.State.ActiveStatusEffects.RemoveAll(e => e.RemoveEndDay);
+
+            // Update busy heroes and identify those who are now free.
+            var heroesFinished = new List<Hero>();
+            foreach (var hero in settlement.State.BusyHeroes.Keys)
             {
-                settlement.State.ActiveStatusEffects.Remove(effect);
+                var busyInfo = settlement.State.BusyHeroes[hero];
+                busyInfo.DaysRemaining--;
+                settlement.State.BusyHeroes[hero] = busyInfo;
+
+                if (busyInfo.DaysRemaining <= 0)
+                {
+                    heroesFinished.Add(hero);
+                }
             }
 
             settlement.State.CurrentDay++;
@@ -140,8 +152,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 foreach (var hero in _partyManager.Party.Heroes)
                 {
-                    settlement.State.HeroActionPoints[hero.Id] = 1;
+                    settlement.State.HeroActionPoints[hero] = 1;
                 }
+            }
+
+            foreach (var hero in heroesFinished)
+            {
+                settlement.State.HeroActionPoints[hero] = 0;
+                settlement.State.BusyHeroes.Remove(hero);
             }
         }
 

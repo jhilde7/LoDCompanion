@@ -3,6 +3,7 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public SettlementActionType Action { get; set; }
         public string Message { get; set; } = string.Empty;
-        public bool WasSuccessful { get; set; }
+        public bool WasSuccessful { get; set; } = true;
         public int ActionCost { get; set; }
         public int ArenaWinnings { get; set; }
         public List<Equipment>? FoundItems { get; set; }
@@ -83,6 +84,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                 result.WasSuccessful = false;
                 return result;
             }
+            else if (settlement.State.HeroActionPoints[hero] <= 0)
+            {
+                result.Message = $"{hero.Name} does not have any action points left for today.";
+                result.WasSuccessful = false;
+                return result;
+            }
 
             switch (action)
             {
@@ -93,7 +100,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.WasSuccessful = false;
                         return result;
                     }
-                    else return await ArenaFighting(hero, result);
+                    else result = await ArenaFighting(hero, result);
+                    break;
                 case SettlementActionType.Banking:
                     if (settlement.State.Banks == null)
                     {
@@ -121,14 +129,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                                         var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?");
                                         if (!depositResult.WasCancelled)
                                         {
-                                            await currentBank.Deposit(depositResult.Amount);
+                                            result.Message = $"{depositResult.Amount} was deposited at {currentBank.Name.ToString()}. The new balance is {await currentBank.Deposit(depositResult.Amount)}";
                                         }
                                         break;
                                     case "Withdraw coins.":
                                         var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?");
                                         if (!withdrawResult.WasCancelled)
                                         {
-                                            await currentBank.WithdrawAsync(withdrawResult.Amount);
+                                            result.Message = $"{withdrawResult.Amount} was withdrawn from {currentBank.Name.ToString()}. The new balance is {await currentBank.WithdrawAsync(withdrawResult.Amount)}";
                                         }
                                         break;
                                 }
@@ -190,6 +198,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case SettlementActionType.TreatMentalConditions: 
                     break;
+            }
+
+            settlement.State.HeroActionPoints[hero] -= result.ActionCost;
+            if (settlement.State.HeroActionPoints[hero] < 0)
+            {
+                settlement.State.BusyHeroes.TryAdd(hero, (result.Action, Math.Abs(settlement.State.HeroActionPoints[hero])));
             }
 
             return result;
