@@ -2,15 +2,18 @@
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.GameData;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
     public class Party
     {
         public string Id { get; private set; }
-        public List<Hero> Heroes { get; set; } = new List<Hero>();
+        public List<Hero> Heroes { get; set; } = new();
         public int Coins { get; set; }
-        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
+        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new();
+        public List<Quest> Quests { get; set; } = new();
+        public List<Equipment> PartyInventory { get; set; } = new();
 
         public int PartyMaxMorale => GetMaxMorale();
         public PartyManagerService? PartyManager { get; set; }

@@ -121,6 +121,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     result = VisitMagicBrewery(hero, settlement, result);
                     break;
                 case SettlementActionType.CollectQuestRewards:
+                    result = CollectQuestRewards(hero, settlement, result);
                     break;
                 case SettlementActionType.CreateScroll: 
                     break;
@@ -181,6 +182,33 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
+            return result;
+        }
+
+        private SettlementActionResult CollectQuestRewards(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var completedQuestsForThisSettlement = hero.Party.Quests
+                .Where(q => q.IsComplete && q.QuestOrigin == settlement.Name)
+                .ToList();
+            if (!completedQuestsForThisSettlement.Any())
+            {
+                result.Message = "There are no completed quest to turn in here.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            foreach (var quest in completedQuestsForThisSettlement)
+            {
+                result.Message += $"Quest: {quest.Name} completed.\n";
+                hero.Party.Coins += quest.RewardCoin;
+                result.Message += $"Coin Reward: {quest.RewardCoin}.\n";
+                if (quest.RewardItems != null)
+                {
+                    quest.RewardItems.ForEach(async item => await BackpackHelper.AddItem(hero.Inventory.Backpack, item));
+                    result.Message += $"Reward Items: {string.Join(", ", quest.RewardItems.Select(i => i.Name))}.\n";
+                }
+            }
+            hero.Party.Quests.RemoveAll(q => q.IsComplete && q.QuestOrigin == settlement.Name);
             return result;
         }
 
