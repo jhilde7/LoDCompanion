@@ -3,12 +3,6 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
-using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using static LoDCompanion.BackEnd.Services.Player.Bank;
-using static LoDCompanion.BackEnd.Services.Player.SettlementActionService;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -53,6 +47,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int ActionCost { get; set; }
         public int ArenaWinnings { get; set; }
         public List<Equipment>? FoundItems { get; set; }
+        public List<Equipment> ShopInventory { get; set; } = new List<Equipment>();
 
         public SettlementActionResult (SettlementActionType action)
         {
@@ -108,9 +103,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.BuySellArmour:
                     result = BuySellArmour(hero, settlement, result);
                     break;
-                case SettlementActionType.BuySellWeapons: 
+                case SettlementActionType.BuySellWeapons:
+                    result = BuySellWeapons(hero, settlement, result);
                     break;
-                case SettlementActionType.BuySellEquipment: 
+                case SettlementActionType.BuySellEquipment:
+                    result = BuySellEquipment(hero, settlement, result);
                     break;
                 case SettlementActionType.BuyIngredients: 
                     break;
@@ -165,11 +162,6 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return result;
-        }
-
-        private SettlementActionResult BuySellArmour(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            throw new NotImplementedException();
         }
 
         private async Task<SettlementActionResult> ArenaFighting(Hero hero, SettlementActionResult result)
@@ -388,7 +380,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 if (bankChoice.WasCancelled) isBanking = false;
                 if (!bankChoice.WasCancelled)
                 {
-                    Enum.TryParse<BankName>(bankChoice.SelectedOption, out var selectedBankName);
+                    Enum.TryParse<Bank.BankName>(bankChoice.SelectedOption, out var selectedBankName);
                     var currentBank = settlement.State.Banks.FirstOrDefault(b => b.Name == selectedBankName);
                     if (currentBank != null)
                     {
@@ -426,7 +418,119 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
             return result;
         }
-        
+
+        private SettlementActionResult BuySellArmour(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var blackSmith = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Blacksmith);
+            if (blackSmith != null)
+            {
+                var maxDurabilityModifier = blackSmith.ArmourMaxDurabilityModifier;
+                var priceModifier = blackSmith.ArmourPriceModifier;
+                var availabilityModifier = blackSmith.ArmourAvailabilityModifier;
+                List<Equipment> inventory =
+                    [.. GetStock(ShopCategory.Armour, settlement, availabilityModifier, priceModifier, maxDurabilityModifier),
+                    .. GetStock(ShopCategory.Shields, settlement, availabilityModifier, priceModifier, maxDurabilityModifier)];
+                if (blackSmith.ShopSpecials != null)
+                {
+                    foreach (var special in blackSmith.ShopSpecials)
+                    {
+                        var item = result.ShopInventory.FirstOrDefault(i => i.Name == special.ItemName);
+                        if (item != null)
+                        {
+                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
+                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                result.Message = "There is no blacksmith at this settlement";
+                result.WasSuccessful = false;
+            }
+            return result;
+        }
+
+        private SettlementActionResult BuySellWeapons(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var blackSmith = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Blacksmith);
+            if (blackSmith != null)
+            {
+                var maxDurabilityModifier = blackSmith.WeaponMaxDurabilityModifier;
+                var priceModifier = blackSmith.WeaponPriceModifier;
+                var availabilityModifier = blackSmith.WeaponAvailabilityModifier;
+                result.ShopInventory = [.. GetStock(ShopCategory.Weapons, settlement, availabilityModifier, priceModifier, maxDurabilityModifier)];
+                if (blackSmith.ShopSpecials != null)
+                {
+                    foreach (var special in blackSmith.ShopSpecials)
+                    {
+                        var item = result.ShopInventory.FirstOrDefault(i => i.Name == special.ItemName);
+                        if (item != null)
+                        {
+                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
+                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                result.Message = "There is no blacksmith at this settlement";
+                result.WasSuccessful = false;
+            }
+            return result;
+        }
+
+        private SettlementActionResult BuySellEquipment(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var generalStore = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.GeneralStore);
+            if (generalStore != null)
+            {
+                var priceModifier = generalStore.EquipmentPriceModifier;
+                var availabilityModifier = generalStore.EquipmentAvailabilityModifier;
+                result.ShopInventory =
+                    [.. GetStock(ShopCategory.General, settlement, availabilityModifier, priceModifier),
+                    .. GetStock(ShopCategory.Potions, settlement, availabilityModifier, priceModifier)];
+                if (generalStore.ShopSpecials != null)
+                {
+                    foreach (var special in generalStore.ShopSpecials)
+                    {
+                        var item = result.ShopInventory.FirstOrDefault(i => i.Name == special.ItemName);
+                        if (item != null)
+                        {
+                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
+                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                result.Message = "There is no blacksmith at this settlement";
+                result.WasSuccessful = false;
+            }
+            return result;
+        }
+
+        private List<Equipment> GetStock(ShopCategory category, Settlement settlement, int availabilityModifier = 0, double priceModifier = 1d, int maxDurabilityModifier = 0)
+        {
+            var freshStocks = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.FreshStocks);
+            var shortageOfGoods = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.ShortageOfGoods);
+            if (freshStocks != null) availabilityModifier += 2;
+            if (shortageOfGoods != null) availabilityModifier -= 2;
+
+            var list = EquipmentService.GetShopInventoryByCategory(category, availabilityModifier);
+
+            var sale = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.Sale);
+            if (sale != null) priceModifier -= 0.2;
+            if (shortageOfGoods != null) priceModifier += 0.1;
+
+            list.ForEach(item => item.Value = (int)Math.Floor(item.Value * priceModifier));
+            list.ForEach(item => item.MaxDurability += maxDurabilityModifier);
+            list.ForEach(item => item.Durability += item.MaxDurability);
+            return list;
+        }
+
 
         public int SettlementActionCost(SettlementActionType action)
         {

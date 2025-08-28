@@ -77,13 +77,23 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int WeaponAvailabilityModifier { get; set; }
         public int ArmourAvailabilityModifier { get; set; }
         public int EquipmentAvailabilityModifier { get; set; }
-        public float WeaponPriceModifier { get; set; }
-        public float ArmourPriceModifier { get; set; }
-        public float EquipmentPriceModifier { get; set; }
+        public double WeaponPriceModifier { get; set; } = 1d;
+        public double ArmourPriceModifier { get; set; } = 1d;
+        public double EquipmentPriceModifier { get; set; } = 1d;
         public string? SpecialRules { get; set; }
         public GodName TempleDevotion { get; set; }
         public int WeaponMaxDurabilityModifier { get; internal set; }
         public int ArmourMaxDurabilityModifier { get; internal set; }
+        public List<ShopSpecial>? ShopSpecials { get; set; }
+
+        public class ShopSpecial
+        {
+            public string ItemName { get; set; } = string.Empty;
+            public int? Price { get; set; }
+            public int? Availability { get; set; }
+
+            public ShopSpecial() { }
+        }
     }
 
     public class Settlement
@@ -183,8 +193,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = -2, WeaponPriceModifier = 1.1f, ArmourAvailabilityModifier = -2, ArmourPriceModifier = 1.1f },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.1f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = -2, WeaponPriceModifier = 1.1, ArmourAvailabilityModifier = -2, ArmourPriceModifier = 1.1 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.1, ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } } },
                         new ServiceLocation { Name = SettlementServiceName.Inn }
                     },
                     HexTiles = new List<HexTile>
@@ -203,8 +213,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = 1, WeaponPriceModifier = 0.9f, ArmourAvailabilityModifier = 1, ArmourPriceModifier = 0.9f },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2f },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = 1, WeaponPriceModifier = 0.9, ArmourAvailabilityModifier = 1, ArmourPriceModifier = 0.9 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2 },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir }
                     },
@@ -226,7 +236,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         new ServiceLocation { Name = SettlementServiceName.Arena },
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = 1, EquipmentPriceModifier = 0.9f },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = 1, EquipmentPriceModifier = 0.9 },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.SickWard }
                     },
@@ -276,7 +286,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.AlbertasMagnificentAnimals },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = 1, EquipmentPriceModifier = 0.9f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = 1, EquipmentPriceModifier = 0.9, ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } } },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Rhidnir },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
@@ -300,7 +310,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.1f, SpecialRules = "Fishing gear 50 c, availability 6" },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.1, ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } } },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.Scryer },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Ohlnir },
@@ -405,8 +415,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Yellow,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponPriceModifier = 1.2f, ArmourPriceModifier = 1.2f },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2f }
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponPriceModifier = 1.2, ArmourPriceModifier = 1.2 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2 }
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -425,8 +435,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     InnPrice = 65,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = 1, WeaponPriceModifier = 1.2f, ArmourPriceModifier = 1.1f, WeaponMaxDurabilityModifier = 2 },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.2f },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = 1, WeaponPriceModifier = 1.2, ArmourPriceModifier = 1.1, WeaponMaxDurabilityModifier = 2 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.2 },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Charus },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
@@ -449,8 +459,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     InnPrice = 65,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = -1, WeaponPriceModifier = 1.2f, ArmourAvailabilityModifier = 1, ArmourPriceModifier = 1.2f, ArmourMaxDurabilityModifier = 2 },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2f },
+                        new ServiceLocation { Name = SettlementServiceName.Blacksmith, WeaponAvailabilityModifier = -1, WeaponPriceModifier = 1.2, ArmourAvailabilityModifier = 1, ArmourPriceModifier = 1.2, ArmourMaxDurabilityModifier = 2 },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -2, EquipmentPriceModifier = 1.2 },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Charus },
                         new ServiceLocation { Name = SettlementServiceName.Temple, TempleDevotion = GodName.Iphy },
