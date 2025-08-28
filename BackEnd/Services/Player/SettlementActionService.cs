@@ -24,7 +24,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         VisistInnerSanctum,
         ChargeMagicItem,
         CreateScroll,
-        CureDisease,
+        VisitSickWard,
         CurePoison,
         EnchantObjects,
         Gamble,
@@ -123,11 +123,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.CollectQuestRewards:
                     result = await CollectQuestRewardsAsync(hero, settlement, result);
                     break;
-                case SettlementActionType.CreateScroll: 
-                    break;
-                case SettlementActionType.CureDisease: 
+                case SettlementActionType.VisitSickWard: 
                     break;
                 case SettlementActionType.CurePoison: 
+                    break;
+                case SettlementActionType.CreateScroll: 
                     break;
                 case SettlementActionType.EnchantObjects: 
                     break;
@@ -182,39 +182,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
-            return result;
-        }
-
-        private async Task<SettlementActionResult> CollectQuestRewardsAsync(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var completedQuestsForThisSettlement = hero.Party.Quests
-                .Where(q => q.IsComplete && q.QuestOrigin == settlement.Name)
-                .ToList();
-            if (!completedQuestsForThisSettlement.Any())
-            {
-                result.Message = "There are no completed quest to turn in here.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            foreach (var quest in completedQuestsForThisSettlement)
-            {
-                result.Message += $"Quest: {quest.Name} completed.\n";
-                hero.Party.Coins += quest.RewardCoin;
-                result.Message += $"Coin Reward: {quest.RewardCoin}.\n";
-                if (quest.RewardItems != null)
-                {
-                    result.Message += $"Reward Items: {string.Join(", ", quest.RewardItems.Select(i => i != null ? i.Name : string.Empty))}.\n";
-                    foreach (var item in quest.RewardItems)
-                    {
-                        if (item != null)
-                        {
-                            await BackpackHelper.AddItem(hero.Inventory.Backpack, item);                             
-                        } 
-                    }
-                }
-            }
-            hero.Party.Quests.RemoveAll(q => q.IsComplete && q.QuestOrigin == settlement.Name);
             return result;
         }
 
@@ -596,6 +563,39 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
             result.ShopInventory = AlchemyService.GetShopPotions().Cast<Equipment>().ToList();
+            return result;
+        }
+
+        private async Task<SettlementActionResult> CollectQuestRewardsAsync(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var completedQuestsForThisSettlement = hero.Party.Quests
+                .Where(q => q.IsComplete && q.QuestOrigin == settlement.Name)
+                .ToList();
+            if (!completedQuestsForThisSettlement.Any())
+            {
+                result.Message = "There are no completed quest to turn in here.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            foreach (var quest in completedQuestsForThisSettlement)
+            {
+                result.Message += $"Quest: {quest.Name} completed.\n";
+                hero.Party.Coins += quest.RewardCoin;
+                result.Message += $"Coin Reward: {quest.RewardCoin}.\n";
+                if (quest.RewardItems != null)
+                {
+                    result.Message += $"Reward Items: {string.Join(", ", quest.RewardItems.Select(i => i != null ? i.Name : string.Empty))}.\n";
+                    foreach (var item in quest.RewardItems)
+                    {
+                        if (item != null)
+                        {
+                            await BackpackHelper.AddItem(hero.Inventory.Backpack, item);
+                        }
+                    }
+                }
+            }
+            hero.Party.Quests.RemoveAll(q => q.IsComplete && q.QuestOrigin == settlement.Name);
             return result;
         }
 

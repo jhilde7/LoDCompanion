@@ -52,11 +52,12 @@ else
         }
     }
 
-    private void EnterDungeon()
+    private async Task EnterDungeon()
     {
         if(currentParty != null)
         {
-            QuestService.StartQuest(currentParty, QuestService.GetQuestByName("First Blood"));
+            var quest = await QuestService.GetQuestByNameAsync("First Blood");
+            if (quest != null) QuestService.StartQuest(currentParty, quest);
             NavManager.NavigateTo("/wilderness");
         }
     }

@@ -527,8 +527,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                 SettlementServiceName.SickWard => new List<SettlementActionType>
                     {
-                        SettlementActionType.CureDisease,
-                        SettlementActionType.CurePoison
+                        SettlementActionType.VisitSickWard,
                     },
                 SettlementServiceName.Inn => new List<SettlementActionType>
                     {

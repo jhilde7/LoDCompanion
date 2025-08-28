@@ -100,7 +100,6 @@ namespace LoDCompanion.BackEnd.Services.Game
         public bool IsObjectiveComplete { get; private set; }
         public event Action? OnQuestStateChanged;
 
-        public List<Quest> Quests => GetQuestsAsync();
         public bool IsQuestActive => ActiveQuest != null;
         public List<QuestHexLocation> QuestHexLocations => GetQuestHexLocations();
 
@@ -1414,14 +1413,14 @@ namespace LoDCompanion.BackEnd.Services.Game
             return questLocation != null ? questLocation.HexTile : null;
         }
 
-        public Quest GetQuestByName(string name)
+        public async Task<Quest?> GetQuestByNameAsync(string name)
         {
-            return Quests.First(q => q.Name == name);
+            return (await GetQuestsAsync()).FirstOrDefault(q => q.Name == name);
         }
 
-        public Quest GetRandomSideQuest()
+        public async Task<Quest> GetRandomSideQuestAsync()
         {
-            var sideQuests = Quests.Where(q => q.IsSideQuest).ToList();
+            var sideQuests = (await GetQuestsAsync()).Where(q => q.IsSideQuest).ToList();
             sideQuests.Shuffle();
             return sideQuests.First();
         }
