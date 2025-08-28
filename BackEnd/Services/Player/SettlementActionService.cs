@@ -1,8 +1,10 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -56,6 +58,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int BarterTarget { get; internal set; }
         public double BuyPriceModifications { get; internal set; }
         public double SellPriceModification { get; internal set; }
+        public int AvailableCoins { get; internal set; }
 
         public SettlementActionResult (SettlementActionType action)
         {
@@ -93,6 +96,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 result.WasSuccessful = false;
                 return result;
             }
+            result.AvailableCoins = hero.Coins + hero.Party.Coins;
+            hero.Coins = 0;
+            hero.Party.Coins = 0;
 
             switch (action)
             {
@@ -123,9 +129,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.CollectQuestRewards:
                     result = await CollectQuestRewardsAsync(hero, settlement, result);
                     break;
-                case SettlementActionType.VisitSickWard: 
-                    break;
-                case SettlementActionType.CurePoison: 
+                case SettlementActionType.VisitSickWard:
+                    result = await VisitSickWard(hero, settlement, result);
                     break;
                 case SettlementActionType.CreateScroll: 
                     break;
@@ -180,6 +185,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.SellPriceModification = 1.1d;
                     }
                 }
+
+                hero.Party.Coins = result.AvailableCoins;
+                result.AvailableCoins = 0;
             }
 
             return result;
@@ -193,7 +201,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 result.WasSuccessful = false;
                 return result;
             }
-            var totalCoins = hero.Coins + hero.Party.Coins;
 
             var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: 200);
             var bet = inputResult.Amount;
@@ -413,14 +420,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0);
                                 if (!depositResult.WasCancelled)
                                 {
-                                    if (hero.Coins + hero.Party.Coins >= depositResult.Amount)
+                                    if (result.AvailableCoins >= depositResult.Amount)
                                     {
                                         result.Message += $"{depositResult.Amount} was deposited at {currentBank.Name.ToString()}. The new balance is {await currentBank.DepositAsync(depositResult.Amount)}";
-                                        var remainingDeposit = depositResult.Amount;
-                                        var heroDeposited = Math.Min(hero.Coins, remainingDeposit);
-                                        hero.Coins -= heroDeposited;
-                                        remainingDeposit -= heroDeposited;
-                                        hero.Party.Coins -= remainingDeposit;
+                                        result.AvailableCoins -= depositResult.Amount;
                                     }
                                 }
                                 break;
@@ -430,7 +433,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 {
                                     var amountWithdrawn = await currentBank.WithdrawAsync(withdrawResult.Amount);
                                     result.Message += $"{amountWithdrawn} was withdrawn from {currentBank.Name.ToString()}. The new balance is {await currentBank.CheckBalanceAsync()}";
-                                    hero.Coins += amountWithdrawn;
+                                    result.AvailableCoins += amountWithdrawn;
                                 }
                                 break;
                         }
@@ -596,6 +599,41 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
             hero.Party.Quests.RemoveAll(q => q.IsComplete && q.QuestOrigin == settlement.Name);
+            return result;
+        }
+
+        private async Task<SettlementActionResult> VisitSickWard(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var sickWard = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.SickWard);
+            if (sickWard == null)
+            {
+                result.Message = "There is no sickward at this settlement.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            var poison = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == Combat.StatusEffectType.Poisoned);
+            var disease = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == Combat.StatusEffectType.Diseased);
+            if (poison == null &&  disease == null)
+            {
+                result.Message = $"{hero.Name} is neither poisoned nor diseased.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            if (poison != null && result.AvailableCoins >= 100 && await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wnat to be cured of poison for 100c?"))
+            {
+                StatusEffectService.RemoveActiveStatusEffect(hero, poison);
+                result.AvailableCoins -= 100;
+                result.Message += $"{hero.Name} was cured of poison!";
+            }
+            await Task.Yield();
+            if (disease != null && result.AvailableCoins >= 100 && await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wnat to be cured of disease for 100c?"))
+            {
+                StatusEffectService.RemoveActiveStatusEffect(hero, disease);
+                result.AvailableCoins -= 100;
+                result.Message += $"{hero.Name} was cured of disease!";
+            }
+            await Task.Yield();
+
             return result;
         }
 
