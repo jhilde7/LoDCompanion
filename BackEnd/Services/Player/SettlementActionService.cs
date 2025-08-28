@@ -93,68 +93,26 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             switch (action)
             {
-                case SettlementActionType.ArenaFighting:
-                    if (hero.Coins < 50 || hero.Party.Coins < 50)
-                    {
-                        result.Message = $"{hero.Name} does not have enough coin to participate";
-                        result.WasSuccessful = false;
-                        return result;
-                    }
-                    else result = await ArenaFighting(hero, result);
+                case SettlementActionType.ArenaFighting:                    
+                    result = await ArenaFighting(hero, result);
                     break;
                 case SettlementActionType.Banking:
-                    if (settlement.State.Banks == null)
-                    {
-                        result.Message = $"There are no banks at {settlement.Name}.";
-                        result.WasSuccessful = false;
-                        return result;
-                    }
-                    bool isBanking = true;
-                    while (isBanking)
-                    {
-                        var bankChoice = await _userRequest.RequestChoiceAsync("Which bank are you visiting?", settlement.State.Banks.Select(bank => bank.Name.ToString()).ToList(), canCancel: true);
-                        await Task.Yield();
-                        if (bankChoice.WasCancelled) isBanking = false;
-                        if (!bankChoice.WasCancelled)
-                        {
-                            Enum.TryParse<BankName>(bankChoice.SelectedOption, out var selectedBankName);
-                            var currentBank = settlement.State.Banks.FirstOrDefault(b => b.Name == selectedBankName);
-                            if (currentBank != null)
-                            {
-                                var actionChoice = await _userRequest.RequestChoiceAsync($"Your account has {await currentBank.CheckBalance()} available coins. What would you like to do?", new List<string> { "Deposit coins.", "Withdraw coins." }, canCancel: true);
-                                await Task.Yield();
-                                switch (actionChoice.SelectedOption)
-                                {
-                                    case "Deposit coins.":
-                                        var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?");
-                                        if (!depositResult.WasCancelled)
-                                        {
-                                            result.Message = $"{depositResult.Amount} was deposited at {currentBank.Name.ToString()}. The new balance is {await currentBank.Deposit(depositResult.Amount)}";
-                                        }
-                                        break;
-                                    case "Withdraw coins.":
-                                        var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?");
-                                        if (!withdrawResult.WasCancelled)
-                                        {
-                                            result.Message = $"{withdrawResult.Amount} was withdrawn from {currentBank.Name.ToString()}. The new balance is {await currentBank.WithdrawAsync(withdrawResult.Amount)}";
-                                        }
-                                        break;
-                                }
-                            } 
-                        }
-                    }
+                    result = await Banking(hero, settlement, result);
                     break;
                 case SettlementActionType.BuyDog: 
+                    // TODO: on implementation of the companions expansion
                     break;
-                case SettlementActionType.BuyFamiliar: 
+                case SettlementActionType.BuyFamiliar:
+                    // TODO: on implementation of the companions expansion
                     break;
-                case SettlementActionType.BuySellArmour: 
+                case SettlementActionType.BuySellArmour:
+                    result = BuySellArmour(hero, settlement, result);
+                    break;
+                case SettlementActionType.BuySellWeapons: 
                     break;
                 case SettlementActionType.BuySellEquipment: 
                     break;
                 case SettlementActionType.BuyIngredients: 
-                    break;
-                case SettlementActionType.BuySellWeapons: 
                     break;
                 case SettlementActionType.ChargeMagicItem: 
                     break;
@@ -209,19 +167,23 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
+        private SettlementActionResult BuySellArmour(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<SettlementActionResult> ArenaFighting(Hero hero, SettlementActionResult result)
         {
+            if (hero.Coins < 50 || hero.Party.Coins < 50)
+            {
+                result.Message = $"{hero.Name} does not have enough coin to participate";
+                result.WasSuccessful = false;
+                return result;
+            }
             var totalCoins = hero.Coins + hero.Party.Coins;
-            var choiceString = new List<string>() { "50" };
-            if (totalCoins >= 75) { choiceString.Add("75"); }
-            if (totalCoins >= 100) { choiceString.Add("100"); }
-            if (totalCoins >= 125) { choiceString.Add("125"); }
-            if (totalCoins >= 150) { choiceString.Add("150"); }
-            if (totalCoins >= 175) { choiceString.Add("175"); }
-            if (totalCoins >= 200) { choiceString.Add("200"); }
 
-            var choiceResult = await _userRequest.RequestChoiceAsync("Choose your entry fee level.", choiceString);
-            var bet = int.Parse(choiceResult.SelectedOption);
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: 200);
+            var bet = inputResult.Amount;
             var arena = new ArenaFight(bet, _treasure);
             while (!arena.IsComplete)
             {
@@ -409,6 +371,61 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return modifier;
             }
         }
+
+        private async Task<SettlementActionResult> Banking(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            if (settlement.State.Banks == null)
+            {
+                result.Message = $"There are no banks at {settlement.Name}.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            bool isBanking = true;
+            while (isBanking)
+            {
+                var bankChoice = await _userRequest.RequestChoiceAsync("Which bank are you visiting?", settlement.State.Banks.Select(bank => bank.Name.ToString()).ToList(), canCancel: true);
+                await Task.Yield();
+                if (bankChoice.WasCancelled) isBanking = false;
+                if (!bankChoice.WasCancelled)
+                {
+                    Enum.TryParse<BankName>(bankChoice.SelectedOption, out var selectedBankName);
+                    var currentBank = settlement.State.Banks.FirstOrDefault(b => b.Name == selectedBankName);
+                    if (currentBank != null)
+                    {
+                        var actionChoice = await _userRequest.RequestChoiceAsync($"Your account has {await currentBank.CheckBalanceAsync()} available coins. What would you like to do?", new List<string> { "Deposit coins.", "Withdraw coins." }, canCancel: true);
+                        await Task.Yield();
+                        switch (actionChoice.SelectedOption)
+                        {
+                            case "Deposit coins.":
+                                var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0);
+                                if (!depositResult.WasCancelled)
+                                {
+                                    if (hero.Coins + hero.Party.Coins >= depositResult.Amount)
+                                    {
+                                        result.Message += $"{depositResult.Amount} was deposited at {currentBank.Name.ToString()}. The new balance is {await currentBank.DepositAsync(depositResult.Amount)}";
+                                        var remainingDeposit = depositResult.Amount;
+                                        var heroDeposited = Math.Min(hero.Coins, remainingDeposit);
+                                        hero.Coins -= heroDeposited;
+                                        remainingDeposit -= heroDeposited;
+                                        hero.Party.Coins -= remainingDeposit;
+                                    }
+                                }
+                                break;
+                            case "Withdraw coins.":
+                                var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?", min: 0, max: currentBank.AccountBalance);
+                                if (!withdrawResult.WasCancelled)
+                                {
+                                    var amountWithdrawn = await currentBank.WithdrawAsync(withdrawResult.Amount);
+                                    result.Message += $"{amountWithdrawn} was withdrawn from {currentBank.Name.ToString()}. The new balance is {await currentBank.CheckBalanceAsync()}";
+                                    hero.Coins += amountWithdrawn;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
         
 
         public int SettlementActionCost(SettlementActionType action)
@@ -466,11 +483,11 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public Bank() { }
 
-        public async Task<int> Deposit (int amount)
+        public async Task<int> DepositAsync (int amount)
         {
             if (amount <= 0) return AccountBalance;
 
-            await CheckBalance();
+            await CheckBalanceAsync();
             AccountBalance += amount;
             return AccountBalance;
         }
@@ -479,13 +496,13 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             if (amount <= 0) return 0;
 
-            await CheckBalance();
+            await CheckBalanceAsync();
             var withdrawAmount = Math.Min(amount, AccountBalance);
             AccountBalance -= withdrawAmount;
             return withdrawAmount;
         }
 
-        public async Task<int> CheckBalance()
+        public async Task<int> CheckBalanceAsync()
         {
             if (!HasCheckedBankAccount)
             {

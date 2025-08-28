@@ -36,6 +36,8 @@ namespace LoDCompanion.BackEnd.Services.Utilities
     public class NumberInputRequest
     {
         public string Prompt { get; set; } = "Enter a number";
+        public int? MinValue { get; set; }
+        public int? MaxValue { get; set; }
         public TaskCompletionSource<NumberInputResult> CompletionSource { get; } = new TaskCompletionSource<NumberInputResult>();
     }
 
@@ -140,11 +142,13 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             return !result.WasCancelled && result.SelectedOption == "Yes";
         }
 
-        public Task<NumberInputResult> RequestNumberInputAsync(string prompt)
+        public Task<NumberInputResult> RequestNumberInputAsync(string prompt, int? min = null, int? max = null)
         {
             CurrentNumberInputRequest = new NumberInputRequest
             {
-                Prompt = prompt
+                Prompt = prompt,
+                MinValue = min,
+                MaxValue = max,
             };
 
             OnRequestChanged?.Invoke();
