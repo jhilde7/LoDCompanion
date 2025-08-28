@@ -922,7 +922,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         CureDisease,
         HealHPBonus,
         Experience,
-        HolyDamage
+        HolyDamage,
+        DiceCount
     }
 
     public class Potion : AlchemyItem

@@ -40,10 +40,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                     switch (property.Key)
                     {
                         case PotionProperty.HealHP:
-                            int healing = (await _diceRoll.RequestRollAsync("Roll for heal amount.", $"1d{property.Value}")).Roll;
-                            await Task.Yield();
-                            potion.PotionProperties.TryGetValue(PotionProperty.HealHPBonus, out int bonus);
-                            hero.Heal(healing + bonus);
+                            int healing = 0;
+                            if (property.Value <= 100)
+                            {
+                                var diceCount = potion.PotionProperties.GetValueOrDefault(PotionProperty.DiceCount, 1);
+                                healing = (await _diceRoll.RequestRollAsync("Roll for heal amount.", $"{diceCount}d{property.Value}")).Roll;
+                                await Task.Yield();
+                                potion.PotionProperties.TryGetValue(PotionProperty.HealHPBonus, out int bonus);
+                                hero.Heal(healing + bonus);
+                            }
+                            else healing = property.Value;
                             return $"{hero.Name} heals for {healing} HP.";
                         case PotionProperty.CureDisease:
                             if (RandomHelper.RollDie(DiceType.D100) <= property.Value)
@@ -63,7 +69,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                             hero.CurrentEnergy += property.Value;
                             return $"{hero.Name} gains {property.Value} energy.";
                         case PotionProperty.Mana:
-                            var rollResult = await _diceRoll.RequestRollAsync("Roll for heal amount.", $"{property.Value / 20}d20");
+                            diceCount = potion.PotionProperties.GetValueOrDefault(PotionProperty.DiceCount, 1);
+                            var rollResult = await _diceRoll.RequestRollAsync("Roll for heal amount.", $"{diceCount}d{property.Value}");
                             var missingMana = hero.GetStat(BasicStat.Mana) - hero.CurrentMana ?? 0;
                             var amount = Math.Min(missingMana, rollResult.Roll);
                             hero.CurrentMana += Math.Min(missingMana, rollResult.Roll);
