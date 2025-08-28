@@ -181,24 +181,53 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return masterItem != null ? masterItem.Clone() : null;
         }
 
-        public static List<Equipment> GetShopInventory(bool useAvailability = false)
+        public static List<Equipment> GetShopInventory(bool useAvailability = false, int availabilityModifier = 0)
         {
+            List<Equipment> list = [
+                .. Equipment.Where(x => x.Category == "Common"),
+                .. Weapons.Where(x => x.Category == "Common"),
+                .. Ammo.Where(x => x.Category == "Common"),
+                .. Armour.Where(x => x.Category == "Common"),
+                .. Shields.Where(x => x.Category == "Common"),
+                .. AlchemyService.Potions.Where(x => x.Category == "Common")
+            ];
             if (useAvailability)
             {
-                throw new NotImplementedException();
+                var itemsToRemove = new List<Equipment>();
+                foreach (var item in list)
+                {
+                    // Apply availability modifier
+                    int finalAvailability = item.Availability + availabilityModifier;
+
+                    // Handle auto-stock and out-of-stock rules
+                    if (finalAvailability >= 6)
+                    {
+                        continue; // Item is automatically in stock
+                    }
+                    if (finalAvailability <= 0)
+                    {
+                        itemsToRemove.Add(item); // Item is automatically out of stock
+                        continue;
+                    }
+
+                    var roll = RandomHelper.RollDie(DiceType.D6);
+                    if (roll > finalAvailability)
+                    {
+                        itemsToRemove.Add(item);
+                    }
+                }
+                itemsToRemove.ForEach(item => list.Remove(item));
+                return list;
             }
             else
             {
-                List<Equipment> list = [
-                    .. Equipment.Where(x => x.Category == "Common"),
-                    .. Weapons.Where(x => x.Category == "Common"),
-                    .. Ammo.Where(x => x.Category == "Common"),
-                    .. Armour.Where(x => x.Category == "Common"),
-                    .. Shields.Where(x => x.Category == "Common"),
-                    .. AlchemyService.Potions.Where(x => x.Category == "Common")
-                ];
                 return list;
             }
+        }
+
+        public static List<Equipment> GetShopInventoryByCategory(ShopCategory category, int availabilityModifier = 0)
+        {
+            return GetShopInventory(useAvailability: true, availabilityModifier).Where(i => i.Shop == category).ToList();
         }
 
         public static List<Equipment> GetEquipment()
