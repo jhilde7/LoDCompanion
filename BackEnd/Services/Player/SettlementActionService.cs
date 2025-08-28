@@ -121,7 +121,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     result = VisitMagicBrewery(hero, settlement, result);
                     break;
                 case SettlementActionType.CollectQuestRewards:
-                    result = CollectQuestRewards(hero, settlement, result);
+                    result = await CollectQuestRewardsAsync(hero, settlement, result);
                     break;
                 case SettlementActionType.CreateScroll: 
                     break;
@@ -185,7 +185,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private SettlementActionResult CollectQuestRewards(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> CollectQuestRewardsAsync(Hero hero, Settlement settlement, SettlementActionResult result)
         {
             var completedQuestsForThisSettlement = hero.Party.Quests
                 .Where(q => q.IsComplete && q.QuestOrigin == settlement.Name)
@@ -204,8 +204,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 result.Message += $"Coin Reward: {quest.RewardCoin}.\n";
                 if (quest.RewardItems != null)
                 {
-                    quest.RewardItems.ForEach(async item => await BackpackHelper.AddItem(hero.Inventory.Backpack, item));
-                    result.Message += $"Reward Items: {string.Join(", ", quest.RewardItems.Select(i => i.Name))}.\n";
+                    result.Message += $"Reward Items: {string.Join(", ", quest.RewardItems.Select(i => i != null ? i.Name : string.Empty))}.\n";
+                    foreach (var item in quest.RewardItems)
+                    {
+                        if (item != null)
+                        {
+                            await BackpackHelper.AddItem(hero.Inventory.Backpack, item);                             
+                        } 
+                    }
                 }
             }
             hero.Party.Quests.RemoveAll(q => q.IsComplete && q.QuestOrigin == settlement.Name);
