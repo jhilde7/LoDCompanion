@@ -8,35 +8,39 @@ namespace LoDCompanion.BackEnd.Services.Player
 {
     public enum SettlementActionType
     {
-        ArenaFighting,
-        Banking,
-        BuyDog,
-        BuyFamiliar,
-        BuySellArmour,
-        BuySellEquipment,
-        BuyIngredients,
-        BuySellWeapons,
+        VisitArena,
+        VisitBanks,
+        VisitKennel,
+        VisitAlbertasMagnificentAnimals,
+        VisitBlacksmith,
+        VisitGeneralStore,
+        VisitHerbalist,
+        VisitMagicBrewery,
+        VisitTheDarkGuild,
+        VisitFightersGuild,
+        VisitWizardsGuild,
+        VisitAlchemistGuild,
+        VisitRangersGuild,
+        VisistInnerSanctum,
         ChargeMagicItem,
-        CollectQuestRewards,
         CreateScroll,
         CureDisease,
         CurePoison,
         EnchantObjects,
         Gamble,
-        GuildBusiness,
         HorseRacing,
         IdentifyMagicItem,
         IdentifyPotion,
         LearnPrayer,
         LearnSpell,
-        LevelUp,
         Pray,
         ReadFortune,
-        RepairEquipment,
         RestRecuperation,
         SkillTraining,
         TendThoseMemories,
-        TreatMentalConditions
+        TreatMentalConditions,
+        CollectQuestRewards,
+        LevelUp,
     }
 
     public class SettlementActionResult
@@ -48,6 +52,10 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int ArenaWinnings { get; set; }
         public List<Equipment>? FoundItems { get; set; }
         public List<Equipment> ShopInventory { get; set; } = new List<Equipment>();
+        public int BarterRollResult { get; internal set; }
+        public int BarterTarget { get; internal set; }
+        public double BuyPriceModifications { get; internal set; }
+        public double SellPriceModification { get; internal set; }
 
         public SettlementActionResult (SettlementActionType action)
         {
@@ -88,30 +96,29 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             switch (action)
             {
-                case SettlementActionType.ArenaFighting:                    
+                case SettlementActionType.VisitArena:                    
                     result = await ArenaFighting(hero, result);
                     break;
-                case SettlementActionType.Banking:
+                case SettlementActionType.VisitBanks:
                     result = await Banking(hero, settlement, result);
                     break;
-                case SettlementActionType.BuyDog: 
+                case SettlementActionType.VisitKennel: 
                     // TODO: on implementation of the companions expansion
                     break;
-                case SettlementActionType.BuyFamiliar:
+                case SettlementActionType.VisitAlbertasMagnificentAnimals:
                     // TODO: on implementation of the companions expansion
                     break;
-                case SettlementActionType.BuySellArmour:
-                    result = BuySellArmour(hero, settlement, result);
+                case SettlementActionType.VisitBlacksmith:
+                    result = VisitBlacksmith(hero, settlement, result);
                     break;
-                case SettlementActionType.BuySellWeapons:
-                    result = BuySellWeapons(hero, settlement, result);
+                case SettlementActionType.VisitGeneralStore:
+                    result = VisitGeneralStore(hero, settlement, result);
                     break;
-                case SettlementActionType.BuySellEquipment:
-                    result = BuySellEquipment(hero, settlement, result);
+                case SettlementActionType.VisitHerbalist:
+                    result = VisitHerbalist(hero, settlement, result);
                     break;
-                case SettlementActionType.BuyIngredients: 
-                    break;
-                case SettlementActionType.ChargeMagicItem: 
+                case SettlementActionType.VisitMagicBrewery:
+                    result = VisitMagicBrewery(hero, settlement, result);
                     break;
                 case SettlementActionType.CollectQuestRewards:
                     break;
@@ -125,7 +132,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case SettlementActionType.Gamble: 
                     break;
-                case SettlementActionType.GuildBusiness: 
+                case SettlementActionType.VisitRangersGuild: 
                     break;
                 case SettlementActionType.HorseRacing: 
                     break;
@@ -133,7 +140,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case SettlementActionType.IdentifyPotion: 
                     break;
-                case SettlementActionType.LearnPrayer: 
+                case SettlementActionType.VisistInnerSanctum: 
                     break;
                 case SettlementActionType.LearnSpell: 
                     break;
@@ -142,8 +149,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.Pray: 
                     break;
                 case SettlementActionType.ReadFortune: 
-                    break;
-                case SettlementActionType.RepairEquipment: 
                     break;
                 case SettlementActionType.RestRecuperation: 
                     break;
@@ -155,10 +160,25 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
             }
 
-            settlement.State.HeroActionPoints[hero] -= result.ActionCost;
-            if (settlement.State.HeroActionPoints[hero] < 0)
+            if (result.WasSuccessful)
             {
-                settlement.State.BusyHeroes.TryAdd(hero, (result.Action, Math.Abs(settlement.State.HeroActionPoints[hero])));
+                settlement.State.HeroActionPoints[hero] -= result.ActionCost;
+                if (settlement.State.HeroActionPoints[hero] < 0)
+                {
+                    settlement.State.BusyHeroes.TryAdd(hero, (result.Action, Math.Abs(settlement.State.HeroActionPoints[hero])));
+                } 
+
+                if (result.ShopInventory.Any())
+                {
+                    var rollResult = await _userRequest.RequestRollAsync($"{hero.Name} barters with the shop owner, roll result", "1d100", skill: (hero, Skill.Barter));
+                    result.BarterRollResult = rollResult.Roll;
+                    result.BarterTarget = hero.GetSkill(Skill.Barter);
+                    if (result.BarterRollResult <= result.BarterTarget)
+                    {
+                        result.BuyPriceModifications = 0.9d;
+                        result.SellPriceModification = 1.1d;
+                    }
+                }
             }
 
             return result;
@@ -419,69 +439,57 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private SettlementActionResult BuySellArmour(Hero hero, Settlement settlement, SettlementActionResult result)
+        private SettlementActionResult VisitBlacksmith(Hero hero, Settlement settlement, SettlementActionResult result)
         {
             var blackSmith = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Blacksmith);
-            if (blackSmith != null)
+            if (blackSmith == null)
             {
-                var maxDurabilityModifier = blackSmith.ArmourMaxDurabilityModifier;
-                var priceModifier = blackSmith.ArmourPriceModifier;
-                var availabilityModifier = blackSmith.ArmourAvailabilityModifier;
-                List<Equipment> inventory =
-                    [.. GetStock(ShopCategory.Armour, settlement, availabilityModifier, priceModifier, maxDurabilityModifier),
-                    .. GetStock(ShopCategory.Shields, settlement, availabilityModifier, priceModifier, maxDurabilityModifier)];
-                if (blackSmith.ShopSpecials != null)
+                result.Message = "There is no blacksmith at this settlement.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            // Initialize the shop inventory
+            var inventory = new List<Equipment>();
+
+            // Get Armor and Shields stock
+            var armourMaxDurabilityModifier = blackSmith.ArmourMaxDurabilityModifier;
+            var armourPriceModifier = blackSmith.ArmourPriceModifier;
+            var armourAvailabilityModifier = blackSmith.ArmourAvailabilityModifier;
+            inventory.AddRange(GetStock(ShopCategory.Armour, settlement, armourAvailabilityModifier, armourPriceModifier, armourMaxDurabilityModifier));
+            inventory.AddRange(GetStock(ShopCategory.Shields, settlement, armourAvailabilityModifier, armourPriceModifier, armourMaxDurabilityModifier));
+
+            // Get Weapons stock
+            var weaponMaxDurabilityModifier = blackSmith.WeaponMaxDurabilityModifier;
+            var weaponPriceModifier = blackSmith.WeaponPriceModifier;
+            var weaponAvailabilityModifier = blackSmith.WeaponAvailabilityModifier;
+            inventory.AddRange(GetStock(ShopCategory.Weapons, settlement, weaponAvailabilityModifier, weaponPriceModifier, weaponMaxDurabilityModifier));
+
+            // Apply any shop specials to the combined inventory
+            if (blackSmith.ShopSpecials != null)
+            {
+                foreach (var special in blackSmith.ShopSpecials)
                 {
-                    foreach (var special in blackSmith.ShopSpecials)
+                    var item = inventory.FirstOrDefault(i => i.Name == special.ItemName);
+                    if (item != null)
                     {
-                        var item = result.ShopInventory.FirstOrDefault(i => i.Name == special.ItemName);
-                        if (item != null)
+                        if (special.Price.HasValue)
                         {
-                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
-                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
+                            item.Value = special.Price.Value;
+                        }
+                        if (special.Availability.HasValue)
+                        {
+                            item.Availability = special.Availability.Value;
                         }
                     }
                 }
             }
-            else
-            {
-                result.Message = "There is no blacksmith at this settlement";
-                result.WasSuccessful = false;
-            }
+
+            result.ShopInventory = inventory;
             return result;
         }
 
-        private SettlementActionResult BuySellWeapons(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var blackSmith = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Blacksmith);
-            if (blackSmith != null)
-            {
-                var maxDurabilityModifier = blackSmith.WeaponMaxDurabilityModifier;
-                var priceModifier = blackSmith.WeaponPriceModifier;
-                var availabilityModifier = blackSmith.WeaponAvailabilityModifier;
-                result.ShopInventory = [.. GetStock(ShopCategory.Weapons, settlement, availabilityModifier, priceModifier, maxDurabilityModifier)];
-                if (blackSmith.ShopSpecials != null)
-                {
-                    foreach (var special in blackSmith.ShopSpecials)
-                    {
-                        var item = result.ShopInventory.FirstOrDefault(i => i.Name == special.ItemName);
-                        if (item != null)
-                        {
-                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
-                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                result.Message = "There is no blacksmith at this settlement";
-                result.WasSuccessful = false;
-            }
-            return result;
-        }
-
-        private SettlementActionResult BuySellEquipment(Hero hero, Settlement settlement, SettlementActionResult result)
+        private SettlementActionResult VisitGeneralStore(Hero hero, Settlement settlement, SettlementActionResult result)
         {
             var generalStore = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.GeneralStore);
             if (generalStore != null)
@@ -531,39 +539,43 @@ namespace LoDCompanion.BackEnd.Services.Player
             return list;
         }
 
+        private SettlementActionResult VisitHerbalist(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var herbalist = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Herbalist);
+            if (herbalist == null)
+            {
+                result.Message = "There is no herbalist at this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+            result.ShopInventory = AlchemyService.GetShopIngredients().Cast<Equipment>().ToList();
+            return result;
+        }
+
+        private SettlementActionResult VisitMagicBrewery(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var magicBrewery = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.MagicBrewery);
+            if (magicBrewery == null)
+            {
+                result.Message = "There is no magic brewery at this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+            result.ShopInventory = AlchemyService.GetShopPotions().Cast<Equipment>().ToList();
+            return result;
+        }
 
         public int SettlementActionCost(SettlementActionType action)
         {
             return action switch
             {
-                SettlementActionType.ArenaFighting => 1,
-                SettlementActionType.Banking => 1,
-                SettlementActionType.BuyDog => 1,
-                SettlementActionType.BuyFamiliar => 1,
-                SettlementActionType.BuySellArmour => 1,
-                SettlementActionType.BuySellEquipment => 1,
-                SettlementActionType.BuyIngredients => 1,
-                SettlementActionType.BuySellWeapons => 1,
-                SettlementActionType.ChargeMagicItem => 1,
                 SettlementActionType.CollectQuestRewards => 0,
-                SettlementActionType.CreateScroll => 1,
-                SettlementActionType.CureDisease => 1,
-                SettlementActionType.CurePoison => 1,
-                SettlementActionType.EnchantObjects => 1,
                 SettlementActionType.Gamble => 0,
-                SettlementActionType.GuildBusiness => 1,
-                SettlementActionType.HorseRacing => 1,
-                SettlementActionType.IdentifyMagicItem => 1,
-                SettlementActionType.IdentifyPotion => 1,
+                SettlementActionType.LevelUp => 0,
+                SettlementActionType.RestRecuperation => 0,
+                SettlementActionType.TendThoseMemories => 0,
                 SettlementActionType.LearnPrayer => 2,
                 SettlementActionType.LearnSpell => 3,
-                SettlementActionType.LevelUp => 0,
-                SettlementActionType.Pray => 1,
-                SettlementActionType.ReadFortune => 1,
-                SettlementActionType.RepairEquipment => 1,
-                SettlementActionType.RestRecuperation => 0,
-                SettlementActionType.SkillTraining => 1,
-                SettlementActionType.TendThoseMemories => 0,
                 SettlementActionType.TreatMentalConditions => 5,
                 _ => 1
             };

@@ -490,42 +490,40 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 SettlementServiceName.Arena => new List<SettlementActionType>
                     {
-                        SettlementActionType.ArenaFighting,
+                        SettlementActionType.VisitArena,
                     },
                 SettlementServiceName.Banks => new List<SettlementActionType>
                     {
-                        SettlementActionType.Banking,
+                        SettlementActionType.VisitBanks,
                     },
                 SettlementServiceName.Kennel => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyDog,
+                        SettlementActionType.VisitKennel,
                     },
                 SettlementServiceName.AlbertasMagnificentAnimals => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyFamiliar,
+                        SettlementActionType.VisitAlbertasMagnificentAnimals,
                     },
                 SettlementServiceName.Blacksmith => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuySellArmour,
-                        SettlementActionType.BuySellWeapons,
-                        SettlementActionType.RepairEquipment
+                        SettlementActionType.VisitBlacksmith
                     },
                 SettlementServiceName.GeneralStore => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuySellEquipment,
+                        SettlementActionType.VisitGeneralStore,
                     },
                 SettlementServiceName.MagicBrewery => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuySellEquipment,
+                        SettlementActionType.VisitGeneralStore,
                         SettlementActionType.IdentifyPotion
                     },
                 SettlementServiceName.MervinsMagicalOddities => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuySellEquipment,
+                        SettlementActionType.VisitGeneralStore,
                     },
                 SettlementServiceName.Herbalist => new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyIngredients,
+                        SettlementActionType.VisitHerbalist,
                     },
                 SettlementServiceName.SickWard => new List<SettlementActionType>
                     {
@@ -558,32 +556,32 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                 SettlementServiceName.TheDarkGuild => new List<SettlementActionType>
                     {
-                        SettlementActionType.GuildBusiness,
+                        SettlementActionType.VisitTheDarkGuild,
                     },
                 SettlementServiceName.FightersGuild => new List<SettlementActionType>
                     {
-                        SettlementActionType.GuildBusiness,
+                        SettlementActionType.VisitFightersGuild,
                     },
                 SettlementServiceName.WizardsGuild => new List<SettlementActionType>
                     {
-                        SettlementActionType.GuildBusiness,
+                        SettlementActionType.VisitWizardsGuild,
                         SettlementActionType.ChargeMagicItem,
                         SettlementActionType.IdentifyMagicItem,
                         SettlementActionType.LearnSpell
                     },
                 SettlementServiceName.AlchemistGuild => new List<SettlementActionType>
                     {
-                        SettlementActionType.GuildBusiness,
-                        SettlementActionType.BuyIngredients,
+                        SettlementActionType.VisitAlchemistGuild,
+                        SettlementActionType.VisitHerbalist,
                         SettlementActionType.IdentifyPotion
                     },
                 SettlementServiceName.RangersGuild => new List<SettlementActionType>
                     {
-                        SettlementActionType.GuildBusiness,
+                        SettlementActionType.VisitRangersGuild,
                     },
                 SettlementServiceName.InnerSanctum => new List<SettlementActionType>
                     {
-                        SettlementActionType.LearnPrayer,
+                        SettlementActionType.VisistInnerSanctum,
                     },
                 SettlementServiceName.TheAsylum => new List<SettlementActionType>
                     {
@@ -592,6 +590,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 _ => new List<SettlementActionType>
                     {
                         SettlementActionType.LevelUp,
+                        SettlementActionType.CollectQuestRewards
                     }
             };
         }
