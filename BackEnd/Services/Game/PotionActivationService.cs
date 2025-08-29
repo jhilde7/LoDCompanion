@@ -82,9 +82,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
-            if (potion.ActiveStatusEffect != null)
+            if (potion.ActiveStatusEffects != null)
             {
-                foreach (var effect in potion.ActiveStatusEffect)
+                foreach (var effect in potion.ActiveStatusEffects)
                 { 
                     await StatusEffectService.AttemptToApplyStatusAsync(hero, effect, _powerActivation); 
                 }
