@@ -178,7 +178,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 success = await EquipStorageContainerAsync(hero, itemToEquip);
             }
-            else if (item.Name.Contains("Ring") || item.Name.Contains("Amulet") || item.Name.Contains("Necklace"))
+            else if (item.Name.Contains("Ring") || item.Name.Contains("Amulet") || item.Name.Contains("Amulet"))
             {
                 success = await EquipRingAmuletAsync(hero, itemToEquip);
             }
@@ -190,9 +190,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 await BackpackHelper.AddItem(hero.Inventory.Backpack, itemToEquip);
                 return false;
             }
-            else if (itemToEquip.ActiveStatusEffect != null)
+            else if (itemToEquip.ActiveStatusEffects != null)
             {
-                foreach (var effect in itemToEquip.ActiveStatusEffect)
+                foreach (var effect in itemToEquip.ActiveStatusEffects)
                 {
                     await StatusEffectService.AttemptToApplyStatusAsync(hero, effect, _powerActivation);
                 }
@@ -252,9 +252,9 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             if (removed)
             {
-                if (itemToUnequip.ActiveStatusEffect != null)
+                if (itemToUnequip.ActiveStatusEffects != null)
                 {
-                    foreach (var effect in itemToUnequip.ActiveStatusEffect)
+                    foreach (var effect in itemToUnequip.ActiveStatusEffects)
                     {
                         StatusEffectService.RemoveActiveStatusEffect(hero, effect);
                     }
@@ -303,7 +303,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 hero.Inventory.EquippedRings.Add(item);
                 return true;
             }
-            else if (item.Name.Contains("Amulet") || item.Name.Contains("Necklace"))
+            else if (item.Name.Contains("Amulet") || item.Name.Contains("Amulet"))
             {
                 if (hero.Inventory.EquippedAmulet != null) await UnequipItemAsync(hero, hero.Inventory.EquippedAmulet);
                 else hero.Inventory.EquippedAmulet = item;

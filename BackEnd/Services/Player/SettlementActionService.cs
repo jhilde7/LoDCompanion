@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -132,9 +133,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.VisitSickWard:
                     result = await VisitSickWard(hero, settlement, result);
                     break;
-                case SettlementActionType.CreateScroll: 
+                case SettlementActionType.CreateScroll:
+                    result = await CreateScroll(hero, settlement, result);
                     break;
                 case SettlementActionType.EnchantObjects: 
+                    result = await EnchantItemAsync(hero, settlement, result);
                     break;
                 case SettlementActionType.Gamble: 
                     break;
@@ -633,6 +636,207 @@ namespace LoDCompanion.BackEnd.Services.Player
                 result.Message += $"{hero.Name} was cured of disease!";
             }
             await Task.Yield();
+
+            return result;
+        }
+
+        private async Task<SettlementActionResult> EnchantItemAsync(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var inn = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Inn);
+            if (inn == null)
+            {
+                result.Message = "There is no inn at this settlement.";
+                result.WasSuccessful = false; 
+                return result;
+            }
+
+            if (hero.ProfessionName != "Wizard")
+            {
+                result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (!hero.CanCreateScrollEnchantItem)
+            {
+                result.Message = $"{hero.Name} has already attempted to enchanted an item or attempted creation of two scrolls this visit.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Spells != null)
+            {
+                var magicScribbles = hero.Spells.FirstOrDefault(s => s.Name == "Enchant Item");
+                if (magicScribbles == null)
+                {
+                    result.Message = $"{hero.Name} does not know the spell Enchant Item.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            var powerStones = hero.Inventory.Backpack.OfType<PowerStone>().ToList();
+            if (!powerStones.Any())
+            {
+                result.Message = $"{hero.Name} does not have a Power Stone to enchant items with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var selectedPowerStone = powerStones.First();
+            if (powerStones.Count > 1)
+            {
+                var list = powerStones.Select(i => i.Name).ToList();
+                var stoneChoiceRequest = await _userRequest.RequestChoiceAsync("Choose a power stone to enchant with.", list);
+                await Task.Yield();
+                selectedPowerStone = powerStones.FirstOrDefault(i => i.Name == stoneChoiceRequest.SelectedOption);
+            }
+
+            if (selectedPowerStone == null)
+            {
+                result.Message = "Invalid power stone selection.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var equipmentList = hero.Inventory.Backpack
+                .Where(i => i != null &&
+                            ((selectedPowerStone.ItemToEnchant == PowerStoneEffectItem.Weapon && i is Weapon) ||
+                             (selectedPowerStone.ItemToEnchant == PowerStoneEffectItem.ArmourShield && (i is Armour || i is Shield)) ||
+                             (selectedPowerStone.ItemToEnchant == PowerStoneEffectItem.RingAmulet && (i.Name == "Ring" || i.Name == "Amulet"))) &&
+                            string.IsNullOrEmpty(i.MagicEffect))
+                .Select(i => i != null ? i.Name : string.Empty)
+                .ToList();
+
+            if (!equipmentList.Any())
+            {
+                result.Message = $"There are no valid items to enchant with {selectedPowerStone.Name}.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var choiceRequest = await _userRequest.RequestChoiceAsync("Choose the item to enchant.", equipmentList);
+            await Task.Yield();
+            var selectedEquipment = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == choiceRequest.SelectedOption);
+
+            if (selectedEquipment == null)
+            {
+                result.Message = "Invalid item selection.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            selectedEquipment = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, selectedEquipment);
+
+            var rollResult = await _userRequest.RequestRollAsync("Roll arcane arts skill check.", "1d100", skill: (hero, Skill.ArcaneArts));
+            var skillTarget = hero.GetSkill(Skill.ArcaneArts);
+
+            if (rollResult.Roll > skillTarget)
+            {
+                result.Message += $"{hero.Name} fails and {selectedEquipment?.Name} is destroyed. However, the power stone is still intact.";
+            }
+            else
+            {
+                BackpackHelper.TakeOneItem(hero.Inventory.Backpack, selectedPowerStone);
+
+                if (selectedEquipment != null)
+                {
+                    selectedEquipment.Name += $"{selectedPowerStone.Name.Replace("Power stone", "")}";
+                    selectedEquipment.MagicEffect = $"{selectedPowerStone.Name.Replace("Power stone of ", "")}";
+                    selectedEquipment.Value *= selectedPowerStone.ValueModifier;
+                    if (selectedPowerStone.ActiveStatusEffects != null)
+                    {
+                        selectedEquipment.ActiveStatusEffects ??= new();
+                        selectedEquipment.ActiveStatusEffects.AddRange(selectedPowerStone.ActiveStatusEffects); 
+                    }
+
+                    if (selectedEquipment is Weapon weapon && selectedPowerStone.WeaponProperties != null)
+                    {
+                        foreach (var prop in selectedPowerStone.WeaponProperties)
+                        {
+                            if (prop.Key == WeaponProperty.DamageBonus && weapon.Properties.ContainsKey(WeaponProperty.DamageBonus))
+                            {
+                                weapon.Properties[WeaponProperty.DamageBonus] += prop.Value;
+                            }
+                            else weapon.Properties.TryAdd(prop.Key, prop.Value);
+                        }
+                    }
+                    else if (selectedEquipment is Armour || selectedEquipment is Shield && selectedPowerStone.DefenseBonus > 0)
+                    {
+                        if (selectedEquipment is Armour armour) armour.DefValue += selectedPowerStone.DefenseBonus;
+                        if (selectedEquipment is Shield shield) shield.DefValue += selectedPowerStone.DefenseBonus;
+                    }
+
+                    result.Message += $"{selectedEquipment.Name} was created!";
+                    await BackpackHelper.AddItem(hero.Inventory.Backpack, selectedEquipment); 
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<SettlementActionResult> CreateScroll(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var inn = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Inn);
+            if (inn == null)
+            {
+                result.Message = "There is no inn at this settlement.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.ProfessionName != "Wizard")
+            {
+                result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (!hero.CanCreateScrollEnchantItem)
+            {
+                result.Message = $"{hero.Name} has already attempted to enchanted an item or attempted creation of two scrolls this visit.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Spells != null)
+            {
+                var magicScribbles = hero.Spells.FirstOrDefault(s => s.Name == "Magic Scribbles");
+                if (magicScribbles == null)
+                {
+                    result.Message = $"{hero.Name} does not know the spell Magic Scribbles.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            var scroll = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Parchment");
+            if (scroll == null)
+            {
+                result.Message = $"{hero.Name} does not have a Parchment to create the scroll with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            for (int i = 0; i < Math.Min(2, scroll.Quantity); i++)
+            {
+                BackpackHelper.TakeOneItem(hero.Inventory.Backpack, scroll);
+                var rollResult = await _userRequest.RequestRollAsync("Roll arcane arts skill check.", "1d100", skill: (hero, Skill.ArcaneArts));
+                await Task.Yield();
+                var skillTarget = hero.GetSkill(Skill.ArcaneArts);
+                if (rollResult.Roll > skillTarget)
+                {
+                    result.Message += $"{hero.Name} fails to create a scroll.";
+                }
+                else
+                {
+                    var spellList = hero.Spells?.Select(s => s.Name).ToList() ?? new();
+                    var choiceRequest = await _userRequest.RequestChoiceAsync("Choose the scroll you wish to create.", spellList);
+                    await Task.Yield();
+                    var newScroll = new Equipment { Name = $"Scroll of {SpellService.GetSpellByName(choiceRequest.SelectedOption)}", Quantity = 1, Value = 100};
+                    result.Message += $"{newScroll.Name} was created!";
+                    await BackpackHelper.AddItem(hero.Inventory.Backpack, newScroll);
+                }
+            }
+            hero.HasCreatedScrolls = true;
 
             return result;
         }

@@ -538,6 +538,9 @@ namespace LoDCompanion.BackEnd.Models
         public bool ReceivedPerfectRollStat { get; set; }
         public Monster MonsterLastFought { get; set; } = new Monster();
         public bool CanCastSpell { get; set; } = false;
+        public bool CanCreateScrollEnchantItem => !HasEnchantedItem || !HasCreatedScrolls;
+        public bool HasEnchantedItem { get; set; } = false;
+        public bool HasCreatedScrolls { get; set; }
         public bool WaveringResolve => Party != null && Party.PartyManager != null && Party.PartyManager.PartyWavering;
 
         public event Func<Hero, Weapon, Task>? OnUnequipWeaponAsync;
