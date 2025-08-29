@@ -18,6 +18,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Equipment? EquippedStorage { get; set; }
         public List<Equipment> EquippedRings { get; set; } = new List<Equipment>();
         public Equipment? EquippedAmulet { get; set; }
+        public Equipment? Mount { get; set; }
 
         // Carried Items
         public List<Equipment?> Backpack { get; set; } = new List<Equipment?>();

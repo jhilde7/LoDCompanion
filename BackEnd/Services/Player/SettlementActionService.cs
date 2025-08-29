@@ -148,7 +148,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.Gamble:
                     result = await Gamble(hero, settlement, result);
                     break;
-                case SettlementActionType.HorseRacing: 
+                case SettlementActionType.HorseRacing:
+                    result = await HorseRacing(hero, settlement, result);
                     break;
                 case SettlementActionType.IdentifyMagicItem: 
                     break;
@@ -300,13 +301,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Message += $"{hero.Name} total winnings {Winnings} coin and {Experience} experience.\n";
                     if (ExtraAward != null) 
                     {
-                        var extraAwardString = string.Empty;
-                        foreach (var extraAward in ExtraAward)
-                        {
-                            if(!string.IsNullOrEmpty(extraAwardString)) extraAwardString += ", ";
-                            extraAwardString += $"{extraAward.Name}";
-                        }
-                        Message += $"The hero also received an extra award of {extraAwardString}";
+                        var extraAwardNames = string.Join(", ", ExtraAward.Select(award => award.Name));
+                        Message += $"The hero also received an extra award of {extraAwardNames}";
                     }
                 }
             }
@@ -935,6 +931,142 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.AvailableCoins -= Math.Min(100, result.AvailableCoins);
                         break;
                     default: result.Message = "You lose all your bets."; break;
+                }
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> HorseRacing(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var horseTrack = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.HorseTrack);
+            if (horseTrack == null)
+            {
+                result.Message = "There is no inn at this settlement to gamble at.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 50)
+            {
+                result.Message = $"{hero.Name} does not have enough coin to gamble with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var horse = hero.Inventory.Mount;
+            if (horse == null || !horse.Properties.ContainsKey(EquipmentProperty.Horse))
+            {
+                result.Message = $"{hero.Name} does not have a mount to race with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: 300, canCancel: true);
+            await Task.Yield();
+            if (!inputResult.WasCancelled)
+            {
+                var bet = inputResult.Amount;
+                result.AvailableCoins -= bet;
+
+                var targetStat = hero.GetStat(BasicStat.Dexterity);
+                var rollResult = await _userRequest.RequestRollAsync("Roll dexterity test.", "1d100");
+                await Task.Yield();
+                if (rollResult.Roll <= (int)Math.Floor(targetStat/2d))
+                {
+                    result.Message = $"{hero.Name} gets 1st place!";
+                    switch (hero.Level)
+                    {
+                        case 1: bet = (int)Math.Floor(bet * 3.0d); break;
+                        case 2: bet = (int)Math.Floor(bet * 2.9d); break;
+                        case 3: bet = (int)Math.Floor(bet * 2.8d); break;
+                        case 4: bet = (int)Math.Floor(bet * 2.7d); break;
+                        case 5: bet = (int)Math.Floor(bet * 2.6d); break;
+                        case 6: bet = (int)Math.Floor(bet * 2.5d); break;
+                        case 7: bet = (int)Math.Floor(bet * 2.4d); break;
+                        case 8: bet = (int)Math.Floor(bet * 2.3d); break;
+                        case 9: bet = (int)Math.Floor(bet * 2.2d); break;
+                        default: bet = (int)Math.Floor(bet * 2.1d); break;
+                    }
+                    result.Message += $" Winning {bet}";
+                    result.AvailableCoins += bet;
+                    rollResult = await _userRequest.RequestRollAsync("Roll for a chance for an extra prize.", "1d10");
+                    await Task.Yield();
+                    switch (rollResult.Roll)
+                    {
+                        case <= 2:
+                            result.FoundItems = [.. await _treasure.GetWonderfulTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        case <= 4:
+                            result.FoundItems = [.. await _treasure.GetFineTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        default:
+                            result.Message += "\nNo extra prize awarded.";
+                            break;
+                    }
+                }
+                else if (rollResult.Roll <= targetStat - 10)
+                {
+                    result.Message = $"{hero.Name} gets 2nd place!";
+                    switch (hero.Level)
+                    {
+                        case 1: bet = (int)Math.Floor(bet * 2.5d); break;
+                        case 2: bet = (int)Math.Floor(bet * 2.4d); break;
+                        case 3: bet = (int)Math.Floor(bet * 2.3d); break;
+                        case 4: bet = (int)Math.Floor(bet * 2.2d); break;
+                        case 5: bet = (int)Math.Floor(bet * 2.1d); break;
+                        case 6: bet = (int)Math.Floor(bet * 2.0d); break;
+                        case 7: bet = (int)Math.Floor(bet * 1.9d); break;
+                        case 8: bet = (int)Math.Floor(bet * 1.8d); break;
+                        case 9: bet = (int)Math.Floor(bet * 1.7d); break;
+                        default: bet = (int)Math.Floor(bet * 1.6d); break;
+                    }
+                    result.Message += $" Winning {bet}";
+                    result.AvailableCoins += bet;
+                    rollResult = await _userRequest.RequestRollAsync("Roll for a chance for an extra prize.", "1d10");
+                    await Task.Yield();
+                    switch (rollResult.Roll)
+                    {
+                        case <= 1:
+                            result.FoundItems = [.. await _treasure.GetWonderfulTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        case <= 3:
+                            result.FoundItems = [.. await _treasure.GetFineTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        default:
+                            result.Message += "\nYou did not win an extra prize.";
+                            break;
+                    }
+                }
+                else if (rollResult.Roll >= 95)
+                {
+                    result.Message = $"Catastrophe strikes! {hero.Name} and his horse crash, {hero.Name} is minorly injured but their horse has a broken leg and must be put down.";
+                    hero.Inventory.Mount = null;
+                    hero.CurrentHP -= Math.Min(RandomHelper.RollDie(DiceType.D6), hero.CurrentHP);
+                    hero.CurrentSanity -= Math.Min(1, hero.CurrentSanity);
+                }
+                else
+                {
+                    result.Message = $"{hero.Name} loses...";
                 }
             }
             return result;
