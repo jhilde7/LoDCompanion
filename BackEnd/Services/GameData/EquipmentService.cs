@@ -551,9 +551,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Name = "Horse",
                         Encumbrance = 0,
                         Durability = 6,
-                        Description = "A horse will increase the travel speed for the party if all heroes have one. See 'Travelling and Skirmishes'.",
+                        Description = "A horse will increase the travel speed for the party if all heroes have one.",
                         Value = 1000,
-                        Availability = 4
+                        Availability = 4,
+                        Properties = new() { { EquipmentProperty.Horse, 0 }, { EquipmentProperty.Mount, 0} }
                     },
                     new Equipment(){
                         Category = "Common",
@@ -562,37 +563,41 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 6,
                         Description = "A camel provides the same advantages as a horse, but with increased speed in the desert. Can only be bought in the outpost. Price and availability listed here is not changed by the Outpost modifiers.",
                         Value = 1250,
-                        Availability = 3
+                        Availability = 3,
+                        Properties = new() { { EquipmentProperty.Camel, 0 }, { EquipmentProperty.Mount, 0} }
                     },
                     new Equipment(){
                         Category = "Common",
                         Name = "Saddlebags",
                         Encumbrance = 0,
                         Durability = 6,
-                        Description = "Saddlebags will let you store 10 Encumbrance Points on your horse or camel. This equipment may be left on the mount during quests, but cannot be accessed until after the quest.",
+                        Description = "Saddlebags will let you store 10 Encumbrance Points on your horse or camel. This equipment may be left on the mount during quests, but cannot be accessed inside a dungeon or in a skirmish.",
                         Value = 250,
                         Availability = 4,
-                        Storage = new Player.Inventory()
+                        Storage = new Inventory(),
+                        Properties = new() { { EquipmentProperty.PartyEquipment, 0 }, { EquipmentProperty.Storage, 10 } }
                     },
                     new Equipment(){
                         Category = "Common",
                         Name = "Mule",
                         Encumbrance = 0,
                         Durability = 6,
-                        Description = "A mule will let you store 100 Encumbrance Points. This equipment can be left on the mule during quests, but cannot be accessed until after the dungeon.",
+                        Description = "A mule will let you store 100 Encumbrance Points. This equipment can be left on the mule during quests, but cannot be accessed inside a dungeon or in a skirmish.",
                         Value = 800,
                         Availability = 4,
-                        Storage = new Player.Inventory()
+                        Storage = new Inventory(),
+                        Properties = new() { { EquipmentProperty.PartyEquipment, 0 }, { EquipmentProperty.Storage, 100 } }
                     },
                     new Equipment(){
                         Category = "Common",
                         Name = "Wagon",
                         Encumbrance = 0,
                         Durability = 6,
-                        Description = "Requires a horse. It lets you store 500 Encumbrance Points. This equipment can be left in the wagon during quests, but cannot be accessed until after the dungeon.",
+                        Description = "Requires a horse. It lets you store 500 Encumbrance Points. This equipment can be left in the wagon during quests, but cannot be accessed inside a dungeon or in a skirmish.",
                         Value = 1500,
                         Availability = 3,
-                        Storage = new Player.Inventory()
+                        Storage = new Inventory(),
+                        Properties = new() { { EquipmentProperty.PartyEquipment, 0 }, { EquipmentProperty.Storage, 500 } }
                     },
                     new Potion(){
                         Category = "Common",
@@ -1787,6 +1792,11 @@ namespace LoDCompanion.BackEnd.Services.GameData
         Consumable,
         Restorative,
         Lockpick,
+        Horse,
+        Mount,
+        Camel,
+        PartyEquipment,
+        Storage,
     }
 
     [JsonDerivedType(typeof(Weapon), typeDiscriminator: "Weapon")]
