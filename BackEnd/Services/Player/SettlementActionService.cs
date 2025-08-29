@@ -157,9 +157,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.IdentifyPotion:
                     result = await IdentifyPotion(hero, settlement, result);
                     break;
-                case SettlementActionType.VisistInnerSanctum: 
+                case SettlementActionType.LearnSpell:
+                    result = await LearnSpell(hero, settlement, result);
                     break;
-                case SettlementActionType.LearnSpell: 
+                case SettlementActionType.LearnPrayer:
+                    result = await LearnPrayer(hero, settlement, result);
                     break;
                 case SettlementActionType.LevelUp: 
                     break;
@@ -174,6 +176,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.TreatMentalConditions: 
                     break;
                 case SettlementActionType.VisitRangersGuild: 
+                    break;
+                case SettlementActionType.VisistInnerSanctum: 
                     break;
             }
 
@@ -206,14 +210,14 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         private async Task<SettlementActionResult> ArenaFighting(Hero hero, SettlementActionResult result)
         {
-            if (hero.Coins < 50 || hero.Party.Coins < 50)
+            if (result.AvailableCoins < 50)
             {
                 result.Message = $"{hero.Name} does not have enough coin to participate";
                 result.WasSuccessful = false;
                 return result;
             }
 
-            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: 200, canCancel: true);
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: Math.Min(200, result.AvailableCoins), canCancel: true);
             if (!inputResult.WasCancelled)
             {
                 var bet = inputResult.Amount;
@@ -906,7 +910,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: 500, canCancel: true);
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: Math.Min(500, result.AvailableCoins), canCancel: true);
             await Task.Yield();
             if (!inputResult.WasCancelled)
             {
@@ -963,7 +967,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: 300, canCancel: true);
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: Math.Min(300, result.AvailableCoins), canCancel: true);
             await Task.Yield();
             if (!inputResult.WasCancelled)
             {
@@ -1156,6 +1160,159 @@ namespace LoDCompanion.BackEnd.Services.Player
                 selectedItem.Identified = true;
                 result.AvailableCoins -= 25;
                 result.Message = $"Potion identified: {selectedItem.ToString()}";
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> LearnSpell(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var wizardsGuild = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.WizardsGuild);
+            if (wizardsGuild == null)
+            {
+                result.Message = "There is no wizard's guild in this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.ProfessionName != "Wizard")
+            {
+                result.Message = $"{hero.Name} is not a Wizard and can't learn spells.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var grimoires = hero.Inventory.Backpack.Where(i => i != null && i.Name.Contains("Grimoire")).ToList();
+            bool learnFromGrimoire = false;
+            if (grimoires.Any())
+            {
+                var yesNoResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a spell from an owned Grimoire?");
+                await Task.Yield();
+                learnFromGrimoire = yesNoResult;
+                if (learnFromGrimoire)
+                {
+                    var selectedGrimoire = grimoires.FirstOrDefault();
+                    if (grimoires.Count > 1)
+                    {
+                        var grimoiresString = grimoires.Select(g => g != null ? g.Name : string.Empty).ToList();
+                        var choiceResult = await _userRequest.RequestChoiceAsync("Choose which grimoire to learn from.", grimoiresString);
+                        await Task.Yield();
+                        selectedGrimoire = grimoires.FirstOrDefault(g => g != null && g.Name == choiceResult.SelectedOption);
+                    }
+                    if (selectedGrimoire != null)
+                    {
+                        var spellName = selectedGrimoire.Name.Replace("Grimoire of ", "");
+                        var spell = SpellService.GetSpellByName(spellName); 
+                        if (hero.Spells != null && !hero.Spells.Contains(spell))
+                        {
+                            hero.Spells.Add(spell);
+                            result.Message = $"{hero.Name} now knows the spell: {spell.ToString()}.";
+                            return result;
+                        }
+                        else
+                        {
+                            result.Message = $"{hero.Name} already knows that spell.";
+                            result.WasSuccessful = false;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        learnFromGrimoire = false;
+                    }
+                }
+            }
+
+            if (!learnFromGrimoire && result.AvailableCoins < 1000)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var yesNoSpellResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a spell for 1000c and {result.ActionCost} days of time?");
+            await Task.Yield();
+            if (!yesNoSpellResult)
+            {
+                result.Message = "action was cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Spells != null)
+            {
+                var spellList = new List<Spell>();
+                var knownSpells = hero.Spells;
+                for (int level = 1; level <= hero.Level; level++)
+                {
+                    spellList.AddRange(SpellService.GetSpellsByLevel(level).Where(s => !knownSpells.Contains(s)));
+                }
+                var spellListStrings = spellList.Select(s => s.Name).ToList();
+                var choiceSpellResult = await _userRequest.RequestChoiceAsync("Choose as spell to learn.", spellListStrings);
+                await Task.Yield();
+                var spellChoice = spellList.FirstOrDefault(s => s.Name == choiceSpellResult.SelectedOption);
+                if (spellChoice != null)
+                {
+                    result.AvailableCoins -= 1000;
+                    hero.Spells.Add(spellChoice);
+                    result.Message = $"{hero.Name} now knows the spell: {spellChoice.ToString()}.";
+                    return result; 
+                }
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> LearnPrayer(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var innerSanctum = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.InnerSanctum);
+            if (innerSanctum == null)
+            {
+                result.Message = "There is no Inner Sanctum in this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 1000)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.ProfessionName != "Warrior Priest")
+            {
+                result.Message = $"{hero.Name} is not a Warrior Priest and can't learn prayers.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var yesNoSpellResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a prayer for 1000c and {result.ActionCost} days of time?");
+            await Task.Yield();
+            if (!yesNoSpellResult)
+            {
+                result.Message = "action was cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Prayers != null)
+            {
+                var prayerList = new List<Prayer>();
+                var knownPrayers = hero.Prayers;
+                for (int level = 1; level <= hero.Level; level++)
+                {
+                    prayerList.AddRange(PrayerService.GetPrayersByLevel(level).Where(s => !knownPrayers.Contains(s)));
+                }
+                var prayerListStrings = prayerList.Select(s => s.Name.ToString()).ToList();
+                var choicePrayerResult = await _userRequest.RequestChoiceAsync("Choose as prayer to learn.", prayerListStrings);
+                await Task.Yield();
+                var prayerChoice = prayerList.FirstOrDefault(s => s.Name.ToString() == choicePrayerResult.SelectedOption);
+                if (prayerChoice != null)
+                {
+                    result.AvailableCoins -= 1000;
+                    hero.Prayers.Add(prayerChoice);
+                    result.Message = $"{hero.Name} now knows the prayer: {prayerChoice.ToString()}.";
+                    return result;
+                }
             }
             return result;
         }
