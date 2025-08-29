@@ -174,7 +174,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         ShortageOfGoods,
         Curse,
         FastReload,
-        StoneOfPartyMorale
+        StoneOfPartyMorale,
+        Precognition,
+        GamblingLuck
     }
 
     /// <summary>

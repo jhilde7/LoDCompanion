@@ -71,13 +71,16 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         private readonly UserRequestService _userRequest;
         private readonly TreasureService _treasure;
+        private readonly PowerActivationService _powerActivation;
 
         public SettlementActionService(
             UserRequestService userRequestService,
-            TreasureService treasureService)
+            TreasureService treasureService,
+            PowerActivationService powerActivationService)
         {
             _userRequest = userRequestService;
             _treasure = treasureService;
+            _powerActivation = powerActivationService;
         }
 
         public async Task<SettlementActionResult> PerformSettlementActionAsync(Hero hero, SettlementActionType action, Settlement settlement)
@@ -139,9 +142,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.EnchantObjects: 
                     result = await EnchantItemAsync(hero, settlement, result);
                     break;
-                case SettlementActionType.Gamble: 
+                case SettlementActionType.ReadFortune:
+                    result = await ReadFortune(hero, settlement, result);
                     break;
-                case SettlementActionType.VisitRangersGuild: 
+                case SettlementActionType.Gamble:
+                    result = await Gamble(hero, settlement, result);
                     break;
                 case SettlementActionType.HorseRacing: 
                     break;
@@ -157,8 +162,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case SettlementActionType.Pray: 
                     break;
-                case SettlementActionType.ReadFortune: 
-                    break;
                 case SettlementActionType.RestRecuperation: 
                     break;
                 case SettlementActionType.SkillTraining: 
@@ -166,6 +169,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.TendThoseMemories: 
                     break;
                 case SettlementActionType.TreatMentalConditions: 
+                    break;
+                case SettlementActionType.VisitRangersGuild: 
                     break;
             }
 
@@ -205,19 +210,22 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: 200);
-            var bet = inputResult.Amount;
-            var arena = new ArenaFight(bet, _treasure);
-            while (!arena.IsComplete)
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: 200, canCancel: true);
+            if (!inputResult.WasCancelled)
             {
-                var rollRequest = await _userRequest.RequestRollAsync($"Roll combat skill to compete in bout: {arena.Bout}", "1d100");
-                await arena.StartBoutAsync(rollRequest.Roll, hero);
+                var bet = inputResult.Amount;
+                var arena = new ArenaFight(bet, _treasure);
+                while (!arena.IsComplete)
+                {
+                    var rollRequest = await _userRequest.RequestRollAsync($"Roll combat skill to compete in bout: {arena.Bout}", "1d100");
+                    await arena.StartBoutAsync(rollRequest.Roll, hero);
+                }
+                result.ArenaWinnings = arena.Winnings;
+                result.FoundItems = arena.ExtraAward;
+                result.Message = arena.Message;
+                hero.Party.Coins += arena.Winnings;
+                hero.GainExperience(arena.Experience); 
             }
-            result.ArenaWinnings = arena.Winnings;
-            result.FoundItems = arena.ExtraAward;
-            result.Message = arena.Message;
-            hero.Party.Coins += arena.Winnings;
-            hero.GainExperience(arena.Experience);
             return result;
         }
 
@@ -420,7 +428,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         switch (actionChoice.SelectedOption)
                         {
                             case "Deposit coins.":
-                                var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0);
+                                var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0, canCancel: true);
                                 if (!depositResult.WasCancelled)
                                 {
                                     if (result.AvailableCoins >= depositResult.Amount)
@@ -431,7 +439,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 }
                                 break;
                             case "Withdraw coins.":
-                                var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?", min: 0, max: currentBank.AccountBalance);
+                                var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?", min: 0, max: currentBank.AccountBalance, canCancel: true);
                                 if (!withdrawResult.WasCancelled)
                                 {
                                     var amountWithdrawn = await currentBank.WithdrawAsync(withdrawResult.Amount);
@@ -838,6 +846,97 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
             hero.HasCreatedScrolls = true;
 
+            return result;
+        }
+
+        private async Task<SettlementActionResult> ReadFortune(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var fortuneTeller = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.FortuneTeller);
+            if (fortuneTeller == null)
+            {
+                result.Message = "There is no fortune teller at this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 50)
+            {
+                result.Message = $"{hero.Name} does not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            result.AvailableCoins -= 50;
+            var rollResult = await _userRequest.RequestRollAsync("Roll for your fortune", "1d6");
+            await Task.Yield();
+            switch (rollResult.Roll)
+            {
+                case 1: 
+                    result.Message = "The Fortune Teller describes an upcoming battle in such detail that during the next quest, the hero recognizes the situation and manages to avoid harm." +
+                        " The hero may treat one successful attack against them as a miss during the next quest.";
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Precognition, -1), _powerActivation); 
+                    break;
+                case 2: 
+                    result.Message = "The Fortune Teller talks about great fortune being made through gambling. The hero has enhanced luck at a gambling dice roll during this stay in the city.";
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.GamblingLuck, -1), _powerActivation);
+                    break;
+                case 6: 
+                    result.Message = "You are cursed! The Fortune Teller staggers back in shock after reading the hero's palm. The hero will suffer a curse during the next quest.";
+                    var curseEffect = StatusEffectService.GetRandomCurseEffect();
+                    curseEffect.RemoveEndOfDungeon = true;
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, curseEffect, _powerActivation);
+                    break;
+                default: result.Message = "The Fortune Teller talks about lots of things, nut nothing that is of any importance."; break;
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> Gamble(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var inn = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Inn);
+            if (inn == null)
+            {
+                result.Message = "There is no inn at this settlement to gamble at.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 50)
+            {
+                result.Message = $"{hero.Name} does not have enough coin to gamble with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: 500, canCancel: true);
+            await Task.Yield();
+            if (!inputResult.WasCancelled)
+            {
+                var bet = inputResult.Amount;
+                result.AvailableCoins -= bet;
+                var luck = hero.GetStat(BasicStat.Luck);
+                var rollResult = await _userRequest.RequestRollAsync("Roll gambling result.", "1d10");
+                await Task.Yield();
+                if (rollResult.Roll < 10) rollResult.Roll -= luck;
+                switch (rollResult.Roll)
+                {
+                    case <= 1:
+                        bet *= 2;
+                        result.Message = $"Jackpot! You won {bet}";
+                        result.AvailableCoins += bet;
+                        break;
+                    case <= 3:
+                        bet = (int)Math.Ceiling(bet * 1.5);
+                        result.Message = $"Win! You won {bet}";
+                        result.AvailableCoins += bet;
+                        break;
+                    case 10:
+                        result.Message = $"The others around the table are certain {hero.Name} has cheated, and they end up getting a good beting and are robbed of 100c on top of their bet.";
+                        result.AvailableCoins -= Math.Min(100, result.AvailableCoins);
+                        break;
+                    default: result.Message = "You lose all your bets."; break;
+                }
+            }
             return result;
         }
 
