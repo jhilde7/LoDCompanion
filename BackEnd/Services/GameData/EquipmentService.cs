@@ -439,7 +439,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     },
                     new Equipment(){
                         Category = "Common",
-                        Name = "Necklace",
+                        Name = "Amulet",
                         Encumbrance = 0,
                         Durability = 6,
                         Description = "Can be enchanted.",
@@ -1826,7 +1826,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public bool Identified { get; set; } = true;
         public bool IdentifyAttempted { get; set; } = false;
         public bool AttemptedToIdentify { get; set; } = false;
-        public List<ActiveStatusEffect>? ActiveStatusEffect { get; set; }
+        public List<ActiveStatusEffect>? ActiveStatusEffects { get; set; }
 
         public Action<Equipment>? OnEquipmentDestroyed;
 
@@ -1948,6 +1948,21 @@ namespace LoDCompanion.BackEnd.Services.GameData
             Durability = damageRepaired;
             return damageRepaired;
         }
+    }
+
+    public enum PowerStoneEffectItem
+    {
+        Weapon,
+        ArmourShield,
+        RingAmulet
+    }
+
+    public class PowerStone : Equipment
+    {
+        public PowerStoneEffectItem ItemToEnchant { get; set; }
+        public int ValueModifier { get; set; } = 3;
+        public Dictionary<WeaponProperty, int>? WeaponProperties { get; set; }
+        public int DefenseBonus { get; set; }
     }
 
     public enum AmmoType
@@ -2441,7 +2456,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         DarkAsTheNight,
         DragonScale,
         Dog,
-        Magic
+        Magic,
+        DefBonus
     }
 
     public class Armour : Equipment
