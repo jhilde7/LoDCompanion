@@ -172,7 +172,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Sale,
         FreshStocks,
         ShortageOfGoods,
-        Curse
+        Curse,
+        FastReload,
+        StoneOfPartyMorale
     }
 
     /// <summary>
