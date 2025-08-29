@@ -151,9 +151,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.HorseRacing:
                     result = await HorseRacing(hero, settlement, result);
                     break;
-                case SettlementActionType.IdentifyMagicItem: 
+                case SettlementActionType.IdentifyMagicItem:
+                    result = await IdentifyMagicItem(hero, settlement, result);
                     break;
-                case SettlementActionType.IdentifyPotion: 
+                case SettlementActionType.IdentifyPotion:
+                    result = await IdentifyPotion(hero, settlement, result);
                     break;
                 case SettlementActionType.VisistInnerSanctum: 
                     break;
@@ -1068,6 +1070,92 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     result.Message = $"{hero.Name} loses...";
                 }
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> IdentifyMagicItem(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var scryer = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Scryer || s.Name == SettlementServiceName.WizardsGuild);
+            if (scryer == null)
+            {
+                result.Message = "There is no scryer or wizard's guild in this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 300)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var unidentifiedItems = hero.Inventory.Backpack.Where(i => i != null && i is not Potion && !i.Identified).ToList();
+            if (!unidentifiedItems.Any())
+            {
+                result.Message = $"{hero.Name} deos not have any non-potion items in need of identification.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var selectedItem = unidentifiedItems.First();
+            if (unidentifiedItems.Count > 1)
+            {
+                var itemsListString = unidentifiedItems.Select(i => i != null ? i.Name : string.Empty).ToList();
+                var choiceResult = await _userRequest.RequestChoiceAsync("Choose item to identify.", itemsListString);
+                await Task.Yield();
+                selectedItem = unidentifiedItems.FirstOrDefault(i => i?.Name == choiceResult.SelectedOption);
+            }
+
+            if (selectedItem != null) 
+            {
+                selectedItem.Identified = true;
+                result.AvailableCoins -= 300;
+                result.Message = $"Item identified: {selectedItem.ToString()}";
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> IdentifyPotion(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var scryer = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.GeneralStore || s.Name == SettlementServiceName.AlchemistGuild);
+            if (scryer == null)
+            {
+                result.Message = "There is no general store or alchemist guild in this settlement";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 25)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var unidentifiedItems = hero.Inventory.Backpack.Where(i => i != null && i is Potion && !i.Identified).ToList();
+            if (!unidentifiedItems.Any())
+            {
+                result.Message = $"{hero.Name} deos not have any potions in need of identification.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var selectedItem = unidentifiedItems.First();
+            if (unidentifiedItems.Count > 1)
+            {
+                var itemsListString = unidentifiedItems.Select(i => i != null ? i.Name : string.Empty).ToList();
+                var choiceResult = await _userRequest.RequestChoiceAsync("Choose potion to identify.", itemsListString);
+                await Task.Yield();
+                selectedItem = unidentifiedItems.FirstOrDefault(i => i?.Name == choiceResult.SelectedOption);
+            }
+
+            if (selectedItem != null)
+            {
+                selectedItem.Identified = true;
+                result.AvailableCoins -= 25;
+                result.Message = $"Potion identified: {selectedItem.ToString()}";
             }
             return result;
         }
