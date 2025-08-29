@@ -72,15 +72,20 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly UserRequestService _userRequest;
         private readonly TreasureService _treasure;
         private readonly PowerActivationService _powerActivation;
+        private readonly LevelupService _levelUp;
+        
+        public event Func<Hero, int, Task<string>>? OnLevelup;
 
         public SettlementActionService(
             UserRequestService userRequestService,
             TreasureService treasureService,
-            PowerActivationService powerActivationService)
+            PowerActivationService powerActivationService,
+            LevelupService levelupService)
         {
             _userRequest = userRequestService;
             _treasure = treasureService;
             _powerActivation = powerActivationService;
+            _levelUp = levelupService;
         }
 
         public async Task<SettlementActionResult> PerformSettlementActionAsync(Hero hero, SettlementActionType action, Settlement settlement)
@@ -163,7 +168,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.LearnPrayer:
                     result = await LearnPrayer(hero, settlement, result);
                     break;
-                case SettlementActionType.LevelUp: 
+                case SettlementActionType.LevelUp:
+                    result = await LevelupHero(hero, result);
                     break;
                 case SettlementActionType.Pray: 
                     break;
@@ -174,6 +180,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.TendThoseMemories: 
                     break;
                 case SettlementActionType.TreatMentalConditions: 
+                    break;
+                case SettlementActionType.VisitTheDarkGuild:
+                    break;
+                case SettlementActionType.VisitFightersGuild:
+                    break;
+                case SettlementActionType.VisitWizardsGuild:
+                    break;
+                case SettlementActionType.VisitAlchemistGuild:
                     break;
                 case SettlementActionType.VisitRangersGuild: 
                     break;
@@ -1313,6 +1327,56 @@ namespace LoDCompanion.BackEnd.Services.Player
                     result.Message = $"{hero.Name} now knows the prayer: {prayerChoice.ToString()}.";
                     return result;
                 }
+            }
+            return result;
+        }
+
+        private async Task<SettlementActionResult> LevelupHero(Hero hero, SettlementActionResult result)
+        {
+            if (hero.Experience < hero.XPtoLVL)
+            {
+                result.Message = $"{hero.Name} does not have enough experience to level up.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            while (hero.Experience >= hero.XPtoLVL)
+            {
+                _levelUp.LevelUp(hero);
+                result.Message += $"\n{hero.Name} gained a level.";
+
+                var availablePerkList = _levelUp.GetPerkCategoryAtLevelup(hero.ProfessionName, hero.Level)?.Where(p => !hero.Perks.Contains(p));
+                if (availablePerkList != null && availablePerkList.Any())
+                {
+                    var perkNameList = availablePerkList.Select(p => p.Name.ToString()).ToList();
+                    var perkChoiceRequest = await _userRequest.RequestChoiceAsync("Choose a perk.", perkNameList);
+                    await Task.Yield();
+                    var selectedPerk = availablePerkList.FirstOrDefault(p => p.Name.ToString() == perkChoiceRequest.SelectedOption);
+
+                    if (selectedPerk != null)
+                    {
+                        _levelUp.AttemptToSelectPerk(hero, hero.Levelup, selectedPerk, out string error);
+                        result.Message += $"\n{hero.Name} can now use: {selectedPerk.ToString()}";
+                    }
+                }
+
+                var availableTalentsList = _levelUp.GetTalentCategoryAtLevelup(hero.ProfessionName, hero.Level);
+                if (availableTalentsList != null && availableTalentsList.Any())
+                {
+                    var talentNameList = availableTalentsList.Select(t => t.Name.ToString()).ToList();
+                    var talentChoiceRequest = await _userRequest.RequestChoiceAsync("Choose a talent.", talentNameList);
+                    await Task.Yield();
+                    var selectedTalent = availableTalentsList.FirstOrDefault(t => t.Name.ToString() == talentChoiceRequest.SelectedOption);
+
+                    if (selectedTalent != null)
+                    {
+                        _levelUp.AttemptToSelectTalent(hero, hero.Levelup, selectedTalent, out string error);
+                        result.Message += $"\n{hero.Name} can now use: {selectedTalent.ToString()}";
+                    }
+                }
+
+                var imporvementPoints = hero.Levelup.ImprovementPoints;
+                if (OnLevelup != null) result.Message += $"\n{await OnLevelup.Invoke(hero, imporvementPoints)}";
             }
             return result;
         }

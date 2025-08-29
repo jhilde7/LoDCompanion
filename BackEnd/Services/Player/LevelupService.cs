@@ -32,6 +32,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// The Perk chosen during this level-up, if applicable.
         /// </summary>
         public Perk? SelectedPerk { get; set; }
+
+        public Levelup() { }
     }
 
     public class LevelupService
@@ -50,9 +52,12 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// </summary>
         public void LevelUp(Hero hero)
         {
-            int previousLevelPoints = hero.Levelup.ImprovementPoints;
-
-            hero.Levelup = new Levelup() { ImprovementPoints = 15 + previousLevelPoints };
+            if (hero.Level < hero.MaxLevel)
+            {
+                int previousLevelPoints = hero.Levelup.ImprovementPoints;
+                hero.Levelup = new Levelup() { ImprovementPoints = 15 + previousLevelPoints };
+                hero.Level++; 
+            }
         }
 
         /// <summary>
@@ -160,6 +165,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return false;
             }
 
+            hero.Talents.Add(talent);
             session.SelectedTalent = talent;
             errorMessage = string.Empty;
             return true;
@@ -177,6 +183,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return false;
             }
 
+            hero.Perks.Add(perk);
             session.SelectedPerk = perk;
             errorMessage = string.Empty;
             return true;
@@ -268,8 +275,10 @@ namespace LoDCompanion.BackEnd.Services.Player
             };
         }
 
-        public List<Talent> GetTalentCategoryAtLevelup(Profession profession, int level)
+        public List<Talent>? GetTalentCategoryAtLevelup(string professionName, int level)
         {
+            var profession = _gameData.Professions.FirstOrDefault(p => p.Name == professionName);
+            if (profession == null) return null;
 
             switch (profession.Name)
             {
@@ -362,8 +371,10 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
 
-        public List<Perk>? GetPerkCategoryAtLevelup(Profession profession, int level)
+        public List<Perk>? GetPerkCategoryAtLevelup(string professionName, int level)
         {
+            var profession = _gameData.Professions.FirstOrDefault(p => p.Name == professionName);
+            if (profession == null) return null;
             switch (profession.Name)
             {
                 case "Alchemist":

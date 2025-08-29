@@ -506,7 +506,7 @@ namespace LoDCompanion.BackEnd.Models
         public int? CurrentMana { get; set; }
         public int CurrentSanity { get; set; } = 10;
         public int Level { get; set; } = 1;
-        private int MaxLevel { get; set; } = 10;
+        public int MaxLevel { get; set; } = 10;
         public int Experience { get; set; }
         public int XPtoLVL => RequiredXPbyLVL(Level);
 
