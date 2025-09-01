@@ -181,9 +181,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return masterItem != null ? masterItem.Clone() : null;
         }
 
-        public static List<Equipment> GetShopInventory(bool useAvailability = false, int availabilityModifier = 0)
+        public static List<Equipment> GetShopCommonInventory()
         {
-            List<Equipment> list = [
+            return [
                 .. Equipment.Where(x => x.Category == "Common"),
                 .. Weapons.Where(x => x.Category == "Common"),
                 .. Ammo.Where(x => x.Category == "Common"),
@@ -191,43 +191,63 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 .. Shields.Where(x => x.Category == "Common"),
                 .. AlchemyService.Potions.Where(x => x.Category == "Common")
             ];
-            if (useAvailability)
-            {
-                var itemsToRemove = new List<Equipment>();
-                foreach (var item in list)
-                {
-                    // Apply availability modifier
-                    int finalAvailability = item.Availability + availabilityModifier;
-
-                    // Handle auto-stock and out-of-stock rules
-                    if (finalAvailability >= 6)
-                    {
-                        continue; // Item is automatically in stock
-                    }
-                    if (finalAvailability <= 0)
-                    {
-                        itemsToRemove.Add(item); // Item is automatically out of stock
-                        continue;
-                    }
-
-                    var roll = RandomHelper.RollDie(DiceType.D6);
-                    if (roll > finalAvailability)
-                    {
-                        itemsToRemove.Add(item);
-                    }
-                }
-                itemsToRemove.ForEach(item => list.Remove(item));
-                return list;
-            }
-            else
-            {
-                return list;
-            }
         }
 
-        public static List<Equipment> GetShopInventoryByCategory(ShopCategory category, int availabilityModifier = 0)
+        public static List<Equipment> GetShopInventoryByServiceName(SettlementServiceName name, int availabilityModifier = 0)
         {
-            return GetShopInventory(useAvailability: true, availabilityModifier).Where(i => i.Shop == category).ToList();
+            List<Equipment> list = [
+                .. Equipment,
+                .. Weapons,
+                .. Ammo,
+                .. Armour,
+                .. Shields,
+                .. AlchemyService.Potions
+            ];
+
+            return name switch
+            {
+                SettlementServiceName.TheDarkGuild => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "The Dark Guild").ToList()),
+                SettlementServiceName.FightersGuild => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Fighters Guild").ToList()),
+                SettlementServiceName.WizardsGuild => GetEquipmentWithAvailability(availabilityModifier, [.. MagicStaves]),
+                SettlementServiceName.AlchemistGuild => GetEquipmentWithAvailability(availabilityModifier, [.. AlchemyService.GetShopPotions(), .. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]),
+                SettlementServiceName.MagicBrewery => GetEquipmentWithAvailability(availabilityModifier, [.. AlchemyService.GetShopPotions()]),
+                SettlementServiceName.Herbalist => GetEquipmentWithAvailability(availabilityModifier, [.. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]),
+                SettlementServiceName.RangersGuild => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Rangers Guild").ToList()),
+                SettlementServiceName.TheInnerSanctum => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "The Inner Sanctum").ToList()),
+                SettlementServiceName.Blacksmith => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && (i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
+                SettlementServiceName.GeneralStore => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
+                SettlementServiceName.MervinsMagicalOddities => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
+                _ => new()
+            };
+        }
+
+        private static List<Equipment> GetEquipmentWithAvailability(int availabilityModifier, List<Equipment> list)
+        {
+            var itemsToRemove = new List<Equipment>();
+            foreach (var item in list)
+            {
+                // Apply availability modifier
+                int finalAvailability = item.Availability + availabilityModifier;
+
+                // Handle auto-stock and out-of-stock rules
+                if (finalAvailability >= 6)
+                {
+                    continue; // Item is automatically in stock
+                }
+                if (finalAvailability <= 0)
+                {
+                    itemsToRemove.Add(item); // Item is automatically out of stock
+                    continue;
+                }
+
+                var roll = RandomHelper.RollDie(DiceType.D6);
+                if (roll > finalAvailability)
+                {
+                    itemsToRemove.Add(item);
+                }
+            }
+            itemsToRemove.ForEach(item => list.Remove(item));
+            return list;
         }
 
         public static List<Equipment> GetEquipment()
@@ -610,7 +630,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         PotionProperties = new Dictionary<PotionProperty, int>() { {PotionProperty.Throwable, 0 }, { PotionProperty.HolyDamage, 3 }, { PotionProperty.AmmoCoating, 5 } }
                     },
                     new Equipment(){
-                        Category = "Dark Guild",
+                        Category = "The Dark Guild",
                         Name = "Bear Trap",
                         Encumbrance = 5,
                         Durability = 2,
@@ -619,7 +639,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Availability = -1
                     },
                     new Equipment(){
-                        Category = "Dark Guild",
+                        Category = "The Dark Guild",
                         Name = "Caltrops Trap",
                         Encumbrance = 0,
                         Durability = 1,
@@ -628,7 +648,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Availability = -1
                     },
                     new Equipment(){
-                        Category = "Dark Guild",
+                        Category = "The Dark Guild",
                         Name = "Door Mirror",
                         Encumbrance = 0,
                         Durability = 1,
@@ -637,7 +657,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Availability = -1
                     },
                     new Equipment(){
-                        Category = "Dark Guild",
+                        Category = "The Dark Guild",
                         Name = "Superior Lock Picks",
                         Quantity = 5,
                         Encumbrance = 0,
@@ -647,7 +667,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Availability = -1
                     },
                     new Equipment(){
-                        Category = "Dark Guild",
+                        Category = "The Dark Guild",
                         Name = "Superior Trap Disarming Kit",
                         Encumbrance = 4,
                         Durability = 6,
@@ -656,7 +676,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Availability = -1
                     },
                     new Equipment(){
-                        Category = "Dark Guild",
+                        Category = "The Dark Guild",
                         Name = "Tripwire with Darts Trap",
                         Encumbrance = 2,
                         Durability = 1,
@@ -792,7 +812,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     AmmoType = AmmoType.Bolt
                   },
                   new Ammo(){
-                    Category = "Dark Guild",
+                    Category = "The Dark Guild",
                     Shop = ShopCategory.Weapons,
                     Name = "Superior Sling Stone",
                     MaxDurability = 1,
@@ -1601,31 +1621,31 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 // --- DARK GUILD ARMOUR ---
                 new Armour()
                 {
-                    Category = "Dark Guild",
+                    Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild",
+                    Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild",
+                    Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild",
+                    Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
                 },
                 new Armour()
                 {
-                    Category = "Dark Guild",
+                    Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
                     Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 } }
                 },
