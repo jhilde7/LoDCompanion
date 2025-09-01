@@ -177,10 +177,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.RestRecuperation:
                     result = await RestRecuperation(hero.Party, settlement, result);
                     break;
-                case SettlementActionType.SkillTraining: 
-                    break;
-                case SettlementActionType.TendThoseMemories: 
-                    break;
                 case SettlementActionType.TreatMentalConditions: 
                     break;
                 case SettlementActionType.VisitTheDarkGuild:
@@ -1305,27 +1301,109 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             var estate = settlement.State.Estate;
-            if (estate == null && result.AvailableCoins < inn.Price)
+            //The party owns an estate in this settlement (free stay)
+            if (estate != null)
             {
-                if (result.AvailableCoins < inn.SleepInStablesPrice)
+                result.Message = "The party rests comfortably in their estate.";
+                result.AvailableCoins = await PerformRest(party, 0, result.AvailableCoins, false); // Free rest, not in stables
+                return result;
+            }
+
+            // The party can afford the inn
+            if (result.AvailableCoins >= inn.Price)
+            {
+                var stayAtInn = await _userRequest.RequestYesNoChoiceAsync($"A room at the inn costs {inn.Price} coins. Would you like to stay the night?");
+                if (stayAtInn)
                 {
-                    result.Message = "You do not have enough coin to stay at the Inn, even the stables";
-                    result.WasSuccessful = false;
+                    result.Message = "The party enjoys a comfortable night at the inn.";
+                    result.AvailableCoins = await PerformRest(party, inn.Price, result.AvailableCoins, false);
                     return result;
                 }
                 else
                 {
-                    var sleepInStables = await _userRequest.RequestYesNoChoiceAsync($"You do not have enough coin to stay at the Inn, but the stables are avilable for {inn.SleepInStablesPrice} coin. Sleep in stables?");
-                    if (sleepInStables)
-                    {
+                    result.Message = "The party decides not to rest at the inn.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
 
+            // The party cannot afford the inn, but might afford the stables
+            if (result.AvailableCoins < inn.SleepInStablesPrice)
+            {
+                result.Message = "You do not have enough coin to stay at the Inn, not even in the stables.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            else
+            {
+                var sleepInStables = await _userRequest.RequestYesNoChoiceAsync($"You cannot afford a room ({inn.Price}c), but the stables are available for {inn.SleepInStablesPrice} coin. Sleep in the stables?");
+                if (sleepInStables)
+                {
+                    result.Message = "The party rests in the stables.";
+                    result.AvailableCoins = await PerformRest(party, inn.SleepInStablesPrice, result.AvailableCoins, true);
+                }
+                else
+                {
+                    result.Message = "The party chooses not to sleep in the stables.";
+                    result.WasSuccessful = false;
+                }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Handles the actual process of resting, applying HP/Energy/Sanity restoration and deducting cost.
+        /// </summary>
+        private async Task<int> PerformRest(Party party, int cost, int availableCoin, bool isStables)
+        {
+            // Deduct cost from party funds
+            availableCoin -= cost;
+
+            foreach (var hero in party.Heroes)
+            {
+                if (isStables)
+                {
+                    // Rules for sleeping in the stables
+                    hero.Heal(RandomHelper.RollDie(DiceType.D6));
+                    int missingEnergy = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
+                    int missingluck = hero.GetStat(BasicStat.Luck) - hero.CurrentLuck;
+                    hero.CurrentEnergy = Math.Min((int)Math.Floor(hero.GetStat(BasicStat.Energy) / 2.0), missingEnergy);
+                    hero.CurrentLuck = Math.Min((int)Math.Floor(hero.GetStat(BasicStat.Luck) / 2.0), missingluck);
+
+                    if (hero.CurrentMana.HasValue)
+                    {
+                        int missingMana = hero.GetStat(BasicStat.Wisdom) - hero.CurrentMana.Value;
+                        hero.CurrentMana = Math.Min((int)Math.Floor(hero.GetStat(BasicStat.Wisdom) / 2.0), missingMana); 
                     }
-                    else
+                }
+                else
+                {
+                    // Rules for sleeping in the inn
+                    hero.Heal(RandomHelper.RollDice("2d6"));
+                    hero.CurrentEnergy = hero.GetStat(BasicStat.Energy);
+                    hero.CurrentLuck = hero.GetStat(BasicStat.Luck);
+                    if (hero.CurrentMana.HasValue)
                     {
+                        hero.CurrentMana = hero.GetStat(BasicStat.Wisdom);
+                    }
 
+                    // Tending to memories (Sanity)
+                    var missingSanity = hero.GetStat(BasicStat.Sanity) - hero.CurrentSanity;
+                    hero.CurrentSanity += Math.Min(RandomHelper.RollDie(DiceType.D3), missingSanity);
+
+                    missingSanity = hero.GetStat(BasicStat.Sanity) - hero.CurrentSanity;
+                    int sanityCost = RandomHelper.RollDie(DiceType.D3) * 100;
+                    if (missingSanity > 0 && await _userRequest.RequestYesNoChoiceAsync($"{hero.Name} has {missingSanity} sanity left to heal. Do they wish to drown their memories in ale or other pleasures at the cost of {sanityCost}, in an attempt to regain some sanity?"))
+                    {
+                        if (availableCoin >= sanityCost)
+                        {
+                            availableCoin -= sanityCost;
+                            hero.CurrentSanity += Math.Min(RandomHelper.RollDie(DiceType.D6), missingSanity);
+                        }
                     }
                 }
             }
+            return availableCoin;
         }
 
         public int SettlementActionCost(SettlementActionType action)
