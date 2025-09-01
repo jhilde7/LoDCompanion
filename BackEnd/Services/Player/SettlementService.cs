@@ -1,6 +1,8 @@
 ﻿using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Threading.Tasks;
 using static LoDCompanion.BackEnd.Services.Player.ServiceLocation;
@@ -77,14 +79,6 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<SettlementActionType> AvailableActions { get; set; } = new List<SettlementActionType>();
         public string? SpecialRules { get; set; }
 
-        public class ShopSpecial
-        {
-            public string ItemName { get; set; } = string.Empty;
-            public int? Price { get; set; }
-            public int? Availability { get; set; }
-
-            public ShopSpecial() { }
-        }
     }
 
     public class Settlement
@@ -97,7 +91,6 @@ namespace LoDCompanion.BackEnd.Services.Player
         public string QuestDice { get; set; } = string.Empty;
         public QuestColor QuestColor { get; set; }
         public int RejectedQuests { get; set; }
-        public int InnPrice { get; set; }
         public string? SpecialRules { get; internal set; }
     }
 
@@ -107,10 +100,28 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Dictionary<Hero, int> HeroActionPoints { get; set; } = new Dictionary<Hero, int>();
         public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
+        public Inn? Inn { get; set; }
         public GeneralStore? GeneralStore { get; set; }
         public BlackSmith? BlackSmith { get; set; }
+        public Arena? Arena { get; set; }
         public List<Bank>? Banks { get; set; }
         public List<Temple>? Temples { get; set; }
+        public Estate? Estate { get; set; }
+    }
+
+    public class Inn
+    {
+        public int Price { get; set; }
+        public int SleepInStablesPrice => (int)Math.Floor(Price / 2d);
+    }
+
+    public class ShopSpecial
+    {
+        public string ItemName { get; set; } = string.Empty;
+        public int? Price { get; set; }
+        public int? Availability { get; set; }
+
+        public ShopSpecial() { }
     }
 
     public class BlackSmith
@@ -129,6 +140,175 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int EquipmentAvailabilityModifier { get; set; }
         public double EquipmentPriceModifier { get; set; } = 1d;
         public List<ShopSpecial>? ShopSpecials { get; set; }
+    }
+
+    public class Arena
+    {
+        public enum ArenaBout
+        {
+            Group,
+            SemiFinal,
+            Final
+        }
+
+        private readonly TreasureService _treasure;
+        public string Message { get; set; } = string.Empty;
+        public int EntryFee { get; set; }
+        public ArenaBout Bout { get; set; } = ArenaBout.Group;
+        public int Winnings { get; set; }
+        public int Experience { get; set; }
+        public bool IsComplete { get; set; }
+        public List<Equipment>? ExtraAward { get; set; }
+
+        public Arena(int entryFee, TreasureService treasureService)
+        {
+            EntryFee = entryFee;
+            _treasure = treasureService;
+        }
+
+        public async Task StartBoutAsync(int rollAttempt, Hero hero)
+        {
+            int modifier = GetArenaModifier(hero);
+            var combatSkill = hero.GetSkill(Skill.CombatSkill);
+            combatSkill += modifier;
+            if (rollAttempt < combatSkill)
+            {
+                Winnings = ArenaWinnings(Bout, hero);
+                Experience = ArenaExperience(Bout);
+                switch (Bout)
+                {
+                    case ArenaBout.Group: Bout = ArenaBout.SemiFinal; break;
+                    case ArenaBout.SemiFinal: Bout = ArenaBout.Final; break;
+                    case ArenaBout.Final:
+                        IsComplete = true;
+                        var roll = RandomHelper.RollDie(DiceType.D10);
+                        switch (roll)
+                        {
+                            case 1: ExtraAward = await _treasure.FoundTreasureAsync(TreasureType.Wonderful, 1); break;
+                            case <= 4: ExtraAward = await _treasure.FoundTreasureAsync(TreasureType.Fine, 1); break;
+                            default: break;
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                IsComplete = true;
+                int hpLoss = 0;
+                switch (Bout)
+                {
+                    case ArenaBout.Group: hpLoss = 2; break;
+                    case ArenaBout.SemiFinal: hpLoss = 4; break;
+                    case ArenaBout.Final: hpLoss = 6; break;
+                }
+                hpLoss = Math.Min(hpLoss, hero.CurrentHP);
+                hero.CurrentHP -= hpLoss;
+                var sanityLoss = Math.Min(2, hero.CurrentSanity);
+                hero.CurrentSanity -= sanityLoss;
+                Message += $"{hero.Name} lost the {Bout} bout. {hero.Name} takes {hpLoss} health damage and loses {sanityLoss} sanity.\n";
+            }
+
+            if (IsComplete)
+            {
+                Message += $"{hero.Name} total winnings {Winnings} coin and {Experience} experience.\n";
+                if (ExtraAward != null)
+                {
+                    var extraAwardNames = string.Join(", ", ExtraAward.Select(award => award.Name));
+                    Message += $"The hero also received an extra award of {extraAwardNames}";
+                }
+            }
+        }
+
+        private int ArenaExperience(ArenaBout bout)
+        {
+            switch (bout)
+            {
+                case ArenaBout.Group: return 50;
+                case ArenaBout.SemiFinal: return 100;
+                case ArenaBout.Final: return 150;
+                default: return 0;
+            }
+        }
+
+        private int ArenaWinnings(ArenaBout bout, Hero hero)
+        {
+            double multiplier = 1;
+            switch (bout)
+            {
+                case ArenaBout.Group:
+                    switch (hero.Level)
+                    {
+                        case 1: multiplier = 2; break;
+                        case 2: multiplier = 1.9; break;
+                        case 3: multiplier = 1.8; break;
+                        case 4: multiplier = 1.7; break;
+                        case 5: multiplier = 1.6; break;
+                        case 6: multiplier = 1.5; break;
+                        case 7: multiplier = 1.4; break;
+                        case 8: multiplier = 1.3; break;
+                        case 9: multiplier = 1.2; break;
+                        default: multiplier = 1.1; break;
+                    }
+                    break;
+                case ArenaBout.SemiFinal:
+                    switch (hero.Level)
+                    {
+                        case 1: multiplier = 2.2; break;
+                        case 2: multiplier = 2.1; break;
+                        case 3: multiplier = 2; break;
+                        case 4: multiplier = 1.9; break;
+                        case 5: multiplier = 1.8; break;
+                        case 6: multiplier = 1.7; break;
+                        case 7: multiplier = 1.6; break;
+                        case 8: multiplier = 1.5; break;
+                        case 9: multiplier = 1.4; break;
+                        default: multiplier = 1.3; break;
+                    }
+                    break;
+                case ArenaBout.Final:
+                    switch (hero.Level)
+                    {
+                        case 1: multiplier = 2.4; break;
+                        case 2: multiplier = 2.3; break;
+                        case 3: multiplier = 2.2; break;
+                        case 4: multiplier = 2.1; break;
+                        case 5: multiplier = 2; break;
+                        case 6: multiplier = 1.9; break;
+                        case 7: multiplier = 1.8; break;
+                        case 8: multiplier = 1.7; break;
+                        case 9: multiplier = 1.6; break;
+                        default: multiplier = 1.5; break;
+                    }
+                    break;
+            }
+            return (int)Math.Floor(EntryFee * multiplier);
+        }
+
+        private int GetArenaModifier(Hero hero)
+        {
+            var modifier = 0;
+            switch (hero.GetStat(BasicStat.HitPoints))
+            {
+                case < 10: modifier -= 5; break;
+                case <= 15: modifier += 0; break;
+                case > 15: modifier += 5; break;
+            }
+
+            switch (hero.GetStat(BasicStat.Strength))
+            {
+                case < 40: modifier -= 5; break;
+                case <= 50: modifier += 0; break;
+                case > 50: modifier += 5; break;
+            }
+
+            switch (Bout)
+            {
+                case Arena.ArenaBout.Group: modifier -= 10; break;
+                case Arena.ArenaBout.SemiFinal: modifier -= 15; break;
+                case Arena.ArenaBout.Final: modifier -= 20; break;
+            }
+            return modifier;
+        }
     }
 
     public class Bank
@@ -242,22 +422,30 @@ namespace LoDCompanion.BackEnd.Services.Player
         public ActiveStatusEffect? GrantedEffect { get; set; }
     }
 
+    public class Estate
+    {
+
+    }
+
     public class SettlementService
     {
         private readonly UserRequestService _userRequest;
         private readonly QuestService _quest;
         private readonly PartyManagerService _partyManager;
+        private readonly TreasureService _treasure;
 
         public List<Settlement> Settlements => GetSettlements();
 
         public SettlementService(
             UserRequestService userRequestService, 
             QuestService questService,
-            PartyManagerService partyManager)
+            PartyManagerService partyManager,
+            TreasureService treasure)
         {
             _userRequest = userRequestService;
             _quest = questService;
             _partyManager = partyManager;
+            _treasure = treasure;
         }
 
         public void StartNewDay(Settlement settlement)
@@ -313,7 +501,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 11,
                     QuestDice = "1d4",
                     QuestColor = QuestColor.Red,
-                    InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
@@ -328,17 +515,21 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 35
+                        },
                         BlackSmith = new BlackSmith()
                         {
-                            WeaponAvailabilityModifier = -2, 
-                            WeaponPriceModifier = 1.1, 
-                            ArmourAvailabilityModifier = -2, 
+                            WeaponAvailabilityModifier = -2,
+                            WeaponPriceModifier = 1.1,
+                            ArmourAvailabilityModifier = -2,
                             ArmourPriceModifier = 1.1
                         },
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = -2, 
-                            EquipmentPriceModifier = 1.1, 
+                            EquipmentAvailabilityModifier = -2,
+                            EquipmentPriceModifier = 1.1,
                             ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
                         }
                     }
@@ -349,7 +540,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 12,
                     QuestDice = "1d6",
                     QuestColor = QuestColor.Green,
-                    InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
@@ -365,16 +555,20 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 35
+                        },
                         BlackSmith = new BlackSmith()
                         {
-                            WeaponAvailabilityModifier = 1, 
-                            WeaponPriceModifier = 0.9, 
-                            ArmourAvailabilityModifier = 1, 
+                            WeaponAvailabilityModifier = 1,
+                            WeaponPriceModifier = 0.9,
+                            ArmourAvailabilityModifier = 1,
                             ArmourPriceModifier = 0.9
                         },
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = -2, 
+                            EquipmentAvailabilityModifier = -2,
                             EquipmentPriceModifier = 1.2
                         },
                         Temples = new()
@@ -394,7 +588,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 11,
                     QuestDice = "1d6",
                     QuestColor = QuestColor.Pink,
-                    InnPrice = 25,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Arena },
@@ -414,12 +607,17 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 25
+                        },
                         BlackSmith = new BlackSmith(),
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = 1, 
+                            EquipmentAvailabilityModifier = 1,
                             EquipmentPriceModifier = 0.9
-                        }
+                        },
+                        Arena = new Arena(50, _treasure)
                     }
                 },
                 new Settlement
@@ -428,7 +626,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 12,
                     QuestDice = "1d6",
                     QuestColor = QuestColor.Blue,
-                    InnPrice = 15,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
@@ -447,6 +644,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 15
+                        },
                         BlackSmith = new BlackSmith(),
                         GeneralStore = new GeneralStore(),
                         Temples = new List<Temple>
@@ -478,7 +679,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 10,
                     QuestDice = "1d6",
                     QuestColor = QuestColor.Black,
-                    InnPrice = 15,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.AlbertasMagnificentAnimals },
@@ -494,10 +694,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 15
+                        },
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = 1, 
-                            EquipmentPriceModifier = 0.9, 
+                            EquipmentAvailabilityModifier = 1,
+                            EquipmentPriceModifier = 0.9,
                             ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
                         },
                         Temples = new List<Temple>
@@ -535,11 +739,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 12,
                     QuestDice = "1d6",
                     QuestColor = QuestColor.Blue,
-                    InnPrice = 35,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore, EquipmentAvailabilityModifier = -1, EquipmentPriceModifier = 1.1, ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } } },
+                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
                         new ServiceLocation { Name = SettlementServiceName.Inn },
                         new ServiceLocation { Name = SettlementServiceName.Scryer },
                         new ServiceLocation { Name = SettlementServiceName.Temple }
@@ -553,8 +756,17 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 35
+                        },
                         BlackSmith = new BlackSmith(),
-                        GeneralStore = new GeneralStore(),
+                        GeneralStore = new GeneralStore()
+                        {
+                            EquipmentAvailabilityModifier = -1,
+                            EquipmentPriceModifier = 1.1, 
+                            ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
+                        },
                         Temples = new()
                         {
                             new Temple()
@@ -578,7 +790,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 12,
                     QuestDice = "1d6",
                     QuestColor = QuestColor.Purple,
-                    InnPrice = 20,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.GeneralStore },
@@ -595,6 +806,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 20
+                        },
                         GeneralStore = new GeneralStore(),
                     }
                 },
@@ -604,7 +819,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 8,
                     QuestDice = "2d20",
                     QuestColor = QuestColor.White,
-                    InnPrice = 25,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Arena },
@@ -634,6 +848,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 25
+                        },
                         BlackSmith = new BlackSmith(),
                         GeneralStore = new GeneralStore(),
                         Banks = new List<Bank>
@@ -692,7 +910,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                                 Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
                                 GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
                             }
-                        }
+                        },
+                        Arena = new Arena(50, _treasure)
                     }
                 },
                 new Settlement
@@ -719,12 +938,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         BlackSmith = new BlackSmith()
                         {
-                            WeaponPriceModifier = 1.2, 
+                            WeaponPriceModifier = 1.2,
                             ArmourPriceModifier = 1.2
                         },
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = -2, 
+                            EquipmentAvailabilityModifier = -2,
                             EquipmentPriceModifier = 1.2
                         },
                     }
@@ -733,7 +952,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     Name = SettlementName.Durburim,
                     EventOn = 12,
-                    InnPrice = 65,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
@@ -749,16 +967,20 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 65
+                        },
                         BlackSmith = new BlackSmith()
                         {
                             WeaponAvailabilityModifier = 1,
-                            WeaponPriceModifier = 1.2, 
-                            ArmourPriceModifier = 1.1, 
+                            WeaponPriceModifier = 1.2,
+                            ArmourPriceModifier = 1.1,
                             WeaponMaxDurabilityModifier = 2
                         },
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = -1, 
+                            EquipmentAvailabilityModifier = -1,
                             EquipmentPriceModifier = 1.2
                         },
                         Temples = new List<Temple>
@@ -806,7 +1028,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     Name = SettlementName.Birnheim,
                     EventOn = 12,
-                    InnPrice = 65,
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
@@ -822,17 +1043,21 @@ namespace LoDCompanion.BackEnd.Services.Player
                     },
                     State = new SettlementState()
                     {
+                        Inn = new Inn()
+                        {
+                            Price = 65
+                        },
                         BlackSmith = new BlackSmith()
                         {
-                            WeaponAvailabilityModifier = -1, 
-                            WeaponPriceModifier = 1.2, 
-                            ArmourAvailabilityModifier = 1, 
-                            ArmourPriceModifier = 1.2, 
+                            WeaponAvailabilityModifier = -1,
+                            WeaponPriceModifier = 1.2,
+                            ArmourAvailabilityModifier = 1,
+                            ArmourPriceModifier = 1.2,
                             ArmourMaxDurabilityModifier = 2
                         },
                         GeneralStore = new GeneralStore()
                         {
-                            EquipmentAvailabilityModifier = -2, 
+                            EquipmentAvailabilityModifier = -2,
                             EquipmentPriceModifier = 1.2
                         },
                         Temples = new List<Temple>
