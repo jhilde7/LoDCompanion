@@ -543,6 +543,8 @@ namespace LoDCompanion.BackEnd.Models
         public bool HasCreatedScrolls { get; set; }
         public bool WaveringResolve => Party != null && Party.PartyManager != null && Party.PartyManager.PartyWavering;
 
+        public int CurrentLuck { get; internal set; }
+
         public event Func<Hero, Weapon, Task>? OnUnequipWeaponAsync;
 
         // Constructor
