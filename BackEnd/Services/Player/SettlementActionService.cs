@@ -171,7 +171,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.LevelUp:
                     result = await LevelupHero(hero, result);
                     break;
-                case SettlementActionType.Pray: 
+                case SettlementActionType.Pray:
+                    result = await Pray(hero, settlement, result);
                     break;
                 case SettlementActionType.RestRecuperation: 
                     break;
@@ -1381,6 +1382,86 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
+        private async Task<SettlementActionResult> Pray(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var temples = settlement.State.Temples;
+            if (temples == null || !temples.Any())
+            {
+                result.Message = "This settlement does not have any temples to pray at.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.ProfessionName == "Warrior Priest")
+            {
+                result.Message = "As a Warrior Priest, you offer your prayers at the Inner Sanctum, not common temples.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
+            {
+                result.Message = $"{hero.Name} has already offered prayers during this visit.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var templesStringList = temples.Select(t => t.GodName.ToString()).ToList();
+            var selectedTemple = new Temple();
+            if (templesStringList.Any())
+            {
+                var choiceRequest = await _userRequest.RequestChoiceAsync("Select a temple to pray at.", templesStringList, canCancel: true);
+                await Task.Yield();
+                if (!choiceRequest.WasCancelled)
+                {
+                    selectedTemple = temples.FirstOrDefault(t => t.GodName.ToString() == choiceRequest.SelectedOption);
+                    if (selectedTemple != null && result.AvailableCoins >= selectedTemple.CostToPray)
+                    {
+                        var rollResult = await _userRequest.RequestRollAsync($"Roll to see if {selectedTemple.GodName.ToString()} listens.", selectedTemple.DiceToPray);
+                        await Task.Yield();
+                        if (rollResult.Roll <= 3 && selectedTemple.GrantedEffect != null)
+                        {
+                            result.Message = $"{selectedTemple.GodName.ToString()} hears your prayer and decides to grant you a boon.";
+                            if (selectedTemple.GodName == GodName.Ohlnir)
+                            {
+                                var skillChoiceRequest = await _userRequest.RequestChoiceAsync("Which skill do you want Ohlnir to enhance?", new List<string>() { "Combat", "Ranged" });
+                                await Task.Yield();
+                                switch (skillChoiceRequest.SelectedOption)
+                                {
+                                    case "Combat": selectedTemple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
+                                    case "Ranged": selectedTemple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
+                                }
+                            }
+                            result.AvailableCoins -= selectedTemple.CostToPray;
+                            await StatusEffectService.AttemptToApplyStatusAsync(hero, selectedTemple.GrantedEffect, _powerActivation);
+                        }
+                        else
+                        {
+                            result.Message = $"You pray, but {selectedTemple.GodName.ToString()} remains silent.";
+                        }
+                    }
+                    else
+                    {
+                        result.Message = "You do not have enough coins to make an offering.";
+                        result.WasSuccessful = false;
+                    }
+                }
+                else
+                {
+                    result.Message = "You decide not to pray at this time.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            else
+            {
+                result.Message = "This settlement does not have any temples to pray at.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            return result;
+        }
+
         public int SettlementActionCost(SettlementActionType action)
         {
             return action switch
@@ -1395,108 +1476,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 SettlementActionType.TreatMentalConditions => 5,
                 _ => 1
             };
-        }
-    }
-
-    public class Bank
-    {
-        public enum BankName
-        {
-            ChamberlingsReserve,
-            SmartfallBank,
-            TheVault
-        }
-
-        public BankName Name { get; set; } = BankName.ChamberlingsReserve;
-        public string Description { get; set; } = string.Empty;
-        public int AccountBalance { get; set; }
-        public bool HasCheckedBankAccount { get; set; }
-        public double ProfitLoss { get; set; }
-
-        public Bank() { }
-
-        public async Task<int> DepositAsync (int amount)
-        {
-            if (amount <= 0) return AccountBalance;
-
-            await CheckBalanceAsync();
-            AccountBalance += amount;
-            return AccountBalance;
-        }
-
-        public async Task<int> WithdrawAsync (int amount)
-        {
-            if (amount <= 0) return 0;
-
-            await CheckBalanceAsync();
-            var withdrawAmount = Math.Min(amount, AccountBalance);
-            AccountBalance -= withdrawAmount;
-            return withdrawAmount;
-        }
-
-        public async Task<int> CheckBalanceAsync()
-        {
-            if (!HasCheckedBankAccount)
-            {
-                HasCheckedBankAccount = true;
-                if (AccountBalance > 0)
-                {
-                    var rollResult = await new UserRequestService().RequestRollAsync("Roll for profit or loss chance.", "1d20");
-                    ProfitLoss = GetProfitLoss(rollResult.Roll);
-                    return (int)Math.Floor(AccountBalance * ProfitLoss); 
-                }
-            }
-
-            return AccountBalance;
-        }
-
-        private double GetProfitLoss(int roll)
-        {
-            switch (Name)
-            {
-                case BankName.ChamberlingsReserve:
-                    return roll switch
-                    {
-                        <= 4 => 1.2,
-                        <= 7 => 1.15,
-                        <= 10 => 1.10,
-                        <= 11 => 1.05,
-                        <= 12 => 1,
-                        <= 14 => 0.95,
-                        <= 17 => 0.90,
-                        <= 19 => 0.80,
-                        >= 20 => 0
-                    };
-                case BankName.SmartfallBank:
-                    return roll switch
-                    {
-                        <= 2 => 1.15,
-                        <= 4 => 1.10,
-                        <= 9 => 1.05,
-                        <= 14 => 1,
-                        <= 16 => 0.95,
-                        <= 17 => 0.90,
-                        >= 18 => 0
-
-                    };
-                case BankName.TheVault:
-                    return roll switch
-                    {
-                        <= 2 => 1.3,
-                        <= 4 => 1.2,
-                        <= 5 => 1.15,
-                        <= 6 => 1.10,
-                        <= 7 => 1.05,
-                        <= 10 => 1,
-                        <= 14 => 0.95,
-                        <= 16 => 0.90,
-                        <= 17 => 0.80,
-                        <= 18 => 0.70,
-                        >= 19 => 0
-
-                    };
-                default: return 1;
-            }
         }
     }
 }

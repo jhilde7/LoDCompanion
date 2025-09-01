@@ -176,7 +176,13 @@ namespace LoDCompanion.BackEnd.Services.Combat
         FastReload,
         StoneOfPartyMorale,
         Precognition,
-        GamblingLuck
+        GamblingLuck,
+        OhlnirsBlessing,
+        RhidnirsBlessing,
+        IphysBlessing,
+        MetheiasBlessing,
+        CharusBlessing,
+        RamosBlessing
     }
 
     /// <summary>
@@ -204,7 +210,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
             string? diceToRoll = null,
             bool removeAfterCombat = false,
             bool removeAfterNextBattle = false,
-            bool removeEndDay = false)
+            bool removeEndDay = false,
+            bool removeEndOfDungeon = false)
         {
             Category = type;
             Duration = duration;
@@ -215,6 +222,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             RemoveAfterCombat = removeAfterCombat;
             RemoveAfterNextBattle = removeAfterNextBattle;
             RemoveEndDay = removeEndDay;
+            RemoveEndOfDungeon = removeEndOfDungeon;
         }
     }
 
