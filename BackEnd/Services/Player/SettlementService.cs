@@ -822,6 +822,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     AvailableServices = new List<ServiceLocation>
                     {
                         new ServiceLocation { Name = SettlementServiceName.Arena },
+                        new ServiceLocation { Name = SettlementServiceName.TheAsylum },
                         new ServiceLocation { Name = SettlementServiceName.Banks },
                         new ServiceLocation { Name = SettlementServiceName.Blacksmith },
                         new ServiceLocation { Name = SettlementServiceName.FortuneTeller },

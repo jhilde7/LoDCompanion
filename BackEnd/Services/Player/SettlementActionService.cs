@@ -177,7 +177,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case SettlementActionType.RestRecuperation:
                     result = await RestRecuperation(hero.Party, settlement, result);
                     break;
-                case SettlementActionType.TreatMentalConditions: 
+                case SettlementActionType.TreatMentalConditions:
+                    result = await TreatMentalConditions(hero, settlement, result);
                     break;
                 case SettlementActionType.VisitTheDarkGuild:
                     break;
@@ -1404,6 +1405,83 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
             return availableCoin;
+        }
+
+        private async Task<SettlementActionResult> TreatMentalConditions(Hero hero, Settlement settlement, SettlementActionResult result)
+        {
+            var asylum = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.TheAsylum);
+            if (asylum == null)
+            {
+                result.Message = "The Asylum is not available in this settlement.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var curableConditions = hero.ActiveStatusEffects.Where(e =>
+                e.Category == StatusEffectType.PostTraumaticStressDisorder ||
+                e.Category == StatusEffectType.FearDark ||
+                e.Category == StatusEffectType.Arachnophobia ||
+                e.Category == StatusEffectType.Jumpy ||
+                e.Category == StatusEffectType.IrrationalFear ||
+                e.Category == StatusEffectType.Claustrophobia ||
+                e.Category == StatusEffectType.Depression).ToList();
+
+            if (!curableConditions.Any())
+            {
+                result.Message = $"{hero.Name} has no mental conditions that can be treated at the Asylum.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < 1000)
+            {
+                result.Message = "You do not have enough coins for treatment.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var conditionNames = curableConditions.Select(c => c.Category.ToString()).ToList();
+            var choiceResult = await _userRequest.RequestChoiceAsync("Choose a condition to treat:", conditionNames, canCancel: true);
+
+            if (choiceResult.WasCancelled)
+            {
+                result.Message = "Treatment cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var chosenCondition = curableConditions.FirstOrDefault(c => c.Category.ToString() == choiceResult.SelectedOption);
+            if (chosenCondition == null)
+            {
+                result.Message = "Invalid selection.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var confirmation = await _userRequest.RequestYesNoChoiceAsync($"Treating {chosenCondition.Category} will cost 1000 coins and take 5 days. Continue?");
+            if (!confirmation)
+            {
+                result.Message = "Treatment cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            result.AvailableCoins -= 1000;
+
+            var rollResult = await _userRequest.RequestRollAsync("Roll to determine treatment success (1-5 succeeds)", "1d6");
+            if (rollResult.Roll <= 5)
+            {
+                hero.ActiveStatusEffects.Remove(chosenCondition);
+                result.Message = $"Treatment was successful! {hero.Name} is no longer suffering from {chosenCondition.Category}.";
+                result.WasSuccessful = true;
+            }
+            else
+            {
+                result.Message = "The treatment was unsuccessful, and the condition remains.";
+                result.WasSuccessful = false;
+            }
+
+            return result;
         }
 
         public int SettlementActionCost(SettlementActionType action)
