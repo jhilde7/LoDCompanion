@@ -473,7 +473,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         private SettlementActionResult VisitBlacksmith(Hero hero, Settlement settlement, SettlementActionResult result)
         {
-            var blackSmith = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Blacksmith);
+            var blackSmith = settlement.State.BlackSmith;
             if (blackSmith == null)
             {
                 result.Message = "There is no blacksmith at this settlement.";
@@ -523,7 +523,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         private SettlementActionResult VisitGeneralStore(Hero hero, Settlement settlement, SettlementActionResult result)
         {
-            var generalStore = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.GeneralStore);
+            var generalStore = settlement.State.GeneralStore;
             if (generalStore != null)
             {
                 var priceModifier = generalStore.EquipmentPriceModifier;
