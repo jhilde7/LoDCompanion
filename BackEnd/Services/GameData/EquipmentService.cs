@@ -194,7 +194,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             ];
         }
 
-        public static List<Equipment> GetShopInventoryByServiceName(SettlementServiceName name, int availabilityModifier = 0)
+        public static List<Equipment> GetShopInventoryByServiceLocation(ServiceLocation service, int availabilityModifier = 0)
         {
             List<Equipment> list = [
                 .. Equipment,
@@ -205,24 +205,29 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 .. AlchemyService.Potions
             ];
 
-            return name switch
+            switch (service.Name)
             {
-                SettlementServiceName.TheDarkGuild => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "The Dark Guild").ToList()),
-                SettlementServiceName.FightersGuild => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Fighters Guild").ToList()),
-                SettlementServiceName.WizardsGuild => GetEquipmentWithAvailability(availabilityModifier, [.. MagicStaves]),
-                SettlementServiceName.AlchemistGuild => GetEquipmentWithAvailability(availabilityModifier, [.. AlchemyService.GetShopPotions(), .. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]),
-                SettlementServiceName.MagicBrewery => GetEquipmentWithAvailability(availabilityModifier, [.. AlchemyService.GetShopPotions()]),
-                SettlementServiceName.Herbalist => GetEquipmentWithAvailability(availabilityModifier, [.. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]),
-                SettlementServiceName.RangersGuild => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Rangers Guild").ToList()),
-                SettlementServiceName.TheInnerSanctum => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "The Inner Sanctum").ToList()),
-                SettlementServiceName.Blacksmith => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && (i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
-                SettlementServiceName.GeneralStore => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
-                SettlementServiceName.MervinsMagicalOddities => GetEquipmentWithAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
-                _ => new()
+                case SettlementServiceName.TheDarkGuild: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i=> i.Category == "The Dark Guild").ToList());
+                case SettlementServiceName.FightersGuild: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i=> i.Category == "Fighters Guild").ToList());
+                case SettlementServiceName.WizardsGuild: return ModifyEquipmentListByAvailability(availabilityModifier, [.. MagicStaves]);
+                case SettlementServiceName.AlchemistGuild: return ModifyEquipmentListByAvailability(availabilityModifier, [.. AlchemyService.GetShopPotions(), .. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]);
+                case SettlementServiceName.MagicBrewery: return ModifyEquipmentListByAvailability(availabilityModifier, [.. AlchemyService.GetShopPotions()]);
+                case SettlementServiceName.Herbalist: return ModifyEquipmentListByAvailability(availabilityModifier, [.. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]);
+                case SettlementServiceName.RangersGuild: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i=> i.Category == "Rangers Guild").ToList());
+                case SettlementServiceName.TheInnerSanctum: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i=> i.Category == "The Inner Sanctum").ToList());
+                case SettlementServiceName.MervinsMagicalOddities: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList());
+                case SettlementServiceName.Blacksmith:
+                    var blackSmith = (BlackSmith)service;
+                    return [.. ModifyEquipmentListByAvailability(blackSmith.WeaponAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && (i is Weapon || i is Ammo)).ToList()),
+                    .. ModifyEquipmentListByAvailability(blackSmith.ArmourAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && (i is Armour || i is Shield)).ToList())];
+                case SettlementServiceName.GeneralStore: 
+                    var generalStore = (GeneralStore)service;
+                    return ModifyEquipmentListByAvailability(generalStore.EquipmentAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList());
+                default: return list;
             };
         }
 
-        private static List<Equipment> GetEquipmentWithAvailability(int availabilityModifier, List<Equipment> list)
+        private static List<Equipment> ModifyEquipmentListByAvailability(int availabilityModifier, List<Equipment> list)
         {
             var itemsToRemove = new List<Equipment>();
             foreach (var item in list)
