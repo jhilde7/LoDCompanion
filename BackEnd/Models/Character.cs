@@ -65,6 +65,7 @@ namespace LoDCompanion.BackEnd.Models
         public Dictionary<BasicStat, int> BasicStats { get; set; }
         public Dictionary<Skill, int> SkillStats { get; set; }
         public CombatStance CombatStance { get; set; } = CombatStance.Normal;
+        public int ToHitPenalty { get; set; }
         public virtual bool HasShield { get; set; } // Indicates if the character has a shield
         private Room? _room;
         public Room Room
@@ -1133,7 +1134,6 @@ namespace LoDCompanion.BackEnd.Models
         public int MaxDamage { get; set; }
         public bool HasSpecialAttack => ActiveAbilities != null;
         public List<SpecialActiveAbility>? ActiveAbilities { get; set; }
-        public int ToHitPenalty { get; set; }
         public int XP { get; set; }
         public Dictionary<MonsterSpecialName, int> PassiveSpecials { get; set; } = new Dictionary<MonsterSpecialName, int>();
         public List<string> SpecialRules { get; set; } = new List<string>(); // List of raw rule names
