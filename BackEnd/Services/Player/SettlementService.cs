@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
+using RogueSharp;
 using System.Threading.Tasks;
 using static LoDCompanion.BackEnd.Services.Player.ServiceLocation;
 
@@ -46,8 +47,9 @@ namespace LoDCompanion.BackEnd.Services.Player
         WizardsGuild,
         AlchemistGuild,
         RangersGuild,
-        InnerSanctum,
+        TheInnerSanctum,
         TheAsylum,
+        Estate,
     }
 
     public enum QuestColor
@@ -79,6 +81,45 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<SettlementActionType> AvailableActions { get; set; } = new List<SettlementActionType>();
         public string? SpecialRules { get; set; }
 
+        private bool _newVisit;
+        public bool NewVisit
+        {
+            get => _newVisit;
+            set
+            {
+                if (_newVisit)
+                {
+                    RefreshStockForNewVisit();
+                    _newVisit = false;
+                }
+            }
+        }
+        private List<Equipment>? _currentAvailableStock;
+        public List<Equipment> CurrentAvailableStock
+        {
+            get
+            {
+                // If the stock hasn't been generated for this visit yet, generate it.
+                if (_currentAvailableStock == null)
+                {
+                    _currentAvailableStock = EquipmentService.GetShopInventoryByServiceName(Name);
+                }
+                return _currentAvailableStock;
+            }
+        }
+
+        public ServiceLocation(SettlementServiceName name)
+        {
+            Name = name;
+        }
+
+        // Call this method when the party first enters the settlement
+        public virtual void RefreshStockForNewVisit()
+        {
+            // Reset the stock, so it will be regenerated on the next access.
+            _currentAvailableStock = null;
+        }
+
     }
 
     public class Settlement
@@ -109,10 +150,14 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Estate? Estate { get; set; }
     }
 
-    public class Inn
+    public class Inn : ServiceLocation
     {
         public int Price { get; set; }
         public int SleepInStablesPrice => (int)Math.Floor(Price / 2d);
+
+        public Inn() : base(SettlementServiceName.Inn)
+        {
+        }
     }
 
     public class ShopSpecial
@@ -124,7 +169,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public ShopSpecial() { }
     }
 
-    public class BlackSmith
+    public class BlackSmith : ServiceLocation
     {
         public int WeaponAvailabilityModifier { get; set; }
         public int ArmourAvailabilityModifier { get; set; }
@@ -133,16 +178,24 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int WeaponMaxDurabilityModifier { get; internal set; }
         public int ArmourMaxDurabilityModifier { get; internal set; }
         public List<ShopSpecial>? ShopSpecials { get; set; }
+
+        public BlackSmith() : base(SettlementServiceName.Blacksmith)
+        {
+        }
     }
 
-    public class GeneralStore
+    public class GeneralStore : ServiceLocation
     {
         public int EquipmentAvailabilityModifier { get; set; }
         public double EquipmentPriceModifier { get; set; } = 1d;
         public List<ShopSpecial>? ShopSpecials { get; set; }
+
+        public GeneralStore() : base(SettlementServiceName.GeneralStore)
+        {
+        }
     }
 
-    public class Arena
+    public class Arena : ServiceLocation
     {
         public enum ArenaBout
         {
@@ -160,7 +213,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool IsComplete { get; set; }
         public List<Equipment>? ExtraAward { get; set; }
 
-        public Arena(int entryFee, TreasureService treasureService)
+        public Arena(int entryFee, TreasureService treasureService) : base(SettlementServiceName.Arena)
         {
             EntryFee = entryFee;
             _treasure = treasureService;
@@ -311,7 +364,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
-    public class Bank
+    public class Bank : ServiceLocation
     {
         public enum BankName
         {
@@ -320,13 +373,16 @@ namespace LoDCompanion.BackEnd.Services.Player
             TheVault
         }
 
-        public BankName Name { get; set; } = BankName.ChamberlingsReserve;
+        public new BankName Name { get; set; } = BankName.ChamberlingsReserve;
         public string Description { get; set; } = string.Empty;
         public int AccountBalance { get; set; }
         public bool HasCheckedBankAccount { get; set; }
         public double ProfitLoss { get; set; }
 
-        public Bank() { }
+        public Bank() : base(SettlementServiceName.Banks)
+        { 
+           
+        }
 
         public async Task<int> DepositAsync(int amount)
         {
@@ -413,18 +469,71 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
-    public class Temple
+    public class Temple : ServiceLocation
     {
         public GodName GodName { get; set; }
         public string Description { get; set; } = string.Empty;
         public int CostToPray { get; set; } = 50;
         public string DiceToPray { get; set; } = "1d6";
         public ActiveStatusEffect? GrantedEffect { get; set; }
+
+        public Temple() : base(SettlementServiceName.Temple)
+        {
+        }
     }
 
-    public class Estate
+    public class Guild : ServiceLocation
+    {
+        public List<Profession> AllowedToEnter { get; set; } = new();
+        public List<(Skill, int)> AvailableSkillTraining { get; set; } = new();
+        public int SkillTrainingFee { get; set; }
+        public Dictionary<Hero, int> QuestsBeforeNextTraining { get; set; } = new();
+        public List<Monster>? WantedBounties { get; set; }
+        public EncounterType? Crusade { get; set; }
+
+        public Guild(SettlementServiceName name) : base(name)
+        {
+        }
+
+        public override void RefreshStockForNewVisit()
+        {
+            //Call the base class method to reset the stock
+            base.RefreshStockForNewVisit();
+        }
+
+        public bool CanTrain(Hero hero)
+        {
+            if (!QuestsBeforeNextTraining.ContainsKey(hero))
+            {
+                return true;
+            }
+            return QuestsBeforeNextTraining[hero] > 0;
+        }
+
+        public bool AttemptToTrainHeroSkill(Hero hero, Skill skill)
+        {
+            var skillToTrain = AvailableSkillTraining.FirstOrDefault(s => s.Item1 == skill);
+            if(CanTrain(hero))
+            {
+                if(skillToTrain.Item1 == skill)
+                {
+                    hero.SetSkill(skill, hero.GetSkill(skill) + 3);
+                }
+                else return false;
+                
+                QuestsBeforeNextTraining[hero] = 2;
+            }
+            return false;
+        }
+    }
+
+    public class Estate : ServiceLocation
     {
 
+        public Estate() : base(SettlementServiceName.Estate)
+        {
+
+        }
     }
 
     public class SettlementService
@@ -433,6 +542,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly QuestService _quest;
         private readonly PartyManagerService _partyManager;
         private readonly TreasureService _treasure;
+        private readonly GameDataService _gameData;
+        private readonly EncounterService _encounter;
 
         public List<Settlement> Settlements => GetSettlements();
 
@@ -440,12 +551,16 @@ namespace LoDCompanion.BackEnd.Services.Player
             UserRequestService userRequestService, 
             QuestService questService,
             PartyManagerService partyManager,
-            TreasureService treasure)
+            TreasureService treasure,
+            GameDataService gameData,
+            EncounterService encounter)
         {
             _userRequest = userRequestService;
             _quest = questService;
             _partyManager = partyManager;
             _treasure = treasure;
+            _gameData = gameData;
+            _encounter = encounter;
         }
 
         public void StartNewDay(Settlement settlement)
@@ -503,9 +618,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Red,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -542,10 +657,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Green,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Temple)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -590,11 +705,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Pink,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Arena },
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.SickWard }
+                        new ServiceLocation(SettlementServiceName.Arena),
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.SickWard)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -628,10 +743,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Blue,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Temple)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -681,10 +796,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Black,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.AlbertasMagnificentAnimals },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation(SettlementServiceName.AlbertasMagnificentAnimals),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Temple)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -741,11 +856,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Blue,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Scryer },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Scryer),
+                        new ServiceLocation(SettlementServiceName.Temple)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -792,11 +907,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Purple,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Herbalist },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.SickWard },
-                        new ServiceLocation { Name = SettlementServiceName.MagicBrewery }
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation (SettlementServiceName.Herbalist),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.SickWard),
+                        new ServiceLocation (SettlementServiceName.MagicBrewery)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -821,21 +936,21 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.White,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Arena },
-                        new ServiceLocation { Name = SettlementServiceName.TheAsylum },
-                        new ServiceLocation { Name = SettlementServiceName.Banks },
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.FortuneTeller },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.TheDarkGuild },
-                        new ServiceLocation { Name = SettlementServiceName.FightersGuild },
-                        new ServiceLocation { Name = SettlementServiceName.AlchemistGuild },
-                        new ServiceLocation { Name = SettlementServiceName.WizardsGuild },
-                        new ServiceLocation { Name = SettlementServiceName.RangersGuild },
-                        new ServiceLocation { Name = SettlementServiceName.InnerSanctum },
-                        new ServiceLocation { Name = SettlementServiceName.HorseTrack },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple },
+                        new ServiceLocation(SettlementServiceName.Arena),
+                        new ServiceLocation (SettlementServiceName.TheAsylum),
+                        new ServiceLocation (SettlementServiceName.Banks),
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation (SettlementServiceName.FortuneTeller),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation (SettlementServiceName.TheDarkGuild),
+                        new ServiceLocation (SettlementServiceName.FightersGuild),
+                        new ServiceLocation (SettlementServiceName.AlchemistGuild),
+                        new ServiceLocation (SettlementServiceName.WizardsGuild),
+                        new ServiceLocation (SettlementServiceName.RangersGuild),
+                        new ServiceLocation (SettlementServiceName.TheInnerSanctum),
+                        new ServiceLocation (SettlementServiceName.HorseTrack),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Temple),
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -923,8 +1038,8 @@ namespace LoDCompanion.BackEnd.Services.Player
                     QuestColor = QuestColor.Yellow,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation (SettlementServiceName.GeneralStore)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -955,10 +1070,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 12,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Temple)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -1031,10 +1146,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     EventOn = 12,
                     AvailableServices = new List<ServiceLocation>
                     {
-                        new ServiceLocation { Name = SettlementServiceName.Blacksmith },
-                        new ServiceLocation { Name = SettlementServiceName.GeneralStore },
-                        new ServiceLocation { Name = SettlementServiceName.Inn },
-                        new ServiceLocation { Name = SettlementServiceName.Temple }
+                        new ServiceLocation(SettlementServiceName.Blacksmith),
+                        new ServiceLocation(SettlementServiceName.GeneralStore),
+                        new ServiceLocation(SettlementServiceName.Inn),
+                        new ServiceLocation(SettlementServiceName.Temple)
                     },
                     HexTiles = new List<HexTile>
                     {
@@ -1204,7 +1319,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         SettlementActionType.VisitRangersGuild,
                     },
-                SettlementServiceName.InnerSanctum => new List<SettlementActionType>
+                SettlementServiceName.TheInnerSanctum => new List<SettlementActionType>
                     {
                         SettlementActionType.VisistInnerSanctum,
                     },
@@ -1217,6 +1332,49 @@ namespace LoDCompanion.BackEnd.Services.Player
                         SettlementActionType.LevelUp,
                         SettlementActionType.CollectQuestRewards
                     }
+            };
+        }
+
+        public List<Guild> GetGuilds()
+        {
+            return new List<Guild>
+            {
+                new Guild(SettlementServiceName.TheDarkGuild)
+                {
+                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Thief" || p.Name == "Rogue").ToList(),
+                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.PickLocks, 3), (Skill.Perception, 3) },
+                    SkillTrainingFee = 300,
+                },
+                new Guild(SettlementServiceName.FightersGuild)
+                {
+                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior" || p.Name == "Barbarian").ToList(),
+                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Heal, 3), (Skill.Dodge, 3) },
+                    SkillTrainingFee = 300,
+                },
+                new Guild(SettlementServiceName.WizardsGuild)
+                {
+                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Wizard").ToList(),
+                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.ArcaneArts, 3), (Skill.Perception, 3), (Skill.Heal, 3) },
+                    SkillTrainingFee = 300,
+                },
+                new Guild(SettlementServiceName.AlchemistGuild)
+                {
+                    AllowedToEnter = _gameData.Professions,
+                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.Alchemy, 3), (Skill.Heal, 3), (Skill.Perception, 3) },
+                    SkillTrainingFee = 300,
+                },
+                new Guild(SettlementServiceName.RangersGuild)
+                {
+                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Ranger").ToList(),
+                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.Dodge, 3), (Skill.Heal, 3), (Skill.Foraging, 3) },
+                    SkillTrainingFee = 300,
+                },
+                new Guild(SettlementServiceName.TheInnerSanctum)
+                {
+                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior Priest").ToList(),
+                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Dodge, 3), (Skill.BattlePrayers, 3) },
+                    SkillTrainingFee = 300,
+                }
             };
         }
     }

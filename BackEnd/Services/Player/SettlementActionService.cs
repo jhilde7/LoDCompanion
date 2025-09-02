@@ -381,14 +381,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private List<Equipment> GetStock(ShopCategory category, Settlement settlement, int availabilityModifier = 0, double priceModifier = 1d, int maxDurabilityModifier = 0)
+        private List<Equipment> GetStock(SettlementServiceName name, Settlement settlement, int availabilityModifier = 0, double priceModifier = 1d, int maxDurabilityModifier = 0)
         {
             var freshStocks = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.FreshStocks);
             var shortageOfGoods = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.ShortageOfGoods);
             if (freshStocks != null) availabilityModifier += 2;
             if (shortageOfGoods != null) availabilityModifier -= 2;
 
-            var list = EquipmentService.GetShopInventoryByCategory(category, availabilityModifier);
+            var list = EquipmentService.GetShopInventoryByServiceName(name, availabilityModifier);
 
             var sale = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.Sale);
             if (sale != null) priceModifier -= 0.2;
@@ -1107,7 +1107,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         private async Task<SettlementActionResult> LearnPrayer(Hero hero, Settlement settlement, SettlementActionResult result)
         {
-            var innerSanctum = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.InnerSanctum);
+            var innerSanctum = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.TheInnerSanctum);
             if (innerSanctum == null)
             {
                 result.Message = "There is no Inner Sanctum in this settlement";
@@ -1352,9 +1352,6 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
 
-        /// <summary>
-        /// Handles the actual process of resting, applying HP/Energy/Sanity restoration and deducting cost.
-        /// </summary>
         private async Task<int> PerformRest(Party party, int cost, int availableCoin, bool isStables)
         {
             // Deduct cost from party funds
