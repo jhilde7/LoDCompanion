@@ -182,7 +182,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         IphysBlessing,
         MetheiasBlessing,
         CharusBlessing,
-        RamosBlessing
+        RamosBlessing,
+        DarkAsTheNight
     }
 
     /// <summary>
@@ -196,6 +197,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
         public (Skill, int)? SkillBonus { get; set; } // Optional value for effects that change skills.
         public int? Damage { get; set; } // Optional value for effects that deal damage.
         public string? DiceToRoll { get; set; } // Optional dice notation for effects that require rolling dice.
+        public int ToHitPenalty { get; set; }
         public bool RemoveAfterCombat { get; set; }
         public bool RemoveAfterNextBattle { get; set; }
         public bool RemoveEndOfDungeon { get; set; }
@@ -206,6 +208,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             int duration,
             (BasicStat, int)? statBonus = null,
             (Skill, int)? skillBonus = null,
+            int toHitPenalty = 0,
             int? damage = null,
             string? diceToRoll = null,
             bool removeAfterCombat = false,

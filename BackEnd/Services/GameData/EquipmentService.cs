@@ -1623,31 +1623,34 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Cap", DefValue = 4, Encumbrance = 1, Value = 230, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Head, 0 } },
                 },
                 new Armour()
                 {
                     Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Vest", DefValue = 4, Encumbrance = 3, Value = 650, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } },
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.DarkAsTheNight, -1, toHitPenalty: -5)]
                 },
                 new Armour()
                 {
                     Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Jacket", DefValue = 4, Encumbrance = 4, Value = 1000, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 }, { ArmourProperty.Torso, 0 }, { ArmourProperty.DarkAsTheNight, 0 } },
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.DarkAsTheNight, -1, toHitPenalty: -5)]
                 },
                 new Armour()
                 {
                     Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Pants", DefValue = 4, Encumbrance = 3, Value = 900, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DarkAsTheNight, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Legs, 0 }, { ArmourProperty.DarkAsTheNight, 0 } },
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.DarkAsTheNight, -1, toHitPenalty: -5)]
                 },
                 new Armour()
                 {
                     Category = "The Dark Guild",
                     Shop = ShopCategory.Armour, Name = "Nightstalker Bracers", DefValue = 4, Encumbrance = 3, Value = 150, Availability = 3, ArmourClass = 2, Durability = 8, MaxDurability = 8,
-                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 } }
+                    Properties = new Dictionary<ArmourProperty, int> { { ArmourProperty.Arms, 0 } },
                 },
                 new Armour
                 {

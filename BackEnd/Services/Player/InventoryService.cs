@@ -4,6 +4,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.BackEnd.Services.Player
 {
@@ -478,7 +479,43 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             equippedArmour.Add(armourToEquip);
+            await UpdateNightstalkerSetBonus(hero);
             return true;
+        }
+
+        private async Task UpdateNightstalkerSetBonus(Hero hero)
+        {
+            hero.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.DarkAsTheNight);
+
+            var nightstalkerPieces = hero.Inventory.EquippedArmour
+                .Where(a => a.HasProperty(ArmourProperty.DarkAsTheNight))
+                .ToList();
+
+            if (!nightstalkerPieces.Any())
+            {
+                return; // No pieces equipped, nothing to do
+            }
+
+            bool hasTorso = nightstalkerPieces.Any(p => p.HasProperty(ArmourProperty.Torso));
+            bool hasLegs = nightstalkerPieces.Any(p => p.HasProperty(ArmourProperty.Legs));
+
+            int modifier = 0;
+            if (hasTorso && hasLegs)
+            {
+                // Full set bonus
+                modifier = -10;
+                Console.WriteLine("Full Nightstalker set bonus active: -10 to be hit.");
+            }
+            else
+            {
+                // Partial set bonus
+                modifier = -5;
+                Console.WriteLine("Partial Nightstalker set bonus active: -5 to be hit.");
+            }
+
+            var bonusEffect = new ActiveStatusEffect(StatusEffectType.DarkAsTheNight, -1, toHitPenalty: modifier);
+
+            await StatusEffectService.AttemptToApplyStatusAsync(hero, bonusEffect, _powerActivation);
         }
 
         private List<Armour>? GetItemsToUnequip(Armour itemToEquip, List<Armour> itemsInSlot)

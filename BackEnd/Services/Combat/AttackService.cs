@@ -434,6 +434,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             int modifier = 0;
 
+            foreach (var effect in target.ActiveStatusEffects.Where(e => e.ToHitPenalty > 0))
+            {
+                modifier -= effect.ToHitPenalty;
+            }
+
             // attacker against tagrget CS/RS effecting talents/perks/prayers
             if (attacker is Monster m && m.IsUndead && target is Hero h
                 && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
