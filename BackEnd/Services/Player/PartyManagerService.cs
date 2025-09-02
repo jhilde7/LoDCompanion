@@ -18,7 +18,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int PartyMaxMorale => GetMaxMorale();
         public PartyManagerService? PartyManager { get; set; }
 
-        public Dictionary<Monster, int> FightersGuildBounties { get; set; } = new();
+        public List<Bounty> FightersGuildBounties { get; set; } = new();
         public (EncounterType, int)? InnerSenctumCrusade { get; set; }
 
         public Party()

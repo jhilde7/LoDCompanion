@@ -11,26 +11,17 @@ namespace LoDCompanion.BackEnd.Services.Player
 {
     public enum SettlementActionType
     {
-        VisitArena,
-        VisitBanks,
+        ArenaFighting,
+        Banking,
         VisitKennel,
         VisitAlbertasMagnificentAnimals,
-        VisitBlacksmith,
-        VisitGeneralStore,
-        VisitHerbalist,
-        VisitMagicBrewery,
-        VisitTheDarkGuild,
-        VisitFightersGuild,
-        VisitWizardsGuild,
-        VisitAlchemistGuild,
-        VisitRangersGuild,
-        VisistInnerSanctum,
+        BuyingAndSelling,
         ChargeMagicItem,
         CreateScroll,
-        VisitSickWard,
+        CureDiseasePoison,
         CurePoison,
         EnchantObjects,
-        Gamble,
+        Gambling,
         HorseRacing,
         IdentifyMagicItem,
         IdentifyPotion,
@@ -88,118 +79,92 @@ namespace LoDCompanion.BackEnd.Services.Player
             _levelUp = levelupService;
         }
 
-        public async Task<SettlementActionResult> PerformSettlementActionAsync(Hero hero, SettlementActionType action, Settlement settlement)
+        public async Task<SettlementActionResult> PerformSettlementActionAsync(Hero hero, SettlementActionType action, ServiceLocation service)
         {
             var result = new SettlementActionResult(action);
             result.ActionCost = SettlementActionCost(action);
 
-            if (settlement.State.BusyHeroes.ContainsKey(hero))
+            if (service.Settlement.State.BusyHeroes.ContainsKey(hero))
             {
                 result.Message = $"{hero.Name} is busy with a multi-day task.";
                 result.WasSuccessful = false;
                 return result;
             }
-            else if (settlement.State.HeroActionPoints[hero] <= 0)
+            else if (service.Settlement.State.HeroActionPoints[hero] <= 0)
             {
                 result.Message = $"{hero.Name} does not have any action points left for today.";
                 result.WasSuccessful = false;
                 return result;
             }
+
             result.AvailableCoins = hero.Coins + hero.Party.Coins;
             hero.Coins = 0;
             hero.Party.Coins = 0;
 
-            switch (action)
+            switch (service, action)
             {
-                case SettlementActionType.VisitArena:                    
-                    result = await ArenaFighting(hero, result);
+                case (ServiceLocation, SettlementActionType.CollectQuestRewards):
+                    result = await CollectQuestRewardsAsync(hero, service.Settlement, result);
                     break;
-                case SettlementActionType.VisitBanks:
-                    result = await Banking(hero, settlement, result);
+                case (Arena arena, SettlementActionType.ArenaFighting):                    
+                    result = await ArenaFighting(hero, arena, result);
                     break;
-                case SettlementActionType.VisitKennel: 
-                    // TODO: on implementation of the companions expansion
+                case (Bank bank, SettlementActionType.Banking):
+                    result = await Banking(hero, bank, result);
                     break;
-                case SettlementActionType.VisitAlbertasMagnificentAnimals:
-                    // TODO: on implementation of the companions expansion
+                case (ServiceLocation, SettlementActionType.BuyingAndSelling):
+                    result = GetShopInventory(hero, service, result);
                     break;
-                case SettlementActionType.VisitBlacksmith:
-                    result = VisitBlacksmith(hero, settlement, result);
+                case (SickWard sickWard, SettlementActionType.CureDiseasePoison):
+                    result = await VisitSickWard(hero, sickWard, result);
                     break;
-                case SettlementActionType.VisitGeneralStore:
-                    result = VisitGeneralStore(hero, settlement, result);
+                case (Inn inn, SettlementActionType.CreateScroll):
+                    result = await CreateScroll(hero, inn, result);
                     break;
-                case SettlementActionType.VisitHerbalist:
-                    result = VisitHerbalist(hero, settlement, result);
+                case (Inn inn, SettlementActionType.EnchantObjects): 
+                    result = await EnchantItemAsync(hero, inn, result);
                     break;
-                case SettlementActionType.VisitMagicBrewery:
-                    result = VisitMagicBrewery(hero, settlement, result);
+                case (FortuneTeller fortuneTeller, SettlementActionType.ReadFortune):
+                    result = await ReadFortune(hero, fortuneTeller, result);
                     break;
-                case SettlementActionType.CollectQuestRewards:
-                    result = await CollectQuestRewardsAsync(hero, settlement, result);
+                case (Inn inn, SettlementActionType.Gambling):
+                    result = await Gamble(hero, inn, result);
                     break;
-                case SettlementActionType.VisitSickWard:
-                    result = await VisitSickWard(hero, settlement, result);
+                case (HorseTrack horseTrack, SettlementActionType.HorseRacing):
+                    result = await horseTrack.HorseRacing(hero, result, _userRequest, _treasure);
                     break;
-                case SettlementActionType.CreateScroll:
-                    result = await CreateScroll(hero, settlement, result);
+                case (ServiceLocation, SettlementActionType.IdentifyMagicItem):
+                    result = await IdentifyMagicItem(hero, service, result);
                     break;
-                case SettlementActionType.EnchantObjects: 
-                    result = await EnchantItemAsync(hero, settlement, result);
+                case (ServiceLocation, SettlementActionType.IdentifyPotion):
+                    result = await IdentifyPotion(hero, service, result);
                     break;
-                case SettlementActionType.ReadFortune:
-                    result = await ReadFortune(hero, settlement, result);
+                case (WizardsGuild wizardsGuild, SettlementActionType.LearnSpell):
+                    result = await LearnSpell(hero, wizardsGuild, result);
                     break;
-                case SettlementActionType.Gamble:
-                    result = await Gamble(hero, settlement, result);
+                case (TheInnerSanctum theInnerSanctum, SettlementActionType.LearnPrayer):
+                    result = await LearnPrayer(hero, theInnerSanctum, result);
                     break;
-                case SettlementActionType.HorseRacing:
-                    result = await HorseRacing(hero, settlement, result);
-                    break;
-                case SettlementActionType.IdentifyMagicItem:
-                    result = await IdentifyMagicItem(hero, settlement, result);
-                    break;
-                case SettlementActionType.IdentifyPotion:
-                    result = await IdentifyPotion(hero, settlement, result);
-                    break;
-                case SettlementActionType.LearnSpell:
-                    result = await LearnSpell(hero, settlement, result);
-                    break;
-                case SettlementActionType.LearnPrayer:
-                    result = await LearnPrayer(hero, settlement, result);
-                    break;
-                case SettlementActionType.LevelUp:
+                case (ServiceLocation, SettlementActionType.LevelUp):
                     result = await LevelupHero(hero, result);
                     break;
-                case SettlementActionType.Pray:
-                    result = await Pray(hero, settlement, result);
+                case (Temple temple, SettlementActionType.Pray):
+                    result = await Pray(hero, temple, result);
                     break;
-                case SettlementActionType.RestRecuperation:
-                    result = await RestRecuperation(hero.Party, settlement, result);
+                case (Inn inn, SettlementActionType.RestRecuperation):
+                    result = await RestRecuperation(hero.Party, inn, result);
                     break;
-                case SettlementActionType.TreatMentalConditions:
-                    result = await TreatMentalConditions(hero, settlement, result);
-                    break;
-                case SettlementActionType.VisitTheDarkGuild:
-                    break;
-                case SettlementActionType.VisitFightersGuild:
-                    break;
-                case SettlementActionType.VisitWizardsGuild:
-                    break;
-                case SettlementActionType.VisitAlchemistGuild:
-                    break;
-                case SettlementActionType.VisitRangersGuild: 
-                    break;
-                case SettlementActionType.VisistInnerSanctum: 
+                case (TheAsylum asylum, SettlementActionType.TreatMentalConditions):
+                    result = await TreatMentalConditions(hero, asylum, result);
                     break;
             }
 
             if (result.WasSuccessful)
             {
-                settlement.State.HeroActionPoints[hero] -= result.ActionCost;
-                if (settlement.State.HeroActionPoints[hero] < 0)
+                service.Settlement.State.HeroActionPoints[hero] -= result.ActionCost;
+                if (service.Settlement.State.HeroActionPoints[hero] < 0)
                 {
-                    settlement.State.BusyHeroes.TryAdd(hero, (result.Action, Math.Abs(settlement.State.HeroActionPoints[hero])));
+                    service.Settlement.State.BusyHeroes.TryAdd(hero, (result.Action, Math.Abs(service.Settlement.State.HeroActionPoints[hero])));
                 } 
 
                 if (result.ShopInventory.Any())
@@ -218,211 +183,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 result.AvailableCoins = 0;
             }
 
-            return result;
-        }
-
-        private async Task<SettlementActionResult> ArenaFighting(Hero hero, SettlementActionResult result)
-        {
-            if (result.AvailableCoins < 50)
-            {
-                result.Message = $"{hero.Name} does not have enough coin to participate";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: 50, max: Math.Min(200, result.AvailableCoins), canCancel: true);
-            if (!inputResult.WasCancelled)
-            {
-                var bet = inputResult.Amount;
-                var arena = new Arena(bet, _treasure);
-                while (!arena.IsComplete)
-                {
-                    var rollRequest = await _userRequest.RequestRollAsync($"Roll combat skill to compete in bout: {arena.Bout}", "1d100");
-                    await arena.StartBoutAsync(rollRequest.Roll, hero);
-                }
-                result.ArenaWinnings = arena.Winnings;
-                result.FoundItems = arena.ExtraAward;
-                result.Message = arena.Message;
-                hero.Party.Coins += arena.Winnings;
-                hero.GainExperience(arena.Experience); 
-            }
-            return result;
-        }
-        
-        private async Task<SettlementActionResult> Banking(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            if (settlement.State.Banks == null)
-            {
-                result.Message = $"There are no banks at {settlement.Name}.";
-                result.WasSuccessful = false;
-                return result;
-            }
-            bool isBanking = true;
-            while (isBanking)
-            {
-                var bankChoice = await _userRequest.RequestChoiceAsync("Which bank are you visiting?", settlement.State.Banks.Select(bank => bank.Name.ToString()).ToList(), canCancel: true);
-                await Task.Yield();
-                if (bankChoice.WasCancelled) isBanking = false;
-                if (!bankChoice.WasCancelled)
-                {
-                    Enum.TryParse<Bank.BankName>(bankChoice.SelectedOption, out var selectedBankName);
-                    var currentBank = settlement.State.Banks.FirstOrDefault(b => b.Name == selectedBankName);
-                    if (currentBank != null)
-                    {
-                        var actionChoice = await _userRequest.RequestChoiceAsync($"Your account has {await currentBank.CheckBalanceAsync()} available coins. What would you like to do?", new List<string> { "Deposit coins.", "Withdraw coins." }, canCancel: true);
-                        await Task.Yield();
-                        switch (actionChoice.SelectedOption)
-                        {
-                            case "Deposit coins.":
-                                var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0, canCancel: true);
-                                if (!depositResult.WasCancelled)
-                                {
-                                    if (result.AvailableCoins >= depositResult.Amount)
-                                    {
-                                        result.Message += $"{depositResult.Amount} was deposited at {currentBank.Name.ToString()}. The new balance is {await currentBank.DepositAsync(depositResult.Amount)}";
-                                        result.AvailableCoins -= depositResult.Amount;
-                                    }
-                                }
-                                break;
-                            case "Withdraw coins.":
-                                var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?", min: 0, max: currentBank.AccountBalance, canCancel: true);
-                                if (!withdrawResult.WasCancelled)
-                                {
-                                    var amountWithdrawn = await currentBank.WithdrawAsync(withdrawResult.Amount);
-                                    result.Message += $"{amountWithdrawn} was withdrawn from {currentBank.Name.ToString()}. The new balance is {await currentBank.CheckBalanceAsync()}";
-                                    result.AvailableCoins += amountWithdrawn;
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
-        private SettlementActionResult VisitBlacksmith(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var blackSmith = settlement.State.BlackSmith;
-            if (blackSmith == null)
-            {
-                result.Message = "There is no blacksmith at this settlement.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            // Initialize the shop inventory
-            var inventory = new List<Equipment>();
-
-            // Get Armor and Shields stock
-            var armourMaxDurabilityModifier = blackSmith.ArmourMaxDurabilityModifier;
-            var armourPriceModifier = blackSmith.ArmourPriceModifier;
-            var armourAvailabilityModifier = blackSmith.ArmourAvailabilityModifier;
-            inventory.AddRange(GetStock(ShopCategory.Armour, settlement, armourAvailabilityModifier, armourPriceModifier, armourMaxDurabilityModifier));
-            inventory.AddRange(GetStock(ShopCategory.Shields, settlement, armourAvailabilityModifier, armourPriceModifier, armourMaxDurabilityModifier));
-
-            // Get Weapons stock
-            var weaponMaxDurabilityModifier = blackSmith.WeaponMaxDurabilityModifier;
-            var weaponPriceModifier = blackSmith.WeaponPriceModifier;
-            var weaponAvailabilityModifier = blackSmith.WeaponAvailabilityModifier;
-            inventory.AddRange(GetStock(ShopCategory.Weapons, settlement, weaponAvailabilityModifier, weaponPriceModifier, weaponMaxDurabilityModifier));
-
-            // Apply any shop specials to the combined inventory
-            if (blackSmith.ShopSpecials != null)
-            {
-                foreach (var special in blackSmith.ShopSpecials)
-                {
-                    var item = inventory.FirstOrDefault(i => i.Name == special.ItemName);
-                    if (item != null)
-                    {
-                        if (special.Price.HasValue)
-                        {
-                            item.Value = special.Price.Value;
-                        }
-                        if (special.Availability.HasValue)
-                        {
-                            item.Availability = special.Availability.Value;
-                        }
-                    }
-                }
-            }
-
-            result.ShopInventory = inventory;
-            return result;
-        }
-
-        private SettlementActionResult VisitGeneralStore(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var generalStore = settlement.State.GeneralStore;
-            if (generalStore != null)
-            {
-                var priceModifier = generalStore.EquipmentPriceModifier;
-                var availabilityModifier = generalStore.EquipmentAvailabilityModifier;
-                result.ShopInventory =
-                    [.. GetStock(ShopCategory.General, settlement, availabilityModifier, priceModifier),
-                    .. GetStock(ShopCategory.Potions, settlement, availabilityModifier, priceModifier)];
-                if (generalStore.ShopSpecials != null)
-                {
-                    foreach (var special in generalStore.ShopSpecials)
-                    {
-                        var item = result.ShopInventory.FirstOrDefault(i => i.Name == special.ItemName);
-                        if (item != null)
-                        {
-                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
-                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                result.Message = "There is no blacksmith at this settlement";
-                result.WasSuccessful = false;
-            }
-            return result;
-        }
-
-        private List<Equipment> GetStock(SettlementServiceName name, Settlement settlement, int availabilityModifier = 0, double priceModifier = 1d, int maxDurabilityModifier = 0)
-        {
-            var freshStocks = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.FreshStocks);
-            var shortageOfGoods = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.ShortageOfGoods);
-            if (freshStocks != null) availabilityModifier += 2;
-            if (shortageOfGoods != null) availabilityModifier -= 2;
-
-            var list = EquipmentService.GetShopInventoryByServiceName(name, availabilityModifier);
-
-            var sale = settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.Sale);
-            if (sale != null) priceModifier -= 0.2;
-            if (shortageOfGoods != null) priceModifier += 0.1;
-
-            list.ForEach(item => item.Value = (int)Math.Floor(item.Value * priceModifier));
-            list.ForEach(item => item.MaxDurability += maxDurabilityModifier);
-            list.ForEach(item => item.Durability += item.MaxDurability);
-            return list;
-        }
-
-        private SettlementActionResult VisitHerbalist(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var herbalist = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Herbalist);
-            if (herbalist == null)
-            {
-                result.Message = "There is no herbalist at this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-            result.ShopInventory = AlchemyService.GetShopIngredients().Cast<Equipment>().ToList();
-            return result;
-        }
-
-        private SettlementActionResult VisitMagicBrewery(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var magicBrewery = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.MagicBrewery);
-            if (magicBrewery == null)
-            {
-                result.Message = "There is no magic brewery at this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-            result.ShopInventory = AlchemyService.GetShopPotions().Cast<Equipment>().ToList();
             return result;
         }
 
@@ -459,15 +219,79 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> VisitSickWard(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> ArenaFighting(Hero hero, Arena arena, SettlementActionResult result)
         {
-            var sickWard = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.SickWard);
-            if (sickWard == null)
+            if (result.AvailableCoins < arena.MinimumEntryFee)
             {
-                result.Message = "There is no sickward at this settlement.";
+                result.Message = $"{hero.Name} does not have enough coin to participate";
                 result.WasSuccessful = false;
                 return result;
             }
+
+            var inputResult = await _userRequest.RequestNumberInputAsync("How much fo you want to bet", min: arena.MinimumEntryFee, max: Math.Min(arena.MaxBet, result.AvailableCoins), canCancel: true);
+            if (!inputResult.WasCancelled)
+            {
+                var bet = inputResult.Amount;
+                arena.Bet = bet;
+                while (!arena.IsComplete)
+                {
+                    var rollRequest = await _userRequest.RequestRollAsync($"Roll combat skill to compete in bout: {arena.Bout}", "1d100");
+                    await arena.StartBoutAsync(rollRequest.Roll, hero);
+                }
+                result.ArenaWinnings = arena.Winnings;
+                result.FoundItems = arena.ExtraAward;
+                result.Message = arena.Message;
+                hero.Party.Coins += arena.Winnings;
+                hero.GainExperience(arena.Experience); 
+            }
+            return result;
+        }
+        
+        private async Task<SettlementActionResult> Banking(Hero hero, Bank bank, SettlementActionResult result)
+        {
+            bool isBanking = true;
+            while (isBanking)
+            {
+                if (bank != null)
+                {
+                    var actionChoice = await _userRequest.RequestChoiceAsync($"Your account has {await bank.CheckBalanceAsync()} available coins. What would you like to do?", new List<string> { "Deposit coins.", "Withdraw coins." }, canCancel: true);
+                    await Task.Yield();
+                    switch (actionChoice.SelectedOption)
+                    {
+                        case "Deposit coins.":
+                            var depositResult = await _userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0, canCancel: true);
+                            if (!depositResult.WasCancelled)
+                            {
+                                if (result.AvailableCoins >= depositResult.Amount)
+                                {
+                                    result.Message += $"{depositResult.Amount} was deposited at {bank.Name.ToString()}. The new balance is {await bank.DepositAsync(depositResult.Amount)}";
+                                    result.AvailableCoins -= depositResult.Amount;
+                                }
+                            }
+                            break;
+                        case "Withdraw coins.":
+                            var withdrawResult = await _userRequest.RequestNumberInputAsync("How much would you like to withdraw?", min: 0, max: bank.AccountBalance, canCancel: true);
+                            if (!withdrawResult.WasCancelled)
+                            {
+                                var amountWithdrawn = await bank.WithdrawAsync(withdrawResult.Amount);
+                                result.Message += $"{amountWithdrawn} was withdrawn from {bank.Name.ToString()}. The new balance is {await bank.CheckBalanceAsync()}";
+                                result.AvailableCoins += amountWithdrawn;
+                            }
+                            break;
+                    }
+                }
+            }
+            return result;
+        }
+
+        private SettlementActionResult GetShopInventory(Hero hero, ServiceLocation service, SettlementActionResult result)
+        {
+            result.ShopInventory = service.CurrentAvailableStock;
+            return result;
+        }
+
+        private async Task<SettlementActionResult> VisitSickWard(Hero hero, SickWard sickWard, SettlementActionResult result)
+        {
             var poison = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == Combat.StatusEffectType.Poisoned);
             var disease = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == Combat.StatusEffectType.Diseased);
             if (poison == null &&  disease == null)
@@ -494,16 +318,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> EnchantItemAsync(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> EnchantItemAsync(Hero hero, Inn inn, SettlementActionResult result)
         {
-            var inn = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Inn);
-            if (inn == null)
-            {
-                result.Message = "There is no inn at this settlement.";
-                result.WasSuccessful = false; 
-                return result;
-            }
-
             if (hero.ProfessionName != "Wizard")
             {
                 result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
@@ -628,16 +444,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> CreateScroll(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> CreateScroll(Hero hero, Inn inn, SettlementActionResult result)
         {
-            var inn = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Inn);
-            if (inn == null)
-            {
-                result.Message = "There is no inn at this settlement.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.ProfessionName != "Wizard")
             {
                 result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
@@ -695,16 +503,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> ReadFortune(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> ReadFortune(Hero hero, FortuneTeller fortuneTeller, SettlementActionResult result)
         {
-            var fortuneTeller = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.FortuneTeller);
-            if (fortuneTeller == null)
-            {
-                result.Message = "There is no fortune teller at this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (result.AvailableCoins < 50)
             {
                 result.Message = $"{hero.Name} does not have enough available coins for this action.";
@@ -737,16 +537,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> Gamble(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> Gamble(Hero hero, Inn inn, SettlementActionResult result)
         {
-            var inn = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Inn);
-            if (inn == null)
-            {
-                result.Message = "There is no inn at this settlement to gamble at.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (result.AvailableCoins < 50)
             {
                 result.Message = $"{hero.Name} does not have enough coin to gamble with.";
@@ -786,152 +578,10 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> HorseRacing(Hero hero, Settlement settlement, SettlementActionResult result)
+        
+
+        private async Task<SettlementActionResult> IdentifyMagicItem(Hero hero, ServiceLocation scryer, SettlementActionResult result)
         {
-            var horseTrack = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.HorseTrack);
-            if (horseTrack == null)
-            {
-                result.Message = "There is no inn at this settlement to gamble at.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            if (result.AvailableCoins < 50)
-            {
-                result.Message = $"{hero.Name} does not have enough coin to gamble with.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            var horse = hero.Inventory.Mount;
-            if (horse == null || !horse.Properties.ContainsKey(EquipmentProperty.Horse))
-            {
-                result.Message = $"{hero.Name} does not have a mount to race with.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            var inputResult = await _userRequest.RequestNumberInputAsync("How much do you want to bet?", min: 50, max: Math.Min(300, result.AvailableCoins), canCancel: true);
-            await Task.Yield();
-            if (!inputResult.WasCancelled)
-            {
-                var bet = inputResult.Amount;
-                result.AvailableCoins -= bet;
-
-                var targetStat = hero.GetStat(BasicStat.Dexterity);
-                var rollResult = await _userRequest.RequestRollAsync("Roll dexterity test.", "1d100");
-                await Task.Yield();
-                if (rollResult.Roll <= (int)Math.Floor(targetStat/2d))
-                {
-                    result.Message = $"{hero.Name} gets 1st place!";
-                    switch (hero.Level)
-                    {
-                        case 1: bet = (int)Math.Floor(bet * 3.0d); break;
-                        case 2: bet = (int)Math.Floor(bet * 2.9d); break;
-                        case 3: bet = (int)Math.Floor(bet * 2.8d); break;
-                        case 4: bet = (int)Math.Floor(bet * 2.7d); break;
-                        case 5: bet = (int)Math.Floor(bet * 2.6d); break;
-                        case 6: bet = (int)Math.Floor(bet * 2.5d); break;
-                        case 7: bet = (int)Math.Floor(bet * 2.4d); break;
-                        case 8: bet = (int)Math.Floor(bet * 2.3d); break;
-                        case 9: bet = (int)Math.Floor(bet * 2.2d); break;
-                        default: bet = (int)Math.Floor(bet * 2.1d); break;
-                    }
-                    result.Message += $" Winning {bet}";
-                    result.AvailableCoins += bet;
-                    rollResult = await _userRequest.RequestRollAsync("Roll for a chance for an extra prize.", "1d10");
-                    await Task.Yield();
-                    switch (rollResult.Roll)
-                    {
-                        case <= 2:
-                            result.FoundItems = [.. await _treasure.GetWonderfulTreasureAsync()];
-                            if (result.FoundItems != null)
-                            {
-                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
-                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
-                            }
-                            break;
-                        case <= 4:
-                            result.FoundItems = [.. await _treasure.GetFineTreasureAsync()];
-                            if (result.FoundItems != null)
-                            {
-                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
-                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
-                            }
-                            break;
-                        default:
-                            result.Message += "\nNo extra prize awarded.";
-                            break;
-                    }
-                }
-                else if (rollResult.Roll <= targetStat - 10)
-                {
-                    result.Message = $"{hero.Name} gets 2nd place!";
-                    switch (hero.Level)
-                    {
-                        case 1: bet = (int)Math.Floor(bet * 2.5d); break;
-                        case 2: bet = (int)Math.Floor(bet * 2.4d); break;
-                        case 3: bet = (int)Math.Floor(bet * 2.3d); break;
-                        case 4: bet = (int)Math.Floor(bet * 2.2d); break;
-                        case 5: bet = (int)Math.Floor(bet * 2.1d); break;
-                        case 6: bet = (int)Math.Floor(bet * 2.0d); break;
-                        case 7: bet = (int)Math.Floor(bet * 1.9d); break;
-                        case 8: bet = (int)Math.Floor(bet * 1.8d); break;
-                        case 9: bet = (int)Math.Floor(bet * 1.7d); break;
-                        default: bet = (int)Math.Floor(bet * 1.6d); break;
-                    }
-                    result.Message += $" Winning {bet}";
-                    result.AvailableCoins += bet;
-                    rollResult = await _userRequest.RequestRollAsync("Roll for a chance for an extra prize.", "1d10");
-                    await Task.Yield();
-                    switch (rollResult.Roll)
-                    {
-                        case <= 1:
-                            result.FoundItems = [.. await _treasure.GetWonderfulTreasureAsync()];
-                            if (result.FoundItems != null)
-                            {
-                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
-                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
-                            }
-                            break;
-                        case <= 3:
-                            result.FoundItems = [.. await _treasure.GetFineTreasureAsync()];
-                            if (result.FoundItems != null)
-                            {
-                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
-                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
-                            }
-                            break;
-                        default:
-                            result.Message += "\nYou did not win an extra prize.";
-                            break;
-                    }
-                }
-                else if (rollResult.Roll >= 95)
-                {
-                    result.Message = $"Catastrophe strikes! {hero.Name} and his horse crash, {hero.Name} is minorly injured but their horse has a broken leg and must be put down.";
-                    hero.Inventory.Mount = null;
-                    hero.CurrentHP -= Math.Min(RandomHelper.RollDie(DiceType.D6), hero.CurrentHP);
-                    hero.CurrentSanity -= Math.Min(1, hero.CurrentSanity);
-                }
-                else
-                {
-                    result.Message = $"{hero.Name} loses...";
-                }
-            }
-            return result;
-        }
-
-        private async Task<SettlementActionResult> IdentifyMagicItem(Hero hero, Settlement settlement, SettlementActionResult result)
-        {
-            var scryer = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.Scryer || s.Name == SettlementServiceName.WizardsGuild);
-            if (scryer == null)
-            {
-                result.Message = "There is no scryer or wizard's guild in this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (result.AvailableCoins < 300)
             {
                 result.Message = $"{hero.Name} deos not have enough available coins for this action.";
@@ -965,16 +615,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> IdentifyPotion(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> IdentifyPotion(Hero hero, ServiceLocation generalStore, SettlementActionResult result)
         {
-            var scryer = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.GeneralStore || s.Name == SettlementServiceName.AlchemistGuild);
-            if (scryer == null)
-            {
-                result.Message = "There is no general store or alchemist guild in this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (result.AvailableCoins < 25)
             {
                 result.Message = $"{hero.Name} deos not have enough available coins for this action.";
@@ -1008,16 +650,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> LearnSpell(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> LearnSpell(Hero hero, WizardsGuild wizardsGuild, SettlementActionResult result)
         {
-            var wizardsGuild = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.WizardsGuild);
-            if (wizardsGuild == null)
-            {
-                result.Message = "There is no wizard's guild in this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.ProfessionName != "Wizard")
             {
                 result.Message = $"{hero.Name} is not a Wizard and can't learn spells.";
@@ -1105,16 +739,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> LearnPrayer(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> LearnPrayer(Hero hero, TheInnerSanctum innerSanctum, SettlementActionResult result)
         {
-            var innerSanctum = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.TheInnerSanctum);
-            if (innerSanctum == null)
-            {
-                result.Message = "There is no Inner Sanctum in this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (result.AvailableCoins < 1000)
             {
                 result.Message = $"{hero.Name} deos not have enough available coins for this action.";
@@ -1211,23 +837,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<SettlementActionResult> Pray(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> Pray(Hero hero, Temple temple, SettlementActionResult result)
         {
-            var temples = settlement.State.Temples;
-            if (temples == null || !temples.Any())
-            {
-                result.Message = "This settlement does not have any temples to pray at.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            if (hero.ProfessionName == "Warrior Priest")
-            {
-                result.Message = "As a Warrior Priest, you offer your prayers at the Inner Sanctum, not common temples.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
             {
                 result.Message = $"{hero.Name} has already offered prayers during this visit.";
@@ -1235,73 +846,42 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            var templesStringList = temples.Select(t => t.GodName.ToString()).ToList();
-            var selectedTemple = new Temple();
-            if (templesStringList.Any())
+            if (result.AvailableCoins >= temple.CostToPray)
             {
-                var choiceRequest = await _userRequest.RequestChoiceAsync("Select a temple to pray at.", templesStringList, canCancel: true);
+                var rollResult = await _userRequest.RequestRollAsync($"Roll to see if {temple.GodName.ToString()} listens.", temple.DiceToPray);
                 await Task.Yield();
-                if (!choiceRequest.WasCancelled)
+                if (rollResult.Roll <= 3 && temple.GrantedEffect != null)
                 {
-                    selectedTemple = temples.FirstOrDefault(t => t.GodName.ToString() == choiceRequest.SelectedOption);
-                    if (selectedTemple != null && result.AvailableCoins >= selectedTemple.CostToPray)
+                    result.Message = $"{temple.GodName.ToString()} hears your prayer and decides to grant you a boon.";
+                    if (temple.GodName == GodName.Ohlnir)
                     {
-                        var rollResult = await _userRequest.RequestRollAsync($"Roll to see if {selectedTemple.GodName.ToString()} listens.", selectedTemple.DiceToPray);
+                        var skillChoiceRequest = await _userRequest.RequestChoiceAsync("Which skill do you want Ohlnir to enhance?", new List<string>() { "Combat", "Ranged" });
                         await Task.Yield();
-                        if (rollResult.Roll <= 3 && selectedTemple.GrantedEffect != null)
+                        switch (skillChoiceRequest.SelectedOption)
                         {
-                            result.Message = $"{selectedTemple.GodName.ToString()} hears your prayer and decides to grant you a boon.";
-                            if (selectedTemple.GodName == GodName.Ohlnir)
-                            {
-                                var skillChoiceRequest = await _userRequest.RequestChoiceAsync("Which skill do you want Ohlnir to enhance?", new List<string>() { "Combat", "Ranged" });
-                                await Task.Yield();
-                                switch (skillChoiceRequest.SelectedOption)
-                                {
-                                    case "Combat": selectedTemple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
-                                    case "Ranged": selectedTemple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
-                                }
-                            }
-                            result.AvailableCoins -= selectedTemple.CostToPray;
-                            await StatusEffectService.AttemptToApplyStatusAsync(hero, selectedTemple.GrantedEffect, _powerActivation);
-                        }
-                        else
-                        {
-                            result.Message = $"You pray, but {selectedTemple.GodName.ToString()} remains silent.";
+                            case "Combat": temple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
+                            case "Ranged": temple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
                         }
                     }
-                    else
-                    {
-                        result.Message = "You do not have enough coins to make an offering.";
-                        result.WasSuccessful = false;
-                    }
+                    result.AvailableCoins -= temple.CostToPray;
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, temple.GrantedEffect, _powerActivation);
                 }
                 else
                 {
-                    result.Message = "You decide not to pray at this time.";
-                    result.WasSuccessful = false;
-                    return result;
+                    result.Message = $"You pray, but {temple.GodName.ToString()} remains silent.";
                 }
             }
             else
             {
-                result.Message = "This settlement does not have any temples to pray at.";
+                result.Message = "You do not have enough coins to make an offering.";
                 result.WasSuccessful = false;
-                return result;
             }
             return result;
         }
 
-        private async Task<SettlementActionResult> RestRecuperation(Party party, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> RestRecuperation(Party party, Inn inn, SettlementActionResult result)
         {
-            var inn = settlement.State.Inn;
-            if (inn == null)
-            {
-                result.Message = "There is no Inn at this settlement";
-                result.WasSuccessful = false;
-                return result;
-            }
-
-            var estate = settlement.State.Estate;
+            var estate = inn.Settlement.State.Estate;
             //The party owns an estate in this settlement (free stay)
             if (estate != null)
             {
@@ -1404,16 +984,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             return availableCoin;
         }
 
-        private async Task<SettlementActionResult> TreatMentalConditions(Hero hero, Settlement settlement, SettlementActionResult result)
+        private async Task<SettlementActionResult> TreatMentalConditions(Hero hero, TheAsylum asylum, SettlementActionResult result)
         {
-            var asylum = settlement.AvailableServices.FirstOrDefault(s => s.Name == SettlementServiceName.TheAsylum);
-            if (asylum == null)
-            {
-                result.Message = "The Asylum is not available in this settlement.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             var curableConditions = hero.ActiveStatusEffects.Where(e =>
                 e.Category == StatusEffectType.PostTraumaticStressDisorder ||
                 e.Category == StatusEffectType.FearDark ||
@@ -1486,7 +1058,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             return action switch
             {
                 SettlementActionType.CollectQuestRewards => 0,
-                SettlementActionType.Gamble => 0,
+                SettlementActionType.Gambling => 0,
                 SettlementActionType.LevelUp => 0,
                 SettlementActionType.RestRecuperation => 0,
                 SettlementActionType.TendThoseMemories => 0,

@@ -6,6 +6,7 @@ using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using RogueSharp;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using static LoDCompanion.BackEnd.Services.Player.ServiceLocation;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -65,18 +66,9 @@ namespace LoDCompanion.BackEnd.Services.Player
         Turquoise
     }
 
-    public enum GodName
-    {
-        Ohlnir,
-        Rhidnir,
-        Iphy,
-        Metheia,
-        Charus,
-        Ramos
-    }
-
     public class ServiceLocation
     {
+        public Settlement Settlement { get; set; }
         public SettlementServiceName Name { get; set; }
         public List<SettlementActionType> AvailableActions { get; set; } = new List<SettlementActionType>();
         public string? SpecialRules { get; set; }
@@ -102,15 +94,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                 // If the stock hasn't been generated for this visit yet, generate it.
                 if (_currentAvailableStock == null)
                 {
-                    _currentAvailableStock = EquipmentService.GetShopInventoryByServiceName(Name);
+                    _currentAvailableStock = GetStock();
                 }
                 return _currentAvailableStock;
             }
         }
 
-        public ServiceLocation(SettlementServiceName name)
+        public ServiceLocation(SettlementServiceName name, Settlement settlement)
         {
             Name = name;
+            Settlement = settlement;
         }
 
         // Call this method when the party first enters the settlement
@@ -120,23 +113,118 @@ namespace LoDCompanion.BackEnd.Services.Player
             _currentAvailableStock = null;
         }
 
+        private List<Equipment> GetStock()
+        {
+            var availabilityModifier = 0;
+            var priceModifier = 1d;
+
+            var freshStocks = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.FreshStocks);
+            var shortageOfGoods = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.ShortageOfGoods);
+            var sale = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == Combat.StatusEffectType.Sale);
+            if (freshStocks != null) availabilityModifier += 2;
+            if (shortageOfGoods != null) availabilityModifier -= 2;
+
+            var list = EquipmentService.GetShopInventoryByServiceLocation(this, availabilityModifier);
+
+            if (this is BlackSmith blackSmith)
+            {
+                var weaponPriceMod = blackSmith.WeaponPriceModifier;
+                var armourPriceMod = blackSmith.ArmourPriceModifier;
+                if (sale != null)
+                {
+                    weaponPriceMod -= 0.2;
+                    armourPriceMod -= 0.2;
+                }
+                if (shortageOfGoods != null)
+                {
+                    weaponPriceMod += 0.1;
+                    armourPriceMod += 0.1;
+                }
+                // apply weapon price mod
+                list
+                    .Where(item => item is Weapon || item is Ammo).ToList()
+                    .ForEach(item => item.Value = (int)Math.Floor(item.Value * weaponPriceMod));
+                // apply weapon max durability mod
+                list
+                    .Where(item => item is Weapon || item is Ammo).ToList()
+                    .ForEach(item => item.MaxDurability += blackSmith.WeaponMaxDurabilityModifier);
+                // apply armour price mod
+                list
+                    .Where(item => !(item is Weapon || item is Ammo)).ToList()
+                    .ForEach(item => item.Value = (int)Math.Floor(item.Value * armourPriceMod));
+                // apply armour max durability mod
+                list
+                    .Where(item => !(item is Weapon || item is Ammo)).ToList()
+                    .ForEach(item => item.MaxDurability += blackSmith.ArmourMaxDurabilityModifier);
+                // update durability to max
+                list.ForEach(item => item.Durability = item.MaxDurability);
+
+                if (this is BlackSmith specials && specials.ShopSpecials != null)
+                {
+                    foreach (var special in specials.ShopSpecials)
+                    {
+                        var item = list.FirstOrDefault(i => i.Name == special.ItemName);
+                        if (item != null)
+                        {
+                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
+                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (this is GeneralStore generalStore) priceModifier = generalStore.EquipmentPriceModifier;
+                if (sale != null) priceModifier -= 0.2;
+                if (shortageOfGoods != null) priceModifier += 0.1;
+                list.ForEach(item => item.Value = (int)Math.Floor(item.Value * priceModifier));
+
+                if (this is GeneralStore specials && specials.ShopSpecials != null)
+                {
+                    foreach (var special in specials.ShopSpecials)
+                    {
+                        var item = list.FirstOrDefault(i => i.Name == special.ItemName);
+                        if (item != null)
+                        {
+                            item.Value = special.Price.HasValue ? special.Price.Value : item.Value;
+                            item.Availability = special.Availability.HasValue ? special.Availability.Value : item.Availability;
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
+
     }
 
     public class Settlement
     {
-        public SettlementState State { get; set; } = new SettlementState();
+        public SettlementState State { get; set; }
         public List<HexTile> HexTiles { get; set; } = new List<HexTile>();
         public SettlementName Name { get; set; }
-        public List<ServiceLocation> AvailableServices { get; set; } = new List<ServiceLocation>();
         public int EventOn { get; set; }
-        public string QuestDice { get; set; } = string.Empty;
-        public QuestColor QuestColor { get; set; }
+        public string? QuestDice { get; set; }
+        public QuestColor? QuestColor { get; set; }
         public int RejectedQuests { get; set; }
         public string? SpecialRules { get; internal set; }
+
+        public Settlement(SettlementName name, int eventOn, List<HexTile> hexTiles, string? questDice = null, QuestColor? questColor = null, string? specialRules = null)
+        {
+            Name = name;
+            EventOn = eventOn;
+            HexTiles = hexTiles;
+            State = new SettlementState(this);
+
+            QuestDice = questDice;
+            QuestColor = questColor;
+            SpecialRules = specialRules;
+        }
     }
 
     public class SettlementState
     {
+        public Settlement Settlement { get; set; }
         public int CurrentDay { get; set; } = 1;
         public Dictionary<Hero, int> HeroActionPoints { get; set; } = new Dictionary<Hero, int>();
         public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
@@ -144,10 +232,28 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Inn? Inn { get; set; }
         public GeneralStore? GeneralStore { get; set; }
         public BlackSmith? BlackSmith { get; set; }
+        public Herbalist? Herbalist { get; set; }
+        public MagicBrewery? MagicBrewery { get; set; }
+        public SickWard? SickWard { get; set; }
+        public FortuneTeller? FortuneTeller { get; set; }
+        public HorseTrack? HorseTrack { get; set; }
+        public Scryer? Scryer { get; set; }
+        public TheAsylum? TheAsylum { get; set; }
         public Arena? Arena { get; set; }
         public List<Bank>? Banks { get; set; }
         public List<Temple>? Temples { get; set; }
+        public TheDarkGuild? TheDarkGuild { get; set; }
+        public FightersGuild? FightersGuild { get; set; }
+        public WizardsGuild? WizardsGuild { get; set; }
+        public AlchemistsGuild? AlchemistsGuild { get; set; }
+        public RangersGuild? RangersGuild { get; set; }
+        public TheInnerSanctum? TheInnerSanctum { get; set; }
         public Estate? Estate { get; set; }
+
+        public SettlementState (Settlement settlement)
+        {
+            Settlement = settlement;
+        }
     }
 
     public class Inn : ServiceLocation
@@ -155,8 +261,18 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int Price { get; set; }
         public int SleepInStablesPrice => (int)Math.Floor(Price / 2d);
 
-        public Inn() : base(SettlementServiceName.Inn)
+        public Inn(Settlement settlement) : base(SettlementServiceName.Inn, settlement)
         {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.Gambling,
+                        SettlementActionType.RestRecuperation,
+                        SettlementActionType.TendThoseMemories,
+                        SettlementActionType.EnchantObjects,
+                        SettlementActionType.CreateScroll
+                    };
         }
     }
 
@@ -179,8 +295,14 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int ArmourMaxDurabilityModifier { get; internal set; }
         public List<ShopSpecial>? ShopSpecials { get; set; }
 
-        public BlackSmith() : base(SettlementServiceName.Blacksmith)
+        public BlackSmith(Settlement settlement) : base(SettlementServiceName.Blacksmith, settlement)
         {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
         }
     }
 
@@ -190,8 +312,238 @@ namespace LoDCompanion.BackEnd.Services.Player
         public double EquipmentPriceModifier { get; set; } = 1d;
         public List<ShopSpecial>? ShopSpecials { get; set; }
 
-        public GeneralStore() : base(SettlementServiceName.GeneralStore)
+        public GeneralStore(Settlement settlement) : base(SettlementServiceName.GeneralStore, settlement)
         {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.IdentifyPotion
+                    };
+        }
+    }
+
+    public class Herbalist : ServiceLocation
+    {
+        public Herbalist(Settlement settlement) : base(SettlementServiceName.Herbalist, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
+        }
+    }
+
+    public class MagicBrewery : ServiceLocation
+    {
+        public MagicBrewery(Settlement settlement) : base(SettlementServiceName.MagicBrewery, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.IdentifyPotion
+                    };
+        }
+    }
+
+    public class SickWard : ServiceLocation
+    {
+        public SickWard(Settlement settlement) : base(SettlementServiceName.SickWard, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.CureDiseasePoison,
+                    };
+        }
+    }
+
+    public class HorseTrack : ServiceLocation
+    {
+        public int MinBet { get; set; } = 50;
+        public int MaxBet { get; set; } = 300;
+        public int Bet { get; set; }
+        public HorseTrack(Settlement settlement) : base(SettlementServiceName.HorseTrack, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.HorseRacing,
+                    };
+        }
+
+        public async Task<SettlementActionResult> HorseRacing(Hero hero, SettlementActionResult result, UserRequestService userRequest, TreasureService treasure)
+        {
+            if (result.AvailableCoins < MinBet)
+            {
+                result.Message = $"{hero.Name} does not have enough coin to gamble with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var horse = hero.Inventory.Mount;
+            if (horse == null || !horse.Properties.ContainsKey(EquipmentProperty.Horse))
+            {
+                result.Message = $"{hero.Name} does not have a mount to race with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var inputResult = await userRequest.RequestNumberInputAsync("How much do you want to Bet?", min: MinBet, max: Math.Min(MaxBet, result.AvailableCoins), canCancel: true);
+            await Task.Yield();
+            if (!inputResult.WasCancelled)
+            {
+                Bet = inputResult.Amount;
+                result.AvailableCoins -= Bet;
+
+                var targetStat = hero.GetStat(BasicStat.Dexterity);
+                var rollResult = await userRequest.RequestRollAsync("Roll dexterity test.", "1d100");
+                await Task.Yield();
+                if (rollResult.Roll <= (int)Math.Floor(targetStat / 2d))
+                {
+                    result.Message = $"{hero.Name} gets 1st place!";
+                    switch (hero.Level)
+                    {
+                        case 1: Bet = (int)Math.Floor(Bet * 3.0d); break;
+                        case 2: Bet = (int)Math.Floor(Bet * 2.9d); break;
+                        case 3: Bet = (int)Math.Floor(Bet * 2.8d); break;
+                        case 4: Bet = (int)Math.Floor(Bet * 2.7d); break;
+                        case 5: Bet = (int)Math.Floor(Bet * 2.6d); break;
+                        case 6: Bet = (int)Math.Floor(Bet * 2.5d); break;
+                        case 7: Bet = (int)Math.Floor(Bet * 2.4d); break;
+                        case 8: Bet = (int)Math.Floor(Bet * 2.3d); break;
+                        case 9: Bet = (int)Math.Floor(Bet * 2.2d); break;
+                        default: Bet = (int)Math.Floor(Bet * 2.1d); break;
+                    }
+                    result.Message += $" Winning {Bet}";
+                    result.AvailableCoins += Bet;
+                    rollResult = await userRequest.RequestRollAsync("Roll for a chance for an extra prize.", "1d10");
+                    await Task.Yield();
+                    switch (rollResult.Roll)
+                    {
+                        case <= 2:
+                            result.FoundItems = [.. await treasure.GetWonderfulTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        case <= 4:
+                            result.FoundItems = [.. await treasure.GetFineTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        default:
+                            result.Message += "\nNo extra prize awarded.";
+                            break;
+                    }
+                }
+                else if (rollResult.Roll <= targetStat - 10)
+                {
+                    result.Message = $"{hero.Name} gets 2nd place!";
+                    switch (hero.Level)
+                    {
+                        case 1: Bet = (int)Math.Floor(Bet * 2.5d); break;
+                        case 2: Bet = (int)Math.Floor(Bet * 2.4d); break;
+                        case 3: Bet = (int)Math.Floor(Bet * 2.3d); break;
+                        case 4: Bet = (int)Math.Floor(Bet * 2.2d); break;
+                        case 5: Bet = (int)Math.Floor(Bet * 2.1d); break;
+                        case 6: Bet = (int)Math.Floor(Bet * 2.0d); break;
+                        case 7: Bet = (int)Math.Floor(Bet * 1.9d); break;
+                        case 8: Bet = (int)Math.Floor(Bet * 1.8d); break;
+                        case 9: Bet = (int)Math.Floor(Bet * 1.7d); break;
+                        default: Bet = (int)Math.Floor(Bet * 1.6d); break;
+                    }
+                    result.Message += $" Winning {Bet}";
+                    result.AvailableCoins += Bet;
+                    rollResult = await userRequest.RequestRollAsync("Roll for a chance for an extra prize.", "1d10");
+                    await Task.Yield();
+                    switch (rollResult.Roll)
+                    {
+                        case <= 1:
+                            result.FoundItems = [.. await treasure.GetWonderfulTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        case <= 3:
+                            result.FoundItems = [.. await treasure.GetFineTreasureAsync()];
+                            if (result.FoundItems != null)
+                            {
+                                var extraAwardNames = string.Join(", ", result.FoundItems.Select(award => award.Name));
+                                result.Message += $"\nThe hero also received an extra award of {extraAwardNames}";
+                            }
+                            break;
+                        default:
+                            result.Message += "\nYou did not win an extra prize.";
+                            break;
+                    }
+                }
+                else if (rollResult.Roll >= 95)
+                {
+                    result.Message = $"Catastrophe strikes! {hero.Name} and his horse crash, {hero.Name} is minorly injured but their horse has a broken leg and must be put down.";
+                    hero.Inventory.Mount = null;
+                    hero.CurrentHP -= Math.Min(RandomHelper.RollDie(DiceType.D6), hero.CurrentHP);
+                    hero.CurrentSanity -= Math.Min(1, hero.CurrentSanity);
+                }
+                else
+                {
+                    result.Message = $"{hero.Name} loses...";
+                }
+            }
+            return result;
+        }
+    }
+
+    public class FortuneTeller : ServiceLocation
+    {
+        public FortuneTeller(Settlement settlement) : base(SettlementServiceName.FortuneTeller, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.ReadFortune,
+                    };
+        }
+    }
+
+    public class Scryer : ServiceLocation
+    {
+        public Scryer(Settlement settlement) : base(SettlementServiceName.Scryer, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.IdentifyMagicItem,
+                    };
+        }
+    }
+
+    public class TheAsylum : ServiceLocation
+    {
+        public TheAsylum(Settlement settlement) : base(SettlementServiceName.TheAsylum, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.TreatMentalConditions,
+                    };
         }
     }
 
@@ -204,19 +556,26 @@ namespace LoDCompanion.BackEnd.Services.Player
             Final
         }
 
-        private readonly TreasureService _treasure;
         public string Message { get; set; } = string.Empty;
-        public int EntryFee { get; set; }
+        public int MinimumEntryFee { get; set; } = 50;
+        public int MaxBet { get; set; } = 200;
+        public int Bet { get; set; }
         public ArenaBout Bout { get; set; } = ArenaBout.Group;
         public int Winnings { get; set; }
         public int Experience { get; set; }
         public bool IsComplete { get; set; }
         public List<Equipment>? ExtraAward { get; set; }
 
-        public Arena(int entryFee, TreasureService treasureService) : base(SettlementServiceName.Arena)
+        public event Func<TreasureType, int, Task<List<Equipment>>>? OnGetExtraAward;
+
+        public Arena(Settlement settlement) : base(SettlementServiceName.Arena, settlement)
         {
-            EntryFee = entryFee;
-            _treasure = treasureService;
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.ArenaFighting,
+                    };
         }
 
         public async Task StartBoutAsync(int rollAttempt, Hero hero)
@@ -234,12 +593,15 @@ namespace LoDCompanion.BackEnd.Services.Player
                     case ArenaBout.SemiFinal: Bout = ArenaBout.Final; break;
                     case ArenaBout.Final:
                         IsComplete = true;
-                        var roll = RandomHelper.RollDie(DiceType.D10);
-                        switch (roll)
+                        if (OnGetExtraAward != null)
                         {
-                            case 1: ExtraAward = await _treasure.FoundTreasureAsync(TreasureType.Wonderful, 1); break;
-                            case <= 4: ExtraAward = await _treasure.FoundTreasureAsync(TreasureType.Fine, 1); break;
-                            default: break;
+                            var roll = RandomHelper.RollDie(DiceType.D10);
+                            switch (roll)
+                            {
+                                case 1: ExtraAward = await OnGetExtraAward.Invoke(TreasureType.Wonderful, 1); break;
+                                case <= 4: ExtraAward = await OnGetExtraAward.Invoke(TreasureType.Fine, 1); break;
+                                default: break;
+                            } 
                         }
                         break;
                 }
@@ -334,7 +696,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                     break;
             }
-            return (int)Math.Floor(EntryFee * multiplier);
+            return (int)Math.Floor(Bet * multiplier);
         }
 
         private int GetArenaModifier(Hero hero)
@@ -379,9 +741,14 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool HasCheckedBankAccount { get; set; }
         public double ProfitLoss { get; set; }
 
-        public Bank() : base(SettlementServiceName.Banks)
-        { 
-           
+        public Bank(Settlement settlement) : base(SettlementServiceName.Banks, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.Banking,
+                    };
         }
 
         public async Task<int> DepositAsync(int amount)
@@ -469,6 +836,16 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public enum GodName
+    {
+        Ohlnir,
+        Rhidnir,
+        Iphy,
+        Metheia,
+        Charus,
+        Ramos
+    }
+
     public class Temple : ServiceLocation
     {
         public GodName GodName { get; set; }
@@ -477,8 +854,37 @@ namespace LoDCompanion.BackEnd.Services.Player
         public string DiceToPray { get; set; } = "1d6";
         public ActiveStatusEffect? GrantedEffect { get; set; }
 
-        public Temple() : base(SettlementServiceName.Temple)
+        public Temple(Settlement settlement) : base(SettlementServiceName.Temple, settlement)
         {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.Pray,
+                    };
+        }
+    }
+
+    public class Bounty
+    {
+        public Monster Monster { get; private set; }
+        public int Value { get; private set; }
+        public int TargetAmount { get; private set; }
+        public int AmountKilled { get; set; }
+
+        public Bounty(Monster monster)
+        {
+            Monster = monster;
+            SetTargetAndValue();
+        }
+
+        private void SetTargetAndValue()
+        {
+            Value = Monster.XP;
+            while (TargetAmount * Value < 250)
+            {
+                TargetAmount++;
+            }
         }
     }
 
@@ -488,17 +894,15 @@ namespace LoDCompanion.BackEnd.Services.Player
         public List<(Skill, int)> AvailableSkillTraining { get; set; } = new();
         public int SkillTrainingFee { get; set; }
         public Dictionary<Hero, int> QuestsBeforeNextTraining { get; set; } = new();
-        public List<Monster>? WantedBounties { get; set; }
-        public EncounterType? Crusade { get; set; }
 
-        public Guild(SettlementServiceName name) : base(name)
+        public Guild(SettlementServiceName name, Settlement settlement) : base(name, settlement)
         {
-        }
+            Settlement = settlement;
 
-        public override void RefreshStockForNewVisit()
-        {
-            //Call the base class method to reset the stock
-            base.RefreshStockForNewVisit();
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
         }
 
         public bool CanTrain(Hero hero)
@@ -515,8 +919,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             var skillToTrain = AvailableSkillTraining.FirstOrDefault(s => s.Item1 == skill);
             if(CanTrain(hero))
             {
-                if(skillToTrain.Item1 == skill)
+                if(skillToTrain.Item1 == skill && hero.Coins + hero.Party.Coins >= SkillTrainingFee)
                 {
+                    var remainingTrainingFee = SkillTrainingFee - hero.Coins;
+                    hero.Coins -= SkillTrainingFee;
+                    if (remainingTrainingFee > 0)
+                    {
+                        hero.Party.Coins -= remainingTrainingFee;
+                    }
                     hero.SetSkill(skill, hero.GetSkill(skill) + 3);
                 }
                 else return false;
@@ -527,10 +937,142 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public class TheDarkGuild : Guild
+    {
+        public TheDarkGuild(Settlement settlement) : base(SettlementServiceName.TheDarkGuild, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
+            AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.PickLocks, 3), (Skill.Perception, 3) };
+            SkillTrainingFee = 300;
+        }
+    }
+
+    public class FightersGuild : Guild
+    {
+        public EncounterService Encounter { get; set; }
+        public List<Bounty>? WantedBounties { get; set; }
+
+        public FightersGuild(Settlement settlement, EncounterService encounter) : base(SettlementServiceName.FightersGuild, settlement)
+        {
+            Settlement = settlement;
+            Encounter = encounter;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
+            AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Heal, 3), (Skill.Dodge, 3) };
+            SkillTrainingFee = 300;
+        }
+
+        public override void RefreshStockForNewVisit()
+        {
+            //Call the base class method to reset the stock
+            base.RefreshStockForNewVisit();
+            if (Name == SettlementServiceName.FightersGuild && Encounter != null)
+            {
+                WantedBounties = GetFightersGuildBountyHuntList(Encounter);
+            }
+        }
+
+        private List<Bounty> GetFightersGuildBountyHuntList(EncounterService encounter)
+        {
+            var availableBounties = encounter.Monsters.Where(m => !m.IsUnique && m.XP >= 50).ToList();
+            var currentBounties = new List<Bounty>();
+            availableBounties.Shuffle();
+            for (int i = 0; i < 5; i++)
+            {
+                var monster = availableBounties[i];
+                var bounty = new Bounty(monster);
+                currentBounties.Add(bounty);
+            }
+
+            return currentBounties;
+        }
+    }
+
+    public class WizardsGuild : Guild
+    {
+        public WizardsGuild(Settlement settlement) : base(SettlementServiceName.WizardsGuild, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.ChargeMagicItem,
+                        SettlementActionType.IdentifyMagicItem,
+                        SettlementActionType.LearnSpell
+                    };
+            AvailableSkillTraining = new List<(Skill, int)> { (Skill.ArcaneArts, 3), (Skill.Perception, 3), (Skill.Heal, 3) };
+            SkillTrainingFee = 300;
+        }
+    }
+
+    public class AlchemistsGuild : Guild
+    {
+        public AlchemistsGuild(Settlement settlement) : base(SettlementServiceName.AlchemistGuild, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.IdentifyPotion
+                    };
+            AvailableSkillTraining = new List<(Skill, int)> { (Skill.Alchemy, 3), (Skill.Heal, 3), (Skill.Perception, 3) };
+            SkillTrainingFee = 300;
+        }
+    }
+
+    public class RangersGuild : Guild
+    {
+        public RangersGuild(Settlement settlement) : base(SettlementServiceName.RangersGuild, settlement)
+        {
+            Settlement = settlement;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
+            AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.Dodge, 3), (Skill.Heal, 3), (Skill.Foraging, 3) };
+            SkillTrainingFee = 300;
+        }
+    }
+
+    public class Crusade
+    {
+        public EncounterType encounterType { get; set; }
+    }
+
+    public class TheInnerSanctum : Guild
+    {
+        public EncounterService Encounter { get; set; }
+        public EncounterType? Crusade { get; set; }
+
+        public TheInnerSanctum(Settlement settlement, EncounterService encounter) : base(SettlementServiceName.TheInnerSanctum, settlement)
+        {
+            Settlement = settlement;
+            Encounter = encounter;
+
+            AvailableActions = new List<SettlementActionType>
+                    {
+                        SettlementActionType.BuyingAndSelling
+                    };
+            AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Dodge, 3), (Skill.BattlePrayers, 3) };
+            SkillTrainingFee = 300;
+        }
+    }
+
     public class Estate : ServiceLocation
     {
 
-        public Estate() : base(SettlementServiceName.Estate)
+        public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
         {
 
         }
@@ -561,6 +1103,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             _treasure = treasure;
             _gameData = gameData;
             _encounter = encounter;
+
+
         }
 
         public void StartNewDay(Settlement settlement)
@@ -601,117 +1145,92 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<HexTile?> GetRandomQuestLocation(Settlement settlement)
         {
+            if (settlement.QuestColor == null || settlement.QuestDice == null) return null;
             var rollResult = await _userRequest.RequestRollAsync("Roll for random quest", settlement.QuestDice);
             await Task.Yield();
-            return _quest.GetQuestHexLocationByColorNumber(rollResult.Roll, settlement.QuestColor);
+            return _quest.GetQuestHexLocationByColorNumber(rollResult.Roll, (QuestColor)settlement.QuestColor);
         }
 
         public List<Settlement> GetSettlements()
         {
-            return new List<Settlement>
-            {
-                new Settlement
-                {
-                    Name = SettlementName.Caelkirk,
-                    EventOn = 11,
-                    QuestDice = "1d4",
-                    QuestColor = QuestColor.Red,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn)
-                    },
-                    HexTiles = new List<HexTile>
+            var list = new List<Settlement>();
+            var settlement = new Settlement
+            (
+                SettlementName.Caelkirk,
+                11,
+                new List<HexTile>
                     {
                         new HexTile(new Hex(0, -28, 28)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(0, -29, 29)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(1, -29, 28)) { Terrain = TerrainType.Town }
                     },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 35
-                        },
-                        BlackSmith = new BlackSmith()
-                        {
-                            WeaponAvailabilityModifier = -2,
-                            WeaponPriceModifier = 1.1,
-                            ArmourAvailabilityModifier = -2,
-                            ArmourPriceModifier = 1.1
-                        },
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = -2,
-                            EquipmentPriceModifier = 1.1,
-                            ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
-                        }
-                    }
-                },
-                new Settlement
+                "1d4",
+                QuestColor.Red
+            );
+            settlement.State.Inn = new Inn(settlement)
+            {
+                Price = 35
+            };
+            settlement.State.BlackSmith = new BlackSmith(settlement)
+            {
+                WeaponAvailabilityModifier = -2,
+                WeaponPriceModifier = 1.1,
+                ArmourAvailabilityModifier = -2,
+                ArmourPriceModifier = 1.1
+            };
+            settlement.State.GeneralStore = new GeneralStore(settlement)
+            {
+                EquipmentAvailabilityModifier = -2,
+                EquipmentPriceModifier = 1.1,
+                ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Coalfell,
+                12,
+                new List<HexTile>
                 {
-                    Name = SettlementName.Coalfell,
-                    EventOn = 12,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Green,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Temple)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(0, 15, -15)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(0, 14, -14)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(1, 14, -15)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 35
-                        },
-                        BlackSmith = new BlackSmith()
-                        {
-                            WeaponAvailabilityModifier = 1,
-                            WeaponPriceModifier = 0.9,
-                            ArmourAvailabilityModifier = 1,
-                            ArmourPriceModifier = 0.9
-                        },
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = -2,
-                            EquipmentPriceModifier = 1.2
-                        },
-                        Temples = new()
-                        {
-                            new Temple()
-                            {
-                                GodName = GodName.Ohlnir,
-                                Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
-                            }
-                        }
-                    }
+                    new HexTile(new Hex(0, 15, -15)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(0, 14, -14)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(1, 14, -15)) { Terrain = TerrainType.Town }
                 },
-                new Settlement
+                "1d6",
+                QuestColor.Green
+            );
+            settlement.State.Inn = new Inn(settlement)
+            {
+                Price = 35
+            };
+            settlement.State.BlackSmith = new BlackSmith(settlement)
+            {
+                WeaponAvailabilityModifier = 1,
+                WeaponPriceModifier = 0.9,
+                ArmourAvailabilityModifier = 1,
+                ArmourPriceModifier = 0.9
+            };
+            settlement.State.GeneralStore = new GeneralStore(settlement)
+            {
+                EquipmentAvailabilityModifier = -2,
+                EquipmentPriceModifier = 1.2
+            };
+            settlement.State.Temples = new()
+            {
+                new (settlement)
                 {
-                    Name = SettlementName.Freyfell,
-                    EventOn = 11,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Pink,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Arena),
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.SickWard)
-                    },
-                    HexTiles = new List<HexTile>
+                    GodName = GodName.Ohlnir,
+                    Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                }
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Freyfell,
+                11,
+                new List<HexTile>
                     {
                         new HexTile(new Hex(0, -15, 15)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(1, -15, 14)) { Terrain = TerrainType.Town },
@@ -720,662 +1239,459 @@ namespace LoDCompanion.BackEnd.Services.Player
                         new HexTile(new Hex(-1, -14, 15)) { Terrain = TerrainType.Town },
                         new HexTile(new Hex(0, -14, 14)) { Terrain = TerrainType.Town }
                     },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 25
-                        },
-                        BlackSmith = new BlackSmith(),
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = 1,
-                            EquipmentPriceModifier = 0.9
-                        },
-                        Arena = new Arena(50, _treasure)
-                    }
-                },
-                new Settlement
+                "1d6",
+                QuestColor.Pink
+            );
+            settlement.State.Inn = new Inn(settlement)
+            {
+                Price = 25
+            };
+            settlement.State.BlackSmith = new(settlement);
+            settlement.State.GeneralStore = new(settlement)
+            {
+                EquipmentAvailabilityModifier = 1,
+                EquipmentPriceModifier = 0.9
+            };
+            settlement.State.Arena = new Arena(settlement);
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Irondale,
+                12,
+                new List<HexTile>
                 {
-                    Name = SettlementName.Irondale,
-                    EventOn = 12,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Blue,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Temple)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(0, -13, 13)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(1, -13, 12)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(1, -14, 13)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(0, -14, 14)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-1, -12, 13)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(0, -12, 12)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 15
-                        },
-                        BlackSmith = new BlackSmith(),
-                        GeneralStore = new GeneralStore(),
-                        Temples = new List<Temple>
-                        {
-                            new Temple
-                            {
-                                GodName = GodName.Rhidnir,
-                                Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon : true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Iphy,
-                                Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon : true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Metheia,
-                                Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
-                            }
-                        }
-                    }
+                    new HexTile(new Hex(0, -13, 13)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(1, -13, 12)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(1, -14, 13)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(0, -14, 14)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-1, -12, 13)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(0, -12, 12)) { Terrain = TerrainType.Town }
                 },
-                new Settlement
+                "1d6",
+                QuestColor.Blue
+            );
+            settlement.State.Inn = new (settlement)
+            {
+                Price = 15
+            };
+            settlement.State.BlackSmith = new (settlement);
+            settlement.State.GeneralStore = new (settlement);
+            settlement.State.Temples = new ()
+            {
+                new (settlement)
                 {
-                    Name = SettlementName.Whiteport,
-                    EventOn = 10,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Black,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.AlbertasMagnificentAnimals),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Temple)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(-16, 0, 16)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-16, -1, 17)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-17, 1, 16)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 15
-                        },
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = 1,
-                            EquipmentPriceModifier = 0.9,
-                            ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
-                        },
-                        Temples = new List<Temple>
-                        {
-                            new Temple
-                            {
-                                GodName = GodName.Rhidnir,
-                                Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Iphy,
-                                Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Metheia,
-                                Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ohlnir,
-                                Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
-                            }
-                        }
-                    }
+                    GodName = GodName.Rhidnir,
+                    Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
                 },
-                new Settlement
+                new (settlement)
                 {
-                    Name = SettlementName.Windfair,
-                    EventOn = 12,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Blue,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Scryer),
-                        new ServiceLocation(SettlementServiceName.Temple)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(12, -8, -4)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(12, -9, -3)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(13, -9, -4)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(12, -7, -5)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 35
-                        },
-                        BlackSmith = new BlackSmith(),
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = -1,
-                            EquipmentPriceModifier = 1.1, 
-                            ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
-                        },
-                        Temples = new()
-                        {
-                            new Temple()
-                            {
-                                GodName = GodName.Ohlnir,
-                                Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Charus,
-                                Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
-                            }
-                        }
-                    }
+                    GodName = GodName.Iphy,
+                    Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
                 },
-                new Settlement
+                new (settlement)
                 {
-                    Name = SettlementName.Rochdale,
-                    EventOn = 12,
-                    QuestDice = "1d6",
-                    QuestColor = QuestColor.Purple,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation (SettlementServiceName.Herbalist),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.SickWard),
-                        new ServiceLocation (SettlementServiceName.MagicBrewery)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(-6, 7, -1)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-7, 8, -1)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-6, 8, -2)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 20
-                        },
-                        GeneralStore = new GeneralStore(),
-                    }
-                },
-                new Settlement
-                {
-                    Name = SettlementName.SilverCity,
-                    EventOn = 8,
-                    QuestDice = "2d20",
-                    QuestColor = QuestColor.White,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Arena),
-                        new ServiceLocation (SettlementServiceName.TheAsylum),
-                        new ServiceLocation (SettlementServiceName.Banks),
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation (SettlementServiceName.FortuneTeller),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation (SettlementServiceName.TheDarkGuild),
-                        new ServiceLocation (SettlementServiceName.FightersGuild),
-                        new ServiceLocation (SettlementServiceName.AlchemistGuild),
-                        new ServiceLocation (SettlementServiceName.WizardsGuild),
-                        new ServiceLocation (SettlementServiceName.RangersGuild),
-                        new ServiceLocation (SettlementServiceName.TheInnerSanctum),
-                        new ServiceLocation (SettlementServiceName.HorseTrack),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Temple),
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(0, 0, 0)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(1, 0, -1)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(0, 1, -1)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-1, 1, 0)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-1, 0, 1)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(0, -1, 1)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(1, -1, 0)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 25
-                        },
-                        BlackSmith = new BlackSmith(),
-                        GeneralStore = new GeneralStore(),
-                        Banks = new List<Bank>
-                        {
-                            new Bank()
-                            {
-                                Name = Bank.BankName.ChamberlingsReserve,
-                                Description = "This is the go-to bank for the noble people in the city. They have good security, but rather aggressive investment plans for your deposits. After all, most people who utilise this bank can afford to lose some money now and then. It is acceptable for the long-term win."
-                            },
-                            new Bank()
-                            {
-                                Name = Bank.BankName.SmartfallBank,
-                                Description = "Most commoners in the city use this bank, and indeed throughout the kingdom, as it exists in most of the larger cities. Security is somewhat lax; however, they make careful investments. Typically, deposits grow slowly but surely."
-                            },
-                            new Bank()
-                            {
-                                Name = Bank.BankName.TheVault,
-                                Description = "This bank invests your money in more dubious areas, with a high risk but also with a good profit, should the investments succeed. The security is moderately good."
-                            }
-                        },
-                        Temples = new List<Temple>
-                        {
-                            new Temple
-                            {
-                                GodName = GodName.Rhidnir,
-                                Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Iphy,
-                                Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Metheia,
-                                Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ohlnir,
-                                Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Charus,
-                                Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ramos,
-                                Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
-                            }
-                        },
-                        Arena = new Arena(50, _treasure)
-                    }
-                },
-                new Settlement
-                {
-                    Name = SettlementName.TheOutpost,
-                    EventOn = 9,
-                    QuestDice = "1d12",
-                    QuestColor = QuestColor.Yellow,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation (SettlementServiceName.GeneralStore)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(-1, 21, -21)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-1, 20, -20)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(0, 20, -21)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-2, 22, -21)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(-1, 22, -22)) { Terrain = TerrainType.Town }
-                    },
-                    SpecialRules = "Toll. If you are to head out to a Quest Site in the Ancient Lands (yellow 1-12), you will have to pay a toll to the King of 100 c per hero first. You must be a member of the league to be allowed to pass.",
-                    State = new SettlementState()
-                    {
-                        BlackSmith = new BlackSmith()
-                        {
-                            WeaponPriceModifier = 1.2,
-                            ArmourPriceModifier = 1.2
-                        },
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = -2,
-                            EquipmentPriceModifier = 1.2
-                        },
-                    }
-                },
-                new Settlement
-                {
-                    Name = SettlementName.Durburim,
-                    EventOn = 12,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Temple)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(20, -10, -10)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(20, -11, -9)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(21, -11, -10)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 65
-                        },
-                        BlackSmith = new BlackSmith()
-                        {
-                            WeaponAvailabilityModifier = 1,
-                            WeaponPriceModifier = 1.2,
-                            ArmourPriceModifier = 1.1,
-                            WeaponMaxDurabilityModifier = 2
-                        },
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = -1,
-                            EquipmentPriceModifier = 1.2
-                        },
-                        Temples = new List<Temple>
-                        {
-                            new Temple
-                            {
-                                GodName = GodName.Rhidnir,
-                                Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Iphy,
-                                Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Metheia,
-                                Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ohlnir,
-                                Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Charus,
-                                Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ramos,
-                                Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
-                            }
-                        }
-                    }
-                },
-                new Settlement
-                {
-                    Name = SettlementName.Birnheim,
-                    EventOn = 12,
-                    AvailableServices = new List<ServiceLocation>
-                    {
-                        new ServiceLocation(SettlementServiceName.Blacksmith),
-                        new ServiceLocation(SettlementServiceName.GeneralStore),
-                        new ServiceLocation(SettlementServiceName.Inn),
-                        new ServiceLocation(SettlementServiceName.Temple)
-                    },
-                    HexTiles = new List<HexTile>
-                    {
-                        new HexTile(new Hex(14, -23, 9)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(13, -22, 9)) { Terrain = TerrainType.Town },
-                        new HexTile(new Hex(14, -22, 8)) { Terrain = TerrainType.Town }
-                    },
-                    State = new SettlementState()
-                    {
-                        Inn = new Inn()
-                        {
-                            Price = 65
-                        },
-                        BlackSmith = new BlackSmith()
-                        {
-                            WeaponAvailabilityModifier = -1,
-                            WeaponPriceModifier = 1.2,
-                            ArmourAvailabilityModifier = 1,
-                            ArmourPriceModifier = 1.2,
-                            ArmourMaxDurabilityModifier = 2
-                        },
-                        GeneralStore = new GeneralStore()
-                        {
-                            EquipmentAvailabilityModifier = -2,
-                            EquipmentPriceModifier = 1.2
-                        },
-                        Temples = new List<Temple>
-                        {
-                            new Temple
-                            {
-                                GodName = GodName.Rhidnir,
-                                Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Iphy,
-                                Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple
-                            {
-                                GodName = GodName.Metheia,
-                                Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ohlnir,
-                                Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Charus,
-                                Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
-                            },
-                            new Temple()
-                            {
-                                GodName = GodName.Ramos,
-                                Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
-                                GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
-                            }
-                        }
-                    }
+                    GodName = GodName.Metheia,
+                    Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
                 }
             };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Whiteport,
+                10,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(-16, 0, 16)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-16, -1, 17)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-17, 1, 16)) { Terrain = TerrainType.Town }
+                },
+                "1d6",
+                QuestColor.Black
+            );
+            settlement.State.Inn = new(settlement)
+            {
+                Price = 15
+            };
+            settlement.State.GeneralStore = new(settlement)
+            {
+                EquipmentAvailabilityModifier = 1,
+                EquipmentPriceModifier = 0.9,
+                ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
+            };
+            settlement.State.Temples = new ()
+            {
+                new (settlement)
+                {
+                    GodName = GodName.Rhidnir,
+                    Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Iphy,
+                    Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Metheia,
+                    Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ohlnir,
+                    Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                }
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Windfair,
+                12,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(12, -8, -4)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(12, -9, -3)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(13, -9, -4)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(12, -7, -5)) { Terrain = TerrainType.Town }
+                },
+                "1d6",
+                QuestColor.Blue
+            );
+            settlement.State.Inn = new (settlement)
+            {
+                Price = 35
+            };
+            settlement.State.BlackSmith = new (settlement);
+            settlement.State.GeneralStore = new (settlement)
+            {
+                EquipmentAvailabilityModifier = -1,
+                EquipmentPriceModifier = 1.1,
+                ShopSpecials = new() { new() { ItemName = "Fishing Gear", Price = 50, Availability = 6 } }
+            };
+            settlement.State.Temples = new()
+            {
+                new(settlement)
+                {
+                    GodName = GodName.Ohlnir,
+                    Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                },
+                new(settlement)
+                {
+                    GodName = GodName.Charus,
+                    Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
+                }
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Rochdale,
+                12,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(-6, 7, -1)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-7, 8, -1)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-6, 8, -2)) { Terrain = TerrainType.Town }
+                },
+                "1d6",
+                QuestColor.Purple
+            );
+            settlement.State.Inn = new (settlement)
+            {
+                Price = 20
+            };
+            settlement.State.GeneralStore = new (settlement);
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.SilverCity,
+                8,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(0, 0, 0)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(1, 0, -1)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(0, 1, -1)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-1, 1, 0)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-1, 0, 1)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(0, -1, 1)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(1, -1, 0)) { Terrain = TerrainType.Town }
+                },
+                "2d20",
+                QuestColor.White
+            );
+            settlement.State.Inn = new (settlement)
+            {
+                Price = 25
+            };
+            settlement.State.BlackSmith = new(settlement);
+            settlement.State.GeneralStore = new(settlement);
+            settlement.State.Banks = new()
+            {
+                new (settlement)
+                {
+                    Name = Bank.BankName.ChamberlingsReserve,
+                    Description = "This is the go-to bank for the noble people in the city. They have good security, but rather aggressive investment plans for your deposits. After all, most people who utilise this bank can afford to lose some money now and then. It is acceptable for the long-term win."
+                },
+                new (settlement)
+                {
+                    Name = Bank.BankName.SmartfallBank,
+                    Description = "Most commoners in the city use this bank, and indeed throughout the kingdom, as it exists in most of the larger cities. Security is somewhat lax; however, they make careful investments. Typically, deposits grow slowly but surely."
+                },
+                new (settlement)
+                {
+                    Name = Bank.BankName.TheVault,
+                    Description = "This bank invests your money in more dubious areas, with a high risk but also with a good profit, should the investments succeed. The security is moderately good."
+                }
+            };
+            settlement.State.Temples = new()
+            {
+                new (settlement)
+                {
+                    GodName = GodName.Rhidnir,
+                    Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Iphy,
+                    Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Metheia,
+                    Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ohlnir,
+                    Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Charus,
+                    Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ramos,
+                    Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
+                }
+            };
+            settlement.State.Arena = new (settlement);
+            settlement.State.TheDarkGuild = new(settlement)
+            {
+                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Thief" || p.Name == "Rogue").ToList()
+            };
+            settlement.State.FightersGuild = new (settlement, _encounter)
+            {
+                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior" || p.Name == "Barbarian").ToList()                
+            };
+            settlement.State.WizardsGuild = new (settlement)
+            {
+                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Wizard").ToList()
+            };
+            settlement.State.AlchemistsGuild = new (settlement)
+            {
+                AllowedToEnter = _gameData.Professions
+            };
+            settlement.State.RangersGuild = new (settlement)
+            {
+                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Ranger").ToList()
+            };
+            settlement.State.TheInnerSanctum = new (settlement, _encounter)
+            {
+                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior Priest").ToList()
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.TheOutpost,
+                9,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(-1, 21, -21)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-1, 20, -20)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(0, 20, -21)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-2, 22, -21)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(-1, 22, -22)) { Terrain = TerrainType.Town }
+                },
+                "1d12",
+                QuestColor.Yellow,
+                "Toll. If you are to head out to a Quest Site in the Ancient Lands (yellow 1-12), you will have to pay a toll to the King of 100 c per hero first. You must be a member of the league to be allowed to pass."
+            );
+            settlement.State.BlackSmith = new (settlement)
+            {
+                WeaponPriceModifier = 1.2,
+                ArmourPriceModifier = 1.2
+            };
+            settlement.State.GeneralStore = new (settlement)
+            {
+                EquipmentAvailabilityModifier = -2,
+                EquipmentPriceModifier = 1.2
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Durburim,
+                12,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(20, -10, -10)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(20, -11, -9)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(21, -11, -10)) { Terrain = TerrainType.Town }
+                }
+            );
+            settlement.State.Inn = new (settlement)
+            {
+                Price = 65
+            };
+            settlement.State.BlackSmith = new (settlement)
+            {
+                WeaponAvailabilityModifier = 1,
+                WeaponPriceModifier = 1.2,
+                ArmourPriceModifier = 1.1,
+                WeaponMaxDurabilityModifier = 2
+            };
+            settlement.State.GeneralStore = new (settlement)
+            {
+                EquipmentAvailabilityModifier = -1,
+                EquipmentPriceModifier = 1.2
+            };
+            settlement.State.Temples = new()
+            {
+                new (settlement)
+                {
+                    GodName = GodName.Rhidnir,
+                    Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Iphy,
+                    Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Metheia,
+                    Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ohlnir,
+                    Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Charus,
+                    Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ramos,
+                    Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
+                }
+            };
+            list.Add(settlement);
+
+            settlement = new Settlement
+            (
+                SettlementName.Birnheim,
+                12,
+                new List<HexTile>
+                {
+                    new HexTile(new Hex(14, -23, 9)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(13, -22, 9)) { Terrain = TerrainType.Town },
+                    new HexTile(new Hex(14, -22, 8)) { Terrain = TerrainType.Town }
+                }
+            );
+            settlement.State.Inn = new Inn(settlement)
+            {
+                Price = 65
+            };
+            settlement.State.BlackSmith = new (settlement)
+            {
+                WeaponAvailabilityModifier = -1,
+                WeaponPriceModifier = 1.2,
+                ArmourAvailabilityModifier = 1,
+                ArmourPriceModifier = 1.2,
+                ArmourMaxDurabilityModifier = 2
+            };
+            settlement.State.GeneralStore = new (settlement)
+            {
+                EquipmentAvailabilityModifier = -2,
+                EquipmentPriceModifier = 1.2
+            };
+            settlement.State.Temples = new()
+            {
+                new (settlement)
+                {
+                    GodName = GodName.Rhidnir,
+                    Description = "At the temple of the Great Trickster, your hero may pray for increased luck, but it is risky indeed as the jester may just as easily answer the prayer with what he sees as a funny surprise!",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RhidnirsBlessing, -1, statBonus: (BasicStat.Luck, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Iphy,
+                    Description = "At the temple of Iphy, your heroes may pray for increased mental strength, which will grant you the Resolve it takes to face the horrors of the dungeons.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.IphysBlessing, -1, statBonus: (BasicStat.Resolve, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Metheia,
+                    Description = "At the temple of Metheia, you may pray for health and a long life. If she answers your hero's prayers, they will get +1 HP until the next time the hero leaves a dungeon.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.MetheiasBlessing, -1, statBonus: (BasicStat.HitPoints, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ohlnir,
+                    Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Charus,
+                    Description = "At the temple of Charus, your heroes may pray for increased endurance so that they can endure the physical challenges ahead.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.CharusBlessing, -1, statBonus: (BasicStat.Energy, 1), removeEndOfDungeon: true)
+                },
+                new (settlement)
+                {
+                    GodName = GodName.Ramos,
+                    Description = "At the temple of Ramos, your hero may pray for increased strength. If he decides to listen to the prayer, the hero will be granted +5 STR.",
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.RamosBlessing, -1, statBonus: (BasicStat.Strength, 5), removeEndOfDungeon: true)
+                }
+            };
+            list.Add(settlement);
+
+            return list;
         }
 
         public Settlement GetSettlementByName(SettlementName name)
         {
             return Settlements.First(s => s.Name == name);
-        }
-
-        public List<SettlementActionType> GetSettlementActionByServiceLocation(SettlementServiceName name)
-        {
-            return name switch
-            {
-                SettlementServiceName.Arena => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitArena,
-                    },
-                SettlementServiceName.Banks => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitBanks,
-                    },
-                SettlementServiceName.Kennel => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitKennel,
-                    },
-                SettlementServiceName.AlbertasMagnificentAnimals => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitAlbertasMagnificentAnimals,
-                    },
-                SettlementServiceName.Blacksmith => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitBlacksmith
-                    },
-                SettlementServiceName.GeneralStore => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitGeneralStore,
-                    },
-                SettlementServiceName.MagicBrewery => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitGeneralStore,
-                        SettlementActionType.IdentifyPotion
-                    },
-                SettlementServiceName.MervinsMagicalOddities => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitGeneralStore,
-                    },
-                SettlementServiceName.Herbalist => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitHerbalist,
-                    },
-                SettlementServiceName.SickWard => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitSickWard,
-                    },
-                SettlementServiceName.Inn => new List<SettlementActionType>
-                    {
-                        SettlementActionType.Gamble,
-                        SettlementActionType.RestRecuperation,
-                        SettlementActionType.TendThoseMemories,
-                        SettlementActionType.EnchantObjects,
-                        SettlementActionType.CreateScroll
-                    },
-                SettlementServiceName.Temple => new List<SettlementActionType>
-                    {
-                        SettlementActionType.Pray,
-                    },
-                SettlementServiceName.FortuneTeller => new List<SettlementActionType>
-                    {
-                        SettlementActionType.ReadFortune,
-                    },
-                SettlementServiceName.HorseTrack => new List<SettlementActionType>
-                    {
-                        SettlementActionType.HorseRacing,
-                    },
-                SettlementServiceName.Scryer => new List<SettlementActionType>
-                    {
-                        SettlementActionType.IdentifyMagicItem,
-                    },
-                SettlementServiceName.TheDarkGuild => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitTheDarkGuild,
-                    },
-                SettlementServiceName.FightersGuild => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitFightersGuild,
-                    },
-                SettlementServiceName.WizardsGuild => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitWizardsGuild,
-                        SettlementActionType.ChargeMagicItem,
-                        SettlementActionType.IdentifyMagicItem,
-                        SettlementActionType.LearnSpell
-                    },
-                SettlementServiceName.AlchemistGuild => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitAlchemistGuild,
-                        SettlementActionType.VisitHerbalist,
-                        SettlementActionType.IdentifyPotion
-                    },
-                SettlementServiceName.RangersGuild => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisitRangersGuild,
-                    },
-                SettlementServiceName.TheInnerSanctum => new List<SettlementActionType>
-                    {
-                        SettlementActionType.VisistInnerSanctum,
-                    },
-                SettlementServiceName.TheAsylum => new List<SettlementActionType>
-                    {
-                        SettlementActionType.TreatMentalConditions,
-                    },
-                _ => new List<SettlementActionType>
-                    {
-                        SettlementActionType.LevelUp,
-                        SettlementActionType.CollectQuestRewards
-                    }
-            };
-        }
-
-        public List<Guild> GetGuilds()
-        {
-            return new List<Guild>
-            {
-                new Guild(SettlementServiceName.TheDarkGuild)
-                {
-                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Thief" || p.Name == "Rogue").ToList(),
-                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.PickLocks, 3), (Skill.Perception, 3) },
-                    SkillTrainingFee = 300,
-                },
-                new Guild(SettlementServiceName.FightersGuild)
-                {
-                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior" || p.Name == "Barbarian").ToList(),
-                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Heal, 3), (Skill.Dodge, 3) },
-                    SkillTrainingFee = 300,
-                },
-                new Guild(SettlementServiceName.WizardsGuild)
-                {
-                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Wizard").ToList(),
-                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.ArcaneArts, 3), (Skill.Perception, 3), (Skill.Heal, 3) },
-                    SkillTrainingFee = 300,
-                },
-                new Guild(SettlementServiceName.AlchemistGuild)
-                {
-                    AllowedToEnter = _gameData.Professions,
-                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.Alchemy, 3), (Skill.Heal, 3), (Skill.Perception, 3) },
-                    SkillTrainingFee = 300,
-                },
-                new Guild(SettlementServiceName.RangersGuild)
-                {
-                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Ranger").ToList(),
-                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.Dodge, 3), (Skill.Heal, 3), (Skill.Foraging, 3) },
-                    SkillTrainingFee = 300,
-                },
-                new Guild(SettlementServiceName.TheInnerSanctum)
-                {
-                    AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior Priest").ToList(),
-                    AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Dodge, 3), (Skill.BattlePrayers, 3) },
-                    SkillTrainingFee = 300,
-                }
-            };
         }
     }
 }
