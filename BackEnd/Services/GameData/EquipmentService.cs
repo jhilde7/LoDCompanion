@@ -2,6 +2,7 @@
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -744,15 +745,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Name = "Pain Killer",
                         Durability=1,
                         Value = 50,
-                        Description = "This is a fine powder, made form a mix of herbs. By snorting the powder a wounded individual will receive considerable pain relief. Once snorted, the hero may remove any wound status until the end of battle, and regain lost AP. The wound effect will still be applicable once the battle is over and the powder has worn off."
+                        Description = "This is a fine powder, made form a mix of herbs. By snorting the powder a wounded individual will receive considerable pain relief. Once snorted, the hero may remove any wounded status until the end of battle, and regain lost AP. The wounded effect will still be applicable once the battle is over and the powder has worn off.",
+                        ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.PainKiller, -1, removeAfterCombat: true)]
                     },
-                    new Equipment()
-                    {
-                        Category = "Fighters Guild",
-                        Name = "Slayer Weapon Treatment",
-                        Value = 100,
-                        Description = "The weapon smith at the guild has a special way of heat-treating weapons, giving them a razor-sharp edge which is able to cut through even the thickest armour. The weapon gets +1 DMG that is cumulative with any other modifier. The wepon must be at full durability, and the treatment lasts until the weapon breaks."
-                    }
             };
 
         }
@@ -1432,50 +1427,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         public static List<Armour> GetArmour()
         {
-            string upgradesText = "Can be added to padded, leather, or mail armours that already have a DEF value in the indicated area. Permanent bonus and cannot be separated from the armour. If the attached armour is destroyed, so is this item.";
             return new List<Armour>()
             {
-                // --- FIGHTERS GUILD UPGRADES ---
-                new Armour()
-                {
-                    Category = "Fighters Guild",
-                    Shop = ShopCategory.General,
-                    Name = "Gauntlets",
-                    Encumbrance = 1,
-                    DefValue = 1,
-                    Value = 50,
-                    Description = upgradesText,
-                },
-                new Armour()
-                {
-                    Category = "Fighters Guild",
-                    Shop = ShopCategory.General,
-                    Name = "Gorget",
-                    Encumbrance = 1,
-                    DefValue = 1,
-                    Value = 50,
-                    Description = upgradesText,
-                },
-                new Armour()
-                {
-                    Category = "Fighters Guild",
-                    Shop = ShopCategory.General,
-                    Name = "Poleyns",
-                    Encumbrance = 1,
-                    DefValue = 1,
-                    Value = 50,
-                    Description = upgradesText,
-                },
-                new Armour()
-                {
-                    Category = "Fighters Guild",
-                    Shop = ShopCategory.General,
-                    Name = "Shoulder Pads",
-                    Encumbrance = 1,
-                    DefValue = 1,
-                    Value = 50,
-                    Description = upgradesText,
-                },
                 // --- PADDED ARMOUR ---
                 new Armour()
                 {
@@ -1820,6 +1773,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         Camel,
         PartyEquipment,
         Storage,
+        ArmourPadding,
+        ShieldPadding,
     }
 
     [JsonDerivedType(typeof(Weapon), typeDiscriminator: "Weapon")]
@@ -2162,7 +2117,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public class MeleeWeapon : Weapon
     {
-        private bool HasAppliedSlayerModifier { get; set; }
+        private bool HasSlayerModifier { get; set; }
         private Dictionary<WeaponProperty, int> _properties = new Dictionary<WeaponProperty, int>();
 
         public override Dictionary<WeaponProperty, int> Properties
@@ -2251,9 +2206,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
             }
         }
 
-        public void SetSlayerTreatedModifier()
+        public bool AttemptApplySlayerTreatment()
         {
-            if (!HasAppliedSlayerModifier)
+            if (!HasSlayerModifier && Properties.ContainsKey(WeaponProperty.Edged))
             {
                 if(!Properties.TryAdd(WeaponProperty.DamageBonus, 1))
                 {
@@ -2261,8 +2216,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     value += 1;
                     Properties[WeaponProperty.DamageBonus] = value;
                 }
-                HasAppliedSlayerModifier = true;
+                HasSlayerModifier = true;
+                return true;
             }
+            return false;
         }
 
         public override bool HasProperty(WeaponProperty property)
@@ -2498,6 +2455,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         new int Durability { get; set; } = 6;
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
+        public bool HasArmourPadding { get; set; }
+
         private Dictionary<ArmourProperty, int> _properties = new Dictionary<ArmourProperty, int>();
 
         public new Dictionary<ArmourProperty, int> Properties
@@ -2581,13 +2540,29 @@ namespace LoDCompanion.BackEnd.Services.GameData
         {
             return Properties.GetValueOrDefault(property, 0);
         }
+
+        public bool AttemptToApplyArmourPadding()
+        {
+            if (!HasArmourPadding)
+            {
+                if (!Properties.TryAdd(ArmourProperty.DefBonus, 1))
+                {
+                    Properties.TryGetValue(ArmourProperty.DefBonus, out int value);
+                    value += 1;
+                    Properties[ArmourProperty.DefBonus] = value;
+                }
+                HasArmourPadding = true;
+                return true;
+            }
+            return false;
+        }
     }
 
     public enum ShieldProperty
     {
         Mithril,
         Metal,
-        Huge
+        Huge,
     }
 
     public class Shield : Equipment
@@ -2595,6 +2570,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         new int Durability { get; set; } = 6;
         public int WeaponClass { get; set; }
         public int DefValue { get; set; }
+        public bool HasShieldPadding { get; set; }
+
         private Dictionary<ShieldProperty, int> _properties = new Dictionary<ShieldProperty, int>();
 
         public new Dictionary<ShieldProperty, int> Properties
@@ -2668,6 +2645,17 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int GetPropertyValue(ShieldProperty property)
         {
             return Properties.GetValueOrDefault(property, 0);
+        }
+
+        public bool AttemptToApplyShieldPadding()
+        {
+            if (!HasShieldPadding)
+            {
+                MaxDurability += 1;
+                HasShieldPadding = true;
+                return true;
+            }
+            return false;
         }
     }
 

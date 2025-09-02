@@ -183,7 +183,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         MetheiasBlessing,
         CharusBlessing,
         RamosBlessing,
-        DarkAsTheNight
+        DarkAsTheNight,
+        PainKiller
     }
 
     /// <summary>
