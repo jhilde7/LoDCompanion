@@ -181,6 +181,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+
+        currentHero = await CreationService.BuildPreviewHeroAsync();
+
         if (PartyManager.Party != null && PartyManager.Party.Heroes.Count >= 4)
         {
             // If the party is full, just show the summary view and stop.
@@ -882,104 +885,106 @@ else
         </div>
     </section>;
 
-    private RenderFragment CharacterReview =>@<section>
+    private RenderFragment CharacterReview => @<section>
         <h3 class="text-center my-4">Review Your Character</h3>
 
         @if(currentHero == null)
         {
-            currentHero = CreationService.BuildPreviewHeroAsync();
+            <p>Loading character preview...</p>
         }
+        else
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h4>
+                        <span TooltipText="@currentHero.ToString()">
+                            @currentHero.Name
+                        </span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Species:</strong> @currentHero.SpeciesName</p>
+                    <p><strong>Profession:</strong> @currentHero.ProfessionName</p>
 
-        <div class="card">
-            <div class="card-header">
-                <h4>
-                    <span TooltipText="@currentHero.ToString()">
-                        @currentHero.Name
-                    </span>
-                </h4>
-            </div>
-            <div class="card-body">
-                <p><strong>Species:</strong> @currentHero.SpeciesName</p>
-                <p><strong>Profession:</strong> @currentHero.ProfessionName</p>
-
-                @if (currentHero.Talents.Any())
-                {
-                    <p><strong>Talents:</strong></p>
-                    <p>
-                    @foreach(var talent in currentHero.Talents)
-                        {
-                            <span class="badge badge-pill badge-secondary">
-                                <span title="@talent.ToString()">
-                                    @talent.Name
-                                </span>
-                            </span>
-                        }
-                    </p>
-                }
-                @if (currentHero.Perks.Any())
-                {
-                    <p><strong>Perks:</strong></p>
-                    <p>
-                        @foreach(var perk in currentHero.Perks)
-                        {
-                            <span class="badge badge-pill badge-secondary">
-                                <span title="@perk.ToString()">
-                                    @perk.Name
-                                </span>
-                            </span>
-                        }
-                    </p>
-                }
-
-                @if (currentHero.Inventory.Backpack.Any())
-                {
-                    <p><strong>Equipment:</strong></p>
-                    <p>
-                    @foreach(var item in currentHero.Inventory.Backpack)
-                        {
-                            @if(item != null)
+                    @if (currentHero.Talents.Any())
+                    {
+                        <p><strong>Talents:</strong></p>
+                        <p>
+                        @foreach(var talent in currentHero.Talents)
                             {
-                                <span class="badge badge-pill badge-primary">
-                                <span title="@item.ToString()">
-                                    @item.GetDisplayName()
-                                </span>
+                                <span class="badge badge-pill badge-secondary">
+                                    <span title="@talent.ToString()">
+                                        @talent.Name
+                                    </span>
                                 </span>
                             }
-                        }
-                    </p>
-                }
-
-                @if(currentHero.Spells != null && currentHero.Spells.Any())
-                {
-                    <p><strong>Spells:</strong></p>
-                    <p>
-                    @foreach(var spell in currentHero.Spells)
-                        {
-                            <span class="badge badge-pill badge-dark">
-                                <span title="@spell">
-                                    @spell.Name
+                        </p>
+                    }
+                    @if (currentHero.Perks.Any())
+                    {
+                        <p><strong>Perks:</strong></p>
+                        <p>
+                            @foreach(var perk in currentHero.Perks)
+                            {
+                                <span class="badge badge-pill badge-secondary">
+                                    <span title="@perk.ToString()">
+                                        @perk.Name
+                                    </span>
                                 </span>
-                            </span>
-                        }
-                    </p>
-                }
+                            }
+                        </p>
+                    }
 
-                @if(currentHero.Prayers != null && currentHero.Prayers.Any())
-                {
-                    <p><strong>Prayers:</strong></p>
-                    <p>
-                    @foreach(var prayer in currentHero.Prayers)
-                        {
-                            <span class="badge badge-pill badge-dark">
-                                <span title="@prayer">
-                                    @prayer.Name
+                    @if (currentHero.Inventory.Backpack.Any())
+                    {
+                        <p><strong>Equipment:</strong></p>
+                        <p>
+                        @foreach(var item in currentHero.Inventory.Backpack)
+                            {
+                                @if(item != null)
+                                {
+                                    <span class="badge badge-pill badge-primary">
+                                    <span title="@item.ToString()">
+                                        @item.GetDisplayName()
+                                    </span>
+                                    </span>
+                                }
+                            }
+                        </p>
+                    }
+
+                    @if(currentHero.Spells != null && currentHero.Spells.Any())
+                    {
+                        <p><strong>Spells:</strong></p>
+                        <p>
+                        @foreach(var spell in currentHero.Spells)
+                            {
+                                <span class="badge badge-pill badge-dark">
+                                    <span title="@spell">
+                                        @spell.Name
+                                    </span>
                                 </span>
-                            </span>
-                        }
-                    </p>
-                }
+                            }
+                        </p>
+                    }
+
+                    @if(currentHero.Prayers != null && currentHero.Prayers.Any())
+                    {
+                        <p><strong>Prayers:</strong></p>
+                        <p>
+                        @foreach(var prayer in currentHero.Prayers)
+                            {
+                                <span class="badge badge-pill badge-dark">
+                                    <span title="@prayer">
+                                        @prayer.Name
+                                    </span>
+                                </span>
+                            }
+                        </p>
+                    }
+                </div>
             </div>
-        </div>
+        }
 
         <div class="text-center">
             <button class="btn btn-info" @onclick="CreateNextHero">Start Over</button>
@@ -1046,7 +1051,7 @@ else
         selectedProfession = profession;
         await Task.Delay(10);
         CreationService.SetProfession(profession);
-        GoToNextStep();
+        await GoToNextStep();
     }
 
     private void OnTalentSelected(TalentName selection)
@@ -1065,10 +1070,10 @@ else
         };
     }
 
-    private void ApplySkill()
+    private async Task ApplySkill()
     {
         CreationService.AddFreeSkill(selectedSkill);
-        GoToNextStep();
+        await GoToNextStep();
     }
 
     private void IncrementPotion(string itemName)
@@ -1173,12 +1178,12 @@ else
         }
     }
 
-    private void HandleRecipeCreated(AlchemicalRecipe recipe)
+    private async Task HandleRecipeCreated(AlchemicalRecipe recipe)
     {
         // Add the created recipe to the character creation service
         CreationService.AddStartingRecipe(recipe);
         // We can also automatically move to the next step
-        GoToNextStep();
+        await GoToNextStep();
     }
 
     private bool IsCurrentStepValid() => currentStep switch
@@ -1194,7 +1199,7 @@ else
         _ => true
     };
 
-    private void GoToNextStep()
+    private async Task GoToNextStep()
     {
         if (!IsCurrentStepValid()) return;
 
@@ -1205,7 +1210,7 @@ else
 
         if (currentStep == Step.Review)
         {
-            currentHero = CreationService.BuildPreviewHeroAsync();
+            currentHero = await CreationService.BuildPreviewHeroAsync();
         }
     }
 

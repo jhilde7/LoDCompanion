@@ -131,21 +131,23 @@ namespace LoDCompanion.BackEnd.Services.Player
                     "He charges 100 c for each trinket, but you are only allowed to buy 1 per hero. ",
                     Execute = async (context) =>
                     {
+                        var trinketPrice = 100;
                         result.Message = context.EventDescription;
                         if (context.PartyManager.Party == null) return result;
                         foreach (var hero in context.PartyManager.Party.Heroes)
                         {
-                            if (context.PartyManager.Party.Coins >= 100 || hero.Coins >= 100)
+                            if (context.PartyManager.Party.Coins >= trinketPrice || hero.Coins >= trinketPrice)
                             {
                                 if (await context.UserRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to purchase a trinket?"))
                                 {
                                     await Task.Yield();
-                                    if (hero.Coins >= 100) hero.Coins -= 100;
-                                    else context.PartyManager.Party.Coins -= 100;
+                                    if (hero.Coins >= trinketPrice) hero.Coins -= trinketPrice;
+                                    else context.PartyManager.Party.Coins -= trinketPrice;
 
-                                    var choiceResult = await context.UserRequest.RequestChoiceAsync("Choose a trinket.", new List<string>() { "Ring", "Amulet" });
+                                    var choiceResult = await context.UserRequest.RequestChoiceAsync("Choose a trinket type.", new List<string>() { "Ring", "Amulet" }, t => t);
                                     await Task.Yield();
-                                    var trinket = await context.Treasure.CreateItemAsync(choiceResult.SelectedOption);
+                                    var trinket = new Equipment();
+                                    if (choiceResult.SelectedOption != null) trinket = await context.Treasure.CreateItemAsync(choiceResult.SelectedOption);
 
                                     var rollResult = await context.UserRequest.RequestRollAsync("Roll for random result", "1d12");
                                     await Task.Yield();

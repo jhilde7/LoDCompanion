@@ -37,13 +37,13 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 foreach (var property in potion.PotionProperties)
                 {
+                    var diceCount = potion.PotionProperties.GetValueOrDefault(PotionProperty.DiceCount, 1);
                     switch (property.Key)
                     {
                         case PotionProperty.HealHP:
                             int healing = 0;
                             if (property.Value <= 100)
                             {
-                                var diceCount = potion.PotionProperties.GetValueOrDefault(PotionProperty.DiceCount, 1);
                                 healing = (await _diceRoll.RequestRollAsync("Roll for heal amount.", $"{diceCount}d{property.Value}")).Roll;
                                 await Task.Yield();
                                 potion.PotionProperties.TryGetValue(PotionProperty.HealHPBonus, out int bonus);
@@ -69,7 +69,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                             hero.CurrentEnergy += property.Value;
                             return $"{hero.Name} gains {property.Value} energy.";
                         case PotionProperty.Mana:
-                            diceCount = potion.PotionProperties.GetValueOrDefault(PotionProperty.DiceCount, 1);
                             var rollResult = await _diceRoll.RequestRollAsync("Roll for heal amount.", $"{diceCount}d{property.Value}");
                             var missingMana = hero.GetStat(BasicStat.Mana) - hero.CurrentMana ?? 0;
                             var amount = Math.Min(missingMana, rollResult.Roll);

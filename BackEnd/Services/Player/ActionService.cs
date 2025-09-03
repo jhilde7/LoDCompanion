@@ -1473,7 +1473,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         var part = (await _alchemy.GetPartsAsync(1, avaialbleCorpses[i].OriginMonster.Species))[0];
                         if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Surgeon))
                         {
-                            var choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList());
+                            var choiceResult = await _diceRoll.RequestChoiceAsync("Choose part to harvest", Enum.GetNames(typeof(PartName)).ToList(), part => part);
                             await Task.Yield();
                             Enum.TryParse(choiceResult.SelectedOption, out PartName selectedName);
                             part.Name = selectedName;

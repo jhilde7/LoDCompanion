@@ -330,9 +330,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     if (hero.Inventory.EquippedRings.Count > 1)
                     {
-                        var ringList = new List<string> { hero.Inventory.EquippedRings[0].Name, hero.Inventory.EquippedRings[1].Name };
-                        var choiceResult = await new UserRequestService().RequestChoiceAsync($"Which ring would you like to swap?", ringList);
-                        var ringTounequip = hero.Inventory.EquippedRings.FirstOrDefault(r => r.Name == choiceResult.SelectedOption);
+                        var ringList = hero.Inventory.EquippedRings;
+                        var choiceResult = await new UserRequestService().RequestChoiceAsync($"Which ring would you like to swap?", ringList, ring => $"{ring.Name}, Magic effect: {ring.MagicEffect}");
+                        var ringTounequip = choiceResult.SelectedOption;
                         if (ringTounequip != null) await UnequipItemAsync(hero, ringTounequip);
                     }
                 }

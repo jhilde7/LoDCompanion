@@ -19,20 +19,6 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public bool WasCancelled { get; set; } = false;
     }
 
-    public class ChooseOptionRequest
-    {
-        public string Prompt { get; set; } = "Choose an option";
-        public List<string> Options { get; set; } = new List<string>();
-        public bool IsCancellable { get; set; } = false;
-        public TaskCompletionSource<ChoiceOptionResult> CompletionSource { get; } = new TaskCompletionSource<ChoiceOptionResult>();
-    }
-
-    public class ChoiceOptionResult
-    {
-        public string SelectedOption { get; set; } = string.Empty;
-        public bool WasCancelled { get; set; } = false;
-    }
-
     public class ChooseOptionRequest<T>
     {
         public string Prompt { get; set; } = "Choose an option";
@@ -75,10 +61,9 @@ namespace LoDCompanion.BackEnd.Services.Utilities
     {
         public event Action? OnRollRequested;
         public event Action? OnRequestChanged;
-        private Action? _cancelGenericChoiceAction;
+        private Action? _cancelChoiceAction;
         public DiceRollRequest? CurrentDiceRequest { get; private set; }
-        public ChooseOptionRequest? CurrentChoiceRequest { get; private set; }
-        public object? GenericCurrentChoiceRequest { get; private set; }
+        public object? CurrentChoiceRequest { get; private set; }
         public NumberInputRequest? CurrentNumberInputRequest { get; private set; }
 
 
@@ -103,9 +88,6 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             return CurrentDiceRequest.CompletionSource.Task;
         }
 
-        /// <summary>
-        /// This is called by the modal when the user submits a result.
-        /// </summary>
         public void CompleteRoll(DiceRollResult result)
         {
             if (CurrentDiceRequest != null)
@@ -139,37 +121,6 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             }
         }
 
-        internal async Task<ChoiceOptionResult> RequestChoiceAsync(string prompt, List<string> list, bool canCancel = false)
-        {
-            CurrentChoiceRequest = new ChooseOptionRequest
-            {
-                Prompt = prompt,
-                Options = list,
-                IsCancellable = canCancel,
-            };
-
-            OnRollRequested?.Invoke();
-            return await CurrentChoiceRequest.CompletionSource.Task;
-        }
-
-        public void CancelChoice()
-        {
-            var result = new ChoiceOptionResult { WasCancelled = true };
-            if (CurrentChoiceRequest != null)
-            {
-                CurrentChoiceRequest.CompletionSource.SetResult(result);
-                CurrentChoiceRequest = null;
-                OnRollRequested?.Invoke(); // Hides the modal
-            }
-            _cancelGenericChoiceAction?.Invoke();
-        }
-
-        internal async Task<bool> RequestYesNoChoiceAsync(string prompt)
-        {
-            var result = await RequestChoiceAsync(prompt, new List<string> { "Yes", "No" });
-            return !result.WasCancelled && result.SelectedOption == "Yes";
-        }
-
         /// <summary>
         /// Prompts the user to choose an item from a generic list.
         /// </summary>
@@ -182,13 +133,13 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public Task<ChoiceOptionResult<T>> RequestChoiceAsync<T>(string prompt, List<T> options, Func<T, string> displaySelector, bool canCancel = false)
         {
             var request = new ChooseOptionRequest<T>(prompt, options, displaySelector, canCancel);
-            GenericCurrentChoiceRequest = request;
+            CurrentChoiceRequest = request;
 
-            _cancelGenericChoiceAction = () =>
+            _cancelChoiceAction = () =>
             {
                 request.CompletionSource.SetResult(new ChoiceOptionResult<T> { WasCancelled = true });
-                GenericCurrentChoiceRequest = null;
-                _cancelGenericChoiceAction = null;
+                CurrentChoiceRequest = null;
+                _cancelChoiceAction = null;
                 OnRequestChanged?.Invoke();
             };
 
@@ -196,18 +147,28 @@ namespace LoDCompanion.BackEnd.Services.Utilities
             return request.CompletionSource.Task;
         }
 
-        /// <summary>
-        /// This is called by the UI when the user selects an option.
-        /// </summary>
         public void CompleteChoice<T>(T selectedOption)
         {
-            if (GenericCurrentChoiceRequest is ChooseOptionRequest<T> request)
+            if (CurrentChoiceRequest is ChooseOptionRequest<T> request)
             {
                 request.CompletionSource.SetResult(new ChoiceOptionResult<T> { SelectedOption = selectedOption });
-                GenericCurrentChoiceRequest = null;
-                _cancelGenericChoiceAction = null;
+                CurrentChoiceRequest = null;
+                _cancelChoiceAction = null;
                 OnRequestChanged?.Invoke();
             }
+        }
+
+        public void CancelChoice()
+        {
+            _cancelChoiceAction?.Invoke();
+        }
+
+        public async Task<bool> RequestYesNoChoiceAsync(string prompt)
+        {
+            var options = new List<string> { "Yes", "No" };
+            // We use the generic method, specifying <string> and a simple selector.
+            var result = await RequestChoiceAsync(prompt, options, s => s);
+            return !result.WasCancelled && result.SelectedOption == "Yes";
         }
 
         public Task<NumberInputResult> RequestNumberInputAsync(string prompt, int? min = null, int? max = null, bool canCancel = false)
