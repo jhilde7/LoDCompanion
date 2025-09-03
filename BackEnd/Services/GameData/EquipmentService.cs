@@ -1935,7 +1935,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             if (Durability < 0 && OnEquipmentDestroyed != null) OnEquipmentDestroyed.Invoke(this);
         }
 
-        internal int Repair(int repairAmount)
+        internal int Repair(int repairAmount = 10)
         {
             var damage = MaxDurability - Durability;
             var damageRepaired = Math.Min(repairAmount, damage);
