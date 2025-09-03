@@ -1880,7 +1880,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         public int CalculateInitialRepairCosts()
         {
-            if (Value > 0)
+            if (Value > 0 && MaxDurability > 1)
             {
                 return (int)Math.Floor(Value * 0.2f);
             }
