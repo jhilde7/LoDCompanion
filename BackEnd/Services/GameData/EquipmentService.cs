@@ -1959,6 +1959,16 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int DefenseBonus { get; set; }
     }
 
+    public class Scroll : Equipment
+    {
+        public Spell Spell { get; set; }
+
+        public Scroll (Spell spell)
+        {
+            Spell = spell;
+        }
+    }
+
     public enum AmmoType
     {
         SlingStone,
