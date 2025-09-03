@@ -1966,6 +1966,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public Scroll (Spell spell)
         {
             Spell = spell;
+            Name = $"Scroll of {spell.Name}";
         }
     }
 
