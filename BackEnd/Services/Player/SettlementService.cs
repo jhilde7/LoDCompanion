@@ -659,7 +659,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             bool isRepairing = true;
             while (isRepairing)
             {
-                var weaponsArmourList = hero.Inventory.GetAllWeaponsArmour(hero);
+                var weaponsArmourList = hero.Inventory.GetAllWeaponsArmour();
                 var repairableList = weaponsArmourList.Where(item => item.RepairCost <= result.AvailableCoins && item.RepairCost >= 2).ToList();
                 if (repairableList.Count < 1)
                 {
@@ -715,7 +715,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             bool isRepairing = true;
             while (isRepairing)
             {
-                var weaponsArmourList = hero.Inventory.GetAllNonWeaponsArmour(hero);
+                var weaponsArmourList = hero.Inventory.GetAllNonWeaponsArmour();
                 var repairableList = weaponsArmourList.Where(item => item.RepairCost <= result.AvailableCoins && item.RepairCost >= 2).ToList();
                 if (repairableList.Count < 1)
                 {
@@ -1611,29 +1611,6 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
-    public class Bounty
-    {
-        public Monster Monster { get; private set; }
-        public int Value { get; private set; }
-        public int TargetAmount { get; private set; }
-        public int AmountKilled { get; set; }
-
-        public Bounty(Monster monster)
-        {
-            Monster = monster;
-            SetTargetAndValue();
-        }
-
-        private void SetTargetAndValue()
-        {
-            Value = Monster.XP;
-            while (TargetAmount * Value < 250)
-            {
-                TargetAmount++;
-            }
-        }
-    }
-
     public class Guild : ServiceLocation
     {
         public List<Profession> AllowedToEnter { get; set; } = new();
@@ -1698,6 +1675,29 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public class Bounty
+    {
+        public Monster Monster { get; private set; }
+        public int Value { get; private set; }
+        public int TargetAmount { get; private set; }
+        public int AmountKilled { get; set; }
+
+        public Bounty(Monster monster)
+        {
+            Monster = monster;
+            SetTargetAndValue();
+        }
+
+        private void SetTargetAndValue()
+        {
+            Value = Monster.XP;
+            while (TargetAmount * Value < 250)
+            {
+                TargetAmount++;
+            }
+        }
+    }
+
     public class FightersGuild : Guild
     {
         public EncounterService Encounter { get; set; }
@@ -1710,7 +1710,8 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             AvailableActions = new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyingAndSelling
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.CheckBounties
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Heal, 3), (Skill.Dodge, 3) };
             SkillTrainingFee = 300;
@@ -1744,7 +1745,8 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class WizardsGuild : Guild
     {
-        public int LearnSpellPrice { get; set; } = 1000;
+        public int LearnSpellBasePrice { get; set; } = 400;
+        public int PricePerSpellLevel { get; set; } = 100;
 
         public WizardsGuild(Settlement settlement) : base(SettlementServiceName.WizardsGuild, settlement)
         {
@@ -1764,6 +1766,41 @@ namespace LoDCompanion.BackEnd.Services.Player
         public async Task<SettlementActionResult> IdentifyMagicItem(Hero hero, SettlementActionResult result, UserRequestService userRequest)
         {
             return await Scryer.IdentifyMagicItem(hero, result, userRequest);
+        }
+
+        public async Task<SettlementActionResult> ChargeMagicItem(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            var magicStaves = hero.Inventory.GetAllWeaponsArmour().Where(i => i is MagicStaff staff && staff.ContainedSpell != null).ToList();
+            if (!magicStaves.Any())
+            {
+                result.Message = $"{hero.Name} does not have any magic staves that need charging";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var affordableCharging = magicStaves.Where(i => i is MagicStaff staff && staff.RechargeCost < result.AvailableCoins).ToList();
+            if (!affordableCharging.Any())
+            {
+                result.Message = $"{hero.Name} does not have enough coin to charge any staves";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var choiceResult = await userRequest.RequestChoiceAsync(
+                "Choose a staff to charge", 
+                affordableCharging, 
+                staff =>  $"{staff.Name} {((MagicStaff)staff).RechargeCost}c", 
+                canCancel: true);
+
+            if (!choiceResult.WasCancelled && choiceResult.SelectedOption != null)
+            {
+                MagicStaff selectedStaff = (MagicStaff)choiceResult.SelectedOption;
+                result.AvailableCoins -= selectedStaff.RechargeCost;
+                selectedStaff.CurrentSpellCharges = selectedStaff.MaxSpellCharges;
+                result.Message = $"{selectedStaff.Name} was recharged.";
+            }
+
+            return result;
         }
 
         public async Task<SettlementActionResult> LearnSpell(Hero hero, SettlementActionResult result, UserRequestService userRequest)
@@ -1815,13 +1852,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
-            if (!learnFromGrimoire && result.AvailableCoins < LearnSpellPrice)
-            {
-                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             var yesNoSpellResult = await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a spell for 1000c and {result.ActionCost} days of time?");
             await Task.Yield();
             if (!yesNoSpellResult)
@@ -1839,13 +1869,20 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     spellList.AddRange(SpellService.GetSpellsByLevel(level).Where(s => !knownSpells.Contains(s)));
                 }
+                var affordableSpells = spellList
+                    .Where(spell => (spell.Level * PricePerSpellLevel + LearnSpellBasePrice) <= result.AvailableCoins)
+                    .OrderBy(spell => spell.Level)
+                    .ToList();
 
-                var choiceSpellResult = await userRequest.RequestChoiceAsync("Choose as spell to learn.", spellList, spell => $"{spell.Name}, Effect: {spell.SpellEffect}");
+                var choiceSpellResult = await userRequest.RequestChoiceAsync(
+                    "Choose as spell to learn.", 
+                    affordableSpells, 
+                    spell => $"{(spell.Level * PricePerSpellLevel + LearnSpellBasePrice)}c {spell.Name}, Effect: {spell.SpellEffect}");
                 await Task.Yield();
                 var spellChoice = choiceSpellResult.SelectedOption;
                 if (spellChoice != null)
                 {
-                    result.AvailableCoins -= LearnSpellPrice;
+                    result.AvailableCoins -= (spellChoice.Level * PricePerSpellLevel + LearnSpellBasePrice);
                     hero.Spells.Add(spellChoice);
                     result.Message = $"{hero.Name} now knows the spell: {spellChoice.ToString()}.";
                     return result;

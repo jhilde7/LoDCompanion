@@ -39,6 +39,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         RepairEquipment,
         RepairWeapons,
         RepairArmour,
+        CheckBounties,
     }
 
     public class SettlementActionResult

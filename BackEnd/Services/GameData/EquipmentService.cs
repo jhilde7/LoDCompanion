@@ -2274,6 +2274,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public Spell? ContainedSpell { get; set; }
         public int MaxSpellCharges => ContainedSpell != null ? 3 : 0;
         public int CurrentSpellCharges { get; set; }
+        public int RechargeCost => MaxSpellCharges > 0 ? Value / 2 : 0;
         public Dictionary<MagicStaffProperty, int> MagicStaffProperties { get; set; } = new Dictionary<MagicStaffProperty, int>();
 
         public MagicStaff() { }
