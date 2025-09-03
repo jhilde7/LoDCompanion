@@ -1808,8 +1808,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int MaxDurability { get; set; } = 6;
         public int Durability { get; set; } = 1;
         public int Value { get; set; } = 0;
-        public int SellValue => CalculateSalePrice();
-        public int RepairCost => CalculateInitialRepairCosts();
         public int Availability { get; set; } = 4;
         public int Quantity { get; set; } = 1;
         public string Description { get; set; } = string.Empty;
@@ -1820,6 +1818,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public bool IdentifyAttempted { get; set; } = false;
         public bool AttemptedToIdentify { get; set; } = false;
         public List<ActiveStatusEffect>? ActiveStatusEffects { get; set; }
+
+        public int SellValue => CalculateSalePrice();
+        public int RepairCost => CalculateInitialRepairCosts();
 
         public Action<Equipment>? OnEquipmentDestroyed;
 
