@@ -73,13 +73,30 @@ namespace LoDCompanion.BackEnd.Services.Player
             // check party perks to determine if a ration is needed
             if (context == RestingContext.Wilderness)
             {
-                var rollResult = await _userRequest.RequestRollAsync("Roll for foraging skill check", "1d100");
-                var roll = rollResult.Roll;
                 var heroWithHighestSkill = party.Heroes
                     .OrderBy(h => h.GetSkill(Skill.Foraging))
                     .First();
+                var rollResult = await _userRequest.RequestRollAsync("Roll for foraging skill check", "1d100", skill: (heroWithHighestSkill, Skill.Foraging));
+                var roll = rollResult.Roll;
                 if (heroWithHighestSkill != null && roll <= heroWithHighestSkill.GetSkill(Skill.Foraging))
                 {
+                    if (heroWithHighestSkill.ProfessionName == "Ranger")
+                    {
+                        int furCount = 1;
+                        if (roll < (int)Math.Floor(heroWithHighestSkill.GetSkill(Skill.Foraging) / 2d))
+                        {
+                            await BackpackHelper.AddItem(heroWithHighestSkill.Inventory.Backpack, EquipmentService.GetAnyEquipmentByName("Ration")!);
+                            furCount++;
+                        }
+
+                        var skinningKnife = party.Heroes.Where(h => h.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name.Contains("Skinning Knife")) != null);
+                        if (skinningKnife.Any() && RandomHelper.RollDie(DiceType.D100) <= heroWithHighestSkill.GetSkill(Skill.Foraging))
+                        {
+                            var newItem = new Equipment { Name = "Animal Pelt", Quantity = furCount, Encumbrance = 2, Durability = 0, Value = 50, MaxDurability = 0 };
+                            await BackpackHelper.AddItem(heroWithHighestSkill.Inventory.Backpack, newItem);
+                        } 
+                    }
+
                     rationUsed = true;
                 }
             }
