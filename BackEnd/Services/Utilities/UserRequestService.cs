@@ -33,6 +33,29 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public bool WasCancelled { get; set; } = false;
     }
 
+    public class ChooseOptionRequest<T>
+    {
+        public string Prompt { get; set; } = "Choose an option";
+        public List<T> Options { get; set; } = new List<T>();
+        public Func<T, string> DisplaySelector { get; set; }
+        public bool IsCancellable { get; set; } = false;
+        public TaskCompletionSource<ChoiceOptionResult<T>> CompletionSource { get; } = new TaskCompletionSource<ChoiceOptionResult<T>>();
+
+        public ChooseOptionRequest(string prompt, List<T> options, Func<T, string> displaySelector, bool isCancellable)
+        {
+            Prompt = prompt;
+            Options = options;
+            DisplaySelector = displaySelector;
+            IsCancellable = isCancellable;
+        }
+    }
+
+    public class ChoiceOptionResult<T>
+    {
+        public T? SelectedOption { get; set; }
+        public bool WasCancelled { get; set; } = false;
+    }
+
     public class NumberInputRequest
     {
         public string Prompt { get; set; } = "Enter a number";
@@ -52,9 +75,12 @@ namespace LoDCompanion.BackEnd.Services.Utilities
     {
         public event Action? OnRollRequested;
         public event Action? OnRequestChanged;
+        private Action? _cancelGenericChoiceAction;
         public DiceRollRequest? CurrentDiceRequest { get; private set; }
         public ChooseOptionRequest? CurrentChoiceRequest { get; private set; }
+        public object? GenericCurrentChoiceRequest { get; private set; }
         public NumberInputRequest? CurrentNumberInputRequest { get; private set; }
+
 
         /// <summary>
         /// This is called by any part of the game that needs a dice roll.
@@ -135,12 +161,53 @@ namespace LoDCompanion.BackEnd.Services.Utilities
                 CurrentChoiceRequest = null;
                 OnRollRequested?.Invoke(); // Hides the modal
             }
+            _cancelGenericChoiceAction?.Invoke();
         }
 
         internal async Task<bool> RequestYesNoChoiceAsync(string prompt)
         {
             var result = await RequestChoiceAsync(prompt, new List<string> { "Yes", "No" });
             return !result.WasCancelled && result.SelectedOption == "Yes";
+        }
+
+        /// <summary>
+        /// Prompts the user to choose an item from a generic list.
+        /// </summary>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="prompt">The message to display to the user.</param>
+        /// <param name="options">The list of items to choose from.</param>
+        /// <param name="displaySelector">A function to get the display string for each item.</param>
+        /// <param name="canCancel">Whether the user can cancel the choice.</param>
+        /// <returns>The result of the user's choice.</returns>
+        public Task<ChoiceOptionResult<T>> RequestChoiceAsync<T>(string prompt, List<T> options, Func<T, string> displaySelector, bool canCancel = false)
+        {
+            var request = new ChooseOptionRequest<T>(prompt, options, displaySelector, canCancel);
+            GenericCurrentChoiceRequest = request;
+
+            _cancelGenericChoiceAction = () =>
+            {
+                request.CompletionSource.SetResult(new ChoiceOptionResult<T> { WasCancelled = true });
+                GenericCurrentChoiceRequest = null;
+                _cancelGenericChoiceAction = null;
+                OnRequestChanged?.Invoke();
+            };
+
+            OnRequestChanged?.Invoke();
+            return request.CompletionSource.Task;
+        }
+
+        /// <summary>
+        /// This is called by the UI when the user selects an option.
+        /// </summary>
+        public void CompleteChoice<T>(T selectedOption)
+        {
+            if (GenericCurrentChoiceRequest is ChooseOptionRequest<T> request)
+            {
+                request.CompletionSource.SetResult(new ChoiceOptionResult<T> { SelectedOption = selectedOption });
+                GenericCurrentChoiceRequest = null;
+                _cancelGenericChoiceAction = null;
+                OnRequestChanged?.Invoke();
+            }
         }
 
         public Task<NumberInputResult> RequestNumberInputAsync(string prompt, int? min = null, int? max = null, bool canCancel = false)
