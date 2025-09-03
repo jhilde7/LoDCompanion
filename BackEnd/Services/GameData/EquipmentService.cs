@@ -1326,7 +1326,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff will lend some of its power to the wizard. It will give a +5 modifier to the Arcane Arts Skill. When leaving a dungeon, roll 1d10. On a result of 9-10, the magic has dissipated and must be recharged. Until recharged, it is considered a normal staff.",
                     Value = 400,
                     Availability = 4,
-                    StaffType = "StatBonus",
+                    StaffType = StaffType.StatBonus,
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ArcaneArts, 5 }
@@ -1339,7 +1339,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 30 points of Mana.",
                     Value = 800,
                     Availability = 2,
-                    StaffType = "StatBonus",
+                    StaffType = StaffType.StatBonus,
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ManaStorage, 30 }
@@ -1352,7 +1352,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 20 points of Mana.",
                     Value = 500,
                     Availability = 3,
-                    StaffType = "StatBonus",
+                    StaffType = StaffType.StatBonus,
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ManaStorage, 20 }
@@ -1365,7 +1365,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff may be used to store Mana between quests. Storing Mana does not take any time and can be done in a settlement while resting at the inn. This stores 10 points of Mana.",
                     Value = 300,
                     Availability = 4,
-                    StaffType = "StatBonus",
+                    StaffType = StaffType.StatBonus,
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.ManaStorage, 10 }
@@ -1378,7 +1378,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff strengthens the body of the wizard, giving +3 HP while the staff is carried. Between each quest, roll 1d10. On a result of 10, the magic has dissipated and must be recharged. Until recharged, it is considered a normal staff.",
                     Value = 350,
                     Availability = 4,
-                    StaffType = "StatBonus",
+                    StaffType = StaffType.StatBonus,
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.HitPointsBonus, 3 }
@@ -1391,7 +1391,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff works just like a lantern. If the wizard makes a miscast, the flame goes out. It will not go out due to any other reason. To rekindle the flame, the wizard must simply spend one Action.",
                     Value = 300,
                     Availability = 4,
-                    StaffType = "Illumination",
+                    StaffType = StaffType.Illumination,
                     MagicStaffProperties = new Dictionary<MagicStaffProperty, int>
                     {
                         { MagicStaffProperty.Illumination, 1 }
@@ -1404,8 +1404,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff contains the magic spell: Flare.",
                     Value = 400,
                     Availability = 3,
-                    StaffType = "Spell",
-                    ContainedSpell = "Flare",
+                    CurrentSpellCharges = 3,
+                    StaffType = StaffType.Spell,
+                    ContainedSpell = SpellService.GetSpellByName("Flare"),
                 }),
                 weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
@@ -1414,8 +1415,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff contains the magic spell: Slow.",
                     Value = 400,
                     Availability = 3,
-                    StaffType = "Spell",
-                    ContainedSpell = "Slow",
+                    CurrentSpellCharges = 3,
+                    StaffType = StaffType.Spell,
+                    ContainedSpell = SpellService.GetSpellByName("Slow"),
                 }),
                 weaponFactory.CreateMagicStaff(new MagicStaff()
                 {
@@ -1424,8 +1426,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Description = "This staff contains the spell: Magic Bolt.",
                     Value = 500,
                     Availability = 3,
-                    StaffType = "Spell",
-                    ContainedSpell = "Magic Bolt",
+                    CurrentSpellCharges = 3,
+                    StaffType = StaffType.Spell,
+                    ContainedSpell = SpellService.GetSpellByName("Magic Bolt"),
                 })
             };
         }
@@ -2258,10 +2261,19 @@ namespace LoDCompanion.BackEnd.Services.GameData
         Illumination
     }
 
+    public enum StaffType
+    {
+        StatBonus,
+        Spell,
+        Illumination
+    }
+
     public class MagicStaff : MeleeWeapon
     {
-        public string StaffType { get; set; } = string.Empty;
-        public string ContainedSpell { get; set; } = string.Empty;
+        public StaffType StaffType { get; set; }
+        public Spell? ContainedSpell { get; set; }
+        public int MaxSpellCharges => ContainedSpell != null ? 3 : 0;
+        public int CurrentSpellCharges { get; set; }
         public Dictionary<MagicStaffProperty, int> MagicStaffProperties { get; set; } = new Dictionary<MagicStaffProperty, int>();
 
         public MagicStaff() { }
