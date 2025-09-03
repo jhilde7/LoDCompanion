@@ -87,6 +87,47 @@ namespace LoDCompanion.BackEnd.Services.Player
             await UnequipItemAsync(hero, weapon);
         }
 
+        public List<Equipment> GetAllWeaponsArmour(Hero hero)
+        {
+            var inventory = hero.Inventory;
+            List<Equipment> weaponArmourList = [.. inventory.Backpack.Where(item => item != null && (item is Weapon || item is Armour || item is Shield)).ToList(),
+            .. inventory.EquippedArmour];
+            if (inventory.EquippedWeapon != null) weaponArmourList.Add(inventory.EquippedWeapon);
+            if (inventory.OffHand != null && (inventory.OffHand is Weapon || inventory.OffHand is Shield)) weaponArmourList.Add(inventory.OffHand);
+            List<Equipment> quickSlots = [.. inventory.QuickSlots];
+            if (inventory.EquippedStorage != null && inventory.EquippedStorage.Storage != null && inventory.EquippedStorage.Storage.QuickSlots != null)
+                quickSlots.AddRange(inventory.EquippedStorage.Storage.QuickSlots.Cast<Equipment>());
+            foreach (var item in quickSlots)
+            {
+                if (item is Weapon || item is Armour || item is Shield)
+                {
+                    weaponArmourList.Add(item);
+                }
+            }
+
+            return weaponArmourList;
+        }
+
+        public List<Equipment> GetAllNonWeaponsArmour(Hero hero)
+        {
+            var inventory = hero.Inventory;
+            List<Equipment> equipmentList = [.. inventory.Backpack.Where(item => item != null && !(item is Weapon || item is Armour || item is Shield)).ToList(),
+            .. inventory.EquippedArmour];
+            if (inventory.OffHand != null && !(inventory.OffHand is Weapon || inventory.OffHand is Shield)) equipmentList.Add(inventory.OffHand);
+            List<Equipment> quickSlots = [.. inventory.QuickSlots];
+            if (inventory.EquippedStorage != null && inventory.EquippedStorage.Storage != null && inventory.EquippedStorage.Storage.QuickSlots != null)
+                quickSlots.AddRange(inventory.EquippedStorage.Storage.QuickSlots.Cast<Equipment>());
+            foreach (var item in quickSlots)
+            {
+                if (!(item is Weapon || item is Armour || item is Shield))
+                {
+                    equipmentList.Add(item);
+                }
+            }
+
+            return equipmentList;
+        }
+
         /// <summary>
         /// Assigns an item from the backpack to a specific quick slot.
         /// </summary>
