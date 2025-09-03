@@ -162,6 +162,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (TheAsylum asylum, SettlementActionType.TreatMentalConditions):
                     result = await asylum.TreatMentalConditions(hero, result, _userRequest);
                     break;
+                case (WizardsGuild guild, SettlementActionType.ChargeMagicItem):
+                    result = await guild.ChargeMagicItem(hero, result, _userRequest);
+                    break;
             }
 
             if (result.WasSuccessful)
