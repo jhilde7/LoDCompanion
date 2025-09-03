@@ -1464,7 +1464,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     newItem = new Equipment { Name = "Set of Fine Clothes", Quantity = quantity, Encumbrance = 0, Durability = 0, Value = 0, Description = "Increases Barter +5", MaxDurability = 0 };
                     break;
                 case "Scroll":
-                    newItem = new Equipment { Name = $"Scroll of {SpellService.GetRandomSpellName()}", Quantity = quantity, Value = value == 0 ? 100 : value };
+                    newItem = new Scroll(SpellService.GetRandomSpell()) { Quantity = quantity, Value = value == 0 ? 100 : value };
                     break;
                 case "Talent Training Manual":
                     newItem = new Equipment { Name = $"{new PassiveAbilityService().GetRandomTalent()} Training Manual", Quantity = quantity, Encumbrance = 1, Durability = 0, Value = 0, Description = "Grants the talent named on the book, when read at an inn", MaxDurability = 0 };

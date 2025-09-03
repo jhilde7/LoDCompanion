@@ -200,6 +200,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return GetRandomSpellNameByCategory();
         }
 
+        public static Spell GetRandomSpell()
+        {
+            var spells = Spells;
+            spells.Shuffle();
+            return spells[0];
+        }
+
         public static List<Spell> GetSpells()
         {
             return new List<Spell>()
