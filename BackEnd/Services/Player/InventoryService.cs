@@ -61,31 +61,6 @@ namespace LoDCompanion.BackEnd.Services.Player
             else if (Backpack.Contains(equipment)) BackpackHelper.TakeOneItem(Backpack, equipment);
             else if (EquippedArmour.Contains((Armour)equipment)) EquippedArmour.Remove((Armour)equipment);
         }
-    }
-
-    /// <summary>
-    /// Manages hero inventory actions like equipping and rearranging gear.
-    /// </summary>
-    public class InventoryService
-    {
-        private readonly PowerActivationService _powerActivation;
-        Hero heroEvent = new Hero();
-        public InventoryService(PowerActivationService powerActivation)
-        {
-            _powerActivation = powerActivation;
-            
-            heroEvent.OnUnequipWeaponAsync += HandleUnequipWeaponAsync;
-        }
-
-        public void Dispose()
-        {
-            heroEvent.OnUnequipWeaponAsync -= HandleUnequipWeaponAsync;
-        }
-
-        private async Task HandleUnequipWeaponAsync(Hero hero, Weapon weapon)
-        {
-            await UnequipItemAsync(hero, weapon);
-        }
 
         public List<Equipment> GetAllWeaponsArmour(Hero hero)
         {
@@ -126,6 +101,31 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             return equipmentList;
+        }
+    }
+
+    /// <summary>
+    /// Manages hero inventory actions like equipping and rearranging gear.
+    /// </summary>
+    public class InventoryService
+    {
+        private readonly PowerActivationService _powerActivation;
+        Hero heroEvent = new Hero();
+        public InventoryService(PowerActivationService powerActivation)
+        {
+            _powerActivation = powerActivation;
+            
+            heroEvent.OnUnequipWeaponAsync += HandleUnequipWeaponAsync;
+        }
+
+        public void Dispose()
+        {
+            heroEvent.OnUnequipWeaponAsync -= HandleUnequipWeaponAsync;
+        }
+
+        private async Task HandleUnequipWeaponAsync(Hero hero, Weapon weapon)
+        {
+            await UnequipItemAsync(hero, weapon);
         }
 
         /// <summary>
