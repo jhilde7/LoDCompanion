@@ -1,4 +1,5 @@
-﻿using LoDCompanion.BackEnd.Models;
+﻿using BlazorContextMenu;
+using LoDCompanion.BackEnd.Models;
 using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Game;
@@ -64,6 +65,64 @@ namespace LoDCompanion.BackEnd.Services.Player
         Yellow,
         Black,
         Turquoise
+    }
+
+    public class Settlement
+    {
+        public SettlementState State { get; set; }
+        public List<HexTile> HexTiles { get; set; } = new List<HexTile>();
+        public SettlementName Name { get; set; }
+        public int EventOn { get; set; }
+        public string? QuestDice { get; set; }
+        public QuestColor? QuestColor { get; set; }
+        public int RejectedQuests { get; set; }
+        public string? SpecialRules { get; internal set; }
+
+        public Settlement(SettlementName name, int eventOn, List<HexTile> hexTiles, string? questDice = null, QuestColor? questColor = null, string? specialRules = null)
+        {
+            Name = name;
+            EventOn = eventOn;
+            HexTiles = hexTiles;
+            State = new SettlementState(this);
+
+            QuestDice = questDice;
+            QuestColor = questColor;
+            SpecialRules = specialRules;
+        }
+    }
+
+    public class SettlementState
+    {
+        public Settlement Settlement { get; set; }
+        public int CurrentDay { get; set; } = 1;
+        public Dictionary<Hero, int> HeroActionPoints { get; set; } = new Dictionary<Hero, int>();
+        public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
+        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
+        public Inn? Inn { get; set; }
+        public GeneralStore? GeneralStore { get; set; }
+        public BlackSmith? BlackSmith { get; set; }
+        public Herbalist? Herbalist { get; set; }
+        public MagicBrewery? MagicBrewery { get; set; }
+        public SickWard? SickWard { get; set; }
+        public FortuneTeller? FortuneTeller { get; set; }
+        public HorseTrack? HorseTrack { get; set; }
+        public Scryer? Scryer { get; set; }
+        public TheAsylum? TheAsylum { get; set; }
+        public Arena? Arena { get; set; }
+        public List<Bank>? Banks { get; set; }
+        public List<Temple>? Temples { get; set; }
+        public TheDarkGuild? TheDarkGuild { get; set; }
+        public FightersGuild? FightersGuild { get; set; }
+        public WizardsGuild? WizardsGuild { get; set; }
+        public AlchemistsGuild? AlchemistsGuild { get; set; }
+        public RangersGuild? RangersGuild { get; set; }
+        public TheInnerSanctum? TheInnerSanctum { get; set; }
+        public Estate? Estate { get; set; }
+
+        public SettlementState (Settlement settlement)
+        {
+            Settlement = settlement;
+        }
     }
 
     public class ServiceLocation
@@ -196,64 +255,19 @@ namespace LoDCompanion.BackEnd.Services.Player
             return list;
         }
 
-    }
-
-    public class Settlement
-    {
-        public SettlementState State { get; set; }
-        public List<HexTile> HexTiles { get; set; } = new List<HexTile>();
-        public SettlementName Name { get; set; }
-        public int EventOn { get; set; }
-        public string? QuestDice { get; set; }
-        public QuestColor? QuestColor { get; set; }
-        public int RejectedQuests { get; set; }
-        public string? SpecialRules { get; internal set; }
-
-        public Settlement(SettlementName name, int eventOn, List<HexTile> hexTiles, string? questDice = null, QuestColor? questColor = null, string? specialRules = null)
+        public SettlementActionResult GetShopInventory(Hero hero, SettlementActionResult result)
         {
-            Name = name;
-            EventOn = eventOn;
-            HexTiles = hexTiles;
-            State = new SettlementState(this);
+            if (!AvailableActions.Contains(SettlementActionType.BuyingAndSelling))
+            {
+                result.Message = "This service does not have anything to buy or sell";
+                result.WasSuccessful = false;
+                return result;
+            }
 
-            QuestDice = questDice;
-            QuestColor = questColor;
-            SpecialRules = specialRules;
+            result.ShopInventory = CurrentAvailableStock;
+            return result;
         }
-    }
 
-    public class SettlementState
-    {
-        public Settlement Settlement { get; set; }
-        public int CurrentDay { get; set; } = 1;
-        public Dictionary<Hero, int> HeroActionPoints { get; set; } = new Dictionary<Hero, int>();
-        public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
-        public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
-        public Inn? Inn { get; set; }
-        public GeneralStore? GeneralStore { get; set; }
-        public BlackSmith? BlackSmith { get; set; }
-        public Herbalist? Herbalist { get; set; }
-        public MagicBrewery? MagicBrewery { get; set; }
-        public SickWard? SickWard { get; set; }
-        public FortuneTeller? FortuneTeller { get; set; }
-        public HorseTrack? HorseTrack { get; set; }
-        public Scryer? Scryer { get; set; }
-        public TheAsylum? TheAsylum { get; set; }
-        public Arena? Arena { get; set; }
-        public List<Bank>? Banks { get; set; }
-        public List<Temple>? Temples { get; set; }
-        public TheDarkGuild? TheDarkGuild { get; set; }
-        public FightersGuild? FightersGuild { get; set; }
-        public WizardsGuild? WizardsGuild { get; set; }
-        public AlchemistsGuild? AlchemistsGuild { get; set; }
-        public RangersGuild? RangersGuild { get; set; }
-        public TheInnerSanctum? TheInnerSanctum { get; set; }
-        public Estate? Estate { get; set; }
-
-        public SettlementState (Settlement settlement)
-        {
-            Settlement = settlement;
-        }
     }
 
     public class Inn : ServiceLocation
@@ -273,6 +287,339 @@ namespace LoDCompanion.BackEnd.Services.Player
                         SettlementActionType.EnchantObjects,
                         SettlementActionType.CreateScroll
                     };
+        }
+
+        public async Task<SettlementActionResult> Gamble(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            var minBet = 50;
+            var maxBet = 500;
+            if (result.AvailableCoins < minBet)
+            {
+                result.Message = $"{hero.Name} does not have enough coin to gamble with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var inputResult = await userRequest.RequestNumberInputAsync("How much do you want to bet?", min: minBet, max: Math.Min(maxBet, result.AvailableCoins), canCancel: true);
+            await Task.Yield();
+            if (!inputResult.WasCancelled)
+            {
+                var bet = inputResult.Amount;
+                result.AvailableCoins -= bet;
+                var luck = hero.GetStat(BasicStat.Luck);
+                var rollResult = await userRequest.RequestRollAsync("Roll gambling result.", "1d10");
+                await Task.Yield();
+                if (rollResult.Roll < 10) rollResult.Roll -= luck;
+                switch (rollResult.Roll)
+                {
+                    case <= 1:
+                        bet *= 2;
+                        result.Message = $"Jackpot! You won {bet}";
+                        result.AvailableCoins += bet;
+                        break;
+                    case <= 3:
+                        bet = (int)Math.Ceiling(bet * 1.5);
+                        result.Message = $"Win! You won {bet}";
+                        result.AvailableCoins += bet;
+                        break;
+                    case 10:
+                        result.Message = $"The others around the table are certain {hero.Name} has cheated, and they end up getting a good beting and are robbed of 100c on top of their bet.";
+                        result.AvailableCoins -= Math.Min(100, result.AvailableCoins);
+                        break;
+                    default: result.Message = "You lose all your bets."; break;
+                }
+            }
+            return result;
+        }
+
+        public async Task<SettlementActionResult> EnchantItemAsync(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (hero.ProfessionName != "Wizard")
+            {
+                result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (!hero.CanCreateScrollEnchantItem)
+            {
+                result.Message = $"{hero.Name} has already attempted to enchanted an item or attempted creation of two scrolls this visit.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Spells != null)
+            {
+                var magicScribbles = hero.Spells.FirstOrDefault(s => s.Name == "Enchant Item");
+                if (magicScribbles == null)
+                {
+                    result.Message = $"{hero.Name} does not know the spell Enchant Item.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            var powerStones = hero.Inventory.Backpack.OfType<PowerStone>().ToList();
+            if (!powerStones.Any())
+            {
+                result.Message = $"{hero.Name} does not have a Power Stone to enchant items with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var selectedPowerStone = powerStones.First();
+            if (powerStones.Count > 1)
+            {
+                var stoneChoiceRequest = await userRequest.RequestChoiceAsync("Choose a power stone to enchant with.", powerStones, p => p.Name);
+                await Task.Yield();
+                selectedPowerStone = stoneChoiceRequest.SelectedOption;
+            }
+
+            if (selectedPowerStone == null)
+            {
+                result.Message = "Invalid power stone selection.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var equipmentList = hero.Inventory.Backpack
+                .Where(i => i != null &&
+                            ((selectedPowerStone.ItemToEnchant == PowerStoneEffectItem.Weapon && i is Weapon) ||
+                             (selectedPowerStone.ItemToEnchant == PowerStoneEffectItem.ArmourShield && (i is Armour || i is Shield)) ||
+                             (selectedPowerStone.ItemToEnchant == PowerStoneEffectItem.RingAmulet && (i.Name == "Ring" || i.Name == "Amulet"))) &&
+                            string.IsNullOrEmpty(i.MagicEffect))
+                .Cast<Equipment>()
+                .ToList();
+
+            if (!equipmentList.Any())
+            {
+                result.Message = $"There are no valid items to enchant with {selectedPowerStone.Name}.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var choiceRequest = await userRequest.RequestChoiceAsync("Choose the item to enchant.", equipmentList, e => e.Name);
+            await Task.Yield();
+            var selectedEquipment = choiceRequest.SelectedOption;
+
+            if (selectedEquipment == null)
+            {
+                result.Message = "Invalid item selection.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            selectedEquipment = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, selectedEquipment);
+
+            var rollResult = await userRequest.RequestRollAsync("Roll arcane arts skill check.", "1d100", skill: (hero, Skill.ArcaneArts));
+            var skillTarget = hero.GetSkill(Skill.ArcaneArts);
+
+            if (rollResult.Roll > skillTarget)
+            {
+                result.Message += $"{hero.Name} fails and {selectedEquipment?.Name} is destroyed. However, the power stone is still intact.";
+            }
+            else
+            {
+                BackpackHelper.TakeOneItem(hero.Inventory.Backpack, selectedPowerStone);
+
+                if (selectedEquipment != null)
+                {
+                    selectedEquipment.Name += $"{selectedPowerStone.Name.Replace("Power stone", "")}";
+                    selectedEquipment.MagicEffect = $"{selectedPowerStone.Name.Replace("Power stone of ", "")}";
+                    selectedEquipment.Value *= selectedPowerStone.ValueModifier;
+                    if (selectedPowerStone.ActiveStatusEffects != null)
+                    {
+                        selectedEquipment.ActiveStatusEffects ??= new();
+                        selectedEquipment.ActiveStatusEffects.AddRange(selectedPowerStone.ActiveStatusEffects);
+                    }
+
+                    if (selectedEquipment is Weapon weapon && selectedPowerStone.WeaponProperties != null)
+                    {
+                        foreach (var prop in selectedPowerStone.WeaponProperties)
+                        {
+                            if (prop.Key == WeaponProperty.DamageBonus && weapon.Properties.ContainsKey(WeaponProperty.DamageBonus))
+                            {
+                                weapon.Properties[WeaponProperty.DamageBonus] += prop.Value;
+                            }
+                            else weapon.Properties.TryAdd(prop.Key, prop.Value);
+                        }
+                    }
+                    else if (selectedEquipment is Armour || selectedEquipment is Shield && selectedPowerStone.DefenseBonus > 0)
+                    {
+                        if (selectedEquipment is Armour armour) armour.DefValue += selectedPowerStone.DefenseBonus;
+                        if (selectedEquipment is Shield shield) shield.DefValue += selectedPowerStone.DefenseBonus;
+                    }
+
+                    result.Message += $"{selectedEquipment.Name} was created!";
+                    await BackpackHelper.AddItem(hero.Inventory.Backpack, selectedEquipment);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<SettlementActionResult> CreateScroll(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (hero.ProfessionName != "Wizard")
+            {
+                result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (!hero.CanCreateScrollEnchantItem)
+            {
+                result.Message = $"{hero.Name} has already attempted to enchanted an item or attempted creation of two scrolls this visit.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Spells != null)
+            {
+                var magicScribbles = hero.Spells.FirstOrDefault(s => s.Name == "Magic Scribbles");
+                if (magicScribbles == null)
+                {
+                    result.Message = $"{hero.Name} does not know the spell Magic Scribbles.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            var scroll = hero.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Parchment");
+            if (scroll == null)
+            {
+                result.Message = $"{hero.Name} does not have a Parchment to create the scroll with.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            for (int i = 0; i < Math.Min(2, scroll.Quantity); i++)
+            {
+                BackpackHelper.TakeOneItem(hero.Inventory.Backpack, scroll);
+                var rollResult = await userRequest.RequestRollAsync("Roll arcane arts skill check.", "1d100", skill: (hero, Skill.ArcaneArts));
+                await Task.Yield();
+                var skillTarget = hero.GetSkill(Skill.ArcaneArts);
+                if (rollResult.Roll > skillTarget || hero.Spells == null)
+                {
+                    result.Message += $"{hero.Name} fails to create a scroll.";
+                }
+                else
+                {
+                    var spellList = hero.Spells.Cast<Spell>().ToList();
+                    var choiceRequest = await userRequest.RequestChoiceAsync("Choose the scroll you wish to create.", spellList, s => $"{s.Name} Description: {s.SpellEffect}");
+                    await Task.Yield();
+                    var spell = choiceRequest.SelectedOption != null ? choiceRequest.SelectedOption : new Spell();
+                    var newScroll = new Scroll(spell) { Quantity = 1, Value = 100 };
+                    result.Message += $"{newScroll.Name} was created!";
+                    await BackpackHelper.AddItem(hero.Inventory.Backpack, newScroll);
+                }
+            }
+            hero.HasCreatedScrolls = true;
+
+            return result;
+        }
+
+        public async Task<SettlementActionResult> RestRecuperation(Party party, SettlementActionResult result, UserRequestService userRequest)
+        {
+            var estate = Settlement.State.Estate;
+            //The party owns an estate in this settlement (free stay)
+            if (estate != null)
+            {
+                result.Message = "The party rests comfortably in their estate.";
+                result.AvailableCoins = await PerformRest(party, 0, result.AvailableCoins, false, userRequest); // Free rest, not in stables
+                return result;
+            }
+
+            // The party can afford the inn
+            if (result.AvailableCoins >= Price)
+            {
+                var stayAtInn = await userRequest.RequestYesNoChoiceAsync($"A room at the inn costs {Price} coins. Would you like to stay the night?");
+                if (stayAtInn)
+                {
+                    result.Message = "The party enjoys a comfortable night at the ";
+                    result.AvailableCoins = await PerformRest(party, Price, result.AvailableCoins, false, userRequest);
+                    return result;
+                }
+                else
+                {
+                    result.Message = "The party decides not to rest at the ";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+
+            // The party cannot afford the inn, but might afford the stables
+            if (result.AvailableCoins < SleepInStablesPrice)
+            {
+                result.Message = "You do not have enough coin to stay at the Inn, not even in the stables.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            else
+            {
+                var sleepInStables = await userRequest.RequestYesNoChoiceAsync($"You cannot afford a room ({Price}c), but the stables are available for {SleepInStablesPrice} coin. Sleep in the stables?");
+                if (sleepInStables)
+                {
+                    result.Message = "The party rests in the stables.";
+                    result.AvailableCoins = await PerformRest(party, SleepInStablesPrice, result.AvailableCoins, true, userRequest);
+                }
+                else
+                {
+                    result.Message = "The party chooses not to sleep in the stables.";
+                    result.WasSuccessful = false;
+                }
+                return result;
+            }
+        }
+
+        private async Task<int> PerformRest(Party party, int cost, int availableCoin, bool isStables, UserRequestService userRequest)
+        {
+            // Deduct cost from party funds
+            availableCoin -= cost;
+
+            foreach (var hero in party.Heroes)
+            {
+                if (isStables)
+                {
+                    // Rules for sleeping in the stables
+                    hero.Heal(RandomHelper.RollDie(DiceType.D6));
+                    int missingEnergy = hero.GetStat(BasicStat.Energy) - hero.CurrentEnergy;
+                    int missingluck = hero.GetStat(BasicStat.Luck) - hero.CurrentLuck;
+                    hero.CurrentEnergy = Math.Min((int)Math.Floor(hero.GetStat(BasicStat.Energy) / 2.0), missingEnergy);
+                    hero.CurrentLuck = Math.Min((int)Math.Floor(hero.GetStat(BasicStat.Luck) / 2.0), missingluck);
+
+                    if (hero.CurrentMana.HasValue)
+                    {
+                        int missingMana = hero.GetStat(BasicStat.Wisdom) - hero.CurrentMana.Value;
+                        hero.CurrentMana = Math.Min((int)Math.Floor(hero.GetStat(BasicStat.Wisdom) / 2.0), missingMana);
+                    }
+                }
+                else
+                {
+                    // Rules for sleeping in the inn
+                    hero.Heal(RandomHelper.RollDice("2d6"));
+                    hero.CurrentEnergy = hero.GetStat(BasicStat.Energy);
+                    hero.CurrentLuck = hero.GetStat(BasicStat.Luck);
+                    if (hero.CurrentMana.HasValue)
+                    {
+                        hero.CurrentMana = hero.GetStat(BasicStat.Wisdom);
+                    }
+
+                    // Tending to memories (Sanity)
+                    var missingSanity = hero.GetStat(BasicStat.Sanity) - hero.CurrentSanity;
+                    hero.CurrentSanity += Math.Min(RandomHelper.RollDie(DiceType.D3), missingSanity);
+
+                    missingSanity = hero.GetStat(BasicStat.Sanity) - hero.CurrentSanity;
+                    int sanityCost = RandomHelper.RollDie(DiceType.D3) * 100;
+                    if (missingSanity > 0 && await userRequest.RequestYesNoChoiceAsync($"{hero.Name} has {missingSanity} sanity left to heal. Do they wish to drown their memories in ale or other pleasures at the cost of {sanityCost}, in an attempt to regain some sanity?"))
+                    {
+                        if (availableCoin >= sanityCost)
+                        {
+                            availableCoin -= sanityCost;
+                            hero.CurrentSanity += Math.Min(RandomHelper.RollDie(DiceType.D6), missingSanity);
+                        }
+                    }
+                }
+            }
+            return availableCoin;
         }
     }
 
@@ -301,8 +648,46 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             AvailableActions = new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyingAndSelling
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.RepairWeapons,
+                        SettlementActionType.RepairArmour,
                     };
+        }
+
+        public async Task<SettlementActionResult> RepairWeaponsArmour(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isRepairing = true;
+            while (isRepairing)
+            {
+                var weaponsArmourList = hero.Inventory.GetAllWeaponsArmour(hero);
+                var repairableList = weaponsArmourList.Where(item => item.RepairCost <= result.AvailableCoins && item.RepairCost >= 2).ToList();
+                if (repairableList.Count < 1)
+                {
+                    result.Message = "No more items can be repaired";
+                    isRepairing = false; 
+                    break;
+                }
+
+                var choiceResult = await userRequest.RequestChoiceAsync<Equipment>(
+                    "Choose an item to repair.",
+                    repairableList,
+                    item => $"{item.Name}, Repair: {item.Durability}>{item.MaxDurability} {item.RepairCost}c",
+                    canCancel: true);
+                if (choiceResult.WasCancelled)
+                {
+                    isRepairing = false;
+                    break;
+                }
+
+                var item = choiceResult.SelectedOption;
+                if (!choiceResult.WasCancelled && item != null)
+                {
+                    result.AvailableCoins -= item.RepairCost;
+                    item.Repair();
+                    result.Message += $"{item.Name} was repaired.";
+                } 
+            }
+            return result;
         }
     }
 
@@ -311,6 +696,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int EquipmentAvailabilityModifier { get; set; }
         public double EquipmentPriceModifier { get; set; } = 1d;
         public List<ShopSpecial>? ShopSpecials { get; set; }
+        public static int IdentifyPotionPrice { get; set; } = 25; 
 
         public GeneralStore(Settlement settlement) : base(SettlementServiceName.GeneralStore, settlement)
         {
@@ -319,8 +705,79 @@ namespace LoDCompanion.BackEnd.Services.Player
             AvailableActions = new List<SettlementActionType>
                     {
                         SettlementActionType.BuyingAndSelling,
-                        SettlementActionType.IdentifyPotion
+                        SettlementActionType.IdentifyPotion,
+                        SettlementActionType.RepairEquipment
                     };
+        }
+
+        public async Task<SettlementActionResult> RepairEquipment(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isRepairing = true;
+            while (isRepairing)
+            {
+                var weaponsArmourList = hero.Inventory.GetAllNonWeaponsArmour(hero);
+                var repairableList = weaponsArmourList.Where(item => item.RepairCost <= result.AvailableCoins && item.RepairCost >= 2).ToList();
+                if (repairableList.Count < 1)
+                {
+                    result.Message = "No more items can be repaired";
+                    isRepairing = false;
+                    break;
+                }
+
+                var choiceResult = await userRequest.RequestChoiceAsync<Equipment>(
+                    "Choose an item to repair.",
+                    repairableList,
+                    item => $"{item.Name}, Repair: {item.Durability}>{item.MaxDurability} {item.RepairCost}c",
+                    canCancel: true);
+                if (choiceResult.WasCancelled)
+                {
+                    isRepairing = false;
+                    break;
+                }
+
+                var item = choiceResult.SelectedOption;
+                if (!choiceResult.WasCancelled && item != null)
+                {
+                    result.AvailableCoins -= item.RepairCost;
+                    item.Repair();
+                    result.Message += $"{item.Name} was repaired.";
+                }
+            }
+            return result;
+        }
+
+        public static async Task<SettlementActionResult> IdentifyPotion(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (result.AvailableCoins < IdentifyPotionPrice)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var unidentifiedItems = hero.Inventory.Backpack.Where(i => i != null && i is Potion && !i.Identified).ToList();
+            if (!unidentifiedItems.Any())
+            {
+                result.Message = $"{hero.Name} deos not have any potions in need of identification.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var selectedItem = unidentifiedItems.First();
+            if (unidentifiedItems.Count > 1)
+            {
+                var choiceResult = await userRequest.RequestChoiceAsync("Choose potion to identify.", unidentifiedItems, item => item != null ? item.Name : "Unknown");
+                await Task.Yield();
+                selectedItem = choiceResult.SelectedOption;
+            }
+
+            if (selectedItem != null)
+            {
+                selectedItem.Identified = true;
+                result.AvailableCoins -= IdentifyPotionPrice;
+                result.Message = $"Potion identified: {selectedItem.ToString()}";
+            }
+            return result;
         }
     }
 
@@ -349,6 +806,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                         SettlementActionType.IdentifyPotion
                     };
         }
+
+        public async Task<SettlementActionResult> IdentifyPotion(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            return await GeneralStore.IdentifyPotion(hero, result, userRequest);
+        }
     }
 
     public class SickWard : ServiceLocation
@@ -361,6 +823,34 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         SettlementActionType.CureDiseasePoison,
                     };
+        }
+
+        public async Task<SettlementActionResult> VisitSickWard(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            var poison = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == Combat.StatusEffectType.Poisoned);
+            var disease = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == Combat.StatusEffectType.Diseased);
+            if (poison == null && disease == null)
+            {
+                result.Message = $"{hero.Name} is neither poisoned nor diseased.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            if (poison != null && result.AvailableCoins >= 100 && await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wnat to be cured of poison for 100c?"))
+            {
+                StatusEffectService.RemoveActiveStatusEffect(hero, poison);
+                result.AvailableCoins -= 100;
+                result.Message += $"{hero.Name} was cured of poison!";
+            }
+            await Task.Yield();
+            if (disease != null && result.AvailableCoins >= 100 && await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wnat to be cured of disease for 100c?"))
+            {
+                StatusEffectService.RemoveActiveStatusEffect(hero, disease);
+                result.AvailableCoins -= 100;
+                result.Message += $"{hero.Name} was cured of disease!";
+            }
+            await Task.Yield();
+
+            return result;
         }
     }
 
@@ -510,6 +1000,8 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class FortuneTeller : ServiceLocation
     {
+        public int Price { get; set; } = 50;
+        public string FortuneDice { get; set; } = "1d6";
         public FortuneTeller(Settlement settlement) : base(SettlementServiceName.FortuneTeller, settlement)
         {
             Settlement = settlement;
@@ -519,10 +1011,45 @@ namespace LoDCompanion.BackEnd.Services.Player
                         SettlementActionType.ReadFortune,
                     };
         }
+
+        public async Task<SettlementActionResult> ReadFortune(Hero hero, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation)
+        {
+            if (result.AvailableCoins < Price)
+            {
+                result.Message = $"{hero.Name} does not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            result.AvailableCoins -= Price;
+            var rollResult = await userRequest.RequestRollAsync("Roll for your fortune", FortuneDice);
+            await Task.Yield();
+            switch (rollResult.Roll)
+            {
+                case 1:
+                    result.Message = "The Fortune Teller describes an upcoming battle in such detail that during the next quest, the hero recognizes the situation and manages to avoid harm." +
+                        " The hero may treat one successful attack against them as a miss during the next quest.";
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.Precognition, -1), powerActivation);
+                    break;
+                case 2:
+                    result.Message = "The Fortune Teller talks about great fortune being made through gambling. The hero has enhanced luck at a gambling dice roll during this stay in the city.";
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, new ActiveStatusEffect(StatusEffectType.GamblingLuck, -1), powerActivation);
+                    break;
+                case 6:
+                    result.Message = "You are cursed! The Fortune Teller staggers back in shock after reading the hero's palm. The hero will suffer a curse during the next quest.";
+                    var curseEffect = StatusEffectService.GetRandomCurseEffect();
+                    curseEffect.RemoveEndOfDungeon = true;
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, curseEffect, powerActivation);
+                    break;
+                default: result.Message = "The Fortune Teller talks about lots of things, nut nothing that is of any importance."; break;
+            }
+            return result;
+        }
     }
 
     public class Scryer : ServiceLocation
     {
+        public static int PriceToIdentify { get; set; } = 300;
         public Scryer(Settlement settlement) : base(SettlementServiceName.Scryer, settlement)
         {
             Settlement = settlement;
@@ -532,10 +1059,46 @@ namespace LoDCompanion.BackEnd.Services.Player
                         SettlementActionType.IdentifyMagicItem,
                     };
         }
+
+        public static async Task<SettlementActionResult> IdentifyMagicItem(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (result.AvailableCoins < PriceToIdentify)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var unidentifiedItems = hero.Inventory.Backpack.Where(i => i != null && i is not Potion && !i.Identified).ToList();
+            if (!unidentifiedItems.Any())
+            {
+                result.Message = $"{hero.Name} deos not have any non-potion items in need of identification.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var selectedItem = unidentifiedItems.First();
+            if (unidentifiedItems.Count > 1)
+            {
+                var choiceResult = await userRequest.RequestChoiceAsync("Choose potion to identify.", unidentifiedItems, item => item != null ? item.Name : "Unknown");
+                await Task.Yield();
+                selectedItem = choiceResult.SelectedOption;
+            }
+
+            if (selectedItem != null)
+            {
+                selectedItem.Identified = true;
+                result.AvailableCoins -= PriceToIdentify;
+                result.Message = $"Item identified: {selectedItem.ToString()}";
+            }
+            return result;
+        }
     }
 
     public class TheAsylum : ServiceLocation
     {
+        public int Price { get; set; } = 1000;
+
         public TheAsylum(Settlement settlement) : base(SettlementServiceName.TheAsylum, settlement)
         {
             Settlement = settlement;
@@ -544,6 +1107,74 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         SettlementActionType.TreatMentalConditions,
                     };
+        }
+
+        public async Task<SettlementActionResult> TreatMentalConditions(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            var curableConditions = hero.ActiveStatusEffects.Where(e =>
+                e.Category == StatusEffectType.PostTraumaticStressDisorder ||
+                e.Category == StatusEffectType.FearDark ||
+                e.Category == StatusEffectType.Arachnophobia ||
+                e.Category == StatusEffectType.Jumpy ||
+                e.Category == StatusEffectType.IrrationalFear ||
+                e.Category == StatusEffectType.Claustrophobia ||
+                e.Category == StatusEffectType.Depression).ToList();
+
+            if (!curableConditions.Any())
+            {
+                result.Message = $"{hero.Name} has no mental conditions that can be treated at the Asylum.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins < Price)
+            {
+                result.Message = "You do not have enough coins for treatment.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var choiceResult = await userRequest.RequestChoiceAsync("Choose a condition to treat:", curableConditions, condition => condition.Category.ToString(), canCancel: true);
+
+            if (choiceResult.WasCancelled)
+            {
+                result.Message = "Treatment cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var chosenCondition = choiceResult.SelectedOption;
+            if (chosenCondition == null)
+            {
+                result.Message = "Invalid selection.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var confirmation = await userRequest.RequestYesNoChoiceAsync($"Treating {chosenCondition.Category} will cost 1000 coins and take 5 days. Continue?");
+            if (!confirmation)
+            {
+                result.Message = "Treatment cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            result.AvailableCoins -= Price;
+
+            var rollResult = await userRequest.RequestRollAsync("Roll to determine treatment success (1-5 succeeds)", "1d6");
+            if (rollResult.Roll <= 5)
+            {
+                hero.ActiveStatusEffects.Remove(chosenCondition);
+                result.Message = $"Treatment was successful! {hero.Name} is no longer suffering from {chosenCondition.Category}.";
+                result.WasSuccessful = true;
+            }
+            else
+            {
+                result.Message = "The treatment was unsuccessful, and the condition remains.";
+                result.WasSuccessful = false;
+            }
+
+            return result;
         }
     }
 
@@ -576,6 +1207,34 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         SettlementActionType.ArenaFighting,
                     };
+        }
+
+        public async Task<SettlementActionResult> ArenaFighting(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (result.AvailableCoins < MinimumEntryFee)
+            {
+                result.Message = $"{hero.Name} does not have enough coin to participate";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var inputResult = await userRequest.RequestNumberInputAsync("How much fo you want to bet", min: MinimumEntryFee, max: Math.Min(MaxBet, result.AvailableCoins), canCancel: true);
+            if (!inputResult.WasCancelled)
+            {
+                var bet = inputResult.Amount;
+                Bet = bet;
+                while (!IsComplete)
+                {
+                    var rollRequest = await userRequest.RequestRollAsync($"Roll combat skill to compete in bout: {Bout}", "1d100");
+                    await StartBoutAsync(rollRequest.Roll, hero);
+                }
+                result.ArenaWinnings = Winnings;
+                result.FoundItems = ExtraAward;
+                result.Message = Message;
+                hero.Party.Coins += Winnings;
+                hero.GainExperience(Experience);
+            }
+            return result;
         }
 
         public async Task StartBoutAsync(int rollAttempt, Hero hero)
@@ -751,6 +1410,48 @@ namespace LoDCompanion.BackEnd.Services.Player
                     };
         }
 
+        public async Task<SettlementActionResult> Banking(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isBanking = true;
+            while (isBanking)
+            {
+                var actionChoice = await userRequest.RequestChoiceAsync(
+                    $"Your account has {await CheckBalanceAsync()} available coins. What would you like to do?", 
+                    new List<string> { "Deposit coins.", "Withdraw coins." },
+                    action => action,
+                    canCancel: true);
+                await Task.Yield();
+                if (!actionChoice.WasCancelled)
+                {
+                    switch (actionChoice.SelectedOption)
+                    {
+                        case "Deposit coins.":
+                            var depositResult = await userRequest.RequestNumberInputAsync("How much would you like to deposit?", min: 0, canCancel: true);
+                            if (!depositResult.WasCancelled)
+                            {
+                                if (result.AvailableCoins >= depositResult.Amount)
+                                {
+                                    result.Message += $"{depositResult.Amount} was deposited at {Name.ToString()}. The new balance is {await DepositAsync(depositResult.Amount)}";
+                                    result.AvailableCoins -= depositResult.Amount;
+                                }
+                            }
+                            break;
+                        case "Withdraw coins.":
+                            var withdrawResult = await userRequest.RequestNumberInputAsync("How much would you like to withdraw?", min: 0, max: AccountBalance, canCancel: true);
+                            if (!withdrawResult.WasCancelled)
+                            {
+                                var amountWithdrawn = await WithdrawAsync(withdrawResult.Amount);
+                                result.Message += $"{amountWithdrawn} was withdrawn from {Name.ToString()}. The new balance is {await CheckBalanceAsync()}";
+                                result.AvailableCoins += amountWithdrawn;
+                            }
+                            break;
+                    }
+                }
+                else isBanking = false;
+            }
+            return result;
+        }
+
         public async Task<int> DepositAsync(int amount)
         {
             if (amount <= 0) return AccountBalance;
@@ -862,6 +1563,51 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         SettlementActionType.Pray,
                     };
+        }
+
+        public async Task<SettlementActionResult> Pray(Hero hero, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation)
+        {
+            if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
+            {
+                result.Message = $"{hero.Name} has already offered prayers during this visit.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (result.AvailableCoins >= CostToPray)
+            {
+                var rollResult = await userRequest.RequestRollAsync($"Roll to see if {GodName.ToString()} listens.", DiceToPray);
+                await Task.Yield();
+                if (rollResult.Roll <= 3 && GrantedEffect != null)
+                {
+                    result.Message = $"{GodName.ToString()} hears your prayer and decides to grant you a boon.";
+                    if (GodName == GodName.Ohlnir)
+                    {
+                        var skillChoiceRequest = await userRequest.RequestChoiceAsync(
+                            "Which skill do you want Ohlnir to enhance?", 
+                            new List<string>() { "Combat", "Ranged" },
+                            x => x);
+                        await Task.Yield();
+                        switch (skillChoiceRequest.SelectedOption)
+                        {
+                            case "Combat": GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
+                            case "Ranged": GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
+                        }
+                    }
+                    result.AvailableCoins -= CostToPray;
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, GrantedEffect, powerActivation);
+                }
+                else
+                {
+                    result.Message = $"You pray, but {GodName.ToString()} remains silent.";
+                }
+            }
+            else
+            {
+                result.Message = "You do not have enough coins to make an offering.";
+                result.WasSuccessful = false;
+            }
+            return result;
         }
     }
 
@@ -998,6 +1744,8 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class WizardsGuild : Guild
     {
+        public int LearnSpellPrice { get; set; } = 1000;
+
         public WizardsGuild(Settlement settlement) : base(SettlementServiceName.WizardsGuild, settlement)
         {
             Settlement = settlement;
@@ -1011,6 +1759,99 @@ namespace LoDCompanion.BackEnd.Services.Player
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.ArcaneArts, 3), (Skill.Perception, 3), (Skill.Heal, 3) };
             SkillTrainingFee = 300;
+        }
+
+        public async Task<SettlementActionResult> IdentifyMagicItem(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            return await Scryer.IdentifyMagicItem(hero, result, userRequest);
+        }
+
+        public async Task<SettlementActionResult> LearnSpell(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (hero.ProfessionName != "Wizard")
+            {
+                result.Message = $"{hero.Name} is not a Wizard and can't learn spells.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var grimoires = hero.Inventory.Backpack.Where(i => i != null && i.Name.Contains("Grimoire")).ToList();
+            bool learnFromGrimoire = false;
+            if (grimoires.Any())
+            {
+                var yesNoResult = await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a spell from an owned Grimoire?");
+                await Task.Yield();
+                learnFromGrimoire = yesNoResult;
+                if (learnFromGrimoire)
+                {
+                    var selectedGrimoire = grimoires.FirstOrDefault();
+                    if (grimoires.Count > 1)
+                    {
+                        var choiceResult = await userRequest.RequestChoiceAsync("Choose which grimoire to learn from.", grimoires, g => g != null ? g.Name : string.Empty);
+                        await Task.Yield();
+                        selectedGrimoire = choiceResult.SelectedOption;
+                    }
+                    if (selectedGrimoire != null)
+                    {
+                        var spellName = selectedGrimoire.Name.Replace("Grimoire of ", "");
+                        var spell = SpellService.GetSpellByName(spellName);
+                        if (hero.Spells != null && !hero.Spells.Contains(spell))
+                        {
+                            hero.Spells.Add(spell);
+                            result.Message = $"{hero.Name} now knows the spell: {spell.ToString()}.";
+                            return result;
+                        }
+                        else
+                        {
+                            result.Message = $"{hero.Name} already knows that spell.";
+                            result.WasSuccessful = false;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        learnFromGrimoire = false;
+                    }
+                }
+            }
+
+            if (!learnFromGrimoire && result.AvailableCoins < LearnSpellPrice)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var yesNoSpellResult = await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a spell for 1000c and {result.ActionCost} days of time?");
+            await Task.Yield();
+            if (!yesNoSpellResult)
+            {
+                result.Message = "action was cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Spells != null)
+            {
+                var spellList = new List<Spell>();
+                var knownSpells = hero.Spells;
+                for (int level = 1; level <= hero.Level; level++)
+                {
+                    spellList.AddRange(SpellService.GetSpellsByLevel(level).Where(s => !knownSpells.Contains(s)));
+                }
+
+                var choiceSpellResult = await userRequest.RequestChoiceAsync("Choose as spell to learn.", spellList, spell => $"{spell.Name}, Effect: {spell.SpellEffect}");
+                await Task.Yield();
+                var spellChoice = choiceSpellResult.SelectedOption;
+                if (spellChoice != null)
+                {
+                    result.AvailableCoins -= LearnSpellPrice;
+                    hero.Spells.Add(spellChoice);
+                    result.Message = $"{hero.Name} now knows the spell: {spellChoice.ToString()}.";
+                    return result;
+                }
+            }
+            return result;
         }
     }
 
@@ -1027,6 +1868,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.Alchemy, 3), (Skill.Heal, 3), (Skill.Perception, 3) };
             SkillTrainingFee = 300;
+        }
+
+        public async Task<SettlementActionResult> IdentifyPotion(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            return await GeneralStore.IdentifyPotion(hero, result, userRequest);
         }
     }
 
@@ -1052,6 +1898,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class TheInnerSanctum : Guild
     {
+        public int LearnPrayerPrice { get; set; } = 1000;
         public EncounterService Encounter { get; set; }
         public EncounterType? Crusade { get; set; }
 
@@ -1062,10 +1909,60 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             AvailableActions = new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyingAndSelling
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.LearnPrayer,
+                        SettlementActionType.StartCrusade
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Dodge, 3), (Skill.BattlePrayers, 3) };
             SkillTrainingFee = 300;
+        }
+
+        public async Task<SettlementActionResult> LearnPrayer(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (result.AvailableCoins < LearnPrayerPrice)
+            {
+                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.ProfessionName != "Warrior Priest")
+            {
+                result.Message = $"{hero.Name} is not a Warrior Priest and can't learn prayers.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            var yesNoSpellResult = await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a prayer for 1000c and {result.ActionCost} days of time?");
+            await Task.Yield();
+            if (!yesNoSpellResult)
+            {
+                result.Message = "action was cancelled.";
+                result.WasSuccessful = false;
+                return result;
+            }
+
+            if (hero.Prayers != null)
+            {
+                var prayerList = new List<Prayer>();
+                var knownPrayers = hero.Prayers;
+                for (int level = 1; level <= hero.Level; level++)
+                {
+                    prayerList.AddRange(PrayerService.GetPrayersByLevel(level).Where(s => !knownPrayers.Contains(s)));
+                }
+
+                var choicePrayerResult = await userRequest.RequestChoiceAsync("Choose as prayer to learn.", prayerList, prayer => $"{prayer.Name}, Effect: {prayer.PrayerEffect}");
+                await Task.Yield();
+                var prayerChoice = choicePrayerResult.SelectedOption;
+                if (prayerChoice != null)
+                {
+                    result.AvailableCoins -= LearnPrayerPrice;
+                    hero.Prayers.Add(prayerChoice);
+                    result.Message = $"{hero.Name} now knows the prayer: {prayerChoice.ToString()}.";
+                    return result;
+                }
+            }
+            return result;
         }
     }
 
