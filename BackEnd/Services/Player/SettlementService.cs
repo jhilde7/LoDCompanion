@@ -1578,7 +1578,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 var rollResult = await userRequest.RequestRollAsync($"Roll to see if {GodName.ToString()} listens.", DiceToPray);
                 await Task.Yield();
-                if (rollResult.Roll <= 3 && GrantedEffect != null)
+                if ((rollResult.Roll <= 3 || hero.ProfessionName == "Warrior Priest" && rollResult.Roll <= 5) && GrantedEffect != null)
                 {
                     result.Message = $"{GodName.ToString()} hears your prayer and decides to grant you a boon.";
                     if (GodName == GodName.Ohlnir)
@@ -1852,35 +1852,22 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             }
 
-            var yesNoSpellResult = await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a spell for 1000c and {result.ActionCost} days of time?");
-            await Task.Yield();
-            if (!yesNoSpellResult)
-            {
-                result.Message = "action was cancelled.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.Spells != null)
             {
-                var spellList = new List<Spell>();
                 var knownSpells = hero.Spells;
-                for (int level = 1; level <= hero.Level; level++)
-                {
-                    spellList.AddRange(SpellService.GetSpellsByLevel(level).Where(s => !knownSpells.Contains(s)));
-                }
-                var affordableSpells = spellList
-                    .Where(spell => (spell.Level * PricePerSpellLevel + LearnSpellBasePrice) <= result.AvailableCoins)
+                var affordableSpells = SpellService.Spells
+                    .Where(spell => spell.Level <= hero.Level && !knownSpells.Contains(spell) && (spell.Level * PricePerSpellLevel + LearnSpellBasePrice) <= result.AvailableCoins)
                     .OrderBy(spell => spell.Level)
                     .ToList();
 
                 var choiceSpellResult = await userRequest.RequestChoiceAsync(
                     "Choose as spell to learn.", 
                     affordableSpells, 
-                    spell => $"{(spell.Level * PricePerSpellLevel + LearnSpellBasePrice)}c {spell.Name}, Effect: {spell.SpellEffect}");
+                    spell => $"{(spell.Level * PricePerSpellLevel + LearnSpellBasePrice)}c {spell.Name}, Effect: {spell.SpellEffect}", 
+                    canCancel: true);
                 await Task.Yield();
                 var spellChoice = choiceSpellResult.SelectedOption;
-                if (spellChoice != null)
+                if (!choiceSpellResult.WasCancelled && spellChoice != null)
                 {
                     result.AvailableCoins -= (spellChoice.Level * PricePerSpellLevel + LearnSpellBasePrice);
                     hero.Spells.Add(spellChoice);
@@ -1931,11 +1918,15 @@ namespace LoDCompanion.BackEnd.Services.Player
     public class Crusade
     {
         public EncounterType encounterType { get; set; }
+        public int AwardPerKill { get; set; } = 25;
     }
 
     public class TheInnerSanctum : Guild
     {
-        public int LearnPrayerPrice { get; set; } = 1000;
+        public int LearnPrayerBasePrice { get; set; } = 400;
+        public int PricePerPrayerLevel { get; set; } = 100;
+        public int BlessArmourPrice { get; set; } = 25;
+        public int BlessWeaponPrice { get; set; } = 75;
         public EncounterService Encounter { get; set; }
         public EncounterType? Crusade { get; set; }
 
@@ -1956,13 +1947,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<SettlementActionResult> LearnPrayer(Hero hero, SettlementActionResult result, UserRequestService userRequest)
         {
-            if (result.AvailableCoins < LearnPrayerPrice)
-            {
-                result.Message = $"{hero.Name} deos not have enough available coins for this action.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.ProfessionName != "Warrior Priest")
             {
                 result.Message = $"{hero.Name} is not a Warrior Priest and can't learn prayers.";
@@ -1970,33 +1954,70 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            var yesNoSpellResult = await userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to learn a prayer for 1000c and {result.ActionCost} days of time?");
-            await Task.Yield();
-            if (!yesNoSpellResult)
-            {
-                result.Message = "action was cancelled.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.Prayers != null)
             {
-                var prayerList = new List<Prayer>();
                 var knownPrayers = hero.Prayers;
-                for (int level = 1; level <= hero.Level; level++)
-                {
-                    prayerList.AddRange(PrayerService.GetPrayersByLevel(level).Where(s => !knownPrayers.Contains(s)));
-                }
+                var prayerList = PrayerService.Prayers
+                        .Where(prayer => !knownPrayers.Contains(prayer) && prayer.Level <= hero.Level && (prayer.Level * PricePerPrayerLevel + LearnPrayerBasePrice) <= result.AvailableCoins)
+                        .OrderBy(p => p.Level)
+                    .ToList();
 
-                var choicePrayerResult = await userRequest.RequestChoiceAsync("Choose as prayer to learn.", prayerList, prayer => $"{prayer.Name}, Effect: {prayer.PrayerEffect}");
+                var choicePrayerResult = await userRequest.RequestChoiceAsync(
+                    "Choose as prayer to learn.", 
+                    prayerList, 
+                    prayer => $"{prayer.Name}, Effect: {prayer.PrayerEffect}", 
+                    canCancel: true);
                 await Task.Yield();
                 var prayerChoice = choicePrayerResult.SelectedOption;
-                if (prayerChoice != null)
+                if (!choicePrayerResult.WasCancelled && prayerChoice != null)
                 {
-                    result.AvailableCoins -= LearnPrayerPrice;
+                    result.AvailableCoins -= prayerChoice.Level * PricePerPrayerLevel + LearnPrayerBasePrice;
                     hero.Prayers.Add(prayerChoice);
                     result.Message = $"{hero.Name} now knows the prayer: {prayerChoice.ToString()}.";
                     return result;
+                }
+            }
+            return result;
+        }
+
+        public async Task<SettlementActionResult> BlessArmourAndWeapons(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isBlessing = true;
+            while (isBlessing)
+            {
+                var weaponArmourList = hero.Inventory.GetAllWeaponsArmour()
+                    .Where(item => item is Weapon && BlessWeaponPrice <= result.AvailableCoins || !(item is Weapon) && BlessArmourPrice <= result.AvailableCoins)
+                    .Where(item => item.ActiveStatusEffects?.FirstOrDefault(e => e.Category == StatusEffectType.BlessedWeapon || e.Category == StatusEffectType.BlessedArmour) == null)
+                    .ToList();
+
+                var choiceResult = await userRequest.RequestChoiceAsync(
+                    "Choose an item to be blessed until end of next dungeon. Armour and shields will negate 1 point of durability damage, weapons will receive +2 damage bonus.",
+                    weaponArmourList,
+                    item => item is Weapon ? $"{item.Name} {BlessWeaponPrice}c" : $"{item.Name} {BlessArmourPrice}c", 
+                    canCancel: true);
+                await Task.Yield();
+
+                if (choiceResult.WasCancelled)
+                {
+                    isBlessing = false;
+                }
+                else
+                {
+                    var itemToBless = choiceResult.SelectedOption;
+                    if (itemToBless != null)
+                    {
+                        if (itemToBless is Weapon weapon)
+                        {
+                            weapon?.ActiveStatusEffects?.Add(new ActiveStatusEffect(StatusEffectType.BlessedWeapon, -1, removeEndOfDungeon: true));
+                            result.AvailableCoins -= BlessWeaponPrice;
+                        }
+                        else
+                        {
+                            itemToBless.ActiveStatusEffects?.Add(new ActiveStatusEffect(StatusEffectType.BlessedArmour, -1, removeEndOfDungeon: true));
+                            result.AvailableCoins -= BlessArmourPrice;
+                        }
+                        result.Message += $"{itemToBless.Name} has been blessed!";
+                    }
                 }
             }
             return result;

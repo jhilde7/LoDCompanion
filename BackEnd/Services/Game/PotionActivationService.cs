@@ -139,13 +139,13 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                 if (character.Position != null && character.Position.Equals(targetPosition))
                 {
-                    var appliedDamage = await character.TakeDamageAsync(damage, (new FloatingTextService(), character.Position), _powerActivation, damageType: damageType);
+                    var appliedDamage = await character.TakeDamageAsync(damage, (new FloatingTextService(), character.Position), _powerActivation, damageType: (damageType, 0));
                     resultMessage.AppendLine($"{character.Name} takes {appliedDamage} {damageType} damage.");
                 }
                 else
                 {
                     var splashDamage = (int)Math.Ceiling(damage / 2.0);
-                    splashDamage = await character.TakeDamageAsync(splashDamage, (new FloatingTextService(), character.Position), _powerActivation, damageType: damageType);
+                    splashDamage = await character.TakeDamageAsync(splashDamage, (new FloatingTextService(), character.Position), _powerActivation, damageType: (damageType, 0));
                     resultMessage.AppendLine($"{character.Name} is caught in the splash and takes {splashDamage} {damageType} damage.");
                 }
             }
@@ -156,30 +156,25 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.FireDamage))
             {
-                weapon.WeaponCoating = new WeaponCoating();
-                weapon.WeaponCoating.DamageType = DamageType.Fire;
-                weapon.WeaponCoating.RemoveAfterCombat = true;
+                weapon.WeaponCoating = new WeaponCoating(DamageType.Fire) { RemoveAfterCombat = true };
             }
             if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.Poison))
             {
-                weapon.WeaponCoating = new WeaponCoating();
-                weapon.WeaponCoating.DamageType = DamageType.Poison;
-                weapon.WeaponCoating.RemoveAfterCombat = true;
+                weapon.WeaponCoating = new WeaponCoating(DamageType.Poison) { RemoveAfterCombat = true };
             }
             return weapon;
         }
 
         public Ammo CoatAmmo(Hero hero, Potion potion, Ammo ammo)
         {
-            ammo.AmmoCoating = new AmmoCoating() { CoatingAmount = Math.Min(ammo.Quantity, 5) };
 
             if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.Poison))
             {
-                ammo.AmmoCoating.DamageType = DamageType.Poison;
+                ammo.AmmoCoating = new AmmoCoating(DamageType.Poison, Math.Min(ammo.Quantity, 5));
             }
             if (potion.PotionProperties != null && potion.PotionProperties.ContainsKey(PotionProperty.HolyDamage))
             {
-                ammo.AmmoCoating.DamageType = DamageType.Holy;
+                ammo.AmmoCoating = new AmmoCoating(DamageType.Holy, Math.Min(ammo.Quantity, 5)) { DamageBonus = 1 };
             }
             return ammo;
         }

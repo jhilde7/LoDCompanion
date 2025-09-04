@@ -304,14 +304,14 @@ namespace LoDCompanion.BackEnd.Models
         }
 
         // Common methods for all characters
-        public async Task<int> TakeDamageAsync(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation, CombatContext? combatContext = null, DamageType? damageType = null, bool ignoreAllArmour = false)
+        public async Task<int> TakeDamageAsync(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation, CombatContext? combatContext = null, (DamageType?, int)? damageType = null, bool ignoreAllArmour = false)
         {
             int naturalArmour = GetStat(BasicStat.NaturalArmour);
-            bool fireDamage = combatContext != null && combatContext.IsFireDamage || damageType == DamageType.Fire;
-            bool acidDamage = combatContext != null && combatContext.IsAcidicDamage || damageType == DamageType.Acid;
-            bool frostDamage = combatContext != null && combatContext.IsFrostDamage || damageType == DamageType.Frost;
-            bool poisonDamage = combatContext != null && combatContext.IsPoisonousAttack || damageType == DamageType.Poison;
-            bool holyDamage = damageType == DamageType.Holy;
+            bool fireDamage = combatContext != null && combatContext.IsFireDamage || damageType.HasValue && damageType.Value.Item1 == DamageType.Fire;
+            bool acidDamage = combatContext != null && combatContext.IsAcidicDamage || damageType.HasValue && damageType.Value.Item1 == DamageType.Acid;
+            bool frostDamage = combatContext != null && combatContext.IsFrostDamage || damageType.HasValue && damageType.Value.Item1 == DamageType.Frost;
+            bool poisonDamage = combatContext != null && combatContext.IsPoisonousAttack || damageType.HasValue && damageType.Value.Item1 == DamageType.Poison;
+            bool holyDamage = damageType.HasValue && damageType.Value.Item1 == DamageType.Holy;
             bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
 
             if (ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.CompleteFireImmunity) != null && fireDamage)
@@ -328,14 +328,11 @@ namespace LoDCompanion.BackEnd.Models
                 damage -= combatContext?.ArmourValue ?? 0; // Apply any armour value from the combat context 
             }
 
-            var isUndead = this is Monster monster && monster.IsUndead;
-            if (holyDamage && !isUndead && combatContext != null && combatContext.IsThrown)
+            var isEffectedByHoly = this is Monster monster && (monster.IsUndead || monster.Species == SpeciesName.Demon);
+            if (holyDamage && damageType.HasValue)
             {
-                return 0;
-            }
-            else if( holyDamage && isUndead && (combatContext == null || (combatContext != null && !combatContext.IsThrown)))
-            {
-                damage += 1;
+                if (!isEffectedByHoly) damage += 0;
+                else damage += damageType.Value.Item2;
             }
 
             CurrentHP -= damage;

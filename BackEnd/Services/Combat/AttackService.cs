@@ -318,11 +318,31 @@ namespace LoDCompanion.BackEnd.Services.Combat
             
             result.DamageDealt = finalDamage;
 
-            result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
             if (target.Position != null)
             {
-                await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context);
+                if (weapon.WeaponCoating != null || weapon.Blessed || weapon is RangedWeapon rangedWeapon && rangedWeapon.Ammo.AmmoCoating != null)
+                {
+                    if (weapon.Blessed)
+                    {
+                        finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context, damageType: (DamageType.Holy, 2));
+                    }
+                    if (weapon.WeaponCoating != null)
+                    {
+                        var coating = weapon.WeaponCoating;
+                        finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context, damageType: (coating.DamageType, coating.DamageBonus));
+                    }
+                    if (weapon is RangedWeapon usesAmmo && usesAmmo.Ammo.AmmoCoating != null)
+                    {
+                        var ammo = usesAmmo.Ammo.AmmoCoating;
+                        finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context, damageType: (ammo.DamageType, ammo.DamageBonus));
+                    }
+                }
+                else
+                {
+                    finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context); 
+                }
             }
+            result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
 
             if (context.IsChargeAttack && dungeon != null)
             {

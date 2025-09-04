@@ -40,6 +40,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         RepairWeapons,
         RepairArmour,
         CheckBounties,
+        BlessArmourAndWeapons,
     }
 
     public class SettlementActionResult
@@ -164,6 +165,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case (WizardsGuild guild, SettlementActionType.ChargeMagicItem):
                     result = await guild.ChargeMagicItem(hero, result, _userRequest);
+                    break;
+                case (TheInnerSanctum guild, SettlementActionType.BlessArmourAndWeapons):
+                    result = await guild.BlessArmourAndWeapons(hero, result, _userRequest);
                     break;
             }
 

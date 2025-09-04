@@ -1932,13 +1932,20 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return Properties.GetValueOrDefault(property, 0);
         }
 
-        internal void TakeDamage(int amount)
+        public void TakeDamage(int amount)
         {
+            var blessed = this.ActiveStatusEffects?.FirstOrDefault(e => e.Category == StatusEffectType.BlessedArmour);
+            if (blessed != null && (this is Armour || this is Shield shield))
+            {
+                amount -= 1;
+                this.ActiveStatusEffects?.Remove(blessed);
+            }
             Durability -= amount;
+
             if (Durability < 0 && OnEquipmentDestroyed != null) OnEquipmentDestroyed.Invoke(this);
         }
 
-        internal int Repair(int repairAmount = 10)
+        public int Repair(int repairAmount = 10)
         {
             var damage = MaxDurability - Durability;
             var damageRepaired = Math.Min(repairAmount, damage);
@@ -1992,8 +1999,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
     {
         public int CoatingAmount { get; set; }
         public int DamageBonus { get; set; }
-        public DamageType? DamageType { get; set; }
+        public DamageType DamageType { get; set; }
         public ActiveStatusEffect? AppliedEffect { get; set; }
+
+        public AmmoCoating(DamageType damageType, int coatingAmount)
+        {
+            DamageType = damageType;
+            CoatingAmount = coatingAmount;
+        }
     }
 
     public class Ammo : Equipment
@@ -2091,9 +2104,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
     public class WeaponCoating
     {
         public int DamageBonus { get; set; }
-        public DamageType? DamageType { get; set; }
+        public DamageType DamageType { get; set; }
         public ActiveStatusEffect? AppliedEffect { get; set; }
         public bool RemoveAfterCombat { get; set; }
+
+        public WeaponCoating(DamageType damageType)
+        {
+            DamageType = damageType;
+        }
     }
 
     public class Weapon : Equipment
@@ -2108,6 +2126,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public new virtual Dictionary<WeaponProperty, int> Properties { get; set; } = new Dictionary<WeaponProperty, int>();
         public ActiveStatusEffect? AppliedEffectOnHit { get; set; }
         public WeaponCoating? WeaponCoating { get; set; }
+
+        public bool Blessed => ActiveStatusEffects?.Any(e => e.Category == StatusEffectType.BlessedWeapon) ?? false;
 
         public virtual int RollDamage()
         {
@@ -2431,6 +2451,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
             if(Ammo.AmmoCoating != null)
             {
                 Ammo.AmmoCoating.CoatingAmount -= quantity;
+                if (Ammo.AmmoCoating.CoatingAmount <= 0)
+                {
+                    Ammo.AmmoCoating = null;
+                }
             }
 
             if (IsSlingUsingNormalAmmo())
@@ -2488,6 +2512,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public bool HasArmourPadding { get; set; }
 
         private Dictionary<ArmourProperty, int> _properties = new Dictionary<ArmourProperty, int>();
+
+        public bool Blessed => ActiveStatusEffects?.Any(e => e.Category == StatusEffectType.BlessedArmour) ?? false;
 
         public new Dictionary<ArmourProperty, int> Properties
         {
@@ -2603,6 +2629,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public bool HasShieldPadding { get; set; }
 
         private Dictionary<ShieldProperty, int> _properties = new Dictionary<ShieldProperty, int>();
+
+        public bool Blessed => ActiveStatusEffects?.Any(e => e.Category == StatusEffectType.BlessedArmour) ?? false;
 
         public new Dictionary<ShieldProperty, int> Properties
         {

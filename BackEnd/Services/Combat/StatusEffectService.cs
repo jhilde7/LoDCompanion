@@ -184,7 +184,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         CharusBlessing,
         RamosBlessing,
         DarkAsTheNight,
-        PainKiller
+        PainKiller,
+        BlessedWeapon,
+        BlessedArmour
     }
 
     /// <summary>
