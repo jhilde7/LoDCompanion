@@ -1917,8 +1917,15 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class Crusade
     {
-        public EncounterType encounterType { get; set; }
+        public EncounterType EncounterType { get; set; }
         public int AwardPerKill { get; set; } = 25;
+        public int AmountKilled { get; set; }
+        public int TotalAward => AmountKilled * AwardPerKill;
+        
+        public Crusade(EncounterType encounter)
+        {
+            EncounterType = encounter;
+        }
     }
 
     public class TheInnerSanctum : Guild
@@ -1939,6 +1946,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         SettlementActionType.BuyingAndSelling,
                         SettlementActionType.LearnPrayer,
+                        SettlementActionType.BlessArmourAndWeapons,
                         SettlementActionType.StartCrusade
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Dodge, 3), (Skill.BattlePrayers, 3) };
@@ -2020,6 +2028,31 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
                 }
             }
+            return result;
+        }
+
+        public SettlementActionResult StartCrusade(Hero hero, SettlementActionResult result)
+        {
+            if (hero.Party.InnerSenctumCrusade != null)
+            {
+                result.AvailableCoins += hero.Party.InnerSenctumCrusade.TotalAward;
+                hero.Party.InnerSenctumCrusade = null;
+            }
+
+            var roll = RandomHelper.RollDie(DiceType.D6);
+            var crusade = new Crusade(EncounterType.Undead);
+            switch (roll)
+            {
+                case 1: crusade = new Crusade(EncounterType.Undead); break;
+                case 2: crusade = new Crusade(EncounterType.Bandits_Brigands); break;
+                case 3: crusade = new Crusade(EncounterType.Orcs_Goblins); break;
+                case 4: crusade = new Crusade(EncounterType.Beasts); break;
+                case 5: crusade = new Crusade(EncounterType.DarkElves); break;
+                case 6: crusade = new Crusade(EncounterType.Reptiles); break;
+            }
+            hero.Party.InnerSenctumCrusade = crusade;
+
+            result.Message = $"{hero.Name} started a new crusade against {crusade.EncounterType.ToString()}";
             return result;
         }
     }

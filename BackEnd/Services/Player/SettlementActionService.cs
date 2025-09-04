@@ -169,6 +169,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (TheInnerSanctum guild, SettlementActionType.BlessArmourAndWeapons):
                     result = await guild.BlessArmourAndWeapons(hero, result, _userRequest);
                     break;
+                case (TheInnerSanctum guild, SettlementActionType.StartCrusade):
+                    result = guild.StartCrusade(hero, result);
+                    break;
             }
 
             if (result.WasSuccessful)

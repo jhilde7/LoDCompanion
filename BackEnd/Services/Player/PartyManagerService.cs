@@ -19,7 +19,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public PartyManagerService? PartyManager { get; set; }
 
         public List<Bounty> FightersGuildBounties { get; set; } = new();
-        public (EncounterType, int)? InnerSenctumCrusade { get; set; }
+        public Crusade? InnerSenctumCrusade { get; set; }
 
         public Party()
         {
