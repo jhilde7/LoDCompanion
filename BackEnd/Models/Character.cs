@@ -245,7 +245,13 @@ namespace LoDCompanion.BackEnd.Models
         /// <param name="value">The new value for the skill.</param>
         public void SetSkill(Skill skill, int value)
         {
-            SkillStats[skill] = value;
+            SkillStats.TryGetValue(skill, out int currentSkillValue);
+            if (currentSkillValue >= 80)
+            {
+                return;
+            }
+            int maximumSkill = 80 - currentSkillValue;
+            SkillStats[skill] = Math.Min(value, maximumSkill);
         }
 
         public override bool Equals(object? obj)

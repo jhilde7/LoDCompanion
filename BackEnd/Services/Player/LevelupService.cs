@@ -69,8 +69,9 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="profession">The hero's profession data, which contains cost info.</param>
         /// <param name="errorMessage">An output message explaining why the improvement failed.</param>
         /// <returns>True if the stat was improved successfully, otherwise false.</returns>
-        public bool AttemptToImproveStat(Hero hero, Levelup session, BasicStat statToImprove, Profession profession, out string errorMessage)
+        public bool AttemptToImproveStat(Hero hero, Levelup session, BasicStat statToImprove, out string errorMessage)
         {
+            var profession = _gameData.Professions.FirstOrDefault(p => p.Name == hero.ProfessionName);
             int maxIncrease = statToImprove == BasicStat.HitPoints ? 2 : 5;
             session.BasicStatsImprovedThisLevel.TryGetValue(statToImprove, out int currentIncrease);
 
@@ -89,7 +90,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
 
             int currentStatValue = hero.GetStat(statToImprove);
-            int cost = GetStatImprovementCost(statToImprove, currentStatValue, profession);
+            int cost = GetStatImprovementCost(statToImprove, currentStatValue, profession!);
 
             // Check if the hero has enough points.
             if (session.ImprovementPoints < cost)
