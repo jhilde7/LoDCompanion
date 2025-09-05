@@ -178,7 +178,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Execute = async (context) => 
                     {
                         await Task.Yield();
-                        //TODO: apply to shop modal, "All stores sell their items at a 20% discount."
                         result.Message = context.EventDescription;
                         result.ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.Sale, -1, removeEndDay: true);
                         return result;
@@ -191,7 +190,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Execute = async (context) => 
                     {
                         await Task.Yield();
-                        //TODO: apply to shop modal, "All availabilities are modified by +2. If this results in 6, the item is automatically in stock."
                         result.Message = context.EventDescription;
                         result.ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.FreshStocks, -1, removeEndDay: true);
                         return result;
@@ -241,7 +239,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                     Execute = async (context) =>
                     {
                         await Task.Yield();
-                        //TODO: apply to shop modal, " All item availability are modified by -2. If this results in 0, the item is automatically out of stock. As a result, prices have also gone up, resulting in a +10% price modifier on all items."
                         result.Message = context.EventDescription;
                         result.ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.ShortageOfGoods, -1, removeEndDay: true);
                         return result;
