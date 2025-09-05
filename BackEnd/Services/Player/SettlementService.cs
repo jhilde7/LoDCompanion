@@ -527,6 +527,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 result.Message = "The party rests comfortably in their estate.";
                 result.AvailableCoins = await PerformRest(party, 0, result.AvailableCoins, false, userRequest); // Free rest, not in stables
+
+                var smithy = (Smithy?)estate.FurnishedRooms.FirstOrDefault(r => r is Smithy);
+                if (smithy != null && smithy.IsOwned)
+                {
+                    var repairAmount = smithy.RepairWeaponsArmour(party.Heroes);
+                    result.Message += $"Using the smithy at the estaet the heroes repair all their weapons and armour, {repairAmount} durability.";
+                }
+
                 return result;
             }
 
@@ -2382,6 +2390,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             return await Inn.EnchantItemAsync(hero, result, userRequest, bonusModifier: 10);
         }
     }
+
     public class Shrine : EstateFurnishing
     {
         public GodName Devotion { get; set; }
@@ -2441,6 +2450,26 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public class Smithy : EstateFurnishing
+    {
+        public Smithy()
+        {
+            Name = EstateRoomName.Smithy;
+            Cost = 350;
+            Description = "An old smithy on the estate can be turned into a fully functioning workshop.";
+        }
+
+        public int RepairWeaponsArmour(List<Hero> heroes)
+        {
+            var repairAmount = RandomHelper.RollDie(DiceType.D3); 
+            foreach (var hero in heroes)
+            {
+                hero.Inventory.GetAllWeaponsArmour().ForEach(item => item.Repair(repairAmount));
+            }
+            return repairAmount;
+        }
+    }
+
     public class Estate : ServiceLocation
     {
         public bool IsOwned { get; set; }
@@ -2462,12 +2491,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 new TrainingGrounds(),
                 new WizardsStudy(),
                 new Shrine(),
-                new EstateFurnishing()
-                {
-                    Name = EstateRoomName.Smithy,
-                    Cost = 350,
-                    Description = "An old smithy on the estate can be turned into a fully functioning workshop."
-                }
+                new Smithy()
             };
         }
 
