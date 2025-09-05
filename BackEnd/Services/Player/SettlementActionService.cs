@@ -162,7 +162,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     result = await LevelupHero(hero, result);
                     break;
                 case (Temple temple, SettlementActionType.Pray):
-                    result = await temple.Pray(hero, result, _userRequest, _powerActivation);
+                    result = await Temple.Pray(hero, temple, result, _userRequest, _powerActivation);
                     break;
                 case (Inn inn, SettlementActionType.RestRecuperation):
                     result = await inn.RestRecuperation(hero.Party, result, _userRequest);
@@ -329,6 +329,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         result.Message = "There is no Estate or Wizards Study in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.Pray):
+                    var shrine = (Shrine?)estate.FurnishedRooms.FirstOrDefault(r => r is Shrine);
+                    if (shrine != null && shrine.IsOwned)
+                    {
+                        result = await shrine.Pray(hero, estate.Settlement, result, _userRequest, _powerActivation);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Shrine in this settlement.";
                         result.WasSuccessful = false;
                     }
                     break;

@@ -1568,10 +1568,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                     };
         }
 
-        public async Task<SettlementActionResult> Pray(Hero hero, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation, bool isShrine = false)
+        public static async Task<SettlementActionResult> Pray(Hero hero, Temple temple, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation, bool isShrine = false)
         {
-            if (isShrine) RollForBoon = 4;
-            if (hero.ProfessionName == ProfessionName.WarriorPriest) RollForBoon = 5;
+            if (isShrine) 
+            { 
+                temple.RollForBoon = 4;
+                temple.CostToPray = 0;
+            }
+            if (hero.ProfessionName == ProfessionName.WarriorPriest) temple.RollForBoon = 5;
             if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
             {
                 result.Message = $"{hero.Name} has already offered prayers during this visit.";
@@ -1579,14 +1583,14 @@ namespace LoDCompanion.BackEnd.Services.Player
                 return result;
             }
 
-            if (result.AvailableCoins >= CostToPray)
+            if (result.AvailableCoins >= temple.CostToPray)
             {
-                var rollResult = await userRequest.RequestRollAsync($"Roll to see if {GodName.ToString()} listens.", DiceToPray);
+                var rollResult = await userRequest.RequestRollAsync($"Roll to see if {temple.GodName.ToString()} listens.", temple.DiceToPray);
                 await Task.Yield();
-                if (rollResult.Roll <= RollForBoon && GrantedEffect != null)
+                if (rollResult.Roll <= temple.RollForBoon && temple.GrantedEffect != null)
                 {
-                    result.Message = $"{GodName.ToString()} hears your prayer and decides to grant you a boon.";
-                    if (GodName == GodName.Ohlnir)
+                    result.Message = $"{temple.GodName.ToString()} hears your prayer and decides to grant you a boon.";
+                    if (temple.GodName == GodName.Ohlnir)
                     {
                         var skillChoiceRequest = await userRequest.RequestChoiceAsync(
                             "Which skill do you want Ohlnir to enhance?", 
@@ -1595,16 +1599,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                         await Task.Yield();
                         switch (skillChoiceRequest.SelectedOption)
                         {
-                            case "Combat": GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
-                            case "Ranged": GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
+                            case "Combat": temple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
+                            case "Ranged": temple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
                         }
                     }
-                    result.AvailableCoins -= CostToPray;
-                    await StatusEffectService.AttemptToApplyStatusAsync(hero, GrantedEffect, powerActivation);
+                    result.AvailableCoins -= temple.CostToPray;
+                    await StatusEffectService.AttemptToApplyStatusAsync(hero, temple.GrantedEffect, powerActivation);
                 }
                 else
                 {
-                    result.Message = $"You pray, but {GodName.ToString()} remains silent.";
+                    result.Message = $"You pray, but {temple.GodName.ToString()} remains silent.";
                 }
             }
             else
@@ -2248,6 +2252,32 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool IsOwned { get; set; }
         public int DungeonsBetweeUses { get; set; }
         public int DungeonsUntilUsable { get; set; }
+
+        public virtual async Task<SettlementActionResult> PurchaseFurnishingAsync(Hero hero, SettlementActionResult result, UserRequestService? userRequest = null)
+        {
+            if (!IsOwned)
+            {
+                if (result.AvailableCoins >= Cost)
+                {
+                    IsOwned = true;
+                    result.AvailableCoins -= Cost; 
+                    await Task.Yield();
+                }
+                else
+                {
+                    result.Message = $"{hero.Name} does not have enough coin to purchase this furnishing.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            else
+            {
+                result.Message = $"This furnishing is already owned.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            return result;
+        }
     }
 
     public class AlchemistLab : EstateFurnishing
@@ -2352,6 +2382,64 @@ namespace LoDCompanion.BackEnd.Services.Player
             return await Inn.EnchantItemAsync(hero, result, userRequest, bonusModifier: 10);
         }
     }
+    public class Shrine : EstateFurnishing
+    {
+        public GodName Devotion { get; set; }
+
+        public Shrine()
+        {
+            Name = EstateRoomName.Shrine;
+            Cost = 350;
+            Description = "A room can be turned into a dedicated shrine for a god of the hero's choice. Only one shrine can be built.";
+        }
+        public override async Task<SettlementActionResult> PurchaseFurnishingAsync(Hero hero, SettlementActionResult result, UserRequestService? userRequest)
+        {
+            if (userRequest == null) return result;
+            if (!IsOwned)
+            {
+                if (result.AvailableCoins >= Cost)
+                {
+                    IsOwned = true;
+                    result.AvailableCoins -= Cost;
+                    await SetDevotion(userRequest);
+                }
+                else
+                {
+                    result.Message = $"{hero.Name} does not have enough coin to purchase this furnishing.";
+                    result.WasSuccessful = false;
+                    return result;
+                }
+            }
+            else
+            {
+                result.Message = $"This furnishing is already owned.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            return result;
+        }
+
+        public async Task SetDevotion(UserRequestService userRequest)
+        {
+            var choiceResult = await userRequest.RequestChoiceAsync<string>("Choose a god to devote this shrine to.", Enum.GetNames<GodName>().ToList(), name => name);
+            await Task.Yield();
+
+            Enum.TryParse<GodName>(choiceResult.SelectedOption, out var godName);
+            Devotion = godName;
+        }
+
+        public async Task<SettlementActionResult> Pray(Hero hero, Settlement settlement, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation)
+        {
+            var temple = settlement.State.Temples?.FirstOrDefault(t => t.GodName == Devotion);
+            if (temple == null)
+            {
+                result.Message = "Shrine is not devoted to a god.";
+                result.WasSuccessful = false;
+                return result;
+            }
+            return await Temple.Pray(hero, temple, result, userRequest, powerActivation, isShrine: true);
+        }
+    }
 
     public class Estate : ServiceLocation
     {
@@ -2373,12 +2461,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 new Kennel(),
                 new TrainingGrounds(),
                 new WizardsStudy(),
-                new EstateFurnishing()
-                {
-                    Name = EstateRoomName.Shrine,
-                    Cost = 350,
-                    Description = "A room can be turned into a dedicated shrine for a god of the hero's choice. Only one shrine can be built."
-                },
+                new Shrine(),
                 new EstateFurnishing()
                 {
                     Name = EstateRoomName.Smithy,
