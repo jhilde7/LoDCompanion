@@ -1,8 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @using LoDCompanion.BackEnd.Services.Dungeon
 @using LoDCompanion.BackEnd.Services.Game
+@using LoDCompanion.BackEnd.Services.GameData
 @using LoDCompanion.BackEnd.Services.Player
 @using LoDCompanion.Components.Shared
+@using LoDCompanion.BackEnd.Services.Utilities
+@inject UserRequestService UserRequest
 @inject GameStateManagerService GameManager
 @inject FloatingTextService FloatingText
 @inject NavigationManager NavManager
@@ -28,7 +31,28 @@
 
 <InventoryScreen />
 
+@* --- Modal for Alchemical Recipe Creation --- *@
+@if (UserRequest.CurrentRecipeRequest != null)
+{
+    <div class="modal-backdrop show"></div>
+    <div class="modal show" tabindex="-1" style="display: block;">
+        <div class="modal-dialog modal-dialog-centered">
+            <AlchemicalRecipeCreator OnRecipeCreated="HandleRecipeCreatedFromService" />
+        </div>
+    </div>
+}
+
 @code {
+    protected override void OnInitialized()
+    {
+        UserRequest.OnRequestChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UserRequest.OnRequestChanged -= StateHasChanged;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -66,5 +90,17 @@
         // This button click is guaranteed to be interactive.
         await GameManager.StartNewGameAsync();
         NavManager.NavigateTo("/character-creator", forceLoad: true);
+    }
+
+    private void HandleRecipeCreatedFromService(AlchemicalRecipe recipe)
+    {
+        if (recipe != null)
+        {
+            UserRequest.CompleteRecipeCreation(recipe);
+        }
+        else
+        {
+            UserRequest.CancelRecipeCreation();
+        }
     }
 }

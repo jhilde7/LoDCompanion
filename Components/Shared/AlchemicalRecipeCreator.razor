@@ -1,4 +1,6 @@
 ﻿@using LoDCompanion.BackEnd.Services.GameData
+@using LoDCompanion.BackEnd.Services.Utilities
+@inject UserRequestService UserRequest
 @inject GameDataService GameData
 
 <div class="card">
@@ -115,9 +117,22 @@
     private List<AlchemyItem> recipeIngredients => currentRecipeComponents.Where(c => c.IsIngredient).ToList();
     private List<AlchemyItem> recipeParts => currentRecipeComponents.Where(c => c.IsPart).ToList();
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
+        // This method is called when the component is rendered with new parameters
+        ResetState();
+    }
 
+    private void ResetState()
+    {
+        _newRecipe = new AlchemicalRecipe();
+        _selectedPotion = null;
+        currentRecipeComponents.Clear();
+        _availableStrengths.Clear();
+
+        _availablePotions = WeakOnlyMode
+            ? AlchemyService.StandardPotions
+            : AlchemyService.GetAllDistinctPotions();
     }
 
     private void OnPotionSelected(ChangeEventArgs e)
@@ -166,7 +181,7 @@
             PotionStrength.Weak => "A Weak Potion requires 1 part and 1 ingredient.",
             PotionStrength.Standard => "A Standard Potion requires 1 part and 2 ingredients, or 2 parts and 1 ingredient.",
             PotionStrength.Supreme => "A Supreme Potion requires 4 components, with a mix of ingredients and parts.",
-            _ => ""
+            _ => "Please select a potion and strength."
         };
     }
 
@@ -231,13 +246,18 @@
         if (!IsRecipeValid()) return;
         if (_selectedPotion == null) return;
 
-        var newRecipe = new AlchemicalRecipe
+        var finalRecipe = new AlchemicalRecipe
             {
                 Name = $"{selectedStrength.ToString()} - {_selectedPotion.Name} Recipe",
                 Strength = this.selectedStrength,
                 Components = new List<AlchemyItem>(this.currentRecipeComponents)
             };
 
-        OnRecipeCreated.InvokeAsync(newRecipe);
+        OnRecipeCreated.InvokeAsync(finalRecipe);
+    }
+
+    private void CancelRecipeCreation()
+    {
+        OnRecipeCreated.InvokeAsync(null);
     }
 }

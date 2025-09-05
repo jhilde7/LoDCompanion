@@ -1,4 +1,5 @@
 ﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.GameData;
 using System.Collections.Generic;
 
 namespace LoDCompanion.BackEnd.Services.Utilities
@@ -57,6 +58,12 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public bool WasCancelled { get; set; } = false;
     }
 
+    public class RecipeCreationRequest
+    {
+        public string Prompt { get; set; } = "Create an Alchemical Recipe";
+        public TaskCompletionSource<AlchemicalRecipe?> CompletionSource { get; } = new(); // Nullable for cancellation
+    }
+
     public class UserRequestService
     {
         public event Action? OnRollRequested;
@@ -65,6 +72,7 @@ namespace LoDCompanion.BackEnd.Services.Utilities
         public DiceRollRequest? CurrentDiceRequest { get; private set; }
         public object? CurrentChoiceRequest { get; private set; }
         public NumberInputRequest? CurrentNumberInputRequest { get; private set; }
+        public RecipeCreationRequest? CurrentRecipeRequest { get; private set; }
 
 
         /// <summary>
@@ -203,6 +211,27 @@ namespace LoDCompanion.BackEnd.Services.Utilities
                 CurrentNumberInputRequest = null;
                 OnRequestChanged?.Invoke();
             }
+        }
+
+        public Task<AlchemicalRecipe?> RequestRecipeCreationAsync()
+        {
+            CurrentRecipeRequest = new RecipeCreationRequest();
+            OnRequestChanged?.Invoke(); // Notify UI to show the modal
+            return CurrentRecipeRequest.CompletionSource.Task;
+        }
+
+        public void CompleteRecipeCreation(AlchemicalRecipe recipe)
+        {
+            CurrentRecipeRequest?.CompletionSource.SetResult(recipe);
+            CurrentRecipeRequest = null;
+            OnRequestChanged?.Invoke(); // Notify UI to hide the modal
+        }
+
+        public void CancelRecipeCreation()
+        {
+            CurrentRecipeRequest?.CompletionSource.SetResult(null);
+            CurrentRecipeRequest = null;
+            OnRequestChanged?.Invoke(); // Notify UI to hide the modal
         }
     }
 }

@@ -2258,7 +2258,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int Cost { get; set; }
         public string Description { get; set; } = string.Empty;
         public bool IsOwned { get; set; }
-        public int DungeonsBetweeUses { get; set; }
+        public int DungeonsBetweenUses { get; set; }
         public int DungeonsUntilUsable { get; set; }
 
         public virtual async Task<SettlementActionResult> PurchaseFurnishingAsync(Hero hero, SettlementActionResult result, UserRequestService? userRequest = null)
@@ -2295,7 +2295,32 @@ namespace LoDCompanion.BackEnd.Services.Player
             Name = EstateRoomName.AlchemistLab;
             Cost = 500;
             Description = "This room is specially tailored to fit every need of an alchemist. A single Recipe can be made here between dungeons.";
-            DungeonsBetweeUses = 1;
+            DungeonsBetweenUses = 1;
+        }
+
+        public async Task<SettlementActionResult> CreateAlchemicalRecipeAsync(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            if (DungeonsUntilUsable < 1)
+            {
+                var newRecipe = await userRequest.RequestRecipeCreationAsync();
+                if (newRecipe != null)
+                {
+                    hero.Inventory.Backpack.Add(newRecipe);
+                    result.Message = $"Successfully created the recipe for {newRecipe.Name}.";
+                    DungeonsUntilUsable = DungeonsBetweenUses;
+                }
+                else
+                {
+                    result.Message = "Recipe creation was cancelled.";
+                    result.WasSuccessful = false;
+                }
+            }
+            else
+            {
+                result.Message = "You can't create another recipe this visit.";
+                result.WasSuccessful = false;
+            }
+            return result;
         }
     }
 
@@ -2306,7 +2331,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             Name = EstateRoomName.ArcheryRange;
             Cost = 500;
             Description = "With a fully-fledged archery range, heroes staying at the manor may increase their Ranged Skill.";
-            DungeonsBetweeUses = 1;
+            DungeonsBetweenUses = 1;
         }
 
         public SettlementActionResult Train(Hero hero, SettlementActionResult result)
@@ -2314,7 +2339,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             int trainedAmount = RandomHelper.RollDie(DiceType.D2);
             hero.SetSkill(Skill.RangedSkill, trainedAmount);
             result.Message = $"{hero.Name} trainedthe whole day and improved their RangedSkill by {trainedAmount}.";
-            DungeonsUntilUsable = DungeonsBetweeUses;
+            DungeonsUntilUsable = DungeonsBetweenUses;
             return result;
         }
     }
@@ -2358,7 +2383,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             Name = EstateRoomName.TrainingGrounds;
             Cost = 500;
             Description = "Any hero who spends time at the training grounds may choose to increase either their Combat Skill or Dodge.";
-            DungeonsBetweeUses = 1;
+            DungeonsBetweenUses = 1;
         }
 
         public SettlementActionResult Train(Hero hero, SettlementActionResult result, Skill skillToTrain)
@@ -2366,7 +2391,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             int trainedAmount = RandomHelper.RollDie(DiceType.D2);
             hero.SetSkill(skillToTrain, trainedAmount);
             result.Message = $"{hero.Name} trainedthe whole day and improved their {skillToTrain} by {trainedAmount}.";
-            DungeonsUntilUsable = DungeonsBetweeUses;
+            DungeonsUntilUsable = DungeonsBetweenUses;
             return result;
         }
     }
@@ -2457,6 +2482,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             Name = EstateRoomName.Smithy;
             Cost = 350;
             Description = "An old smithy on the estate can be turned into a fully functioning workshop.";
+            DungeonsBetweenUses = 1;
         }
 
         public int RepairWeaponsArmour(List<Hero> heroes)
@@ -2466,6 +2492,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 hero.Inventory.GetAllWeaponsArmour().ForEach(item => item.Repair(repairAmount));
             }
+            DungeonsUntilUsable = DungeonsBetweenUses;
             return repairAmount;
         }
     }

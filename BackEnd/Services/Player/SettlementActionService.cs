@@ -54,6 +54,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         AddArmourPadding,
         ApplySlayerWeaponTreatment,
         TendFarm,
+        CreateAlchemicalRecipe,
     }
 
     public class SettlementActionResult
@@ -341,6 +342,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         result.Message = "There is no Estate or Shrine in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.CreateAlchemicalRecipe):
+                    var alchemistLab = (AlchemistLab?)estate.FurnishedRooms.FirstOrDefault(r => r is AlchemistLab);
+                    if (alchemistLab != null && alchemistLab.IsOwned)
+                    {
+                        result = await alchemistLab.CreateAlchemicalRecipeAsync(hero, result, _userRequest);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or AlchemistLab in this settlement.";
                         result.WasSuccessful = false;
                     }
                     break;
