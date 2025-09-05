@@ -213,7 +213,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 success = await EquipOffHandAsync(hero, itemToEquip);
             }
-            else if (hero.ProfessionName == "Warrior Priest"
+            else if (hero.ProfessionName == ProfessionName.WarriorPriest
                 && itemToEquip.Name.Contains("Relic")) success = await EquipRelicAsync(hero, itemToEquip);
             else if (item.Storage != null)
             {

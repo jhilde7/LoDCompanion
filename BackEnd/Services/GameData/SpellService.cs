@@ -1548,7 +1548,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 {
                     if (caster.Party != null)
                     {
-                        var priest = caster.Party.Heroes.FirstOrDefault(h => h.ProfessionName == "Warrior Priest");
+                        var priest = caster.Party.Heroes.FirstOrDefault(h => h.ProfessionName == ProfessionName.WarriorPriest);
                         if (priest != null && priest.Position != null)
                         {
                             resultRoll = await diceRoll.RequestRollAsync("Roll for resolve test", "1d100", stat: (priest, BasicStat.Resolve)); 

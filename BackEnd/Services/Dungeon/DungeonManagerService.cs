@@ -84,6 +84,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly ActionService _action;
         private readonly Lever _lever;
         private readonly SearchService _search;
+        private readonly GameState _gameState;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -108,7 +109,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             PowerActivationService powerActivationService,
             ActionService actionService,
             Lever lever,
-            SearchService searchService)
+            SearchService searchService,
+            GameState gameState)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -126,6 +128,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _action = actionService;
             _lever = lever;
             _search = searchService;
+            _gameState = gameState;
 
             _partyManager.SetMaxMorale();
 
@@ -176,23 +179,46 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
         public void InitializeDungeon(Party initialHeroes, Quest quest)
         {
-            if (initialHeroes == null || initialHeroes.Heroes.Count == 0)
-            {
-                throw new ArgumentException("Initial hero party cannot be null or empty.", nameof(initialHeroes));
-            }
+            // Reset dungeon-specific state
+            _dungeon.Quest = quest;
+            _dungeon.RoomsWithoutEncounters = 0;
+            _dungeon.EncounterChanceModifier = 0;
+            _dungeon.ScenarioRollModifier = 0;
+            _dungeon.StartingRoom = null;
+            _dungeon.CurrentRoom = null;
+            _dungeon.ExplorationDeck.Clear();
+            _dungeon.RoomsInDungeon.Clear();
+            _dungeon.AvailableLevers.Clear();
+            _dungeon.WanderingMonsters.Clear();
+            _dungeon.RevealedMonsters.Clear();
+            _dungeon.DungeonGrid.Clear();
+            _dungeon.CanSpawnWanderingMonster = true;
+            _dungeon.TrapChanceOnDoor = 6;
+            _dungeon.NextDoorIsUnlockedDisarmed = false;
+            _dungeon.NextLockedDoorIsUnlocked = false;
+            _dungeon.NextTrapWillBeDisarmed = false;
 
-            // Initialize threat levels and wandering monster trigger
+            // Initialize the new dungeon
             _dungeon.HeroParty = initialHeroes;
-            _dungeon.MinThreatLevel = 1; // Example default
-            _dungeon.MaxThreatLevel = 10; // Example default
-            _dungeon.ThreatLevel = 0; // Starting low
-            _dungeon.WhenSpawnWanderingMonster = 5; // Example default
+            _dungeon.MinThreatLevel = quest.MinThreatLevel;
+            _dungeon.MaxThreatLevel = quest.MaxThreatLevel;
+            _dungeon.ThreatLevel = quest.StartThreatLevel;
+            _dungeon.WhenSpawnWanderingMonster = 5;
 
-            if (_dungeon.CurrentRoom != null)
+            List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
+            _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
+
+            _dungeon.StartingRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
+            _dungeon.CurrentRoom = _dungeon.StartingRoom;
+        }
+
+        public void LeaveDungeon()
+        {
+            if (_gameState.Settlements == null) return;
+            foreach (var settlement in _gameState.Settlements)
             {
-                _dungeon.CurrentRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile") ?? new Room(); 
+                settlement.State.DungeonsBetweenVisits++;
             }
-            // Any other initial dungeon setup logic here, e.g., connecting rooms
         }
 
         public async Task ProcessTurnAsync()

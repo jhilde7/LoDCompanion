@@ -2,8 +2,7 @@
 using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
-using Microsoft.AspNetCore.Rewrite;
-using System.Diagnostics.Eventing.Reader;
+using LoDCompanion.BackEnd.Services.Player;
 using System.Text;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
@@ -25,7 +24,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int SearchModifier { get; set; }
         public bool RoomSearchSuccessful => SearchRoll <= SearchTarget;
         public bool PartyHasThief => HeroSearching.Party != null && HeroSearching.Party.Heroes.Any(h => h.IsThief);
-        public bool HeroIsThief => HeroSearching.ProfessionName == "Thief";
+        public bool HeroIsThief => HeroSearching.ProfessionName == ProfessionName.Thief;
     }
 
     /// <summary>

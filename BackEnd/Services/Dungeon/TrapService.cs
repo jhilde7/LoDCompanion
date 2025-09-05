@@ -348,7 +348,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             var targetSquare = positionKVP.Value;
 
             int damage = RandomHelper.RollDice(trap.DamageDice);
-            await character.TakeDamageAsync(damage, (new FloatingTextService(), character.Position), _powerActivation, damageType: DamageType.Fire);
+            await character.TakeDamageAsync(damage, (new FloatingTextService(), character.Position), _powerActivation, damageType: (DamageType.Fire, 0));
             outcome.AppendLine($"{character.Name} is hit by a fireball for {damage} damage!");
 
             var adjacentPositions = GridService.GetNeighbors(character.Position, character.Room.Grid).ToList();
@@ -358,7 +358,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 if (target != null)
                 {
                     int splashDamage = (int)Math.Ceiling(RandomHelper.RollDice(trap.DamageDice) / 2d);
-                    await target.TakeDamageAsync(splashDamage, (new FloatingTextService(), target.Position), _powerActivation, damageType:DamageType.Fire);
+                    await target.TakeDamageAsync(splashDamage, (new FloatingTextService(), target.Position), _powerActivation, damageType: (DamageType.Fire, 0));
                     outcome.AppendLine($"{character.Name} is hit by the fireballs splash for {damage} damage!");
                 }
             }

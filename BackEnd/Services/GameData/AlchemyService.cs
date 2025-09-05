@@ -170,14 +170,14 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return Ingredients[roll].Name;
         }
 
-        public async Task<Part[]> GetPartsAsync(int count, SpeciesName? origin = null)
+        public async Task<Part[]> GetPartsAsync(int count, MonsterSpeciesName? origin = null)
         {
             Part[] parts = new Part[count];
             for (int i = 0; i < count; i++)
             {
                 if (origin != null)
                 {
-                    parts[i] = new Part() { Origin = (SpeciesName)origin, Name = GetPart(), IsPart = true };
+                    parts[i] = new Part() { Origin = (MonsterSpeciesName)origin, Name = GetPart(), IsPart = true };
                 }
                 else
                 {
@@ -193,76 +193,76 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return Parts[roll].Name;
         }
 
-        private async Task<SpeciesName> GetOriginAsync()
+        private async Task<MonsterSpeciesName> GetOriginAsync()
         {
             var result = await _diceRoll.RequestRollAsync($"Roll for standard potion", "1d100"); await Task.Yield();
             int roll = result.Roll;
             return roll switch
             {
-                1 => SpeciesName.Banshee,
-                2 => SpeciesName.Basilisk,
-                3 => SpeciesName.Beastman,
-                4 => SpeciesName.CaveBear,
-                <= 10 => SpeciesName.CaveGoblin,
-                11 => SpeciesName.Centaur,
-                12 => SpeciesName.CommonTroll,
-                13 => SpeciesName.DireWolf,
-                14 => SpeciesName.DarkElf,
-                15 => SpeciesName.Dragon,
-                16 => SpeciesName.Drider,
-                17 => SpeciesName.Ettin,
-                18 => SpeciesName.Frogling,
-                19 => SpeciesName.Gargoyle,
-                20 => SpeciesName.Gecko,
-                21 => SpeciesName.Ghost,
-                22 => SpeciesName.Ghoul,
-                23 => SpeciesName.Giant,
-                <= 35 => SpeciesName.GiantBat,
-                36 => SpeciesName.GiantCentipede,
-                37 => SpeciesName.GiantLeech,
-                <= 48 => SpeciesName.GiantPoxRat,
-                <= 55 => SpeciesName.GiantRat,
-                56 => SpeciesName.GiantScorpion,
-                <= 58 => SpeciesName.GiantSnake,
-                59 => SpeciesName.GiantSpider,
-                60 => SpeciesName.GiantToad,
-                61 => SpeciesName.GiantWolf,
-                62 => SpeciesName.GiganticSnake,
-                63 => SpeciesName.GiganticSpider,
-                64 => SpeciesName.Gnoll,
-                65 => SpeciesName.Goblin,
-                66 => SpeciesName.Griffon,
-                67 => SpeciesName.Harpy,
-                68 => SpeciesName.Hydra,
-                69 => SpeciesName.Lurker,
-                70 => SpeciesName.Medusa,
-                71 => SpeciesName.Mimic,
-                72 => SpeciesName.Minotaur,
-                73 => SpeciesName.MinotaurSkeleton,
-                74 => SpeciesName.Mummy,
-                75 => SpeciesName.Naga,
-                76 => SpeciesName.Ogre,
-                77 => SpeciesName.Orc,
-                78 => SpeciesName.Raptor,
-                79 => SpeciesName.RiverTroll,
-                80 => SpeciesName.Salamander,
-                81 => SpeciesName.Satyr,
-                82 => SpeciesName.Saurian,
-                83 => SpeciesName.Shambler,
-                84 => SpeciesName.Skeleton,
-                85 => SpeciesName.Slime,
-                86 => SpeciesName.Sphinx,
-                87 => SpeciesName.StoneGolem,
-                88 => SpeciesName.StoneTroll,
-                89 => SpeciesName.TombGuardian,
-                90 => SpeciesName.Vampire,
-                91 => SpeciesName.Werewolf,
-                92 => SpeciesName.Wight,
-                93 => SpeciesName.Wraith,
-                94 => SpeciesName.Wyvern,
-                <= 99 => SpeciesName.Zombie,
-                100 => SpeciesName.ZombieOgre,
-                _ => SpeciesName.Unknown
+                1 => MonsterSpeciesName.Banshee,
+                2 => MonsterSpeciesName.Basilisk,
+                3 => MonsterSpeciesName.Beastman,
+                4 => MonsterSpeciesName.CaveBear,
+                <= 10 => MonsterSpeciesName.CaveGoblin,
+                11 => MonsterSpeciesName.Centaur,
+                12 => MonsterSpeciesName.CommonTroll,
+                13 => MonsterSpeciesName.DireWolf,
+                14 => MonsterSpeciesName.DarkElf,
+                15 => MonsterSpeciesName.Dragon,
+                16 => MonsterSpeciesName.Drider,
+                17 => MonsterSpeciesName.Ettin,
+                18 => MonsterSpeciesName.Frogling,
+                19 => MonsterSpeciesName.Gargoyle,
+                20 => MonsterSpeciesName.Gecko,
+                21 => MonsterSpeciesName.Ghost,
+                22 => MonsterSpeciesName.Ghoul,
+                23 => MonsterSpeciesName.Giant,
+                <= 35 => MonsterSpeciesName.GiantBat,
+                36 => MonsterSpeciesName.GiantCentipede,
+                37 => MonsterSpeciesName.GiantLeech,
+                <= 48 => MonsterSpeciesName.GiantPoxRat,
+                <= 55 => MonsterSpeciesName.GiantRat,
+                56 => MonsterSpeciesName.GiantScorpion,
+                <= 58 => MonsterSpeciesName.GiantSnake,
+                59 => MonsterSpeciesName.GiantSpider,
+                60 => MonsterSpeciesName.GiantToad,
+                61 => MonsterSpeciesName.GiantWolf,
+                62 => MonsterSpeciesName.GiganticSnake,
+                63 => MonsterSpeciesName.GiganticSpider,
+                64 => MonsterSpeciesName.Gnoll,
+                65 => MonsterSpeciesName.Goblin,
+                66 => MonsterSpeciesName.Griffon,
+                67 => MonsterSpeciesName.Harpy,
+                68 => MonsterSpeciesName.Hydra,
+                69 => MonsterSpeciesName.Lurker,
+                70 => MonsterSpeciesName.Medusa,
+                71 => MonsterSpeciesName.Mimic,
+                72 => MonsterSpeciesName.Minotaur,
+                73 => MonsterSpeciesName.MinotaurSkeleton,
+                74 => MonsterSpeciesName.Mummy,
+                75 => MonsterSpeciesName.Naga,
+                76 => MonsterSpeciesName.Ogre,
+                77 => MonsterSpeciesName.Orc,
+                78 => MonsterSpeciesName.Raptor,
+                79 => MonsterSpeciesName.RiverTroll,
+                80 => MonsterSpeciesName.Salamander,
+                81 => MonsterSpeciesName.Satyr,
+                82 => MonsterSpeciesName.Saurian,
+                83 => MonsterSpeciesName.Shambler,
+                84 => MonsterSpeciesName.Skeleton,
+                85 => MonsterSpeciesName.Slime,
+                86 => MonsterSpeciesName.Sphinx,
+                87 => MonsterSpeciesName.StoneGolem,
+                88 => MonsterSpeciesName.StoneTroll,
+                89 => MonsterSpeciesName.TombGuardian,
+                90 => MonsterSpeciesName.Vampire,
+                91 => MonsterSpeciesName.Werewolf,
+                92 => MonsterSpeciesName.Wight,
+                93 => MonsterSpeciesName.Wraith,
+                94 => MonsterSpeciesName.Wyvern,
+                <= 99 => MonsterSpeciesName.Zombie,
+                100 => MonsterSpeciesName.ZombieOgre,
+                _ => MonsterSpeciesName.Unknown
             };
         }
 
@@ -326,7 +326,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         public static List<Part> GetShopParts(int availabilityModifier = 0)
         {
-            var partSpeciesList = GetSpeciesNameAndAvailabilityByAvailability(availabilityModifier);
+            var partSpeciesList = GetMonsterSpeciesNameAndAvailabilityByAvailability(availabilityModifier);
             var shopInventory = new List<Part>();
             foreach (var partSpecies in partSpeciesList)
             {
@@ -339,87 +339,87 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return shopInventory;
         }
 
-        private static List<(SpeciesName Name, int Availability)> GetSpeciesNameAndAvailabilityByAvailability(int availabilityModifier = 0)
+        private static List<(MonsterSpeciesName Name, int Availability)> GetMonsterSpeciesNameAndAvailabilityByAvailability(int availabilityModifier = 0)
         {
-            var list = new List<(SpeciesName, int)>();
-            foreach(SpeciesName name in Enum.GetValues(typeof(SpeciesName)))
+            var list = new List<(MonsterSpeciesName, int)>();
+            foreach(MonsterSpeciesName name in Enum.GetValues(typeof(MonsterSpeciesName)))
             {
                 var availabilityRoll = RandomHelper.RollDie(DiceType.D6);
-                if (availabilityRoll <= SpeciesNameAvailability(name) + availabilityModifier)
+                if (availabilityRoll <= MonsterSpeciesNameAvailability(name) + availabilityModifier)
                 {
-                    list.Add((name, SpeciesNameAvailability(name) + availabilityModifier));
+                    list.Add((name, MonsterSpeciesNameAvailability(name) + availabilityModifier));
                 }
             }
             return list;
         }
 
-        private static int SpeciesNameAvailability(SpeciesName name)
+        private static int MonsterSpeciesNameAvailability(MonsterSpeciesName name)
         {
             return name switch
             {
-                SpeciesName.Banshee => 2,
-                SpeciesName.Basilisk => 3,
-                SpeciesName.Beastman => 5,
-                SpeciesName.CaveBear => 4,
-                SpeciesName.CaveGoblin => 5,
-                SpeciesName.Centaur => 3,
-                SpeciesName.CommonTroll => 4,
-                SpeciesName.DireWolf => 4,
-                SpeciesName.DarkElf => 3,
-                SpeciesName.Dragon => 1,
-                SpeciesName.Drider => 1,
-                SpeciesName.Ettin => 2,
-                SpeciesName.Frogling => 3,
-                SpeciesName.Gargoyle => 4,
-                SpeciesName.Gecko => 4,
-                SpeciesName.Ghost => 3,
-                SpeciesName.Ghoul => 4,
-                SpeciesName.Giant => 2,
-                SpeciesName.GiantBat => 5,
-                SpeciesName.GiantCentipede => 4,
-                SpeciesName.GiantLeech => 4,
-                SpeciesName.GiantPoxRat => 3,
-                SpeciesName.GiantRat => 5,
-                SpeciesName.GiantScorpion => 2,
-                SpeciesName.GiantSnake => 4,
-                SpeciesName.GiantSpider => 4,
-                SpeciesName.GiantToad => 3,
-                SpeciesName.GiantWolf => 4,
-                SpeciesName.GiganticSnake => 2,
-                SpeciesName.GiganticSpider => 2,
-                SpeciesName.Gnoll => 5,
-                SpeciesName.Goblin => 5,
-                SpeciesName.Griffon => 2,
-                SpeciesName.Harpy => 3,
-                SpeciesName.Hydra => 2,
-                SpeciesName.Lurker => 3,
-                SpeciesName.Medusa => 2,
-                SpeciesName.Mimic => 2,
-                SpeciesName.Minotaur => 3,
-                SpeciesName.MinotaurSkeleton => 3,
-                SpeciesName.Mummy => 3,
-                SpeciesName.Naga => 3,
-                SpeciesName.Ogre => 3,
-                SpeciesName.Orc => 5,
-                SpeciesName.Raptor => 4,
-                SpeciesName.RiverTroll => 3,
-                SpeciesName.Salamander => 5,
-                SpeciesName.Satyr => 4,
-                SpeciesName.Saurian => 3,
-                SpeciesName.Shambler => 4,
-                SpeciesName.Skeleton => 2,
-                SpeciesName.Slime => 3,
-                SpeciesName.Sphinx => 2,
-                SpeciesName.StoneGolem => 2,
-                SpeciesName.StoneTroll => 4,
-                SpeciesName.TombGuardian => 3,
-                SpeciesName.Vampire => 3,
-                SpeciesName.Werewolf => 5,
-                SpeciesName.Wight => 3,
-                SpeciesName.Wraith => 3,
-                SpeciesName.Wyvern => 2,
-                SpeciesName.Zombie => 1,
-                SpeciesName.ZombieOgre => 5,
+                MonsterSpeciesName.Banshee => 2,
+                MonsterSpeciesName.Basilisk => 3,
+                MonsterSpeciesName.Beastman => 5,
+                MonsterSpeciesName.CaveBear => 4,
+                MonsterSpeciesName.CaveGoblin => 5,
+                MonsterSpeciesName.Centaur => 3,
+                MonsterSpeciesName.CommonTroll => 4,
+                MonsterSpeciesName.DireWolf => 4,
+                MonsterSpeciesName.DarkElf => 3,
+                MonsterSpeciesName.Dragon => 1,
+                MonsterSpeciesName.Drider => 1,
+                MonsterSpeciesName.Ettin => 2,
+                MonsterSpeciesName.Frogling => 3,
+                MonsterSpeciesName.Gargoyle => 4,
+                MonsterSpeciesName.Gecko => 4,
+                MonsterSpeciesName.Ghost => 3,
+                MonsterSpeciesName.Ghoul => 4,
+                MonsterSpeciesName.Giant => 2,
+                MonsterSpeciesName.GiantBat => 5,
+                MonsterSpeciesName.GiantCentipede => 4,
+                MonsterSpeciesName.GiantLeech => 4,
+                MonsterSpeciesName.GiantPoxRat => 3,
+                MonsterSpeciesName.GiantRat => 5,
+                MonsterSpeciesName.GiantScorpion => 2,
+                MonsterSpeciesName.GiantSnake => 4,
+                MonsterSpeciesName.GiantSpider => 4,
+                MonsterSpeciesName.GiantToad => 3,
+                MonsterSpeciesName.GiantWolf => 4,
+                MonsterSpeciesName.GiganticSnake => 2,
+                MonsterSpeciesName.GiganticSpider => 2,
+                MonsterSpeciesName.Gnoll => 5,
+                MonsterSpeciesName.Goblin => 5,
+                MonsterSpeciesName.Griffon => 2,
+                MonsterSpeciesName.Harpy => 3,
+                MonsterSpeciesName.Hydra => 2,
+                MonsterSpeciesName.Lurker => 3,
+                MonsterSpeciesName.Medusa => 2,
+                MonsterSpeciesName.Mimic => 2,
+                MonsterSpeciesName.Minotaur => 3,
+                MonsterSpeciesName.MinotaurSkeleton => 3,
+                MonsterSpeciesName.Mummy => 3,
+                MonsterSpeciesName.Naga => 3,
+                MonsterSpeciesName.Ogre => 3,
+                MonsterSpeciesName.Orc => 5,
+                MonsterSpeciesName.Raptor => 4,
+                MonsterSpeciesName.RiverTroll => 3,
+                MonsterSpeciesName.Salamander => 5,
+                MonsterSpeciesName.Satyr => 4,
+                MonsterSpeciesName.Saurian => 3,
+                MonsterSpeciesName.Shambler => 4,
+                MonsterSpeciesName.Skeleton => 2,
+                MonsterSpeciesName.Slime => 3,
+                MonsterSpeciesName.Sphinx => 2,
+                MonsterSpeciesName.StoneGolem => 2,
+                MonsterSpeciesName.StoneTroll => 4,
+                MonsterSpeciesName.TombGuardian => 3,
+                MonsterSpeciesName.Vampire => 3,
+                MonsterSpeciesName.Werewolf => 5,
+                MonsterSpeciesName.Wight => 3,
+                MonsterSpeciesName.Wraith => 3,
+                MonsterSpeciesName.Wyvern => 2,
+                MonsterSpeciesName.Zombie => 1,
+                MonsterSpeciesName.ZombieOgre => 5,
                 _ => 0
             };
         }
@@ -877,7 +877,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
     public class Part : AlchemyItem
     {
         public new PartName Name { get; set; }
-        public SpeciesName Origin { get; set; } = SpeciesName.Unknown;
+        public MonsterSpeciesName Origin { get; set; } = MonsterSpeciesName.Unknown;
         public bool Exquisite {  set; get; }
 
         public Part()

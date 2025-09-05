@@ -276,14 +276,14 @@ namespace LoDCompanion.BackEnd.Services.Player
             };
         }
 
-        public List<Talent>? GetTalentCategoryAtLevelup(string professionName, int level)
+        public List<Talent>? GetTalentCategoryAtLevelup(ProfessionName professionName, int level)
         {
             var profession = _gameData.Professions.FirstOrDefault(p => p.Name == professionName);
             if (profession == null) return null;
 
             switch (profession.Name)
             {
-                case "Alchemist":
+                case ProfessionName.Alchemist:
                     return level switch
                     {
                         3 => _passive.MentalTalents,
@@ -293,7 +293,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         8 => _passive.CommonTalents,
                         _ => _passive.AlchemistTalents
                     };
-                case "Barbarian":
+                case ProfessionName.Barbarian:
                     return level switch
                     {
                         2 => _passive.PhysicalTalents,
@@ -303,7 +303,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         9 => _passive.CommonTalents,
                         _ => _passive.CombatTalents
                     };
-                case "Ranger":
+                case ProfessionName.Ranger:
                     return level switch
                     {
                         2 => _passive.PhysicalTalents,
@@ -314,7 +314,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         9 => _passive.MentalTalents,
                         _ => _passive.CombatTalents
                     };
-                case "Rogue":
+                case ProfessionName.Rogue:
                     return level switch
                     {
                         2 => _passive.PhysicalTalents,
@@ -325,7 +325,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         9 => _passive.CommonTalents,
                         _ => _passive.CombatTalents
                     };
-                case "Thief":
+                case ProfessionName.Thief:
                     return level switch
                     {
                         3 => _passive.CommonTalents,
@@ -336,7 +336,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         9 => _passive.CombatTalents,
                         _ => _passive.SneakyTalents
                     };
-                case "Warrior":
+                case ProfessionName.Warrior:
                     return level switch
                     {
                         2 => _passive.MentalTalents,
@@ -346,7 +346,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         9 => _passive.CommonTalents,
                         _ => _passive.CombatTalents
                     };
-                case "Warrior Priest":
+                case ProfessionName.WarriorPriest:
                     return level switch
                     {
                         2 => _passive.MentalTalents,
@@ -357,7 +357,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _passive.CombatTalents,
                         _ => _passive.FaithTalents
                     };
-                case "Wizard":
+                case ProfessionName.Wizard:
                     return level switch
                     {
                         3 => _passive.CommonTalents,
@@ -372,13 +372,13 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
 
-        public List<Perk>? GetPerkCategoryAtLevelup(string professionName, int level)
+        public List<Perk>? GetPerkCategoryAtLevelup(ProfessionName professionName, int level)
         {
             var profession = _gameData.Professions.FirstOrDefault(p => p.Name == professionName);
             if (profession == null) return null;
             switch (profession.Name)
             {
-                case "Alchemist":
+                case ProfessionName.Alchemist:
                     return level switch
                     {
                         2 => _gameData.AlchemistPerks,
@@ -388,7 +388,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.CommonPerks,
                         _ => null,
                     };
-                case "Barbarian":
+                case ProfessionName.Barbarian:
                     return level switch
                     {
                         2 => _gameData.CombatPerks,
@@ -398,7 +398,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.CombatPerks,
                         _ => null,
                     };
-                case "Ranger":
+                case ProfessionName.Ranger:
                     return level switch
                     {
                         2 => _gameData.CombatPerks,
@@ -408,7 +408,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.CommonPerks,
                         _ => null,
                     };
-                case "Rogue":
+                case ProfessionName.Rogue:
                     return level switch
                     {
                         2 => _gameData.CombatPerks,
@@ -418,7 +418,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.SneakyPerks,
                         _ => null,
                     };
-                case "Thief":
+                case ProfessionName.Thief:
                     return level switch
                     {
                         2 => _gameData.SneakyPerks,
@@ -428,7 +428,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.SneakyPerks,
                         _ => null,
                     };
-                case "Warrior":
+                case ProfessionName.Warrior:
                     return level switch
                     {
                         2 => _gameData.LeaderPerks,
@@ -438,7 +438,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.CombatPerks,
                         _ => null,
                     };
-                case "Warrior Priest":
+                case ProfessionName.WarriorPriest:
                     return level switch
                     {
                         2 => _gameData.FaithPerks,
@@ -448,7 +448,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         10 => _gameData.CommonPerks,
                         _ => null,
                     };
-                case "Wizard":
+                case ProfessionName.Wizard:
                     return level switch
                     {
                         2 => _gameData.ArcanePerks,

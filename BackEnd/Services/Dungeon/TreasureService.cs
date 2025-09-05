@@ -860,7 +860,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 switch (roll)
                 {
                     case 1: magic[0] = "Fire DMG"; magic[1] = "This weapon has a slight glow to it, as if radiating heat.";
-                        weapon.WeaponCoating = new WeaponCoating() { DamageType = DamageType.Fire, RemoveAfterCombat = false };
+                        weapon.WeaponCoating = new WeaponCoating(DamageType.Fire) { RemoveAfterCombat = false };
                         break;
                     case 2: magic[0] = "DMG +2"; magic[1] = "When wielding this weapon, is is as if the hero can feel its taste for blood.";
                         weapon.Properties.TryGetValue(WeaponProperty.DamageBonus, out int damageBonus);
@@ -1877,7 +1877,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case TreasureType.TortureTools:
                     switch (result.SearchRoll)
                     {
-                        case <= 2: result.FoundItems = [.. await _alchemy.GetPartsAsync(RandomHelper.RollDie(DiceType.D3), SpeciesName.Human)]; 
+                        case <= 2: result.FoundItems = [.. await _alchemy.GetPartsAsync(RandomHelper.RollDie(DiceType.D3), MonsterSpeciesName.Human)]; 
                             result.Message = "You found some alchemical parts!";
                             break;
                         default: result.Message = "You found nothing of any value."; break;

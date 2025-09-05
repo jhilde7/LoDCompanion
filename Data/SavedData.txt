@@ -9,7 +9,7 @@
                 {
                     "$id": "4",
                     "SpeciesName": "Halfling",
-                    "ProfessionName": "Warrior Priest",
+                    "ProfessionName": ProfessionName.WarriorPriest,
                     "CurrentEnergy": 1,
                     "CurrentMana": null,
                     "CurrentSanity": 10,
@@ -341,7 +341,7 @@
                 {
                     "$id": "42",
                     "SpeciesName": "Elf",
-                    "ProfessionName": "Wizard",
+                    "ProfessionName": ProfessionName.Wizard,
                     "CurrentEnergy": 1,
                     "CurrentMana": null,
                     "CurrentSanity": 10,
@@ -725,7 +725,7 @@
                 {
                     "$id": "85",
                     "SpeciesName": "Elf",
-                    "ProfessionName": "Thief",
+                    "ProfessionName": ProfessionName.Thief,
                     "CurrentEnergy": 1,
                     "CurrentMana": null,
                     "CurrentSanity": 10,
@@ -1093,7 +1093,7 @@
                 {
                     "$id": "125",
                     "SpeciesName": "Dwarf",
-                    "ProfessionName": "Warrior",
+                    "ProfessionName": ProfessionName.Warrior,
                     "CurrentEnergy": 1,
                     "CurrentMana": null,
                     "CurrentSanity": 10,

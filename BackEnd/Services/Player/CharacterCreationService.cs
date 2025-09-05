@@ -119,54 +119,47 @@ namespace LoDCompanion.BackEnd.Services.Player
             State.TalentList = GetTraits(species.Name);
         }
 
-        public List<Talent> GetTraits(string name)
+        public List<Talent> GetTraits(SpeciesName name)
         {
             List<Talent> traits = new List<Talent>();
-            if (name != null)
+            switch (name)
             {
-                switch (name)
-                {
-                    case "Dwarf":
-                        traits.Add(new Talent()
-                        {
-                            Category = TalentCategory.Physical,
-                            Name = TalentName.NightVision,
-                            Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
-                        });
-                        traits.Add(_passiveAbility.GetHateTalentByCategory(HateCategory.Goblins));
-                        return traits;
-                    case "Elf":
-                        traits.Add(new Talent()
-                        {
-                            Category = TalentCategory.Physical,
-                            Name = TalentName.NightVision,
-                            Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
-                        });
-                        traits.Add(new Talent()
-                        {
-                            Category = TalentCategory.Physical,
-                            Name = TalentName.PerfectHearing,
-                            Description = "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened.",
-                        });
-                        return traits;
-                    case "Halfling":
-                        traits.Add(_passiveAbility.GetTalentByName(TalentName.Lucky) ?? new Talent());
-                        return traits;
-                    case "Human":
-                        State.HumanTalentCategoryList = new() { "Physical", "Combat", "Faith", "Alchemist", "Common", "Magic", "Sneaky", "Mental" };
-                        return traits;
-                    default: return traits;
-                }
-            }
-            else
-            {
-                return traits;
+                case SpeciesName.Dwarf:
+                    traits.Add(new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.NightVision,
+                        Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                    });
+                    traits.Add(_passiveAbility.GetHateTalentByCategory(HateCategory.Goblins));
+                    return traits;
+                case SpeciesName.Elf:
+                    traits.Add(new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.NightVision,
+                        Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                    });
+                    traits.Add(new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.PerfectHearing,
+                        Description = "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened.",
+                    });
+                    return traits;
+                case SpeciesName.Halfling:
+                    traits.Add(_passiveAbility.GetTalentByName(TalentName.Lucky) ?? new Talent());
+                    return traits;
+                case SpeciesName.Human:
+                    State.HumanTalentCategoryList = new() { "Physical", "Combat", "Faith", "Alchemist", "Common", "Magic", "Sneaky", "Mental" };
+                    return traits;
+                default: return traits;
             }
         }
 
         public void SetHumanRandomTalent(string selection)
         {
-            if (State.SelectedSpecies?.Name != "Human")
+            if (State.SelectedSpecies?.Name != SpeciesName.Human)
             {
                 return;
             }
@@ -213,10 +206,10 @@ namespace LoDCompanion.BackEnd.Services.Player
             State.PrayerList = new List<Prayer>();
         }
 
-        private List<Perk> SetStartingPerks(string name)
+        private List<Perk> SetStartingPerks(ProfessionName name)
         {
             List<Perk> startingPerkList = new List<Perk> { };
-            if (name == "Barbarian")
+            if (name == ProfessionName.Barbarian)
             {
                 startingPerkList.Add(_gameData.GetPerkByName(PerkName.Frenzy));
             }
@@ -366,11 +359,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             State.MaxHP = State.BaseHP + State.HpModifier;
             State.MaxArmour = State.SelectedProfession.MaxArmourType;
 
-            if (State.SelectedProfession.Name == "Wizard" && State.ArcaneArtsSkillModifier.HasValue)
+            if (State.SelectedProfession.Name == ProfessionName.Wizard && State.ArcaneArtsSkillModifier.HasValue)
             {
                 State.ArcaneArts = State.Wisdom + (int)State.ArcaneArtsSkillModifier;
             }
-            else if (State.SelectedProfession.Name == "Warrior Priest" && State.BattlePrayersSkillModifier.HasValue)
+            else if (State.SelectedProfession.Name == ProfessionName.WarriorPriest && State.BattlePrayersSkillModifier.HasValue)
             {
                 State.BattlePrayers = State.Wisdom + (int)State.BattlePrayersSkillModifier;
             }
@@ -551,11 +544,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             State.Hero.Perks = State.PerkList;
 
             // Add starting spells and prayers
-            if (State.Hero.ProfessionName == "Wizard")
+            if (State.Hero.ProfessionName == ProfessionName.Wizard)
             {
                 State.Hero.Spells = GetStartingSpells();
             }
-            else if (State.Hero.ProfessionName == "Warrior Priest")
+            else if (State.Hero.ProfessionName == ProfessionName.WarriorPriest)
             {
                 State.Hero.Prayers = GetStartingPrayers();
             }
@@ -644,12 +637,20 @@ namespace LoDCompanion.BackEnd.Services.Player
         // Expose current state for UI binding (read-only properties)
         public bool IsSpeciesPicked => State.SelectedSpecies != null;
         public bool IsProfessionPicked => State.SelectedProfession != null;
-        public bool IsHuman => State.SelectedSpecies?.Name == "Human";
+        public bool IsHuman => State.SelectedSpecies?.Name == SpeciesName.Human;
+    }
+
+    public enum SpeciesName
+    {
+        Dwarf,
+        Elf,
+        Human,
+        Halfling
     }
 
     public class Species
     {
-        public string Name { get; set; } = string.Empty;
+        public SpeciesName Name { get; set; }
         public string Description { get; set; } = string.Empty;
         public int BaseStrength { get; set; }
         public int BaseConstitution { get; set; }
@@ -667,9 +668,21 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     }
 
+    public enum ProfessionName
+    {
+        Wizard,
+        Rogue,
+        Ranger,
+        Barbarian,
+        WarriorPriest,
+        Warrior,
+        Alchemist,
+        Thief
+    }
+
     public class Profession
     {
-        public string Name { get; set; } = string.Empty;
+        public ProfessionName Name { get; set; }
         public string Description { get; set; } = string.Empty;
         public int CombatSkillModifier { get; set; }
         public int RangedSkillModifier { get; set; }

@@ -799,7 +799,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 character.CurrentAP -= result.ApCost;
                 if(actionType != ActionType.PowerAttack) character.IsVulnerableAfterPowerAttack = false;
-                if (character is Hero hero && hero.ProfessionName == "Wizard" && hero.CurrentAP <= 0) hero.CanCastSpell = true;
+                if (character is Hero hero && hero.ProfessionName == ProfessionName.Wizard && hero.CurrentAP <= 0) hero.CanCastSpell = true;
 
                 if (result.SearchResult != null && result.SearchResult.FoundItems != null)
                 {
@@ -1187,7 +1187,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     int damage1 = RandomHelper.RollDie(DiceType.D4);
                     foreach (var characterInTarget in charactersOnPos1)
                     {
-                        await characterInTarget.TakeDamageAsync(damage1, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: DamageType.Fire);
+                        await characterInTarget.TakeDamageAsync(damage1, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: (DamageType.Fire, 0));
                         outcome.AppendLine($"{characterInTarget.Name} is hit for {damage1} fire damage.");
                     }
 
@@ -1195,7 +1195,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     int damage2 = RandomHelper.RollDie(DiceType.D4);
                     foreach (var characterInTarget in charactersOnPos2)
                     {
-                        await characterInTarget.TakeDamageAsync(damage2, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: DamageType.Fire);
+                        await characterInTarget.TakeDamageAsync(damage2, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: (DamageType.Fire, 0));
                         outcome.AppendLine($"{characterInTarget.Name} is hit for {damage2} fire damage.");
                     }
 
@@ -1220,7 +1220,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         int damage = RandomHelper.RollDie(DiceType.D8);
                         foreach (var characterInTarget in charactersOnPos)
                         {
-                            await characterInTarget.TakeDamageAsync(damage, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: DamageType.Fire);
+                            await characterInTarget.TakeDamageAsync(damage, (new FloatingTextService(), characterInTarget.Position), _powerActivation, damageType: (DamageType.Fire, 0));
                             outcome.AppendLine($"{characterInTarget.Name} is hit for {damage} fire damage.");
                         }
 

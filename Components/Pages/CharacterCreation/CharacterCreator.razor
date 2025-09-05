@@ -1025,7 +1025,7 @@ else
 
     private void SelectSpecies(Species species)
     {
-        humanTalentCategory = (species.Name == "Human") ? "Physical" : null;
+        humanTalentCategory = (species.Name == SpeciesName.Human) ? "Physical" : null;
         CreationService.SetSpecies(species);
     }
 
@@ -1226,7 +1226,7 @@ else
 
     private bool ShouldSkipStep(Step step) => step switch
     {
-        Step.HumanTalent => State.SelectedSpecies?.Name != "Human",
+        Step.HumanTalent => State.SelectedSpecies?.Name != SpeciesName.Human,
         Step.TalentChoice => State.TalentChoices == null,
         Step.Equipment => State.SpecificWeaponChoices == null &&
                           State.WeaponChoices == null && State.RelicChoices == null &&

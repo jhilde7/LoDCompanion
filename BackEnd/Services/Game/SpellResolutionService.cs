@@ -157,7 +157,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     int primaryDamage = resultRoll.Roll;
                     primaryDamage += options.PowerLevels;
                     if (spell.HasProperty(SpellProperty.MagicMissile)) primaryDamage += addDamage;
-                    await singleTarget.TakeDamageAsync(primaryDamage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType);
+                    await singleTarget.TakeDamageAsync(primaryDamage, (_floatingText, singleTarget.Position), _powerActivation, damageType: (spell.DamageType, 0));
                     outcome.AppendLine($"{spell.Name} strikes {singleTarget.Name} for {primaryDamage} {spell.DamageType} damage!");
                     hitTargets.Add(singleTarget);
 
@@ -171,7 +171,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         int secondDamage = resultRoll.Roll;
                         secondDamage += options.PowerLevels;
                         if (spell.HasProperty(SpellProperty.MagicMissile)) secondDamage += addDamage;
-                        await secondTarget.TakeDamageAsync(secondDamage, (_floatingText, secondTarget.Position), _powerActivation, damageType: spell.DamageType);
+                        await secondTarget.TakeDamageAsync(secondDamage, (_floatingText, secondTarget.Position), _powerActivation, damageType: (spell.DamageType, 0));
                         outcome.AppendLine($"The bolt chains to {secondTarget.Name} for {secondDamage} {spell.DamageType} damage!");
                         hitTargets.Add(secondTarget);
 
@@ -185,7 +185,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             int thirdDamage = resultRoll.Roll;
                             thirdDamage += options.PowerLevels;
                             if (spell.HasProperty(SpellProperty.MagicMissile)) thirdDamage += addDamage;
-                            await thirdTarget.TakeDamageAsync(thirdDamage, (_floatingText, thirdTarget.Position), _powerActivation, damageType: spell.DamageType);
+                            await thirdTarget.TakeDamageAsync(thirdDamage, (_floatingText, thirdTarget.Position), _powerActivation, damageType: (spell.DamageType, 0));
                             outcome.AppendLine($"It chains again to {thirdTarget.Name} for {thirdDamage} {spell.DamageType} damage!");
                         }
                     }
@@ -222,7 +222,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         damage += options.PowerLevels;
                         if (spell.HasProperty(SpellProperty.MagicMissile)) damage += addDamage;
 
-                        await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: spell.DamageType);
+                        await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: (spell.DamageType, 0));
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -231,7 +231,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             {
                 int damage = await GetDirectDamageAsync(caster, spell) + options.PowerLevels;
                 if (spell.HasProperty(SpellProperty.MagicMissile)) damage += addDamage;
-                await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType);
+                await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: (spell.DamageType, 0));
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 
@@ -499,9 +499,9 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
 
             // Dispel spell logic
-            if (target is Hero hero && hero.Party != null && hero.Party.Heroes.Any(h => h.ProfessionName == "Wizard"))
+            if (target is Hero hero && hero.Party != null && hero.Party.Heroes.Any(h => h.ProfessionName == ProfessionName.Wizard))
             {
-                foreach (var wizard in hero.Party.Heroes.Where(h => h.ProfessionName == "Wizard"))
+                foreach (var wizard in hero.Party.Heroes.Where(h => h.ProfessionName == ProfessionName.Wizard))
                 {
                     if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.DispelMaster))
                     {
@@ -713,7 +713,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             GetDirectDamage(caster, spell) :
                             GetAOEDamage(caster, spell);
 
-                        await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: spell.DamageType != null ? spell.DamageType : null);
+                        await character.TakeDamageAsync(damage, (_floatingText, character.Position), _powerActivation, damageType: spell.DamageType != null ? (spell.DamageType, 0) : null);
                         outcome.AppendLine($"{character.Name} is hit by {spell.Name} for {damage} {spell.DamageType} damage!");
                     }
                 }
@@ -721,7 +721,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             else if (singleTarget != null) // Single target damage
             {
                 int damage = GetDirectDamage(caster, spell);
-                await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType != null ? spell.DamageType : null);
+                await singleTarget.TakeDamageAsync(damage, (_floatingText, singleTarget.Position), _powerActivation, damageType: spell.DamageType != null ? (spell.DamageType, 0) : null);
                 outcome.AppendLine($"{spell.Name} hits {singleTarget.Name} for {damage} {spell.DamageType} damage!");
             }
 

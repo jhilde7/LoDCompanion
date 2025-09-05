@@ -80,7 +80,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 var roll = rollResult.Roll;
                 if (heroWithHighestSkill != null && roll <= heroWithHighestSkill.GetSkill(Skill.Foraging))
                 {
-                    if (heroWithHighestSkill.ProfessionName == "Ranger")
+                    if (heroWithHighestSkill.ProfessionName == ProfessionName.Ranger)
                     {
                         int furCount = 1;
                         if (roll < (int)Math.Floor(heroWithHighestSkill.GetSkill(Skill.Foraging) / 2d))
@@ -222,7 +222,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     }
 
                     // Restore Mana for Wizards
-                    if (hero.ProfessionName == "Wizard") hero.CurrentMana = hero.GetStat(BasicStat.Mana);
+                    if (hero.ProfessionName == ProfessionName.Wizard) hero.CurrentMana = hero.GetStat(BasicStat.Mana);
 
                     //Brew potions
                     if (hero.Inventory.CanBrewPotion)

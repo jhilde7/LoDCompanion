@@ -2157,7 +2157,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
     public class MeleeWeapon : Weapon
     {
-        private bool HasSlayerModifier { get; set; }
+        public bool HasSlayerModifier { get; set; }
         private Dictionary<WeaponProperty, int> _properties = new Dictionary<WeaponProperty, int>();
 
         public override Dictionary<WeaponProperty, int> Properties
@@ -2248,7 +2248,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
 
         public bool AttemptApplySlayerTreatment()
         {
-            if (!HasSlayerModifier && Properties.ContainsKey(WeaponProperty.Edged))
+            if (!HasSlayerModifier && Properties.ContainsKey(WeaponProperty.Edged) && Durability == MaxDurability)
             {
                 if(!Properties.TryAdd(WeaponProperty.DamageBonus, 1))
                 {
@@ -2510,6 +2510,18 @@ namespace LoDCompanion.BackEnd.Services.GameData
         public int ArmourClass { get; set; }
         public int DefValue { get; set; }
         public bool HasArmourPadding { get; set; }
+        public int CoverageCount
+        {
+            get
+            {
+                int count = 0;
+                if (Properties.ContainsKey(ArmourProperty.Head)) count++;
+                if (Properties.ContainsKey(ArmourProperty.Torso)) count++;
+                if (Properties.ContainsKey(ArmourProperty.Arms)) count++;
+                if (Properties.ContainsKey(ArmourProperty.Legs)) count++;
+                return count;
+            }
+        }
 
         private Dictionary<ArmourProperty, int> _properties = new Dictionary<ArmourProperty, int>();
 
@@ -2606,6 +2618,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     Properties.TryGetValue(ArmourProperty.DefBonus, out int value);
                     value += 1;
                     Properties[ArmourProperty.DefBonus] = value;
+                    Encumbrance += CoverageCount;
                 }
                 HasArmourPadding = true;
                 return true;

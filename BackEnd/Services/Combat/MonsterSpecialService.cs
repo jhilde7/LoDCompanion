@@ -263,7 +263,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             // Apply primary damage to the main target
             int primaryDamage = RandomHelper.RollDie(DiceType.D10);
-            await target.TakeDamageAsync(primaryDamage, (_floatingText, target.Position), _powerActivation, damageType: DamageType.Fire);
+            await target.TakeDamageAsync(primaryDamage, (_floatingText, target.Position), _powerActivation, damageType: (DamageType.Fire, 0));
             outcome.AppendLine($"{target.Name} is caught in the blast and takes {primaryDamage} fire damage.");
 
             // Find adjacent squares
@@ -284,7 +284,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (adjacentSquares.Contains(character.Position))
                 {
                     int splashDamage = RandomHelper.RollDie(DiceType.D6);
-                    await character.TakeDamageAsync(splashDamage, (_floatingText, target.Position), _powerActivation, damageType: DamageType.Fire);
+                    await character.TakeDamageAsync(splashDamage, (_floatingText, target.Position), _powerActivation, damageType: (DamageType.Fire, 0));
                     outcome.AppendLine($"{character.Name} is caught in the splash and takes {splashDamage} fire damage.");
                 }
             }

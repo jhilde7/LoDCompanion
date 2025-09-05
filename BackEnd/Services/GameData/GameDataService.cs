@@ -304,7 +304,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return new List<Species>()
             {
                 new Species() {
-                    Name = "Dwarf",
+                    Name = Player.SpeciesName.Dwarf,
                     Description = "Dwarves are short, but broad and often muscular after their mandatory service in the mines under the mountains of the world. Their beards grow thick and long, and they serve as a symbol of their status. The longer the beard, the more respect they earn amongst their kindred. Female dwarves are every bit as sturdy as their male counterparts, and are seen just as often on the battlefield wielding an axe or warhammer. There have been numerous conflicts between Dwarf and Goblin clans, and with the Dwarves inability to forget a misdeed against their, this has led to a full-blown hatred.",
                     BaseStrength = 40,
                     BaseConstitution =  30,
@@ -319,7 +319,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MaxCON = 70
                 },
                 new Species() {
-                    Name = "Elf",
+                    Name = Player.SpeciesName.Elf,
                     Description = "Elves are fair skinned, graceful, and often beautiful beings. They move gracefully, but can be exceptionally fast. Whilst Dwarves like to live far underground, Elves prefer to live in the forests of the world. Elven fighters are renowned for their skill with bows, but they often make good Wizards as well.",
                     BaseStrength = 25,
                     BaseConstitution =  20,
@@ -334,7 +334,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MaxCON = 65
                 },
                 new Species() {
-                    Name = "Human",
+                    Name = Player.SpeciesName.Human,
                     Description = "Humans are the most versatile of all species, with a wide range of physical characteristics and abilities. They are known for their adaptability and resourcefulness, as well as their ability to form complex societies. With their versatility, they could be anything from Wizards to lowly Thieves",
                     BaseStrength = 30,
                     BaseConstitution =  30,
@@ -349,7 +349,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     MaxCON = 65
                 },
                 new Species() {
-                    Name = "Halfling",
+                    Name = Player.SpeciesName.Halfling,
                     Description = "Halfling's are small and nimble, with a love for adventure and exploration. They are known for their quick reflexes and stealthy nature, as well as their ability to blend in with their surroundings. They often gravity towards stealthier professions, such as thieves or rougues. There are not many known Halfling Wizards or alchemists, but this is not unheard of. Their preferred weapons are daggers, shorswords, or ranged weapons, such as shortbows and slings.",
                     BaseStrength = 20,
                     BaseConstitution =  20,
@@ -371,7 +371,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return new List<Profession>()
             {
                 new Profession {
-                    Name = "Wizard",
+                    Name = ProfessionName.Wizard,
                     Description = "Wizards have studied the magical arts at one of the sorcery colleges. These colleges admit only a select few, and the power that they wield can be quite remarkable in the eyes of commoners. Consequently, most wizards are regarded with suspicion. Their spells range from petty Hedge Magic, which is little more than conjuring tricks, to powerful Battle Magic or Spells which allow the wizard to bend the will of demons. However, dealing with magic is dangerous and any mistake can ravage your mind.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = -10,
@@ -419,7 +419,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Rogue",
+                    Name = ProfessionName.Rogue,
                     Description = "The Rogue walks a thin line between what is legal and what is illegal. Some overstep the line completely to become highwaymen, robbing unfortunate passers-by. Others take day-to-day work drifting from one town to another. Accustomed to a harsh life and surviving on their own, they are Jacks of all trades, ready to do whatever it takes to make a living.",
                     CombatSkillModifier = 0,
                     RangedSkillModifier = 0,
@@ -470,7 +470,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Ranger",
+                    Name = ProfessionName.Ranger,
                     Description = "The Ranger spends their or their days in the wild. They make their living by tracking animals and selling their meat and pelts. Rangers earn a meagre income, but with time they will acquire unrivalled knowledge in how to survive in the wild, and they will seldom go hungry. Constant exposure to the weather and wandering the forests day after day also makes their quite tough and resilient. Their favourite weapon is, of course, the bow. However, some prefer the heavier crossbow for its sheer stopping power.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = 15,
@@ -517,7 +517,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Barbarian",
+                    Name = ProfessionName.Barbarian,
                     Description = "Barbarians live for the thrill of battle. Unlike most sane people, Barbarians eagerly await the next possibility for a good fight, and they often work theirselves up into a frenzy once the battle starts. This frenzy causes their to wield their weapons like dervishes, striking out left and right, which makes their formidable. On the other hand, being in the grips of such a frenzy makes it easy to abandon caution and to forget to properly protect yourself.",
                     CombatSkillModifier = 15,
                     RangedSkillModifier = -10,
@@ -571,7 +571,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Warrior Priest",
+                    Name = ProfessionName.WarriorPriest,
                     Description = "Warrior Priests have taken it upon theirselves to act as soldiers of their god, preaching to those who will listen, and smiting those that they regard as heretics. Luckily, their codex will normally limit those deemed as heretics to the monsters of the world, or to those who choose to dabble with dark magic or evil gods. Their faith makes their unwavering in front of the most fearsome foes. The more experienced priests have learned to perfect the art of battle prayers, bestowing some blessings from their god to their comrades in arms.",
                     CombatSkillModifier = 5,
                     RangedSkillModifier = -5,
@@ -618,7 +618,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Warrior",
+                    Name = ProfessionName.Warrior,
                     Description = "The Warrior is a veteran of the King's army and has more often than not seen countless battles. In contrast with the Berserker, the Warrior does not relish the fight and is more than happy to skip the risk it brings with it. However, when battle is unavoidable, the Warrior is effective in combat with a good all-round set of skills.",
                     CombatSkillModifier = 10,
                     RangedSkillModifier = 5,
@@ -665,7 +665,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Alchemist",
+                    Name = ProfessionName.Alchemist,
                     Description = "The Alchemist has spent years studying the properties of materials and solutions, learning the effect they have on each other and on the human body. Through both study and experience, they have learned how to mix ingredients to obtain beneficial effects that have become highly sought after. Their ability to create powerful concoctions have made their popular amongst adventurers. Many alchemists can hold their ground pretty well, spreading fire and destruction all around their.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = -5,
@@ -718,7 +718,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     }
                 },
                 new Profession {
-                    Name = "Thief",
+                    Name = ProfessionName.Thief,
                     Description = "The Thief prefers to work in the shadows, avoiding all attention if possible. The use of arms is not alien to their, but it is seen as a last resort. Better to take what you want undetected, and thereby minimise the risk of getting injured whilst doing it. As a consequence, daggers are their preferred weapons. Lock picks and crowbars are the tools of the trade. Special: Whenever it is time to get treasure, a thief may always get two choices and choose which one to keep. This ability may be combined with the sense of gold talent.",
                     CombatSkillModifier = -5,
                     RangedSkillModifier = 5,
@@ -771,13 +771,13 @@ namespace LoDCompanion.BackEnd.Services.GameData
             return profession.LevelUpCost;
         }
 
-        public int GetProfessionMaxArmourType(string professionName)
+        public int GetProfessionMaxArmourType(ProfessionName professionName)
         {
             Profession? profession = Professions.FirstOrDefault(p => p.Name == professionName);
             return profession != null ? profession.MaxArmourType : 0;
         }
 
-        internal Species GetSpeciesByName(string speciesName)
+        internal Species GetSpeciesByName(SpeciesName speciesName)
         {
             throw new NotImplementedException();
         }

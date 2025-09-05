@@ -84,10 +84,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
             foreach (var hero in heroes)
             {
                 hero.HasDodgedThisBattle = false;
-                if (hero.ProfessionName == "Wizard" && hero.Spells != null) hero.CanCastSpell = true;
+                if (hero.ProfessionName == ProfessionName.Wizard && hero.Spells != null) hero.CanCastSpell = true;
             }
 
-            if(monsters.Where(m => m.Species == SpeciesName.Demon).Any())
+            if(monsters.Where(m => m.Species == MonsterSpeciesName.Demon).Any())
             {
                 _dungeonManager.PartyManager.UpdateMorale(changeEvent:MoraleChangeEvent.CombatWithDemons);
             }

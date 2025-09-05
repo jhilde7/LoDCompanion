@@ -334,7 +334,7 @@ namespace LoDCompanion.BackEnd.Models
                 damage -= combatContext?.ArmourValue ?? 0; // Apply any armour value from the combat context 
             }
 
-            var isEffectedByHoly = this is Monster monster && (monster.IsUndead || monster.Species == SpeciesName.Demon);
+            var isEffectedByHoly = this is Monster monster && (monster.IsUndead || monster.Species == MonsterSpeciesName.Demon);
             if (holyDamage && damageType.HasValue)
             {
                 if (!isEffectedByHoly) damage += 0;
@@ -504,8 +504,8 @@ namespace LoDCompanion.BackEnd.Models
     {
         // Basic Hero Information
         public Party Party { get; set; } = new Party();
-        public string SpeciesName { get; set; } = string.Empty;
-        public string ProfessionName { get; set; } = string.Empty;
+        public SpeciesName SpeciesName { get; set; }
+        public ProfessionName ProfessionName { get; set; }
         public int CurrentEnergy { get; set; } = 1;
         public int? CurrentMana { get; set; }
         public int CurrentSanity { get; set; } = 10;
@@ -516,7 +516,7 @@ namespace LoDCompanion.BackEnd.Models
 
         // Hero-specific States and Flags
         public int MaxArmourType => GetProfessionMaxArmourType(ProfessionName);
-        public bool IsThief => ProfessionName == "Thief";
+        public bool IsThief => ProfessionName == ProfessionName.Thief;
         public int OneHandedWeaponClass => Get1HWeaponClass();
         public int TwoHandedWeaponClass => Get2HWeaponClass();
 
@@ -567,7 +567,7 @@ namespace LoDCompanion.BackEnd.Models
                 CheckWeaponRequirements();
             }
 
-            if (ProfessionName == "Wizard" && stat == BasicStat.Wisdom)
+            if (ProfessionName == ProfessionName.Wizard && stat == BasicStat.Wisdom)
             {
                 SetStat(BasicStat.Mana, GetStat(BasicStat.Wisdom));
             }
@@ -641,18 +641,18 @@ namespace LoDCompanion.BackEnd.Models
             return sb.ToString();
         }
 
-        private int GetProfessionMaxArmourType(string professionName)
+        private int GetProfessionMaxArmourType(ProfessionName professionName)
         {
             return professionName switch
             {
-                "Wizard" => 2,
-                "Thief" => 2,
-                "Rogue" => 3,
-                "Ranger" => 3,
-                "Barbarian" => 3,
-                "Alchemist" => 3,
-                "Warrior Priest" => 4,
-                "Warrior" => 4,
+                ProfessionName.Wizard => 2,
+                ProfessionName.Thief => 2,
+                ProfessionName.Rogue => 3,
+                ProfessionName.Ranger => 3,
+                ProfessionName.Barbarian => 3,
+                ProfessionName.Alchemist => 3,
+                ProfessionName.WarriorPriest => 4,
+                ProfessionName.Warrior => 4,
                 _ => 2
             };
         }
@@ -1058,7 +1058,7 @@ namespace LoDCompanion.BackEnd.Models
         HigherUndead
     }
 
-    public enum SpeciesName
+    public enum MonsterSpeciesName
     {
         Banshee,
         Basilisk,
@@ -1130,7 +1130,7 @@ namespace LoDCompanion.BackEnd.Models
 
     public class Monster : Character // Inherit from the new Character base class
     {
-        public SpeciesName Species {  get; set; }
+        public MonsterSpeciesName Species {  get; set; }
         public EncounterType? Type { get; set; }
         public int ArmourValue { get; set; }
         public int MinDamage { get; set; }
