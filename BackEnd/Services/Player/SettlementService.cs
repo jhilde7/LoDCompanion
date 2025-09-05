@@ -2501,6 +2501,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public bool IsOwned { get; set; }
         public List<EstateFurnishing> FurnishedRooms { get; set; }
+        public int EstatePrice { get; set; } = 6000;
 
         public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
         {
@@ -2522,14 +2523,135 @@ namespace LoDCompanion.BackEnd.Services.Player
             };
         }
 
-        public void GhostlyEvent()
+        public SettlementActionResult PurchaseEstate(SettlementActionResult result)
+        {
+            if(result.AvailableCoins >= EstatePrice)
+            {
+                result.AvailableCoins -= EstatePrice;
+                IsOwned = true;
+                result.Message = "The heroes now own the old Bergmeister estate.";
+                return result;
+            }
+            else
+            {
+                result.Message = "The heroes do not have enough coin to purchase the estate.";
+                result.WasSuccessful = true;
+                return result;
+            }
+        }
+
+        public async Task GhostlyEvent(Party party, TreasureService treasureService, QuestService questService)
         {
             var roll = RandomHelper.RollDie(DiceType.D10);
 
+            if (roll < 7)
+            {
+                return; // No event occurs
+            }
+
             switch (roll)
             {
+                case 1: // The Family Heirlooms
+                    var wonderfulTreasures = await treasureService.GetWonderfulTreasureAsync(2);
+                    foreach (var treasure in wonderfulTreasures)
+                    {
+                        if (treasure != null)
+                        {
+                            await BackpackHelper.AddItem(party.Heroes[0].Inventory.Backpack, treasure);
+                        }
+                    }
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.CurrentEnergy -= 1;
+                    }
+                    break;
 
-            };
+                case 2: // Guardian Spirits
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.CurrentLuck += 1;
+                    }
+                    break;
+
+                case 3: // The Hidden Treasure
+                    var sideQuestCard = new Quest { Name = "Hidden Treasure Side Quest", IsSideQuest = true };
+                    // You'll need to decide how to add this to the exploration deck
+                    // This is a simplified representation
+                    // questService.AddSideQuestToDeck(sideQuestCard);
+                    break;
+
+                case 4: // Spiritual Guides
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.SetSkill(Skill.CombatSkill, hero.GetSkill(Skill.CombatSkill) + 5);
+                        hero.SetSkill(Skill.RangedSkill, hero.GetSkill(Skill.RangedSkill) + 5);
+                    }
+                    break;
+
+                case 5: // Protector
+                    foreach (var hero in party.Heroes)
+                    {
+                        if (hero.ProfessionName == ProfessionName.Wizard)
+                        {
+                            // This would require a temporary modifier system
+                            // For now, let's represent it as a status effect
+                            var protectorEffect = new ActiveStatusEffect(StatusEffectType.ItemEffect, -1)
+                            {
+                                // Custom logic to modify miscast chance would be needed
+                            };
+                            hero.ActiveStatusEffects.Add(protectorEffect);
+                        }
+                    }
+                    break;
+
+                case 6: // The Grieving Mother
+                    var grievingMotherQuest = await questService.GetQuestByNameAsync("The Grieving Mother");
+                    if (grievingMotherQuest != null)
+                    {
+                        party.Quests.Add(grievingMotherQuest);
+                    }
+                    break;
+
+                case 7: // Angered Ghost
+                    // This would require access to the farm's state
+                    var farm = FurnishedRooms.OfType<Farm>().FirstOrDefault();
+                    if (farm != null)
+                    {
+                        // Logic to destroy rations would go here
+                    }
+                    break;
+
+                case 8: // Restless Night
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.CurrentEnergy = Math.Max(0, hero.CurrentEnergy - 2);
+                    }
+                    break;
+
+                case 9: // Lost Item
+                    var affectedHero = party.Heroes[RandomHelper.GetRandomNumber(0, party.Heroes.Count - 1)];
+                    var items = new List<Equipment?>();
+                    items.AddRange(affectedHero.Inventory.GetAllWeaponsArmour());
+                    items.AddRange(affectedHero.Inventory.Backpack.Where(i => i?.Name == "Ration"));
+
+                    if (items.Any())
+                    {
+                        var lostItem = items[RandomHelper.GetRandomNumber(0, items.Count - 1)];
+                        if (lostItem != null)
+                        {
+                            // Logic to temporarily remove the item would go here
+                        }
+                    }
+                    break;
+
+                case 10: // The Curse
+                    foreach (var hero in party.Heroes)
+                    {
+                        var curse = StatusEffectService.GetRandomCurseEffect();
+                        hero.ActiveStatusEffects.Add(curse);
+                    }
+                    break;
+            }
         }
     }
 
