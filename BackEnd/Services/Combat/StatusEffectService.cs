@@ -186,7 +186,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         DarkAsTheNight,
         PainKiller,
         BlessedWeapon,
-        BlessedArmour
+        BlessedArmour,
+        Incense,
     }
 
     /// <summary>

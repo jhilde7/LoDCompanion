@@ -642,7 +642,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 2,
                         Description = "See Special Note (Implies a detailed rule beyond the table).",
                         Value = 200,
-                        Availability = -1
+                        Availability = 6
                     },
                     new Equipment(){
                         Category = "The Dark Guild",
@@ -651,7 +651,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 1,
                         Description = "These small metal pyramids can be thrown on the floor and the unsuspecting enemy will walk on them. They cause immense pain and will disrupt the movement for anyone walking over them. (Almost like Lego). The Caltrops can be thrown in a square up to 2 squares away from the hero. Throwing them takes 1 AP and this can be done as long as there is no enemy adjacent to the thrower. Any enemy walking over the square with no armour will suffer 1d4 Points of Damage and will stop its turn immediately.",
                         Value = 50,
-                        Availability = -1
+                        Availability = 6
                     },
                     new Equipment(){
                         Category = "The Dark Guild",
@@ -660,7 +660,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 1,
                         Description = "By spending 1 turn before opening a door, you can slide the mirror underneath the door and get a grip of the room on the other side. You may draw the Exploration Card and roll for an Encounter before opening the door. The party may add 2 hero initiative tokens to the bag if there is an encounter behind the door.",
                         Value = 300,
-                        Availability = -1
+                        Availability = 6
                     },
                     new Equipment(){
                         Category = "The Dark Guild",
@@ -670,7 +670,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 1,
                         Description = "These lock picks are Dwarven-made with extreme precision. They give +5 Lock picking skill.",
                         Value = 75,
-                        Availability = -1
+                        Availability = 6
                     },
                     new Equipment(){
                         Category = "The Dark Guild",
@@ -679,7 +679,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 6,
                         Description = "A Dwarven-made kit with perfect tolerances and smooth surfaces. Gives a +15 modifier to any attempt to disarm a trap.",
                         Value = 250,
-                        Availability = -1
+                        Availability = 6
                     },
                     new Equipment(){
                         Category = "The Dark Guild",
@@ -688,7 +688,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Durability = 1,
                         Description = "See Special Note (Implies a detailed rule beyond the table, specifically for Wandering Monsters).",
                         Value = 150,
-                        Availability = -1
+                        Availability = 6
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
@@ -728,7 +728,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     },
                     new Equipment(){
                         Category = "Rangers Guild",
-                        Name = "Wild game traps",
+                        Name = "Wild Game Traps",
                         Encumbrance = 3,
                         Durability = 6,
                         Description = "These traps will make catching animals much easier and confers a +10 modifier when rolling a Foraging roll to catch animals. Can be kept in the backpack all the time.",
@@ -740,9 +740,10 @@ namespace LoDCompanion.BackEnd.Services.GameData
                         Name = "Incense",
                         Encumbrance = 1,
                         Durability = 1,
-                        Description = "Increases the Prayer skill with +5. Enough for 1 skirmish or 1 dungeon. May be lit in a quick slot during skirmish setup or before entering a dungeon.",
+                        Description = "Increases the Battle Prayers skill with +5. Enough for 1 skirmish or 1 dungeon. May be lit in a quick slot during skirmish setup or before entering a dungeon.",
                         Value = 40,
-                        Availability = 4
+                        Availability = 4,
+                        ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.Incense, -1, skillBonus: (Skill.BattlePrayers, 5), removeEndOfDungeon: true)]
                     },
                     new Equipment()
                     {
