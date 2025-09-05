@@ -78,6 +78,11 @@ namespace LoDCompanion.BackEnd.Services.Player
                     .First();
                 var rollResult = await _userRequest.RequestRollAsync("Roll for foraging skill check", "1d100", skill: (heroWithHighestSkill, Skill.Foraging));
                 var roll = rollResult.Roll;
+                var skillTarget = heroWithHighestSkill.GetSkill(Skill.Foraging);
+
+                var wildGameTraps = heroWithHighestSkill.Inventory.Backpack.FirstOrDefault(i => i != null && i.Name == "Wild Game Traps");
+                if (wildGameTraps != null) skillTarget += 10;
+
                 if (heroWithHighestSkill != null && roll <= heroWithHighestSkill.GetSkill(Skill.Foraging))
                 {
                     if (heroWithHighestSkill.ProfessionName == ProfessionName.Ranger)
