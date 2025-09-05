@@ -286,7 +286,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         SettlementActionType.Gambling,
                         SettlementActionType.RestRecuperation,
                         SettlementActionType.TendThoseMemories,
-                        SettlementActionType.EnchantObjects,
+                        SettlementActionType.EnchantItems,
                         SettlementActionType.CreateScroll
                     };
         }
@@ -2301,6 +2301,18 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public class Kennel : EstateFurnishing
+    {
+        public Kennel()
+        {
+            Name = EstateRoomName.Kennel;
+            Cost = 75;
+            Description = "With a kennel, you can leave any dogs you own between quests, if you decide not to bring them.";
+        }
+
+        //TODO: add actions based on companion module
+    }
+
     public class TrainingGrounds : EstateFurnishing
     {
         public TrainingGrounds()
@@ -2321,6 +2333,26 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public class WizardsStudy : EstateFurnishing
+    {
+        public WizardsStudy()
+        {
+            Name = EstateRoomName.WizardsStudy;
+            Cost = 500;
+            Description = "This room is equipped with everything a wizard could possibly need.";
+        }
+
+        public async Task<SettlementActionResult> CreateScroll(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            return await Inn.CreateScroll(hero, result, userRequest, bonusModifier: 10);
+        }
+
+        public async Task<SettlementActionResult> EnchantItemAsync(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            return await Inn.EnchantItemAsync(hero, result, userRequest, bonusModifier: 10);
+        }
+    }
+
     public class Estate : ServiceLocation
     {
         public bool IsOwned { get; set; }
@@ -2338,19 +2370,9 @@ namespace LoDCompanion.BackEnd.Services.Player
                 new AlchemistLab(),
                 new ArcheryRange(),
                 new Farm(),
-                new EstateFurnishing()
-                {
-                    Name = EstateRoomName.Kennel,
-                    Cost = 75,
-                    Description = "With a kennel, you can leave any dogs you own between quests, if you decide not to bring them."
-                },
+                new Kennel(),
                 new TrainingGrounds(),
-                new EstateFurnishing()
-                {
-                    Name = EstateRoomName.WizardsStudy,
-                    Cost = 500,
-                    Description = "This room is equipped with everything a wizard could possibly need."
-                },
+                new WizardsStudy(),
                 new EstateFurnishing()
                 {
                     Name = EstateRoomName.Shrine,

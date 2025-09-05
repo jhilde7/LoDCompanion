@@ -20,7 +20,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         CreateScroll,
         CureDiseasePoison,
         CurePoison,
-        EnchantObjects,
+        EnchantItems,
         Gambling,
         HorseRacing,
         IdentifyMagicItem,
@@ -140,7 +140,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (Inn inn, SettlementActionType.CreateScroll):
                     result = await Inn.CreateScroll(hero, result, _userRequest);
                     break;
-                case (Inn inn, SettlementActionType.EnchantObjects): 
+                case (Inn inn, SettlementActionType.EnchantItems): 
                     result = await Inn.EnchantItemAsync(hero, result, _userRequest);
                     break;
                 case (FortuneTeller fortuneTeller, SettlementActionType.ReadFortune):
@@ -305,6 +305,30 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         result.Message = "There is no Estate or Training Grounds in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.CreateScroll):
+                    var wizardsStudy = (WizardsStudy?)estate.FurnishedRooms.FirstOrDefault(r => r is WizardsStudy);
+                    if (wizardsStudy != null && wizardsStudy.IsOwned)
+                    {
+                        result = await wizardsStudy.CreateScroll(hero, result, _userRequest);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Wizards Study in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.EnchantItems):
+                    wizardsStudy = (WizardsStudy?)estate.FurnishedRooms.FirstOrDefault(r => r is WizardsStudy);
+                    if (wizardsStudy != null && wizardsStudy.IsOwned)
+                    {
+                        result = await wizardsStudy.EnchantItemAsync(hero, result, _userRequest);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Wizards Study in this settlement.";
                         result.WasSuccessful = false;
                     }
                     break;
