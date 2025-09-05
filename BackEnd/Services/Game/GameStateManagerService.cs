@@ -8,6 +8,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         public Party? CurrentParty { get; set; }
         public DungeonState? CurrentDungeon { get; set; }
         public string? CurrentLocationUrl { get; set; }
+        public List<Settlement>? Settlements { get; set; }
     }
 
     public class GameStateManagerService
