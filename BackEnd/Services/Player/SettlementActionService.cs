@@ -30,7 +30,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         Pray,
         ReadFortune,
         RestRecuperation,
-        SkillTraining,
+        RangedSkillTraining,
         TendThoseMemories,
         TreatMentalConditions,
         CollectQuestRewards,
@@ -41,6 +41,15 @@ namespace LoDCompanion.BackEnd.Services.Player
         RepairArmour,
         CheckBounties,
         BlessArmourAndWeapons,
+        CombatSkillTraining,
+        DodgeTraining,
+        PickLocksTraining,
+        PerceptionTraining,
+        HealTraining,
+        ArcaneArtsTraining,
+        AlchemyTraining,
+        ForagingTraining,
+        BattlePrayersTraining,
     }
 
     public class SettlementActionResult
@@ -125,10 +134,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     result = await sickWard.VisitSickWard(hero, result, _userRequest);
                     break;
                 case (Inn inn, SettlementActionType.CreateScroll):
-                    result = await inn.CreateScroll(hero, result, _userRequest);
+                    result = await Inn.CreateScroll(hero, result, _userRequest);
                     break;
                 case (Inn inn, SettlementActionType.EnchantObjects): 
-                    result = await inn.EnchantItemAsync(hero, result, _userRequest);
+                    result = await Inn.EnchantItemAsync(hero, result, _userRequest);
                     break;
                 case (FortuneTeller fortuneTeller, SettlementActionType.ReadFortune):
                     result = await fortuneTeller.ReadFortune(hero, result, _userRequest, _powerActivation);
@@ -145,12 +154,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (ServiceLocation, SettlementActionType.IdentifyPotion):
                     result = await GeneralStore.IdentifyPotion(hero, result, _userRequest);
                     break;
-                case (WizardsGuild wizardsGuild, SettlementActionType.LearnSpell):
-                    result = await wizardsGuild.LearnSpell(hero, result, _userRequest);
-                    break;
-                case (TheInnerSanctum theInnerSanctum, SettlementActionType.LearnPrayer):
-                    result = await theInnerSanctum.LearnPrayer(hero, result, _userRequest);
-                    break;
                 case (ServiceLocation, SettlementActionType.LevelUp):
                     result = await LevelupHero(hero, result);
                     break;
@@ -163,14 +166,119 @@ namespace LoDCompanion.BackEnd.Services.Player
                 case (TheAsylum asylum, SettlementActionType.TreatMentalConditions):
                     result = await asylum.TreatMentalConditions(hero, result, _userRequest);
                     break;
+                case (TheDarkGuild guild, SettlementActionType.CombatSkillTraining):
+                    result = guild.Train(hero, result, Skill.CombatSkill);
+                    break;
+                case (TheDarkGuild guild, SettlementActionType.RangedSkillTraining):
+                    result = guild.Train(hero, result, Skill.RangedSkill);
+                    break;
+                case (TheDarkGuild guild, SettlementActionType.PickLocksTraining):
+                    result = guild.Train(hero, result, Skill.PickLocks);
+                    break;
+                case (TheDarkGuild guild, SettlementActionType.PerceptionTraining):
+                    result = guild.Train(hero, result, Skill.Perception);
+                    break;
+                case (FightersGuild guild, SettlementActionType.CombatSkillTraining):
+                    result = guild.Train(hero, result, Skill.CombatSkill);
+                    break;
+                case (FightersGuild guild, SettlementActionType.HealTraining):
+                    result = guild.Train(hero, result, Skill.Heal);
+                    break;
+                case (FightersGuild guild, SettlementActionType.DodgeTraining):
+                    result = guild.Train(hero, result, Skill.Dodge);
+                    break;
+                case (WizardsGuild guild, SettlementActionType.LearnSpell):
+                    result = await guild.LearnSpell(hero, result, _userRequest);
+                    break;
                 case (WizardsGuild guild, SettlementActionType.ChargeMagicItem):
                     result = await guild.ChargeMagicItem(hero, result, _userRequest);
+                    break;
+                case (WizardsGuild guild, SettlementActionType.ArcaneArtsTraining):
+                    result = guild.Train(hero, result, Skill.ArcaneArts);
+                    break;
+                case (WizardsGuild guild, SettlementActionType.HealTraining):
+                    result = guild.Train(hero, result, Skill.Heal);
+                    break;
+                case (WizardsGuild guild, SettlementActionType.PerceptionTraining):
+                    result = guild.Train(hero, result, Skill.Perception);
+                    break;
+                case (AlchemistsGuild guild, SettlementActionType.AlchemyTraining):
+                    result = guild.Train(hero, result, Skill.Alchemy);
+                    break;
+                case (AlchemistsGuild guild, SettlementActionType.HealTraining):
+                    result = guild.Train(hero, result, Skill.Heal);
+                    break;
+                case (AlchemistsGuild guild, SettlementActionType.PerceptionTraining):
+                    result = guild.Train(hero, result, Skill.Perception);
+                    break;
+                case (RangersGuild guild, SettlementActionType.CombatSkillTraining):
+                    result = guild.Train(hero, result, Skill.CombatSkill);
+                    break;
+                case (RangersGuild guild, SettlementActionType.RangedSkillTraining):
+                    result = guild.Train(hero, result, Skill.RangedSkill);
+                    break;
+                case (RangersGuild guild, SettlementActionType.DodgeTraining):
+                    result = guild.Train(hero, result, Skill.Dodge);
+                    break;
+                case (RangersGuild guild, SettlementActionType.HealTraining):
+                    result = guild.Train(hero, result, Skill.Heal);
+                    break;
+                case (RangersGuild guild, SettlementActionType.ForagingTraining):
+                    result = guild.Train(hero, result, Skill.Foraging);
+                    break;
+                case (TheInnerSanctum guild, SettlementActionType.LearnPrayer):
+                    result = await guild.LearnPrayer(hero, result, _userRequest);
                     break;
                 case (TheInnerSanctum guild, SettlementActionType.BlessArmourAndWeapons):
                     result = await guild.BlessArmourAndWeapons(hero, result, _userRequest);
                     break;
                 case (TheInnerSanctum guild, SettlementActionType.StartCrusade):
                     result = guild.StartCrusade(hero, result);
+                    break;
+                case (TheInnerSanctum guild, SettlementActionType.CombatSkillTraining):
+                    result = guild.Train(hero, result, Skill.CombatSkill);
+                    break;
+                case (TheInnerSanctum guild, SettlementActionType.DodgeTraining):
+                    result = guild.Train(hero, result, Skill.Dodge);
+                    break;
+                case (TheInnerSanctum guild, SettlementActionType.BattlePrayersTraining):
+                    result = guild.Train(hero, result, Skill.BattlePrayers);
+                    break;
+                case (Estate estate, SettlementActionType.RangedSkillTraining):
+                    var archeryRange = (ArcheryRange?)estate.FurnishedRooms.FirstOrDefault(r => r is ArcheryRange);
+                    if (archeryRange != null && archeryRange.IsOwned)
+                    {
+                        result = archeryRange.Train(hero, result);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Archery Range in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.CombatSkillTraining):
+                    var trainingGrounds = (TrainingGrounds?)estate.FurnishedRooms.FirstOrDefault(r => r is TrainingGrounds);
+                    if (trainingGrounds != null && trainingGrounds.IsOwned)
+                    {
+                        result = trainingGrounds.Train(hero, result, Skill.CombatSkill);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Training Grounds in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.DodgeTraining):
+                    trainingGrounds = (TrainingGrounds?)estate.FurnishedRooms.FirstOrDefault(r => r is TrainingGrounds);
+                    if (trainingGrounds != null && trainingGrounds.IsOwned)
+                    {
+                        result = trainingGrounds.Train(hero, result, Skill.Dodge);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Training Grounds in this settlement.";
+                        result.WasSuccessful = false;
+                    }
                     break;
             }
 

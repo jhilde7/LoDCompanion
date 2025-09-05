@@ -8,6 +8,7 @@ using LoDCompanion.BackEnd.Services.Utilities;
 using RogueSharp;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static LoDCompanion.BackEnd.Services.Player.EstateFurnishing;
 using static LoDCompanion.BackEnd.Services.Player.ServiceLocation;
 
 namespace LoDCompanion.BackEnd.Services.Player
@@ -332,7 +333,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        public async Task<SettlementActionResult> EnchantItemAsync(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        public static async Task<SettlementActionResult> EnchantItemAsync(Hero hero, SettlementActionResult result, UserRequestService userRequest, int bonusModifier = 0)
         {
             if (hero.ProfessionName != "Wizard")
             {
@@ -411,7 +412,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             selectedEquipment = BackpackHelper.TakeOneItem(hero.Inventory.Backpack, selectedEquipment);
 
             var rollResult = await userRequest.RequestRollAsync("Roll arcane arts skill check.", "1d100", skill: (hero, Skill.ArcaneArts));
-            var skillTarget = hero.GetSkill(Skill.ArcaneArts);
+            var skillTarget = hero.GetSkill(Skill.ArcaneArts) + bonusModifier;
 
             if (rollResult.Roll > skillTarget)
             {
@@ -457,7 +458,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        public async Task<SettlementActionResult> CreateScroll(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        public static async Task<SettlementActionResult> CreateScroll(Hero hero, SettlementActionResult result, UserRequestService userRequest, int bonusModifier = 0)
         {
             if (hero.ProfessionName != "Wizard")
             {
@@ -496,7 +497,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 BackpackHelper.TakeOneItem(hero.Inventory.Backpack, scroll);
                 var rollResult = await userRequest.RequestRollAsync("Roll arcane arts skill check.", "1d100", skill: (hero, Skill.ArcaneArts));
                 await Task.Yield();
-                var skillTarget = hero.GetSkill(Skill.ArcaneArts);
+                var skillTarget = hero.GetSkill(Skill.ArcaneArts) + bonusModifier;
                 if (rollResult.Roll > skillTarget || hero.Spells == null)
                 {
                     result.Message += $"{hero.Name} fails to create a scroll.";
@@ -521,7 +522,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             var estate = Settlement.State.Estate;
             //The party owns an estate in this settlement (free stay)
-            if (estate != null)
+            if (estate != null && estate.IsOwned)
             {
                 result.Message = "The party rests comfortably in their estate.";
                 result.AvailableCoins = await PerformRest(party, 0, result.AvailableCoins, false, userRequest); // Free rest, not in stables
@@ -1552,6 +1553,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public GodName GodName { get; set; }
         public string Description { get; set; } = string.Empty;
         public int CostToPray { get; set; } = 50;
+        public int RollForBoon { get; set; } = 3;
         public string DiceToPray { get; set; } = "1d6";
         public ActiveStatusEffect? GrantedEffect { get; set; }
 
@@ -1565,8 +1567,10 @@ namespace LoDCompanion.BackEnd.Services.Player
                     };
         }
 
-        public async Task<SettlementActionResult> Pray(Hero hero, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation)
+        public async Task<SettlementActionResult> Pray(Hero hero, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation, bool isShrine = false)
         {
+            if (isShrine) RollForBoon = 4;
+            if (hero.ProfessionName == "Warrior Priest") RollForBoon = 5;
             if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
             {
                 result.Message = $"{hero.Name} has already offered prayers during this visit.";
@@ -1578,7 +1582,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 var rollResult = await userRequest.RequestRollAsync($"Roll to see if {GodName.ToString()} listens.", DiceToPray);
                 await Task.Yield();
-                if ((rollResult.Roll <= 3 || hero.ProfessionName == "Warrior Priest" && rollResult.Roll <= 5) && GrantedEffect != null)
+                if (rollResult.Roll <= RollForBoon && GrantedEffect != null)
                 {
                     result.Message = $"{GodName.ToString()} hears your prayer and decides to grant you a boon.";
                     if (GodName == GodName.Ohlnir)
@@ -1642,14 +1646,8 @@ namespace LoDCompanion.BackEnd.Services.Player
             var skillToTrain = AvailableSkillTraining.FirstOrDefault(s => s.Item1 == skill);
             if(CanTrain(hero))
             {
-                if(skillToTrain.Item1 == skill && hero.Coins + hero.Party.Coins >= SkillTrainingFee)
+                if(skillToTrain.Item1 == skill)
                 {
-                    var remainingTrainingFee = SkillTrainingFee - hero.Coins;
-                    hero.Coins -= SkillTrainingFee;
-                    if (remainingTrainingFee > 0)
-                    {
-                        hero.Party.Coins -= remainingTrainingFee;
-                    }
                     hero.SetSkill(skill, hero.GetSkill(skill) + 3);
                 }
                 else return false;
@@ -1657,6 +1655,29 @@ namespace LoDCompanion.BackEnd.Services.Player
                 QuestsBeforeNextTraining[hero] = 2;
             }
             return false;
+        }
+
+        public SettlementActionResult Train(Hero hero, SettlementActionResult result, Skill skillToTrain)
+        {
+            if (result.AvailableCoins >= SkillTrainingFee)
+            {
+                if (AttemptToTrainHeroSkill(hero, skillToTrain))
+                {
+                    result.Message = $"{hero.Name} successfully trained {skillToTrain.ToString()} adding 3 to its value.";
+                    result.AvailableCoins -= SkillTrainingFee;
+                }
+                else
+                {
+                    result.Message = $"{hero.Name} failed to train {skillToTrain.ToString()}.";
+                    result.WasSuccessful = false;
+                }
+            }
+            else
+            {
+                result.Message = $"{hero.Name} does not have enough coin to train {skillToTrain.ToString()}.";
+                result.WasSuccessful = false;
+            }
+            return result;
         }
     }
 
@@ -2057,12 +2078,137 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public enum EstateRoomName
+    {
+        AlchemistLab,
+        ArcheryRange,
+        CropsHenHouseAndPigsty,
+        Kennel,
+        TrainingGrounds,
+        WizardsStudy,
+        Shrine,
+        Smithy
+    }
+
+    public class EstateFurnishing
+    {
+        public EstateRoomName Name { get; set; }
+        public int Cost { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public bool IsOwned { get; set; }
+        public int DungeonsBetweeUses { get; set; }
+        public int DungeonsUntilUsable { get; set; }
+    }
+
+    public class AlchemistLab : EstateFurnishing
+    {
+        public AlchemistLab()
+        {
+            Name = EstateRoomName.AlchemistLab;
+            Cost = 500;
+            Description = "This room is specially tailored to fit every need of an alchemist. A single Recipe can be made here between dungeons.";
+            DungeonsBetweeUses = 1;
+        }
+    }
+
+    public class ArcheryRange : EstateFurnishing
+    {
+        public ArcheryRange()
+        {
+            Name = EstateRoomName.ArcheryRange;
+            Cost = 500;
+            Description = "With a fully-fledged archery range, heroes staying at the manor may increase their Ranged Skill.";
+            DungeonsBetweeUses = 1;
+        }
+
+        public SettlementActionResult Train(Hero hero, SettlementActionResult result)
+        {
+            int trainedAmount = RandomHelper.RollDie(DiceType.D2);
+            hero.SetSkill(Skill.RangedSkill, trainedAmount);
+            result.Message = $"{hero.Name} trainedthe whole day and improved their RangedSkill by {trainedAmount}.";
+            DungeonsUntilUsable = DungeonsBetweeUses;
+            return result;
+        }
+    }
+
+    public class TrainingGrounds : EstateFurnishing
+    {
+        public TrainingGrounds()
+        {
+            Name = EstateRoomName.TrainingGrounds;
+            Cost = 500;
+            Description = "Any hero who spends time at the training grounds may choose to increase either their Combat Skill or Dodge.";
+            DungeonsBetweeUses = 1;
+        }
+
+        public SettlementActionResult Train(Hero hero, SettlementActionResult result, Skill skillToTrain)
+        {
+            int trainedAmount = RandomHelper.RollDie(DiceType.D2);
+            hero.SetSkill(skillToTrain, trainedAmount);
+            result.Message = $"{hero.Name} trainedthe whole day and improved their {skillToTrain} by {trainedAmount}.";
+            DungeonsUntilUsable = DungeonsBetweeUses;
+            return result;
+        }
+    }
+
     public class Estate : ServiceLocation
     {
+        public bool IsOwned { get; set; }
+        public List<EstateFurnishing> FurnishedRooms { get; set; }
 
         public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
         {
+            FurnishedRooms = GetFurnishings();
+        }
 
+        public List<EstateFurnishing> GetFurnishings()
+        {
+            return new()
+            {
+                new AlchemistLab(),
+                new ArcheryRange(),
+                new EstateFurnishing()
+                {
+                    Name = EstateRoomName.CropsHenHouseAndPigsty,
+                    Cost = 200,
+                    Description = "As long as one of the heroes spends at least a full day tending to the farm, the party will receive a number of rations for free."
+                },
+                new EstateFurnishing()
+                {
+                    Name = EstateRoomName.Kennel,
+                    Cost = 75,
+                    Description = "With a kennel, you can leave any dogs you own between quests, if you decide not to bring them."
+                },
+                new TrainingGrounds(),
+                new EstateFurnishing()
+                {
+                    Name = EstateRoomName.WizardsStudy,
+                    Cost = 500,
+                    Description = "This room is equipped with everything a wizard could possibly need."
+                },
+                new EstateFurnishing()
+                {
+                    Name = EstateRoomName.Shrine,
+                    Cost = 350,
+                    Description = "A room can be turned into a dedicated shrine for a god of the hero's choice. Only one shrine can be built."
+                },
+                new EstateFurnishing()
+                {
+                    Name = EstateRoomName.Smithy,
+                    Cost = 350,
+                    Description = "An old smithy on the estate can be turned into a fully functioning workshop."
+                }
+            };
+        }
+
+        public void GhostlyEvent()
+        {
+            var roll = RandomHelper.RollDie(DiceType.D10);
+
+            switch (roll)
+            {
+
+            };
         }
     }
 
@@ -2071,28 +2217,30 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly UserRequestService _userRequest;
         private readonly QuestService _quest;
         private readonly PartyManagerService _partyManager;
-        private readonly TreasureService _treasure;
         private readonly GameDataService _gameData;
         private readonly EncounterService _encounter;
+        private readonly GameState _gameState;
 
-        public List<Settlement> Settlements => GetSettlements();
+        private List<Settlement> _settlements;
+        public List<Settlement> Settlements => _settlements;
 
         public SettlementService(
             UserRequestService userRequestService, 
             QuestService questService,
             PartyManagerService partyManager,
-            TreasureService treasure,
             GameDataService gameData,
-            EncounterService encounter)
+            EncounterService encounter,
+            GameState gameState)
         {
             _userRequest = userRequestService;
             _quest = questService;
             _partyManager = partyManager;
-            _treasure = treasure;
             _gameData = gameData;
             _encounter = encounter;
 
-
+            _gameState = gameState;
+            _gameState.Settlements = GetSettlements();
+            _settlements = _gameState.Settlements;
         }
 
         public void StartNewDay(Settlement settlement)
@@ -2419,6 +2567,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 "2d20",
                 QuestColor.White
             );
+            settlement.State.Estate = new(settlement);
             settlement.State.Inn = new (settlement)
             {
                 Price = 25
