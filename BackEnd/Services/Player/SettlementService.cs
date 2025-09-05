@@ -2281,6 +2281,26 @@ namespace LoDCompanion.BackEnd.Services.Player
         }
     }
 
+    public class Farm : EstateFurnishing
+    {
+        public Farm()
+        {
+            Name = EstateRoomName.CropsHenHouseAndPigsty;
+            Cost = 200;
+            Description = "As long as one of the heroes spends at least a full day tending to the farm, the party will receive a number of rations for free.";
+        }
+
+        public async Task<SettlementActionResult> TendFarmAsync(Hero hero, SettlementActionResult result)
+        {
+            var rations = RandomHelper.RollDie(DiceType.D8);
+            var ration = EquipmentService.GetEquipmentByNameSetQuantity("Ration", rations);
+            await BackpackHelper.AddItem(hero.Inventory.Backpack, ration);
+
+            result.Message = $"{hero.Name} tended the farm and received {rations} rations.";
+            return result;
+        }
+    }
+
     public class TrainingGrounds : EstateFurnishing
     {
         public TrainingGrounds()
@@ -2317,12 +2337,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 new AlchemistLab(),
                 new ArcheryRange(),
-                new EstateFurnishing()
-                {
-                    Name = EstateRoomName.CropsHenHouseAndPigsty,
-                    Cost = 200,
-                    Description = "As long as one of the heroes spends at least a full day tending to the farm, the party will receive a number of rations for free."
-                },
+                new Farm(),
                 new EstateFurnishing()
                 {
                     Name = EstateRoomName.Kennel,

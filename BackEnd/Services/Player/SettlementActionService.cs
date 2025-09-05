@@ -53,6 +53,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         AddShieldPadding,
         AddArmourPadding,
         ApplySlayerWeaponTreatment,
+        TendFarm,
     }
 
     public class SettlementActionResult
@@ -268,6 +269,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                     else
                     {
                         result.Message = "There is no Estate or Archery Range in this settlement.";
+                        result.WasSuccessful = false;
+                    }
+                    break;
+                case (Estate estate, SettlementActionType.TendFarm):
+                    var farm = (Farm?)estate.FurnishedRooms.FirstOrDefault(r => r is Farm);
+                    if (farm != null && farm.IsOwned)
+                    {
+                        result = await farm.TendFarmAsync(hero, result);
+                    }
+                    else
+                    {
+                        result.Message = "There is no Estate or Farm in this settlement.";
                         result.WasSuccessful = false;
                     }
                     break;

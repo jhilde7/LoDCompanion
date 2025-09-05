@@ -82,6 +82,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     Name = "Stray dog",
                     Description = "Nothing special happens",
+                    //TODO: add on for companions
                         //"The party is followed through the streets by a stray dog after receiving a small treat from one of the heroes. It seems that you now are the proud owners of a dog. Randomise what kind of dog, using the Companions' Compendium. If you do not own this compendium, or if you already have a dog, treat this result as: 'Nothing special happens'.",
                     //Execute = (context.PartyManager, context.UserRequest) => { /* Add logic for stray dog event */ }
                 },
