@@ -96,6 +96,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public Settlement Settlement { get; set; }
         public int CurrentDay { get; set; } = 1;
+        public int DungeonsBetweenVisits { get; set; }
         public Dictionary<Hero, int> HeroActionPoints { get; set; } = new Dictionary<Hero, int>();
         public Dictionary<Hero, (SettlementActionType Action, int DaysRemaining)> BusyHeroes { get; set; } = new Dictionary<Hero, (SettlementActionType, int)>();
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new List<ActiveStatusEffect>();
@@ -335,7 +336,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public static async Task<SettlementActionResult> EnchantItemAsync(Hero hero, SettlementActionResult result, UserRequestService userRequest, int bonusModifier = 0)
         {
-            if (hero.ProfessionName != "Wizard")
+            if (hero.ProfessionName != ProfessionName.Wizard)
             {
                 result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
                 result.WasSuccessful = false;
@@ -460,7 +461,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public static async Task<SettlementActionResult> CreateScroll(Hero hero, SettlementActionResult result, UserRequestService userRequest, int bonusModifier = 0)
         {
-            if (hero.ProfessionName != "Wizard")
+            if (hero.ProfessionName != ProfessionName.Wizard)
             {
                 result.Message = $"{hero.Name} is not proficient enough in the arcane arts.";
                 result.WasSuccessful = false;
@@ -1570,7 +1571,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public async Task<SettlementActionResult> Pray(Hero hero, SettlementActionResult result, UserRequestService userRequest, PowerActivationService powerActivation, bool isShrine = false)
         {
             if (isShrine) RollForBoon = 4;
-            if (hero.ProfessionName == "Warrior Priest") RollForBoon = 5;
+            if (hero.ProfessionName == ProfessionName.WarriorPriest) RollForBoon = 5;
             if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
             {
                 result.Message = $"{hero.Name} has already offered prayers during this visit.";
@@ -1617,7 +1618,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class Guild : ServiceLocation
     {
-        public List<Profession> AllowedToEnter { get; set; } = new();
+        public List<ProfessionName> AllowedToEnter { get; set; } = new();
         public List<(Skill, int)> AvailableSkillTraining { get; set; } = new();
         public int SkillTrainingFee { get; set; }
         public Dictionary<Hero, int> QuestsBeforeNextTraining { get; set; } = new();
@@ -1625,11 +1626,6 @@ namespace LoDCompanion.BackEnd.Services.Player
         public Guild(SettlementServiceName name, Settlement settlement) : base(name, settlement)
         {
             Settlement = settlement;
-
-            AvailableActions = new List<SettlementActionType>
-                    {
-                        SettlementActionType.BuyingAndSelling
-                    };
         }
 
         public bool CanTrain(Hero hero)
@@ -1686,10 +1682,14 @@ namespace LoDCompanion.BackEnd.Services.Player
         public TheDarkGuild(Settlement settlement) : base(SettlementServiceName.TheDarkGuild, settlement)
         {
             Settlement = settlement;
-
+            AllowedToEnter = new() { ProfessionName.Thief, ProfessionName.Rogue };
             AvailableActions = new List<SettlementActionType>
                     {
-                        SettlementActionType.BuyingAndSelling
+                        SettlementActionType.BuyingAndSelling,
+                        SettlementActionType.CombatSkillTraining,
+                        SettlementActionType.RangedSkillTraining,
+                        SettlementActionType.PickLocksTraining,
+                        SettlementActionType.PerceptionTraining,
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.RangedSkill, 3), (Skill.PickLocks, 3), (Skill.Perception, 3) };
             SkillTrainingFee = 300;
@@ -1698,6 +1698,7 @@ namespace LoDCompanion.BackEnd.Services.Player
 
     public class Bounty
     {
+        public string BountyName { get; set; }
         public Monster Monster { get; private set; }
         public int Value { get; private set; }
         public int TargetAmount { get; private set; }
@@ -1707,6 +1708,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             Monster = monster;
             SetTargetAndValue();
+            BountyName = $"Kill {TargetAmount} {Monster.Name}";
         }
 
         private void SetTargetAndValue()
@@ -1716,6 +1718,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 TargetAmount++;
             }
+            Value *= TargetAmount;
         }
     }
 
@@ -1723,29 +1726,36 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public EncounterService Encounter { get; set; }
         public List<Bounty>? WantedBounties { get; set; }
+        public bool BountiesHaveBeenChecked { get; set; }
+        public int ShieldPaddingPrice { get; set; } = 15;
+        public int ArmourPaddingPricePerArea { get; set; } = 50;
+        public int SlayerTreatmentPrice { get; set; } = 100;
 
+
+        public override void RefreshStockForNewVisit()
+        {
+            base.RefreshStockForNewVisit();
+            // Reset the stock, so it will be regenerated on the next access.
+            BountiesHaveBeenChecked = false;
+        }
         public FightersGuild(Settlement settlement, EncounterService encounter) : base(SettlementServiceName.FightersGuild, settlement)
         {
             Settlement = settlement;
             Encounter = encounter;
-
+            AllowedToEnter = new() { ProfessionName.Warrior, ProfessionName.Barbarian };
             AvailableActions = new List<SettlementActionType>
                     {
                         SettlementActionType.BuyingAndSelling,
-                        SettlementActionType.CheckBounties
+                        SettlementActionType.CheckBounties,
+                        SettlementActionType.CombatSkillTraining,
+                        SettlementActionType.HealTraining,
+                        SettlementActionType.DodgeTraining,
+                        SettlementActionType.AddShieldPadding,
+                        SettlementActionType.AddArmourPadding,
+                        SettlementActionType.ApplySlayerWeaponTreatment,
                     };
             AvailableSkillTraining = new List<(Skill, int)> { (Skill.CombatSkill, 3), (Skill.Heal, 3), (Skill.Dodge, 3) };
             SkillTrainingFee = 300;
-        }
-
-        public override void RefreshStockForNewVisit()
-        {
-            //Call the base class method to reset the stock
-            base.RefreshStockForNewVisit();
-            if (Name == SettlementServiceName.FightersGuild && Encounter != null)
-            {
-                WantedBounties = GetFightersGuildBountyHuntList(Encounter);
-            }
         }
 
         private List<Bounty> GetFightersGuildBountyHuntList(EncounterService encounter)
@@ -1762,6 +1772,160 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             return currentBounties;
         }
+
+        public SettlementActionResult CheckBounties(Hero hero, SettlementActionResult result)
+        {
+            foreach (var bounty in hero.Party.FightersGuildBounties)
+            {
+                if (bounty.TargetAmount <= bounty.AmountKilled)
+                {
+                    result.AvailableCoins += bounty.Value;
+                    result.Message = $"The heroes completed the bounty hunt: {bounty.BountyName} for {bounty.Value}c.";
+                    WantedBounties = null;
+                }
+            }
+
+            if (!BountiesHaveBeenChecked || WantedBounties == null) WantedBounties = GetFightersGuildBountyHuntList(Encounter);
+            hero.Party.FightersGuildBounties = WantedBounties;
+            BountiesHaveBeenChecked = true;
+
+            return result;
+        }
+
+        public async Task<SettlementActionResult> AddShieldPadding(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isShopping = true;
+            while (isShopping)
+            {
+                var shields = hero.Inventory.GetAllWeaponsArmour()
+                    .OfType<Shield>()
+                    .Where(item => item is Shield shield && !shield.HasShieldPadding && ShieldPaddingPrice < result.AvailableCoins)
+                    .ToList();
+
+                if (!shields.Any())
+                {
+                    result.Message += "You have no shields eligible for padding.";
+                    break;
+                }
+
+                var choiceResult = await userRequest.RequestChoiceAsync(
+                    "Which shield will be padded?",
+                    shields,
+                    shield => $"{shield.Name} MaxDurability: {shield.MaxDurability} > {shield.MaxDurability + 1} Encumbrance: {shield.Encumbrance} > {shield.Encumbrance + 1} Cost: {ShieldPaddingPrice}c",
+                    canCancel: true);
+                await Task.Yield();
+
+                if (choiceResult.WasCancelled || choiceResult.SelectedOption == null)
+                {
+                    result.Message += "Shield padding was cancelled.";
+                    break;
+                }
+
+                var shield = choiceResult.SelectedOption;
+                if (shield.AttemptToApplyShieldPadding())
+                {
+                    result.Message += $"Shield padding was successfully applied to {shield.Name}.";
+                    result.AvailableCoins -= ShieldPaddingPrice;
+                }
+                else
+                {
+                    result.Message += $"Padding {shield.Name} was unsuccessful.";
+                    result.WasSuccessful = false;
+                } 
+            }
+            return result;
+        }
+
+        public async Task<SettlementActionResult> AddArmourPadding(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isShopping = true;
+            while (isShopping)
+            {
+                var armourList = hero.Inventory.GetAllWeaponsArmour()
+                    .OfType<Armour>()
+                    .Where(item => item is Armour armour && !armour.HasArmourPadding && armour.ArmourClass < 4 && armour.CoverageCount * ArmourPaddingPricePerArea < result.AvailableCoins)
+                    .ToList();
+
+                if (!armourList.Any())
+                {
+                    result.Message += "You have no armour eligible for padding.";
+                    break;
+                }
+
+                var choiceResult = await userRequest.RequestChoiceAsync(
+                    "Which armour will be padded?",
+                    armourList,
+                    armour => $"{armour.Name} DefValue: {armour.DefValue} > {armour.DefValue + 1} Encumbrance: {armour.Encumbrance} > {armour.Encumbrance + armour.CoverageCount} Cost: {armour.CoverageCount * ArmourPaddingPricePerArea}c",
+                    canCancel: true);
+                await Task.Yield();
+
+                if (choiceResult.WasCancelled || choiceResult.SelectedOption == null)
+                {
+                    result.Message += "Armour padding was cancelled.";
+                    break;
+                }
+
+                var selectedArmour = choiceResult.SelectedOption;
+                if (selectedArmour.AttemptToApplyArmourPadding())
+                {
+                    result.Message += $"Armour padding was successfully applied to {selectedArmour.Name}.";
+                    result.AvailableCoins -= selectedArmour.CoverageCount * ArmourPaddingPricePerArea;
+                }
+                else
+                {
+                    result.Message += $"Padding {selectedArmour.Name} was unsuccessful.";
+                    result.WasSuccessful = false;
+                } 
+            }
+            return result;
+        }
+
+        public async Task<SettlementActionResult> ApplySlayerWeaponTreatment(Hero hero, SettlementActionResult result, UserRequestService userRequest)
+        {
+            bool isShopping = true;
+            while (isShopping)
+            {
+                var eligibleWeapons = hero.Inventory.GetAllWeaponsArmour()
+                    .OfType<MeleeWeapon>()
+                    .Where(i => i is MeleeWeapon weapon && !weapon.HasSlayerModifier && 
+                                     weapon.HasProperty(WeaponProperty.Edged) &&
+                                     weapon.Durability == weapon.MaxDurability &&
+                                     SlayerTreatmentPrice <= result.AvailableCoins)
+                    .ToList();
+
+                if (!eligibleWeapons.Any())
+                {
+                    result.Message += "You have no edged weapons at full durability eligible for the Slayer Treatment.";
+                    break;
+                }
+
+                var choiceResult = await userRequest.RequestChoiceAsync(
+                    "Which weapon will you treat?",
+                    eligibleWeapons,
+                    weapon => $"{weapon.Name} | Damage Bonus: +1 | Cost: {SlayerTreatmentPrice}c",
+                    canCancel: true);
+                await Task.Yield();
+
+                if (choiceResult.WasCancelled || choiceResult.SelectedOption == null)
+                {
+                    result.Message += "Slayer Weapon Treatment was cancelled.";
+                    break;
+                }
+
+                var weaponToTreat = choiceResult.SelectedOption;
+                if (weaponToTreat.AttemptApplySlayerTreatment())
+                {
+                    result.Message += $"Slayer treatment was successfully applied to {weaponToTreat.Name}.";
+                    result.AvailableCoins -= SlayerTreatmentPrice;
+                }
+                else
+                {
+                    result.Message += $"Applying slayer treatment to {weaponToTreat.Name} was unsuccessful.";
+                    result.WasSuccessful = false;
+                }
+            }
+            return result;
+        }
     }
 
     public class WizardsGuild : Guild
@@ -1772,7 +1936,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public WizardsGuild(Settlement settlement) : base(SettlementServiceName.WizardsGuild, settlement)
         {
             Settlement = settlement;
-
+            AllowedToEnter = new() { ProfessionName.Wizard };
             AvailableActions = new List<SettlementActionType>
                     {
                         SettlementActionType.BuyingAndSelling,
@@ -1826,13 +1990,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<SettlementActionResult> LearnSpell(Hero hero, SettlementActionResult result, UserRequestService userRequest)
         {
-            if (hero.ProfessionName != "Wizard")
-            {
-                result.Message = $"{hero.Name} is not a Wizard and can't learn spells.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             var grimoires = hero.Inventory.Backpack.Where(i => i != null && i.Name.Contains("Grimoire")).ToList();
             bool learnFromGrimoire = false;
             if (grimoires.Any())
@@ -1905,7 +2062,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public AlchemistsGuild(Settlement settlement) : base(SettlementServiceName.AlchemistGuild, settlement)
         {
             Settlement = settlement;
-
+            AllowedToEnter = new() { ProfessionName.Alchemist };
             AvailableActions = new List<SettlementActionType>
                     {
                         SettlementActionType.BuyingAndSelling,
@@ -1926,7 +2083,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public RangersGuild(Settlement settlement) : base(SettlementServiceName.RangersGuild, settlement)
         {
             Settlement = settlement;
-
+            AllowedToEnter = new() { ProfessionName.Ranger };
             AvailableActions = new List<SettlementActionType>
                     {
                         SettlementActionType.BuyingAndSelling
@@ -1962,7 +2119,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         {
             Settlement = settlement;
             Encounter = encounter;
-
+            AllowedToEnter = new() { ProfessionName.WarriorPriest };
             AvailableActions = new List<SettlementActionType>
                     {
                         SettlementActionType.BuyingAndSelling,
@@ -1976,13 +2133,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<SettlementActionResult> LearnPrayer(Hero hero, SettlementActionResult result, UserRequestService userRequest)
         {
-            if (hero.ProfessionName != "Warrior Priest")
-            {
-                result.Message = $"{hero.Name} is not a Warrior Priest and can't learn prayers.";
-                result.WasSuccessful = false;
-                return result;
-            }
-
             if (hero.Prayers != null)
             {
                 var knownPrayers = hero.Prayers;
@@ -2221,8 +2371,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         private readonly EncounterService _encounter;
         private readonly GameState _gameState;
 
-        private List<Settlement> _settlements;
-        public List<Settlement> Settlements => _settlements;
+        public List<Settlement> Settlements => _gameState.Settlements == null ? _gameState.Settlements = GetSettlements() : _gameState.Settlements;
 
         public SettlementService(
             UserRequestService userRequestService, 
@@ -2240,7 +2389,6 @@ namespace LoDCompanion.BackEnd.Services.Player
 
             _gameState = gameState;
             _gameState.Settlements = GetSettlements();
-            _settlements = _gameState.Settlements;
         }
 
         public void StartNewDay(Settlement settlement)
@@ -2632,30 +2780,12 @@ namespace LoDCompanion.BackEnd.Services.Player
                 }
             };
             settlement.State.Arena = new (settlement);
-            settlement.State.TheDarkGuild = new(settlement)
-            {
-                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Thief" || p.Name == "Rogue").ToList()
-            };
-            settlement.State.FightersGuild = new (settlement, _encounter)
-            {
-                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior" || p.Name == "Barbarian").ToList()                
-            };
-            settlement.State.WizardsGuild = new (settlement)
-            {
-                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Wizard").ToList()
-            };
-            settlement.State.AlchemistsGuild = new (settlement)
-            {
-                AllowedToEnter = _gameData.Professions
-            };
-            settlement.State.RangersGuild = new (settlement)
-            {
-                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Ranger").ToList()
-            };
-            settlement.State.TheInnerSanctum = new (settlement, _encounter)
-            {
-                AllowedToEnter = _gameData.Professions.Where(p => p.Name == "Warrior Priest").ToList()
-            };
+            settlement.State.TheDarkGuild = new(settlement);
+            settlement.State.FightersGuild = new (settlement, _encounter);
+            settlement.State.WizardsGuild = new (settlement);
+            settlement.State.AlchemistsGuild = new (settlement);
+            settlement.State.RangersGuild = new (settlement);
+            settlement.State.TheInnerSanctum = new (settlement, _encounter);
             list.Add(settlement);
 
             settlement = new Settlement

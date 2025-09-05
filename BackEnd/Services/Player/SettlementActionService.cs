@@ -50,6 +50,9 @@ namespace LoDCompanion.BackEnd.Services.Player
         AlchemyTraining,
         ForagingTraining,
         BattlePrayersTraining,
+        AddShieldPadding,
+        AddArmourPadding,
+        ApplySlayerWeaponTreatment,
     }
 
     public class SettlementActionResult
@@ -186,6 +189,18 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
                 case (FightersGuild guild, SettlementActionType.DodgeTraining):
                     result = guild.Train(hero, result, Skill.Dodge);
+                    break;
+                case (FightersGuild guild, SettlementActionType.CheckBounties):
+                    result = guild.CheckBounties(hero, result);
+                    break;
+                case (FightersGuild guild, SettlementActionType.AddShieldPadding):
+                    result = await guild.AddShieldPadding(hero, result, _userRequest);
+                    break;
+                case (FightersGuild guild, SettlementActionType.AddArmourPadding):
+                    result = await guild.AddArmourPadding(hero, result, _userRequest);
+                    break;
+                case (FightersGuild guild, SettlementActionType.ApplySlayerWeaponTreatment):
+                    result = await guild.ApplySlayerWeaponTreatment(hero, result, _userRequest);
                     break;
                 case (WizardsGuild guild, SettlementActionType.LearnSpell):
                     result = await guild.LearnSpell(hero, result, _userRequest);
