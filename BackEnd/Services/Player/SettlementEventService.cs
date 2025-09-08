@@ -353,7 +353,8 @@ namespace LoDCompanion.BackEnd.Services.Player
         public async Task ProcessSettlementEventAsync()
         {
             var events = await GetSettlementEventsAsync();
-            var randomEvent = events[RandomHelper.GetRandomNumber(0, events.Count - 1)];
+            events.Shuffle();
+            var randomEvent = events[0];
             if(randomEvent.Execute != null)
             {
                 var eventContext = new SettlementEventContext( _partyManager, _userRequest, _treasure, _inventory, _quest, _powerActivation)
