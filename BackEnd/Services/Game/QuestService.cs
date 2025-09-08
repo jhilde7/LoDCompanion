@@ -96,6 +96,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly QuestSetupService _questSetup;
         private readonly CombatManagerService _combatManager;
         private readonly TreasureService _treasure;
+        private readonly Estate _estate;
 
         public Quest? ActiveQuest { get; private set; }
         public Room? ActiveEncounterRoom { get; private set; }
@@ -113,13 +114,46 @@ namespace LoDCompanion.BackEnd.Services.Game
             EncounterService encounter,
             QuestSetupService questSetup,
             CombatManagerService combatManagerService,
-            TreasureService treasureService)
+            TreasureService treasureService,
+            Estate estate)
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
             _questSetup = questSetup;
             _combatManager = combatManagerService;
             _treasure = treasureService;
+            _estate = estate;
+
+            _estate.OnSideQuestTriggered += HandleAddSideQuestAsync;
+        }
+
+        private async Task HandleAddSideQuestAsync(string sideQuestName, Party party)
+        {
+            if (ActiveQuest == null) return;
+            ActiveQuest.SideQuests ??= new();
+            if (sideQuestName == "The Hidden Treasure")
+            {
+                var sideQuest = new Quest() { Name = "The Hidden Treasure", IsSideQuest = true };
+                ActiveQuest.SideQuests.Add(sideQuest);
+            }
+            else if (sideQuestName == "The Grieving Mother")
+            {
+                var sideQuest = await GetQuestByNameAsync("The Grieving Mother");
+                if (sideQuest != null)
+                {
+                    if (sideQuest.IsComplete)
+                    {
+                        foreach (var hero in party.Heroes)
+                        {
+                            hero.CurrentLuck += 1;
+                        }
+                    }
+                    else
+                    {
+                        ActiveQuest.SideQuests.Add(sideQuest);
+                    } 
+                }
+            }
         }
 
         /// <summary>
@@ -651,9 +685,9 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 7,
                     RoomCount = 7,
                     RewardItems = [
-                        .. await _treasure.GetWonderfulTreasureAsync(1), 
-                        .. await _treasure.GetWonderfulTreasureAsync(1), 
-                        .. await _treasure.GetWonderfulTreasureAsync(1), 
+                        .. await _treasure.GetWonderfulTreasureAsync(), 
+                        .. await _treasure.GetWonderfulTreasureAsync(), 
+                        .. await _treasure.GetWonderfulTreasureAsync(), 
                         await _treasure.GetCoins("4d100", 0) ],
                     EncounterType = EncounterType.TheTombOfTheSpiderQueen,
                     ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),

@@ -6,6 +6,7 @@ using LoDCompanion.BackEnd.Services.Game;
 using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using RogueSharp;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using static LoDCompanion.BackEnd.Services.Player.EstateFurnishing;
@@ -2527,6 +2528,10 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int EstatePrice { get; set; } = 6000;
         public (Hero, Equipment)? LostItem { get; set; }
 
+        public event Func<int, Task<List<Equipment?>>>? OnPartyGainsTreasureAsync;
+        public event Func<string, Party, Task>? OnSideQuestTriggered;
+        public event Func<Hero, Equipment, Task>? OnItemLostAsync;
+
         public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
         {
             FurnishedRooms = GetFurnishings();
@@ -2564,7 +2569,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
 
-        public async Task GhostlyEvent(Party party, TreasureService treasureService, QuestService questService, InventoryService inventory)
+        public async Task GhostlyEvent(Party party)
         {
             var roll = RandomHelper.RollDie(DiceType.D10);
 
@@ -2577,17 +2582,20 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 case 1: // The Family Heirlooms
 
-                    var wonderfulTreasures = await treasureService.GetWonderfulTreasureAsync(2);
-                    foreach (var treasure in wonderfulTreasures)
+                    if (OnPartyGainsTreasureAsync != null)
                     {
-                        if (treasure != null)
+                        var wonderfulTreasures = await OnPartyGainsTreasureAsync.Invoke(2);
+                        foreach (var treasure in wonderfulTreasures)
                         {
-                            await BackpackHelper.AddItem(party.Heroes[0].Inventory.Backpack, treasure);
+                            if (treasure != null)
+                            {
+                                await BackpackHelper.AddItem(party.Heroes[0].Inventory.Backpack, treasure);
+                            }
                         }
-                    }
-                    foreach (var hero in party.Heroes)
-                    {
-                        hero.CurrentEnergy -= 1;
+                        foreach (var hero in party.Heroes)
+                        {
+                            hero.CurrentEnergy -= 1;
+                        } 
                     }
                     break;
 
@@ -2599,12 +2607,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
 
                 case 3: // The Hidden Treasure
-                    var sideQuest = new Quest { Name = "The Hidden Treasure", IsSideQuest = true };
-                    if (questService.ActiveQuest != null)
-                    {
-                        questService.ActiveQuest.SideQuests ??= new();
-                        questService.ActiveQuest.SideQuests.Add(sideQuest); 
-                    }
+                    if (OnSideQuestTriggered != null) await OnSideQuestTriggered.Invoke("The Hidden Treasure", party);
                     break;
 
                 case 4: // Spiritual Guides
@@ -2632,18 +2635,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
 
                 case 6: // The Grieving Mother
-                    var grievingMotherQuest = await questService.GetQuestByNameAsync("The Grieving Mother");
-                    if (grievingMotherQuest != null && !grievingMotherQuest.IsComplete)
-                    {
-                        party.Quests.Add(grievingMotherQuest);
-                    }
-                    else
-                    {
-                        foreach (var hero in party.Heroes)
-                        {
-                            hero.CurrentLuck += 1;
-                        }
-                    }
+                    if (OnSideQuestTriggered != null) await OnSideQuestTriggered.Invoke("The Grieving Mother", party);
                     break;
 
                 case 7: // Angered Ghost
@@ -2673,7 +2665,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                         var lostItem = items[0];
                         if (lostItem != null)
                         {
-                            await inventory.UnequipItemAsync(affectedHero, lostItem);
+                            if (OnItemLostAsync != null) await OnItemLostAsync(affectedHero, lostItem);
                             LostItem = (affectedHero, lostItem);
                             affectedHero.Inventory.Backpack.Remove(lostItem);
                         }

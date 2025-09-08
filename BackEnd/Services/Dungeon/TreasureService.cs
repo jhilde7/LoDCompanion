@@ -71,6 +71,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly PartyManagerService _partyManager;
         private readonly PowerActivationService _powerActivation;
         private readonly Lever _lever;
+        private readonly Estate _estate;
 
         public TreasureService(
             AlchemyService alchemyService,
@@ -79,7 +80,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             ArmourFactory armourFactory,
             PartyManagerService partyManagerService,
             PowerActivationService powerActivationService,
-            Lever lever)
+            Lever lever,
+            Estate estate)
         {
             _alchemy = alchemyService;
             _diceRoll = diceRollService;
@@ -88,13 +90,21 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _partyManager = partyManagerService;
             _powerActivation = powerActivationService;
             _lever = lever;
+            _estate = estate;
 
             _lever.OnFoundTreasure += HandleTreasureFound;
+            _estate.OnPartyGainsTreasureAsync += HandleGhostlyEvent;
         }
 
         public void Dispose()
         {
             _lever.OnFoundTreasure -= HandleTreasureFound;
+            _estate.OnPartyGainsTreasureAsync -= HandleGhostlyEvent;
+        }
+
+        private async Task<List<Equipment?>> HandleGhostlyEvent(int amount)
+        {
+            return await GetWonderfulTreasureAsync();
         }
 
         private async Task<SearchResult> HandleTreasureFound(Hero hero, LeverResult result)
@@ -106,7 +116,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             }
             else if (result.FoundWonderfulTreasure)
             {
-                searchResult.FoundItems = [.. await GetWonderfulTreasureAsync( hero.IsThief ? 2 : 1)];
+                searchResult.FoundItems = [.. await GetWonderfulTreasureAsync()];
             }
 
             return searchResult;
@@ -341,9 +351,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 switch (type)
                 {
-                    case TreasureType.Mundane: rewards.AddRange(await GetMundaneTreasureAsync(count)); break;
-                    case TreasureType.Fine: rewards.AddRange(await GetFineTreasureAsync(count)); break;
-                    case TreasureType.Wonderful: rewards.AddRange(await GetWonderfulTreasureAsync(count)); break;
+                    case TreasureType.Mundane: rewards.AddRange(await GetMundaneTreasureAsync()); break;
+                    case TreasureType.Fine: rewards.AddRange(await GetFineTreasureAsync()); break;
+                    case TreasureType.Wonderful: rewards.AddRange(await GetWonderfulTreasureAsync()); break;
                 }
             }
 
@@ -427,7 +437,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return mundaneRewards;
         }
 
-        public async Task<List<Equipment?>> GetFineTreasureAsync(int count = 1)
+        public async Task<List<Equipment?>> GetFineTreasureAsync()
         {
             _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.FineTreasure);
             int roll = RandomHelper.GetRandomNumber(1, 55);
@@ -487,7 +497,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     new List<string>() { "Silver Arrow", "Silver Bolt", "Superior Sling Stone" },
                     choice => choice); await Task.Yield();
                     fineRewards.Add(EquipmentService.GetAmmoByNameSetQuantity(choiceResult.SelectedOption!, RandomHelper.RollDie(DiceType.D10))); break;
-                case <= 41: fineRewards.AddRange(await FoundTreasureAsync(TreasureType.Wonderful, count)); break;
+                case <= 41: fineRewards.AddRange(await GetWonderfulTreasureAsync()); break;
                 case <= 43: fineRewards.AddRange(await _alchemy.GetRandomPotions(1)); break;
                 case <= 49:
                     var weapon = new Weapon();
@@ -537,7 +547,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return fineRewards;
         }
 
-        public async Task<List<Equipment?>> GetWonderfulTreasureAsync(int count = 1)
+        public async Task<List<Equipment?>> GetWonderfulTreasureAsync()
         {
             _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.WonderfulTreasure);
             int roll = RandomHelper.GetRandomNumber(1, 54);
