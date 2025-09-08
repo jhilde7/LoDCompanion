@@ -202,6 +202,7 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 .. Ammo,
                 .. Armour,
                 .. Shields,
+                .. Relics,
                 .. AlchemyService.Potions
             ];
 
@@ -222,7 +223,9 @@ namespace LoDCompanion.BackEnd.Services.GameData
                     .. ModifyEquipmentListByAvailability(blackSmith.ArmourAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && (i is Armour || i is Shield)).ToList())];
                 case SettlementServiceName.GeneralStore: 
                     var generalStore = (GeneralStore)service;
-                    return ModifyEquipmentListByAvailability(generalStore.EquipmentAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList());
+                    return 
+                        [.. ModifyEquipmentListByAvailability(generalStore.EquipmentAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList()),
+                        .. ModifyEquipmentListByAvailability(availabilityModifier - 2, list.Where(i=> i.Category == "The Inner Sanctum" && i.Name.Contains("Relic")).ToList())];
                 default: return list;
             };
         }
@@ -1693,68 +1696,146 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 new Equipment(){
                     Category = "The Inner Sanctum",
                     Shop = ShopCategory.General,
-                    Name = "Relic of Charus",
+                    Name = "Relic of Charus (Ring)",
                     Encumbrance = 1,
                     Durability = 1,
-                    Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                    Description = "A holy ring devoted to Charus, the god of endurance. It can be used by a Warrior Priest to endure the physical challenges ahead.",
                     Value = 500,
                     Availability = 4,
-                    MagicEffect = "Gain 1 max energy point"
+                    MagicEffect = "Gain 1 max energy point",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.CharusRelic, -1, statBonus: (BasicStat.Energy, 1))]
+                  },
+                new Equipment(){
+                    Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
+                    Name = "Relic of Charus (Amulet)",
+                    Encumbrance = 1,
+                    Durability = 1,
+                    Description = "A holy amulet devoted to Charus, the god of endurance. It can be used by a Warrior Priest to endure the physical challenges ahead.",
+                    Value = 500,
+                    Availability = 4,
+                    MagicEffect = "Gain 1 max energy point",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.CharusRelic, -1, statBonus: (BasicStat.Energy, 1))]
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
                     Shop = ShopCategory.General,
-                    Name = "Relic of Metheia",
+                    Name = "Relic of Metheia (Ring)",
                     Encumbrance = 1,
                     Durability = 1,
-                    Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                    Description = "A holy ring devoted to Metheia, the goddess of health and long life. It can be used by a Warrior Priest to bolster their healing ability.",
                     Value = 500,
                     Availability = 4,
-                    MagicEffect = "Healing bonus 1d3 done by the Warrior Priest"
+                    MagicEffect = "Healing bonus 1d3 done by the Warrior Priest",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.MetheiaRelic, -1, statBonus: (BasicStat.Energy, 1))]
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
                     Shop = ShopCategory.General,
-                    Name = "Relic of Iphy",
+                    Name = "Relic of Metheia (Amulet)",
                     Encumbrance = 1,
                     Durability = 1,
-                    Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                    Description = "A holy amulet devoted to Metheia, the goddess of health and long life. It can be used by a Warrior Priest to bolster their healing ability.",
                     Value = 500,
                     Availability = 4,
-                    MagicEffect = "Adds 5 to RES"
+                    MagicEffect = "Healing bonus 1d3 done by the Warrior Priest",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.MetheiaRelic, -1, statBonus: (BasicStat.Energy, 1))]
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
                     Shop = ShopCategory.General,
-                    Name = "Relic of Rhidnir",
+                    Name = "Relic of Iphy (Ring)",
                     Encumbrance = 1,
                     Durability = 1,
-                    Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                    Description = "A holy ring devoted to Iphy, the god of mental strength. It can be used by a Warrior Priest to face the horrors of the dungeons.",
                     Value = 500,
                     Availability = 4,
-                    MagicEffect = "Luck +1"
+                    MagicEffect = "Adds 5 to RES",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.IphyRelic, -1, statBonus: (BasicStat.Resolve, 5))]
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
                     Shop = ShopCategory.General,
-                    Name = "Relic of Ohinir",
+                    Name = "Relic of Iphy (Amulet)",
                     Encumbrance = 1,
                     Durability = 1,
-                    Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                    Description = "A holy amulet devoted to Iphy, the god of mental strength. It can be used by a Warrior Priest to face the horrors of the dungeons.",
                     Value = 500,
                     Availability = 4,
-                    MagicEffect = "Adds 5 to STR"
+                    MagicEffect = "Adds 5 to RES",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.IphyRelic, -1, statBonus: (BasicStat.Resolve, 5))]
                   },
                   new Equipment(){
                     Category = "The Inner Sanctum",
                     Shop = ShopCategory.General,
-                    Name = "Relic of Ramos",
+                    Name = "Relic of Rhidnir (Ring)",
                     Encumbrance = 1,
                     Durability = 1,
-                    Description = "Can be used by a Warrior Priest. Can be a ring or a necklace.",
+                    Description = "A holy ring devoted to Rhidnir, the Great Trickster. It can be used by a Warrior Priest to gain an edge in tricky situations.",
                     Value = 500,
                     Availability = 4,
-                    MagicEffect = "Adds 5 to CS"
+                    MagicEffect = "Luck +1",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.RhidnirRelic, -1, statBonus: (BasicStat.Luck, 1))]
+                  },
+                  new Equipment(){
+                    Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
+                    Name = "Relic of Rhidnir (Amulet)",
+                    Encumbrance = 1,
+                    Durability = 1,
+                    Description = "A holy amulet devoted to Rhidnir, the Great Trickster. It can be used by a Warrior Priest to gain an edge in tricky situations.",
+                    Value = 500,
+                    Availability = 4,
+                    MagicEffect = "Luck +1",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.RhidnirRelic, -1, statBonus: (BasicStat.Luck, 1))]
+                  },
+                  new Equipment(){
+                    Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
+                    Name = "Relic of Ohlnir (Ring)",
+                    Encumbrance = 1,
+                    Durability = 1,
+                    Description = "A holy ring devoted to Ohlnir, the god of weapons. It can be used by a Warrior Priest so that their weapons will always strike true.",
+                    Value = 500,
+                    Availability = 4,
+                    MagicEffect = "Adds 5 to CS/RS",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.OhlnirRelic, -1)]
+                  },
+                  new Equipment(){
+                    Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
+                    Name = "Relic of Ohlnir (Amulet)",
+                    Encumbrance = 1,
+                    Durability = 1,
+                    Description = "A holy amulet devoted to Ohlnir, the god of weapons. It can be used by a Warrior Priest so that their weapons will always strike true.",
+                    Value = 500,
+                    Availability = 4,
+                    MagicEffect = "Adds 5 to CS/RS",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.OhlnirRelic, -1)]
+                  },
+                  new Equipment(){
+                    Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
+                    Name = "Relic of Ramos (Ring)",
+                    Encumbrance = 1,
+                    Durability = 1,
+                    Description = "A holy ring devoted to Ramos, the god of strength. It can be used by a Warrior Priest to be granted increased strength.",
+                    Value = 500,
+                    Availability = 4,
+                    MagicEffect = "Adds 5 to STR",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.RamosRelic, -1, statBonus: (BasicStat.Strength, 5))]
+                  },
+                  new Equipment(){
+                    Category = "The Inner Sanctum",
+                    Shop = ShopCategory.General,
+                    Name = "Relic of Ramos (Amulet)",
+                    Encumbrance = 1,
+                    Durability = 1,
+                    Description = "A holy amulet devoted to Ramos, the god of strength. It can be used by a Warrior Priest to be granted increased strength.",
+                    Value = 500,
+                    Availability = 4,
+                    MagicEffect = "Adds 5 to STR",
+                    ActiveStatusEffects = [new ActiveStatusEffect(StatusEffectType.RamosRelic, -1, statBonus: (BasicStat.Strength, 5))]
                   }
             };
         }

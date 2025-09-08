@@ -17,8 +17,8 @@ namespace LoDCompanion.BackEnd.Services.GameData
         SmiteTheHeretics,
         VerseOfTheSane,
         ShieldOfTheGods,
-        StrengthsOfOhlnir,
-        WarriorsOfRamos,
+        StrengthsOfRamos,
+        WarriorsOfOhlnir,
         StayThyHand,
         ProvidenceOfMetheia,
         WeShallNotFalter,
@@ -113,20 +113,20 @@ namespace LoDCompanion.BackEnd.Services.GameData
           ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.ShieldOfTheGods, -1, removeAfterNextBattle: true)
         },
         new Prayer(){
-          Name = PrayerName.StrengthsOfOhlnir,
+          Name = PrayerName.StrengthsOfRamos,
           Level = 3,
           PrayerEffect = "The party feels invigorated, and their weapons feel like feathers in their hands. All members of the party gain +10 Strength.",
           Duration = "Until end of next battle, or 4 turns if used between battles.",
           EffectsParty = true,
-          ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.StrengthOfOhlnir, -1, removeAfterNextBattle: true, statBonus: (BasicStat.Strength, 10))
+          ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.StrengthOfRamos, -1, removeAfterNextBattle: true, statBonus: (BasicStat.Strength, 10))
         },
         new Prayer(){
-          Name = PrayerName.WarriorsOfRamos,
+          Name = PrayerName.WarriorsOfOhlnir,
           Level = 3,
           PrayerEffect = "As if the gods guide the weapons of the heroes, all seem to fight with renewed power. All members of the party fight with +5 CS.",
           Duration = "Until end of next battle, or 4 turns if used between battles.",
           EffectsParty = true,
-          ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.WarriorsOfRamos, -1, removeAfterNextBattle: true, skillBonus: (Skill.CombatSkill, 5))
+          ActiveStatusEffect = new ActiveStatusEffect(StatusEffectType.WarriorsOfOhlnir, -1, removeAfterNextBattle: true)
         },
         new Prayer(){
           Name = PrayerName.StayThyHand,

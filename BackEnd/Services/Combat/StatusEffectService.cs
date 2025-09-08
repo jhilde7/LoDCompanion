@@ -51,10 +51,10 @@ namespace LoDCompanion.BackEnd.Services.Combat
         ShieldOfTheGods,
         PowerOfFaith,
         VerseOfTheSane,
-        StrengthOfOhlnir,
+        StrengthOfRamos,
         StayThyHand,
         ProvidenceOfMetheia,
-        WarriorsOfRamos,
+        WarriorsOfOhlnir,
         BeGone,
         WeShallNotFalter,
         GodsChampion,
@@ -190,6 +190,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
         Incense,
         GhostlyProtector,
         SpiritualGuides,
+        CharusRelic,
+        MetheiaRelic,
+        IphyRelic,
+        RhidnirRelic,
+        OhlnirRelic,
+        RamosRelic,
     }
 
     /// <summary>

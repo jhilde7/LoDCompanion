@@ -1614,19 +1614,6 @@ namespace LoDCompanion.BackEnd.Services.Player
                 if (rollResult.Roll <= temple.RollForBoon && temple.GrantedEffect != null)
                 {
                     result.Message = $"{temple.GodName.ToString()} hears your prayer and decides to grant you a boon.";
-                    if (temple.GodName == GodName.Ohlnir)
-                    {
-                        var skillChoiceRequest = await userRequest.RequestChoiceAsync(
-                            "Which skill do you want Ohlnir to enhance?", 
-                            new List<string>() { "Combat", "Ranged" },
-                            x => x);
-                        await Task.Yield();
-                        switch (skillChoiceRequest.SelectedOption)
-                        {
-                            case "Combat": temple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true); break;
-                            case "Ranged": temple.GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true); break;
-                        }
-                    }
                     result.AvailableCoins -= temple.CostToPray;
                     await StatusEffectService.AttemptToApplyStatusAsync(hero, temple.GrantedEffect, powerActivation);
                 }
@@ -2827,7 +2814,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     GodName = GodName.Ohlnir,
                     Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, removeEndOfDungeon: true)
                 }
             };
             list.Add(settlement);
@@ -2953,7 +2940,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     GodName = GodName.Ohlnir,
                     Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, removeEndOfDungeon: true)
                 }
             };
             list.Add(settlement);
@@ -2989,7 +2976,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     GodName = GodName.Ohlnir,
                     Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, removeEndOfDungeon: true)
                 },
                 new(settlement)
                 {
@@ -3086,7 +3073,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     GodName = GodName.Ohlnir,
                     Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, removeEndOfDungeon: true)
                 },
                 new (settlement)
                 {
@@ -3189,7 +3176,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     GodName = GodName.Ohlnir,
                     Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, removeEndOfDungeon: true)
                 },
                 new (settlement)
                 {
@@ -3258,7 +3245,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                 {
                     GodName = GodName.Ohlnir,
                     Description = "At the temple of Ohlnir, your heroes may pray for guidance of their weapons, so that they will always strike true.",
-                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true)
+                    GrantedEffect = new ActiveStatusEffect(StatusEffectType.OhlnirsBlessing, -1, removeEndOfDungeon: true)
                 },
                 new (settlement)
                 {

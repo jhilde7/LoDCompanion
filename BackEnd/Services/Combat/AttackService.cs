@@ -188,7 +188,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             result.ToHitChance = baseSkill + situationalModifier;
             var resultRoll = await _diceRoll.RequestRollAsync(
                 "Roll to-hit.", "1d100",
-                skill: (attacker, weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill)); 
+                skill: (attacker, weapon?.IsRanged ?? false ? Skill.RangedSkill : Skill.CombatSkill));
             await Task.Yield();
             result.AttackRoll = resultRoll.Roll;
             result.IsHit = result.AttackRoll <= 85 && result.AttackRoll <= result.ToHitChance;
@@ -212,7 +212,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             // remove active effects as they were already added to the calculations and are spent
             var deadlyStrike = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DeadlyStrike);
-            if(deadlyStrike != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(deadlyStrike);
+            if (deadlyStrike != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(deadlyStrike);
             var perfectAim = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PerfectAim);
             if (perfectAim != null && weapon is RangedWeapon) attacker.ActiveStatusEffects.Remove(perfectAim);
 
@@ -277,18 +277,18 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 if (!defenseResult.ShieldDamaged) location = DetermineHitLocation();
 
                 context = ApplyArmorToLocation(target, location, context, weapon);
-                if(attacker.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.GhostlyTouch))
+                if (attacker.PassiveSpecials.Any(s => s.Key == MonsterSpecialName.GhostlyTouch))
                 {
                     var rollResult = await _diceRoll.RequestRollAsync("Roll for resolve test", "1d100", stat: (target, BasicStat.Resolve)); await Task.Yield();
                     if (target.TestResolve(rollResult.Roll))
                     {
                         result.DamageDealt = await target.TakeDamageAsync(RandomHelper.RollDie(DiceType.D8), (_floatingText, target.Position), _powerActivation, ignoreAllArmour: true);
-                        await target.TakeSanityDamage(1, (_floatingText, target.Position), _powerActivation); 
+                        await target.TakeSanityDamage(1, (_floatingText, target.Position), _powerActivation);
                     }
                 }
                 else result.DamageDealt = await target.TakeDamageAsync(result.DamageDealt, (_floatingText, target.Position), _powerActivation, context);
 
-                    result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
+                result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
                     result.OutcomeMessage += CheckForQuickSlotDamageAsync(target, dungeon);
@@ -313,9 +313,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(
             Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon, AttackResult result)
         {
-            int finalDamage = 0; 
+            int finalDamage = 0;
             (finalDamage, context) = await CalculateHeroDamageAsync(attacker, target, weapon, context, result);
-            
+
             result.DamageDealt = finalDamage;
 
             if (target.Position != null)
@@ -339,7 +339,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
                 else
                 {
-                    finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context); 
+                    finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context);
                 }
             }
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
@@ -368,7 +368,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
             if (shoveResult.IsHit && originalTargetPosition != null)
             {
                 // Move the attacker into the square the target was pushed FROM
-                if(GridService.MoveCharacterToPosition(attacker, originalTargetPosition, dungeon.DungeonGrid))
+                if (GridService.MoveCharacterToPosition(attacker, originalTargetPosition, dungeon.DungeonGrid))
                 {
                     chargeMessage.Append($"\n{attacker.Name} moves into the vacated space.");
                 }
@@ -417,7 +417,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 }
             }
 
-            
+
             // If the hero performed a Power Attack, they are vulnerable.
             if (!target.IsVulnerableAfterPowerAttack)
             {
@@ -445,6 +445,21 @@ namespace LoDCompanion.BackEnd.Services.Combat
             if (attacker is Hero afraidHero && afraidHero.AfraidOfTheseMonsters.Contains(target))
             {
                 modifier -= 10;
+            }
+
+            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.OhlnirRelic) != null)
+            {
+                modifier += 5;
+            }
+
+            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.OhlnirsBlessing) != null)
+            {
+                modifier += 5;
+            }
+
+            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.WarriorsOfOhlnir) != null)
+            {
+                modifier += 5;
             }
 
             return modifier;
