@@ -188,6 +188,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         BlessedWeapon,
         BlessedArmour,
         Incense,
+        GhostlyProtector,
+        SpiritualGuides,
     }
 
     /// <summary>

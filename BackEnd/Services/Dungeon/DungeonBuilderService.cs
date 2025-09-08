@@ -30,6 +30,17 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             var firstHalf = initialDeck.Take(halfDeckSize).ToList();
             var secondHalf = initialDeck.Skip(halfDeckSize).ToList();
 
+            if (quest.SideQuests != null && quest.SideQuests.Any(sq => sq.Name == "The Hidden Treasure"))
+            {
+                var sideQuestCardInfo = _rooms.GetRoomByName("R10");
+                if (sideQuestCardInfo != null)
+                {
+                    Room sideQuestCard = new Room();
+                    _rooms.InitializeRoomData(sideQuestCardInfo, sideQuestCard);
+                    firstHalf.Insert(RandomHelper.GetRandomNumber(0, firstHalf.Count), sideQuestCard);
+                }
+            }
+
             // 3. Add the objective room to one of the piles and shuffle that pile.
             if (quest.ObjectiveRoom != null)
             {

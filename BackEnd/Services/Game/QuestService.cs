@@ -35,7 +35,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         TombGuardian,
         MainQuest,
         Random,
-        Mimic
+        Mimic,
+        TheGrievingMother
     }
 
     public class QuestHexLocation
@@ -62,6 +63,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         public List<Equipment?>? RewardItems { get; set; }
         public string RewardSpecial { get; set; } = string.Empty;
         public EncounterType EncounterType { get; set; }
+        public EncounterType? WanderingMonster { get; set; }
         public RoomInfo? ObjectiveRoom { get; set; }
         public int StartThreatLevel { get; set; }
         public int MinThreatLevel { get; set; }
@@ -223,6 +225,40 @@ namespace LoDCompanion.BackEnd.Services.Game
         {
             return new List<Quest>
             {
+                new Quest()
+                {
+                    IsSideQuest = true,
+                    Name = "The Grieving Mother",
+                    SpecialRules = "Add one Side Quest Card to the pile. When you draw this card, put it aside and pull the next card from the exploration deck. This card will now lead you to the side Objective Room. There is a hidden door in one of the walls of that room.",
+                    RewardSpecial = "The Longsword is considered magical and has +2 DMG.",
+                    WanderingMonster = EncounterType.TheGrievingMother,
+                    ObjectiveRoom = _room.GetRoomByName("R17"),
+                    NarrativeQuest = "The old lady is barely visible and flickers like a flame about to go out. She stands silent for some time before she starts telling a story of how her son left for the very dungeon the heroes are heading to, but he never came back. She had to live out the rest of her life, knowing that he would never return. Even now, some hundred years after her own passing, she still longs for him and begs the heroes to bring back her son to be buried in the family grave on the estate, so that they may finally rest together.",
+                    NarrativeObjectiveRoom = "The room they enter is dark, but from the other side of the room a small beam of light can be seen. The beam lands straight on the dust covered skeletal remains of a young adventurer. Beside him lies a broken shield and a rusty longsword. Taking in the rest of the room, the party realises that this door probably has not been opened in decades. The beam of light seems to be coming from an opening leading to the outside.",
+                    NarrativeSetup = "Place the R17 card. There is an opening on the opposite side of the room leading out. The remains are in one of the squares in front of the door. A creaking noise is suddenly heard in the otherwise total silence. Emerging from the opposite corners are two large spiders slowly walking towards the heroes.",
+                    NarrativeAftermath = "If You Fail: There will automatically be a Ghostly Event before the next quest, and that will be nr 8. If You Bring Back the Remains: Once back at the estate, the party holds a short ceremony and buries the remains in the old family cemetery. The old lady is never seen again, but the next morning an exquisite sword is found on the dining table. The Longsword is considered magical and has +2 DMG.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "RoomName", "R17" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Giant Spider" },
+                                { "Count", "2" },
+                                { "PlacementRule", "RandomEdge" }
+                            }
+                        }
+                    }
+                },
                 new Quest()
                 {
                     IsSideQuest = true,

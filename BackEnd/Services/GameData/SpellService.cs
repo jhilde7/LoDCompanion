@@ -1526,6 +1526,11 @@ namespace LoDCompanion.BackEnd.Services.GameData
             int targetSkill = arcaneArts - CastingValue + focusPoints * 10;
             int miscastThreshold = 95 - focusPoints * 5 - powerLevels * 2;
 
+            if (caster.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.GhostlyProtector))
+            {
+                miscastThreshold = 97;
+            }
+
             // --- Perform the Casting Roll ---
             var resultRoll = await diceRoll.RequestRollAsync("Roll to cast", "1d100", skill: (caster, Skill.ArcaneArts)); await Task.Yield();
             int roll = resultRoll.Roll;

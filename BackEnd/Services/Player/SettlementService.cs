@@ -535,6 +535,21 @@ namespace LoDCompanion.BackEnd.Services.Player
                     result.Message += $"Using the smithy at the estaet the heroes repair all their weapons and armour, {repairAmount} durability.";
                 }
 
+                if (estate.LostItem.HasValue)
+                {
+                    result.Message += $"{estate.LostItem.Value.Item1.Name} finds the item they lost before the last quest. They could have sworn they looked in this very spot previously.";
+                    var affectedHero = party.Heroes.FirstOrDefault(h => h == estate.LostItem.Value.Item1);
+                    if (affectedHero != null)
+                    {
+                        await BackpackHelper.AddItem(affectedHero.Inventory.Backpack, estate.LostItem.Value.Item2);
+                        estate.LostItem = null;
+                    }
+                    else
+                    {
+                        result.Message += "ERROR - Something went wrong when getting affectedHero from party";
+                    }
+                }
+
                 return result;
             }
 
@@ -2355,11 +2370,19 @@ namespace LoDCompanion.BackEnd.Services.Player
 
         public async Task<SettlementActionResult> TendFarmAsync(Hero hero, SettlementActionResult result)
         {
-            var rations = RandomHelper.RollDie(DiceType.D8);
-            var ration = EquipmentService.GetEquipmentByNameSetQuantity("Ration", rations);
-            await BackpackHelper.AddItem(hero.Inventory.Backpack, ration);
+            if (DungeonsUntilUsable > 0)
+            {
+                result.Message = $"{hero.Name} notices that all crops have withered as if the temperature had suddenly dropped during the night, must be the work of supernatural forces.";
+                result.WasSuccessful = false;
+            }
+            else
+            {
+                var rations = RandomHelper.RollDie(DiceType.D8);
+                var ration = EquipmentService.GetEquipmentByNameSetQuantity("Ration", rations);
+                await BackpackHelper.AddItem(hero.Inventory.Backpack, ration);
 
-            result.Message = $"{hero.Name} tended the farm and received {rations} rations.";
+                result.Message = $"{hero.Name} tended the farm and received {rations} rations.";
+            }
             return result;
         }
     }
@@ -2502,6 +2525,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public bool IsOwned { get; set; }
         public List<EstateFurnishing> FurnishedRooms { get; set; }
         public int EstatePrice { get; set; } = 6000;
+        public (Hero, Equipment)? LostItem { get; set; }
 
         public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
         {
@@ -2540,7 +2564,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             }
         }
 
-        public async Task GhostlyEvent(Party party, TreasureService treasureService, QuestService questService)
+        public async Task GhostlyEvent(Party party, TreasureService treasureService, QuestService questService, InventoryService inventory)
         {
             var roll = RandomHelper.RollDie(DiceType.D10);
 
@@ -2552,6 +2576,7 @@ namespace LoDCompanion.BackEnd.Services.Player
             switch (roll)
             {
                 case 1: // The Family Heirlooms
+
                     var wonderfulTreasures = await treasureService.GetWonderfulTreasureAsync(2);
                     foreach (var treasure in wonderfulTreasures)
                     {
@@ -2574,17 +2599,24 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
 
                 case 3: // The Hidden Treasure
-                    var sideQuestCard = new Quest { Name = "Hidden Treasure Side Quest", IsSideQuest = true };
-                    // You'll need to decide how to add this to the exploration deck
-                    // This is a simplified representation
-                    // questService.AddSideQuestToDeck(sideQuestCard);
+                    var sideQuest = new Quest { Name = "The Hidden Treasure", IsSideQuest = true };
+                    if (questService.ActiveQuest != null)
+                    {
+                        questService.ActiveQuest.SideQuests ??= new();
+                        questService.ActiveQuest.SideQuests.Add(sideQuest); 
+                    }
                     break;
 
                 case 4: // Spiritual Guides
-                    foreach (var hero in party.Heroes)
+                    foreach (var hero in party.Heroes.Where(h => h.GetSkill(Skill.CombatSkill) > h.GetSkill(Skill.RangedSkill)))
                     {
-                        hero.SetSkill(Skill.CombatSkill, hero.GetSkill(Skill.CombatSkill) + 5);
-                        hero.SetSkill(Skill.RangedSkill, hero.GetSkill(Skill.RangedSkill) + 5);
+                        var ghostlyEffect = new ActiveStatusEffect(StatusEffectType.SpiritualGuides, -1, skillBonus:(Skill.CombatSkill, 5), removeEndOfDungeon: true);
+                        hero.ActiveStatusEffects.Add(ghostlyEffect);
+                    }
+                    foreach (var hero in party.Heroes.Where(h => h.GetSkill(Skill.CombatSkill) <= h.GetSkill(Skill.RangedSkill)))
+                    {
+                        var ghostlyEffect = new ActiveStatusEffect(StatusEffectType.SpiritualGuides, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true);
+                        hero.ActiveStatusEffects.Add(ghostlyEffect);
                     }
                     break;
 
@@ -2593,12 +2625,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     {
                         if (hero.ProfessionName == ProfessionName.Wizard)
                         {
-                            // This would require a temporary modifier system
-                            // For now, let's represent it as a status effect
-                            var protectorEffect = new ActiveStatusEffect(StatusEffectType.ItemEffect, -1)
-                            {
-                                // Custom logic to modify miscast chance would be needed
-                            };
+                            var protectorEffect = new ActiveStatusEffect(StatusEffectType.GhostlyProtector, -1, removeEndOfDungeon: true);
                             hero.ActiveStatusEffects.Add(protectorEffect);
                         }
                     }
@@ -2606,18 +2633,24 @@ namespace LoDCompanion.BackEnd.Services.Player
 
                 case 6: // The Grieving Mother
                     var grievingMotherQuest = await questService.GetQuestByNameAsync("The Grieving Mother");
-                    if (grievingMotherQuest != null)
+                    if (grievingMotherQuest != null && !grievingMotherQuest.IsComplete)
                     {
                         party.Quests.Add(grievingMotherQuest);
+                    }
+                    else
+                    {
+                        foreach (var hero in party.Heroes)
+                        {
+                            hero.CurrentLuck += 1;
+                        }
                     }
                     break;
 
                 case 7: // Angered Ghost
-                    // This would require access to the farm's state
                     var farm = FurnishedRooms.OfType<Farm>().FirstOrDefault();
                     if (farm != null)
                     {
-                        // Logic to destroy rations would go here
+                        farm.DungeonsUntilUsable = 1;
                     }
                     break;
 
@@ -2633,13 +2666,16 @@ namespace LoDCompanion.BackEnd.Services.Player
                     var items = new List<Equipment?>();
                     items.AddRange(affectedHero.Inventory.GetAllWeaponsArmour());
                     items.AddRange(affectedHero.Inventory.Backpack.Where(i => i?.Name == "Ration"));
+                    items.Shuffle();
 
                     if (items.Any())
                     {
-                        var lostItem = items[RandomHelper.GetRandomNumber(0, items.Count - 1)];
+                        var lostItem = items[0];
                         if (lostItem != null)
                         {
-                            // Logic to temporarily remove the item would go here
+                            await inventory.UnequipItemAsync(affectedHero, lostItem);
+                            LostItem = (affectedHero, lostItem);
+                            affectedHero.Inventory.Backpack.Remove(lostItem);
                         }
                     }
                     break;
@@ -2648,6 +2684,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     foreach (var hero in party.Heroes)
                     {
                         var curse = StatusEffectService.GetRandomCurseEffect();
+                        curse.RemoveEndOfDungeon = true;
                         hero.ActiveStatusEffects.Add(curse);
                     }
                     break;

@@ -1553,7 +1553,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     roll = RandomHelper.GetRandomNumber(1, 6);
                     switch (roll)
                     {
-                        case 4:
                         case <= 6:
                             return BuildMonsters(2, "Tomb Guardian", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 2);
                         default:
@@ -1562,6 +1561,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     break;
                 case EncounterType.Mimic:
                     return BuildMonsters(1, "Mimic");
+                case EncounterType.TheGrievingMother:
+                    roll = RandomHelper.RollDie(DiceType.D2);
+                    return BuildMonsters(roll, "Giant Spider");
                 default:
                     break;
             }
