@@ -216,7 +216,6 @@ namespace LoDCompanion.BackEnd.Services.GameData
                 case SettlementServiceName.Herbalist: return ModifyEquipmentListByAvailability(availabilityModifier, [.. AlchemyService.GetShopParts(), .. AlchemyService.GetShopIngredients()]);
                 case SettlementServiceName.RangersGuild: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i=> i.Category == "Rangers Guild").ToList());
                 case SettlementServiceName.TheInnerSanctum: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i=> i.Category == "The Inner Sanctum").ToList());
-                case SettlementServiceName.MervinsMagicalOddities: return ModifyEquipmentListByAvailability(availabilityModifier, list.Where(i => i.Category == "Common" && !(i is Weapon || i is Ammo || i is Armour || i is Shield)).ToList());
                 case SettlementServiceName.Blacksmith:
                     var blackSmith = (BlackSmith)service;
                     return [.. ModifyEquipmentListByAvailability(blackSmith.WeaponAvailabilityModifier + availabilityModifier, list.Where(i => i.Category == "Common" && (i is Weapon || i is Ammo)).ToList()),

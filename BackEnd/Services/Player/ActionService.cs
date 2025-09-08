@@ -57,6 +57,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         PullLever,
         OpenPortcullis,
         RemoveCobwebs,
+        ReadScroll,
     }
 
     public class ActionInfo
@@ -787,8 +788,19 @@ namespace LoDCompanion.BackEnd.Services.Player
                         result.WasSuccessful = false;
                     }
                     break;
+                case (Hero hero, ActionType.ReadScroll):
+                    if (secondaryTarget is Scroll scroll && primaryTarget != null)
+					{
+						result = await ReadScrollAsync(hero, scroll, primaryTarget);
+					}
+					else
+					{
+						result.Message = "Invalid scroll to read.";
+						result.WasSuccessful = false;
+					}
+					break;
 
-            }
+			}
 
             if (primaryTarget is Door)
             {
@@ -1444,7 +1456,59 @@ namespace LoDCompanion.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> HarvestPartsAsync(Hero hero, List<Corpse> avaialbleCorpses)
+		private async Task<ActionResult> ReadScrollAsync(Hero hero, Scroll scroll, object target)
+		{
+			var result = new ActionResult();
+			if (hero.Position == null) return new ActionResult { WasSuccessful = false, Message = "Hero has no position." };
+
+			// Consume the scroll from inventory first
+			BackpackHelper.RemoveSingleItem(hero.Inventory.Backpack, scroll);
+
+			int skillValue;
+			// Non-wizards use WIS to read scrolls
+			if (hero.ProfessionName != ProfessionName.Wizard)
+			{
+				skillValue = hero.GetStat(BasicStat.Wisdom);
+			}
+			else
+			{
+				skillValue = hero.GetSkill(Skill.ArcaneArts);
+			}
+
+			// Casting Value is reduced by 10 for scrolls, to a minimum of 0
+			int castingValue = Math.Max(0, scroll.Spell.CastingValue - 10);
+			int targetSkill = skillValue - castingValue;
+			int miscastThreshold = 95;
+
+			var resultRoll = await _diceRoll.RequestRollAsync("Roll to cast from scroll", "1d100");
+			await Task.Yield();
+			int roll = resultRoll.Roll;
+
+			// Check for Miscast
+			if (roll >= miscastThreshold)
+			{
+				result.WasSuccessful = false;
+				result.Message = $"Miscast! The scroll backfires, consuming it in the process.";
+				// You might want to add additional miscast effects here
+			}
+			else if (roll <= targetSkill)
+			{
+				// Success
+				var spellResult = await _spellResolution.ResolveSpellAsync(hero, scroll.Spell, target, new SpellCastingResult());
+				result.WasSuccessful = spellResult.IsSuccess;
+				result.Message = spellResult.OutcomeMessage;
+			}
+			else
+			{
+				// Failure
+				result.WasSuccessful = false;
+				result.Message = $"{hero.Name} failed to read the scroll correctly, and it turns to dust.";
+			}
+
+			return result;
+		}
+
+		private async Task<ActionResult> HarvestPartsAsync(Hero hero, List<Corpse> avaialbleCorpses)
         {
             var result = new ActionResult();
             result.Message = string.Empty;
