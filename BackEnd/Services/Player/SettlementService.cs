@@ -38,7 +38,6 @@ namespace LoDCompanion.BackEnd.Services.Player
         Blacksmith,
         GeneralStore,
         MagicBrewery,
-        MervinsMagicalOddities,
         Herbalist,
         SickWard,
         Inn,
