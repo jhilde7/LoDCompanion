@@ -407,6 +407,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
 
                     var newDoors = newRoom.Doors.Where(d => d != openedDoor).ToList();
+
+                    if (Dungeon.DungeonRules["DoorType"] == "CobwebCovered")
+                    {
+                        newDoors.ForEach(d => d.State = DoorState.CobwebCovered);
+                    }
                     
                     if (newDoors.Count > 1)
                     {

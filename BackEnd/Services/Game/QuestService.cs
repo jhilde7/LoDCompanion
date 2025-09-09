@@ -237,7 +237,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                                     Parameters = new Dictionary<string, string>()
                                     {
                                         { "Name", "The Brood Mother" },
-                                        { "Count", "1" },
                                         { "PlacementRule", "AsFarAsPossible" },
                                         { "PlacementTarget", "Heroes" }
                                     }
@@ -248,7 +247,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                                     Parameters = new Dictionary<string, string>()
                                     {
                                         { "Name", "Johann" },
-                                        { "Count", "1" },
                                         { "PlacementRule", "AsFarAsPossible" },
                                         { "PlacementTarget", "Heroes" }
                                     }
@@ -656,9 +654,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                             Name = "Level 1: The Entrance",
                             ColorLocation = (QuestColor.White, 40),
                             StartingRoom = _room.GetRoomByName("Start Tile"),
-                            SpecialRules = "The Secondary Quest card 1 should be mixed in with the first half of the pile.",
+                            SpecialRules = "The R17 should be mixed in with the first half of the pile.",
                             CorridorCount = 7,
+                            CorridorsToExclude =new() { _room.GetRoomByName("C16") },
                             RoomCount = 7,
+                            RoomsToExclude = new() { _room.GetRoomByName("R17"), _room.GetRoomByName("R1") },
                             EncounterType = EncounterType.Orcs_Goblins,
                             ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
                             StartThreatLevel = 4,
@@ -667,7 +667,99 @@ namespace LoDCompanion.BackEnd.Services.Game
                             NarrativeQuest = "Upon arrival at the temple ruins, the adventurers find it occupied. Sharpened poles with severed heads warn them to stay out. They must find a hidden passageway leading deeper underground.",
                             NarrativeObjectiveRoom = "The large chamber appears to have been the inner sanctum of the temple. Orcs are kneeling around a large, decayed statue of some forgotten deity.",
                             NarrativeSetup = "The heroes enter along the short side opposite the statue. Five Orcs and one Orc Chieftain are two squares away from the statue with their backs to the heroes. The heroes may continue their turn. Chieftain Grotto is armed with a Greataxe and Armour 3. The Orcs have Battlehammers, Shields, and Armour 1.",
-                            NarrativeAftermath = "Once the chamber is clear, the party finds a small imprint at the base of the statue that matches the spider amulet found on Amburr the Ettin. Pressing the amulet into the imprint reveals a dusty stair leading down."
+                            NarrativeAftermath = "Once the chamber is clear, the party finds a small imprint at the base of the statue that matches the spider amulet found on Amburr the Ettin. Pressing the amulet into the imprint reveals a dusty stair leading down.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>() { { "RoomName", "The Chamber of Reverence" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetTurnOrder,
+                                    Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Chieftain Grotto" },
+                                        { "BaseMonster", "Orc Chieftain" },
+                                        { "Weapons", "Greataxe" },
+                                        { "Armour", "3" },
+                                        { "PlacementRule", "RandomPositionInRange" },
+                                        // "The Chamber of Reverence" entry is at X=11. The statue is at X=0.
+                                        // This places the chieftain near the statue on the far side of the room.
+                                        { "PlacementArgs", "X:2-3, Y:0-5" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Orc" },
+                                        { "Count", "5" },
+                                        { "Weapons", "Battlehammer" },
+                                        { "Shield", "true" },
+                                        { "Armour", "1" },
+                                        { "PlacementRule", "RandomPositionInRange" },
+                                        // Place the orcs in the same area as their chieftain.
+                                        { "PlacementArgs", "X:2-3, Y:0-5" }
+                                    }
+                                }
+                            },
+                            SideQuests = new() 
+                                { 
+                                    new Quest 
+                                    {
+                                        Name = "The Ettin's Lair",
+                                        QuestType = QuestType.Dungeon,
+                                        IsSideQuest = true,
+                                        ObjectiveRoom = _room.GetRoomByName("R17"),
+                                        RewardSpecial = "The party finds a strange, spider-shaped amulet on the Ettin's body.",
+                                        NarrativeObjectiveRoom = "The heroes enter a dimly lit hall, apparently devoid of any furniture. Standing at the far back of the hall is a large, two-headed creature clad in tattered rags. It wields a sinister-looking club adorned with rusty nails. Flanking the creature on either side are two large, armoured Orcs. Everything is quiet as the two heads fix their eyes on the hero standing in the doorway until one of the head shouts: \"Aaaargh! Go get 'em!\" The other head turns and looks at the first with obvious contempt, and screams: \"Oi, that's not your call to make! I say...go kill 'em!\" And with that, all three lumber forwards towards the heroes.",
+                                        SetupActions = new List<QuestSetupAction>()
+                                        {
+                                            new QuestSetupAction
+                                            {
+                                                ActionType = QuestSetupActionType.SetRoom,
+                                                Parameters = new Dictionary<string, string>() { { "RoomName", "R17" } }
+                                            },
+                                            new QuestSetupAction
+                                            {
+                                                ActionType = QuestSetupActionType.SpawnMonster,
+                                                Parameters = new Dictionary<string, string>()
+                                                {
+                                                    { "Name", "Amburr the Ettin" },
+                                                    { "PlacementRule", "Center" },
+                                                }
+                                            },
+                                            new QuestSetupAction
+                                            {
+                                                ActionType = QuestSetupActionType.SpawnMonster,
+                                                Parameters = new Dictionary<string, string>()
+                                                {
+                                                    { "Name", "Grop" },
+                                                    { "PlacementRule", "RelativeToTarget" },
+                                                    { "PlacementTarget", "Amburr the Ettin" }
+                                                }
+                                            },
+                                            new QuestSetupAction
+                                            {
+                                                ActionType = QuestSetupActionType.SpawnMonster,
+                                                Parameters = new Dictionary<string, string>()
+                                                {
+                                                    { "Name", "Digg" },
+                                                    { "PlacementRule", "RelativeToTarget" },
+                                                    { "PlacementTarget", "Amburr the Ettin" }
+                                                }
+                                            }
+                                        }
+                                    }                            
+                                }
                         },
                         new Quest()
                         {
@@ -676,7 +768,9 @@ namespace LoDCompanion.BackEnd.Services.Game
                             StartingRoom = _room.GetRoomByName("C18"),
                             SpecialRules = "The Secondary Quest card 1 should be mixed in with the stack before dividing it to add the normal objective card. A Wandering Monster will appear when the Threat Level reaches 10 and 16. The secondary objective involves fighting Kraghul the Mighty, a powerful Minotaur.",
                             CorridorCount = 7,
+                            CorridorsToExclude =new() { _room.GetRoomByName("C16") },
                             RoomCount = 7,
+                            RoomsToExclude = new() { _room.GetRoomByName("R17") },
                             RewardSpecial = "If the secondary objective is completed, the party finds two Antidote potions.",
                             EncounterType = EncounterType.Beasts,
                             ObjectiveRoom = _room.GetRoomByName("C16"),
@@ -685,7 +779,49 @@ namespace LoDCompanion.BackEnd.Services.Game
                             MaxThreatLevel = 18,
                             NarrativeQuest = "The adventurers continue down the stairs into the temple's basement. There is a pungent smell in the air and the stairs are covered in dust. In the distance they suddenly hear a terrifying roar, alerting them to a dangerous presence.",
                             NarrativeObjectiveRoom = "Finally, the heroes locate the stairs. They carefully approach them, expecting traps or monsters, but they safely reach the top. The darkness prevents any possibility to spy what lies ahead. Instead, they carefully start their descent further into the bowels of the temple.",
-                            NarrativeAftermath = "Upon reaching the stairs, the heroes proceed to the next level."
+                            NarrativeAftermath = "Upon reaching the stairs, the heroes proceed to the next level.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                // This rule now supports multiple comma-separated values
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "WanderingMonsterAtThreat" },
+                                        { "Value", "10,16" }
+                                    }
+                                }
+                            },
+                            SideQuests = new()
+                            {
+                                new Quest
+                                {
+                                    Name = "Kraghul the Mighty",
+                                    QuestType = QuestType.Dungeon,
+                                    IsSideQuest = true,
+                                    ObjectiveRoom = _room.GetRoomByName("R17"),
+                                    RewardSpecial = "Two Antidote potions.",
+                                    NarrativeObjectiveRoom = "The size of this Minotaur is quite unbelievable...",
+                                    SetupActions = new List<QuestSetupAction>()
+                                    {
+                                        new QuestSetupAction
+                                        {
+                                            ActionType = QuestSetupActionType.SetRoom,
+                                            Parameters = new Dictionary<string, string>() { { "RoomName", "R17" } }
+                                        },
+                                        new QuestSetupAction
+                                        {
+                                            ActionType = QuestSetupActionType.SpawnMonster,
+                                            Parameters = new Dictionary<string, string>()
+                                            {
+                                                { "Name", "Kraghul the Mighty" },
+                                                { "PlacementRule", "Center" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         new Quest()
                         {
@@ -694,7 +830,9 @@ namespace LoDCompanion.BackEnd.Services.Game
                             StartingRoom = _room.GetRoomByName("C8"),
                             SpecialRules = "Whenever you have an encounter, roll a die. An odd number will result in 1d3 Giant Spiders; an even number will result in an encounter from the Undead Encounter List. All doors are considered cobweb covered openings. A Threat Level of 12 will trigger a Wandering Monster.",
                             CorridorCount = 7,
+                            CorridorsToExclude = new() { _room.GetRoomByName("C16") },
                             RoomCount = 7,
+                            RoomsToExclude = new() { _room.GetRoomByName("R1"), _room.GetRoomByName("R9"), _room.GetRoomByName("R17") },
                             RewardItems = [
                                 .. await _treasure.GetWonderfulTreasureAsync(),
                                 .. await _treasure.GetWonderfulTreasureAsync(),
@@ -708,21 +846,478 @@ namespace LoDCompanion.BackEnd.Services.Game
                             NarrativeQuest = "Reaching the end of the stairs, the party finds the corridor ending in an opening covered in a tight weave of cobweb. The dust on the floor has been disturbed by a strange pattern, suggesting the Queen's power over spiders transgresses the borders between life and death.",
                             NarrativeObjectiveRoom = "The heroes reach the final resting place of the Queen. Sunbeams shoot from holes in the roof, creating a spotlight on a sarcophagus. Standing next to it is a huge, motionless black spider. Suddenly, its eight eyes gleam and it rises as if woken from slumber.",
                             NarrativeSetup = "The Gigantic Spider, Belua, is placed next to the sarcophagus. The heroes enter on the short side of the room. Belua has a special ability: on a behavior roll of 5-6, she attempts to summon a Giant Spider, which appears randomly in the room but cannot act on the turn it arrives.",
-                            NarrativeAftermath = "With Belua and them children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless."
+                            NarrativeAftermath = "With Belua and them children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "WanderingMonsterAtThreat" },
+                                        { "Value", "12" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        // This rule can be checked by your door interaction logic.
+                                        { "Rule", "DoorType" },
+                                        { "Value", "CobwebCovered" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>() { { "RoomName", "The Great Crypt" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Belua the Gigantic Spider" },
+                                        { "PlacementRule", "RelativeToTarget" },
+                                        // The Great Crypt has a Sarcophagus as a default furniture piece.
+                                        { "PlacementTarget", "Sarcophagus" }
+                                    }
+                                }
+                            }
                         },
                     }
                 });
 
             // --- STANDALONE QUESTS ---
 
-            StandaloneQuests.Add(new Quest()
+            StandaloneQuests.AddRange(new List<Quest>()
             {
-                Name = "The Burning Village",
-                QuestType = QuestType.WildernessQuest,
-                /* ... all details ... */
-            });
+                new Quest()
+                {
+                    Name = "First Blood",
+                    QuestType = QuestType.WildernessQuest,
+                    StartingRoom = _room.GetRoomByName("Barren Land"),
+                    SpecialRules = "The bandits gain +2 initiative tokens on the first turn as they surprise the sleeping heroes. Due to the darkness, no one can see or shoot further than 10 squares. The Scenario die is not in use.",
+                    EncounterType = EncounterType.Bandits_Brigands,
+                    NarrativeQuest = "The heroes have travelled for days and are finally nearing their destination in the village...the hero on watch is suddenly snapped into high alert by the faint sound of stealthy footsteps. Realising the potential peril, he quickly tries to wake the rest of the party. As they fumble to rise, a gang of bandits charge out of the darkness.",
+                    NarrativeSetup = "The party has been attacked by three bandits and one bandit leader. The bandit leader is equipped with a longsword, a shield and has armour 1. Two bandits are armed with shortswords and have armour 0. One bandit is armed with a shortbow, dagger and has armour 0. Use the wilderness outdoor tiles (open ground tiles) and place the heroes in the centre, adjacent to each other. Then randomise which board edge each bandit approaches from, placing them 1d10 squares from the edge.",
+                    NarrativeAftermath = "With the bandits dead, the party decides to gather their gear and continue their travel. They arrive at the settlement without further issues. Head to the settlement chapter and start by rolling for a settlement event.",
+                    SetupActions = new List<QuestSetupAction>()
+                        {
+                            new QuestSetupAction
+                            {
+                                // A new ActionType for initiative changes.
+                                ActionType = QuestSetupActionType.ModifyInitiative,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "Target", "Monster" }, // Or "Enemy"
+                                    { "Amount", "2" },
+                                    { "Turn", "1" } // Specifies it only applies to the first turn
+                                }
+                            },
+                            new QuestSetupAction
+                            {
+                                // This handles the darkness rule.
+                                ActionType = QuestSetupActionType.SetCombatRule,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "Rule", "MaxVision" },
+                                    { "Value", "10" }
+                                }
+                            },
+                            new QuestSetupAction
+                            {
+                                ActionType = QuestSetupActionType.SetRoom,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "RoomName", "Barren Land" }
+                                }
+                            },
+                            new QuestSetupAction
+                            {
+                                ActionType = QuestSetupActionType.PlaceHeroes,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "PlacementRule", "Center" },
+                                    { "Arrangement", "Adjacent" }
+                                }
+                            },
+                            new QuestSetupAction
+                            {
+                                ActionType = QuestSetupActionType.SpawnMonster,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "Name", "Bandit Leader" },
+                                    { "Count", "1" },
+                                    { "Weapons", "Longsword" },
+                                    { "Shield", "true" },
+                                    { "Armour", "1" },
+                                    { "PlacementRule", "RandomEdge" },
+                                    { "PlacementArgs", "1d10" }
+                                }
+                            },
+                            new QuestSetupAction
+                            {
+                                ActionType = QuestSetupActionType.SpawnMonster,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "Name", "Bandit" },
+                                    { "Count", "2" },
+                                    { "Weapons", "Shortsword" },
+                                    { "Armour", "0" },
+                                    { "PlacementRule", "RandomEdge" },
+                                    { "PlacementArgs", "1d10" }
+                                }
+                            },
+                            new QuestSetupAction
+                            {
+                                ActionType = QuestSetupActionType.SpawnMonster,
+                                Parameters = new Dictionary<string, string>()
+                                {
+                                    { "Name", "Bandit Archer" },
+                                    { "Count", "1" },
+                                    { "Weapons", "Shortbow,Dagger" },
+                                    { "Armour", "0" },
+                                    { "PlacementRule", "RandomEdge" },
+                                    { "PlacementArgs", "1d10" }
+                                }
+                            }
+                        }
+                },
 
-            // ... add any other non-campaign quests here ...
+                    new Quest()
+                    {
+                        Name = "Stop the Heretics",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear. In the Objective Room, the heroes have 10 turns to kill the caster. If they fail, the ritual succeeds, the caster collapses, and demons are summoned.",
+                        CorridorCount = 6,
+                        RoomCount = 6,
+                        RewardCoin = 250,
+                        EncounterType = EncounterType.StopTheHeretics,
+                        ObjectiveRoom = _room.GetRoomByName("The Lava River"),
+                        StartThreatLevel = 4,
+                        MinThreatLevel = 4,
+                        MaxThreatLevel = 18,
+                        NarrativeQuest = "A High Wizard has felt disturbances from the Void and determined someone is performing a Ritual of Summoning. If the heroes can interrupt the ritual, a demonic invasion can be prevented. They must enter the dungeon and slay the heretic conjurer.",
+                        NarrativeObjectiveRoom = "The heat from the lava river is almost unbearable. Several guards are in the room, protecting a caster who is busy performing their ritual at an altar on a dais in the far end of the room.",
+                        NarrativeSetup = "The party enters on the short side opposite the altar. Roll twice on the Encounter Table to place guards on the heroes' side of the river. On the other side stands a Magic User of the encountered race, who is so occupied with the ritual that he doesn't notice the battle. The heroes act first.",
+                        NarrativeAftermath = "Once all creatures are defeated, the heroes find an alternative exit. If they kill the Spellcaster before he opens the portal, they get the full reward. If they fail, they only get half, as the portal is now open."
+                    },
+                    new Quest()
+                    {
+                        Name = "The Master Alchemist",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. To complete the objective, a hero must spend 2 actions next to the lava river and pass a DEX test to fill a special vial.",
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardCoin = 300,
+                        EncounterType = EncounterType.TheMasterAlchemist,
+                        ObjectiveRoom = _room.GetRoomByName("The Lava River"),
+                        StartThreatLevel = 5,
+                        MinThreatLevel = 3,
+                        MaxThreatLevel = 18,
+                        NarrativeQuest = "The settlement's leading alchemist needs liquid lava for a new formula. He has constructed a special vial that will keep the lava from cooling and needs the heroes to venture into a monster-infested dungeon to retrieve it.",
+                        NarrativeObjectiveRoom = "With the lava river in view, the heroes prepare to advance, but they are not alone in the chamber.",
+                        NarrativeSetup = "Roll twice on the Encounter Table. Place the first result on the same side of the river as the heroes and the second on the far side. The heroes enter along the short side and may act first.",
+                        NarrativeAftermath = "Once the room is clear, the heroes can leave via an alternative exit. If they return with the vial of lava, they receive their reward. If the vial was dropped, they receive nothing but a scolding from the alchemist."
+                    },
+                    new Quest()
+                    {
+                        Name = "Preventing a Disaster",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. Ignore any special rules for the dead members of the Brotherhood; treat them as searchable dead adventurers. The objective room has tremors: if the Scenario Dice is 1-2, each hero must pass a DEX test or be toppled.",
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardCoin = 300,
+                        RewardSpecial = "If both scrolls fail, the heroes receive no coin but are granted +1 luck on their next quest by the god Rhidnir.",
+                        EncounterType = EncounterType.Undead,
+                        ObjectiveRoom = _room.GetRoomByName("The Lava River"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 5,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "The lava river beneath the temple of Rhidnir is causing tremors, threatening to flood the temple. To stop it, a powerful incantation from a scroll must be read at an old shrine by the river. The priests have hired the heroes to brave the Undead-infested burial grounds below the temple and perform the ritual.",
+                        NarrativeObjectiveRoom = "The heroes enter a room filled with mindlessly walking Undead. As they brace against the tremors, they slowly advance towards the altar on the far side.",
+                        NarrativeSetup = "Roll 3 times on the Undead Encounter Table and place the enemies randomly in the room. The heroes may act first.",
+                        NarrativeAftermath = "To stop the tremors, a hero must successfully cast the incantation from one of two scrolls while adjacent to the altar. If successful, the party can escape and claim their reward. If both scrolls fail, the river floods, and the party has 3 turns to escape the chamber before taking fire damage. The priests will refuse to pay, but the god Rhidnir grants the party a boon for the spectacle."
+                    },
+                    new Quest()
+                    {
+                        Name = "Rescuing the Prisoners",
+                        SpecialRules = "When the Threat Level reaches 14, a Wandering Monster appears. An encounter roll of 17-18 means you have met Briggo the ogre, and 19-20 means you have met Gorm the ogre bodyguard. Every time the Scenario dice is 1-3, one of the 10 prisoners is killed.",
+                        CorridorCount = 8,
+                        RoomCount = 8,
+                        RewardCoin = 250,
+                        RewardSpecial = "The final reward is variable. If all 10 prisoners survive, the Jarl adds 100c to each hero's reward. For each prisoner that dies, 50c is deducted from a base of 300c per hero.",
+                        EncounterType = EncounterType.Bandits_Brigands,
+                        ObjectiveRoom = _room.GetRoomByName("Bandits Hideout"),
+                        StartThreatLevel = 5,
+                        MinThreatLevel = 5,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "A caravan has been ambushed and its passengers kidnapped by a local bandit menace known as Golfrid the Short. The Jarl has turned to their trusted heroes to find the bandits' lair and rescue the prisoners.",
+                        NarrativeObjectiveRoom = "The heroes locate the hideout and find the Halfling, Golfrid, standing by a bed at the far end of the room. The kidnapped prisoners are sitting along one of the walls. Golfrid orders their bandits to attack, and in the ensuing chaos, the panicked prisoners start running around the room.",
+                        NarrativeSetup = "Place Golfrid by the bed, with their ogre bodyguards next to them if they haven't been defeated yet. Roll twice on the Encounter Table and place the bandits evenly along the walls. The heroes may act first.",
+                        NarrativeAftermath = "Once the battle is over, the heroes escort any surviving prisoners back to the city. The Jarl adjusts the final reward based on the number of survivors."
+                    },
+                    new Quest()
+                    {
+                        Name = "The Pleasure House",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "The Scenario dice is triggered on a result of 8-0.",
+                        CorridorCount = 8,
+                        RoomCount = 6,
+                        RewardCoin = 250,
+                        RewardSpecial = "During the aftermath, the party can make a deal with the High Priest's daughter for an extra 400c. Success is determined by a dice roll, with outcomes ranging from getting the extra coin to losing the main reward and suffering a temporary HP penalty.",
+                        EncounterType = EncounterType.Bandits_Brigands,
+                        ObjectiveRoom = _room.GetRoomByName("Bandits Hideout"),
+                        StartThreatLevel = 5,
+                        MinThreatLevel = 5,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "The High Priests have learned of an illegal Pleasure House operating in the catacombs below the city, run by the beautiful but cruel brigand, Madame Isabelle. Unwilling to trust the city guard, the priests hire the adventurers to shut down the establishment.",
+                        NarrativeObjectiveRoom = "When the heroes enter the Pleasure House, the room, filled with patrons and guards, falls silent. Madame Isabelle sits at the far end, enjoying a glass of wine. After a moment, them guards rush towards the intruders.",
+                        NarrativeSetup = "Roll twice on the Bandits and Brigands Encounter Chart and place the guards along the walls, with any archers at the far end. Place Madame Isabelle by the bed. The enemy acts first. Madame Isabelle has the Seduction special rule.",
+                        NarrativeAftermath = "After defeating the guards and Isabelle, the heroes tend to the wounded. They recognize the High Priest's daughter among the visitors, who begs them not to reveal them presence and offers a hefty bribe for their silence."
+                    },
+                    new Quest()
+                    {
+                        Name = "Cleansing the Water",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "A Wandering Monster will appear when the Threat Level reaches 14.",
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardCoin = 300,
+                        RewardSpecial = "A Potion of Healing for each hero.",
+                        EncounterType = EncounterType.Reptiles,
+                        ObjectiveRoom = _room.GetRoomByName("The Fountain Room"),
+                        StartThreatLevel = 2,
+                        MinThreatLevel = 2,
+                        MaxThreatLevel = 18,
+                        NarrativeQuest = "The sacred healing water of the Temple of Meredith has recently turned into a foul, muddy green liquid. The High Priest begs the adventurers to investigate the source of the problem in the temple's basement, where the fountain originates.",
+                        NarrativeObjectiveRoom = "The room is filled with the hissing of reptiles. Next to the fountain, two unhealthy-looking lizards are pouring a substance from a large vase into the water. The foul smell in the room makes every breath a struggle.",
+                        NarrativeSetup = "Roll three times on the Reptile Table and place them randomly in the chamber. Place two Gecko Assassins (armed with shortswords, Armour 0) close to the fountain. The heroes enter along a short side and act first.",
+                        NarrativeAftermath = "Once all reptiles are dead, the heroes see the water slowly returning to its normal color. Back in the temple, the grateful High Priest gives them their reward and a healing potion for each hero."
+                    },
+                    new Quest()
+                    {
+                        Name = "Baptising",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardCoin = 300,
+                        RewardSpecial = "Two unlocked, untrapped objective chests are found in the chamber. The heroes may also dip their weapons into the fountain, giving them +1 Damage until the end of the next quest.",
+                        EncounterType = EncounterType.Orcs_Goblins,
+                        ObjectiveRoom = _room.GetRoomByName("The Fountain Room"),
+                        StartThreatLevel = 4,
+                        MinThreatLevel = 4,
+                        MaxThreatLevel = 18,
+                        NarrativeQuest = "The heroes have been tasked by the local garrison to retrieve sacred water from a fountain of Ramos to perform an ancient weapon-baptising ritual. The closest fountain, however, is located in an abandoned castle overrun by a tribe of Orcs and Goblins.",
+                        NarrativeObjectiveRoom = "The light from the glittering fountain illuminates the chamber. The heroes are not the only ones aware of the fountain's power; a huge orc is just about to dip their sword into the water when he spots them.",
+                        NarrativeSetup = "Roll twice on the Orcs and Goblins Table and place them randomly in the chamber. Place Gaul the Mauler, a huge Orc, next to the fountain on the far side. Before the fight, Gaul dips their weapon, giving it +1 damage. The heroes start on a short side and act first.",
+                        NarrativeAftermath = "After the fight, the heroes investigate the chamber and find two large chests. They take turns dipping their own weapons in the fountain before filling a bottle for the garrison and heading back to Silver City."
+                    },
+                    new Quest()
+                    {
+                        Name = "Returning the Relic",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "Due to the curse of the stone, all Luck Points are nullified until the stone is returned. The Scenario dice is triggered on a result of 8-0. After all enemies are defeated, a hero must stand before the statue and pass a DEX Test to replace the stone, which takes one turn. Failure increases the Threat Level by 1.",
+                        CorridorCount = 8,
+                        RoomCount = 8,
+                        RewardCoin = 300,
+                        EncounterType = EncounterType.Random,
+                        ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
+                        StartThreatLevel = 5,
+                        MinThreatLevel = 5,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "A local nobleman has contracted the heroes to return a polished black stone to a long-forgotten temple. Since retrieving the stone, he has suffered from bad luck and believes it to be cursed. He hopes returning it will lift the curse.",
+                        NarrativeObjectiveRoom = "The heroes enter the chamber and see the great statue at the far end, with an obvious place for the stone. However, a horde of enemies stands between them and their objective.",
+                        NarrativeSetup = "Roll twice on the Encounter Table and place the enemies randomly. The heroes may act first.",
+                        NarrativeAftermath = "Once the stone is returned to its place, absolutely nothing happens. The heroes head home, where the nobleman pays them their reward, convinced their luck has turned now that the stone is gone."
+                    },
+                    new Quest()
+                    {
+                        Name = "Slaying the Fiend",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "The fiend, Molgor, is a huge Minotaur with the Frenzy and Ferocious Charge rules. He has been wounded in a previous fight; roll on a table to determine how many starting wounds to subtract.",
+                        CorridorCount = 8,
+                        RoomCount = 8,
+                        RewardSpecial = "A pile of gold and two objective chests, which are unlocked and not trapped.",
+                        EncounterType = EncounterType.Beasts,
+                        ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "The heroes hear a tale from a wounded knight about a valiant battle against numerous beasts in the ruins of Fort Summerhall. The knight speaks of wounding a huge fiend and seeing a glimmer of gold in its chamber. Curious, the party sets out to investigate.",
+                        NarrativeObjectiveRoom = "The heroes enter a large hall with a huge idol to a Dark God at the far end. The floor is littered with the bodies of beastmen. As they walk towards the idol, a deep roar echoes and the fiend, Molgor, charges from the shadows.",
+                        NarrativeSetup = "Place the heroes 1d3 squares from the door. Place Molgor 1d6 squares from the idol, charging towards the heroes. Molgor acts first.",
+                        NarrativeAftermath = "Once the fiend is defeated, the heroes search the chamber. The knight's story proves true, and they find a pile of gold and two objective chests."
+                    },
+                    new Quest()
+                    {
+                        Name = "Closing the Portal",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "Any encounter roll of an even 10 (10, 20, 30...) results in an encounter with random demons. To close the portal, a hero must spend 1d6+1 consecutive turns reading a scroll. If the reader is interrupted in any way, they must start over. Every other turn, a new demon emerges from the portal.",
+                        CorridorCount = 8,
+                        RoomCount = 8,
+                        RewardCoin = 300,
+                        RewardSpecial = "Two unlocked and untrapped objective chests are in the room.",
+                        EncounterType = EncounterType.Random,
+                        ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "Demons have been spotted in the sewers beneath the city, and the High Wizard believes an open portal is the cause. The Jarl has tasked the heroes with entering the catacombs to find and seal the gate using a special scroll.",
+                        NarrativeObjectiveRoom = "A humming sound leads the heroes to a large chamber. In the center, over a summoning circle, a shimmering bubble hangs in the air, periodically crackling and spewing out a demon. A large number of demons already in the room fix their eyes on the adventurers.",
+                        NarrativeSetup = "Roll twice on the special demon encounter table and place them randomly in the room. The heroes enter centered along the long side of the room.",
+                        NarrativeAftermath = "Once the portal is closed and the final demon is slain, the party loots two objective chests. Back on the surface, the Jarl and the wizard greet them thankfully and provide the promised reward."
+                    },
+                    new Quest()
+                    {
+                        Name = "Retrieving the Family Heirloom",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "The Scenario dice is triggered on 8-0. The objective room contains six tombs. Take 6 playing cards (3 black, 1 red, 2 face cards) and shuffle them. Opening a tomb takes two heroes a full turn. Draw a card: Black means an empty tomb. Red means the sword is found. A face card means a mummy attacks.",
+                        CorridorCount = 8,
+                        RoomCount = 8,
+                        RewardCoin = 300,
+                        EncounterType = EncounterType.Undead,
+                        ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
+                        StartThreatLevel = 5,
+                        MinThreatLevel = 5,
+                        MaxThreatLevel = 18,
+                        NarrativeQuest = "A young knight has hired the heroes to retrieve a powerful family heirloom—a sword of immense beauty—from their great-great-grandfather's tomb in one of the city's mausoleums. The knight himself is unable to go, as he has caught the flu.",
+                        NarrativeObjectiveRoom = "The heroes enter the Great Crypt where the ancestor is entombed. The room is covered in cobwebs and dust, and there are six tombs, not one. The engravings are worn away, so the heroes must open them one by one to find the correct one.",
+                        NarrativeSetup = "There are no enemies in the room when the heroes enter.",
+                        NarrativeAftermath = "Once the sword is retrieved, the heroes return to the surface. The young knight yanks the sword from their hands, complaining about the time it took, but nonetheless pays the agreed-upon reward."
+                    },
+                    new Quest()
+                    {
+                        Name = "Stopping the Necromancer",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "The floor of the objective room is covered in corpses, making combat difficult; heroes suffer a -10% penalty to CS and RS. A 'To Hit' roll of 90+ means the hero falls and must pass a DEX test to stand up. The Zombies will form a protective circle around Ragnalf and will not move. If Ragnalf dies, all zombies die as well.",
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardCoin = 300,
+                        EncounterType = EncounterType.Undead,
+                        ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "The heroes have been tasked with finding and killing Ragnalf the Mad, a Necromancer who has been raiding cemeteries for corpses. After tracing their minions to a ruined fort near the city, the heroes prepare to locate the evil wizard.",
+                        NarrativeObjectiveRoom = "The heroes enter a room filled with the stench of death and literally covered in corpses, some of which are twitching. At the far end stands Ragnalf the Mad, an old man in a tattered robe, surrounded by a host of zombies. The heroes carefully advance.",
+                        NarrativeSetup = "Place Ragnalf the Necromancer at the far end of the room, with 6 Zombies armed with longswords placed close to them. The heroes enter along a short side.",
+                        NarrativeAftermath = "When the Necromancer dies, all the zombies collapse and the eerie movement on the floor stops. The heroes, not wanting to linger, head back to town to collect their reward."
+                    },
+                    new Quest()
+                    {
+                        Name = "Tomb Raiders",
+                        ColorLocation = (QuestColor.White, 38),
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "Opening a tomb takes two heroes a full turn. While in the objective room, the Scenario dice triggers an event on a roll of 1-4; any result that would increase the Threat Level instead summons a Wandering Monster.",
+                        CorridorCount = 7,
+                        RoomCount = 5,
+                        EncounterType = EncounterType.Undead,
+                        ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "An ancient tomb has been discovered far to the south of Silver City. High King Logan III has requested it be opened and examined. At the suggestion of the Jarl, the heroes take the job with the deal that they may keep anything they find.",
+                        NarrativeObjectiveRoom = "The heroes enter a vast, silent chamber filled with tombs. There is no movement, only the promise of ancient treasure within the graves.",
+                        NarrativeSetup = "The heroes remain where they stood when they opened the door to the chamber.",
+                        NarrativeAftermath = "Coming back into the sunlight, the heroes enjoy the fresh air. The quest was not as bad as feared, and they wonder if more tombs lie further to the south."
+                    },
+                    new Quest()
+                    {
+                        Name = "The Pyramid of Xantha",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "Due to the abundance of treasure, you may re-roll 4 rolls on the Furniture Chart during the quest (a re-roll cannot be re-rolled). If the scenario roll is triggered in the objective room, the mummy of Xánthu himself (a Mummy Prince) will rise from a sarcophagus to join the fight.",
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardSpecial = "A hidden, beautiful chest can also be discovered and searched as an objective chest.",
+                        EncounterType = EncounterType.AncientLands,
+                        ObjectiveRoom = _room.GetRoomByName("The Large Tomb"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "The heroes have heard of the Pyramid of Xánthu, the final resting place of a cruel but prosperous ruler from the Ancient Lands. Believing he was buried with their treasures, they deem the ominous pyramid a worthy target for dungeoneering.",
+                        NarrativeObjectiveRoom = "The heroes enter a vast, mostly empty chamber containing two intricately carved stone sarcophagi at its center, surrounded by painted glyphs on the floor. The hall is not empty, however, as undead guardians must be dispatched before the room can be examined.",
+                        NarrativeSetup = "The heroes enter along a short edge of the room. Make two rolls on the Encounter Table and place the enemies randomly.",
+                        NarrativeAftermath = "Once the chamber is quiet, the heroes search for treasure, carefully avoiding the glyphs. They eventually find a set of movable stones in a wall, revealing a beautiful chest behind them."
+                    },
+                    new Quest()
+                    {
+                        Name = "Tomb of the Hierophant",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "You may re-roll 4 rolls on the furniture chart. Mix a special deck of 14 playing cards (11 red, Ace/2/3 of Spades). Flip one card upon entering each new tile; if a spade is drawn, a special event occurs (finding a statue, triggering a fire trap, or finding a stone tablet).",
+                        CorridorCount = 7,
+                        RoomCount = 7,
+                        RewardCoin = 300,
+                        RewardSpecial = "An extra 100c per hero for bringing back the stone tablet, and another 100c per hero for the golden statue. A rune-covered tome is also found in the sarcophagus.",
+                        EncounterType = EncounterType.AncientLands,
+                        ObjectiveRoom = _room.GetRoomByName("R22"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "The Golden College of Magic has requested that the heroes investigate the tomb of Djet, an influential Hierophant who seized power through dark arts. They believe valuable artifacts may still be present that could shed light on the ancient civilization.",
+                        NarrativeObjectiveRoom = "The heroes enter a surprisingly small chamber. On a stone sarcophagus in the center, the dried husk of the Hierophant Djet begins to move and rise. At the same time, the sound of approaching footsteps echoes from the tile they just left.",
+                        NarrativeSetup = "Place a Mummy Priest next to the sarcophagus. Then roll twice on the Encounter Table and place those enemies in the tile the heroes just vacated.",
+                        NarrativeAftermath = "After the battle, the party searches the chamber. Lying in the sarcophagus is an ancient, rune-covered tome which they collect automatically, along with any other treasure. Back at the outpost, they receive bonus payment for any special artifacts they found."
+                    },
+                    new Quest()
+                    {
+                        Name = "Temple of Despair",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. A side quest card is added to the exploration deck; if drawn, it triggers a special encounter with a Mummy Priest and wraiths.",
+                        CorridorCount = 6,
+                        RoomCount = 6,
+                        RewardSpecial = "The party also finds several valuable old books for the High Priests. However, upon leaving, each hero is afflicted with a random curse that lasts until the end of their next dungeon.",
+                        EncounterType = EncounterType.AncientLands,
+                        ObjectiveRoom = _room.GetRoomByName("R33"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "Knowledge of the Ancient Gods is scarce, but scholars believe the Temple of Despair was a site for human mass offerings. The High Priest has requested the heroes examine the site and bring back any related artifacts.",
+                        NarrativeObjectiveRoom = "The chamber ahead appears to be a chapel or place of worship, making it a likely place to find the artifacts the heroes are looking for.",
+                        NarrativeSetup = "Roll once on the Encounter Table and place the enemies randomly. If the special side quest encounter was triggered, those creatures will be in this room instead.",
+                        NarrativeAftermath = "The heroes find and pack several dusty, thick old books of value. As they leave the temple, the angered Ancient Gods place a curse on each hero."
+                    },
+                    new Quest()
+                    {
+                        Name = "Halls of Amenhotep",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. The fifth time the initiative bag is reloaded, two Tomb Guardians awaken from the statues in the room and join the fight.",
+                        CorridorCount = 6,
+                        RoomCount = 6,
+                        RewardCoin = 500,
+                        EncounterType = EncounterType.AncientLands,
+                        ObjectiveRoom = _room.GetRoomByName("The Ancient Throne Room"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "Little is known of the ruler Amenhotep, but the halls from where he reigned have been located. Untouched for millennia, they are bound to contain riches and are a perfect target for dungeoneering.",
+                        NarrativeObjectiveRoom = "The vast chamber is inspiring, with intricately carved walls and detailed seated statues that speak to its former magnificence.",
+                        NarrativeSetup = "The party enters the throne room along the short edge. Roll twice on the Encounter Table and place the enemies randomly in the room.",
+                        NarrativeAftermath = "With all the evil defeated, the heroes can enjoy the best part of dungeoneering: going through all the loot. Once done, the party is ready to move on."
+                    },
+                    new Quest()
+                    {
+                        Name = "Crypt of Khaba",
+                        StartingRoom = _room.GetRoomByName("Start Tile"),
+                        SpecialRules = "You may re-roll 4 rolls on the furniture chart. A special playing card deck is used; each time you enter a new tile, you flip a card. If the Ace of Spades is drawn, it triggers a special encounter with the undead Queen Khaba and them four wight bodyguards.",
+                        CorridorCount = 6,
+                        RoomCount = 6,
+                        RewardCoin = 500,
+                        RewardSpecial = "The Sceptre of the Queen, a legendary magic staff that contains the Fireball spell (cast once per dungeon, never needs recharging).",
+                        EncounterType = EncounterType.AncientLands,
+                        ObjectiveRoom = _room.GetRoomByName("The Large Tomb"),
+                        StartThreatLevel = 6,
+                        MinThreatLevel = 6,
+                        MaxThreatLevel = 20,
+                        NarrativeQuest = "Queen Khaba was a fascinating exception to the male rulers of the Ancient Lands. Her crypt has finally been identified, and it is said to be untouched for millennia. She was always pictured with a sceptre, and the heroes hope to find it with them remains.",
+                        NarrativeObjectiveRoom = "The heroes have finally located the burial site of Queen Khaba. Her legendary sceptre may be awaiting liberation within one of the two sarcophagi.",
+                        NarrativeSetup = "The party enters along the long edge. Roll twice on the Encounter Table and place the enemies randomly. If the party has not yet met Queen Khaba through the special card event, she will be present in this room next to them sarcophagus.",
+                        NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in her final resting place."
+                    }
+                }
+            );
         }
 
         /// <summary>
@@ -935,429 +1530,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "According to an alchemist you have happened upon, there is a mushroom that has very special properties. This mushroom could apparently revolutionise the brewing of healing potions. The mushroom only grows indoors in dark, damp areas and the dungeon you are heading to fits the bill perfectly. If you could bring a specimen back, he would reward you generously.",
                     NarrativeAftermath = "Found it! The Alchemist is very satisfied, and happily pays the money he promised...A day later a messenger boy catches up with you and hands you a package with a carefully wrapped potion. There is a note from the Alchemist as well, saying that this is their new healing potion. The potion is actually very potent and heals 2d6 HP once consumed."
                 },
-                new Quest()
-                {
-                    Name = "First Blood",
-                    QuestType = QuestType.WildernessQuest,
-                    StartingRoom = _room.GetRoomByName("Barren Land"),
-                    SpecialRules = "The bandits gain +2 initiative tokens on the first turn as they surprise the sleeping heroes. Due to the darkness, no one can see or shoot further than 10 squares. The Scenario die is not in use.",
-                    EncounterType = EncounterType.Bandits_Brigands,
-                    NarrativeQuest = "The heroes have travelled for days and are finally nearing their destination in the village...the hero on watch is suddenly snapped into high alert by the faint sound of stealthy footsteps. Realising the potential peril, he quickly tries to wake the rest of the party. As they fumble to rise, a gang of bandits charge out of the darkness.",
-                    NarrativeSetup = "The party has been attacked by three bandits and one bandit leader. The bandit leader is equipped with a longsword, a shield and has armour 1. Two bandits are armed with shortswords and have armour 0. One bandit is armed with a shortbow, dagger and has armour 0. Use the wilderness outdoor tiles (open ground tiles) and place the heroes in the centre, adjacent to each other. Then randomise which board edge each bandit approaches from, placing them 1d10 squares from the edge.",
-                    NarrativeAftermath = "With the bandits dead, the party decides to gather their gear and continue their travel. They arrive at the settlement without further issues. Head to the settlement chapter and start by rolling for a settlement event.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            // A new ActionType for initiative changes.
-                            ActionType = QuestSetupActionType.ModifyInitiative,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Target", "Monster" }, // Or "Enemy"
-                                { "Amount", "2" },
-                                { "Turn", "1" } // Specifies it only applies to the first turn
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            // This handles the darkness rule.
-                            ActionType = QuestSetupActionType.SetCombatRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "MaxVision" },
-                                { "Value", "10" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "RoomName", "Barren Land" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.PlaceHeroes,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "PlacementRule", "Center" },
-                                { "Arrangement", "Adjacent" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Bandit Leader" },
-                                { "Count", "1" },
-                                { "Weapons", "Longsword" },
-                                { "Shield", "true" },
-                                { "Armour", "1" },
-                                { "PlacementRule", "RandomEdge" },
-                                { "PlacementArgs", "1d10" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Bandit" },
-                                { "Count", "2" },
-                                { "Weapons", "Shortsword" },
-                                { "Armour", "0" },
-                                { "PlacementRule", "RandomEdge" },
-                                { "PlacementArgs", "1d10" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Bandit Archer" },
-                                { "Count", "1" },
-                                { "Weapons", "Shortbow,Dagger" },
-                                { "Armour", "0" },
-                                { "PlacementRule", "RandomEdge" },
-                                { "PlacementArgs", "1d10" }
-                            }
-                        }
-                    }
-                },
                 
-                new Quest()
-                {
-                    Name = "Stop the Heretics",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear. In the Objective Room, the heroes have 10 turns to kill the caster. If they fail, the ritual succeeds, the caster collapses, and demons are summoned.",
-                    CorridorCount = 6,
-                    RoomCount = 6,
-                    RewardCoin = 250,
-                    EncounterType = EncounterType.StopTheHeretics,
-                    ObjectiveRoom = _room.GetRoomByName("The Lava River"),
-                    StartThreatLevel = 4,
-                    MinThreatLevel = 4,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "A High Wizard has felt disturbances from the Void and determined someone is performing a Ritual of Summoning. If the heroes can interrupt the ritual, a demonic invasion can be prevented. They must enter the dungeon and slay the heretic conjurer.",
-                    NarrativeObjectiveRoom = "The heat from the lava river is almost unbearable. Several guards are in the room, protecting a caster who is busy performing their ritual at an altar on a dais in the far end of the room.",
-                    NarrativeSetup = "The party enters on the short side opposite the altar. Roll twice on the Encounter Table to place guards on the heroes' side of the river. On the other side stands a Magic User of the encountered race, who is so occupied with the ritual that he doesn't notice the battle. The heroes act first.",
-                    NarrativeAftermath = "Once all creatures are defeated, the heroes find an alternative exit. If they kill the Spellcaster before he opens the portal, they get the full reward. If they fail, they only get half, as the portal is now open."
-                },
-                new Quest()
-                {
-                    Name = "The Master Alchemist",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. To complete the objective, a hero must spend 2 actions next to the lava river and pass a DEX test to fill a special vial.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 300,
-                    EncounterType = EncounterType.TheMasterAlchemist,
-                    ObjectiveRoom = _room.GetRoomByName("The Lava River"),
-                    StartThreatLevel = 5,
-                    MinThreatLevel = 3,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "The settlement's leading alchemist needs liquid lava for a new formula. He has constructed a special vial that will keep the lava from cooling and needs the heroes to venture into a monster-infested dungeon to retrieve it.",
-                    NarrativeObjectiveRoom = "With the lava river in view, the heroes prepare to advance, but they are not alone in the chamber.",
-                    NarrativeSetup = "Roll twice on the Encounter Table. Place the first result on the same side of the river as the heroes and the second on the far side. The heroes enter along the short side and may act first.",
-                    NarrativeAftermath = "Once the room is clear, the heroes can leave via an alternative exit. If they return with the vial of lava, they receive their reward. If the vial was dropped, they receive nothing but a scolding from the alchemist."
-                },
-                new Quest()
-                {
-                    Name = "Preventing a Disaster",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear. Ignore any special rules for the dead members of the Brotherhood; treat them as searchable dead adventurers. The objective room has tremors: if the Scenario Dice is 1-2, each hero must pass a DEX test or be toppled.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 300,
-                    RewardSpecial = "If both scrolls fail, the heroes receive no coin but are granted +1 luck on their next quest by the god Rhidnir.",
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Lava River"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 5,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "The lava river beneath the temple of Rhidnir is causing tremors, threatening to flood the temple. To stop it, a powerful incantation from a scroll must be read at an old shrine by the river. The priests have hired the heroes to brave the Undead-infested burial grounds below the temple and perform the ritual.",
-                    NarrativeObjectiveRoom = "The heroes enter a room filled with mindlessly walking Undead. As they brace against the tremors, they slowly advance towards the altar on the far side.",
-                    NarrativeSetup = "Roll 3 times on the Undead Encounter Table and place the enemies randomly in the room. The heroes may act first.",
-                    NarrativeAftermath = "To stop the tremors, a hero must successfully cast the incantation from one of two scrolls while adjacent to the altar. If successful, the party can escape and claim their reward. If both scrolls fail, the river floods, and the party has 3 turns to escape the chamber before taking fire damage. The priests will refuse to pay, but the god Rhidnir grants the party a boon for the spectacle."
-                },
-                new Quest()
-                {
-                    Name = "Rescuing the Prisoners",
-                    SpecialRules = "When the Threat Level reaches 14, a Wandering Monster appears. An encounter roll of 17-18 means you have met Briggo the ogre, and 19-20 means you have met Gorm the ogre bodyguard. Every time the Scenario dice is 1-3, one of the 10 prisoners is killed.",
-                    CorridorCount = 8,
-                    RoomCount = 8,
-                    RewardCoin = 250,
-                    RewardSpecial = "The final reward is variable. If all 10 prisoners survive, the Jarl adds 100c to each hero's reward. For each prisoner that dies, 50c is deducted from a base of 300c per hero.",
-                    EncounterType = EncounterType.Bandits_Brigands,
-                    ObjectiveRoom = _room.GetRoomByName("Bandits Hideout"),
-                    StartThreatLevel = 5,
-                    MinThreatLevel = 5,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "A caravan has been ambushed and its passengers kidnapped by a local bandit menace known as Golfrid the Short. The Jarl has turned to their trusted heroes to find the bandits' lair and rescue the prisoners.",
-                    NarrativeObjectiveRoom = "The heroes locate the hideout and find the Halfling, Golfrid, standing by a bed at the far end of the room. The kidnapped prisoners are sitting along one of the walls. Golfrid orders their bandits to attack, and in the ensuing chaos, the panicked prisoners start running around the room.",
-                    NarrativeSetup = "Place Golfrid by the bed, with their ogre bodyguards next to them if they haven't been defeated yet. Roll twice on the Encounter Table and place the bandits evenly along the walls. The heroes may act first.",
-                    NarrativeAftermath = "Once the battle is over, the heroes escort any surviving prisoners back to the city. The Jarl adjusts the final reward based on the number of survivors."
-                },
-                new Quest()
-                {
-                    Name = "The Pleasure House",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "The Scenario dice is triggered on a result of 8-0.",
-                    CorridorCount = 8,
-                    RoomCount = 6,
-                    RewardCoin = 250,
-                    RewardSpecial = "During the aftermath, the party can make a deal with the High Priest's daughter for an extra 400c. Success is determined by a dice roll, with outcomes ranging from getting the extra coin to losing the main reward and suffering a temporary HP penalty.",
-                    EncounterType = EncounterType.Bandits_Brigands,
-                    ObjectiveRoom = _room.GetRoomByName("Bandits Hideout"),
-                    StartThreatLevel = 5,
-                    MinThreatLevel = 5,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "The High Priests have learned of an illegal Pleasure House operating in the catacombs below the city, run by the beautiful but cruel brigand, Madame Isabelle. Unwilling to trust the city guard, the priests hire the adventurers to shut down the establishment.",
-                    NarrativeObjectiveRoom = "When the heroes enter the Pleasure House, the room, filled with patrons and guards, falls silent. Madame Isabelle sits at the far end, enjoying a glass of wine. After a moment, them guards rush towards the intruders.",
-                    NarrativeSetup = "Roll twice on the Bandits and Brigands Encounter Chart and place the guards along the walls, with any archers at the far end. Place Madame Isabelle by the bed. The enemy acts first. Madame Isabelle has the Seduction special rule.",
-                    NarrativeAftermath = "After defeating the guards and Isabelle, the heroes tend to the wounded. They recognize the High Priest's daughter among the visitors, who begs them not to reveal them presence and offers a hefty bribe for their silence."
-                },
-                new Quest()
-                {
-                    Name = "Cleansing the Water",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "A Wandering Monster will appear when the Threat Level reaches 14.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 300,
-                    RewardSpecial = "A Potion of Healing for each hero.",
-                    EncounterType = EncounterType.Reptiles,
-                    ObjectiveRoom = _room.GetRoomByName("The Fountain Room"),
-                    StartThreatLevel = 2,
-                    MinThreatLevel = 2,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "The sacred healing water of the Temple of Meredith has recently turned into a foul, muddy green liquid. The High Priest begs the adventurers to investigate the source of the problem in the temple's basement, where the fountain originates.",
-                    NarrativeObjectiveRoom = "The room is filled with the hissing of reptiles. Next to the fountain, two unhealthy-looking lizards are pouring a substance from a large vase into the water. The foul smell in the room makes every breath a struggle.",
-                    NarrativeSetup = "Roll three times on the Reptile Table and place them randomly in the chamber. Place two Gecko Assassins (armed with shortswords, Armour 0) close to the fountain. The heroes enter along a short side and act first.",
-                    NarrativeAftermath = "Once all reptiles are dead, the heroes see the water slowly returning to its normal color. Back in the temple, the grateful High Priest gives them their reward and a healing potion for each hero."
-                },
-                new Quest()
-                {
-                    Name = "Baptising",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 300,
-                    RewardSpecial = "Two unlocked, untrapped objective chests are found in the chamber. The heroes may also dip their weapons into the fountain, giving them +1 Damage until the end of the next quest.",
-                    EncounterType = EncounterType.Orcs_Goblins,
-                    ObjectiveRoom = _room.GetRoomByName("The Fountain Room"),
-                    StartThreatLevel = 4,
-                    MinThreatLevel = 4,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "The heroes have been tasked by the local garrison to retrieve sacred water from a fountain of Ramos to perform an ancient weapon-baptising ritual. The closest fountain, however, is located in an abandoned castle overrun by a tribe of Orcs and Goblins.",
-                    NarrativeObjectiveRoom = "The light from the glittering fountain illuminates the chamber. The heroes are not the only ones aware of the fountain's power; a huge orc is just about to dip their sword into the water when he spots them.",
-                    NarrativeSetup = "Roll twice on the Orcs and Goblins Table and place them randomly in the chamber. Place Gaul the Mauler, a huge Orc, next to the fountain on the far side. Before the fight, Gaul dips their weapon, giving it +1 damage. The heroes start on a short side and act first.",
-                    NarrativeAftermath = "After the fight, the heroes investigate the chamber and find two large chests. They take turns dipping their own weapons in the fountain before filling a bottle for the garrison and heading back to Silver City."
-                },
-                new Quest()
-                {
-                    Name = "Returning the Relic",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "Due to the curse of the stone, all Luck Points are nullified until the stone is returned. The Scenario dice is triggered on a result of 8-0. After all enemies are defeated, a hero must stand before the statue and pass a DEX Test to replace the stone, which takes one turn. Failure increases the Threat Level by 1.",
-                    CorridorCount = 8,
-                    RoomCount = 8,
-                    RewardCoin = 300,
-                    EncounterType = EncounterType.Random,
-                    ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
-                    StartThreatLevel = 5,
-                    MinThreatLevel = 5,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "A local nobleman has contracted the heroes to return a polished black stone to a long-forgotten temple. Since retrieving the stone, he has suffered from bad luck and believes it to be cursed. He hopes returning it will lift the curse.",
-                    NarrativeObjectiveRoom = "The heroes enter the chamber and see the great statue at the far end, with an obvious place for the stone. However, a horde of enemies stands between them and their objective.",
-                    NarrativeSetup = "Roll twice on the Encounter Table and place the enemies randomly. The heroes may act first.",
-                    NarrativeAftermath = "Once the stone is returned to its place, absolutely nothing happens. The heroes head home, where the nobleman pays them their reward, convinced their luck has turned now that the stone is gone."
-                },
-                new Quest()
-                {
-                    Name = "Slaying the Fiend",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "The fiend, Molgor, is a huge Minotaur with the Frenzy and Ferocious Charge rules. He has been wounded in a previous fight; roll on a table to determine how many starting wounds to subtract.",
-                    CorridorCount = 8,
-                    RoomCount = 8,
-                    RewardSpecial = "A pile of gold and two objective chests, which are unlocked and not trapped.",
-                    EncounterType = EncounterType.Beasts,
-                    ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "The heroes hear a tale from a wounded knight about a valiant battle against numerous beasts in the ruins of Fort Summerhall. The knight speaks of wounding a huge fiend and seeing a glimmer of gold in its chamber. Curious, the party sets out to investigate.",
-                    NarrativeObjectiveRoom = "The heroes enter a large hall with a huge idol to a Dark God at the far end. The floor is littered with the bodies of beastmen. As they walk towards the idol, a deep roar echoes and the fiend, Molgor, charges from the shadows.",
-                    NarrativeSetup = "Place the heroes 1d3 squares from the door. Place Molgor 1d6 squares from the idol, charging towards the heroes. Molgor acts first.",
-                    NarrativeAftermath = "Once the fiend is defeated, the heroes search the chamber. The knight's story proves true, and they find a pile of gold and two objective chests."
-                },
-                new Quest()
-                {
-                    Name = "Closing the Portal",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "Any encounter roll of an even 10 (10, 20, 30...) results in an encounter with random demons. To close the portal, a hero must spend 1d6+1 consecutive turns reading a scroll. If the reader is interrupted in any way, they must start over. Every other turn, a new demon emerges from the portal.",
-                    CorridorCount = 8,
-                    RoomCount = 8,
-                    RewardCoin = 300,
-                    RewardSpecial = "Two unlocked and untrapped objective chests are in the room.",
-                    EncounterType = EncounterType.Random,
-                    ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "Demons have been spotted in the sewers beneath the city, and the High Wizard believes an open portal is the cause. The Jarl has tasked the heroes with entering the catacombs to find and seal the gate using a special scroll.",
-                    NarrativeObjectiveRoom = "A humming sound leads the heroes to a large chamber. In the center, over a summoning circle, a shimmering bubble hangs in the air, periodically crackling and spewing out a demon. A large number of demons already in the room fix their eyes on the adventurers.",
-                    NarrativeSetup = "Roll twice on the special demon encounter table and place them randomly in the room. The heroes enter centered along the long side of the room.",
-                    NarrativeAftermath = "Once the portal is closed and the final demon is slain, the party loots two objective chests. Back on the surface, the Jarl and the wizard greet them thankfully and provide the promised reward."
-                },
-                new Quest()
-                {
-                    Name = "Retrieving the Family Heirloom",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "The Scenario dice is triggered on 8-0. The objective room contains six tombs. Take 6 playing cards (3 black, 1 red, 2 face cards) and shuffle them. Opening a tomb takes two heroes a full turn. Draw a card: Black means an empty tomb. Red means the sword is found. A face card means a mummy attacks.",
-                    CorridorCount = 8,
-                    RoomCount = 8,
-                    RewardCoin = 300,
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
-                    StartThreatLevel = 5,
-                    MinThreatLevel = 5,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "A young knight has hired the heroes to retrieve a powerful family heirloom—a sword of immense beauty—from their great-great-grandfather's tomb in one of the city's mausoleums. The knight himself is unable to go, as he has caught the flu.",
-                    NarrativeObjectiveRoom = "The heroes enter the Great Crypt where the ancestor is entombed. The room is covered in cobwebs and dust, and there are six tombs, not one. The engravings are worn away, so the heroes must open them one by one to find the correct one.",
-                    NarrativeSetup = "There are no enemies in the room when the heroes enter.",
-                    NarrativeAftermath = "Once the sword is retrieved, the heroes return to the surface. The young knight yanks the sword from their hands, complaining about the time it took, but nonetheless pays the agreed-upon reward."
-                },
-                new Quest()
-                {
-                    Name = "Stopping the Necromancer",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "The floor of the objective room is covered in corpses, making combat difficult; heroes suffer a -10% penalty to CS and RS. A 'To Hit' roll of 90+ means the hero falls and must pass a DEX test to stand up. The Zombies will form a protective circle around Ragnalf and will not move. If Ragnalf dies, all zombies die as well.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 300,
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "The heroes have been tasked with finding and killing Ragnalf the Mad, a Necromancer who has been raiding cemeteries for corpses. After tracing their minions to a ruined fort near the city, the heroes prepare to locate the evil wizard.",
-                    NarrativeObjectiveRoom = "The heroes enter a room filled with the stench of death and literally covered in corpses, some of which are twitching. At the far end stands Ragnalf the Mad, an old man in a tattered robe, surrounded by a host of zombies. The heroes carefully advance.",
-                    NarrativeSetup = "Place Ragnalf the Necromancer at the far end of the room, with 6 Zombies armed with longswords placed close to them. The heroes enter along a short side.",
-                    NarrativeAftermath = "When the Necromancer dies, all the zombies collapse and the eerie movement on the floor stops. The heroes, not wanting to linger, head back to town to collect their reward."
-                },
-                new Quest()
-                {
-                    Name = "Tomb Raiders",
-                    ColorLocation = (QuestColor.White, 38),
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "Opening a tomb takes two heroes a full turn. While in the objective room, the Scenario dice triggers an event on a roll of 1-4; any result that would increase the Threat Level instead summons a Wandering Monster.",
-                    CorridorCount = 7,
-                    RoomCount = 5,
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "An ancient tomb has been discovered far to the south of Silver City. High King Logan III has requested it be opened and examined. At the suggestion of the Jarl, the heroes take the job with the deal that they may keep anything they find.",
-                    NarrativeObjectiveRoom = "The heroes enter a vast, silent chamber filled with tombs. There is no movement, only the promise of ancient treasure within the graves.",
-                    NarrativeSetup = "The heroes remain where they stood when they opened the door to the chamber.",
-                    NarrativeAftermath = "Coming back into the sunlight, the heroes enjoy the fresh air. The quest was not as bad as feared, and they wonder if more tombs lie further to the south."
-                },
-                new Quest()
-                {
-                    Name = "The Pyramid of Xantha",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "Due to the abundance of treasure, you may re-roll 4 rolls on the Furniture Chart during the quest (a re-roll cannot be re-rolled). If the scenario roll is triggered in the objective room, the mummy of Xánthu himself (a Mummy Prince) will rise from a sarcophagus to join the fight.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardSpecial = "A hidden, beautiful chest can also be discovered and searched as an objective chest.",
-                    EncounterType = EncounterType.AncientLands,
-                    ObjectiveRoom = _room.GetRoomByName("The Large Tomb"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "The heroes have heard of the Pyramid of Xánthu, the final resting place of a cruel but prosperous ruler from the Ancient Lands. Believing he was buried with their treasures, they deem the ominous pyramid a worthy target for dungeoneering.",
-                    NarrativeObjectiveRoom = "The heroes enter a vast, mostly empty chamber containing two intricately carved stone sarcophagi at its center, surrounded by painted glyphs on the floor. The hall is not empty, however, as undead guardians must be dispatched before the room can be examined.",
-                    NarrativeSetup = "The heroes enter along a short edge of the room. Make two rolls on the Encounter Table and place the enemies randomly.",
-                    NarrativeAftermath = "Once the chamber is quiet, the heroes search for treasure, carefully avoiding the glyphs. They eventually find a set of movable stones in a wall, revealing a beautiful chest behind them."
-                },
-                new Quest()
-                {
-                    Name = "Tomb of the Hierophant",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "You may re-roll 4 rolls on the furniture chart. Mix a special deck of 14 playing cards (11 red, Ace/2/3 of Spades). Flip one card upon entering each new tile; if a spade is drawn, a special event occurs (finding a statue, triggering a fire trap, or finding a stone tablet).",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 300,
-                    RewardSpecial = "An extra 100c per hero for bringing back the stone tablet, and another 100c per hero for the golden statue. A rune-covered tome is also found in the sarcophagus.",
-                    EncounterType = EncounterType.AncientLands,
-                    ObjectiveRoom = _room.GetRoomByName("R22"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "The Golden College of Magic has requested that the heroes investigate the tomb of Djet, an influential Hierophant who seized power through dark arts. They believe valuable artifacts may still be present that could shed light on the ancient civilization.",
-                    NarrativeObjectiveRoom = "The heroes enter a surprisingly small chamber. On a stone sarcophagus in the center, the dried husk of the Hierophant Djet begins to move and rise. At the same time, the sound of approaching footsteps echoes from the tile they just left.",
-                    NarrativeSetup = "Place a Mummy Priest next to the sarcophagus. Then roll twice on the Encounter Table and place those enemies in the tile the heroes just vacated.",
-                    NarrativeAftermath = "After the battle, the party searches the chamber. Lying in the sarcophagus is an ancient, rune-covered tome which they collect automatically, along with any other treasure. Back at the outpost, they receive bonus payment for any special artifacts they found."
-                },
-                new Quest()
-                {
-                    Name = "Temple of Despair",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. A side quest card is added to the exploration deck; if drawn, it triggers a special encounter with a Mummy Priest and wraiths.",
-                    CorridorCount = 6,
-                    RoomCount = 6,
-                    RewardSpecial = "The party also finds several valuable old books for the High Priests. However, upon leaving, each hero is afflicted with a random curse that lasts until the end of their next dungeon.",
-                    EncounterType = EncounterType.AncientLands,
-                    ObjectiveRoom = _room.GetRoomByName("R33"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "Knowledge of the Ancient Gods is scarce, but scholars believe the Temple of Despair was a site for human mass offerings. The High Priest has requested the heroes examine the site and bring back any related artifacts.",
-                    NarrativeObjectiveRoom = "The chamber ahead appears to be a chapel or place of worship, making it a likely place to find the artifacts the heroes are looking for.",
-                    NarrativeSetup = "Roll once on the Encounter Table and place the enemies randomly. If the special side quest encounter was triggered, those creatures will be in this room instead.",
-                    NarrativeAftermath = "The heroes find and pack several dusty, thick old books of value. As they leave the temple, the angered Ancient Gods place a curse on each hero."
-                },
-                new Quest()
-                {
-                    Name = "Halls of Amenhotep",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "You may re-roll 4 rolls on the furniture chart during the quest. The fifth time the initiative bag is reloaded, two Tomb Guardians awaken from the statues in the room and join the fight.",
-                    CorridorCount = 6,
-                    RoomCount = 6,
-                    RewardCoin = 500,
-                    EncounterType = EncounterType.AncientLands,
-                    ObjectiveRoom = _room.GetRoomByName("The Ancient Throne Room"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "Little is known of the ruler Amenhotep, but the halls from where he reigned have been located. Untouched for millennia, they are bound to contain riches and are a perfect target for dungeoneering.",
-                    NarrativeObjectiveRoom = "The vast chamber is inspiring, with intricately carved walls and detailed seated statues that speak to its former magnificence.",
-                    NarrativeSetup = "The party enters the throne room along the short edge. Roll twice on the Encounter Table and place the enemies randomly in the room.",
-                    NarrativeAftermath = "With all the evil defeated, the heroes can enjoy the best part of dungeoneering: going through all the loot. Once done, the party is ready to move on."
-                },
-                new Quest()
-                {
-                    Name = "Crypt of Khaba",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "You may re-roll 4 rolls on the furniture chart. A special playing card deck is used; each time you enter a new tile, you flip a card. If the Ace of Spades is drawn, it triggers a special encounter with the undead Queen Khaba and them four wight bodyguards.",
-                    CorridorCount = 6,
-                    RoomCount = 6,
-                    RewardCoin = 500,
-                    RewardSpecial = "The Sceptre of the Queen, a legendary magic staff that contains the Fireball spell (cast once per dungeon, never needs recharging).",
-                    EncounterType = EncounterType.AncientLands,
-                    ObjectiveRoom = _room.GetRoomByName("The Large Tomb"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "Queen Khaba was a fascinating exception to the male rulers of the Ancient Lands. Her crypt has finally been identified, and it is said to be untouched for millennia. She was always pictured with a sceptre, and the heroes hope to find it with them remains.",
-                    NarrativeObjectiveRoom = "The heroes have finally located the burial site of Queen Khaba. Her legendary sceptre may be awaiting liberation within one of the two sarcophagi.",
-                    NarrativeSetup = "The party enters along the long edge. Roll twice on the Encounter Table and place the enemies randomly. If the party has not yet met Queen Khaba through the special card event, she will be present in this room next to them sarcophagus.",
-                    NarrativeAftermath = "With all undead returned to dust, the party rummages through the chamber. As expected, they find the Sceptre of the Queen in her final resting place."
-                }
             };
         }
 

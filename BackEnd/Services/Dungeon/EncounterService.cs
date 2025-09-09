@@ -4849,7 +4849,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Ambar the Ettin",
+                    Name = "Amburr the Ettin",
                     Species = MonsterSpeciesName.Ettin,
                     BasicStats = new Dictionary<BasicStat, int>
                     {

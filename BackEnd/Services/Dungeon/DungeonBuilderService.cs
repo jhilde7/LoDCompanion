@@ -25,23 +25,29 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             initialDeck.AddRange(corridors);
             initialDeck.Shuffle();
 
-            // 2. Divide the deck into two equal (or near-equal) piles.
             var halfDeckSize = initialDeck.Count / 2;
             var firstHalf = initialDeck.Take(halfDeckSize).ToList();
             var secondHalf = initialDeck.Skip(halfDeckSize).ToList();
 
-            if (quest.SideQuests != null && quest.SideQuests.Any(sq => sq.Name == "The Hidden Treasure"))
+            if (quest.SideQuests != null)
             {
-                var sideQuestCardInfo = _rooms.GetRoomByName("R10");
-                if (sideQuestCardInfo != null)
+                foreach (var sideQuest in quest.SideQuests)
                 {
-                    Room sideQuestCard = new Room();
-                    _rooms.InitializeRoomData(sideQuestCardInfo, sideQuestCard);
-                    firstHalf.Insert(RandomHelper.GetRandomNumber(0, firstHalf.Count), sideQuestCard);
+                    var sideQuestCardInfo = sideQuest.ObjectiveRoom;
+                    if (quest.SideQuests.Any(sq => sq.Name == "The Hidden Treasure"))
+                    {
+                        sideQuestCardInfo = _rooms.GetRoomByName("R10");
+                    }
+
+                    if (sideQuestCardInfo != null)
+                    {
+                        Room sideQuestCard = new Room();
+                        _rooms.InitializeRoomData(sideQuestCardInfo, sideQuestCard);
+                        firstHalf.Insert(RandomHelper.GetRandomNumber(0, firstHalf.Count), sideQuestCard);
+                    } 
                 }
             }
 
-            // 3. Add the objective room to one of the piles and shuffle that pile.
             if (quest.ObjectiveRoom != null)
             {
                 var objectiveRoomInfo = _rooms.GetRoomByName(quest.ObjectiveRoom.Name);
@@ -54,7 +60,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 } 
             }
 
-            // 4. Combine the piles, placing the pile with the objective at the bottom. 
             var finalDeck = new List<Room>();
             finalDeck.AddRange(firstHalf);
             finalDeck.AddRange(secondHalf);
