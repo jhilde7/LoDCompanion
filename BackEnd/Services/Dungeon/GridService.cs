@@ -76,7 +76,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool IsTrapped => Trap != null;
         public bool IsOccupied => OccupyingCharacterId != null;
 
-        public Room Room { get; internal set; }
+        public Room Room { get; internal set; } = new();
 
         public GridSquare(GridPosition position)
         {
