@@ -76,9 +76,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool IsTrapped => Trap != null;
         public bool IsOccupied => OccupyingCharacterId != null;
 
-        public GridSquare(int x, int y, int z)
+        public Room Room { get; internal set; }
+
+        public GridSquare(GridPosition position)
         {
-            Position = new GridPosition(x, y, z);
+            Position = position;
         }
     }
 
@@ -124,33 +126,73 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return cost;
         }
 
-        /// <summary>
-        /// Places a new room onto the global grid at a specific offset.
-        /// </summary>
-        /// <param name="room">The room to place.</param>
-        /// <param name="roomOffset">The global grid position of the room's top-left corner.</param>
-        public static void PlaceRoomOnGrid(Room room, GridPosition roomOffset, Dictionary<GridPosition, GridSquare> grid)
+        public static void GenerateGridForRoom(Room room)
         {
-            room.GridOffset = roomOffset; // Store the room's global position
-
-            // Assuming the room itself is a flat 2D layout being placed at a specific Z level
-            for (int y = 0; y < room.Height; y++)
+            if (room.Size == null || room.Size.Length != 2)
             {
-                for (int x = 0; x < room.Width; x++)
+                return;
+            }
+
+            int width = room.Size[0];
+            int height = room.Size[1];
+
+            var grid = new Furniture[width, height, 10];
+
+            foreach (var furniture in room.FurnitureList)
+            {
+                foreach (var position in furniture.OccupiedSquares)
                 {
-                    // UPDATED: The Z coordinate from the offset is now used.
-                    var globalPos = new GridPosition(roomOffset.X + x, roomOffset.Y + y, roomOffset.Z);
-
-                    if (!grid.ContainsKey(globalPos))
+                    if (position.X >= 0 && position.X < width && position.Y >= 0 && position.Y < height)
                     {
-                        // UPDATED: The GridSquare is initialized with its full 3D position.
-                        var square = new GridSquare(globalPos.X, globalPos.Y, globalPos.Z);
-
-                        // Your existing logic for placing walls and furniture...
-                        grid[globalPos] = square;
+                        grid[position.X, position.Y, position.Z] = furniture;
                     }
                 }
             }
+        }
+
+        public static void PlaceRoomOnGrid(Room room, GridPosition offset, Dictionary<GridPosition, GridSquare> dungeonGrid)
+        {
+            room.GridOffset = offset;
+
+            foreach (var square in room.Grid.Values)
+            {
+                // Transform the square's local position based on the room's rotation
+                GridPosition transformedPos = TransformPosition(square.Position, room.Width, room.Height, room.RotationAngle);
+
+                // Add the grid offset to get the final global position
+                GridPosition globalPos = new GridPosition(
+                    offset.X + transformedPos.X,
+                    offset.Y + transformedPos.Y,
+                    offset.Z + transformedPos.Z);
+
+                // Place a reference to the square from the room's grid onto the main dungeon grid
+                dungeonGrid[globalPos] = square;
+            }
+        }
+
+        private static GridPosition TransformPosition(GridPosition localPos, int roomWidth, int roomHeight, int angle)
+        {
+            int oldX = localPos.X;
+            int oldY = localPos.Y;
+
+            return angle switch
+            {
+                90 => new GridPosition(roomWidth - 1 - oldY, oldX, localPos.Z),
+                180 => new GridPosition(roomWidth - 1 - oldX, roomHeight - 1 - oldY, localPos.Z),
+                270 => new GridPosition(oldY, roomHeight - 1 - oldX, localPos.Z),
+                _ => localPos, // Default to 0 degrees (no rotation)
+            };
+        }
+
+        public static Orientation GetOrientationFromPosition(GridPosition position, int roomWidth, int roomHeight)
+        {
+            if (position.X == 0) return Orientation.West;
+            if (position.X == roomWidth - 1) return Orientation.East;
+            if (position.Y == 0) return Orientation.South;
+            if (position.Y == roomHeight - 1) return Orientation.North;
+
+            // Default or fallback case, though an entry point should always be on an edge.
+            return Orientation.West;
         }
 
         /// <summary>
@@ -557,30 +599,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     err2 += 2 * dx;
                     z1 += sz;
                     yield return new GridPosition(x1, y1, z1);
-                }
-            }
-        }
-
-        public static void GenerateGridForRoom(Room room)
-        {
-            if (room.Size == null || room.Size.Length != 2)
-            {
-                return;
-            }
-
-            int width = room.Size[0];
-            int height = room.Size[1];
-
-            var grid = new Furniture[width, height, 10];
-
-            foreach (var furniture in room.FurnitureList)
-            {
-                foreach (var position in furniture.OccupiedSquares)
-                {
-                    if (position.X >= 0 && position.X < width && position.Y >= 0 && position.Y < height)
-                    {
-                        grid[position.X, position.Y, position.Z] = furniture;
-                    }
                 }
             }
         }

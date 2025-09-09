@@ -29,7 +29,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int PartyMoraleModifier { get; set; }
         public int[] Size { get; set; } = new int[] { 1, 1 };
         public int DoorCount { get; set; }
-        public List<Furniture>? FurnitureList { get; set; }
+        public List<GridPosition> EntryPositions { get; set; } = new List<GridPosition>();
+        public List<Furniture> FurnitureList { get; set; } = new();
         public int EncounterModifier { get; set; }
         public EncounterType? EncounterType { get; set; }
         public Lever? Lever { get; set; }
@@ -60,6 +61,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int PartyMoraleModifier { get; set; }
         public int[] Size { get; set; } = new int[2]; // Represents width/length or dimensions
         public List<Door> Doors { get; set; } = new List<Door>();
+        public List<GridPosition> EntryPositions { get; set; } = new List<GridPosition>();
         public List<Furniture> FurnitureList { get; set; } = new List<Furniture>(); // List of furniture types in the room
         public bool RandomEncounter { get; set; } // Flag for whether a random encounter can occur
         public EncounterType? EncounterType { get; set; } // used for room specific encounters
@@ -73,6 +75,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int DoorCount { get; set; }
         public Dictionary<GridPosition, GridSquare> Grid { get; set; } = new Dictionary<GridPosition, GridSquare>();
         public GridPosition GridOffset { get; set; } = new GridPosition(0, 0, 0);
+        public int RotationAngle { get; set; } = 0;
         public List<Hero>? HeroesInRoom { get; set; }
         public List<Monster>? MonstersInRoom { get; set; }
         public List<Corpse>? CorpsesInRoom { get; set; }
@@ -1819,6 +1822,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     DoorCount = 1,
                     EncounterType = EncounterType.R20,
                     HasSpecial = true,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(0, 1, 0), new GridPosition(0, 2, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Wall", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -1902,6 +1906,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     SpecialRules = "Walls cannot be passed through and block LOS.",
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(0, 2, 0), new GridPosition(0, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 0, 0)}),
@@ -2727,6 +2732,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(0, 1, 0), new GridPosition(0, 2, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Boxes", new List<GridPosition>() {
@@ -2931,6 +2937,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(0, 2, 0), new GridPosition(0, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -3012,6 +3019,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(11, 2, 0), new GridPosition(11, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -3093,6 +3101,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(5, 5, 0), new GridPosition(6, 5, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Brazier",
                             new List<GridPosition>() { new GridPosition(0, 0, 0), new GridPosition(0, 0, 1)}),
@@ -3176,6 +3185,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(11, 2, 0), new GridPosition(11, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Statue",
                             new List<GridPosition>() { new GridPosition(0, 0, 0), new GridPosition(0, 0, 1)}),
@@ -3258,6 +3268,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(11, 2, 0), new GridPosition(11, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Brazier",
@@ -3344,6 +3355,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(11, 2, 0), new GridPosition(11, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 2)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 2)}),
@@ -3428,6 +3440,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(0, 2, 0), new GridPosition(0, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -3515,6 +3528,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Category = RoomCategory.Room,
                     Size = [ 12, 6 ],
                     DoorCount = 1,
+                    EntryPositions = new List<GridPosition>() { new GridPosition(0, 2, 0), new GridPosition(0, 3, 0) },
                     FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 0, 0)}),
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 0, 0)}),
@@ -3601,7 +3615,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                       ImagePath = "/Resources/Rooms/bandits_hideout.png",
                       Category = RoomCategory.Room,
                       Size = [11, 12],
-                    FurnitureList = [
+                      EntryPositions = new List<GridPosition>() { new GridPosition(0, 5, 0), new GridPosition(0, 6, 0) },
+                      FurnitureList = [
                         _search.GetFurnitureByNameSetPosition("Boxes",
                             new List<GridPosition>() { new GridPosition(0, 0, 0), new GridPosition(0, 0, 1)}),
                         _search.GetFurnitureByNameSetPosition("Boxes",
@@ -3725,7 +3740,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(7, 11, 0)}),
                         _search.GetFurnitureByNameSetPosition("Pillar",
                             new List<GridPosition>() { new GridPosition(8, 11, 0), new GridPosition(8, 11, 1)})
-                    ]
+                      ]
 
                   },
                   new RoomInfo()

@@ -354,6 +354,19 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 var newRoom = _room.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
+                    // Determine the room's default entry orientation from its RoomInfo
+                    Orientation defaultEntryOrientation = GridService.GetOrientationFromPosition(newRoom.EntryPositions.First(), newRoom.Width, newRoom.Height);
+
+                    // Calculate the rotation needed to match the door
+                    int rotationAngle = ((int)openedDoor.Orientation - (int)defaultEntryOrientation + 360) % 360;
+                    newRoom.RotationAngle = rotationAngle;
+
+                    // The room's dimensions might swap if rotated 90 or 270 degrees
+                    if (rotationAngle == 90 || rotationAngle == 270)
+                    {
+                        newRoom.Size = [newRoom.Height, newRoom.Width];
+                    }
+
                     GridPosition newRoomOffset = CalculateNewRoomOffset(openedDoor, newRoom);
                     GridService.PlaceRoomOnGrid(newRoom, newRoomOffset, Dungeon.DungeonGrid);
 
