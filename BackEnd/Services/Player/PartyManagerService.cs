@@ -74,6 +74,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int Morale {  get; set; }
         public int PartyLuck { get; set; }
         public bool CanRestForFree { get; set; } = false;
+        public bool CanTakePreQuestRest { get; set; } = false;
 
         public bool PartyRetreat => Morale < 1;
         public bool PartyWavering => Morale < Math.Floor(MoraleMax / 2d);
@@ -90,6 +91,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public void ResetQuestRules()
         {
             CanRestForFree = false;
+            CanTakePreQuestRest = false;
         }
 
         public void StartNewParty()
