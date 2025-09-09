@@ -97,11 +97,20 @@ namespace LoDCompanion.BackEnd.Services.Game
                 case QuestSetupActionType.SpawnFromChart:
                     if (Enum.TryParse<EncounterType>(action.Parameters["ChartName"], out var type))
                     {
-                        List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(type);
+                        // Check for a "Rolls" parameter, defaulting to 1 if not present.
+                        int rolls = action.Parameters.TryGetValue("Rolls", out var rollsStr) && int.TryParse(rollsStr, out var parsedRolls) ? parsedRolls : 1;
+
                         room.MonstersInRoom ??= new List<Monster>();
-                        foreach (Monster monster in chartMonsters)
+
+                        for (int i = 0; i < rolls; i++)
                         {
-                            _placement.PlaceEntity(monster, room, action.Parameters);
+                            List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(type);
+                            foreach (Monster monster in chartMonsters)
+                            {
+                                // Add the spawned monsters to the room's list
+                                room.MonstersInRoom.Add(monster);
+                                _placement.PlaceEntity(monster, room, action.Parameters);
+                            }
                         }
                     }
                     else

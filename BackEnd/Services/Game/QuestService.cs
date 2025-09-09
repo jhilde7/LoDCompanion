@@ -387,7 +387,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             Parameters = new Dictionary<string, string>()
                             {
                                 { "Target", "Monster" }, // Or "Enemy"
-                                { "Amount", "+2" },
+                                { "Amount", "2" },
                                 { "Turn", "1" } // Specifies it only applies to the first turn
                             }
                         },
@@ -407,15 +407,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                             Parameters = new Dictionary<string, string>()
                             {
                                 { "RoomName", "Barren Land" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetTurnOrder,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                // The narrative implies the bandits act first due to the surprise.
-                                { "First", "Enemies" }
                             }
                         },
                         new QuestSetupAction
@@ -642,15 +633,9 @@ namespace LoDCompanion.BackEnd.Services.Game
                         },
                         new QuestSetupAction
                         {
-                            ActionType = QuestSetupActionType.PlaceHeroes,
-                            Parameters = new Dictionary<string, string>() { { "Rule", "ShortSide" } }
-                        },
-                        new QuestSetupAction
-                        {
                             ActionType = QuestSetupActionType.SpawnMonster,
                             Parameters = new Dictionary<string, string>() {
                                 { "Name", "Graup" },
-                                { "BaseMonster", "Ogre" },
                                 { "Count", "1" },
                                 { "Equipment", "Longsword" },
                                 { "Armour", "1" },
