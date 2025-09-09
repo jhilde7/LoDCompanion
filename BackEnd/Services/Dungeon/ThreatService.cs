@@ -1,9 +1,10 @@
-﻿using LoDCompanion.BackEnd.Services.GameData;
+﻿using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
+using LoDCompanion.BackEnd.Services.Game;
+using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Player;
 using LoDCompanion.BackEnd.Services.Utilities;
-using LoDCompanion.BackEnd.Models;
 using System.Threading.Tasks;
-using LoDCompanion.BackEnd.Services.Combat;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -17,6 +18,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool SpawnTrap { get; set; } = false;
         public bool ShouldAddExplorationCards { get; internal set; }
         public Room? SpawnRandomEncounter { get; internal set; }
+        public EncounterType? ReinforcementEncounterType { get; set; }
+        public Dictionary<string, string> ReinforcementPlacementParams { get; set; } = new();
+
         public bool ThreatEventTriggered => SpawnWanderingMonster || SpawnTrap || ShouldAddExplorationCards || SpawnRandomEncounter != null;
     }
 
@@ -119,6 +123,31 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 {
                     scenarioRoll = RandomHelper.RollDie(DiceType.D10) + _dungeon.ScenarioRollModifier;
                 }
+            }
+
+            // Handle custom scenario reinforcement rule from quest setup
+            if (_dungeon.CombatRules.TryGetValue("ScenarioReinforcements", out var ruleValue))
+            {
+                var parts = ruleValue.Split(',');
+                if (int.TryParse(parts[0], out int triggerRoll) && Enum.TryParse<EncounterType>(parts[1], out var encounterType))
+                {
+                    if (scenarioRoll >= triggerRoll)
+                    {
+                        var placementRule = parts[2];
+                        return new ThreatEventResult
+                        {
+                            Description = "Reinforcements have arrived!",
+                            ReinforcementEncounterType = encounterType,
+                            ReinforcementPlacementParams = new Dictionary<string, string> { { "PlacementRule", placementRule } }
+                        };
+                    }
+                }
+            }
+
+            // Prevent normal threat events if the quest rule is set
+            if (_dungeon.CombatRules.TryGetValue("UseThreatLevel", out var useThreat) && useThreat == "false")
+            {
+                return new ThreatEventResult(); // Nothing happens
             }
 
             // A roll of 9 or 10 triggers a Threat Level roll.
