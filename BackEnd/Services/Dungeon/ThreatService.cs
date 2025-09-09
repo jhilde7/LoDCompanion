@@ -144,16 +144,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
             }
 
-            // Prevent normal threat events if the quest rule is set
-            if (_dungeon.CombatRules.TryGetValue("UseThreatLevel", out var useThreat) && useThreat == "false")
+            int scenarioTrigger = 9;
+            if (_dungeon.DungeonRules.TryGetValue("ScenarioTriggerRoll", out var triggerStr) && int.TryParse(triggerStr, out var parsedTrigger))
             {
-                return new ThreatEventResult(); // Nothing happens
+                scenarioTrigger = parsedTrigger;
             }
 
-            // A roll of 9 or 10 triggers a Threat Level roll.
-            if (scenarioRoll < 9)
+            if (scenarioRoll < scenarioTrigger)
             {
-                return new ThreatEventResult(); // Nothing happens on a 1-8.
+                return new ThreatEventResult(); 
             }
 
             // Perform the Threat Level roll (d20).

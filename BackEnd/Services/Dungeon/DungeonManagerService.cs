@@ -19,7 +19,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int ThreatLevel { get; set; }
         public int EncounterChanceModifier { get; set; } = 0;
         public int ScenarioRollModifier { get; set; } = 0;
-        public int WanderingMonsterAtThreat { get; set; }
+        public Dictionary<string, string> DungeonRules { get; set; } = new Dictionary<string, string>();
         public bool SpawnWanderingMonster => ThreatLevel >= MaxThreatLevel;
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }
@@ -171,7 +171,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _dungeon.MinThreatLevel = 1;
             _dungeon.MaxThreatLevel = 10; // This can be overridden by quest specifics
             _dungeon.ThreatLevel = 0;
-            _dungeon.WanderingMonsterAtThreat  = 5; // This can also be overridden
+            _dungeon.DungeonRules["WanderingMonsterAtThreat"] = "5"; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
             List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
@@ -208,7 +208,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _dungeon.MinThreatLevel = quest.MinThreatLevel;
             _dungeon.MaxThreatLevel = quest.MaxThreatLevel;
             _dungeon.ThreatLevel = quest.StartThreatLevel;
-            _dungeon.WanderingMonsterAtThreat  = 5;
+            _dungeon.DungeonRules["WanderingMonsterAtThreat"] = "5";
 
             List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
             _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
@@ -642,10 +642,15 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool UpdateThreat(int amount)
         {
             _dungeon.ThreatLevel += amount;
-            if (_dungeon.ThreatLevel >= _dungeon.WanderingMonsterAtThreat )
+            if (_dungeon.DungeonRules.TryGetValue("WanderingMonsterAtThreat", out var threatValueStr) &&
+                int.TryParse(threatValueStr, out var wanderingMonsterAtThreat))
             {
-                // Trigger wandering monster logic...
-                _dungeon.ThreatLevel -= 5;
+                if (_dungeon.ThreatLevel >= wanderingMonsterAtThreat)
+                {
+                    // Trigger wandering monster logic...
+                    _wanderingMonster.SpawnWanderingMonster(Dungeon);
+                    _dungeon.ThreatLevel -= 5; // Note: This logic can be adjusted based on your game rules
+                }
             }
             return true;
         }
