@@ -86,6 +86,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private readonly Lever _lever;
         private readonly SearchService _search;
         private readonly GameState _gameState;
+        private readonly QuestSetupService _questSetup;
 
         public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
         public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
@@ -111,7 +112,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             ActionService actionService,
             Lever lever,
             SearchService searchService,
-            GameState gameState)
+            GameState gameState,
+            QuestSetupService questSetup)
         {
             _dungeon = dungeonState;
             _wanderingMonster = wanderingMonster;
@@ -130,6 +132,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _lever = lever;
             _search = searchService;
             _gameState = gameState;
+            _questSetup = questSetup;
 
             _partyManager.SetMaxMorale();
 
@@ -361,7 +364,22 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                     Dungeon.CurrentRoom = newRoom;
                     Dungeon.RoomsInDungeon.Add(newRoom);
-                    await CheckForEncounter(newRoom);
+                    if (Dungeon.Quest != null && newRoom.Name == Dungeon.Quest.ObjectiveRoom?.Name)
+                    {
+                        // This is the objective room, run its specific setup actions
+                        _questSetup.ExecuteRoomSetup(Dungeon.Quest, newRoom);
+
+                        // Start combat if monsters were spawned
+                        if (newRoom.MonstersInRoom != null && newRoom.MonstersInRoom.Any())
+                        {
+                            _combatManager.SetupCombat(newRoom.HeroesInRoom ?? new List<Hero>(), newRoom.MonstersInRoom);
+                        }
+                    }
+                    else
+                    {
+                        // It's a normal room, check for a random encounter
+                        await CheckForEncounter(newRoom);
+                    }
 
                     // Handle the remaining deck for the new room's exits
                     var remainingCards = openedDoor.ExplorationDeck.ToList();
