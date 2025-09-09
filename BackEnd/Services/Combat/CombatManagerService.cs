@@ -107,6 +107,11 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 MonstersInCombat.Remove(deceasedMonster);
                 CombatLog.Add($"{deceasedMonster.Name} has been slain!");
 
+                if (deceasedMonster.IsUnique)
+                {
+                    _dungeon.DefeatedUniqueMonsters.Add(deceasedMonster.Name);
+                }
+
                 if (deceasedMonster.Body != null)
                 {
                     Corpse corpse = deceasedMonster.Body;

@@ -28,6 +28,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public List<LeverColor> AvailableLevers { get; set; } = new List<LeverColor>();
         public List<WanderingMonsterState> WanderingMonsters { get; set; } = new List<WanderingMonsterState>();
         public List<Monster> RevealedMonsters { get; set; } = new List<Monster>();
+        public List<string> DefeatedUniqueMonsters { get; set; } = new List<string>();
         public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
         public Dictionary<string, string> CombatRules { get; set; } = new();
 
