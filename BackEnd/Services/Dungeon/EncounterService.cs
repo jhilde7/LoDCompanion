@@ -20,7 +20,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _passive = passive;
         }
 
-        public List<Monster> GetRandomEncounterByType(EncounterType type, EncounterType? dungeonEncounterType = null)
+        public List<Monster> GetRandomEncounterByType(EncounterType type, EncounterType? dungeonEncounterType = null, DungeonState? dungeon = null)
         {
             List<Monster> encounters = new List<Monster>();
             Monster monster; // Used temporarily for individual monster creation with additional properties
@@ -1564,6 +1564,21 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 case EncounterType.TheGrievingMother:
                     roll = RandomHelper.RollDie(DiceType.D2);
                     return BuildMonsters(roll, "Giant Spider");
+                case EncounterType.TheApprentice:
+                    encounters = GetRandomEncounterByType(EncounterType.Undead);
+                    // Now, handle the special rule for the Caretaker
+                    int caretakerRoll = RandomHelper.RollDie(DiceType.D100); // Using d20 for 15-20 range
+                    if (caretakerRoll >= 15 && caretakerRoll <= 20 && dungeon != null && !dungeon.DefeatedUniqueMonsters.Contains("Emil the Caretaker"))
+                    {
+                        var caretakerParams = new Dictionary<string, string>
+                        {
+                            { "Name", "Emil the Caretaker" },
+                            { "BaseMonster", "Human" },
+                            { "Weapons", "Greataxe" }
+                        };
+                        encounters.AddRange(GetEncounterByParams(caretakerParams));
+                    }
+                    break;
                 default:
                     break;
             }
@@ -6255,9 +6270,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             // 2. Parse all optional parameters from the dictionary
 
             // Safely parse the count, defaulting to 1 if not specified.
-            int count = parameters.TryGetValue("Count", out var countStr) && int.TryParse(countStr, out var parsedCount)
-                ? parsedCount
-                : 1;
+            int count = 1;
+            if (parameters.TryGetValue("Count", out var countStr))
+            {
+                if (countStr.Contains('d'))
+                {
+                    count = RandomHelper.RollDice(countStr);
+                }
+                else if (int.TryParse(countStr, out var parsedCount))
+                {
+                    count = parsedCount;
+                }
+            }
 
             // Safely parse the armour value.
             int armourValue = parameters.TryGetValue("Armour", out var armourStr) && int.TryParse(armourStr, out var parsedArmour)
