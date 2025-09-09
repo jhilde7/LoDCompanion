@@ -96,6 +96,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly CombatManagerService _combatManager;
         private readonly TreasureService _treasure;
         private readonly Estate _estate;
+        private readonly InitiativeService _initiative;
 
         public Quest? ActiveQuest { get; private set; }
         public Room? ActiveEncounterRoom { get; private set; }
@@ -114,7 +115,8 @@ namespace LoDCompanion.BackEnd.Services.Game
             QuestSetupService questSetup,
             CombatManagerService combatManagerService,
             TreasureService treasureService,
-            Estate estate)
+            Estate estate,
+            InitiativeService initiative)
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
@@ -124,6 +126,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             _estate = estate;
 
             _estate.OnSideQuestTriggered += HandleAddSideQuestAsync;
+            _initiative = initiative;
         }
 
         private async Task HandleAddSideQuestAsync(string sideQuestName, Party party)
@@ -161,6 +164,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         /// <param name="quest">The quest to begin.</param>
         public void StartQuest(Party party, Quest quest)
         {
+            _initiative.ResetModifiers();
             ActiveQuest = quest;
 
             switch (quest.QuestType)

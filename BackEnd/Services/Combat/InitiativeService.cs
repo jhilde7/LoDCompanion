@@ -21,6 +21,22 @@ namespace LoDCompanion.BackEnd.Services.Combat
     {
         private List<ActorType> _initiativeTokens = new List<ActorType>();
 
+        // Properties to hold modifications from quest setup
+        public int HeroInitiativeModifier { get; set; } = 0;
+        public int MonsterInitiativeModifier { get; set; } = 0;
+        public ActorType? ForcedFirstActor { get; set; } = null;
+
+        /// <summary>
+        /// Resets initiative modifiers to their default state.
+        /// This should be called before setting up a new quest.
+        /// </summary>
+        public void ResetModifiers()
+        {
+            HeroInitiativeModifier = 0;
+            MonsterInitiativeModifier = 0;
+            ForcedFirstActor = null;
+        }
+
         /// <summary>
         /// Sets up the initiative tokens for the start of a new combat encounter.
         /// </summary>
@@ -68,7 +84,28 @@ namespace LoDCompanion.BackEnd.Services.Combat
                 else if (monsterHasPerfectHearing && !heroHasPerfectHearing)
                 {
                     _initiativeTokens.Add(ActorType.Monster);
-                } 
+                }
+
+                // Apply initiative modifiers from quest setup
+                for (int i = 0; i < HeroInitiativeModifier; i++)
+                {
+                    _initiativeTokens.Add(ActorType.Hero);
+                }
+                for (int i = 0; i < MonsterInitiativeModifier; i++)
+                {
+                    _initiativeTokens.Add(ActorType.Monster);
+                }
+                if (ForcedFirstActor != null)
+                {
+                    if (ForcedFirstActor is ActorType.Monster)
+                    {
+                        _initiativeTokens.RemoveAll(a => a == ActorType.Hero);
+                    }
+                    else
+                    {
+                        _initiativeTokens.RemoveAll(a => a == ActorType.Monster);
+                    } 
+                }
             }
 
             // Shuffle the tokens to randomize the turn order

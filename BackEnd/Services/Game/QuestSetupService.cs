@@ -1,7 +1,8 @@
 ﻿
+using LoDCompanion.BackEnd.Models;
+using LoDCompanion.BackEnd.Services.Combat;
 using LoDCompanion.BackEnd.Services.Dungeon;
 using LoDCompanion.BackEnd.Services.Player;
-using LoDCompanion.BackEnd.Models;
 
 namespace LoDCompanion.BackEnd.Services.Game
 {
@@ -33,6 +34,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly RoomService _room;
         private readonly PartyManagerService _partyManager;
         private readonly DungeonState _dungeon;
+        private readonly InitiativeService _initiative;
 
 
         public QuestSetupService(
@@ -40,13 +42,15 @@ namespace LoDCompanion.BackEnd.Services.Game
             RoomService room, 
             PartyManagerService partyManagerService,
             PlacementService placementService,
-            DungeonState dungeonState)
+            DungeonState dungeonState,
+            InitiativeService initiativeService)
         {
             _encounter = encounter;
             _room = room;
             _partyManager = partyManagerService;
             _placement = placementService;
             _dungeon = dungeonState;
+            _initiative = initiativeService;
         }
 
         public void ExecuteRoomSetup(Quest quest, Room room)
@@ -106,13 +110,21 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     break;
                 case QuestSetupActionType.SetTurnOrder:
-                    //TODO
+                    if (Enum.TryParse<ActorType>(action.Parameters["First"], out var actorType))
+                    {
+                        _initiative.ForcedFirstActor = actorType;
+                    }
                     break;
                 case QuestSetupActionType.ModifyInitiative:
-                    //TODO
+                    if (Enum.TryParse<ActorType>(action.Parameters["Target"], out var initiativeTarget) && int.TryParse(action.Parameters["Amount"], out var amount))
+                    {
+                        if (initiativeTarget == ActorType.Hero) _initiative.HeroInitiativeModifier = amount;
+                        else _initiative.MonsterInitiativeModifier = amount;
+                    }
                     break;
                 case QuestSetupActionType.SetCombatRule:
-                    //TODO
+                    if(!_dungeon.CombatRules.TryAdd(action.Parameters["Rule"], action.Parameters["Value"]))
+                        _dungeon.CombatRules[action.Parameters["Rule"]] = action.Parameters["Value"];
                     break;
                 case QuestSetupActionType.SetDungeonRule:
                     var rule = action.Parameters["Rule"];
