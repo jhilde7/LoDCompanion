@@ -18,7 +18,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         RelativeToTarget,
         AsFarAsPossible,
         RelativeToPosition,
-        RandomSquare
+        RandomSquare,
+        RandomPositionInRange
     }
 
     public class PlacementService
@@ -121,6 +122,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                     squares.Shuffle();
                     while (squares[0].IsOccupied || squares[0].IsWall) squares.Shuffle();
                     potentialPositions = new List<GridPosition>() { squares[0].Position };
+                    break;
+
+                case PlacementRule.RandomPositionInRange:
+                    potentialPositions = GetPositionsFromRange(room, placementParams.GetValueOrDefault("PlacementArgs"));
+                    potentialPositions.Shuffle();
                     break;
             }
 
@@ -436,6 +442,50 @@ namespace LoDCompanion.BackEnd.Services.Game
 
             // Both the edge and the space behind it are clear.
             return true;
+        }
+
+        private List<GridPosition> GetPositionsFromRange(Room room, string? rangeString)
+        {
+            if (string.IsNullOrEmpty(rangeString)) return new List<GridPosition>();
+
+            var positions = new List<GridPosition>();
+            // Default to the full room dimensions
+            var ranges = new Dictionary<string, (int min, int max)>
+            {
+                { "X", (0, room.Width - 1) },
+                { "Y", (0, room.Height - 1) },
+                { "Z", (0, 0) } // Assuming a single Z-level for now
+            };
+
+            // Parse the range string e.g., "X:7-11, Y:0-5"
+            var parts = rangeString.Split(',');
+            foreach (var part in parts)
+            {
+                var keyValue = part.Split(':');
+                if (keyValue.Length != 2) continue;
+
+                var key = keyValue[0].Trim().ToUpper();
+                var valueParts = keyValue[1].Split('-');
+                if (valueParts.Length != 2) continue;
+
+                if (int.TryParse(valueParts[0], out int min) && int.TryParse(valueParts[1], out int max))
+                {
+                    ranges[key] = (min, max);
+                }
+            }
+
+            // Generate all positions within the defined cube
+            for (int z = ranges["Z"].min; z <= ranges["Z"].max; z++)
+            {
+                for (int y = ranges["Y"].min; y <= ranges["Y"].max; y++)
+                {
+                    for (int x = ranges["X"].min; x <= ranges["X"].max; x++)
+                    {
+                        positions.Add(new GridPosition(room.GridOffset.X + x, room.GridOffset.Y + y, room.GridOffset.Z + z));
+                    }
+                }
+            }
+            return positions;
         }
     }
 }

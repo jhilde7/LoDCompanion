@@ -35,7 +35,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         MainQuest,
         Random,
         Mimic,
-        TheGrievingMother
+        TheGrievingMother,
+        TheApprentice
     }
 
     public class QuestHexLocation
@@ -582,7 +583,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                             Parameters = new Dictionary<string, string>()
                             {
                                 { "Name", "Ulfric" },
-                                { "Count", "1" },
                                 { "PlacementRule", "Center" }
                             }
                         },
@@ -636,9 +636,6 @@ namespace LoDCompanion.BackEnd.Services.Game
                             ActionType = QuestSetupActionType.SpawnMonster,
                             Parameters = new Dictionary<string, string>() {
                                 { "Name", "Graup" },
-                                { "Count", "1" },
-                                { "Equipment", "Longsword" },
-                                { "Armour", "1" },
                                 { "PlacementRule", "RelativeToTarget" },
                                 { "PlacementTarget", "Throne" }
                             }
@@ -666,7 +663,58 @@ namespace LoDCompanion.BackEnd.Services.Game
                     EncounterType = EncounterType.Orcs_Goblins,
                     NarrativeQuest = "After about half an hour walking through difficult terrain, the forest abruptly gives way to open fields, and just a short distance ahead lies Rochdale. One of the small houses on the outskirts is ablaze and violent screams are emanating from the village. The adventurers rush across the field as they realize that the village is beset by a band of Orcs and Goblins.",
                     NarrativeSetup = "Set up the outdoor tiles. Roll twice on the Orcs and Goblins Encounter Chart and randomise their placement along 1 board edge. Place 1 Orc Chieftain in the same way. Victory Condition: If at any time, there are no living enemies on the table, the heroes win. If at any time the heroes feel like running away, they can do so by simply leaving the map, in which case the quest is over.",
-                    NarrativeAftermath = "If The Heroes Won: As the last Orc falls to the ground the villagers start to emerge from their houses. The Village Elder approaches the heroes, praising their efforts and offers the party a small token of their gratitude. Rummaging through the belongings of the chieftain, the party discovers yet another note on payment for bodies signed 'Imgrahil'.\nIf The Heroes Fled: Realising they were in for more than they could handle, the heroes decide it is better to live another day and head back to the forest. The orcs follow a short distance before they turn back to set the rest of the village ablaze."
+                    NarrativeAftermath = "If The Heroes Won: As the last Orc falls to the ground the villagers start to emerge from their houses. The Village Elder approaches the heroes, praising their efforts and offers the party a small token of their gratitude. Rummaging through the belongings of the chieftain, the party discovers yet another note on payment for bodies signed 'Imgrahil'.\nIf The Heroes Fled: Realising they were in for more than they could handle, the heroes decide it is better to live another day and head back to the forest. The orcs follow a short distance before they turn back to set the rest of the village ablaze.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "RoomName", "Field With Trees" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetCombatRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "UseThreatLevel" },
+                                { "Value", "false" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            // TODO: Implement custom logic for this quest in the Blazor component.
+                            // This rule will need to be checked during the combat loop to handle reinforcements.
+                            ActionType = QuestSetupActionType.SetQuestRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "WildernessReinforcements" },
+                                { "Value", "9,Orcs_Goblins,RandomEdge" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnFromChart,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "ChartName", "Orcs_Goblins" },
+                                { "Rolls", "2" },
+                                { "PlacementRule", "RandomEdge" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Orc Chieftain" },
+                                { "Count", "1" },
+                                { "PlacementRule", "RandomEdge" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
@@ -677,7 +725,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 6,
                     RoomCount = 6,
                     RewardCoin = 200,
-                    EncounterType = EncounterType.Undead,
+                    EncounterType = EncounterType.TheApprentice,
                     ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
                     StartThreatLevel = 4,
                     MinThreatLevel = 4,
@@ -685,7 +733,57 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "Once back in the city, the adventurers are summoned by the Jarl. He explains that there have been more incidents at the cemeteries, pointing towards a Necromancer. He asks the heroes to investigate ruins east of the city to find and kill whoever is collecting corpses.",
                     NarrativeObjectiveRoom = "The heroes enter a huge chamber. In the middle stands a man, Imgrahil, performing an incantation over the body of a peasant girl lying in a magical circle. The heroes watch as the girl starts to twitch and stand up. As they advance, more bodies appear out of the darkness to stop them.",
                     NarrativeSetup = "Place Imgrahil, the Apprentice, in the centre of the circle. Place one unarmed Zombie next to them. Place 2d6 unarmed Zombies along the long walls, as far as possible from the heroes. The heroes are placed close to the door. Imgrahil is an apprentice Necromancer armed with a poisoned dagger, Armour 1, and has mastered Raise Dead, Healing, Vampiric Touch, and Mirrored Self.",
-                    NarrativeAftermath = "Once Imgrahil is dead, the heroes find a notebook in their pockets. It mentions a 'Master' and an 'Apostle', and a growing army of the Undead. It also mentions a sacrifice to a being named Melkhior. A map reveals the locations of the Apostle and the Master, forcing the heroes to choose their next target. If they go for the Apostle, play quest 6A. If they go for the Master, play 6B."
+                    NarrativeAftermath = "Once Imgrahil is dead, the heroes find a notebook in their pockets. It mentions a 'Master' and an 'Apostle', and a growing army of the Undead. It also mentions a sacrifice to a being named Melkhior. A map reveals the locations of the Apostle and the Master, forcing the heroes to choose their next target. If they go for the Apostle, play quest 6A. If they go for the Master, play 6B.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetDungeonRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "WanderingMonsterAtThreat" },
+                                { "Value", "10" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "RoomName", "The Chamber of Reverence" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Imgrahil the Apprentice" },
+                                { "PlacementRule", "Center" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Zombie" },
+                                { "Count", "1" },
+                                { "PlacementRule", "RelativeToTarget" },
+                                { "PlacementTarget", "Imgrahil the Apprentice" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Zombie" },
+                                { "Count", "2d6" },
+                                { "PlacementRule", "LongSide" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
@@ -702,7 +800,65 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "Deciding to intervene with the sacrifice, the heroes head for the spot where the Apostle is said to be. They arrive at an old, ruined tower and find a trapdoor leading down into the darkness, which they decide to descend.",
                     NarrativeObjectiveRoom = "Upon entering the large hall, the heroes spot a group of civilians on the bank of a lava river, surrounded by skeletons. Further back, on a dais, stands the Apostle, them eyes fixed on the heroes.",
                     NarrativeSetup = "The heroes enter along the short side opposite the altar. Place 4 Wights on their side of the river. Place the Apostle on the dais. The heroes go first. There are 2 unlocked, non-trapped objective chests next to the altar. The Apostle is a Vampire Fledgling armed with a longsword and Armour 2.",
-                    NarrativeAftermath = "After the heroes liberate the civilians, they send them on their way and head straight towards the Master themselves."
+                    NarrativeAftermath = "After the heroes liberate the civilians, they send them on their way and head straight towards the Master themselves.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Lava River" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetTurnOrder,
+                            Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Wight" },
+                                { "Count", "4" },
+                                { "PlacementRule", "RandomPositionInRange" },
+                                // Place Wights on the opposite side of the lava river
+                                { "PlacementArgs", "X:1-4, Y:0-5" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "The Apostle" },
+                                { "PlacementRule", "RandomPositionInRange" },
+                                // Place the Apostle on the dais at the far end
+                                { "PlacementArgs", "X:0, Y:2-3" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.ModifyFurniture,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "TargetFurnitureName", "Chest" },
+                                { "NewName", "Objective Chest" },
+                                { "IsLocked", "false" },
+                                { "IsTrapped", "false" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.ModifyFurniture,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "TargetFurnitureName", "Chest" },
+                                { "NewName", "Objective Chest" },
+                                { "IsLocked", "false" },
+                                { "IsTrapped", "false" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
@@ -723,7 +879,52 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "After a couple of rainy days on the road, the heroes dive into the ruins of a forgotten castle where the map indicates they can find the Master.",
                     NarrativeObjectiveRoom = "The heroes enter the room where the Master resides. At the far end, a figure in tattered robes with a hidden face stands flanked by two lumbering Zombie Ogres. After a moment, the Master gestures for their thralls to attack and begins their incantations.",
                     NarrativeSetup = "The heroes enter along a short side. Place the two Ogres and the Master at the far end of the room. The heroes go first. There are 6 tombs in the room that can be looted. The Master is a Necromancer with a poisoned dagger, Armour 1, and knows Raise Dead, 3 Close-combat Spells, and 4 Ranged Spells.",
-                    NarrativeAftermath = "As the Master falls, their body disappears, leaving behind their robes, a grimoire, and a dagger. After looting the crypt, the party heads back to Silver City. The Jarl greets them, commends their actions, and gives them their reward. He also informs them that High King Logan III has requested their enlistment into the League of Dungeoneers to head into the Ancient Lands."
+                    NarrativeAftermath = "As the Master falls, their body disappears, leaving behind their robes, a grimoire, and a dagger. After looting the crypt, the party heads back to Silver City. The Jarl greets them, commends their actions, and gives them their reward. He also informs them that High King Logan III has requested their enlistment into the League of Dungeoneers to head into the Ancient Lands.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetDungeonRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "ScenarioTriggerRoll" },
+                                { "Value", "8" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Great Crypt" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetTurnOrder,
+                            Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "The Master" },
+                                { "Count", "1" },
+                                { "PlacementRule", "RandomPositionInRange" },
+                                // Place the Apostle on the dais at the far end
+                                { "PlacementArgs", "X:0, Y:2-3" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Zombie Ogre" },
+                                { "Count", "2" },
+                                { "PlacementRule", "RelativeToTarget" },
+                                { "PlacementTarget", "The Master" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {

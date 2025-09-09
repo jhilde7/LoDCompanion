@@ -19,6 +19,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         SetCombatRule,
         SetDungeonRule,
         SetPartyRule,
+        ModifyFurniture,
+        ConstrainRoomEntry,
     }
 
     public class QuestSetupAction
@@ -65,8 +67,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         {
             switch (action.ActionType)
             {
-                case QuestSetupActionType.SetQuestRule:
-                    // Example: _gameState.SetRule(action.Parameters["Rule"], action.Parameters["Value"]);
+                case QuestSetupActionType.SetDungeonRule:
+                    _dungeon.DungeonRules[action.Parameters["Rule"]] = action.Parameters["Value"];
                     break;
                 case QuestSetupActionType.SetRoom:
                     var roomInfo = _room.GetRoomByName(action.Parameters["RoomName"]);
@@ -132,16 +134,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     break;
                 case QuestSetupActionType.SetCombatRule:
-                    if(!_dungeon.CombatRules.TryAdd(action.Parameters["Rule"], action.Parameters["Value"]))
-                        _dungeon.CombatRules[action.Parameters["Rule"]] = action.Parameters["Value"];
-                    break;
-                case QuestSetupActionType.SetDungeonRule:
-                    var rule = action.Parameters["Rule"];
-                    var value = action.Parameters["Value"];
-                    if (rule == "WanderingMonsterAtThreat")
-                    {
-                        _dungeon.WanderingMonsterAtThreat = int.Parse(value);
-                    }
+                    _dungeon.CombatRules[action.Parameters["Rule"]] = action.Parameters["Value"];
                     break;
 
                 case QuestSetupActionType.SetPartyRule:
@@ -149,6 +142,33 @@ namespace LoDCompanion.BackEnd.Services.Game
                     if (partyRule == "FreeRest")
                     {
                         _partyManager.CanRestForFree = true;
+                    }
+                    else if (partyRule == "PreQuestRest")
+                    {
+                        _partyManager.CanTakePreQuestRest = true;
+                    }
+                    break;
+                case QuestSetupActionType.ModifyFurniture:
+                    if (action.Parameters.TryGetValue("TargetFurnitureName", out var targetName) && room.FurnitureList.FirstOrDefault(f => f.Name == targetName) is Furniture furnitureToModify)
+                    {
+                        if (action.Parameters.TryGetValue("NewName", out var newName))
+                        {
+                            furnitureToModify.Name = newName;
+                        }
+                        if (action.Parameters.TryGetValue("IsLocked", out var isLockedStr) && bool.TryParse(isLockedStr, out var isLocked) && furnitureToModify is Chest chest)
+                        {
+                            if (!isLocked)
+                            {
+                                chest.Lock.SetLockState(0, 0); // Unlocks the chest
+                            }
+                        }
+                        if (action.Parameters.TryGetValue("IsTrapped", out var isTrappedStr) && bool.TryParse(isTrappedStr, out var isTrapped) && furnitureToModify is Chest chestWithTrap)
+                        {
+                            if (!isTrapped)
+                            {
+                                chestWithTrap.Trap.IsDisarmed = true;
+                            }
+                        }
                     }
                     break;
             }
