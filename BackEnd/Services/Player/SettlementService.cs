@@ -2515,7 +2515,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public (Hero, Equipment)? LostItem { get; set; }
 
         public event Func<int, Task<List<Equipment?>>>? OnPartyGainsTreasureAsync;
-        public event Func<string, Party, Task>? OnSideQuestTriggered;
+        public event Action<string, Party>? OnSideQuestTriggered;
         public event Func<Hero, Equipment, Task>? OnItemLostAsync;
 
         public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
@@ -2593,7 +2593,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
 
                 case 3: // The Hidden Treasure
-                    if (OnSideQuestTriggered != null) await OnSideQuestTriggered.Invoke("The Hidden Treasure", party);
+                    if (OnSideQuestTriggered != null) OnSideQuestTriggered.Invoke("The Hidden Treasure", party);
                     break;
 
                 case 4: // Spiritual Guides
@@ -2621,7 +2621,7 @@ namespace LoDCompanion.BackEnd.Services.Player
                     break;
 
                 case 6: // The Grieving Mother
-                    if (OnSideQuestTriggered != null) await OnSideQuestTriggered.Invoke("The Grieving Mother", party);
+                    if (OnSideQuestTriggered != null) OnSideQuestTriggered.Invoke("The Grieving Mother", party);
                     break;
 
                 case 7: // Angered Ghost

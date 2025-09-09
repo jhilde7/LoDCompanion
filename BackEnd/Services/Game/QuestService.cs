@@ -72,6 +72,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         public string NarrativeObjectiveRoom { get; set; } = string.Empty;
         public string NarrativeSetup { get; set; } = string.Empty;
         public string NarrativeAftermath { get; set; } = string.Empty;
+
         public List<QuestSetupAction> SetupActions { get; set; } = new();
         public List<Quest>? SideQuests { get; set; }
 
@@ -104,6 +105,9 @@ namespace LoDCompanion.BackEnd.Services.Game
         public bool IsObjectiveComplete { get; private set; }
         public event Action? OnQuestStateChanged;
 
+        public List<Campaign> Campaigns { get; private set; } = new();
+        public List<Quest> StandaloneQuests { get; private set; } = new();
+
         public bool IsQuestActive => ActiveQuest != null;
         public List<QuestHexLocation> QuestHexLocations => GetQuestHexLocations();
 
@@ -126,11 +130,11 @@ namespace LoDCompanion.BackEnd.Services.Game
             _treasure = treasureService;
             _estate = estate;
 
-            _estate.OnSideQuestTriggered += HandleAddSideQuestAsync;
+            _estate.OnSideQuestTriggered += HandleAddSideQuest;
             _initiative = initiative;
         }
 
-        private async Task HandleAddSideQuestAsync(string sideQuestName, Party party)
+        private void HandleAddSideQuest(string sideQuestName, Party party)
         {
             if (ActiveQuest == null) return;
             ActiveQuest.SideQuests ??= new();
@@ -141,7 +145,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             }
             else if (sideQuestName == "The Grieving Mother")
             {
-                var sideQuest = await GetQuestByNameAsync("The Grieving Mother");
+                var sideQuest = GetQuestByName("The Grieving Mother");
                 if (sideQuest != null)
                 {
                     if (sideQuest.IsComplete)
@@ -157,6 +161,568 @@ namespace LoDCompanion.BackEnd.Services.Game
                     } 
                 }
             }
+        }
+
+        public async Task InitializeQuestsAsync()
+        {
+            if (Campaigns.Any() && StandaloneQuests.Any()) return;
+
+            // --- CAMPAIGNS ---
+
+            Campaigns.Add(new Campaign (
+                "The Dead Rising", 
+                "A series of events beginning with a simple request to clear out a basement, leading to a confrontation with a powerful necromancer.")
+                {
+                    Quests = new List<Quest>
+                    {
+                        new Quest()
+                        {
+                            Name = "Spring Cleaning",
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear regardless of the Scenario dice result. For this quest only, the party may gain the benefits of the 'Rest' rule (p. 86) without consuming any food rations.",
+                            CorridorCount = 4,
+                            RoomCount = 4,
+                            RewardCoin = 100,
+                            RewardItems = new() { EquipmentService.GetEquipmentByNameSetQuantity("Ration", 10) },
+                            RewardSpecial = "50 c extra per hero as gratitude for finding Johann.",
+                            EncounterType = EncounterType.SpringCleaning,
+                            ObjectiveRoom = _room.GetRoomByName("R5B"),
+                            StartThreatLevel = 2,
+                            MinThreatLevel = 2,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "You have been tasked by the local Town Elder to clear out the basement of the Town Hall. This basement has been closed off for several years, but a recent invasion of large rats in the village has led the local rat catcher to think that their nest is in this building.",
+                            NarrativeObjectiveRoom = "The heroes enter what seems to be a large storage room. The room is filled with huge piles of crates and barrels and everywhere they look, the heroes can see the beady red eyes of large rodents staring at them malevolently. In the far back, a huge creature can be seen. Much larger than the rest, and heavily deformed, it is questionable whether this rat is living or Undead.",
+                            NarrativeSetup = "The party enters a large dusty room filled with old crates and barrels. There are 1d10 Rats in the room (placed randomly), and as far away as possible from the player is the Brood Mother. If the party has not encountered Johann yet, he will also be in the far end of the room.",
+                            NarrativeAftermath = "The Town Elder is pleased with the hero's efforts. The news of Johann came as a bit of a shock though, and he seems troubled. Before parting, the party is offered 50 c extra per hero as gratitude for finding Johann. The Town Elder recommends the party to head to Silver City. To further help the party on their journey, he offers them 10 rations to use on the road.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "WanderingMonsterAtThreat" },
+                                        { "Value", "12" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetPartyRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "FreeRest" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "RoomName", "R5B" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnFromChart,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "ChartName", "SpringCleaning" },
+                                        { "Count", "1d10" },
+                                        { "PlacementRule", "RandomSquare" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "The Brood Mother" },
+                                        { "Count", "1" },
+                                        { "PlacementRule", "AsFarAsPossible" },
+                                        { "PlacementTarget", "Heroes" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Johann" },
+                                        { "Count", "1" },
+                                        { "PlacementRule", "AsFarAsPossible" },
+                                        { "PlacementTarget", "Heroes" }
+                                    }
+                                }
+                            }
+                        },
+                        new Quest()
+                        {
+                            Name = "The Dead Rising",
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
+                            CorridorCount = 5,
+                            RoomCount = 5,
+                            RewardCoin = 150,
+                            EncounterType = EncounterType.Undead,
+                            ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
+                            StartThreatLevel = 4,
+                            MinThreatLevel = 4,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "The Jarl of Silver City reaches out to the party, requesting their help: 'My cousin told me you proved you could handle yourself...Would you consider heading down the Mausoleum to get in contact with Ulfric?'...Accepting the quest, the adventures are now tasked with making contact with Ulfric and their Brothers.",
+                            NarrativeObjectiveRoom = "The Crypt that the heroes enter is a large room with six sarcophagi. In the middle stands Ulfric, unmistakably changed. Flanking them are two skeletons, both armed with bronze swords and shields. As he notices the party, he lunges forward, with their Hammer held high.",
+                            NarrativeSetup = "Place Ulfric in the middle and the two skeletons on either side of them. They are considered ordinary skeletons with longswords and shields.",
+                            NarrativeAftermath = "The Jarl listens carefully to the story told by the adventurers...he appraises their skills and begs them not to spread word of what happened...He also promises to put in a good word for the party, should they ever need it.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "WanderingMonsterAtThreat" },
+                                        { "Value", "10" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "RoomName", "The Great Crypt" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Ulfric" },
+                                        { "PlacementRule", "Center" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Skeleton" },
+                                        { "Count", "2" },
+                                        { "Weapons", "Longsword" },
+                                        { "Shield", "true" },
+                                        { "PlacementRule", "RelativeToTarget" },
+                                        { "PlacementTarget", "Ulfric" }
+                                    }
+                                }
+                            }
+                        },
+                        new Quest()
+                        {
+                            Name = "Highwaymen",
+                            ColorLocation = (QuestColor.White, 34),
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
+                            CorridorCount = 6,
+                            RoomCount = 6,
+                            RewardCoin = 200,
+                            EncounterType = EncounterType.Bandits_Brigands,
+                            ObjectiveRoom = _room.GetRoomByName("The Throne Room"),
+                            StartThreatLevel = 3,
+                            MinThreatLevel = 3,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "A deal is settled. The party will deal with the bandits, in exchange for coins. Digging around for more information...it becomes clear that all attacks have happened close to the old ruined fort...all wagons were completely smashed up...no trace has been found of the wagons' crew.",
+                            NarrativeObjectiveRoom = "The party enters a room which seems to be the former great hall of the Commandant at the fort. Close to the throne stands the leader of the bandits together with their bodyguards. It suddenly dawns on the adventurers what caused the carts to be totally demolished. The bandit leader is no ordinary man, but a towering, muscular Ogre. Spotting the adventurers, he points a chubby finger at them and bellows for their guards to attack.",
+                            NarrativeSetup = "Place Graup, the Ogre, by the throne. Roll twice on the Bandits and Brigands Table and randomly place them around the Ogre, as close as possible. The heroes enter along the short side of the room. Bandits move first. Graup is an ordinary Ogre and is armed with a longsword and has Armour 1.",
+                            NarrativeAftermath = "Taking a look around the room the party notices two chests filled with loot from the bandits' plunder. There is also a thick ledger, detailing the plunder...Curiously, the last raids have listed the wagons crew as plunder as well. It appears that their bodies have been sold for coin...Taking what they can, the heroes start their journey back to the city.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>() { { "RoomName", "The Throne Room" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetTurnOrder,
+                                    Parameters = new Dictionary<string, string>() { { "First", "Enemies" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>() {
+                                        { "Name", "Graup" },
+                                        { "PlacementRule", "RelativeToTarget" },
+                                        { "PlacementTarget", "Throne" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnFromChart,
+                                    Parameters = new Dictionary<string, string>() {
+                                        { "ChartName", "BanditsAndBrigands" },
+                                        { "Rolls", "2" },
+                                        { "PlacementRule", "RelativeToTarget" },
+                                        { "PlacementTarget", "Graup" },
+                                        { "PlacementArgs", "AsCloseAsPossible" }
+                                    }
+                                }
+                            }
+                        },
+                        new Quest()
+                        {
+                            Name = "The Burning Village",
+                            QuestType = QuestType.WildernessQuest,
+                            StartingRoom = _room.GetRoomByName("Field With Trees"),
+                            SpecialRules = "The heroes are allowed one rest before the battle, but no roll on the Travel Events Table is necessary. No Threat Level is used during this quest. The Scenario dice should still be rolled and a result of 9-0 triggers reinforcements for the Goblinoids. In that case, roll once more on the OaG Table and place them cantered along a random table edge.",
+                            RewardSpecial = "If the heroes win, they receive 3 random potions and 1 Fine Treasure. If they flee, there is no reward.",
+                            EncounterType = EncounterType.Orcs_Goblins,
+                            NarrativeQuest = "After about half an hour walking through difficult terrain, the forest abruptly gives way to open fields, and just a short distance ahead lies Rochdale. One of the small houses on the outskirts is ablaze and violent screams are emanating from the village. The adventurers rush across the field as they realize that the village is beset by a band of Orcs and Goblins.",
+                            NarrativeSetup = "Set up the outdoor tiles. Roll twice on the Orcs and Goblins Encounter Chart and randomise their placement along 1 board edge. Place 1 Orc Chieftain in the same way. Victory Condition: If at any time, there are no living enemies on the table, the heroes win. If at any time the heroes feel like running away, they can do so by simply leaving the map, in which case the quest is over.",
+                            NarrativeAftermath = "If The Heroes Won: As the last Orc falls to the ground the villagers start to emerge from their houses. The Village Elder approaches the heroes, praising their efforts and offers the party a small token of their gratitude. Rummaging through the belongings of the chieftain, the party discovers yet another note on payment for bodies signed 'Imgrahil'.\nIf The Heroes Fled: Realising they were in for more than they could handle, the heroes decide it is better to live another day and head back to the forest. The orcs follow a short distance before they turn back to set the rest of the village ablaze.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "RoomName", "Field With Trees" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetCombatRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "UseThreatLevel" },
+                                        { "Value", "false" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    // TODO: Implement custom logic for this quest in the Blazor component.
+                                    // This rule will need to be checked during the combat loop to handle reinforcements.
+                                    ActionType = QuestSetupActionType.SetQuestRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "WildernessReinforcements" },
+                                        { "Value", "9,Orcs_Goblins,RandomEdge" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnFromChart,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "ChartName", "Orcs_Goblins" },
+                                        { "Rolls", "2" },
+                                        { "PlacementRule", "RandomEdge" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Orc Chieftain" },
+                                        { "Count", "1" },
+                                        { "PlacementRule", "RandomEdge" }
+                                    }
+                                }
+                            }
+                        },
+                        new Quest()
+                        {
+                            Name = "The Apprentice",
+                            ColorLocation = (QuestColor.White, 22),
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result. Any Encounter Table roll of 15-20 results in an encounter with the caretaker, plus the ordinary encounter. The caretaker, Emil, wields a sharpened shovel (Greataxe) and drops a bronze key upon death.",
+                            CorridorCount = 6,
+                            RoomCount = 6,
+                            RewardCoin = 200,
+                            EncounterType = EncounterType.TheApprentice,
+                            ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
+                            StartThreatLevel = 4,
+                            MinThreatLevel = 4,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "Once back in the city, the adventurers are summoned by the Jarl. He explains that there have been more incidents at the cemeteries, pointing towards a Necromancer. He asks the heroes to investigate ruins east of the city to find and kill whoever is collecting corpses.",
+                            NarrativeObjectiveRoom = "The heroes enter a huge chamber. In the middle stands a man, Imgrahil, performing an incantation over the body of a peasant girl lying in a magical circle. The heroes watch as the girl starts to twitch and stand up. As they advance, more bodies appear out of the darkness to stop them.",
+                            NarrativeSetup = "Place Imgrahil, the Apprentice, in the centre of the circle. Place one unarmed Zombie next to them. Place 2d6 unarmed Zombies along the long walls, as far as possible from the heroes. The heroes are placed close to the door. Imgrahil is an apprentice Necromancer armed with a poisoned dagger, Armour 1, and has mastered Raise Dead, Healing, Vampiric Touch, and Mirrored Self.",
+                            NarrativeAftermath = "Once Imgrahil is dead, the heroes find a notebook in their pockets. It mentions a 'Master' and an 'Apostle', and a growing army of the Undead. It also mentions a sacrifice to a being named Melkhior. A map reveals the locations of the Apostle and the Master, forcing the heroes to choose their next target. If they go for the Apostle, play quest 6A. If they go for the Master, play 6B.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "WanderingMonsterAtThreat" },
+                                        { "Value", "10" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "RoomName", "The Chamber of Reverence" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Imgrahil the Apprentice" },
+                                        { "PlacementRule", "Center" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Zombie" },
+                                        { "Count", "1" },
+                                        { "PlacementRule", "RelativeToTarget" },
+                                        { "PlacementTarget", "Imgrahil the Apprentice" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Zombie" },
+                                        { "Count", "2d6" },
+                                        { "PlacementRule", "LongSide" }
+                                    }
+                                }
+                            }
+                        },
+                        new Quest()
+                        {
+                            Name = "Sacrifice",
+                            ColorLocation = (QuestColor.White, 36),
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            CorridorCount = 7,
+                            RoomCount = 7,
+                            EncounterType = EncounterType.Undead,
+                            ObjectiveRoom = _room.GetRoomByName("The Lava River"),
+                            StartThreatLevel = 6,
+                            MinThreatLevel = 6,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "Deciding to intervene with the sacrifice, the heroes head for the spot where the Apostle is said to be. They arrive at an old, ruined tower and find a trapdoor leading down into the darkness, which they decide to descend.",
+                            NarrativeObjectiveRoom = "Upon entering the large hall, the heroes spot a group of civilians on the bank of a lava river, surrounded by skeletons. Further back, on a dais, stands the Apostle, them eyes fixed on the heroes.",
+                            NarrativeSetup = "The heroes enter along the short side opposite the altar. Place 4 Wights on their side of the river. Place the Apostle on the dais. The heroes go first. There are 2 unlocked, non-trapped objective chests next to the altar. The Apostle is a Vampire Fledgling armed with a longsword and Armour 2.",
+                            NarrativeAftermath = "After the heroes liberate the civilians, they send them on their way and head straight towards the Master themselves.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>() { { "RoomName", "The Lava River" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetTurnOrder,
+                                    Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Wight" },
+                                        { "Count", "4" },
+                                        { "PlacementRule", "RandomPositionInRange" },
+                                        // Place Wights on the opposite side of the lava river
+                                        { "PlacementArgs", "X:1-4, Y:0-5" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "The Apostle" },
+                                        { "PlacementRule", "RandomPositionInRange" },
+                                        // Place the Apostle on the dais at the far end
+                                        { "PlacementArgs", "X:0, Y:2-3" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.ModifyFurniture,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "TargetFurnitureName", "Chest" },
+                                        { "NewName", "Objective Chest" },
+                                        { "IsLocked", "false" },
+                                        { "IsTrapped", "false" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.ModifyFurniture,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "TargetFurnitureName", "Chest" },
+                                        { "NewName", "Objective Chest" },
+                                        { "IsLocked", "false" },
+                                        { "IsTrapped", "false" }
+                                    }
+                                }
+                            }
+                        },
+                        new Quest()
+                        {
+                            Name = "The Master",
+                            ColorLocation = (QuestColor.White, 39),
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            SpecialRules = "The Scenario dice triggers an event on a roll of 8-0. If the heroes chose to stop the sacrifice in Quest 6A, roll twice on the Encounter Table for every encounter, choosing the higher result. The middle chest in room R10 is locked and can only be opened with the bronze key from Quest 5; it contains the Vanquisher.",
+                            CorridorCount = 7,
+                            RoomCount = 7,
+                            RewardCoin = 2000,
+                            RewardItems = new() { await _treasure.CreateItemAsync("Grimoire") },
+                            RewardSpecial = "The Vanquisher (magical longsword, +2 damage to Undead). The Master's engraved dagger.",
+                            EncounterType = EncounterType.Undead,
+                            ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
+                            StartThreatLevel = 6,
+                            MinThreatLevel = 6,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "After a couple of rainy days on the road, the heroes dive into the ruins of a forgotten castle where the map indicates they can find the Master.",
+                            NarrativeObjectiveRoom = "The heroes enter the room where the Master resides. At the far end, a figure in tattered robes with a hidden face stands flanked by two lumbering Zombie Ogres. After a moment, the Master gestures for their thralls to attack and begins their incantations.",
+                            NarrativeSetup = "The heroes enter along a short side. Place the two Ogres and the Master at the far end of the room. The heroes go first. There are 6 tombs in the room that can be looted. The Master is a Necromancer with a poisoned dagger, Armour 1, and knows Raise Dead, 3 Close-combat Spells, and 4 Ranged Spells.",
+                            NarrativeAftermath = "As the Master falls, their body disappears, leaving behind their robes, a grimoire, and a dagger. After looting the crypt, the party heads back to Silver City. The Jarl greets them, commends their actions, and gives them their reward. He also informs them that High King Logan III has requested their enlistment into the League of Dungeoneers to head into the Ancient Lands.",
+                            SetupActions = new List<QuestSetupAction>()
+                            {
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetDungeonRule,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Rule", "ScenarioTriggerRoll" },
+                                        { "Value", "8" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetRoom,
+                                    Parameters = new Dictionary<string, string>() { { "RoomName", "The Great Crypt" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SetTurnOrder,
+                                    Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "The Master" },
+                                        { "Count", "1" },
+                                        { "PlacementRule", "RandomPositionInRange" },
+                                        // Place the Apostle on the dais at the far end
+                                        { "PlacementArgs", "X:0, Y:2-3" }
+                                    }
+                                },
+                                new QuestSetupAction
+                                {
+                                    ActionType = QuestSetupActionType.SpawnMonster,
+                                    Parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Name", "Zombie Ogre" },
+                                        { "Count", "2" },
+                                        { "PlacementRule", "RelativeToTarget" },
+                                        { "PlacementTarget", "The Master" }
+                                    }
+                                }
+                            }
+                        },
+                    }
+                });
+
+            Campaigns.Add(new Campaign (
+                "Lair of the Spider Queen",
+                "An elderly wizard hires the party to retrieve a magical sceptre from the tomb of the legendary Spider Queen.")
+                {
+                    StartingLocation = (QuestColor.White, 40),
+                    RewardCoinsPerHero = 1200,
+                    Quests = new List<Quest>
+                    {
+                        new Quest()
+                        {
+                            Name = "Level 1: The Entrance",
+                            ColorLocation = (QuestColor.White, 40),
+                            StartingRoom = _room.GetRoomByName("Start Tile"),
+                            SpecialRules = "The Secondary Quest card 1 should be mixed in with the first half of the pile.",
+                            CorridorCount = 7,
+                            RoomCount = 7,
+                            EncounterType = EncounterType.Orcs_Goblins,
+                            ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
+                            StartThreatLevel = 4,
+                            MinThreatLevel = 4,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "Upon arrival at the temple ruins, the adventurers find it occupied. Sharpened poles with severed heads warn them to stay out. They must find a hidden passageway leading deeper underground.",
+                            NarrativeObjectiveRoom = "The large chamber appears to have been the inner sanctum of the temple. Orcs are kneeling around a large, decayed statue of some forgotten deity.",
+                            NarrativeSetup = "The heroes enter along the short side opposite the statue. Five Orcs and one Orc Chieftain are two squares away from the statue with their backs to the heroes. The heroes may continue their turn. Chieftain Grotto is armed with a Greataxe and Armour 3. The Orcs have Battlehammers, Shields, and Armour 1.",
+                            NarrativeAftermath = "Once the chamber is clear, the party finds a small imprint at the base of the statue that matches the spider amulet found on Amburr the Ettin. Pressing the amulet into the imprint reveals a dusty stair leading down."
+                        },
+                        new Quest()
+                        {
+                            Name = "Level 2: The Basement",
+                            ColorLocation = (QuestColor.White, 40),
+                            StartingRoom = _room.GetRoomByName("C18"),
+                            SpecialRules = "The Secondary Quest card 1 should be mixed in with the stack before dividing it to add the normal objective card. A Wandering Monster will appear when the Threat Level reaches 10 and 16. The secondary objective involves fighting Kraghul the Mighty, a powerful Minotaur.",
+                            CorridorCount = 7,
+                            RoomCount = 7,
+                            RewardSpecial = "If the secondary objective is completed, the party finds two Antidote potions.",
+                            EncounterType = EncounterType.Beasts,
+                            ObjectiveRoom = _room.GetRoomByName("C16"),
+                            StartThreatLevel = 4,
+                            MinThreatLevel = 4,
+                            MaxThreatLevel = 18,
+                            NarrativeQuest = "The adventurers continue down the stairs into the temple's basement. There is a pungent smell in the air and the stairs are covered in dust. In the distance they suddenly hear a terrifying roar, alerting them to a dangerous presence.",
+                            NarrativeObjectiveRoom = "Finally, the heroes locate the stairs. They carefully approach them, expecting traps or monsters, but they safely reach the top. The darkness prevents any possibility to spy what lies ahead. Instead, they carefully start their descent further into the bowels of the temple.",
+                            NarrativeAftermath = "Upon reaching the stairs, the heroes proceed to the next level."
+                        },
+                        new Quest()
+                        {
+                            Name = "Level 3: The Tomb of the Spider Queen",
+                            ColorLocation = (QuestColor.White, 40),
+                            StartingRoom = _room.GetRoomByName("C8"),
+                            SpecialRules = "Whenever you have an encounter, roll a die. An odd number will result in 1d3 Giant Spiders; an even number will result in an encounter from the Undead Encounter List. All doors are considered cobweb covered openings. A Threat Level of 12 will trigger a Wandering Monster.",
+                            CorridorCount = 7,
+                            RoomCount = 7,
+                            RewardItems = [
+                                .. await _treasure.GetWonderfulTreasureAsync(),
+                                .. await _treasure.GetWonderfulTreasureAsync(),
+                                .. await _treasure.GetWonderfulTreasureAsync(),
+                                await _treasure.GetCoins("4d100", 0) ],
+                            EncounterType = EncounterType.TheTombOfTheSpiderQueen,
+                            ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
+                            StartThreatLevel = 6,
+                            MinThreatLevel = 6,
+                            MaxThreatLevel = 20,
+                            NarrativeQuest = "Reaching the end of the stairs, the party finds the corridor ending in an opening covered in a tight weave of cobweb. The dust on the floor has been disturbed by a strange pattern, suggesting the Queen's power over spiders transgresses the borders between life and death.",
+                            NarrativeObjectiveRoom = "The heroes reach the final resting place of the Queen. Sunbeams shoot from holes in the roof, creating a spotlight on a sarcophagus. Standing next to it is a huge, motionless black spider. Suddenly, its eight eyes gleam and it rises as if woken from slumber.",
+                            NarrativeSetup = "The Gigantic Spider, Belua, is placed next to the sarcophagus. The heroes enter on the short side of the room. Belua has a special ability: on a behavior roll of 5-6, she attempts to summon a Giant Spider, which appears randomly in the room but cannot act on the turn it arrives.",
+                            NarrativeAftermath = "With Belua and them children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless."
+                        },
+                    }
+                });
+
+            // --- STANDALONE QUESTS ---
+
+            StandaloneQuests.Add(new Quest()
+            {
+                Name = "The Burning Village",
+                QuestType = QuestType.WildernessQuest,
+                /* ... all details ... */
+            });
+
+            // ... add any other non-campaign quests here ...
         }
 
         /// <summary>
@@ -259,7 +825,7 @@ namespace LoDCompanion.BackEnd.Services.Game
             return rewardMessage;
         }
 
-        public async Task<List<Quest>> GetQuestsAsync()
+        public List<Quest> GetQuests()
         {
             return new List<Quest>
             {
@@ -461,537 +1027,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                         }
                     }
                 },
-                new Quest()
-                {
-                    Name = "Spring Cleaning",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 12, a Wandering Monster will appear regardless of the Scenario dice result. For this quest only, the party may gain the benefits of the 'Rest' rule (p. 86) without consuming any food rations.",
-                    CorridorCount = 4,
-                    RoomCount = 4,
-                    RewardCoin = 100,
-                    RewardItems = new() { EquipmentService.GetEquipmentByNameSetQuantity("Ration", 10) },
-                    RewardSpecial = "50 c extra per hero as gratitude for finding Johann.",
-                    EncounterType = EncounterType.SpringCleaning,
-                    ObjectiveRoom = _room.GetRoomByName("R5B"),
-                    StartThreatLevel = 2,
-                    MinThreatLevel = 2,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "You have been tasked by the local Town Elder to clear out the basement of the Town Hall. This basement has been closed off for several years, but a recent invasion of large rats in the village has led the local rat catcher to think that their nest is in this building.",
-                    NarrativeObjectiveRoom = "The heroes enter what seems to be a large storage room. The room is filled with huge piles of crates and barrels and everywhere they look, the heroes can see the beady red eyes of large rodents staring at them malevolently. In the far back, a huge creature can be seen. Much larger than the rest, and heavily deformed, it is questionable whether this rat is living or Undead.",
-                    NarrativeSetup = "The party enters a large dusty room filled with old crates and barrels. There are 1d10 Rats in the room (placed randomly), and as far away as possible from the player is the Brood Mother. If the party has not encountered Johann yet, he will also be in the far end of the room.",
-                    NarrativeAftermath = "The Town Elder is pleased with the hero's efforts. The news of Johann came as a bit of a shock though, and he seems troubled. Before parting, the party is offered 50 c extra per hero as gratitude for finding Johann. The Town Elder recommends the party to head to Silver City. To further help the party on their journey, he offers them 10 rations to use on the road.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetDungeonRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "WanderingMonsterAtThreat" },
-                                { "Value", "12" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetPartyRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "FreeRest" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "RoomName", "R5B" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnFromChart,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "ChartName", "SpringCleaning" },
-                                { "Count", "1d10" },
-                                { "PlacementRule", "RandomSquare" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "The Brood Mother" },
-                                { "Count", "1" },
-                                { "PlacementRule", "AsFarAsPossible" },
-                                { "PlacementTarget", "Heroes" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Johann" },
-                                { "Count", "1" },
-                                { "PlacementRule", "AsFarAsPossible" },
-                                { "PlacementTarget", "Heroes" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "The Dead Rising",
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
-                    CorridorCount = 5,
-                    RoomCount = 5,
-                    RewardCoin = 150,
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
-                    StartThreatLevel = 4,
-                    MinThreatLevel = 4,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "The Jarl of Silver City reaches out to the party, requesting their help: 'My cousin told me you proved you could handle yourself...Would you consider heading down the Mausoleum to get in contact with Ulfric?'...Accepting the quest, the adventures are now tasked with making contact with Ulfric and their Brothers.",
-                    NarrativeObjectiveRoom = "The Crypt that the heroes enter is a large room with six sarcophagi. In the middle stands Ulfric, unmistakably changed. Flanking them are two skeletons, both armed with bronze swords and shields. As he notices the party, he lunges forward, with their Hammer held high.",
-                    NarrativeSetup = "Place Ulfric in the middle and the two skeletons on either side of them. They are considered ordinary skeletons with longswords and shields.",
-                    NarrativeAftermath = "The Jarl listens carefully to the story told by the adventurers...he appraises their skills and begs them not to spread word of what happened...He also promises to put in a good word for the party, should they ever need it.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetDungeonRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "WanderingMonsterAtThreat" },
-                                { "Value", "10" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "RoomName", "The Great Crypt" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Ulfric" },
-                                { "PlacementRule", "Center" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Skeleton" },
-                                { "Count", "2" },
-                                { "Weapons", "Longsword" },
-                                { "Shield", "true" },
-                                { "PlacementRule", "RelativeToTarget" },
-                                { "PlacementTarget", "Ulfric" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "Highwaymen",
-                    ColorLocation = (QuestColor.White, 34),
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result.",
-                    CorridorCount = 6,
-                    RoomCount = 6,
-                    RewardCoin = 200,
-                    EncounterType = EncounterType.Bandits_Brigands,
-                    ObjectiveRoom = _room.GetRoomByName("The Throne Room"),
-                    StartThreatLevel = 3,
-                    MinThreatLevel = 3,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "A deal is settled. The party will deal with the bandits, in exchange for coins. Digging around for more information...it becomes clear that all attacks have happened close to the old ruined fort...all wagons were completely smashed up...no trace has been found of the wagons' crew.",
-                    NarrativeObjectiveRoom = "The party enters a room which seems to be the former great hall of the Commandant at the fort. Close to the throne stands the leader of the bandits together with their bodyguards. It suddenly dawns on the adventurers what caused the carts to be totally demolished. The bandit leader is no ordinary man, but a towering, muscular Ogre. Spotting the adventurers, he points a chubby finger at them and bellows for their guards to attack.",
-                    NarrativeSetup = "Place Graup, the Ogre, by the throne. Roll twice on the Bandits and Brigands Table and randomly place them around the Ogre, as close as possible. The heroes enter along the short side of the room. Bandits move first. Graup is an ordinary Ogre and is armed with a longsword and has Armour 1.",
-                    NarrativeAftermath = "Taking a look around the room the party notices two chests filled with loot from the bandits' plunder. There is also a thick ledger, detailing the plunder...Curiously, the last raids have listed the wagons crew as plunder as well. It appears that their bodies have been sold for coin...Taking what they can, the heroes start their journey back to the city.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Throne Room" } }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetTurnOrder,
-                            Parameters = new Dictionary<string, string>() { { "First", "Enemies" } }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>() {
-                                { "Name", "Graup" },
-                                { "PlacementRule", "RelativeToTarget" },
-                                { "PlacementTarget", "Throne" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnFromChart,
-                            Parameters = new Dictionary<string, string>() {
-                                { "ChartName", "BanditsAndBrigands" },
-                                { "Rolls", "2" },
-                                { "PlacementRule", "RelativeToTarget" },
-                                { "PlacementTarget", "Graup" },
-                                { "PlacementArgs", "AsCloseAsPossible" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "The Burning Village",
-                    QuestType = QuestType.WildernessQuest,
-                    StartingRoom = _room.GetRoomByName("Field With Trees"),
-                    SpecialRules = "The heroes are allowed one rest before the battle, but no roll on the Travel Events Table is necessary. No Threat Level is used during this quest. The Scenario dice should still be rolled and a result of 9-0 triggers reinforcements for the Goblinoids. In that case, roll once more on the OaG Table and place them cantered along a random table edge.",
-                    RewardSpecial = "If the heroes win, they receive 3 random potions and 1 Fine Treasure. If they flee, there is no reward.",
-                    EncounterType = EncounterType.Orcs_Goblins,
-                    NarrativeQuest = "After about half an hour walking through difficult terrain, the forest abruptly gives way to open fields, and just a short distance ahead lies Rochdale. One of the small houses on the outskirts is ablaze and violent screams are emanating from the village. The adventurers rush across the field as they realize that the village is beset by a band of Orcs and Goblins.",
-                    NarrativeSetup = "Set up the outdoor tiles. Roll twice on the Orcs and Goblins Encounter Chart and randomise their placement along 1 board edge. Place 1 Orc Chieftain in the same way. Victory Condition: If at any time, there are no living enemies on the table, the heroes win. If at any time the heroes feel like running away, they can do so by simply leaving the map, in which case the quest is over.",
-                    NarrativeAftermath = "If The Heroes Won: As the last Orc falls to the ground the villagers start to emerge from their houses. The Village Elder approaches the heroes, praising their efforts and offers the party a small token of their gratitude. Rummaging through the belongings of the chieftain, the party discovers yet another note on payment for bodies signed 'Imgrahil'.\nIf The Heroes Fled: Realising they were in for more than they could handle, the heroes decide it is better to live another day and head back to the forest. The orcs follow a short distance before they turn back to set the rest of the village ablaze.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "RoomName", "Field With Trees" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetCombatRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "UseThreatLevel" },
-                                { "Value", "false" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            // TODO: Implement custom logic for this quest in the Blazor component.
-                            // This rule will need to be checked during the combat loop to handle reinforcements.
-                            ActionType = QuestSetupActionType.SetQuestRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "WildernessReinforcements" },
-                                { "Value", "9,Orcs_Goblins,RandomEdge" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnFromChart,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "ChartName", "Orcs_Goblins" },
-                                { "Rolls", "2" },
-                                { "PlacementRule", "RandomEdge" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Orc Chieftain" },
-                                { "Count", "1" },
-                                { "PlacementRule", "RandomEdge" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "The Apprentice",
-                    ColorLocation = (QuestColor.White, 22),
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "When the Threat Level reaches 10, a Wandering Monster will appear regardless of the Scenario dice result. Any Encounter Table roll of 15-20 results in an encounter with the caretaker, plus the ordinary encounter. The caretaker, Emil, wields a sharpened shovel (Greataxe) and drops a bronze key upon death.",
-                    CorridorCount = 6,
-                    RoomCount = 6,
-                    RewardCoin = 200,
-                    EncounterType = EncounterType.TheApprentice,
-                    ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
-                    StartThreatLevel = 4,
-                    MinThreatLevel = 4,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "Once back in the city, the adventurers are summoned by the Jarl. He explains that there have been more incidents at the cemeteries, pointing towards a Necromancer. He asks the heroes to investigate ruins east of the city to find and kill whoever is collecting corpses.",
-                    NarrativeObjectiveRoom = "The heroes enter a huge chamber. In the middle stands a man, Imgrahil, performing an incantation over the body of a peasant girl lying in a magical circle. The heroes watch as the girl starts to twitch and stand up. As they advance, more bodies appear out of the darkness to stop them.",
-                    NarrativeSetup = "Place Imgrahil, the Apprentice, in the centre of the circle. Place one unarmed Zombie next to them. Place 2d6 unarmed Zombies along the long walls, as far as possible from the heroes. The heroes are placed close to the door. Imgrahil is an apprentice Necromancer armed with a poisoned dagger, Armour 1, and has mastered Raise Dead, Healing, Vampiric Touch, and Mirrored Self.",
-                    NarrativeAftermath = "Once Imgrahil is dead, the heroes find a notebook in their pockets. It mentions a 'Master' and an 'Apostle', and a growing army of the Undead. It also mentions a sacrifice to a being named Melkhior. A map reveals the locations of the Apostle and the Master, forcing the heroes to choose their next target. If they go for the Apostle, play quest 6A. If they go for the Master, play 6B.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetDungeonRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "WanderingMonsterAtThreat" },
-                                { "Value", "10" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "RoomName", "The Chamber of Reverence" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Imgrahil the Apprentice" },
-                                { "PlacementRule", "Center" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Zombie" },
-                                { "Count", "1" },
-                                { "PlacementRule", "RelativeToTarget" },
-                                { "PlacementTarget", "Imgrahil the Apprentice" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Zombie" },
-                                { "Count", "2d6" },
-                                { "PlacementRule", "LongSide" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "Sacrifice",
-                    ColorLocation = (QuestColor.White, 36),
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Lava River"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "Deciding to intervene with the sacrifice, the heroes head for the spot where the Apostle is said to be. They arrive at an old, ruined tower and find a trapdoor leading down into the darkness, which they decide to descend.",
-                    NarrativeObjectiveRoom = "Upon entering the large hall, the heroes spot a group of civilians on the bank of a lava river, surrounded by skeletons. Further back, on a dais, stands the Apostle, them eyes fixed on the heroes.",
-                    NarrativeSetup = "The heroes enter along the short side opposite the altar. Place 4 Wights on their side of the river. Place the Apostle on the dais. The heroes go first. There are 2 unlocked, non-trapped objective chests next to the altar. The Apostle is a Vampire Fledgling armed with a longsword and Armour 2.",
-                    NarrativeAftermath = "After the heroes liberate the civilians, they send them on their way and head straight towards the Master themselves.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Lava River" } }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetTurnOrder,
-                            Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Wight" },
-                                { "Count", "4" },
-                                { "PlacementRule", "RandomPositionInRange" },
-                                // Place Wights on the opposite side of the lava river
-                                { "PlacementArgs", "X:1-4, Y:0-5" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "The Apostle" },
-                                { "PlacementRule", "RandomPositionInRange" },
-                                // Place the Apostle on the dais at the far end
-                                { "PlacementArgs", "X:0, Y:2-3" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.ModifyFurniture,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "TargetFurnitureName", "Chest" },
-                                { "NewName", "Objective Chest" },
-                                { "IsLocked", "false" },
-                                { "IsTrapped", "false" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.ModifyFurniture,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "TargetFurnitureName", "Chest" },
-                                { "NewName", "Objective Chest" },
-                                { "IsLocked", "false" },
-                                { "IsTrapped", "false" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "The Master",
-                    ColorLocation = (QuestColor.White, 39),
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "The Scenario dice triggers an event on a roll of 8-0. If the heroes chose to stop the sacrifice in Quest 6A, roll twice on the Encounter Table for every encounter, choosing the higher result. The middle chest in room R10 is locked and can only be opened with the bronze key from Quest 5; it contains the Vanquisher.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardCoin = 2000,
-                    RewardItems = new() { await _treasure.CreateItemAsync("Grimoire") },
-                    RewardSpecial = "The Vanquisher (magical longsword, +2 damage to Undead). The Master's engraved dagger.",
-                    EncounterType = EncounterType.Undead,
-                    ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "After a couple of rainy days on the road, the heroes dive into the ruins of a forgotten castle where the map indicates they can find the Master.",
-                    NarrativeObjectiveRoom = "The heroes enter the room where the Master resides. At the far end, a figure in tattered robes with a hidden face stands flanked by two lumbering Zombie Ogres. After a moment, the Master gestures for their thralls to attack and begins their incantations.",
-                    NarrativeSetup = "The heroes enter along a short side. Place the two Ogres and the Master at the far end of the room. The heroes go first. There are 6 tombs in the room that can be looted. The Master is a Necromancer with a poisoned dagger, Armour 1, and knows Raise Dead, 3 Close-combat Spells, and 4 Ranged Spells.",
-                    NarrativeAftermath = "As the Master falls, their body disappears, leaving behind their robes, a grimoire, and a dagger. After looting the crypt, the party heads back to Silver City. The Jarl greets them, commends their actions, and gives them their reward. He also informs them that High King Logan III has requested their enlistment into the League of Dungeoneers to head into the Ancient Lands.",
-                    SetupActions = new List<QuestSetupAction>()
-                    {
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetDungeonRule,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Rule", "ScenarioTriggerRoll" },
-                                { "Value", "8" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetRoom,
-                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Great Crypt" } }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SetTurnOrder,
-                            Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "The Master" },
-                                { "Count", "1" },
-                                { "PlacementRule", "RandomPositionInRange" },
-                                // Place the Apostle on the dais at the far end
-                                { "PlacementArgs", "X:0, Y:2-3" }
-                            }
-                        },
-                        new QuestSetupAction
-                        {
-                            ActionType = QuestSetupActionType.SpawnMonster,
-                            Parameters = new Dictionary<string, string>()
-                            {
-                                { "Name", "Zombie Ogre" },
-                                { "Count", "2" },
-                                { "PlacementRule", "RelativeToTarget" },
-                                { "PlacementTarget", "The Master" }
-                            }
-                        }
-                    }
-                },
-                new Quest()
-                {
-                    Name = "Lair of the Spider Queen",
-                    ColorLocation = (QuestColor.White, 40),
-                    RewardCoin = 1200,
-                    NarrativeQuest = "The party has been contacted by an elderly wizard who tells them the story of Queen Araneae, who controlled spiders with a magical sceptre. He believes the sceptre is buried with them in a tomb north of the Ancient Lands and will reward the party handsomely for retrieving it. To begin the quest, travel to location White 40."
-                },
-                new Quest()
-                {
-                    Name = "Level 1: The Entrance",
-                    ColorLocation = (QuestColor.White, 40),
-                    StartingRoom = _room.GetRoomByName("Start Tile"),
-                    SpecialRules = "The Secondary Quest card 1 should be mixed in with the first half of the pile.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    EncounterType = EncounterType.Orcs_Goblins,
-                    ObjectiveRoom = _room.GetRoomByName("The Chamber of Reverence"),
-                    StartThreatLevel = 4,
-                    MinThreatLevel = 4,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "Upon arrival at the temple ruins, the adventurers find it occupied. Sharpened poles with severed heads warn them to stay out. They must find a hidden passageway leading deeper underground.",
-                    NarrativeObjectiveRoom = "The large chamber appears to have been the inner sanctum of the temple. Orcs are kneeling around a large, decayed statue of some forgotten deity.",
-                    NarrativeSetup = "The heroes enter along the short side opposite the statue. Five Orcs and one Orc Chieftain are two squares away from the statue with their backs to the heroes. The heroes may continue their turn. Chieftain Grotto is armed with a Greataxe and Armour 3. The Orcs have Battlehammers, Shields, and Armour 1.",
-                    NarrativeAftermath = "Once the chamber is clear, the party finds a small imprint at the base of the statue that matches the spider amulet found on Amburr the Ettin. Pressing the amulet into the imprint reveals a dusty stair leading down."
-                },
-                new Quest()
-                {
-                    Name = "Level 2: The Basement",
-                    ColorLocation = (QuestColor.White, 40),
-                    StartingRoom = _room.GetRoomByName("C18"),
-                    SpecialRules = "The Secondary Quest card 1 should be mixed in with the stack before dividing it to add the normal objective card. A Wandering Monster will appear when the Threat Level reaches 10 and 16. The secondary objective involves fighting Kraghul the Mighty, a powerful Minotaur.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardSpecial = "If the secondary objective is completed, the party finds two Antidote potions.",
-                    EncounterType = EncounterType.Beasts,
-                    ObjectiveRoom = _room.GetRoomByName("C16"),
-                    StartThreatLevel = 4,
-                    MinThreatLevel = 4,
-                    MaxThreatLevel = 18,
-                    NarrativeQuest = "The adventurers continue down the stairs into the temple's basement. There is a pungent smell in the air and the stairs are covered in dust. In the distance they suddenly hear a terrifying roar, alerting them to a dangerous presence.",
-                    NarrativeObjectiveRoom = "Finally, the heroes locate the stairs. They carefully approach them, expecting traps or monsters, but they safely reach the top. The darkness prevents any possibility to spy what lies ahead. Instead, they carefully start their descent further into the bowels of the temple.",
-                    NarrativeAftermath = "Upon reaching the stairs, the heroes proceed to the next level."
-                },
-                new Quest()
-                {
-                    Name = "Level 3: The Tomb of the Spider Queen",
-                    ColorLocation = (QuestColor.White, 40),
-                    StartingRoom = _room.GetRoomByName("C8"),
-                    SpecialRules = "Whenever you have an encounter, roll a die. An odd number will result in 1d3 Giant Spiders; an even number will result in an encounter from the Undead Encounter List. All doors are considered cobweb covered openings. A Threat Level of 12 will trigger a Wandering Monster.",
-                    CorridorCount = 7,
-                    RoomCount = 7,
-                    RewardItems = [
-                        .. await _treasure.GetWonderfulTreasureAsync(), 
-                        .. await _treasure.GetWonderfulTreasureAsync(), 
-                        .. await _treasure.GetWonderfulTreasureAsync(), 
-                        await _treasure.GetCoins("4d100", 0) ],
-                    EncounterType = EncounterType.TheTombOfTheSpiderQueen,
-                    ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
-                    StartThreatLevel = 6,
-                    MinThreatLevel = 6,
-                    MaxThreatLevel = 20,
-                    NarrativeQuest = "Reaching the end of the stairs, the party finds the corridor ending in an opening covered in a tight weave of cobweb. The dust on the floor has been disturbed by a strange pattern, suggesting the Queen's power over spiders transgresses the borders between life and death.",
-                    NarrativeObjectiveRoom = "The heroes reach the final resting place of the Queen. Sunbeams shoot from holes in the roof, creating a spotlight on a sarcophagus. Standing next to it is a huge, motionless black spider. Suddenly, its eight eyes gleam and it rises as if woken from slumber.",
-                    NarrativeSetup = "The Gigantic Spider, Belua, is placed next to the sarcophagus. The heroes enter on the short side of the room. Belua has a special ability: on a behavior roll of 5-6, she attempts to summon a Giant Spider, which appears randomly in the room but cannot act on the turn it arrives.",
-                    NarrativeAftermath = "With Belua and them children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless."
-                },
+                
                 new Quest()
                 {
                     Name = "Stop the Heretics",
@@ -1776,14 +1812,14 @@ namespace LoDCompanion.BackEnd.Services.Game
             return questLocation != null ? questLocation.HexTile : null;
         }
 
-        public async Task<Quest?> GetQuestByNameAsync(string name)
+        public Quest? GetQuestByName(string name)
         {
-            return (await GetQuestsAsync()).FirstOrDefault(q => q.Name == name);
+            return (GetQuests()).FirstOrDefault(q => q.Name == name);
         }
 
-        public async Task<Quest> GetRandomSideQuestAsync()
+        public Quest GetRandomSideQuest()
         {
-            var sideQuests = (await GetQuestsAsync()).Where(q => q.IsSideQuest).ToList();
+            var sideQuests = (GetQuests()).Where(q => q.IsSideQuest).ToList();
             sideQuests.Shuffle();
             return sideQuests.First();
         }
