@@ -6326,6 +6326,28 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 }
             }
 
+            if (parameters.TryGetValue("BaseMonster", out var baseMonsterName))
+            {
+                var baseMonster = GetMonsterByName(baseMonsterName).Clone();
+                // Apply modifications from parameters to baseMonster
+                baseMonster.Name = monsterName;
+                if (weapons.Any())
+                {
+                    baseMonster.Weapons = weapons;
+                }
+                baseMonster.ArmourValue = armourValue;
+                baseMonster.HasShield = hasShield;
+                if (spells.Any())
+                {
+                    baseMonster.Spells = spells;
+                }
+                if (specialRule != null)
+                {
+                    baseMonster.SpecialRules.Add(specialRule);
+                }
+                return new List<Monster> { baseMonster };
+            }
+
             // Call the existing BuildMonsters method with the parsed data
             return BuildMonsters(
                 count,

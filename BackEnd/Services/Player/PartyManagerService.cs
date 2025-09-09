@@ -73,6 +73,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int MoraleMax { get; set; }
         public int Morale {  get; set; }
         public int PartyLuck { get; set; }
+        public bool CanRestForFree { get; set; } = false;
 
         public bool PartyRetreat => Morale < 1;
         public bool PartyWavering => Morale < Math.Floor(MoraleMax / 2d);
@@ -85,6 +86,10 @@ namespace LoDCompanion.BackEnd.Services.Player
         public PartyManagerService(GameStateManagerService gameStateManagerService)
         {
             _gameStateManager = gameStateManagerService;
+        }
+        public void ResetQuestRules()
+        {
+            CanRestForFree = false;
         }
 
         public void StartNewParty()

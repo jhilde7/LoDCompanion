@@ -19,7 +19,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int ThreatLevel { get; set; }
         public int EncounterChanceModifier { get; set; } = 0;
         public int ScenarioRollModifier { get; set; } = 0;
-        public int WhenSpawnWanderingMonster { get; set; }
+        public int WanderingMonsterAtThreat { get; set; }
         public bool SpawnWanderingMonster => ThreatLevel >= MaxThreatLevel;
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }
@@ -166,7 +166,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _dungeon.MinThreatLevel = 1;
             _dungeon.MaxThreatLevel = 10; // This can be overridden by quest specifics
             _dungeon.ThreatLevel = 0;
-            _dungeon.WhenSpawnWanderingMonster = 5; // This can also be overridden
+            _dungeon.WanderingMonsterAtThreat  = 5; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
             List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
@@ -203,7 +203,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _dungeon.MinThreatLevel = quest.MinThreatLevel;
             _dungeon.MaxThreatLevel = quest.MaxThreatLevel;
             _dungeon.ThreatLevel = quest.StartThreatLevel;
-            _dungeon.WhenSpawnWanderingMonster = 5;
+            _dungeon.WanderingMonsterAtThreat  = 5;
 
             List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
             _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
@@ -622,7 +622,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool UpdateThreat(int amount)
         {
             _dungeon.ThreatLevel += amount;
-            if (_dungeon.ThreatLevel >= _dungeon.WhenSpawnWanderingMonster)
+            if (_dungeon.ThreatLevel >= _dungeon.WanderingMonsterAtThreat )
             {
                 // Trigger wandering monster logic...
                 _dungeon.ThreatLevel -= 5;
@@ -800,6 +800,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private async Task<RestResult> HandleOnDungeonRestAsync(PartyManagerService partyManager)
         {
             var result = new RestResult();
+
             _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
             var threatResult = await HandleScenarioRoll(isInBattle: false);
             result.WasInterrupted = threatResult.ThreatEventTriggered;

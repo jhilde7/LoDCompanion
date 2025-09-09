@@ -15,7 +15,9 @@ namespace LoDCompanion.BackEnd.Services.Game
         SetTurnOrder,
         DefineInteraction,
         ModifyInitiative,
-        SetCombatRule
+        SetCombatRule,
+        SetDungeonRule,
+        SetPartyRule,
     }
 
     public class QuestSetupAction
@@ -29,7 +31,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly EncounterService _encounter;
         private readonly PlacementService _placement;
         private readonly RoomService _room;
-        private readonly PartyManagerService _party;
+        private readonly PartyManagerService _partyManager;
         private readonly DungeonState _dungeon;
 
 
@@ -42,7 +44,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         {
             _encounter = encounter;
             _room = room;
-            _party = partyManagerService;
+            _partyManager = partyManagerService;
             _placement = placementService;
             _dungeon = dungeonState;
         }
@@ -69,10 +71,10 @@ namespace LoDCompanion.BackEnd.Services.Game
                     GridService.PlaceRoomOnGrid(room, room.GridOffset, _dungeon.DungeonGrid);
                     break;
                 case QuestSetupActionType.PlaceHeroes:
-                    if (_party.Party != null)
+                    if (_partyManager.Party != null)
                     {
                         room.HeroesInRoom ??= new List<Hero>();
-                        foreach (Hero hero in _party.Party.Heroes)
+                        foreach (Hero hero in _partyManager.Party.Heroes)
                         {
                             _placement.PlaceEntity(hero, room, action.Parameters);
                         } 
@@ -89,47 +91,44 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     break;
                 case QuestSetupActionType.SpawnFromChart:
-                    EncounterType type;
-                    switch(action.Parameters["ChartName"])
+                    if (Enum.TryParse<EncounterType>(action.Parameters["ChartName"], out var type))
                     {
-                        case "BanditsAndBrigands":
-                            type = EncounterType.Bandits_Brigands;
-                            break;
-                        case "OrcsAndGoblins":
-                            type = EncounterType.Orcs_Goblins;
-                            break;
-
-                        case "Undead":
-                            type = EncounterType.Undead;
-                            break;
-
-                        case "Reptiles":
-                            type = EncounterType.Reptiles;
-                            break;
-
-                        case "Dark Elves":
-                            type = EncounterType.DarkElves;
-                            break;
-
-                        case "AncientLands":
-                            type = EncounterType.AncientLands;
-                            break;
-                        default: type = EncounterType.Beasts; 
-                            break;
+                        List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(type);
+                        room.MonstersInRoom ??= new List<Monster>();
+                        foreach (Monster monster in chartMonsters)
+                        {
+                            _placement.PlaceEntity(monster, room, action.Parameters);
+                        }
                     }
-                    List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(type);
-
-                    room.MonstersInRoom ??= new List<Monster>();
-                    foreach (Monster monster in chartMonsters)
+                    else
                     {
-                        _placement.PlaceEntity(monster, room, action.Parameters);
+                        Console.WriteLine($"Error: Could not find EncounterType for chart name '{action.Parameters["ChartName"]}'");
                     }
                     break;
                 case QuestSetupActionType.SetTurnOrder:
+                    //TODO
                     break;
                 case QuestSetupActionType.ModifyInitiative:
+                    //TODO
                     break;
                 case QuestSetupActionType.SetCombatRule:
+                    //TODO
+                    break;
+                case QuestSetupActionType.SetDungeonRule:
+                    var rule = action.Parameters["Rule"];
+                    var value = action.Parameters["Value"];
+                    if (rule == "WanderingMonsterAtThreat")
+                    {
+                        _dungeon.WanderingMonsterAtThreat = int.Parse(value);
+                    }
+                    break;
+
+                case QuestSetupActionType.SetPartyRule:
+                    var partyRule = action.Parameters["Rule"];
+                    if (partyRule == "FreeRest")
+                    {
+                        _partyManager.CanRestForFree = true;
+                    }
                     break;
             }
         }

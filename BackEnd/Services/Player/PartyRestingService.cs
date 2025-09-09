@@ -25,6 +25,7 @@ namespace LoDCompanion.BackEnd.Services.Player
     {
         public bool WasSuccessful { get; set; }
         public bool WasInterrupted { get; set; }
+        public bool RationFreeRest { get; set; }
         public string Message { get; set; } = string.Empty;
         public ThreatEventResult? ThreatEvent { get; set; }
     }
@@ -58,7 +59,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         /// <param name="context">The context in which the rest is taking place.</param>
         /// <param name="dungeonState">The current dungeon state, required if resting in a dungeon.</param>
         /// <returns>A RestResult object detailing the outcome.</returns>
-        public async Task<RestResult> AttemptRest(RestingContext context)
+        public async Task<RestResult> AttemptRest(RestingContext context, bool freeRest = false)
         {
             var result = new RestResult();
             var party = _partyManager.Party;
@@ -68,6 +69,11 @@ namespace LoDCompanion.BackEnd.Services.Player
             {
                 result.Message = "There is no party to rest.";
                 return result;
+            }
+
+            if (freeRest)
+            {
+                rationUsed = true;
             }
 
             // check party perks to determine if a ration is needed

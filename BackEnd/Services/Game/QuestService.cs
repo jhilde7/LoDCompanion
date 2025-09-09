@@ -24,7 +24,6 @@ namespace LoDCompanion.BackEnd.Services.Game
         StopTheHeretics,
         TheMasterAlchemist,
         SlayTheBeast,
-        TheMissingBrother,
         C26,
         C29,
         R17,
@@ -299,12 +298,13 @@ namespace LoDCompanion.BackEnd.Services.Game
                     Name = "The Missing Brother",
                     SpecialRules = "Once the card pile is done, place one extra Room Card somewhere within reach, without looking at it. Next, add Side Quest 1 to the pile. When you draw this, replace it with the extra Room Card. This is the Side Quest Objective Room. If the main objective room is found before this one, the heroes must decide whether to go home or continue searching for the Side Quest Room.",
                     RewardCoin = 100,
-                    EncounterType = EncounterType.TheMissingBrother,
+                    EncounterType = EncounterType.MainQuest,
                     ObjectiveRoom = _room.GetRandomRoom(),
                     NarrativeQuest = "Spending an evening at The Screaming Hog tavern, the heroes are discussing their upcoming quest and their preparations, when they are suddenly interrupted by a young lady. She introduces herself and begs for forgiveness for eavesdropping, and then goes on to explain them business. Apparently, them brother went to the same dungeon as the one that the heroes are heading for, but he did not return. She now wonders if the party is willing to investigate their disappearance, since they are heading there anyway.",
                     NarrativeObjectiveRoom = "When the heroes open the door, they realise there is already a fight going on. Some poor soul is desperately fighting several enemies.",
                     NarrativeSetup = "Place the lone fighter in one of the far corners. Then roll twice on the Encounter Table and place these as close to the survivor as possible. Any Archers are placed as far away from the fighter as possible, but not in the 2 squares next to the door where the heroes are. The heroes may continue their turn. The enemies will target only the heroes from now on.",
-                    NarrativeAftermath = "Found them! Once the last enemy is dead, the heroes check on the fighter. He is slumped against the wall, breathing heavily and bleeding, but he is not heavily wounded. He introduces himself and it turns out he is the missing brother of the girl they met at the inn. He thanks the heroes for saving them and bids farewell as he limps towards the exit and the way back to the city. Once back in the city, the heroes receive their promised coins from a very grateful sister.\nDidn't find them! As soon as the heroes set foot in the tavern, they can see the sister looking at them nervously. As one of the heroes shakes their head, she covers them face with them hands and rushes out through the door."
+                    NarrativeAftermath = "Found them! Once the last enemy is dead, the heroes check on the fighter. He is slumped against the wall, breathing heavily and bleeding, but he is not heavily wounded. He introduces himself and it turns out he is the missing brother of the girl they met at the inn. He thanks the heroes for saving them and bids farewell as he limps towards the exit and the way back to the city. Once back in the city, the heroes receive their promised coins from a very grateful sister.\nDidn't find them! As soon as the heroes set foot in the tavern, they can see the sister looking at them nervously. As one of the heroes shakes their head, she covers them face with them hands and rushes out through the door.",
+                    
                 },
                 new Quest()
                 {
@@ -483,7 +483,67 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "You have been tasked by the local Town Elder to clear out the basement of the Town Hall. This basement has been closed off for several years, but a recent invasion of large rats in the village has led the local rat catcher to think that their nest is in this building.",
                     NarrativeObjectiveRoom = "The heroes enter what seems to be a large storage room. The room is filled with huge piles of crates and barrels and everywhere they look, the heroes can see the beady red eyes of large rodents staring at them malevolently. In the far back, a huge creature can be seen. Much larger than the rest, and heavily deformed, it is questionable whether this rat is living or Undead.",
                     NarrativeSetup = "The party enters a large dusty room filled with old crates and barrels. There are 1d10 Rats in the room (placed randomly), and as far away as possible from the player is the Brood Mother. If the party has not encountered Johann yet, he will also be in the far end of the room.",
-                    NarrativeAftermath = "The Town Elder is pleased with the hero's efforts. The news of Johann came as a bit of a shock though, and he seems troubled. Before parting, the party is offered 50 c extra per hero as gratitude for finding Johann. The Town Elder recommends the party to head to Silver City. To further help the party on their journey, he offers them 10 rations to use on the road."
+                    NarrativeAftermath = "The Town Elder is pleased with the hero's efforts. The news of Johann came as a bit of a shock though, and he seems troubled. Before parting, the party is offered 50 c extra per hero as gratitude for finding Johann. The Town Elder recommends the party to head to Silver City. To further help the party on their journey, he offers them 10 rations to use on the road.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetDungeonRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "WanderingMonsterAtThreat" },
+                                { "Value", "12" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetPartyRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "FreeRest" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "RoomName", "R5B" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnFromChart,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "ChartName", "SpringCleaning" },
+                                { "Count", "1d10" },
+                                { "PlacementRule", "RandomSquare" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "The Brood Mother" },
+                                { "Count", "1" },
+                                { "PlacementRule", "AsFarAsPossible" },
+                                { "PlacementTarget", "Heroes" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Johann" },
+                                { "Count", "1" },
+                                { "PlacementRule", "AsFarAsPossible" },
+                                { "PlacementTarget", "Heroes" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
@@ -501,7 +561,50 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "The Jarl of Silver City reaches out to the party, requesting their help: 'My cousin told me you proved you could handle yourself...Would you consider heading down the Mausoleum to get in contact with Ulfric?'...Accepting the quest, the adventures are now tasked with making contact with Ulfric and their Brothers.",
                     NarrativeObjectiveRoom = "The Crypt that the heroes enter is a large room with six sarcophagi. In the middle stands Ulfric, unmistakably changed. Flanking them are two skeletons, both armed with bronze swords and shields. As he notices the party, he lunges forward, with their Hammer held high.",
                     NarrativeSetup = "Place Ulfric in the middle and the two skeletons on either side of them. They are considered ordinary skeletons with longswords and shields.",
-                    NarrativeAftermath = "The Jarl listens carefully to the story told by the adventurers...he appraises their skills and begs them not to spread word of what happened...He also promises to put in a good word for the party, should they ever need it."
+                    NarrativeAftermath = "The Jarl listens carefully to the story told by the adventurers...he appraises their skills and begs them not to spread word of what happened...He also promises to put in a good word for the party, should they ever need it.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetDungeonRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "WanderingMonsterAtThreat" },
+                                { "Value", "10" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "RoomName", "The Great Crypt" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Ulfric" },
+                                { "Count", "1" },
+                                { "PlacementRule", "Center" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Skeleton" },
+                                { "Count", "2" },
+                                { "Weapons", "Longsword" },
+                                { "Shield", "true" },
+                                { "PlacementRule", "RelativeToTarget" },
+                                { "PlacementTarget", "Ulfric" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
