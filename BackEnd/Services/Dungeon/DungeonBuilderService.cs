@@ -5,11 +5,11 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 {
     public class DungeonBuilderService
     {
-        private readonly RoomService _rooms;
+        private readonly RoomService _room;
 
         public DungeonBuilderService(RoomService roomService)
         {
-            _rooms = roomService;
+            _room = roomService;
         }
 
         public List<Room> CreateDungeonDeck(Quest quest)
@@ -36,13 +36,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     var sideQuestCardInfo = sideQuest.ObjectiveRoom;
                     if (quest.SideQuests.Any(sq => sq.Name == "The Hidden Treasure"))
                     {
-                        sideQuestCardInfo = _rooms.GetRoomByName("R10");
+                        sideQuestCardInfo = _room.GetRoomByName("R10");
                     }
 
                     if (sideQuestCardInfo != null)
                     {
                         Room sideQuestCard = new Room();
-                        _rooms.InitializeRoomData(sideQuestCardInfo, sideQuestCard);
+                        _room.InitializeRoomData(sideQuestCardInfo, sideQuestCard);
                         firstHalf.Insert(RandomHelper.GetRandomNumber(0, firstHalf.Count), sideQuestCard);
                     } 
                 }
@@ -50,9 +50,9 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
             if (quest.ObjectiveRoom != null)
             {
-                var objectiveRoomInfo = _rooms.GetRoomByName(quest.ObjectiveRoom.Name);
+                var objectiveRoomInfo = _room.GetRoomByName(quest.ObjectiveRoom.Name);
                 Room objectiveRoom = new Room();
-                _rooms.InitializeRoomData(objectiveRoomInfo, objectiveRoom);
+                _room.InitializeRoomData(objectiveRoomInfo, objectiveRoom);
                 if (objectiveRoomInfo != null)
                 {
                     secondHalf.Add(objectiveRoom);
@@ -67,21 +67,34 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             return finalDeck;
         }
 
-        private List<Room> BuildRoomList(int count, List<RoomInfo>? excluded)
+        private List<Room> BuildRoomList(int count, List<RoomInfo>? excluded = null, List<RoomInfo>? included = null)
         {
             var rooms = new List<Room>();
-            var available = _rooms.Rooms
-                .Where(r => r.Category == RoomCategory.Room && (excluded == null || !excluded.Contains(r)))
-                .ToList();
+            List<RoomInfo> availableRooms;
 
-            available.Shuffle();
+            // If an inclusion list is provided, use ONLY that list.
+            if (included != null && included.Any())
+            {
+                availableRooms = included;
+            }
+            // Otherwise, use all rooms, applying the exclusion list if it exists.
+            else
+            {
+                availableRooms = _room.Rooms.Where(r => r.Category == RoomCategory.Room).ToList();
+                if (excluded != null && excluded.Any())
+                {
+                    availableRooms = availableRooms.Where(r => !excluded.Contains(r)).ToList();
+                }
+            }
 
-            int numberToTake = Math.Min(count, available.Count);
+            availableRooms.Shuffle();
+
+            int numberToTake = Math.Min(count, availableRooms.Count);
             if (numberToTake > 0)
             {
-                foreach (RoomInfo roomInfo in available.GetRange(0, numberToTake))
+                foreach (RoomInfo roomInfo in availableRooms.GetRange(0, numberToTake))
                 {
-                    rooms.Add(_rooms.InitializeRoomData(roomInfo, new Room()));
+                    rooms.Add(_room.InitializeRoomData(roomInfo, new Room()));
                 }
             }
 
@@ -91,7 +104,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         private List<Room> BuildCorridorList(int count, List<RoomInfo>? excluded)
         {
             var corridors = new List<Room>();
-            var available = _rooms.Rooms
+            var available = _room.Rooms
                 .Where(r => r.Category == RoomCategory.Corridor && (excluded == null || !excluded.Contains(r)))
                 .ToList();
 
@@ -102,7 +115,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             {
                 foreach (RoomInfo roomInfo in available.GetRange(0, numberToTake))
                 {
-                    corridors.Add(_rooms.InitializeRoomData(roomInfo, new Room()));
+                    corridors.Add(_room.InitializeRoomData(roomInfo, new Room()));
                 } 
             }
 
