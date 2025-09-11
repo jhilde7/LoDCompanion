@@ -10,6 +10,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         public List<Quest> Quests { get; set; } = new List<Quest>();
         public (QuestColor Color, int Location)? StartingLocation { get; set; }
         public int RewardCoinsPerHero { get; set; }
+        public SettlementName OriginSettlement { get; internal set; }
 
         public Campaign(string name, string description)
         {

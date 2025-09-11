@@ -39,6 +39,14 @@ namespace LoDCompanion.BackEnd.Services.Game
         TheApprentice
     }
 
+    public enum QuestItem
+    {
+        None,
+        BronzeKey,
+        SpiderAmulet,
+        EngravedDagger,
+    }
+
     public class QuestHexLocation
     {
         public HexTile HexTile { get; set; } = new HexTile(new Hex(0, 0, 0));
@@ -91,6 +99,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         DesertEvent,
         RoadsEvent
     }
+
     public class QuestService
     {
         private readonly DungeonManagerService _dungeonManager;
@@ -100,6 +109,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         private readonly TreasureService _treasure;
         private readonly Estate _estate;
         private readonly InitiativeService _initiative;
+        private readonly SearchService _search;
 
         public Quest? ActiveQuest { get; private set; }
         public Room? ActiveEncounterRoom { get; private set; }
@@ -122,7 +132,8 @@ namespace LoDCompanion.BackEnd.Services.Game
             CombatManagerService combatManagerService,
             TreasureService treasureService,
             Estate estate,
-            InitiativeService initiative)
+            InitiativeService initiative,
+            SearchService search)
         {
             _room = roomService;
             _dungeonManager = dungeonManagerService;
@@ -130,9 +141,10 @@ namespace LoDCompanion.BackEnd.Services.Game
             _combatManager = combatManagerService;
             _treasure = treasureService;
             _estate = estate;
+            _initiative = initiative;
+            _search = search;
 
             _estate.OnSideQuestTriggered += HandleAddSideQuest;
-            _initiative = initiative;
         }
 
         private void HandleAddSideQuest(string sideQuestName, Party party)
@@ -171,8 +183,13 @@ namespace LoDCompanion.BackEnd.Services.Game
             // --- CAMPAIGNS ---
 
             Campaigns.Add(new Campaign (
-                "The Dead Rising", 
-                "A series of events beginning with a simple request to clear out a basement, leading to a confrontation with a powerful necromancer.")
+                "The Dead Rising",
+                "The dead never rest easy in the Kingdom, but lately the reports of stirring bodies have been alarmingly high. " +
+                "The reason why some dead refuse to stay dead is a mystery. " +
+                "Perhaps it is due to some unfinished business that denies the person its eternal rest, or possibly the soil of the grave is tainted by the Void. " +
+                "However, as this repeatedly occurs, it seems likely that there is a definite reason behind the stirring. " +
+                "Maybe the King's decision to allow expeditions south once again has triggered the Undead curse, or perhaps there is something else behind this. " +
+                "This campaign starts wherever the heroes are, but the second quest must be started in Silver City.")
                 {
                     Quests = new List<Quest>
                     {
@@ -265,7 +282,15 @@ namespace LoDCompanion.BackEnd.Services.Game
                             CorridorCount = 5,
                             RoomCount = 5,
                             CorridorsToExclude = new() { _room.GetRoomByName("C16") },
-                            RoomsToInclude = new() { _room.GetRoomByName("R17") },
+                            RoomsToInclude = new() 
+                                { 
+                                _room.GetRoomByName("R2B"), 
+                                _room.GetRoomByName("R3B"),
+                                _room.GetRoomByName("R4B"),
+                                _room.GetRoomByName("R5B"),
+                                _room.GetRoomByName("R6B"),
+                                _room.GetRoomByName("R7B"),
+                                _room.GetRoomByName("R8B") },
                             RewardCoin = 150,
                             EncounterType = EncounterType.Undead,
                             ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
@@ -509,6 +534,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             ColorLocation = (QuestColor.White, 36),
                             StartingRoom = _room.GetRoomByName("Start Tile"),
                             CorridorCount = 7,
+                            CorridorsToExclude = new() { _room.GetRoomByName("C16") },
                             RoomCount = 7,
                             EncounterType = EncounterType.Undead,
                             ObjectiveRoom = _room.GetRoomByName("The Lava River"),
@@ -586,9 +612,55 @@ namespace LoDCompanion.BackEnd.Services.Game
                             SpecialRules = "The Scenario dice triggers an event on a roll of 8-0. If the heroes chose to stop the sacrifice in Quest 6A, roll twice on the Encounter Table for every encounter, choosing the higher result. The middle chest in room R10 is locked and can only be opened with the bronze key from Quest 5; it contains the Vanquisher.",
                             CorridorCount = 7,
                             RoomCount = 7,
+                            RoomsToInclude = new() 
+                                {
+                                    new RoomInfo(){
+                                        Name = "R10",
+                                        ImagePath = "/Resources/Rooms/R10.png",
+                                        Category = RoomCategory.Room,
+                                        Description = "Finally, a room worthy of your presence. Even though the stones are as dark and dank as the rest of the dungeon, there is a silver lining here. Alongside one wall there are three chests to be plundered. The middle chest, however, seems unusually sturdy and bears a distinct bronze keyhole.",
+                                        Size = [ 6, 6 ],
+                                        FurnitureList = [
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 0, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 0, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 1, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 1, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 2, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 2, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 2, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 2, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 2, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 2, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 3, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 3, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 3, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 3, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 3, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 3, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 4, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(1, 4, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(2, 4, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(3, 4, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(4, 4, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 4, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(0, 5, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(1, 5, 0)}),
+                                            new Chest()
+                                            {
+                                                Name = "Objective Chest",
+                                                OccupiedSquares = new List<GridPosition>() { new GridPosition(2, 5, 0), new GridPosition(3, 5, 0)},
+                                                IsSearchable= true,
+                                                TreasureType = TreasureType.TheVanquisher,
+                                                Lock = new Lock(QuestItem.BronzeKey),
+                                            },
+                                            _search.GetFurnitureByNameSetPosition("Chest", new List<GridPosition>() { new GridPosition(4, 5, 0)}),
+                                            _search.GetFurnitureByNameSetPosition("Floor", new List<GridPosition>() { new GridPosition(5, 5, 0)}),
+                                            ]
+                                    }
+                                },
                             RewardCoin = 2000,
                             RewardItems = new() { await _treasure.CreateItemAsync("Grimoire") },
-                            RewardSpecial = "The Vanquisher (magical longsword, +2 damage to Undead). The Master's engraved dagger.",
+                            RewardSpecial = "The Master's engraved dagger.",
                             EncounterType = EncounterType.Undead,
                             ObjectiveRoom = _room.GetRoomByName("The Great Crypt"),
                             StartThreatLevel = 6,
@@ -649,8 +721,19 @@ namespace LoDCompanion.BackEnd.Services.Game
 
             Campaigns.Add(new Campaign (
                 "Lair of the Spider Queen",
-                "An elderly wizard hires the party to retrieve a magical sceptre from the tomb of the legendary Spider Queen.")
+                "In the times when men still lived in tribes, there was one tribe who was feared by all. " +
+                "Led by their Queen Araneae and with their elite soldiers mounted on top of large spiders they quickly expanded their territory and laid waste to any tribe who opposed them. " +
+                "The reign of Queen Araneae would not last for long though, as she suddenly passed away. " +
+                "She was buried deep down in the tribe's underground temple and with her demise, the spider riders disappeared, and the tribe's land was quickly divided amongst the other tribes. " +
+                "Several hundred years later, her reign is all but forgotten and few are those who know her name. " +
+                "The party has been contacted by an elderly wizard who tells them the story of the Queen. " +
+                "He has studied everything known about her for several years and has come to the conclusion that the Queen's control over the spiders must have been magical and most likely related to the sceptre that she was always pictured with. " +
+                "That sceptre would logically be buried with her, which would also explain the army's disintegration after her death. " +
+                "If the party would enter the tomb and locate the sceptre, the wizard would reward them handsomely. " +
+                "According to his calculations, the tomb is located not far north of the Ancient Lands. " +
+                "He also explains that over the years, other tribes and cultures have built further structures above the tomb.")
                 {
+                    OriginSettlement = SettlementName.Whiteport,
                     StartingLocation = (QuestColor.White, 40),
                     RewardCoinsPerHero = 1200,
                     Quests = new List<Quest>
@@ -808,7 +891,11 @@ namespace LoDCompanion.BackEnd.Services.Game
                                     IsSideQuest = true,
                                     ObjectiveRoom = _room.GetRoomByName("R17"),
                                     RewardSpecial = "Two Antidote potions.",
-                                    NarrativeObjectiveRoom = "The size of this Minotaur is quite unbelievable...",
+                                    NarrativeObjectiveRoom = 
+                                    "The size of this Minotaur is quite unbelievable. " +
+                                    "He walks slightly bent forward so as not to scrape his horns on the ceiling. " +
+                                    "The pungent smell that the heroes noticed at the top of the stairs clearly comes from this beast, and the mighty roar came without a doubt from him as well. " +
+                                    "As with many of his brethren, he carries a huge axe which could easily cleave a man in two.",
                                     SetupActions = new List<QuestSetupAction>()
                                     {
                                         new QuestSetupAction
@@ -852,7 +939,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                             NarrativeQuest = "Reaching the end of the stairs, the party finds the corridor ending in an opening covered in a tight weave of cobweb. The dust on the floor has been disturbed by a strange pattern, suggesting the Queen's power over spiders transgresses the borders between life and death.",
                             NarrativeObjectiveRoom = "The heroes reach the final resting place of the Queen. Sunbeams shoot from holes in the roof, creating a spotlight on a sarcophagus. Standing next to it is a huge, motionless black spider. Suddenly, its eight eyes gleam and it rises as if woken from slumber.",
                             NarrativeSetup = "The Gigantic Spider, Belua, is placed next to the sarcophagus. The heroes enter on the short side of the room. Belua has a special ability: on a behavior roll of 5-6, she attempts to summon a Giant Spider, which appears randomly in the room but cannot act on the turn it arrives.",
-                            NarrativeAftermath = "With Belua and them children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless.",
+                            NarrativeAftermath = "With Belua and her children slain, the heroes examine the sarcophagus. Inside lies the dried husk of Queen Araneae, clutching a long black sceptre. Prying it free, they also find piles of gold and valuables. After looting, their trek back to the surface is eventless.",
                             SetupActions = new List<QuestSetupAction>()
                             {
                                 new QuestSetupAction
@@ -1020,13 +1107,12 @@ namespace LoDCompanion.BackEnd.Services.Game
                         {
                             new QuestSetupAction
                             {
-                                // A new ActionType for initiative changes.
                                 ActionType = QuestSetupActionType.ModifyInitiative,
                                 Parameters = new Dictionary<string, string>()
                                 {
-                                    { "Target", "Monster" }, // Or "Enemy"
+                                    { "Target", "Monster" },
                                     { "Amount", "2" },
-                                    { "Turn", "1" } // Specifies it only applies to the first turn
+                                    { "Turn", "1" }
                                 }
                             },
                             new QuestSetupAction
