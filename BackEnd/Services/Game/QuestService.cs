@@ -21,7 +21,6 @@ namespace LoDCompanion.BackEnd.Services.Game
         GoblinKing,
         SpringCleaning,
         TheTombOfTheSpiderQueen,
-        StopTheHeretics,
         TheMasterAlchemist,
         SlayTheBeast,
         C26,
@@ -1193,7 +1192,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 6,
                     RoomCount = 6,
                     RewardCoin = 250,
-                    EncounterType = EncounterType.StopTheHeretics,
+                    EncounterType = EncounterType.Random,
                     ObjectiveRoom = _room.GetRoomByName("The Lava River"),
                     StartThreatLevel = 4,
                     MinThreatLevel = 4,
@@ -1201,7 +1200,69 @@ namespace LoDCompanion.BackEnd.Services.Game
                     NarrativeQuest = "A High Wizard has felt disturbances from the Void and determined someone is performing a Ritual of Summoning. If the heroes can interrupt the ritual, a demonic invasion can be prevented. They must enter the dungeon and slay the heretic conjurer.",
                     NarrativeObjectiveRoom = "The heat from the lava river is almost unbearable. Several guards are in the room, protecting a caster who is busy performing their ritual at an altar on a dais in the far end of the room.",
                     NarrativeSetup = "The party enters on the short side opposite the altar. Roll twice on the Encounter Table to place guards on the heroes' side of the river. On the other side stands a Magic User of the encountered race, who is so occupied with the ritual that he doesn't notice the battle. The heroes act first.",
-                    NarrativeAftermath = "Once all creatures are defeated, the heroes find an alternative exit. If they kill the Spellcaster before he opens the portal, they get the full reward. If they fail, they only get half, as the portal is now open."
+                    NarrativeAftermath = "Once all creatures are defeated, the heroes find an alternative exit. If they kill the Spellcaster before he opens the portal, they get the full reward. If they fail, they only get half, as the portal is now open.",
+                    SetupActions = new List<QuestSetupAction>()
+                    {
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetDungeonRule,
+                            Parameters = new Dictionary<string, string>() { { "Rule", "WanderingMonsterAtThreat" }, { "Value", "10" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetRoom,
+                            Parameters = new Dictionary<string, string>() { { "RoomName", "The Lava River" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetTurnOrder,
+                            Parameters = new Dictionary<string, string>() { { "First", "Hero" } }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SetCombatRule,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Rule", "TurnLimit" },
+                                { "Value", "10" },
+                                { "Target", "Demonic Conjurer" },
+                                { "OnFail", "SummonDemons" } // This value can be interpreted by your CombatManagerService
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnFromChart,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "ChartName", "DungeonDefault" },
+                                { "Rolls", "2" },
+                                { "PlacementRule", "RandomPositionInRange" },
+                                // "The Lava River" entry is X=11. This places guards on the hero side of the river.
+                                { "PlacementArgs", "X:7-10, Y:0-5" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.SpawnMonster,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "Name", "Demonic Conjurer" },
+                                { "PlacementRule", "RandomPositionInRange" },
+                                // Place the caster on the dais on the far side of the river.
+                                { "PlacementArgs", "X:0-1, Y:2-3" }
+                            }
+                        },
+                        new QuestSetupAction
+                        {
+                            ActionType = QuestSetupActionType.ApplyStatusEffect,
+                            Parameters = new Dictionary<string, string>()
+                            {
+                                { "TargetName", "Heretic Conjurer" },
+                                { "StatusEffect", "Incapacitated" },
+                                { "Duration", "-1" }
+                            }
+                        }
+                    }
                 },
                 new Quest()
                 {
@@ -1601,7 +1662,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
         public List<Quest> GetQuests()
         {
-            return StandaloneQuests.Where(q => !q.IsSideQuest).ToList();
+            return StandaloneQuests.Where(q => !q.IsSideQuest && !q.IsComplete).ToList();
         }
 
         private List<QuestHexLocation> GetQuestHexLocations()
@@ -2062,7 +2123,7 @@ namespace LoDCompanion.BackEnd.Services.Game
 
         public Quest GetRandomSideQuest()
         {
-            var sideQuests = StandaloneQuests.Where(q => q.IsSideQuest).ToList();
+            var sideQuests = StandaloneQuests.Where(q => q.IsSideQuest && !q.IsComplete).ToList();
             sideQuests.Shuffle();
             return sideQuests.First();
         }

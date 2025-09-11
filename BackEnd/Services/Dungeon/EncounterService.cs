@@ -4749,6 +4749,31 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Demonic Conjurer",
+                    Species = MonsterSpeciesName.Demon,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 35 },
+                        { BasicStat.Resolve, 55 },
+                        { BasicStat.HitPoints, 13 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 45 },
+                        { Skill.RangedSkill, 50 }
+                    },
+                    ToHitPenalty = -5,
+                    Type = EncounterType.Magic,
+                    Behavior = MonsterBehaviorType.MagicUser,                    
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Demon, 0}
+                    },
+                    XP = 175,
+                    TreasureType = TreasureType.T4
+                },
+                new Monster()
+                {
                     Name = "The Brood Mother",
                     Species = MonsterSpeciesName.GiantRat,
                     BasicStats = new Dictionary<BasicStat, int>
