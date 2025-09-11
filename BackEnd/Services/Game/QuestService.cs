@@ -21,8 +21,6 @@ namespace LoDCompanion.BackEnd.Services.Game
         GoblinKing,
         SpringCleaning,
         TheTombOfTheSpiderQueen,
-        StopTheHeritics,
-        TheMasterAlchemist,
         SlayTheBeast,
         C26,
         C29,
@@ -36,7 +34,8 @@ namespace LoDCompanion.BackEnd.Services.Game
         Random,
         Mimic,
         TheGrievingMother,
-        TheApprentice
+        TheApprentice,
+        StopTheHeritics
     }
 
     public enum QuestItem
@@ -1274,7 +1273,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     CorridorCount = 7,
                     RoomCount = 7,
                     RewardCoin = 300,
-                    EncounterType = EncounterType.TheMasterAlchemist,
+                    EncounterType = EncounterType.Random,
                     ObjectiveRoom = _room.GetRoomByName("The Lava River"),
                     StartThreatLevel = 5,
                     MinThreatLevel = 3,
