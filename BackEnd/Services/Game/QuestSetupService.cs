@@ -21,6 +21,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         SetPartyRule,
         ModifyFurniture,
         ConstrainRoomEntry,
+        ApplyStatusEffect,
     }
 
     public class QuestSetupAction
@@ -97,27 +98,45 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     break;
                 case QuestSetupActionType.SpawnFromChart:
-                    if (Enum.TryParse<EncounterType>(action.Parameters["ChartName"], out var type))
+                    EncounterType chartType;
+                    string chartName = action.Parameters["ChartName"];
+
+                    if (chartName.Equals("DungeonDefault", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Check for a "Rolls" parameter, defaulting to 1 if not present.
-                        int rolls = action.Parameters.TryGetValue("Rolls", out var rollsStr) && int.TryParse(rollsStr, out var parsedRolls) ? parsedRolls : 1;
+                        chartType = _dungeon.EncounterType;
+                    }
+                    else if (!Enum.TryParse<EncounterType>(chartName, out chartType))
+                    {
+                        Console.WriteLine($"Error: Could not find EncounterType for chart name '{chartName}'");
+                        break;
+                    }
 
-                        room.MonstersInRoom ??= new List<Monster>();
+                    int rolls = action.Parameters.TryGetValue("Rolls", out var rollsStr) && int.TryParse(rollsStr, out var parsedRolls) ? parsedRolls : 1;
 
-                        for (int i = 0; i < rolls; i++)
+                    room.MonstersInRoom ??= new List<Monster>();
+
+                    for (int i = 0; i < rolls; i++)
+                    {
+                        List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(chartType);
+                        foreach (Monster monster in chartMonsters)
                         {
-                            List<Monster> chartMonsters = _encounter.GetRandomEncounterByType(type);
-                            foreach (Monster monster in chartMonsters)
-                            {
-                                // Add the spawned monsters to the room's list
-                                room.MonstersInRoom.Add(monster);
-                                _placement.PlaceEntity(monster, room, action.Parameters);
-                            }
+                            room.MonstersInRoom.Add(monster);
+                            _placement.PlaceEntity(monster, room, action.Parameters);
                         }
                     }
-                    else
+                    break;
+                case QuestSetupActionType.ApplyStatusEffect:
+                    if (action.Parameters.TryGetValue("TargetName", out var targetName) &&
+                        action.Parameters.TryGetValue("StatusEffect", out var statusEffectStr) &&
+                        Enum.TryParse<StatusEffectType>(statusEffectStr, out var statusEffect))
                     {
-                        Console.WriteLine($"Error: Could not find EncounterType for chart name '{action.Parameters["ChartName"]}'");
+                        var targetMonster = room.MonstersInRoom?.FirstOrDefault(m => m.Name == targetName);
+                        if (targetMonster != null)
+                        {
+                            int duration = action.Parameters.TryGetValue("Duration", out var durStr) && int.TryParse(durStr, out var dur) ? dur : -1;
+                            // Assuming StatusEffectService has a method to apply effects
+                            targetMonster.ActiveStatusEffects.Add(new ActiveStatusEffect(statusEffect, duration));
+                        }
                     }
                     break;
                 case QuestSetupActionType.SetTurnOrder:

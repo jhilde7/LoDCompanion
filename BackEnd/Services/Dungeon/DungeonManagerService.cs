@@ -39,6 +39,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public bool NextDoorIsUnlockedDisarmed { get; set; }
         public bool NextLockedDoorIsUnlocked { get; set; }
         public bool NextTrapWillBeDisarmed { get; internal set; }
+        public EncounterType EncounterType { get; internal set; }
 
         public Party? SetParty(Party? party)
         {
@@ -202,6 +203,24 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _dungeon.NextDoorIsUnlockedDisarmed = false;
             _dungeon.NextLockedDoorIsUnlocked = false;
             _dungeon.NextTrapWillBeDisarmed = false;
+            if (quest.EncounterType == EncounterType.Random)
+            {
+                // Define the pool of potential random encounter types
+                var rollableTypes = new List<EncounterType>
+                {
+                    EncounterType.Bandits_Brigands,
+                    EncounterType.Orcs_Goblins,
+                    EncounterType.Undead,
+                    EncounterType.Beasts,
+                    EncounterType.DarkElves,
+                    EncounterType.Reptiles,
+                };
+                _dungeon.EncounterType = rollableTypes[RandomHelper.GetRandomNumber(0, rollableTypes.Count - 1)];
+            }
+            else
+            {
+                _dungeon.EncounterType = quest.EncounterType;
+            }
 
             // Initialize the new dungeon
             _dungeon.HeroParty = initialHeroes;
@@ -539,7 +558,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             room.MonstersInRoom = new List<Monster>();
             var dungeonEncounterType = EncounterType.Beasts;
 
-            if (_dungeon.Quest != null) dungeonEncounterType = _dungeon.Quest.EncounterType;
+            dungeonEncounterType = _dungeon.EncounterType;
 
             if (room.EncounterType.HasValue)
             {
