@@ -13,6 +13,7 @@ namespace LoDCompanion.BackEnd.Services.Player
         public int Coins { get; set; }
         public List<ActiveStatusEffect> ActiveStatusEffects { get; set; } = new();
         public List<Quest> Quests { get; set; } = new();
+        public List<QuestItem> QuestItems { get; set; } = new();
         public List<Equipment> PartyInventory { get; set; } = new();
 
         public int PartyMaxMorale => GetMaxMorale();

@@ -57,7 +57,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         WeaponRack,
         Well,
         Special,
-        DrinkFountain
+        DrinkFountain,
+        TheVanquisher
     }
 
     public class TreasureService
@@ -1946,6 +1947,18 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                             };
                             break;
                     }
+                    break;
+                case TreasureType.TheVanquisher:
+                    result.Message = "The sword has a pale blueish shine around a blade made of silver. There are runes inscribed along the blade from the hilt to the tip. This is without a doubt handiwork of a dwarf.";
+                    result.FoundItems = [.. new List<Weapon>() {
+                        _weaponFactory.CreateModifiedMeleeWeapon(
+                        "Longsword", "The Vanquisher",
+                        weapon =>
+                        {
+                            weapon.Properties.TryAdd(WeaponProperty.Silver, 2);
+                            weapon.MaxDurability = 8;
+                            weapon.Value = 400;
+                        }) }];
                     break;
 
             }

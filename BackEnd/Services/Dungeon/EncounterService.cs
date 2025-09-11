@@ -4884,7 +4884,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     },
                     XP = 550,
                     TreasureType = TreasureType.T2,
-                    IsUnique = true
+                    IsUnique = true,
+                    QuestItem = QuestItem.SpiderAmulet
                 },
                 new Monster()
                 {
@@ -6183,7 +6184,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     SpecialRules = new List<string>() { "Raise dead" },
                     XP = 200,
                     TreasureType = TreasureType.T4,
-                    IsUnique = true
+                    IsUnique = true,
+                    QuestItem = QuestItem.EngravedDagger
                 },
                 new Monster()
                 {
@@ -6211,7 +6213,8 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     Weapons = new List<Weapon>() { EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new Weapon() },
                     XP = 110,
                     TreasureType = TreasureType.T2,
-                    IsUnique = true
+                    IsUnique = true,
+                    QuestItem = QuestItem.BronzeKey
                 },
                 new Monster()
                 {

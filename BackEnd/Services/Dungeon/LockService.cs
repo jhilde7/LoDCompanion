@@ -3,6 +3,7 @@ using LoDCompanion.BackEnd.Services.GameData;
 using LoDCompanion.BackEnd.Services.Utilities;
 using LoDCompanion.BackEnd.Services.Player;
 using System.Threading.Tasks;
+using LoDCompanion.BackEnd.Services.Game;
 
 namespace LoDCompanion.BackEnd.Services.Dungeon
 {
@@ -11,6 +12,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public int LockModifier { get; private set; }
         public int LockHP { get; private set; }
         public bool IsLocked => LockHP > 0;
+        public QuestItem requiredItemToOpen { get; private set; }
 
         public Lock()
         {
@@ -25,6 +27,12 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     case 10: SetLockState(-20, 25); break;
                 }
             }
+        }
+
+        public Lock(QuestItem item)
+        {
+            SetLockState(999, 999);
+            requiredItemToOpen = item;
         }
 
         public void SetLockState(int lockModifier, int lockHP)

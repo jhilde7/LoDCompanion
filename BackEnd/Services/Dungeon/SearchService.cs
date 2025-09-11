@@ -246,7 +246,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 return new SearchResult() { Message = "This corpse has already been looted." };
             }
             result = await _treasure.SearchCorpseAsync(corpse.TreasureType, result);
-
+            if (corpse.QuestItem != QuestItem.None) result.Message += $"While searching {corpse.Name} the heroes discover {corpse.QuestItem.ToString()} in addition to other loot.";
             corpse.HasBeenSearched = true;
             return result;
         }
@@ -352,13 +352,13 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                 CanBeClimbed = true,
                 TreasureType = TreasureType.Special
             },
-            new Furniture()
+            new Chest()
             {
                 Name = "Chest",
                 IsSearchable= true,
                 TreasureType = TreasureType.Chest
             },
-            new Furniture()
+            new Chest()
             {
                 Name = "Objective Chest",
                 IsSearchable= true,
@@ -656,6 +656,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
     {
         public Monster OriginMonster { get; set; }
         public bool HasBeenHarvested { get; set; }
+        public QuestItem QuestItem { get; set; }
 
         public Corpse(Monster monster)
         {
@@ -664,6 +665,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             TreasureType = monster.TreasureType;
             HasBeenSearched = false;
             Treasures = new List<string>();
+            QuestItem = monster.QuestItem;
         }
     }
 

@@ -350,7 +350,7 @@ namespace LoDCompanion.BackEnd.Models
                 damage += RandomHelper.RollDie(DiceType.D6);
             }
 
-            if (frostDamage && this is Monster monsterFrost && (monsterFrost.PassiveSpecials.ContainsKey(MonsterSpecialName.WeakToFire)))
+            if (frostDamage && this is Monster monsterFrost && (monsterFrost.PassiveSpecials.ContainsKey(MonsterSpecialName.WeakToFrost)))
             {
                 damage += RandomHelper.RollDie(DiceType.D6);
             }
@@ -1174,6 +1174,7 @@ namespace LoDCompanion.BackEnd.Models
 		public Hero? TauntedBy { get; set; } // The hero this monster is forced to target
 		public HateCategory HateCategory { get; set; } = HateCategory.Bandits;
         public bool IsUnique { get; set; }
+        public QuestItem QuestItem { get; set; } = QuestItem.None;
 
         public Monster()
         {

@@ -117,7 +117,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
                     Corpse corpse = deceasedMonster.Body;
                     corpse.Position = deceasedMonster.Position ?? new GridPosition(0, 0, 0);
                     corpse.Room = deceasedMonster.Room;
-                    corpse.UpdateOccupiedSquares(); 
+                    corpse.UpdateOccupiedSquares();
+                    corpse.QuestItem = deceasedMonster.QuestItem;
                 }
 
                 deceasedMonster.OnDeath -= HandleDeath;
