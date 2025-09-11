@@ -319,6 +319,7 @@ namespace LoDCompanion.BackEnd.Models
             bool poisonDamage = combatContext != null && combatContext.IsPoisonousAttack || damageType.HasValue && damageType.Value.Item1 == DamageType.Poison;
             bool holyDamage = damageType.HasValue && damageType.Value.Item1 == DamageType.Holy;
             bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
+            bool silverDamage = damageType.HasValue && damageType.Value.Item1 == DamageType.Silver;
 
             if (ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.CompleteFireImmunity) != null && fireDamage)
             {
@@ -334,11 +335,24 @@ namespace LoDCompanion.BackEnd.Models
                 damage -= combatContext?.ArmourValue ?? 0; // Apply any armour value from the combat context 
             }
 
-            var isEffectedByHoly = this is Monster monster && (monster.IsUndead || monster.Species == MonsterSpeciesName.Demon);
-            if (holyDamage && damageType.HasValue)
+            if (holyDamage && damageType.HasValue && this is Monster monsterHoly && (monsterHoly.IsUndead || monsterHoly.Species == MonsterSpeciesName.Demon))
             {
-                if (!isEffectedByHoly) damage += 0;
-                else damage += damageType.Value.Item2;
+                damage += damageType.Value.Item2;
+            }
+
+            if (silverDamage && damageType.HasValue && this is Monster monsterSilver && (monsterSilver.PassiveSpecials.ContainsKey(MonsterSpecialName.WeakToSilver)))
+            {
+                damage += damageType.Value.Item2;
+            }
+
+            if (fireDamage && this is Monster monsterFire && (monsterFire.PassiveSpecials.ContainsKey(MonsterSpecialName.WeakToFire)))
+            {
+                damage += RandomHelper.RollDie(DiceType.D6);
+            }
+
+            if (frostDamage && this is Monster monsterFrost && (monsterFrost.PassiveSpecials.ContainsKey(MonsterSpecialName.WeakToFire)))
+            {
+                damage += RandomHelper.RollDie(DiceType.D6);
             }
 
             CurrentHP -= damage;

@@ -320,7 +320,7 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             if (target.Position != null)
             {
-                if (weapon.WeaponCoating != null || weapon.Blessed || weapon is RangedWeapon rangedWeapon && rangedWeapon.Ammo.AmmoCoating != null)
+                if (weapon.WeaponCoating != null || weapon.Blessed || weapon is RangedWeapon rangedWeaponCoating && rangedWeaponCoating.Ammo.AmmoCoating != null)
                 {
                     if (weapon.Blessed)
                     {
@@ -336,6 +336,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
                         var ammo = usesAmmo.Ammo.AmmoCoating;
                         finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context, damageType: (ammo.DamageType, ammo.DamageBonus));
                     }
+                }
+                else if (weapon.HasProperty(WeaponProperty.Silver))
+                {
+                    finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context, damageType: (DamageType.Silver, weapon.Properties[WeaponProperty.Silver]));
+                }
+                else if (weapon is RangedWeapon rangedWeaponSilver && rangedWeaponSilver.Ammo.HasProperty(AmmoProperty.Silver))
+                {
+
+                    finalDamage = await target.TakeDamageAsync(finalDamage, (_floatingText, target.Position), _powerActivation, context, damageType: (DamageType.Silver, rangedWeaponSilver.Ammo.Properties[AmmoProperty.Silver]));
                 }
                 else
                 {
