@@ -30,7 +30,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
         public List<Monster> RevealedMonsters { get; set; } = new List<Monster>();
         public List<string> DefeatedUniqueMonsters { get; set; } = new List<string>();
         public Dictionary<GridPosition, GridSquare> DungeonGrid { get; private set; } = new Dictionary<GridPosition, GridSquare>();
-        public Dictionary<string, string> CombatRules { get; set; } = new();
+        public List<CombatRule> QuestCombatRules { get; set; } = new();
 
         public List<Character> AllCharactersInDungeon => [.. RevealedMonsters, .. HeroParty?.Heroes ?? new List<Hero>()];
 
@@ -148,6 +148,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _trap.OnSpawnCageTrapEncounter += HandleCageTrapSpawnEncounter;
             _search.OnSpawnTreasureRoom += SpawnTreasureRoom;
             _partyResting.OnDungeonRestAsync += HandleOnDungeonRestAsync;
+            _combatManager.OnTriggerSpawnEncounter += HandleTriggerSpawnEncounterAsync;
         }
 
         public void Dispose()
@@ -162,6 +163,205 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
             _trap.OnSpawnCageTrapEncounter -= HandleCageTrapSpawnEncounter;
             _search.OnSpawnTreasureRoom -= SpawnTreasureRoom;
             _partyResting.OnDungeonRestAsync -= HandleOnDungeonRestAsync;
+            _combatManager.OnTriggerSpawnEncounter -= HandleTriggerSpawnEncounterAsync;
+        }
+
+        private async Task HandleMimicSpawnEncounterAsync(Chest chest, bool detected = false)
+        {
+            var mimic = _encounter.GetRandomEncounterByType(EncounterType.Mimic)[0];
+            mimic.Position = chest.Position;
+            mimic.Room = chest.Room;
+            if (detected) await StatusEffectService.AttemptToApplyStatusAsync(mimic, new ActiveStatusEffect(StatusEffectType.DetectedMimic, -1), _powerActivation);
+
+            if (chest.Position != null)
+            {
+                var square = GridService.GetSquareAt(chest.Position, _dungeon.DungeonGrid);
+                if (square != null)
+                {
+                    square.Furniture = SearchService.GetFurnitureByName("Floor");
+                }
+            }
+        }
+
+        private void HandleSkeletonsTrapSpawnEncounter(Room room, int amount)
+        {
+            var paramaters = new Dictionary<string, string>()
+            {
+                { "Name", "Skeleton" },
+                { "Count", amount.ToString() },
+                { "Armour", "1" },
+                { "Shield", "true" },
+                { "Weapons", "Broadsword" }
+            };
+            var skeletons = _encounter.GetEncounterByParams(paramaters);
+
+            foreach (var skeleton in skeletons)
+            {
+                var placementParams = new Dictionary<string, string>()
+                {
+                    { "PlacementRule", "RandomEdge" }
+                };
+
+                _placement.PlaceEntity(skeleton, room, placementParams);
+            }
+        }
+
+        private void HandleCageTrapSpawnEncounter(Room room)
+        {
+            foreach (var door in room.Doors)
+            {
+                var placementParams = new Dictionary<string, string>
+                {
+                    { "PlacementRule", "RelativeToPosition" },
+                    { "PlacementPosition", $"{door.PassagewaySquares[0].X},{door.PassagewaySquares[0].Y},{door.PassagewaySquares[0].Z}" }
+                };
+                var connectedRoom = door.ConnectedRooms.FirstOrDefault(r => r != room);
+                if (connectedRoom != null) SpawnRandomEncounter(connectedRoom, placementParams: placementParams);
+                door.Lock.SetLockState(0, 0);
+                door.Trap.IsDisarmed = true;
+            }
+        }
+
+        private void SpawnTreasureRoom(Room room)
+        {
+            var treasureRoomDeck = new Queue<Room>();
+            var tresureRoom = _room.CreateRoom("R10");
+            treasureRoomDeck.Enqueue(tresureRoom);
+            Door newDoor = _room.AddDoorToRoom(room, _placement, Dungeon, explorationDeck: treasureRoomDeck);
+            newDoor.Trap.IsDisarmed = true;
+            newDoor.Lock.SetLockState(0, 0);
+        }
+
+        private async Task HandleLeverResultAsync(Hero hero, LeverResult result)
+        {
+            if (result.AddExplorationCards) AddExplorationCardsToPiles(2);
+            if (result.CloseDungeonEntrance) Dungeon.CanSpawnWanderingMonster = false;
+            if (result.CreateTreasureRoom) SpawnTreasureRoom(hero.Room);
+            if (result.DoorTrapChanceIncrease) Dungeon.TrapChanceOnDoor = 5;
+            if (result.NextDoorIsUnlockedDisarmed) Dungeon.NextDoorIsUnlockedDisarmed = true;
+            if (result.NextLockedDoorIsUnlocked) Dungeon.NextLockedDoorIsUnlocked = true;
+            if (result.NextTrapWillBeDisarmed) Dungeon.NextTrapWillBeDisarmed = true;
+            if (result.PartyGainedLuckPoint) PartyManager.PartyLuck += 1;
+            if (result.SpawnPortcullis) hero.Room.Doors.ForEach(d => d.State = DoorState.Portcullis);
+            if (result.SpawnWanderingMonster) _wanderingMonster.SpawnWanderingMonster(Dungeon);
+            if (result.LockADoor)
+            {
+                var openDoor = hero.Room.Doors.FirstOrDefault(d => d.IsOpen);
+                if (openDoor != null)
+                {
+                    openDoor.State = DoorState.Closed;
+                    openDoor.Lock.SetLockState(25, 25);
+                }
+                else
+                {
+                    var doors = hero.Room.Doors;
+                    doors.Shuffle();
+                    doors[0].Lock.SetLockState(25, 25);
+                }
+            }
+            if (result.TriggerCageTrap)
+            {
+                var trap = new Trap(TrapType.CageTrap, 5, 10, $"A rattling noise makes {hero.Name} look up, only to realise that an iron case is descending from the ceiling.");
+                await _trap.TriggerTrapAsync(hero, trap, trapTriggered: true);
+            }
+            if (result.TriggerPitTrap)
+            {
+                if (PartyManager.Party != null)
+                {
+                    var heroes = PartyManager.Party.Heroes.ToList();
+                    while (heroes[0] == hero) heroes.Shuffle();
+                    var trap = new Trap(TrapType.TrapDoor, 5, 10, $"Suddenly the floor gives way under {heroes[0].Name}", "A random character must pass a DEX test or fall, taking 1d10 DMG (no armour/NA).") { DamageDice = "1d10" };
+                    await _trap.TriggerTrapAsync(heroes[0], trap, trapTriggered: true);
+                }
+            }
+
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Lever, result.ThreatIncrease);
+            PartyManager.UpdateMorale(amount: -result.PartyMoraleDecrease);
+            await hero.TakeSanityDamage(result.SanityDecrease, (new FloatingTextService(), hero.Position), _powerActivation);
+            if (result.PartySanityDecrease > 0 && PartyManager.Party != null)
+            {
+                foreach (var h in PartyManager.Party.Heroes)
+                {
+                    await h.TakeSanityDamage(result.PartySanityDecrease, (new FloatingTextService(), h.Position), _powerActivation);
+                }
+            }
+        }
+
+        private void HandleSpawnRandomEncounter(Room room)
+        {
+            SpawnRandomEncounter(room);
+        }
+
+        private async Task<bool> HandleOpenDoor(Door door)
+        {
+            return await RevealNextRoomAsync(door);
+        }
+
+        private async Task<bool> HandleRemoveCobwebs(Hero hero, Door door)
+        {
+            var rollResult = await _userRequest.RequestRollAsync("Roll to determine effect.", "1d10");
+            await Task.Yield();
+            int roll = rollResult.Roll;
+
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.RemoveCobwebs, 1);
+
+            if (roll >= 9)
+            {
+                SpawnGiantSpidersFromRemoveCobwebs(RandomHelper.RollDie(DiceType.D2), hero.Room);
+                return true;
+            }
+            else return false;
+        }
+
+        private async Task<RestResult> HandleOnDungeonRestAsync(PartyManagerService partyManager)
+        {
+            var result = new RestResult();
+
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
+            var threatResult = await HandleScenarioRoll(isInBattle: false);
+            result.WasInterrupted = threatResult.ThreatEventTriggered;
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (await _wanderingMonster.ProcessWanderingMonstersAsync(Dungeon.WanderingMonsters)) result.WasInterrupted = true;
+            }
+
+            if (!result.WasInterrupted)
+            {
+                result.WasSuccessful = true;
+                PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.Rest);
+                result.Message = "The party rests successfully.";
+            }
+
+            return result;
+        }
+
+        private async Task HandleTriggerSpawnEncounterAsync(Dictionary<string, string> parameters)
+        {
+            var monstersToSpawn = new List<Monster>();
+            var currentRoom = Dungeon?.CurrentRoom;
+            if (currentRoom == null) return;
+
+            // Check if we are spawning from a chart or by name
+            if (parameters.TryGetValue("ChartName", out var chartNameStr) && Enum.TryParse<EncounterType>(chartNameStr, out var chartType))
+            {
+                monstersToSpawn = _encounter.GetRandomEncounterByType(chartType);
+            }
+            else
+            {
+                monstersToSpawn = _encounter.GetEncounterByParams(parameters);
+            }
+
+            // Place the new monsters
+            foreach (var monster in monstersToSpawn)
+            {
+                _placement.PlaceEntity(monster, currentRoom, parameters);
+            }
+
+            // Add the newly spawned monsters to the ongoing combat
+            _combatManager.AddMonstersToCombat(monstersToSpawn);
+
+            await Task.CompletedTask;
         }
 
         // Create a new method to start a quest
@@ -710,176 +910,6 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
 
                 _placement.PlaceEntity(spider, room, placementParams);
             }
-        }
-
-        private async Task HandleMimicSpawnEncounterAsync(Chest chest, bool detected = false)
-        {
-            var mimic = _encounter.GetRandomEncounterByType(EncounterType.Mimic)[0];
-            mimic.Position = chest.Position;
-            mimic.Room = chest.Room;
-            if (detected) await StatusEffectService.AttemptToApplyStatusAsync(mimic, new ActiveStatusEffect(StatusEffectType.DetectedMimic, -1), _powerActivation);
-
-            if (chest.Position != null)
-            {
-                var square = GridService.GetSquareAt(chest.Position, _dungeon.DungeonGrid);
-                if ( square != null)
-                {
-                    square.Furniture = SearchService.GetFurnitureByName("Floor");
-                }
-            }
-        }
-
-        private void HandleSkeletonsTrapSpawnEncounter(Room room, int amount)
-        {
-            var paramaters = new Dictionary<string, string>()
-            {
-                { "Name", "Skeleton" },
-                { "Count", amount.ToString() },
-                { "Armour", "1" },
-                { "Shield", "true" },
-                { "Weapons", "Broadsword" }
-            };
-            var skeletons = _encounter.GetEncounterByParams(paramaters);
-
-            foreach (var skeleton in skeletons)
-            {
-                var placementParams = new Dictionary<string, string>()
-                {
-                    { "PlacementRule", "RandomEdge" }
-                };
-
-                _placement.PlaceEntity(skeleton, room, placementParams);
-            }
-        }
-
-        private void HandleCageTrapSpawnEncounter(Room room)
-        {
-            foreach (var door in room.Doors)
-            {
-                var placementParams = new Dictionary<string, string>
-                {
-                    { "PlacementRule", "RelativeToPosition" },
-                    { "PlacementPosition", $"{door.PassagewaySquares[0].X},{door.PassagewaySquares[0].Y},{door.PassagewaySquares[0].Z}" }
-                }; 
-                var connectedRoom = door.ConnectedRooms.FirstOrDefault(r => r != room);
-                if (connectedRoom != null) SpawnRandomEncounter(connectedRoom, placementParams: placementParams);
-                door.Lock.SetLockState(0, 0);
-                door.Trap.IsDisarmed = true;
-            }
-        }
-
-        private void SpawnTreasureRoom(Room room)
-        {
-            var treasureRoomDeck = new Queue<Room>();
-            var tresureRoom = _room.CreateRoom("R10");
-            treasureRoomDeck.Enqueue(tresureRoom);
-            Door newDoor = _room.AddDoorToRoom(room, _placement, Dungeon, explorationDeck: treasureRoomDeck);
-            newDoor.Trap.IsDisarmed = true;
-            newDoor.Lock.SetLockState(0, 0);
-        }
-
-        private async Task HandleLeverResultAsync(Hero hero, LeverResult result)
-        {
-            if (result.AddExplorationCards) AddExplorationCardsToPiles(2);
-            if (result.CloseDungeonEntrance) Dungeon.CanSpawnWanderingMonster = false;
-            if (result.CreateTreasureRoom) SpawnTreasureRoom(hero.Room);
-            if (result.DoorTrapChanceIncrease) Dungeon.TrapChanceOnDoor = 5;
-            if (result.NextDoorIsUnlockedDisarmed) Dungeon.NextDoorIsUnlockedDisarmed = true;
-            if (result.NextLockedDoorIsUnlocked) Dungeon.NextLockedDoorIsUnlocked = true;
-            if (result.NextTrapWillBeDisarmed) Dungeon.NextTrapWillBeDisarmed = true;
-            if (result.PartyGainedLuckPoint) PartyManager.PartyLuck += 1;
-            if (result.SpawnPortcullis) hero.Room.Doors.ForEach(d => d.State = DoorState.Portcullis);
-            if (result.SpawnWanderingMonster) _wanderingMonster.SpawnWanderingMonster(Dungeon);
-            if (result.LockADoor)
-            {
-                var openDoor = hero.Room.Doors.FirstOrDefault(d => d.IsOpen);
-                if (openDoor != null)
-                {
-                    openDoor.State = DoorState.Closed;
-                    openDoor.Lock.SetLockState(25, 25);
-                }
-                else
-                {
-                    var doors = hero.Room.Doors;
-                    doors.Shuffle();
-                    doors[0].Lock.SetLockState(25, 25);
-                }
-            }
-            if (result.TriggerCageTrap)
-            {
-                var trap = new Trap(TrapType.CageTrap, 5, 10, $"A rattling noise makes {hero.Name} look up, only to realise that an iron case is descending from the ceiling.");
-                await _trap.TriggerTrapAsync(hero, trap, trapTriggered: true);
-            }
-            if (result.TriggerPitTrap)
-            {
-                if (PartyManager.Party != null)
-                {
-                    var heroes = PartyManager.Party.Heroes.ToList();
-                    while (heroes[0] == hero) heroes.Shuffle();
-                    var trap = new Trap(TrapType.TrapDoor, 5, 10, $"Suddenly the floor gives way under {heroes[0].Name}", "A random character must pass a DEX test or fall, taking 1d10 DMG (no armour/NA).") { DamageDice = "1d10" };
-                    await _trap.TriggerTrapAsync(heroes[0], trap, trapTriggered: true);
-                }
-            }
-
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Lever, result.ThreatIncrease);
-            PartyManager.UpdateMorale(amount: -result.PartyMoraleDecrease);
-            await hero.TakeSanityDamage(result.SanityDecrease, (new FloatingTextService(), hero.Position), _powerActivation);
-            if (result.PartySanityDecrease > 0 && PartyManager.Party != null)
-            {
-                foreach (var h in PartyManager.Party.Heroes)
-                {
-                    await h.TakeSanityDamage(result.PartySanityDecrease, (new FloatingTextService(), h.Position), _powerActivation);
-                }
-            }
-        }
-
-        private void HandleSpawnRandomEncounter(Room room)
-        {
-            SpawnRandomEncounter(room);
-        }
-
-        private async Task<bool> HandleOpenDoor(Door door)
-        {
-            return await RevealNextRoomAsync(door);
-        }
-
-        private async Task<bool> HandleRemoveCobwebs(Hero hero, Door door)
-        {
-            var rollResult = await _userRequest.RequestRollAsync("Roll to determine effect.", "1d10");
-            await Task.Yield();
-            int roll = rollResult.Roll;
-
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.RemoveCobwebs, 1);
-
-            if (roll >= 9) 
-            { 
-                SpawnGiantSpidersFromRemoveCobwebs(RandomHelper.RollDie(DiceType.D2), hero.Room); 
-                return true;
-            }
-            else return false;
-        }
-
-        private async Task<RestResult> HandleOnDungeonRestAsync(PartyManagerService partyManager)
-        {
-            var result = new RestResult();
-
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
-            var threatResult = await HandleScenarioRoll(isInBattle: false);
-            result.WasInterrupted = threatResult.ThreatEventTriggered;
-
-            for (int i = 0; i < 3; i++)
-            {
-                if (await _wanderingMonster.ProcessWanderingMonstersAsync(Dungeon.WanderingMonsters)) result.WasInterrupted = true;
-            }
-
-            if (!result.WasInterrupted)
-            {
-                result.WasSuccessful = true;
-                PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.Rest);
-                result.Message = "The party rests successfully.";
-            }
-
-            return result;
         }
     }
 }

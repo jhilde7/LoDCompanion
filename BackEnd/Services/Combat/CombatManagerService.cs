@@ -7,6 +7,36 @@ using LoDCompanion.BackEnd.Services.Utilities;
 
 namespace LoDCompanion.BackEnd.Services.Combat
 {
+    public enum TriggerType
+    {
+        SpawnEncounter,
+        EndCombat,
+        ApplyStatusEffectToParty
+    }
+
+    public class Trigger
+    {
+        public TriggerType Type { get; set; }
+        public Dictionary<string, string> Parameters { get; set; } = new();
+    }
+
+    public enum CombatRuleType
+    {
+        TurnLimit,
+        ScenarioReinforcements,
+        UseThreatLevel,
+    }
+
+    public class CombatRule
+    {
+        public CombatRuleType RuleType { get; set; }
+        public int? IntValue { get; set; }          // For counts, limits, or trigger rolls
+        public string? StringValue { get; set; }    // For things like EncounterType names
+        public string? TargetName { get; set; }     // For rules that target a specific entity
+        public Trigger? OnFailTrigger { get; set; }  // For failure conditions like "SummonDemons"
+        public Trigger? OnSuccessTrigger { get; set; }// For success conditions
+    }
+
     public class CombatManagerService
     {
         private readonly InitiativeService _initiative;
@@ -19,8 +49,8 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private readonly MovementHighlightingService _movementHighlighting;
         private readonly PowerActivationService _powerActivation;
 
-
         private static readonly GridPosition ScreenCenterPosition = new GridPosition(-1, -1, -1);
+        public int CurrentTurn { get; private set; }
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
@@ -32,6 +62,9 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();
         private HashSet<Character> CharactersWithProcessedEffectsThisTurn = new HashSet<Character>();
         public DungeonState _dungeon => _dungeonManager.Dungeon;
+
+        public event Func<Dictionary<string, string>, Task>? OnTriggerSpawnEncounter;
+
 
         public CombatManagerService(
             InitiativeService initiativeService,
@@ -62,6 +95,65 @@ namespace LoDCompanion.BackEnd.Services.Combat
         {
             _spellResolution.OnTimeFreezeCast -= HandleTimeFreeze;
             _playerAction.OnMonsterMovement -= HandleMonsterMovement;
+        }
+
+        /// <summary>
+        /// Checks if any hero on Overwatch can interrupt a monster moving along a specific path.
+        /// </summary>
+        /// <param name="movingMonster">The monster that is taking its turn.</param>
+        /// <param name="path">The sequence of GridPositions the monster intends to move through.</param>
+        /// <returns>The hero that can interrupt, or null if none can.</returns>
+        private async Task<bool> HandleMonsterMovement(Monster movingMonster, List<GridPosition> path)
+        {
+            var interruptingHero = CheckForOverwatchInterrupt(movingMonster, path);
+            if (interruptingHero != null)
+            {
+                CombatLog.Add($"{interruptingHero.Name} on Overwatch spots {movingMonster.Name}!");
+                await _playerAction.PerformActionAsync(_dungeon, interruptingHero, ActionType.StandardAttack, movingMonster);
+                interruptingHero.CombatStance = CombatStance.Normal;
+                OnCombatStateChanged?.Invoke();
+                return true; // Movement was interrupted
+            }
+            return false; // Movement was not interrupted
+        }
+
+        private void HandleTimeFreeze()
+        {
+            foreach (Hero hero in GetActivatedHeroes())
+            {
+                if (hero.CurrentAP <= 0)
+                {
+                    hero.ResetActionPoints();
+                    _initiative.AddToken(ActorType.Hero);
+                }
+            }
+        }
+
+        private void HandleDeath(Character deceasedCharacter)
+        {
+            if (deceasedCharacter is Monster deceasedMonster)
+            {
+                MonstersInCombat.Remove(deceasedMonster);
+                CombatLog.Add($"{deceasedMonster.Name} has been slain!");
+
+                if (deceasedMonster.IsUnique)
+                {
+                    _dungeon.DefeatedUniqueMonsters.Add(deceasedMonster.Name);
+                }
+
+                if (deceasedMonster.Body != null)
+                {
+                    Corpse corpse = deceasedMonster.Body;
+                    corpse.Position = deceasedMonster.Position ?? new GridPosition(0, 0, 0);
+                    corpse.Room = deceasedMonster.Room;
+                    corpse.UpdateOccupiedSquares();
+                    corpse.QuestItem = deceasedMonster.QuestItem;
+                }
+
+                deceasedMonster.OnDeath -= HandleDeath;
+
+                OnCombatStateChanged?.Invoke();
+            }
         }
 
 
@@ -100,29 +192,15 @@ namespace LoDCompanion.BackEnd.Services.Combat
             OnCombatStateChanged?.Invoke();
         }
 
-        private void HandleDeath(Character deceasedCharacter)
+        public void AddMonstersToCombat(List<Monster> monsters)
         {
-            if (deceasedCharacter is Monster deceasedMonster)
+            if (!IsCombatOver)
             {
-                MonstersInCombat.Remove(deceasedMonster);
-                CombatLog.Add($"{deceasedMonster.Name} has been slain!");
-
-                if (deceasedMonster.IsUnique)
+                foreach (var monster in monsters)
                 {
-                    _dungeon.DefeatedUniqueMonsters.Add(deceasedMonster.Name);
+                    MonstersInCombat.Add(monster);
+                    _initiative.AddToken(ActorType.Monster);
                 }
-
-                if (deceasedMonster.Body != null)
-                {
-                    Corpse corpse = deceasedMonster.Body;
-                    corpse.Position = deceasedMonster.Position ?? new GridPosition(0, 0, 0);
-                    corpse.Room = deceasedMonster.Room;
-                    corpse.UpdateOccupiedSquares();
-                    corpse.QuestItem = deceasedMonster.QuestItem;
-                }
-
-                deceasedMonster.OnDeath -= HandleDeath;
-
                 OnCombatStateChanged?.Invoke();
             }
         }
@@ -169,9 +247,12 @@ namespace LoDCompanion.BackEnd.Services.Combat
         private async Task StartNewTurnAsync()
         {
             CombatLog.Add("--- New Turn ---");
+            CurrentTurn++;
             MonstersThatHaveActedThisTurn.Clear();
             CharactersWithProcessedEffectsThisTurn.Clear();
             await _dungeonManager.HandleScenarioRoll(isInBattle: true);
+            // Check for rule triggers at the start of each new turn
+            await CheckCombatRuleTriggers();
 
             foreach (var hero in HeroesInCombat)
             {
@@ -225,6 +306,59 @@ namespace LoDCompanion.BackEnd.Services.Combat
 
             _initiative.SetupInitiative(HeroesInCombat, MonstersInCombat);
             await ProcessNextInInitiativeAsync();
+        }
+
+        private async Task CheckCombatRuleTriggers()
+        {
+            foreach (var rule in _dungeon.QuestCombatRules.ToList()) // ToList() allows modification during iteration
+            {
+                switch (rule.RuleType)
+                {
+                    case CombatRuleType.TurnLimit:
+                        await CheckTurnLimitRule(rule);
+                        break;
+                        // Other rule checks can be added here
+                }
+            }
+        }
+
+        private async Task CheckTurnLimitRule(CombatRule rule)
+        {
+            if (rule.OnFailTrigger == null || !rule.IntValue.HasValue) return;
+
+            bool targetIsAlive = true;
+            if (!string.IsNullOrEmpty(rule.TargetName))
+            {
+                targetIsAlive = MonstersInCombat.Any(m => m.Name == rule.TargetName);
+            }
+
+            // If the turn limit is exceeded AND the target is still alive, trigger failure
+            if (CurrentTurn > rule.IntValue.Value && targetIsAlive)
+            {
+                CombatLog.Add("The time limit has run out!");
+                await ExecuteTrigger(rule.OnFailTrigger);
+
+                // Optional: remove the rule after it has triggered
+                _dungeon.QuestCombatRules.Remove(rule);
+            }
+        }
+
+        private async Task ExecuteTrigger(Trigger trigger)
+        {
+            switch (trigger.Type)
+            {
+                case TriggerType.SpawnEncounter:
+                    CombatLog.Add("A dark presence enters the room!");
+                    if (OnTriggerSpawnEncounter != null)
+                    {
+                        await OnTriggerSpawnEncounter.Invoke(trigger.Parameters);
+                    }
+                    break;
+
+                    // Other trigger executions can be added here
+            }
+            OnCombatStateChanged?.Invoke();
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -535,26 +669,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
         /// <param name="movingMonster">The monster that is taking its turn.</param>
         /// <param name="path">The sequence of GridPositions the monster intends to move through.</param>
         /// <returns>The hero that can interrupt, or null if none can.</returns>
-        private async Task<bool> HandleMonsterMovement(Monster movingMonster, List<GridPosition> path)
-        {
-            var interruptingHero = CheckForOverwatchInterrupt(movingMonster, path);
-            if (interruptingHero != null)
-            {
-                CombatLog.Add($"{interruptingHero.Name} on Overwatch spots {movingMonster.Name}!");
-                await _playerAction.PerformActionAsync(_dungeon, interruptingHero, ActionType.StandardAttack, movingMonster);
-                interruptingHero.CombatStance = CombatStance.Normal;
-                OnCombatStateChanged?.Invoke();
-                return true; // Movement was interrupted
-            }
-            return false; // Movement was not interrupted
-        }
-
-        /// <summary>
-        /// Checks if any hero on Overwatch can interrupt a monster moving along a specific path.
-        /// </summary>
-        /// <param name="movingMonster">The monster that is taking its turn.</param>
-        /// <param name="path">The sequence of GridPositions the monster intends to move through.</param>
-        /// <returns>The hero that can interrupt, or null if none can.</returns>
         private Hero? CheckForOverwatchInterrupt(Monster movingMonster, List<GridPosition> path)
         {
             // Get all heroes currently on Overwatch who are able to act.
@@ -682,18 +796,6 @@ namespace LoDCompanion.BackEnd.Services.Combat
             }
 
             return returnList;
-        }
-
-        private void HandleTimeFreeze()
-        {
-            foreach (Hero hero in GetActivatedHeroes())
-            {
-                if (hero.CurrentAP <= 0)
-                {
-                    hero.ResetActionPoints();
-                    _initiative.AddToken(ActorType.Hero);
-                }
-            }
         }
     }
 }

@@ -153,7 +153,33 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     break;
                 case QuestSetupActionType.SetCombatRule:
-                    _dungeon.CombatRules[action.Parameters["Rule"]] = action.Parameters["Value"];
+                    var newRule = new CombatRule();
+
+                    if (action.Parameters.TryGetValue("Rule", out var ruleTypeStr) && Enum.TryParse<CombatRuleType>(ruleTypeStr, out var ruleType))
+                    {
+                        newRule.RuleType = ruleType;
+                    }
+
+                    if (action.Parameters.TryGetValue("Value", out var valStr) && int.TryParse(valStr, out var intVal))
+                    {
+                        newRule.IntValue = intVal;
+                    }
+                    else
+                    {
+                        newRule.StringValue = valStr;
+                    }
+
+                    if (action.Parameters.TryGetValue("Target", out var target))
+                    {
+                        newRule.TargetName = target;
+                    }
+
+                    if (action.Parameters.TryGetValue("OnFail", out var onFailStr))
+                    {
+                        newRule.OnFailTrigger = ParseTrigger(onFailStr);
+                    }
+
+                    _dungeon.QuestCombatRules.Add(newRule);
                     break;
 
                 case QuestSetupActionType.SetPartyRule:
@@ -191,6 +217,28 @@ namespace LoDCompanion.BackEnd.Services.Game
                     }
                     break;
             }
+        }
+
+        private Trigger? ParseTrigger(string triggerString)
+        {
+            // Expected format: "TriggerType:Param1=Value1,Param2=Value2"
+            // Example: "SummonMonster:Name=Demon,Count=1d3,PlacementRule=RandomSquare"
+            var parts = triggerString.Split(':', 2);
+            if (parts.Length < 2) return null;
+
+            if (Enum.TryParse<TriggerType>(parts[0], out var type))
+            {
+                var trigger = new Trigger { Type = type };
+                var parameters = parts[1].Split(',');
+                foreach (var param in parameters)
+                {
+                    var keyValue = param.Split('=', 2);
+                    if (keyValue.Length < 2) continue;
+                    trigger.Parameters[keyValue[0].Trim()] = keyValue[1].Trim();
+                }
+                return trigger;
+            }
+            return null;
         }
     }
 }

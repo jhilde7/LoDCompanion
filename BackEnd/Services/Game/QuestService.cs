@@ -21,6 +21,7 @@ namespace LoDCompanion.BackEnd.Services.Game
         GoblinKing,
         SpringCleaning,
         TheTombOfTheSpiderQueen,
+        StopTheHeritics,
         TheMasterAlchemist,
         SlayTheBeast,
         C26,
@@ -1195,7 +1196,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                     EncounterType = EncounterType.Random,
                     ObjectiveRoom = _room.GetRoomByName("The Lava River"),
                     StartThreatLevel = 4,
-                    MinThreatLevel = 4,
+                    MinThreatLevel = RandomHelper.RollDie(DiceType.D4),
                     MaxThreatLevel = 18,
                     NarrativeQuest = "A High Wizard has felt disturbances from the Void and determined someone is performing a Ritual of Summoning. If the heroes can interrupt the ritual, a demonic invasion can be prevented. They must enter the dungeon and slay the heretic conjurer.",
                     NarrativeObjectiveRoom = "The heat from the lava river is almost unbearable. Several guards are in the room, protecting a caster who is busy performing their ritual at an altar on a dais in the far end of the room.",
@@ -1226,7 +1227,8 @@ namespace LoDCompanion.BackEnd.Services.Game
                                 { "Rule", "TurnLimit" },
                                 { "Value", "10" },
                                 { "Target", "Demonic Conjurer" },
-                                { "OnFail", "SummonDemons" } // This value can be interpreted by your CombatManagerService
+                                // The OnFail value is now a structured command
+                                { "OnFail", "SpawnEncounter: ChartName=StopTheHeritics, PlacementRule=RandomPositionInRange, PlacementArgs=X:4-7, Y:0-5" }
                             }
                         },
                         new QuestSetupAction
@@ -1238,7 +1240,7 @@ namespace LoDCompanion.BackEnd.Services.Game
                                 { "Rolls", "2" },
                                 { "PlacementRule", "RandomPositionInRange" },
                                 // "The Lava River" entry is X=11. This places guards on the hero side of the river.
-                                { "PlacementArgs", "X:7-10, Y:0-5" }
+                                { "PlacementArgs", "X:7-8, Y:0-5" }
                             }
                         },
                         new QuestSetupAction

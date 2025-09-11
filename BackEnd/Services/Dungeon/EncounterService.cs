@@ -1550,15 +1550,7 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                     }
                     break;
                 case EncounterType.TombGuardian:
-                    roll = RandomHelper.GetRandomNumber(1, 6);
-                    switch (roll)
-                    {
-                        case <= 6:
-                            return BuildMonsters(2, "Tomb Guardian", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 2);
-                        default:
-                            break;
-                    }
-                    break;
+                    return BuildMonsters(2, "Tomb Guardian", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 2);
                 case EncounterType.Mimic:
                     return BuildMonsters(1, "Mimic");
                 case EncounterType.TheGrievingMother:
@@ -1579,6 +1571,14 @@ namespace LoDCompanion.BackEnd.Services.Dungeon
                         encounters.AddRange(GetEncounterByParams(caretakerParams));
                     }
                     break;
+                case EncounterType.StopTheHeritics:
+                    roll = RandomHelper.RollDie(DiceType.D6);
+                    return roll switch
+                    {
+                        <= 2 => BuildMonsters(RandomHelper.RollDie(DiceType.D6), "Lesser Plague Demon"),
+                        <= 5 => BuildMonsters(RandomHelper.RollDie(DiceType.D6), "Blood Demon", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 0, false, null, "Cursed Weapon"),
+                        >= 6 => BuildMonsters(1, "Greater Demon", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 3)
+                    };
                 default:
                     break;
             }
