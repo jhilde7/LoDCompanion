@@ -1,7 +1,4 @@
-﻿using LoDCompanion.BackEnd.Services.GameData;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using LoDCompanion.Code.BackEnd.Models;
+﻿using LoDCompanion.Code.BackEnd.Models;
 using LoDCompanion.Code.BackEnd.Services.Combat;
 using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Services.Player;

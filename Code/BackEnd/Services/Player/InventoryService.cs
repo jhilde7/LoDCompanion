@@ -1,11 +1,8 @@
-﻿using LoDCompanion.BackEnd.Services.Utilities;
-using LoDCompanion.Code.BackEnd.Models;
+﻿using LoDCompanion.Code.BackEnd.Models;
 using LoDCompanion.Code.BackEnd.Services.Combat;
 using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Services.GameData;
 using LoDCompanion.Code.BackEnd.Services.Utilities;
-using System.Net.NetworkInformation;
-using System.Threading.Tasks;
 
 namespace LoDCompanion.Code.BackEnd.Services.Player
 {

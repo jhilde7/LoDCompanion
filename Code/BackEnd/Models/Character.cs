@@ -1,5 +1,4 @@
-﻿using LoDCompanion.BackEnd.Services.Utilities;
-using LoDCompanion.Code.BackEnd.Services.Combat;
+﻿using LoDCompanion.Code.BackEnd.Services.Combat;
 using LoDCompanion.Code.BackEnd.Services.Dungeon;
 using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Services.GameData;

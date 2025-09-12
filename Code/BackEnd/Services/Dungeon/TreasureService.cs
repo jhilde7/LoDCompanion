@@ -1,11 +1,9 @@
-﻿using LoDCompanion.BackEnd.Services.Game;
+﻿using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Models;
 using LoDCompanion.Code.BackEnd.Services.Combat;
 using LoDCompanion.Code.BackEnd.Services.GameData;
 using LoDCompanion.Code.BackEnd.Services.Player;
 using LoDCompanion.Code.BackEnd.Services.Utilities;
-using RogueSharp.DiceNotation;
-using System.Collections.Generic;
 
 namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 {

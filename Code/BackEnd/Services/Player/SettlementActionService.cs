@@ -1,11 +1,7 @@
-﻿using LoDCompanion.BackEnd.Services.Combat;
-using LoDCompanion.BackEnd.Services.Game;
-using LoDCompanion.Code.BackEnd.Models;
+﻿using LoDCompanion.Code.BackEnd.Models;
 using LoDCompanion.Code.BackEnd.Services.Dungeon;
 using LoDCompanion.Code.BackEnd.Services.GameData;
 using LoDCompanion.Code.BackEnd.Services.Utilities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace LoDCompanion.Code.BackEnd.Services.Player
 {
