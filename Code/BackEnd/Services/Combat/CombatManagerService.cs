@@ -53,6 +53,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         public int CurrentTurn { get; private set; }
         private List<Hero> HeroesInCombat = new List<Hero>();
         private List<Monster> MonstersInCombat = new List<Monster>();
+        public List<Monster> AllMonstersInEncounter { get; private set; } = new List<Monster>();
+        public List<Corpse> Corpses { get; private set; } = new List<Corpse>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();
         public bool IsAwaitingHeroSelection { get; private set; } = false;
         public bool IsCombatOver => !HeroesInCombat.Any(h => h.CurrentHP > 0) || !MonstersInCombat.Any(m => m.CurrentHP > 0);
@@ -148,6 +150,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     corpse.Room = deceasedMonster.Room;
                     corpse.UpdateOccupiedSquares();
                     corpse.QuestItem = deceasedMonster.QuestItem;
+                    Corpses.Add(corpse);
                 }
 
                 deceasedMonster.OnDeath -= HandleDeath;
@@ -161,9 +164,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         {
             HeroesInCombat = heroes;
             MonstersInCombat = monsters;
+            AllMonstersInEncounter = new List<Monster>(monsters);
             UnwieldlyBonusUsed.Clear();
             CombatLog.Clear();
             MonstersThatHaveActedThisTurn.Clear();
+            Corpses.Clear();
             ActiveHero = null;
             IsAwaitingHeroSelection = false;
             List<Character> characters = [.. heroes, .. monsters];
