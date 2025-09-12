@@ -1,4 +1,5 @@
-﻿using LoDCompanion.Code.BackEnd.Services.Combat;
+﻿using LoDCompanion.Code.BackEnd.Models;
+using LoDCompanion.Code.BackEnd.Services.Combat;
 using LoDCompanion.Code.BackEnd.Services.Dungeon;
 using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Services.GameData;
@@ -50,26 +51,19 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     public class SettlementEventService
     {
         private readonly PartyManagerService _partyManager;
-        private readonly UserRequestService _userRequest;
-        private readonly TreasureService _treasure;
-        private readonly InventoryService _inventory;
-        private readonly QuestService _quest;
-        private readonly PowerActivationService _powerActivation;
+        private readonly CombatManagerService _combatManager;
+        private readonly UserRequestService _userRequest = new UserRequestService();
+        private readonly TreasureService _treasure = new TreasureService();
+        private readonly InventoryService _inventory = new InventoryService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly QuestService _quest = new QuestService();
 
         public SettlementEventService(
-            PartyManagerService partyManager, 
-            UserRequestService userRequest, 
-            TreasureService treasureService,
-            InventoryService inventory,
-            QuestService questService,
-            PowerActivationService powerActivationService)
+            PartyManagerService partyManager,
+            CombatManagerService combatManager)
         {
             _partyManager = partyManager;
-            _userRequest = userRequest;
-            _treasure = treasureService;
-            _inventory = inventory;
-            _quest = questService;
-            _powerActivation = powerActivationService;
+            _combatManager = combatManager;
         }
 
         public List<SettlementEvent> GetSettlementEventsAsync()
@@ -325,7 +319,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                             }
                         };
 
-                        context.Quest.StartIndividualQuest(heroAttacked, newQuest);
+                        await context.Quest.StartIndividualQuestAsync(heroAttacked, newQuest, _combatManager);
                         await Task.Yield();
                         result.Message = context.EventDescription;
                         return result;
@@ -362,6 +356,127 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     EventDescription = randomEvent.Description
                 };
                 await randomEvent.Execute(eventContext); 
+            }
+        }
+
+        public async Task EstateGhostlyEvent(Party party, Estate estate)
+        {
+            var roll = RandomHelper.RollDie(DiceType.D10);
+
+            if (roll < 7)
+            {
+                return; // No event occurs
+            }
+
+            switch (roll)
+            {
+                case 1: // The Family Heirlooms
+
+                    List<Equipment> wonderfulTreasures = [.. await _treasure.GetWonderfulTreasureAsync(), .. await _treasure.GetWonderfulTreasureAsync()];
+                    foreach (var treasure in wonderfulTreasures)
+                    {
+                        if (treasure != null)
+                        {
+                            await BackpackHelper.AddItem(party.Heroes[0].Inventory.Backpack, treasure);
+                        }
+                    }
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.CurrentEnergy -= 1;
+                    }
+                    break;
+
+                case 2: // Guardian Spirits
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.CurrentLuck += 1;
+                    }
+                    break;
+
+                case 3: // The Hidden Treasure
+                    var quest = new Quest() { Name = "The Hidden Treasure", IsSideQuest = true }; ;
+                    if (_quest.ActiveQuest != null && quest != null)
+                    {
+                        _quest.ActiveQuest.SideQuests ??= new();
+                        _quest.ActiveQuest.SideQuests.Add(quest); 
+                    }
+                    break;
+
+                case 4: // Spiritual Guides
+                    foreach (var hero in party.Heroes.Where(h => h.GetSkill(Skill.CombatSkill) > h.GetSkill(Skill.RangedSkill)))
+                    {
+                        var ghostlyEffect = new ActiveStatusEffect(StatusEffectType.SpiritualGuides, -1, skillBonus: (Skill.CombatSkill, 5), removeEndOfDungeon: true);
+                        hero.ActiveStatusEffects.Add(ghostlyEffect);
+                    }
+                    foreach (var hero in party.Heroes.Where(h => h.GetSkill(Skill.CombatSkill) <= h.GetSkill(Skill.RangedSkill)))
+                    {
+                        var ghostlyEffect = new ActiveStatusEffect(StatusEffectType.SpiritualGuides, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true);
+                        hero.ActiveStatusEffects.Add(ghostlyEffect);
+                    }
+                    break;
+
+                case 5: // Protector
+                    foreach (var hero in party.Heroes)
+                    {
+                        if (hero.ProfessionName == ProfessionName.Wizard)
+                        {
+                            var protectorEffect = new ActiveStatusEffect(StatusEffectType.GhostlyProtector, -1, removeEndOfDungeon: true);
+                            hero.ActiveStatusEffects.Add(protectorEffect);
+                        }
+                    }
+                    break;
+
+                case 6: // The Grieving Mother
+                    quest = _quest.GetQuestByName("The Grieving Mother");
+                    if (_quest.ActiveQuest != null && quest != null)
+                    {
+                        _quest.ActiveQuest.SideQuests ??= new();
+                        _quest.ActiveQuest.SideQuests.Add(quest);
+                    }
+                    break;
+
+                case 7: // Angered Ghost
+                    var farm = estate.FurnishedRooms.OfType<Farm>().FirstOrDefault();
+                    if (farm != null)
+                    {
+                        farm.DungeonsUntilUsable = 1;
+                    }
+                    break;
+
+                case 8: // Restless Night
+                    foreach (var hero in party.Heroes)
+                    {
+                        hero.CurrentEnergy = Math.Max(0, hero.CurrentEnergy - 2);
+                    }
+                    break;
+
+                case 9: // Lost Item
+                    var affectedHero = party.Heroes[RandomHelper.GetRandomNumber(0, party.Heroes.Count - 1)];
+                    var items = new List<Equipment?>();
+                    items.AddRange(affectedHero.Inventory.GetAllWeaponsArmour());
+                    items.AddRange(affectedHero.Inventory.Backpack.Where(i => i?.Name == "Ration"));
+                    items.Shuffle();
+
+                    if (items.Any())
+                    {
+                        var lostItem = items[0];
+                        if (lostItem != null)
+                        {
+                            await _inventory.UnequipItemAsync(affectedHero, lostItem);
+                            estate.LostItem = (affectedHero, lostItem);
+                            affectedHero.Inventory.Backpack.Remove(lostItem);
+                        }
+                    }
+                    break;
+
+                case 10: // The Curse
+                    foreach (var hero in party.Heroes)
+                    {
+                        var curse = StatusEffectService.GetRandomCurseEffect();
+                        curse.RemoveEndOfDungeon = true;
+                        hero.ActiveStatusEffects.Add(curse);
+                    }
+                    break;
             }
         }
     }

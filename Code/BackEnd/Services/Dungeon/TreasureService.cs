@@ -63,47 +63,24 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
     {
         private const int DefaultArmourDurability = 6;
         private const int DefaultWeaponDurability = 6;
-        private readonly AlchemyService _alchemy;
-        private readonly UserRequestService _diceRoll;
-        private readonly WeaponFactory _weaponFactory;
-        private readonly ArmourFactory _armourFactory;
-        private readonly PartyManagerService _partyManager;
-        private readonly PowerActivationService _powerActivation;
-        private readonly Lever _lever;
-        private readonly Estate _estate;
+        private readonly AlchemyService _alchemy = new AlchemyService();
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly WeaponFactory _weaponFactory = new WeaponFactory();
+        private readonly ArmourFactory _armourFactory = new ArmourFactory();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly Lever _lever = new Lever();
 
-        public TreasureService(
-            AlchemyService alchemyService,
-            UserRequestService diceRollService,
-            WeaponFactory weaponFactory,
-            ArmourFactory armourFactory,
-            PartyManagerService partyManagerService,
-            PowerActivationService powerActivationService,
-            Lever lever,
-            Estate estate)
+        public event Action<MoraleChangeEvent>? OnUpdateMorale;
+        public event Func<Task<List<Hero>>>? OnFindLootGoblinPerks;
+
+        public TreasureService()
         {
-            _alchemy = alchemyService;
-            _diceRoll = diceRollService;
-            _weaponFactory = weaponFactory;
-            _armourFactory = armourFactory;
-            _partyManager = partyManagerService;
-            _powerActivation = powerActivationService;
-            _lever = lever;
-            _estate = estate;
-
             _lever.OnFoundTreasure += HandleTreasureFound;
-            _estate.OnPartyGainsTreasureAsync += HandleGhostlyEvent;
         }
 
         public void Dispose()
         {
             _lever.OnFoundTreasure -= HandleTreasureFound;
-            _estate.OnPartyGainsTreasureAsync -= HandleGhostlyEvent;
-        }
-
-        private async Task<List<Equipment?>> HandleGhostlyEvent(int amount)
-        {
-            return await GetWonderfulTreasureAsync();
         }
 
         private async Task<SearchResult> HandleTreasureFound(Hero hero, LeverResult result)
@@ -133,12 +110,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         public async Task<Equipment> GetTreasureAsync(string itemName, int durability = 0, int value = 0, int amount = 1, string description = "", 
             int? maxCoinRoll = null, string? coinDice = null, int? bonusCoins = null)
         {
-            if (_partyManager.Party != null && maxCoinRoll != null && coinDice != null)
+            if (OnFindLootGoblinPerks != null && maxCoinRoll != null && coinDice != null)
             {
-                var lootGoblins = _partyManager.Party.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.LootGoblin));
+                var lootGoblins = await OnFindLootGoblinPerks.Invoke();
                 if (lootGoblins.Any())
                 {
-                    await Task.Yield();
                     foreach (var hero in lootGoblins)
                     {
                         var lootGoblin = hero.Perks.FirstOrDefault(p => p.Name == PerkName.LootGoblin);
@@ -438,7 +414,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
         public async Task<List<Equipment?>> GetFineTreasureAsync()
         {
-            _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.FineTreasure);
+            if (OnUpdateMorale != null) OnUpdateMorale.Invoke(MoraleChangeEvent.FineTreasure);
             int roll = RandomHelper.GetRandomNumber(1, 55);
             var equipmentDurability = 6 - RandomHelper.RollDie(DiceType.D4);
             var armourDurability = DefaultArmourDurability - RandomHelper.RollDie(DiceType.D4);
@@ -548,7 +524,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
         public async Task<List<Equipment?>> GetWonderfulTreasureAsync()
         {
-            _partyManager.UpdateMorale(changeEvent: MoraleChangeEvent.WonderfulTreasure);
+            if (OnUpdateMorale != null) OnUpdateMorale.Invoke(MoraleChangeEvent.WonderfulTreasure);
             int roll = RandomHelper.GetRandomNumber(1, 54);
             int defaultDurabilityDamageRoll = RandomHelper.RollDie(DiceType.D3) - 1;
             int armourDurability = DefaultArmourDurability - defaultDurabilityDamageRoll;

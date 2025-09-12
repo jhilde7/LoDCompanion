@@ -78,6 +78,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         public List<Hero>? HeroesInRoom { get; set; }
         public List<Monster>? MonstersInRoom { get; set; }
         public List<Corpse>? CorpsesInRoom { get; set; }
+        public DungeonState? Dungeon { get; set; }
+
         public List<Character> CharactersInRoom => GetInhabitants();
         public List<Searchable> SearchablesInRoom => GetSearchableObjects();
         public List<Room> ConnectedRooms => Doors.SelectMany(d => d.ConnectedRooms).Where(r => r != this).Distinct().ToList();
@@ -6520,9 +6522,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 ConnectedRooms = new List<Room> { room },
                 ExplorationDeck = explorationDeck != null ? explorationDeck : new Queue<Room>()
             };            
-            placement.PlaceExitDoor(newDoor, room);
+            placement.PlaceExitDoor(newDoor, room, dungeon);
             return newDoor;
         }
+
         public Room CreateRoom(string roomName)
         {
             Room room = new Room();
@@ -6532,6 +6535,24 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             GridService.GenerateGridForRoom(room);
 
             return room;
+        }
+
+        public IGameEntity? FindEntityInRoomById(Room room, string id)
+        {
+            IGameEntity? entity = null;
+
+            // Search each manager in order until the entity is found.
+            entity = GetFurnitureInRoomById(room, id);
+            if (entity != null) return entity;
+
+            entity = GetMonsterInRoomById(room, id);
+            if (entity != null) return entity;
+
+            entity = GetHeroInRoomById(room, id);
+            if (entity != null) return entity;
+
+            // Return null if no entity with that name exists.
+            return null;
         }
     }
 }

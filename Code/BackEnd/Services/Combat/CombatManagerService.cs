@@ -4,6 +4,7 @@ using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Services.GameData;
 using LoDCompanion.Code.BackEnd.Services.Player;
 using LoDCompanion.Code.BackEnd.Services.Utilities;
+using System.Threading.Tasks;
 
 namespace LoDCompanion.Code.BackEnd.Services.Combat
 {
@@ -39,15 +40,16 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
     public class CombatManagerService
     {
-        private readonly InitiativeService _initiative;
-        private readonly ActionService _playerAction;
+        private readonly InitiativeService _initiative = new InitiativeService();
+        private readonly FacingDirectionService _facing = new FacingDirectionService();
+        private readonly FloatingTextService _floatingText = new FloatingTextService();
+        private readonly MovementHighlightingService _movementHighlighting = new MovementHighlightingService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly SpellResolutionService _spellResolution = new SpellResolutionService();
+        private readonly MonsterSpecialService _monsterSpecial = new MonsterSpecialService();
+        private readonly QuestSetupService _questSetup = new QuestSetupService();
+        private readonly ActionService _playerAction = new ActionService();
         private readonly MonsterAIService _monsterAI;
-        private readonly DungeonManagerService _dungeonManager;
-        private readonly FacingDirectionService _facing;
-        private readonly SpellResolutionService _spellResolution;
-        private readonly FloatingTextService _floatingText;
-        private readonly MovementHighlightingService _movementHighlighting;
-        private readonly PowerActivationService _powerActivation;
 
         private static readonly GridPosition ScreenCenterPosition = new GridPosition(-1, -1, -1);
         public int CurrentTurn { get; private set; }
@@ -63,42 +65,35 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         public Hero? ActiveHero { get; private set; }
         private HashSet<string> UnwieldlyBonusUsed = new HashSet<string>();
         private HashSet<Character> CharactersWithProcessedEffectsThisTurn = new HashSet<Character>();
-        public DungeonState _dungeon => _dungeonManager.Dungeon;
+
+        private Room CombatRoom => ActiveHero != null ? ActiveHero.Room : new Room();
 
         public event Func<Dictionary<string, string>, Task>? OnTriggerSpawnEncounter;
+        public event Func<Task<List<Hero>>>? OnGetParty;
+        public event Func<bool, Task<ThreatEventResult>>? OnScenarioRoll;
 
-
-        public CombatManagerService(
-            InitiativeService initiativeService,
-            ActionService playerActionService,
-            MonsterAIService monsterAIService,
-            DungeonManagerService dungeonManagerService,
-            FacingDirectionService facingDirectionService,
-            SpellResolutionService spellResolutionService,
-            FloatingTextService floatingTextService,
-            MovementHighlightingService movementHighlightingService,
-            PowerActivationService powerActivationService)
+        public CombatManagerService()
         {
-            _initiative = initiativeService;
-            _playerAction = playerActionService;
-            _monsterAI = monsterAIService;
-            _dungeonManager = dungeonManagerService;
-            _facing = facingDirectionService;
-            _spellResolution = spellResolutionService;
-            _floatingText = floatingTextService;
-            _movementHighlighting = movementHighlightingService;
-            _powerActivation = powerActivationService;
+            _monsterAI = new MonsterAIService();
 
-            _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
+            _spellResolution.OnTimeFreezeCast += HandleTimeFreezeAsync;
+            _spellResolution.OnAddToken += HandleAddToken;
             _playerAction.OnMonsterMovement += HandleMonsterMovementAsync;
             _powerActivation.OnForceNextActorType += HandleForceNextActorTypeAsync;
+            _monsterSpecial.OnAddToken += HandleAddToken;
+            _questSetup.OnForcedFirstActor += HandleForcedFirstActor;
+            _questSetup.OnInitiativeModifier += HandleInitiativeModifier;
         }
 
         public void Dispose()
         {
-            _spellResolution.OnTimeFreezeCast -= HandleTimeFreeze;
+            _spellResolution.OnTimeFreezeCast -= HandleTimeFreezeAsync;
+            _spellResolution.OnAddToken -= HandleAddToken;
             _playerAction.OnMonsterMovement -= HandleMonsterMovementAsync;
             _powerActivation.OnForceNextActorType -= HandleForceNextActorTypeAsync;
+            _monsterSpecial.OnAddToken -= HandleAddToken;
+            _questSetup.OnForcedFirstActor -= HandleForcedFirstActor;
+            _questSetup.OnInitiativeModifier -= HandleInitiativeModifier;
         }
 
         /// <summary>
@@ -113,7 +108,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             if (interruptingHero != null)
             {
                 CombatLog.Add($"{interruptingHero.Name} on Overwatch spots {movingMonster.Name}!");
-                await _playerAction.PerformActionAsync(_dungeon, interruptingHero, ActionType.StandardAttack, movingMonster);
+                await _playerAction.PerformActionAsync(CombatRoom, interruptingHero, ActionType.StandardAttack, movingMonster);
                 interruptingHero.CombatStance = CombatStance.Normal;
                 OnCombatStateChanged?.Invoke();
                 return true; // Movement was interrupted
@@ -121,9 +116,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return false; // Movement was not interrupted
         }
 
-        private void HandleTimeFreeze()
+        private async Task HandleTimeFreezeAsync()
         {
-            foreach (Hero hero in GetActivatedHeroes())
+            foreach (Hero hero in await GetActivatedHeroesAsync())
             {
                 if (hero.CurrentAP <= 0)
                 {
@@ -142,7 +137,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
                 if (deceasedMonster.IsUnique)
                 {
-                    _dungeon.DefeatedUniqueMonsters.Add(deceasedMonster.Name);
+                    CombatRoom.Dungeon?.DefeatedUniqueMonsters.Add(deceasedMonster.Name);
                 }
 
                 if (deceasedMonster.Body != null)
@@ -166,9 +161,26 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return await _initiative.ForceNextActorType(actor);
         }
 
+        public void HandleAddToken(ActorType actor)
+        {
+            _initiative.AddToken(actor);
+        }
+
+        private void HandleInitiativeModifier(ActorType actor, int amount)
+        {
+            if (actor == ActorType.Hero) _initiative.HeroInitiativeModifier += amount;
+            if (actor == ActorType.Monster) _initiative.MonsterInitiativeModifier += amount;
+        }
+
+        private void HandleForcedFirstActor(ActorType actor)
+        {
+            _initiative.ForcedFirstActor = actor;
+        }
+
 
         public void SetupCombat(List<Hero> heroes, List<Monster> monsters, bool didBashDoor = false)
         {
+            _initiative.ResetModifiers();
             HeroesInCombat = heroes;
             MonstersInCombat = monsters;
             AllMonstersInEncounter = new List<Monster>(monsters);
@@ -193,7 +205,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             if(monsters.Where(m => m.Species == MonsterSpeciesName.Demon).Any())
             {
-                _dungeonManager.PartyManager.UpdateMorale(changeEvent:MoraleChangeEvent.CombatWithDemons);
+                CombatRoom.Dungeon?.HeroParty.PartyManager?.UpdateMorale(changeEvent: MoraleChangeEvent.CombatWithDemons);
             }
 
             PrepareCharactersForCombat(heroes, monsters);
@@ -262,7 +274,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             CurrentTurn++;
             MonstersThatHaveActedThisTurn.Clear();
             CharactersWithProcessedEffectsThisTurn.Clear();
-            await _dungeonManager.HandleScenarioRoll(isInBattle: true);
+            var threatResult = new ThreatEventResult();
+            if (OnScenarioRoll != null) threatResult = await OnScenarioRoll.Invoke(true);
             // Check for rule triggers at the start of each new turn
             await CheckCombatRuleTriggers();
 
@@ -322,7 +335,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
         private async Task CheckCombatRuleTriggers()
         {
-            foreach (var rule in _dungeon.QuestCombatRules.ToList()) // ToList() allows modification during iteration
+            if (CombatRoom.Dungeon == null) return;
+            foreach (var rule in CombatRoom.Dungeon.QuestCombatRules.ToList()) // ToList() allows modification during iteration
             {
                 switch (rule.RuleType)
                 {
@@ -336,6 +350,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
         private async Task CheckTurnLimitRule(CombatRule rule)
         {
+            if (CombatRoom.Dungeon == null) return;
             if (rule.OnFailTrigger == null || !rule.IntValue.HasValue) return;
 
             bool targetIsAlive = true;
@@ -351,7 +366,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 await ExecuteTrigger(rule.OnFailTrigger);
 
                 // Optional: remove the rule after it has triggered
-                _dungeon.QuestCombatRules.Remove(rule);
+                CombatRoom.Dungeon.QuestCombatRules.Remove(rule);
             }
         }
 
@@ -426,7 +441,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                         monstersToAct.Remove(monster);
                     }
 
-                    var monsterToAct = SelectMonsterToAct(monstersToAct, HeroesInCombat);
+                    var monsterToAct = SelectMonsterToActAsync(monstersToAct, HeroesInCombat);
                     if (monsterToAct != null)
                     {
                         _floatingText.ShowText("Monster Turn!", ScreenCenterPosition, "turn-announcement-text");
@@ -440,7 +455,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                         }
                         MonstersThatHaveActedThisTurn.Add(monsterToAct);
 
-                        CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat, monsterToAct.Room));
+                        CombatLog.Add(await _monsterAI.ExecuteMonsterTurnAsync(monsterToAct, HeroesInCombat));
                         OnCombatStateChanged?.Invoke();
                     }
                 }
@@ -463,7 +478,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             if(HeroesInCombat.Any(h => h.CurrentHP > 0))
             {
-                _dungeonManager.WinBattle();
                 CombatLog.Add("The heroes have won the battle!");
             }
 
@@ -532,7 +546,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             }
         }
 
-        private Monster? SelectMonsterToAct(List<Monster> availableMonsters, List<Hero> heroes)
+        private Monster? SelectMonsterToActAsync(List<Monster> availableMonsters, List<Hero> heroes)
         {
             if (!availableMonsters.Any()) return null;
 
@@ -559,10 +573,14 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             if (canCharge != null) return canCharge;
 
             // Can move its full movement
-            var canMoveFull = availableMonsters
-                .OrderByDescending(m => m.GetStat(BasicStat.Move)) // Prioritize faster monsters
-                .FirstOrDefault(m => CanMoveFullPath(m));
-            if (canMoveFull != null) return canMoveFull;
+            var canMoveFull = availableMonsters.OrderByDescending(m => m.GetStat(BasicStat.Move)); // Prioritize faster monsters
+            foreach (var monster in canMoveFull)
+            {
+                if (CanMoveFullPath(monster, heroes))
+                {
+                    return monster;
+                }
+            }
 
             // Default: return the first available monster if no other condition is met
             return availableMonsters.FirstOrDefault();
@@ -570,12 +588,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
         private bool CanMakeRoom(Monster monster, List<Hero> heroes)
         {
-            var grid = _dungeon.DungeonGrid;
-            var allCharacters = _dungeon.AllCharactersInDungeon;
+            var grid = monster.Room.Grid;
             if (monster.Position == null) return false;
 
             // Get all squares the monster can move to
-            var reachableSquares = GridService.GetAllWalkableSquares(monster, grid, allCharacters);
+            var reachableSquares = GridService.GetAllWalkableSquares(monster, grid, heroes.Cast<Character>().ToList());
 
             foreach (var potentialPosition in reachableSquares.Keys)
             {
@@ -607,7 +624,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
         private bool CanCharge(Monster monster, List<Hero> heroes)
         {
-            var grid = _dungeon.DungeonGrid;
+            var grid = monster.Room.Grid;
             var target = _monsterAI.ChooseTarget(monster, heroes);
             if (target == null || monster.Position == null || target.Position == null) return false;
 
@@ -632,12 +649,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return true;
         }
 
-        private bool CanMoveFullPath(Monster monster)
+        private bool CanMoveFullPath(Monster monster, List<Hero> heroes)
         {
-            var grid = _dungeon.DungeonGrid;
-            var allCharacters = _dungeon.AllCharactersInDungeon;
+            var grid = monster.Room.Grid;
             // Use GetAllWalkableSquares to see if the monster has enough open space
-            var reachableSquares = GridService.GetAllWalkableSquares(monster, grid, allCharacters);
+            var reachableSquares = GridService.GetAllWalkableSquares(monster, grid, heroes.Cast<Character>().ToList());
             return reachableSquares.Count >= monster.GetStat(BasicStat.Move);
         }
 
@@ -710,7 +726,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                         bool isEnemyAdjacent = HeroesInCombat.Any(h => h.Position != null && GridService.IsAdjacent(hero.Position, h.Position));
                         if (isEnemyAdjacent) continue;
 
-                        var losResult = GridService.HasLineOfSight(hero.Position, pathSquare, _dungeon.DungeonGrid);
+                        var losResult = GridService.HasLineOfSight(hero.Position, pathSquare, movingMonster.Room.Grid);
                         if (losResult.CanShoot)
                         {
                             // This hero has a clear shot and can interrupt.
@@ -754,7 +770,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             }
             // Set the selected hero as active and exit the selection state
             ActiveHero = hero;
-            _movementHighlighting.HighlightWalkableSquares(hero, _dungeon);
+            _movementHighlighting.HighlightWalkableSquares(hero, hero.Room);
 
             CombatLog.Add($"It's {ActiveHero.Name}'s turn. They have {ActiveHero.CurrentAP} AP.");
             OnCombatStateChanged?.Invoke();
@@ -773,7 +789,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 }
 
                 _movementHighlighting.ClearHighlights();
-                CombatLog.Add((await _playerAction.PerformActionAsync(_dungeon, ActiveHero, action, target, secondaryTarget)).Message);
+                CombatLog.Add((await _playerAction.PerformActionAsync(CombatRoom, ActiveHero, action, target, secondaryTarget)).Message);
                 //if hero performs an action then no other hero can be selected until next hero selection phase
                 IsAwaitingHeroSelection = false;
 
@@ -787,15 +803,17 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     await Task.Yield(); // Allow UI to process modal closing
                     await ProcessNextInInitiativeAsync();
                 }
-                else _movementHighlighting.HighlightWalkableSquares(ActiveHero, _dungeon);
+                else _movementHighlighting.HighlightWalkableSquares(ActiveHero, ActiveHero.Room);
             }
         }
 
-        internal List<Hero> GetActivatedHeroes()
+        internal async Task<List<Hero>> GetActivatedHeroesAsync()
         {
+            if (OnGetParty == null) return new List<Hero>();
+
             var returnList = new List<Hero>();
 
-            var heroes = _dungeon.HeroParty?.Heroes
+            var heroes = (await OnGetParty.Invoke())
                 .Where(h => h.CurrentHP > 0 && h.CombatStance != CombatStance.Overwatch)
                 .ToList() ?? new List<Hero>();
 

@@ -16,7 +16,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         public int ThreatLevel { get; set; }
         public int EncounterChanceModifier { get; set; } = 0;
         public int ScenarioRollModifier { get; set; } = 0;
-        public Dictionary<string, string> DungeonRules { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> DungeonRules { get; set; } = new();
         public bool SpawnWanderingMonster => ThreatLevel >= MaxThreatLevel;
         public Room? StartingRoom { get; set; }
         public Room? CurrentRoom { get; set; }
@@ -68,70 +68,39 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
     public class DungeonManagerService
     {
-        private readonly WanderingMonsterService _wanderingMonster;
-        private readonly EncounterService _encounter;
-        private readonly PartyManagerService _partyManager;
-        private readonly DungeonBuilderService _dungeonBuilder;
-        private readonly ThreatService _threat;
-        private readonly TrapService _trap;
+        private readonly WanderingMonsterService _wanderingMonster = new WanderingMonsterService();
+        private readonly Lever _lever = new Lever();
+        private readonly EncounterService _encounter = new EncounterService();
+        private readonly ThreatService _threat = new ThreatService();
+        private readonly TrapService _trap = new TrapService();
+        private readonly RoomService _room = new RoomService();
+        private readonly PlacementService _placement = new PlacementService();
+        private readonly UserRequestService _userRequest = new UserRequestService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly SearchService _search = new SearchService();
+        private readonly QuestSetupService _questSetup = new QuestSetupService();
+        private readonly LockService _lock = new LockService();
+        private readonly ActionService _action = new ActionService();
         private readonly PartyRestingService _partyResting;
-        private readonly DungeonState _dungeon;
-        private readonly CombatManagerService _combatManager;
-        private readonly RoomService _room;
-        private readonly UserRequestService _userRequest;
-        private readonly PlacementService _placement;
-        private readonly PowerActivationService _powerActivation;
-        private readonly ActionService _action;
-        private readonly Lever _lever;
-        private readonly SearchService _search;
+        private readonly DungeonBuilderService DungeonBuilder = new DungeonBuilderService(new RoomService());
+        private readonly CombatManagerService _combatManager = new CombatManagerService();
+        private readonly PartyManagerService _partyManager;
         private readonly GameState _gameState;
-        private readonly QuestSetupService _questSetup;
 
-        public DungeonState Dungeon => _partyManager.SetCurrentDungeon(_dungeon);
-        public Party? HeroParty => _dungeon.SetParty(_partyManager.Party);
-        public Room? StartingRoom => _dungeon.StartingRoom;
-        public Room? CurrentRoom => _dungeon.CurrentRoom;
+        public DungeonState Dungeon => _partyManager.SetCurrentDungeon(new DungeonState());
+        public Party? HeroParty => Dungeon.SetParty(_partyManager.Party);
+        public Room? StartingRoom => Dungeon.StartingRoom;
+        public Room? CurrentRoom => Dungeon.CurrentRoom;
         public PartyManagerService PartyManager => _partyManager;
 
 
         public DungeonManagerService(
-            DungeonState dungeonState,
-            WanderingMonsterService wanderingMonster,
-            EncounterService encounterService,
             PartyManagerService partyManagerService,
-            DungeonBuilderService dungeonBuilder,
-            ThreatService threatService,
-            TrapService trapService,
-            PartyRestingService partyResting,
-            CombatManagerService combatManagerService,
-            RoomService roomService,
-            UserRequestService userRequestService,
-            PlacementService placement,
-            PowerActivationService powerActivationService,
-            ActionService actionService,
-            Lever lever,
-            SearchService searchService,
-            GameState gameState,
-            QuestSetupService questSetup)
+            GameStateManagerService gameState)
         {
-            _dungeon = dungeonState;
-            _wanderingMonster = wanderingMonster;
-            _encounter = encounterService;
             _partyManager = partyManagerService;
-            _dungeonBuilder = dungeonBuilder;
-            _threat = threatService;
-            _trap = trapService;
-            _partyResting = partyResting;
-            _combatManager = combatManagerService;
-            _room = roomService;
-            _userRequest = userRequestService;
-            _placement = placement;
-            _powerActivation = powerActivationService;
-            _action = actionService;
-            _lever = lever;
-            _search = searchService;
-            _gameState = gameState;
-            _questSetup = questSetup;
+            _partyResting = new PartyRestingService(_partyManager);
+            _gameState = gameState.GameState;
 
             _partyManager.SetMaxMorale();
 
@@ -148,6 +117,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             _combatManager.OnTriggerSpawnEncounter += HandleTriggerSpawnEncounterAsync;
             _powerActivation.OnUpdateMorale += HandleUpdateMorale;
             _powerActivation.OnUpdateThreat += HandleUpdateThreat;
+            _questSetup.OnGetEncounterType += HandleGetEncounterType;
+            _questSetup.OnAddQuestCombatRules += HandleAddQuestCombatRules;
+            _questSetup.OnSetDungeonRule += HandleSetDungeonRule;
+            _lock.OnUpdateThreatLevelByThreatActionType += HandleUpdateThreatLevelByThreatActionType;
+            _action.OnUpdateThreatLevelByThreatActionType += HandleUpdateThreatLevelByThreatActionType;
+            _combatManager.OnScenarioRoll += HandleScenarioRoll;
         }
 
         public void Dispose()
@@ -165,6 +140,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             _combatManager.OnTriggerSpawnEncounter -= HandleTriggerSpawnEncounterAsync;
             _powerActivation.OnUpdateMorale -= HandleUpdateMorale;
             _powerActivation.OnUpdateThreat -= HandleUpdateThreat;
+            _questSetup.OnGetEncounterType -= HandleGetEncounterType;
+            _questSetup.OnAddQuestCombatRules -= HandleAddQuestCombatRules;
+            _questSetup.OnSetDungeonRule -= HandleSetDungeonRule;
+            _lock.OnUpdateThreatLevelByThreatActionType -= HandleUpdateThreatLevelByThreatActionType;
+            _action.OnUpdateThreatLevelByThreatActionType -= HandleUpdateThreatLevelByThreatActionType;
+            _combatManager.OnScenarioRoll -= HandleScenarioRoll;
         }
 
         private async Task HandleMimicSpawnEncounterAsync(Chest chest, bool detected = false)
@@ -176,7 +157,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
             if (chest.Position != null)
             {
-                var square = GridService.GetSquareAt(chest.Position, _dungeon.DungeonGrid);
+                var square = GridService.GetSquareAt(chest.Position, Dungeon.DungeonGrid);
                 if (square != null)
                 {
                     square.Furniture = SearchService.GetFurnitureByName("Floor");
@@ -276,7 +257,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 }
             }
 
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Lever, result.ThreatIncrease);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Lever, Dungeon, result.ThreatIncrease);
             PartyManager.UpdateMorale(amount: -result.PartyMoraleDecrease);
             await hero.TakeSanityDamage(result.SanityDecrease, (new FloatingTextService(), hero.Position), _powerActivation);
             if (result.PartySanityDecrease > 0 && PartyManager.Party != null)
@@ -304,7 +285,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             await Task.Yield();
             int roll = rollResult.Roll;
 
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.RemoveCobwebs, 1);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.RemoveCobwebs, Dungeon, 1);
 
             if (roll >= 9)
             {
@@ -318,7 +299,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         {
             var result = new RestResult();
 
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.Rest, Dungeon);
             var threatResult = await HandleScenarioRoll(isInBattle: false);
             result.WasInterrupted = threatResult.ThreatEventTriggered;
 
@@ -377,45 +358,66 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             return UpdateThreat(amount);
         }
 
+        private void HandleSetDungeonRule(string rule, string value)
+        {
+            Dungeon.DungeonRules[rule] = value;
+        }
+
+        private async Task<EncounterType> HandleGetEncounterType()
+        {
+            await Task.Yield();
+            return Dungeon.EncounterType;
+        }
+
+        private void HandleAddQuestCombatRules(CombatRule rule)
+        {
+            Dungeon.QuestCombatRules.Add(rule);
+        }
+
+        private void HandleUpdateThreatLevelByThreatActionType(ThreatActionType action)
+        {
+            _threat.UpdateThreatLevelByThreatActionType(action, Dungeon);
+        }
+
         // Create a new method to start a quest
         public void StartQuest(Party heroParty, Quest quest)
         {
             // 1. Initialize the basic dungeon state
-            _dungeon.HeroParty = heroParty;
-            _dungeon.MinThreatLevel = 1;
-            _dungeon.MaxThreatLevel = 10; // This can be overridden by quest specifics
-            _dungeon.ThreatLevel = 0;
-            _dungeon.DungeonRules["WanderingMonsterAtThreat"] = "5"; // This can also be overridden
+            Dungeon.HeroParty = heroParty;
+            Dungeon.MinThreatLevel = 1;
+            Dungeon.MaxThreatLevel = 10; // This can be overridden by quest specifics
+            Dungeon.ThreatLevel = 0;
+            Dungeon.DungeonRules["WanderingMonsterAtThreat"] = "5"; // This can also be overridden
 
             // 2. Generate the exploration deck using the DungeonBuilderService
-            List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
-            _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
+            List<Room> explorationDeck = DungeonBuilder.CreateDungeonDeck(quest);
+            Dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
 
             // 3. Create and set the starting room
-            _dungeon.StartingRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
-            _dungeon.CurrentRoom = _dungeon.StartingRoom;
+            Dungeon.StartingRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
+            Dungeon.CurrentRoom = Dungeon.StartingRoom;
         }
 
         public void InitializeDungeon(Party initialHeroes, Quest quest)
         {
             // Reset dungeon-specific state
-            _dungeon.Quest = quest;
-            _dungeon.RoomsWithoutEncounters = 0;
-            _dungeon.EncounterChanceModifier = 0;
-            _dungeon.ScenarioRollModifier = 0;
-            _dungeon.StartingRoom = null;
-            _dungeon.CurrentRoom = null;
-            _dungeon.ExplorationDeck.Clear();
-            _dungeon.RoomsInDungeon.Clear();
-            _dungeon.AvailableLevers.Clear();
-            _dungeon.WanderingMonsters.Clear();
-            _dungeon.RevealedMonsters.Clear();
-            _dungeon.DungeonGrid.Clear();
-            _dungeon.CanSpawnWanderingMonster = true;
-            _dungeon.TrapChanceOnDoor = 6;
-            _dungeon.NextDoorIsUnlockedDisarmed = false;
-            _dungeon.NextLockedDoorIsUnlocked = false;
-            _dungeon.NextTrapWillBeDisarmed = false;
+            Dungeon.Quest = quest;
+            Dungeon.RoomsWithoutEncounters = 0;
+            Dungeon.EncounterChanceModifier = 0;
+            Dungeon.ScenarioRollModifier = 0;
+            Dungeon.StartingRoom = null;
+            Dungeon.CurrentRoom = null;
+            Dungeon.ExplorationDeck.Clear();
+            Dungeon.RoomsInDungeon.Clear();
+            Dungeon.AvailableLevers.Clear();
+            Dungeon.WanderingMonsters.Clear();
+            Dungeon.RevealedMonsters.Clear();
+            Dungeon.DungeonGrid.Clear();
+            Dungeon.CanSpawnWanderingMonster = true;
+            Dungeon.TrapChanceOnDoor = 6;
+            Dungeon.NextDoorIsUnlockedDisarmed = false;
+            Dungeon.NextLockedDoorIsUnlocked = false;
+            Dungeon.NextTrapWillBeDisarmed = false;
             if (quest.EncounterType == EncounterType.Random)
             {
                 // Define the pool of potential random encounter types
@@ -428,25 +430,25 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     EncounterType.DarkElves,
                     EncounterType.Reptiles,
                 };
-                _dungeon.EncounterType = rollableTypes[RandomHelper.GetRandomNumber(0, rollableTypes.Count - 1)];
+                Dungeon.EncounterType = rollableTypes[RandomHelper.GetRandomNumber(0, rollableTypes.Count - 1)];
             }
             else
             {
-                _dungeon.EncounterType = quest.EncounterType;
+                Dungeon.EncounterType = quest.EncounterType;
             }
 
             // Initialize the new dungeon
-            _dungeon.HeroParty = initialHeroes;
-            _dungeon.MinThreatLevel = quest.MinThreatLevel;
-            _dungeon.MaxThreatLevel = quest.MaxThreatLevel;
-            _dungeon.ThreatLevel = quest.StartThreatLevel;
-            _dungeon.DungeonRules["WanderingMonsterAtThreat"] = "5";
+            Dungeon.HeroParty = initialHeroes;
+            Dungeon.MinThreatLevel = quest.MinThreatLevel;
+            Dungeon.MaxThreatLevel = quest.MaxThreatLevel;
+            Dungeon.ThreatLevel = quest.StartThreatLevel;
+            Dungeon.DungeonRules["WanderingMonsterAtThreat"] = "5";
 
-            List<Room> explorationDeck = _dungeonBuilder.CreateDungeonDeck(quest);
-            _dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
+            List<Room> explorationDeck = DungeonBuilder.CreateDungeonDeck(quest);
+            Dungeon.ExplorationDeck = new Queue<Room>(explorationDeck);
 
-            _dungeon.StartingRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
-            _dungeon.CurrentRoom = _dungeon.StartingRoom;
+            Dungeon.StartingRoom = _room.CreateRoom(quest.StartingRoom?.Name ?? "Start Tile");
+            Dungeon.CurrentRoom = Dungeon.StartingRoom;
         }
 
         public void LeaveDungeon()
@@ -480,7 +482,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
         public async Task<ThreatEventResult> HandleScenarioRoll(bool isInBattle)
         {
-            var threatResult = await _threat.ProcessScenarioRoll(isInBattle, HeroParty);
+            var threatResult = await _threat.ProcessScenarioRoll(isInBattle, HeroParty, Dungeon);
 
             if (threatResult != null)
             {
@@ -493,9 +495,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 }
                 if (threatResult.SpawnTrap)
                 {
-                    if (_dungeon.HeroParty != null && _dungeon.HeroParty.Heroes.Any())
+                    if (Dungeon.HeroParty != null && Dungeon.HeroParty.Heroes.Any())
                     {
-                        var heroes = _dungeon.HeroParty.Heroes;
+                        var heroes = Dungeon.HeroParty.Heroes;
                         heroes.Shuffle();
                         var randomHero = heroes[0];
                         var trap = new Trap(guaranteedTrap: true);
@@ -524,10 +526,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 };
             }
 
-            if (_dungeon.SpawnWanderingMonster)
+            if (Dungeon.SpawnWanderingMonster)
             {
                 _wanderingMonster.SpawnWanderingMonster(Dungeon);
-                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WanderingMonsterSpawned);
+                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WanderingMonsterSpawned, Dungeon);
             }
 
             return threatResult;
@@ -539,7 +541,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         /// </summary>
         public void AddExplorationCardsToPiles(int amount)
         {
-            if (_dungeon.CurrentRoom == null || _dungeon.ExplorationDeck == null) return;
+            if (Dungeon.CurrentRoom == null || Dungeon.ExplorationDeck == null) return;
 
             var explorationCards = new Queue<Room>();
             var explorationRooms = _room.GetExplorationDeckRooms();
@@ -550,7 +552,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 explorationCards.Enqueue(_room.CreateRoom(room.Name));
             }
 
-            var roomsExplorationDoors = _dungeon.RoomsInDungeon
+            var roomsExplorationDoors = Dungeon.RoomsInDungeon
                 .Where(r => r.Doors.Any(d => d.ExplorationDeck != null))
                 .ToList();
             foreach (var room in roomsExplorationDoors)
@@ -574,7 +576,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         /// </summary>
         private async Task<bool> RevealNextRoomAsync(Door openedDoor)
         {
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest, Dungeon);
             // this should only happen on the very first door opened
             if (openedDoor.ExplorationDeck == null)
             {
@@ -586,6 +588,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 var newRoom = _room.CreateRoom(nextRoomInfo.Name ?? string.Empty);
                 if (newRoom != null)
                 {
+                    newRoom.Dungeon = Dungeon;
                     // Determine the room's default entry orientation from its RoomInfo
                     Orientation defaultEntryOrientation = GridService.GetOrientationFromPosition(newRoom.EntryPositions.First(), newRoom.Width, newRoom.Height);
 
@@ -613,7 +616,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     if (Dungeon.Quest != null && newRoom.Name == Dungeon.Quest.ObjectiveRoom?.Name)
                     {
                         // This is the objective room, run its specific setup actions
-                        _questSetup.ExecuteRoomSetup(Dungeon.Quest, newRoom);
+                        await _questSetup.ExecuteRoomSetupAsync(Dungeon.Quest, newRoom);
 
                         // Start combat if monsters were spawned
                         if (newRoom.MonstersInRoom != null && newRoom.MonstersInRoom.Any())
@@ -771,7 +774,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             room.MonstersInRoom = new List<Monster>();
             var dungeonEncounterType = EncounterType.Beasts;
 
-            dungeonEncounterType = _dungeon.EncounterType;
+            dungeonEncounterType = Dungeon.EncounterType;
 
             if (room.EncounterType.HasValue)
             {
@@ -851,12 +854,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         {
             if (!newRoom.RandomEncounter)
             {
-                _dungeon.RoomsWithoutEncounters++;
+                Dungeon.RoomsWithoutEncounters++;
             }
 
-            int encounterChance = (newRoom.Category == RoomCategory.Room ? 50 : 30) + _dungeon.EncounterChanceModifier;
+            int encounterChance = (newRoom.Category == RoomCategory.Room ? 50 : 30) + Dungeon.EncounterChanceModifier;
 
-            if (_dungeon.RoomsWithoutEncounters >= 4)
+            if (Dungeon.RoomsWithoutEncounters >= 4)
             {
                 encounterChance += 10;
             }
@@ -868,7 +871,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             {
                 // Encounter Triggered!
                 Console.WriteLine("Encounter! Monsters appear!");
-                _dungeon.RoomsWithoutEncounters = 0;
+                Dungeon.RoomsWithoutEncounters = 0;
 
                 SpawnRandomEncounter(newRoom);
             }
@@ -876,30 +879,30 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             {
                 // No encounter
                 Console.WriteLine("No encounter this time.");
-                _dungeon.RoomsWithoutEncounters++;
+                Dungeon.RoomsWithoutEncounters++;
             }
 
             // No encounter
             Console.WriteLine("The room is quiet... for now.");
-            _dungeon.RoomsWithoutEncounters++;
+            Dungeon.RoomsWithoutEncounters++;
         }
 
         public void WinBattle()
         {
-            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WinBattle);
+            _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.WinBattle, Dungeon);
         }
 
         public bool UpdateThreat(int amount)
         {
-            _dungeon.ThreatLevel += amount;
-            if (_dungeon.DungeonRules.TryGetValue("WanderingMonsterAtThreat", out var threatValueStr) &&
+            Dungeon.ThreatLevel += amount;
+            if (Dungeon.DungeonRules.TryGetValue("WanderingMonsterAtThreat", out var threatValueStr) &&
                 int.TryParse(threatValueStr, out var wanderingMonsterAtThreat))
             {
-                if (_dungeon.ThreatLevel >= wanderingMonsterAtThreat)
+                if (Dungeon.ThreatLevel >= wanderingMonsterAtThreat)
                 {
                     // Trigger wandering monster logic...
                     _wanderingMonster.SpawnWanderingMonster(Dungeon);
-                    _dungeon.ThreatLevel -= 5; // Note: This logic can be adjusted based on your game rules
+                    Dungeon.ThreatLevel -= 5; // Note: This logic can be adjusted based on your game rules
                 }
             }
             return true;

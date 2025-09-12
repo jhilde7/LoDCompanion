@@ -106,28 +106,17 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     /// </summary>
     public class InventoryService
     {
-        private readonly PowerActivationService _powerActivation;
-        private readonly Estate _estate;
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
 
         Hero heroEvent = new Hero();
-        public InventoryService(PowerActivationService powerActivation, Estate estate)
-        {
-            _powerActivation = powerActivation;
-            _estate = estate;
-            
+        public InventoryService()
+        {            
             heroEvent.OnUnequipWeaponAsync += HandleUnequipWeaponAsync;
-            _estate.OnItemLostAsync += HandleUnequipItemsAsync;
         }
 
         public void Dispose()
         {
             heroEvent.OnUnequipWeaponAsync -= HandleUnequipWeaponAsync;
-            _estate.OnItemLostAsync -= HandleUnequipItemsAsync;
-        }
-
-        private async Task HandleUnequipItemsAsync(Hero hero, Equipment equipment)
-        {
-            await UnequipItemAsync(hero, equipment);
         }
 
         private async Task HandleUnequipWeaponAsync(Hero hero, Weapon weapon)

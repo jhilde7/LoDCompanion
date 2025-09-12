@@ -9,15 +9,14 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 {
     public class EncounterService
     {
-        private readonly WeaponFactory _weapon;
-        private readonly PassiveAbilityService _passive;
+        private readonly WeaponFactory _weapon = new WeaponFactory();
+        private readonly PassiveAbilityService _passive = new PassiveAbilityService();
 
         public List<Monster> Monsters => GetMonsters();
 
-        public EncounterService(WeaponFactory weaponFactory, PassiveAbilityService passive)
+        public EncounterService()
         {
-            _weapon = weaponFactory;
-            _passive = passive;
+            
         }
 
         public List<Monster> GetRandomEncounterByType(EncounterType type, EncounterType? dungeonEncounterType = null, DungeonState? dungeon = null)

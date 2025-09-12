@@ -26,60 +26,71 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
     options.WriteIndented = true;
 });
 
-//register core services.
-//State
-builder.Services.AddScoped<CharacterCreationState>();
-builder.Services.AddScoped<DungeonState>();
-builder.Services.AddScoped<GameState>();
-builder.Services.AddScoped<Room>();
-builder.Services.AddScoped<Monster>();
-//GameData
-builder.Services.AddSingleton<GameDataService>();
-builder.Services.AddSingleton<EquipmentService>();
-builder.Services.AddSingleton<AlchemyService>();
-builder.Services.AddSingleton<WeaponFactory>();
-builder.Services.AddSingleton<ArmourFactory>();
-//Combat
+// --- Game State Services (Scoped) ---
+// These services hold data specific to a single user's gameplay session.
+// Each user gets their own instance of these services.
+builder.Services.AddScoped<PartyManagerService>();
 builder.Services.AddScoped<CombatManagerService>();
-builder.Services.AddScoped<InitiativeService>();
-builder.Services.AddScoped<SpellCastingService>();
-builder.Services.AddScoped<SpellResolutionService>();
-builder.Services.AddScoped<MonsterSpecialService>();
-builder.Services.AddScoped<AttackService>();
-builder.Services.AddSingleton<FacingDirectionService>();
-//Dungeon
-builder.Services.AddScoped<DungeonBuilderService>();
 builder.Services.AddScoped<DungeonManagerService>();
-builder.Services.AddScoped<WanderingMonsterService>();
-builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<QuestService>();
-builder.Services.AddScoped<QuestSetupService>();
+builder.Services.AddScoped<GameStateManagerService>();
+builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
+
+// --- Player Action & UI Services (Scoped) ---
+// These often interact with or modify the user's game state.
+builder.Services.AddScoped<ActionService>();
+builder.Services.AddScoped<CharacterCreationService>();
+builder.Services.AddScoped<HealingService>();
+builder.Services.AddScoped<InventoryService>();
+builder.Services.AddScoped<LevelupService>();
+builder.Services.AddScoped<PartyRestingService>();
+builder.Services.AddScoped<PowerActivationService>();
+builder.Services.AddScoped<SettlementActionService>();
+builder.Services.AddScoped<SettlementEventService>();
+builder.Services.AddScoped<SettlementService>();
+builder.Services.AddScoped<SpellCastingService>();
+builder.Services.AddScoped<UIService>();
+
+// --- Game Logic & Rule Services (Singleton) ---
+// These services are generally stateless and provide calculations, lookups, or
+// orchestrate actions without holding user-specific data themselves.
+builder.Services.AddSingleton<AttackService>();
+builder.Services.AddSingleton<FacingDirectionService>();
+builder.Services.AddSingleton<InitiativeService>();
+builder.Services.AddSingleton<MonsterAIService>();
+builder.Services.AddSingleton<MonsterSpecialService>();
+builder.Services.AddSingleton<DungeonBuilderService>();
 builder.Services.AddSingleton<EncounterService>();
 builder.Services.AddSingleton<LeverService>();
 builder.Services.AddSingleton<LockService>();
+builder.Services.AddSingleton<RoomService>();
 builder.Services.AddSingleton<SearchService>();
-builder.Services.AddSingleton<TreasureService>();
 builder.Services.AddSingleton<ThreatService>();
 builder.Services.AddSingleton<TrapService>();
-//Player
-builder.Services.AddScoped<CharacterCreationService>();
-builder.Services.AddScoped<PartyManagerService>();
-builder.Services.AddScoped<InventoryService>();
-builder.Services.AddScoped<ActionService>();
-builder.Services.AddScoped<PartyRestingService>();
-builder.Services.AddScoped<MovementHighlightingService>();
-builder.Services.AddSingleton<PassiveAbilityService>();
-builder.Services.AddSingleton<HealingService>();
+builder.Services.AddSingleton<TreasureService>();
+builder.Services.AddSingleton<WanderingMonsterService>();
+builder.Services.AddSingleton<CampaignService>();
+builder.Services.AddSingleton<HexGridService>();
 builder.Services.AddSingleton<IdentificationService>();
-//Game
-builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
-builder.Services.AddScoped<GameStateManagerService>();
-builder.Services.AddScoped<MonsterAIService>();
-builder.Services.AddScoped<WorldStateService>();
-builder.Services.AddScoped<PlacementService>();
-builder.Services.AddSingleton<FloatingTextService>();
-builder.Services.AddSingleton<UserRequestService>();
-builder.Services.AddSingleton<UIService>();
+builder.Services.AddSingleton<PassiveAbilityService>();
+builder.Services.AddSingleton<PlacementService>();
+builder.Services.AddSingleton<PotionActivationService>();
+builder.Services.AddSingleton<QuestSetupService>();
+builder.Services.AddSingleton<SpellResolutionService>();
+
+// --- Game Data Services (Singleton) ---
+// These services are responsible for loading and providing access to static game data (e.g., from JSON files).
+// They should be singletons so the data is loaded only once.
+builder.Services.AddSingleton<AlchemyService>();
+builder.Services.AddSingleton<EquipmentService>();
+builder.Services.AddSingleton<GameDataService>();
+builder.Services.AddSingleton<PrayerService>();
+
+// UserRequestService might need to be Scoped if it's tied to a user's specific request lifecycle.
+// If it's a general-purpose modal/dialog manager for a single user, Scoped is correct.
+builder.Services.AddScoped<UserRequestService>();
+builder.Services.AddScoped<FloatingTextService>();
+builder.Services.AddScoped<MovementHighlightingService>();
 
 //Package
 builder.Services.AddBlazoredLocalStorage();

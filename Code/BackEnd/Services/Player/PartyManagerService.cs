@@ -56,6 +56,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     public class PartyManagerService
     {
         private readonly GameStateManagerService _gameStateManager;
+        private readonly TreasureService _treasure = new TreasureService();
+        private readonly QuestSetupService _questSetup = new QuestSetupService();
+        private readonly IdentificationService _identification = new IdentificationService();
+        public GameState GameState => _gameStateManager.GameState;
         public Party Party => _gameStateManager.GameState.CurrentParty ?? new Party();
         public Action? OnPartyChanged;
         private Hero? _selectedHero;
@@ -88,7 +92,44 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         public PartyManagerService(GameStateManagerService gameStateManagerService)
         {
             _gameStateManager = gameStateManagerService;
+
+            _treasure.OnFindLootGoblinPerks += HandleFindLootGoblinPerks;
+            _questSetup.OnGetParty += HandleGetParty;
+            _questSetup.OnCanTakePreQuestRest += HandleCanTakePreQuestRest;
+            _questSetup.OnCanRestForFree += HandleCanRestForFree;
+            _identification.OnGetParty += HandleGetParty;
         }
+
+        public void Dispose()
+        {
+            _treasure.OnFindLootGoblinPerks += HandleFindLootGoblinPerks;
+            _questSetup.OnGetParty -= HandleGetParty;
+            _questSetup.OnCanTakePreQuestRest -= HandleCanTakePreQuestRest;
+            _questSetup.OnCanRestForFree -= HandleCanRestForFree;
+        }
+
+        private void HandleCanRestForFree(bool canDo)
+        {
+            CanRestForFree = canDo;
+        }
+
+        private void HandleCanTakePreQuestRest(bool canDo)
+        {
+            CanTakePreQuestRest = canDo;
+        }
+
+        private async Task<List<Hero>> HandleGetParty()
+        {
+            await Task.Yield();
+            return Party.Heroes;
+        }
+
+        private async Task<List<Hero>> HandleFindLootGoblinPerks()
+        {
+            await Task.Yield();
+            return Party.Heroes.Where(h => h.Perks.Any(p => p.Name == PerkName.LootGoblin)).ToList();
+        }
+
         public void ResetQuestRules()
         {
             CanRestForFree = false;

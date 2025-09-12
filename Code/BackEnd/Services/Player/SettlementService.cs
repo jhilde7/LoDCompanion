@@ -2514,10 +2514,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         public int EstatePrice { get; set; } = 6000;
         public (Hero, Equipment)? LostItem { get; set; }
 
-        public event Func<int, Task<List<Equipment?>>>? OnPartyGainsTreasureAsync;
-        public event Action<string, Party>? OnSideQuestTriggered;
-        public event Func<Hero, Equipment, Task>? OnItemLostAsync;
-
         public Estate(Settlement settlement) : base(SettlementServiceName.Estate, settlement)
         {
             FurnishedRooms = GetFurnishings();
@@ -2554,149 +2550,21 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 return result;
             }
         }
-
-        public async Task GhostlyEvent(Party party)
-        {
-            var roll = RandomHelper.RollDie(DiceType.D10);
-
-            if (roll < 7)
-            {
-                return; // No event occurs
-            }
-
-            switch (roll)
-            {
-                case 1: // The Family Heirlooms
-
-                    if (OnPartyGainsTreasureAsync != null)
-                    {
-                        var wonderfulTreasures = await OnPartyGainsTreasureAsync.Invoke(2);
-                        foreach (var treasure in wonderfulTreasures)
-                        {
-                            if (treasure != null)
-                            {
-                                await BackpackHelper.AddItem(party.Heroes[0].Inventory.Backpack, treasure);
-                            }
-                        }
-                        foreach (var hero in party.Heroes)
-                        {
-                            hero.CurrentEnergy -= 1;
-                        } 
-                    }
-                    break;
-
-                case 2: // Guardian Spirits
-                    foreach (var hero in party.Heroes)
-                    {
-                        hero.CurrentLuck += 1;
-                    }
-                    break;
-
-                case 3: // The Hidden Treasure
-                    if (OnSideQuestTriggered != null) OnSideQuestTriggered.Invoke("The Hidden Treasure", party);
-                    break;
-
-                case 4: // Spiritual Guides
-                    foreach (var hero in party.Heroes.Where(h => h.GetSkill(Skill.CombatSkill) > h.GetSkill(Skill.RangedSkill)))
-                    {
-                        var ghostlyEffect = new ActiveStatusEffect(StatusEffectType.SpiritualGuides, -1, skillBonus:(Skill.CombatSkill, 5), removeEndOfDungeon: true);
-                        hero.ActiveStatusEffects.Add(ghostlyEffect);
-                    }
-                    foreach (var hero in party.Heroes.Where(h => h.GetSkill(Skill.CombatSkill) <= h.GetSkill(Skill.RangedSkill)))
-                    {
-                        var ghostlyEffect = new ActiveStatusEffect(StatusEffectType.SpiritualGuides, -1, skillBonus: (Skill.RangedSkill, 5), removeEndOfDungeon: true);
-                        hero.ActiveStatusEffects.Add(ghostlyEffect);
-                    }
-                    break;
-
-                case 5: // Protector
-                    foreach (var hero in party.Heroes)
-                    {
-                        if (hero.ProfessionName == ProfessionName.Wizard)
-                        {
-                            var protectorEffect = new ActiveStatusEffect(StatusEffectType.GhostlyProtector, -1, removeEndOfDungeon: true);
-                            hero.ActiveStatusEffects.Add(protectorEffect);
-                        }
-                    }
-                    break;
-
-                case 6: // The Grieving Mother
-                    if (OnSideQuestTriggered != null) OnSideQuestTriggered.Invoke("The Grieving Mother", party);
-                    break;
-
-                case 7: // Angered Ghost
-                    var farm = FurnishedRooms.OfType<Farm>().FirstOrDefault();
-                    if (farm != null)
-                    {
-                        farm.DungeonsUntilUsable = 1;
-                    }
-                    break;
-
-                case 8: // Restless Night
-                    foreach (var hero in party.Heroes)
-                    {
-                        hero.CurrentEnergy = Math.Max(0, hero.CurrentEnergy - 2);
-                    }
-                    break;
-
-                case 9: // Lost Item
-                    var affectedHero = party.Heroes[RandomHelper.GetRandomNumber(0, party.Heroes.Count - 1)];
-                    var items = new List<Equipment?>();
-                    items.AddRange(affectedHero.Inventory.GetAllWeaponsArmour());
-                    items.AddRange(affectedHero.Inventory.Backpack.Where(i => i?.Name == "Ration"));
-                    items.Shuffle();
-
-                    if (items.Any())
-                    {
-                        var lostItem = items[0];
-                        if (lostItem != null)
-                        {
-                            if (OnItemLostAsync != null) await OnItemLostAsync(affectedHero, lostItem);
-                            LostItem = (affectedHero, lostItem);
-                            affectedHero.Inventory.Backpack.Remove(lostItem);
-                        }
-                    }
-                    break;
-
-                case 10: // The Curse
-                    foreach (var hero in party.Heroes)
-                    {
-                        var curse = StatusEffectService.GetRandomCurseEffect();
-                        curse.RemoveEndOfDungeon = true;
-                        hero.ActiveStatusEffects.Add(curse);
-                    }
-                    break;
-            }
-        }
     }
 
     public class SettlementService
     {
-        private readonly UserRequestService _userRequest;
-        private readonly QuestService _quest;
+        private readonly UserRequestService _userRequest = new UserRequestService();
+        private readonly EncounterService _encounter = new EncounterService();
+        private readonly QuestService _quest = new QuestService();
         private readonly PartyManagerService _partyManager;
-        private readonly GameDataService _gameData;
-        private readonly EncounterService _encounter;
-        private readonly GameState _gameState;
 
-        public List<Settlement> Settlements => _gameState.Settlements == null ? _gameState.Settlements = GetSettlements() : _gameState.Settlements;
+        public List<Settlement> Settlements => _partyManager.GameState.Settlements == null ? _partyManager.GameState.Settlements = GetSettlements() : _partyManager.GameState.Settlements;
 
-        public SettlementService(
-            UserRequestService userRequestService, 
-            QuestService questService,
-            PartyManagerService partyManager,
-            GameDataService gameData,
-            EncounterService encounter,
-            GameState gameState)
+        public SettlementService(PartyManagerService partyManager)
         {
-            _userRequest = userRequestService;
-            _quest = questService;
             _partyManager = partyManager;
-            _gameData = gameData;
-            _encounter = encounter;
-
-            _gameState = gameState;
-            _gameState.Settlements = GetSettlements();
+            _partyManager.GameState.Settlements = GetSettlements();
         }
 
         public void StartNewDay(Settlement settlement)

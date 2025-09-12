@@ -19,10 +19,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
     public class HealingService
     {
-        private readonly UserRequestService _userRequest;
-        public HealingService(UserRequestService userRequestService) 
+        private readonly UserRequestService _userRequest = new UserRequestService();
+        public HealingService() 
         { 
-            _userRequest = userRequestService;
+            
         }
 
         /// <summary>

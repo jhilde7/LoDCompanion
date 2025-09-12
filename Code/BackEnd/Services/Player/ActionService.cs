@@ -84,55 +84,28 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     /// </summary>
     public class ActionService
     {
-        private readonly HealingService _healing;
-        private readonly InventoryService _inventory;
-        private readonly IdentificationService _identification;
-        private readonly AttackService _attack;
-        private readonly UserRequestService _diceRoll;
-        private readonly SpellCastingService _spellCasting;
-        private readonly SpellResolutionService _spellResolution;
-        private readonly PowerActivationService _powerActivation;
-        private readonly AlchemyService _alchemy;
-        private readonly PotionActivationService _potionActivation;
-        private readonly LockService _lock;
-        private readonly TrapService _trap;
-        private readonly SearchService _search;
-        private readonly ThreatService _threat;
+        private readonly HealingService _healing = new HealingService();
+        private readonly InventoryService _inventory = new InventoryService();
+        private readonly IdentificationService _identification = new IdentificationService();
+        private readonly AttackService _attack = new AttackService();
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly SpellCastingService _spellCasting = new SpellCastingService();
+        private readonly SpellResolutionService _spellResolution = new SpellResolutionService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly AlchemyService _alchemy = new AlchemyService();
+        private readonly PotionActivationService _potionActivation = new PotionActivationService();
+        private readonly LockService _lock = new LockService();
+        private readonly TrapService _trap = new TrapService();
+        private readonly SearchService _search = new SearchService();
 
         public event Func<Monster, List<GridPosition>, Task<bool>>? OnMonsterMovement;
         public event Func<Door, Task<bool>>? OnOpenDoor;
         public event Func<Hero, Door, Task<bool>>? OnRemoveCobwebs;
+        public event Action<ThreatActionType>? OnUpdateThreatLevelByThreatActionType;
 
-        public ActionService(
-            SearchService searchService,
-            HealingService healingService,
-            InventoryService inventoryService,
-            IdentificationService identificationService,
-            AttackService attackService,
-            UserRequestService diceRollService,
-            SpellCastingService spellCastingService,
-            SpellResolutionService spellResolutionService,
-            PowerActivationService powerActivationService,
-            AlchemyService alchemyService,
-            PotionActivationService potionActivation,
-            LockService lockService,
-            TrapService trapService,
-            ThreatService threatService)
+        public ActionService()
         {
-            _healing = healingService;
-            _inventory = inventoryService;
-            _identification = identificationService;
-            _attack = attackService;
-            _diceRoll = diceRollService;
-            _spellCasting = spellCastingService;
-            _spellResolution = spellResolutionService;
-            _powerActivation = powerActivationService;
-            _alchemy = alchemyService;
-            _potionActivation = potionActivation;
-            _lock = lockService;
-            _trap = trapService;
-            _search = searchService;
-            _threat = threatService;
+            
         }
 
         /// <summary>
@@ -142,7 +115,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         /// <param name="actionType">The type of action to perform.</param>
         /// <param name="target">The target of the action (e.g., a Monster, DoorChest, or another Hero).</param>
         /// <returns>True if the action was successfully performed, false otherwise.</returns>
-        public async Task<ActionResult> PerformActionAsync(DungeonState dungeon, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null, CombatContext? combatContext = null)
+        public async Task<ActionResult> PerformActionAsync(Room room, Character character, ActionType actionType, object? primaryTarget = null, object? secondaryTarget = null, CombatContext? combatContext = null)
         {
             ActionResult result = new ActionResult();
             result.ApCost = GetActionCost(actionType);
@@ -205,7 +178,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Character, ActionType.StandardAttack):
                     if (primaryTarget is Character)
                     {
-                        result = await StandardAttack(dungeon, character, (Character)primaryTarget, combatContext, weapon);                        
+                        result = await StandardAttack(room, character, (Character)primaryTarget, combatContext, weapon);                        
                     }
                     else
                     {
@@ -218,7 +191,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                         || character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury) && character.CurrentAP > 0
                         ) && primaryTarget is Character)
                     {
-                        result.AttackResult = await _attack.PerformPowerAttackAsync(character, weapon, (Character)primaryTarget, dungeon);
+                        result.AttackResult = await _attack.PerformPowerAttackAsync(character, weapon, (Character)primaryTarget, room);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
 
                         if (character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury))
@@ -235,11 +208,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Character, ActionType.ChargeAttack):
                     if (character.Position != null && character.CurrentAP >= GetActionCost(actionType) && primaryTarget is Character)
                     {
-                        result.AttackResult = await _attack.PerformChargeAttackAsync(character, weapon, (Character)primaryTarget, dungeon);
-                        Room? room = dungeon.FindRoomAtPosition(character.Position);
-                        if (room != null)
+                        result.AttackResult = await _attack.PerformChargeAttackAsync(character, weapon, (Character)primaryTarget, room);
+                        Room? newRoom = room.Dungeon?.FindRoomAtPosition(character.Position);
+                        if (newRoom != null)
                         {
-                            character.Room = room;
+                            character.Room = newRoom;
                         }
                     }
                     else
@@ -251,13 +224,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Character, ActionType.Shove):
                     if (primaryTarget is Character targetToShove && character.Position != null)
                     {
-                        result.AttackResult = await _attack.PerformShoveAsync(character, targetToShove, dungeon);
+                        result.AttackResult = await _attack.PerformShoveAsync(character, targetToShove);
                         if (result.AttackResult.IsHit && targetToShove.Position != null)
                         {
-                            Room? room = dungeon.FindRoomAtPosition(targetToShove.Position);
-                            if (room != null)
+                            Room? newRoom = room.Dungeon?.FindRoomAtPosition(targetToShove.Position);
+                            if (newRoom != null)
                             {
-                                targetToShove.Room = room;
+                                targetToShove.Room = newRoom;
                             }
                         }
                         else
@@ -275,7 +248,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Character, ActionType.Move):
                     if (primaryTarget is GridPosition && character.Position != null && character.Room != null)
                     {
-                        result = await Move(character, (GridPosition)primaryTarget, dungeon, weapon is RangedWeapon ? (RangedWeapon)weapon : null);                        
+                        result = await Move(character, (GridPosition)primaryTarget, room, weapon is RangedWeapon ? (RangedWeapon)weapon : null);                        
                     }
                     else
                     {
@@ -291,7 +264,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                         if (pickLockResult.WasSuccessful)
                         {
                             result.ApCost = 1;
-                            await PerformActionAsync(dungeon, hero, ActionType.OpenDoor, lockedDoor);
+                            await PerformActionAsync(room, hero, ActionType.OpenDoor, lockedDoor);
                         }
                     }
                     else if (primaryTarget is Chest lockedChest && lockedChest.IsLocked)
@@ -300,7 +273,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                         if (pickLockResult.WasSuccessful)
                         {
                             result.ApCost = 1;
-                            await PerformActionAsync(dungeon, hero, ActionType.SearchFurniture, lockedChest);
+                            await PerformActionAsync(room, hero, ActionType.SearchFurniture, lockedChest);
                         }
                     }
                     else
@@ -325,7 +298,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Hero hero, ActionType.OpenPortcullis):
                     if (primaryTarget is Door)
                     {
-                        result = await OpenPortcullis((Door)primaryTarget, hero);
+                        result = await OpenPortcullis((Door)primaryTarget, hero, room);
                     }
                     else
                     {
@@ -336,7 +309,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Hero hero, ActionType.BreakDownDoor):
                     if (primaryTarget is Door)
                     {
-                        result = await BreakDownDoorAsync(dungeon, hero, (Door)primaryTarget, weapon);
+                        result = await BreakDownDoorAsync(room, hero, (Door)primaryTarget, weapon);
                     }
                     else
                     {
@@ -459,7 +432,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Hero hero, ActionType.CastSpell):
                     if (secondaryTarget is Spell spellToCast)
                     {
-                        result = await CastSpell(primaryTarget, hero, spellToCast);
+                        result = await CastSpell(primaryTarget, hero, spellToCast, room);
                     }
                     else
                     {
@@ -481,13 +454,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
                                 if (hero.ChanneledSpell.FocusActionsRemaining <= 0)
                                 {
-                                    await _spellResolution.ResolveSpellAsync(hero, hero.ChanneledSpell.Spell, hero.ChanneledSpell.Target, hero.ChanneledSpell.CastingOptions);
+                                    await _spellResolution.ResolveSpellAsync(hero, hero.ChanneledSpell.Spell, hero.ChanneledSpell.Target, hero.ChanneledSpell.CastingOptions, room);
 
                                 }
                             }
                             else
                             {
-                                await _spellResolution.ResolveSpellAsync(hero, hero.ChanneledSpell.Spell, hero.ChanneledSpell.Target, hero.ChanneledSpell.CastingOptions);
+                                await _spellResolution.ResolveSpellAsync(hero, hero.ChanneledSpell.Spell, hero.ChanneledSpell.Target, hero.ChanneledSpell.CastingOptions, room);
                                 result.Message = $"{hero.Name} has no focus actions remaining.";
                                 result.WasSuccessful = false;
                             }
@@ -563,13 +536,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     if (primaryTarget is Character targetToBash && character.Position != null && hero.CurrentEnergy > 0
                         && hero.Inventory.OffHand != null && hero.Inventory.OffHand is Shield && ((Shield)hero.Inventory.OffHand).WeaponClass > 1)
                     {
-                        result.AttackResult = await _attack.PerformShoveAsync(character, targetToBash, dungeon, isShieldBash: true);
+                        result.AttackResult = await _attack.PerformShoveAsync(character, targetToBash, isShieldBash: true);
                         if (result.AttackResult.IsHit && targetToBash.Position != null)
                         {
-                            Room? room = dungeon.FindRoomAtPosition(targetToBash.Position);
-                            if (room != null)
+                            Room? newRoom = room.Dungeon?.FindRoomAtPosition(targetToBash.Position);
+                            if (newRoom != null)
                             {
-                                targetToBash.Room = room;
+                                targetToBash.Room = newRoom;
                             }
                             hero.CurrentEnergy--;
                         }
@@ -620,7 +593,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
                     if (primaryTarget is GridPosition position && secondaryTarget is Potion potion)
                     {
-                        result = await ThrowPotionAsync(hero, position, potion, dungeon);
+                        result = await ThrowPotionAsync(hero, position, potion, room);
                     }
                     else
                     {
@@ -629,12 +602,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     }                    
                     break;
                 case (Hero hero, ActionType.DragonBreath):
-                    result = await DragonBreath(dungeon, hero);
+                    result = await DragonBreath(room, hero);
                     break;
                 case (Hero hero, ActionType.Taunt):
-                    if (primaryTarget is Monster targetMonster && dungeon.HeroParty != null && hero.CurrentEnergy > 0)
+                    if (primaryTarget is Monster targetMonster && hero.CurrentEnergy > 0)
                     {
-                        result = await Taunt(dungeon.HeroParty.Heroes, hero, targetMonster);
+                        result = await Taunt(room, hero, targetMonster);
                     }
                     else
                     {
@@ -657,7 +630,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Character, ActionType.PickupWeapon):
                     if (character.DroppedWeapon != null)
                     {
-                        result = await PickupWeapon(character, dungeon);
+                        result = await PickupWeapon(character, room);
                     }
                     else
                     {
@@ -790,7 +763,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 case (Hero hero, ActionType.ReadScroll):
                     if (secondaryTarget is Scroll scroll && primaryTarget != null)
 					{
-						result = await ReadScrollAsync(hero, scroll, primaryTarget);
+						result = await ReadScrollAsync(hero, scroll, primaryTarget, room);
 					}
 					else
 					{
@@ -877,7 +850,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> OpenPortcullis(Door door, Hero hero)
+        private async Task<ActionResult> OpenPortcullis(Door door, Hero hero, Room room)
         {
             var result = new ActionResult();
             if (hero.Party == null) return result;
@@ -890,10 +863,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 if (i == 0) continue;
                 else roll -= 10;
             }
-            if (hero.TestStrength(roll))
+            if (hero.TestStrength(roll) && OnUpdateThreatLevelByThreatActionType != null)
             {
                 result.Message = $"{hero.Name} lifts the Portcullis and the doorway is not open.";
-                _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.OpenDoorOrChest);
+                OnUpdateThreatLevelByThreatActionType.Invoke(ThreatActionType.OpenDoorOrChest);
                 await door.OpenAsync(hero);
             }
             else
@@ -952,7 +925,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         }
 
         private async Task<ActionResult> BreakDownDoorAsync(
-            DungeonState dungeon, Hero hero, Door door, Weapon? weapon)
+            Room room, Hero hero, Door door, Weapon? weapon)
         {
             var result = new ActionResult();
             result.Message = string.Empty;
@@ -991,18 +964,18 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             else
             {
                 result.Message = "Target door is not locked.";
-                result.Message += await PerformActionAsync(dungeon, hero, ActionType.OpenDoor, door);
+                result.Message += await PerformActionAsync(room, hero, ActionType.OpenDoor, door);
                 result.WasSuccessful = false;
             }
 
             return result;
         }
 
-        private async Task<ActionResult> PickupWeapon(Character character, DungeonState dungeon)
+        private async Task<ActionResult> PickupWeapon(Character character, Room room)
         {
             var result = new ActionResult();
             result.Message = string.Empty;
-            var enemies = GetEnemiesForZOC(character, dungeon);
+            var enemies = GetEnemiesForZOC(character, room);
             bool adjacentEnemy = false;
             if (character.Position != null)
             {
@@ -1098,7 +1071,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> Taunt(List<Hero> heroParty, Hero hero, Monster targetMonster)
+        private async Task<ActionResult> Taunt(Room room, Hero hero, Monster targetMonster)
         {
             var result = new ActionResult();
             result.Message = string.Empty;
@@ -1111,8 +1084,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 return result;
             }
 
+            var party = room.Dungeon != null ? room.Dungeon.HeroParty.Heroes : room.HeroesInRoom;
+            if (party == null) 
+            {
+                result.Message = $"{taunt.Name.ToString()} failed to activate";
+                result.WasSuccessful = false;
+                return result;
+            }
             // Rule: "not locked in close combat"
-            bool isAdjacentToAnyHero = heroParty.Any(h => h.Position != null && targetMonster.Position != null && GridService.IsAdjacent(targetMonster.Position, h.Position));
+            bool isAdjacentToAnyHero = party.Any(h => h.Position != null && targetMonster.Position != null && GridService.IsAdjacent(targetMonster.Position, h.Position));
 
             if (isAdjacentToAnyHero)
             {
@@ -1134,9 +1114,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> DragonBreath(DungeonState dungeon, Hero hero)
+        private async Task<ActionResult> DragonBreath(Room room, Hero hero)
         {
             var result = new ActionResult();
+            var grid = room.Dungeon != null ? room.Dungeon.DungeonGrid : room.Grid;
+            var allCharacters = room.Dungeon != null ? room.Dungeon.AllCharactersInDungeon : room.CharactersInRoom;
+
             var dragonBreathEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DragonBreath);
             if (dragonBreathEffect == null)
             {
@@ -1153,8 +1136,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             }
 
             // Generate all possible attack options
-            var adjacentSquares = GridService.GetNeighbors(hero.Position, dungeon.DungeonGrid)
-                .Where(sq => !(dungeon.DungeonGrid.GetValueOrDefault(sq)?.MovementBlocked ?? true))
+            var adjacentSquares = GridService.GetNeighbors(hero.Position, grid)
+                .Where(sq => !(grid.GetValueOrDefault(sq)?.MovementBlocked ?? true))
                 .ToList();
 
             var spotAttackOptions = new List<GridPosition>(adjacentSquares);
@@ -1185,8 +1168,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             // Present Jet Attack options to the player first
             foreach (var (pos1, pos2) in jetAttackOptions)
             {
-                var occupants1 = string.Join(", ", dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos1)).Select(c => c.Name));
-                var occupants2 = string.Join(", ", dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos2)).Select(c => c.Name));
+                var occupants1 = string.Join(", ", allCharacters.Where(c => c.Position != null && c.Position.Equals(pos1)).Select(c => c.Name));
+                var occupants2 = string.Join(", ", allCharacters.Where(c => c.Position != null && c.Position.Equals(pos2)).Select(c => c.Name));
                 var prompt1 = !string.IsNullOrEmpty(occupants1) ? $" (hitting {occupants1})" : "";
                 var prompt2 = !string.IsNullOrEmpty(occupants2) ? $" (hitting {occupants2})" : "";
 
@@ -1194,7 +1177,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 {
                     outcome.AppendLine($"{hero.Name} breathes a jet of fire!");
 
-                    var charactersOnPos1 = dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos1)).ToList();
+                    var charactersOnPos1 = allCharacters.Where(c => c.Position != null && c.Position.Equals(pos1)).ToList();
                     int damage1 = RandomHelper.RollDie(DiceType.D4);
                     foreach (var characterInTarget in charactersOnPos1)
                     {
@@ -1202,7 +1185,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                         outcome.AppendLine($"{characterInTarget.Name} is hit for {damage1} fire damage.");
                     }
 
-                    var charactersOnPos2 = dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(pos2)).ToList();
+                    var charactersOnPos2 = allCharacters.Where(c => c.Position != null && c.Position.Equals(pos2)).ToList();
                     int damage2 = RandomHelper.RollDie(DiceType.D4);
                     foreach (var characterInTarget in charactersOnPos2)
                     {
@@ -1220,14 +1203,14 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             {
                 foreach (var spotOption in spotAttackOptions)
                 {
-                    var occupants = string.Join(", ", dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(spotOption)).Select(c => c.Name));
+                    var occupants = string.Join(", ", allCharacters.Where(c => c.Position != null && c.Position.Equals(spotOption)).Select(c => c.Name));
                     var prompt = !string.IsNullOrEmpty(occupants) ? $" (hitting {occupants})" : "";
 
                     if (await _diceRoll.RequestYesNoChoiceAsync($"Perform a spot attack on square {spotOption}{prompt}?"))
                     {
                         outcome.AppendLine($"{hero.Name} breathes a gout of flame!");
 
-                        var charactersOnPos = dungeon.AllCharactersInDungeon.Where(c => c.Position != null && c.Position.Equals(spotOption)).ToList();
+                        var charactersOnPos = allCharacters.Where(c => c.Position != null && c.Position.Equals(spotOption)).ToList();
                         int damage = RandomHelper.RollDie(DiceType.D8);
                         foreach (var characterInTarget in charactersOnPos)
                         {
@@ -1256,7 +1239,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> StandardAttack(DungeonState dungeon, Character character, Character target, CombatContext? combatContext, Weapon? weapon)
+        private async Task<ActionResult> StandardAttack(Room room, Character character, Character target, CombatContext? combatContext, Weapon? weapon)
         {
             var result = new ActionResult();
             int startingAP = character.CurrentAP;
@@ -1265,7 +1248,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
             if (weapon != null && weapon is RangedWeapon)
             {
-                result = await PerformActionAsync(dungeon, character, ActionType.Reload);
+                result = await PerformActionAsync(room, character, ActionType.Reload);
                 if (character.CurrentAP <= 0)
                 {
                     result.Message += $"\n {character.Name} is reloading...";
@@ -1279,12 +1262,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             {
                 if (await _powerActivation.RequestPerkActivationAsync(hero, PerkName.HuntersEye))
                 {
-                    await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
-                    await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
+                    await _attack.PerformStandardAttackAsync(character, weapon, target, room, combatContext);
+                    await PerformActionAsync(room, character, ActionType.ReloadWhileMoving);
                 }
             }
 
-            AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, target, dungeon, combatContext);
+            AttackResult attackResult = await _attack.PerformStandardAttackAsync(character, weapon, target, room, combatContext);
             if (startingAP > character.CurrentAP)
             {
                 result.Message += "\n" + attackResult.OutcomeMessage;
@@ -1303,11 +1286,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> Move( Character character, GridPosition position, DungeonState dungeon, RangedWeapon? rangedWeapon = null)
+        private async Task<ActionResult> Move( Character character, GridPosition position, Room room, RangedWeapon? rangedWeapon = null)
         {
             var result = new ActionResult();
             result.Message = string.Empty;
             result.WasSuccessful = true;
+            var grid = room.Dungeon != null ? room.Dungeon.DungeonGrid : room.Grid;
 
             if (character.Position != null)
             {
@@ -1318,9 +1302,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     availableMovement /= 2;
                 }
 
-                var enemies = GetEnemiesForZOC(character, dungeon);
+                var enemies = GetEnemiesForZOC(character, room);
                 
-                List<GridPosition> path = GridService.FindShortestPath(character, position, dungeon.DungeonGrid, enemies);
+                List<GridPosition> path = GridService.FindShortestPath(character, position, grid, enemies);
 
                 if (character is Monster movingMonster && OnMonsterMovement != null)
                 {
@@ -1332,7 +1316,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     }
                 }
 
-                MovementResult moveResult = GridService.MoveCharacter(character, path, dungeon.DungeonGrid, enemies, availableMovement);
+                MovementResult moveResult = GridService.MoveCharacter(character, path, grid, enemies, availableMovement);
 
                 if (moveResult.WasSuccessful)
                 {
@@ -1344,7 +1328,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     {
                         if (!rangedWeapon.IsLoaded)
                         {
-                            result.Message += await PerformActionAsync(dungeon, character, ActionType.ReloadWhileMoving);
+                            result.Message += await PerformActionAsync(room, character, ActionType.ReloadWhileMoving);
                         }
                     }
 
@@ -1369,15 +1353,16 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private List<Character> GetEnemiesForZOC(Character character, DungeonState dungeon)
+        private List<Character> GetEnemiesForZOC(Character character, Room room)
         {
             var enemies = new List<Character> ();
+            
             // Determine enemies for ZOC calculation
-            if (dungeon.HeroParty != null)
+            if (room.Dungeon != null)
             {
                 if (character is Monster)
                 {
-                    enemies = dungeon.HeroParty.Heroes.Cast<Character>().ToList();
+                    enemies = room.Dungeon.HeroParty.Heroes.Cast<Character>().ToList();
                     if (enemies.Count <= 0 && character.Room.HeroesInRoom != null)
                     {
                         enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
@@ -1385,18 +1370,37 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 }
                 else if (character is Hero)
                 {
-                    enemies = dungeon.RevealedMonsters.Cast<Character>().ToList();
+                    enemies = room.Dungeon.RevealedMonsters.Cast<Character>().ToList();
                     if (enemies.Count <= 0 && character.Room.MonstersInRoom != null)
                     {
                         enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
                     }
                 } 
             }
+            else
+            {
+                if (character is Monster)
+                {
+                    enemies = room.HeroesInRoom?.Cast<Character>().ToList();
+                    if (enemies?.Count <= 0 && character.Room.HeroesInRoom != null)
+                    {
+                        enemies = character.Room.HeroesInRoom.Cast<Character>().ToList();
+                    }
+                }
+                else if (character is Hero)
+                {
+                    enemies = room.MonstersInRoom?.Cast<Character>().ToList();
+                    if (enemies?.Count <= 0 && character.Room.MonstersInRoom != null)
+                    {
+                        enemies = character.Room.MonstersInRoom.Cast<Character>().ToList();
+                    }
+                }
+            }
 
-            return enemies;
+            return enemies ??= new();
         }
 
-        private async Task<ActionResult> CastSpell(object? primaryTarget, Hero hero, Spell spellToCast)
+        private async Task<ActionResult> CastSpell(object? primaryTarget, Hero hero, Spell spellToCast, Room room)
         {
             var result = new ActionResult();
             SpellCastingResult options = await _spellCasting.RequestCastingOptionsAsync(hero, spellToCast); await Task.Yield();
@@ -1431,7 +1435,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                             {
                                 result.ApCost = 2; // Regular spells cost 2 AP if there is no focus points added
                             }
-                            await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
+                            await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options, room);
                         }
                         else if (options.FocusPoints >= 1)
                         {
@@ -1445,7 +1449,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
                         if (hero.ChanneledSpell != null && hero.ChanneledSpell.FocusActionsRemaining <= 0)
                         {
-                            spellCastResult = await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options);
+                            spellCastResult = await _spellResolution.ResolveSpellAsync(hero, spellToCast, primaryTarget, options, room);
                             result.Message = spellCastResult.OutcomeMessage;
                         }
                     }
@@ -1455,7 +1459,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-		private async Task<ActionResult> ReadScrollAsync(Hero hero, Scroll scroll, object target)
+		private async Task<ActionResult> ReadScrollAsync(Hero hero, Scroll scroll, object target, Room room)
 		{
 			var result = new ActionResult();
 			if (hero.Position == null) return new ActionResult { WasSuccessful = false, Message = "Hero has no position." };
@@ -1493,7 +1497,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 			else if (roll <= targetSkill)
 			{
 				// Success
-				var spellResult = await _spellResolution.ResolveSpellAsync(hero, scroll.Spell, target, new SpellCastingResult());
+				var spellResult = await _spellResolution.ResolveSpellAsync(hero, scroll.Spell, target, new SpellCastingResult(), room);
 				result.WasSuccessful = spellResult.IsSuccess;
 				result.Message = spellResult.OutcomeMessage;
 			}
@@ -1568,9 +1572,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return result;
         }
 
-        private async Task<ActionResult> ThrowPotionAsync(Hero hero, GridPosition position, Potion potion, DungeonState dungeon)
+        private async Task<ActionResult> ThrowPotionAsync(Hero hero, GridPosition position, Potion potion, Room room)
         {
             var result = new ActionResult();
+            var grid = room.Dungeon != null ? room.Dungeon.DungeonGrid : room.Grid;
             result.Message = string.Empty;
             var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
             await Task.Yield();
@@ -1585,7 +1590,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
             if (hero.Position != null)
             {
-                var los = GridService.HasLineOfSight(hero.Position, position, dungeon.DungeonGrid);
+                var los = GridService.HasLineOfSight(hero.Position, position, grid);
                 if (los.ObstructionPenalty < 0)
                 {
                     rsSkill -= 10;
@@ -1612,7 +1617,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             }
             else if (rsRoll.Roll > rsSkill)
             {
-                var neighbors = GridService.GetNeighbors(position, dungeon.DungeonGrid).ToList();
+                var neighbors = GridService.GetNeighbors(position, grid).ToList();
                 neighbors.Shuffle();
                 position = neighbors.FirstOrDefault() ?? position;
                 result.Message = $"{hero.Name} misses! The potion lands at {position}.";
@@ -1624,7 +1629,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 hero.ActiveStatusEffects.Remove(pitcherActive);
             }
 
-            result.Message += await _potionActivation.BreakPotionAsync(hero, potion, position, dungeon);
+            result.Message += await _potionActivation.BreakPotionAsync(hero, potion, position, room);
             return result;
         }
 

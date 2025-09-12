@@ -4,12 +4,7 @@ using LoDCompanion.Code.BackEnd.Services.Game;
 using LoDCompanion.Code.BackEnd.Services.GameData;
 using LoDCompanion.Code.BackEnd.Services.Player;
 using LoDCompanion.Code.BackEnd.Services.Utilities;
-using Microsoft.AspNetCore.Rewrite;
-using System;
-using System.Collections;
-using System.Reflection.Emit;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LoDCompanion.Code.BackEnd.Models
 {
@@ -55,6 +50,15 @@ namespace LoDCompanion.Code.BackEnd.Models
         Foraging,
         BattlePrayers,
         Parry
+    }
+
+    public interface IGameEntity
+    {
+        internal string Id { get; }
+        string Name { get; set; }
+        Room Room { get; set; }
+        GridPosition? Position { get; set; }
+        List<GridPosition> OccupiedSquares { get; set; }
     }
 
     public class Character : IGameEntity

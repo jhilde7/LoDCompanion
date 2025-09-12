@@ -24,13 +24,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
     public class PlacementService
     {
-        private readonly WorldStateService _worldState;
-        private readonly DungeonState _dungeon;
+        public event Func<Room, string, Task<IGameEntity>>? OnFindEntityInRoomById;
 
-        public PlacementService( WorldStateService worldStateService, DungeonState dungeon)
+        public PlacementService()
         {
-            _worldState = worldStateService;
-            _dungeon = dungeon;
+            
         }
 
         /// <summary>
@@ -70,19 +68,22 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
                 case PlacementRule.RelativeToTarget:
                     string targetName = placementParams["PlacementTarget"];
-                    IGameEntity? targetEntity = _worldState.FindEntityInRoomById(room, targetName);
+                    IGameEntity? targetEntity = new RoomService().FindEntityInRoomById(room, targetName);
                     if (targetEntity != null)
                     {
-                        potentialPositions = GetPositionsNearTarget(entity, targetEntity, _dungeon);
+                        potentialPositions = GetPositionsNearTarget(entity, targetEntity, room);
                     }
                     break;
 
                 case PlacementRule.AsFarAsPossible:
-                    string awayFromName = placementParams["PlacementTarget"];
-                    IGameEntity? awayFromEntity = _worldState.FindEntityInRoomById(room, awayFromName);
-                    if (awayFromEntity != null)
+                    if (OnFindEntityInRoomById != null)
                     {
-                        potentialPositions = GetFarAwayPositions(room, entity, awayFromEntity);
+                        string awayFromName = placementParams["PlacementTarget"];
+                        IGameEntity? awayFromEntity = new RoomService().FindEntityInRoomById(room, awayFromName);
+                        if (awayFromEntity != null)
+                        {
+                            potentialPositions = GetFarAwayPositions(room, entity, awayFromEntity);
+                        } 
                     }
                     break;
 
@@ -134,7 +135,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             {
                 foreach (var position in potentialPositions)
                 {
-                    if (AttemptFinalPlacement(entity, position, _dungeon))
+                    if (AttemptFinalPlacement(entity, position, room))
                     {
                         if (entity is Character character)
                         {
@@ -154,7 +155,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                     potentialPositions.Shuffle();
                     foreach (var position in potentialPositions)
                     {
-                        if (AttemptFinalPlacement(entity, position, _dungeon))
+                        if (AttemptFinalPlacement(entity, position, room))
                         {
                             if (entity is Character character)
                             {
@@ -182,7 +183,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             var visited = new HashSet<GridPosition>();
 
             // Start the search from the squares adjacent to the door, inside the target room
-            var initialNeighbors = GridService.GetNeighbors(startPosition, _dungeon.DungeonGrid)
+            var initialNeighbors = GridService.GetNeighbors(startPosition, targetRoom.Grid)
                 .Where(n =>
                     n.X >= targetRoom.GridOffset.X && n.X < targetRoom.GridOffset.X + targetRoom.Width &&
                     n.Y >= targetRoom.GridOffset.Y && n.Y < targetRoom.GridOffset.Y + targetRoom.Height)
@@ -197,7 +198,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             while (queue.Count > 0)
             {
                 var currentPos = queue.Dequeue();
-                var square = GridService.GetSquareAt(currentPos, _dungeon.DungeonGrid);
+                var square = GridService.GetSquareAt(currentPos, targetRoom.Grid);
 
                 // If we find a valid, unoccupied square, return it immediately
                 if (square != null && !square.MovementBlocked && !square.IsOccupied)
@@ -206,7 +207,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                 }
 
                 // Add the next layer of neighbors to the queue to continue the search outwards
-                var nextNeighbors = GridService.GetNeighbors(currentPos, _dungeon.DungeonGrid);
+                var nextNeighbors = GridService.GetNeighbors(currentPos, targetRoom.Grid);
                 foreach (var neighbor in nextNeighbors)
                 {
                     if (!visited.Contains(neighbor) &&
@@ -291,12 +292,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             return edgeSquares;
         }
 
-        private List<GridPosition> GetPositionsNearTarget(IGameEntity entity, IGameEntity target, DungeonState dungeon)
+        private List<GridPosition> GetPositionsNearTarget(IGameEntity entity, IGameEntity target, Room room)
         {
             var surroundingPositions = new List<GridPosition>();
             foreach (var occupiedSquare in target.OccupiedSquares)
             {
-                surroundingPositions.AddRange(GridService.GetNeighbors(occupiedSquare, dungeon.DungeonGrid));
+                surroundingPositions.AddRange(GridService.GetNeighbors(occupiedSquare, room.Grid));
             }
             return surroundingPositions;
         }
@@ -325,7 +326,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             return validSquares;
         }
 
-        private bool IsPlacementFootprintValid(IGameEntity entity, GridPosition targetPosition, DungeonState dungeon)
+        private bool IsPlacementFootprintValid(IGameEntity entity, GridPosition targetPosition, Room room)
         {
             entity.Position = targetPosition;
 
@@ -333,7 +334,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
             foreach (var squareCoords in entity.OccupiedSquares)
             {
-                var square = GridService.GetSquareAt(squareCoords, dungeon.DungeonGrid);
+                var square = GridService.GetSquareAt(squareCoords, room.Grid);
                 if (square == null || square.IsWall || square.IsOccupied || square.MovementBlocked)
                 {
                     return false;
@@ -342,9 +343,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             return true;
         }
 
-        private bool AttemptFinalPlacement(IGameEntity entity, GridPosition targetPosition, DungeonState dungeon)
+        private bool AttemptFinalPlacement(IGameEntity entity, GridPosition targetPosition, Room room)
         {
-            if (!IsPlacementFootprintValid(entity, targetPosition, dungeon))
+            if (!IsPlacementFootprintValid(entity, targetPosition, room))
             {
                 Console.WriteLine($"Final placement check failed for {entity.Name} id: {entity.Id} at {targetPosition.ToString()}.");
                 return false;
@@ -352,7 +353,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
             foreach (var squareCoords in entity.OccupiedSquares)
             {
-                var square = GridService.GetSquareAt(squareCoords, dungeon.DungeonGrid);
+                var square = GridService.GetSquareAt(squareCoords, room.Grid);
                 if (square != null)
                 {
                     square.OccupyingCharacterId = entity.Id;
@@ -368,7 +369,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
         /// </summary>
         /// <param name="door">The door object to be placed.</param>
         /// <param name="room">The room to place the door on.</param>
-        public void PlaceExitDoor(Door door, Room room)
+        public void PlaceExitDoor(Door door, Room room, DungeonState dungeon)
         {
             var existingOrientations = room.Doors.Select(d => d.Orientation).ToHashSet();
             var availableOrientations = Enum.GetValues(typeof(Orientation))
@@ -395,7 +396,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                 GridPosition pos2 = edgeSquares[i + 1];
 
                 // The squares immediately inside the room must also be clear
-                if (!IsDoorwaySpaceClear(pos1, chosenOrientation) || !IsDoorwaySpaceClear(pos2, chosenOrientation))
+                if (!IsDoorwaySpaceClear(pos1, chosenOrientation, dungeon) || !IsDoorwaySpaceClear(pos2, chosenOrientation, dungeon))
                 {
                     continue;
                 }
@@ -413,10 +414,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
         /// <summary>
         /// Checks if an edge square and its immediate interior neighbor are both clear.
         /// </summary>
-        private bool IsDoorwaySpaceClear(GridPosition edgePos, Orientation edgeOrientation)
+        private bool IsDoorwaySpaceClear(GridPosition edgePos, Orientation edgeOrientation, DungeonState dungeon)
         {
             // Check the edge square itself.
-            var edgeSquare = GridService.GetSquareAt(edgePos, _dungeon.DungeonGrid);
+            var edgeSquare = GridService.GetSquareAt(edgePos, dungeon.DungeonGrid);
             if (edgeSquare == null || edgeSquare.IsWall || edgeSquare.Furniture != null)
             {
                 return false; // Edge is blocked by a wall or furniture.
@@ -434,7 +435,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             }
 
             // Check if the interior square is blocked.
-            var interiorSquare = GridService.GetSquareAt(interiorPos, _dungeon.DungeonGrid);
+            var interiorSquare = GridService.GetSquareAt(interiorPos, dungeon.DungeonGrid);
             if (interiorSquare == null || interiorSquare.MovementBlocked)
             {
                 return false; // Interior space is blocked.

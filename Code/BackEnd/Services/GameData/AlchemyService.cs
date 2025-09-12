@@ -15,11 +15,11 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
 {
     public class AlchemyService
     {
-        private readonly UserRequestService _diceRoll;
+        private readonly UserRequestService _diceRoll = new UserRequestService();
 
-        public AlchemyService( UserRequestService diceRollService)
+        public AlchemyService()
         {
-            _diceRoll = diceRollService;
+            
         }
 
         public static List<Part> Parts => GetPartsList();

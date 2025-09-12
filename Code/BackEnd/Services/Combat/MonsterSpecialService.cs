@@ -32,32 +32,23 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
     public class MonsterSpecialService
     {
-        private readonly UserRequestService _diceRoll;
-        private readonly EncounterService _encounter;
-        private readonly InitiativeService _initiative;
-        private readonly FloatingTextService _floatingText;
-        private readonly PowerActivationService _powerActivation;
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly EncounterService _encounter = new EncounterService();
+        private readonly FloatingTextService _floatingText = new FloatingTextService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
 
         public event Func<Monster, Hero, Task<DefenseResult>>? OnEntangleAttack;
         public event Func<Monster, Hero, Task<DefenseResult>>? OnSwallowAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnKickAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnSpitAttack;
-        public event Func<Monster, List<Hero>, DungeonState, Task<AttackResult>>? OnSweepingStrikeAttack;
-        public event Func<Monster, Hero, DungeonState, Task<AttackResult>>? OnTongueAttack;
+        public event Func<Monster, List<Hero>, Task<AttackResult>>? OnSweepingStrikeAttack;
+        public event Func<Monster, Hero, Task<AttackResult>>? OnTongueAttack;
         public event Func<Monster, Hero, Task<AttackResult>>? OnWebAttack;
+        public event Action<ActorType>? OnAddToken;
 
-        public MonsterSpecialService(
-            UserRequestService diceRoll,
-            EncounterService encounter,
-            InitiativeService initiative,
-            FloatingTextService floatingText,
-            PowerActivationService powerActivationService)
+        public MonsterSpecialService()
         {
-            _diceRoll = diceRoll;
-            _encounter = encounter;
-            _initiative = initiative;
-            _floatingText = floatingText;
-            _powerActivation = powerActivationService;
+            
         }
 
         /// <summary>
@@ -69,7 +60,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <returns>A string describing the outcome of the special action.</returns>
         public async Task<string> ExecuteSpecialAbilityAsync(
             Monster monster, List<Hero> heroes, Hero target,
-            SpecialActiveAbility abilityType, DungeonState dungeon)
+            SpecialActiveAbility abilityType)
         {
             switch (abilityType)
             {
@@ -77,17 +68,17 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 case SpecialActiveAbility.FreeBellow:
                     return await BellowAsync(monster, heroes);
                 case SpecialActiveAbility.Camouflage:
-                    return Camouflage(monster, heroes, dungeon);
+                    return Camouflage(monster, heroes);
                 case SpecialActiveAbility.Entangle:
                     return await EntangleAsync(monster, target);
                 case SpecialActiveAbility.FireBreath:
-                    return await FireBreathAsync(monster, target, heroes, dungeon);
+                    return await FireBreathAsync(monster, target, heroes);
                 case SpecialActiveAbility.GhostlyHowl:
                     return await GhostlyHowlAsync(monster, heroes);
                 case SpecialActiveAbility.Kick:
                     return await KickAsync(monster, heroes);
                 case SpecialActiveAbility.MasterOfTheDead:
-                    return MasterOfTheDead(monster, dungeon);
+                    return MasterOfTheDead(monster);
                 case SpecialActiveAbility.Petrify:
                     return await PetrifyAsync(monster, heroes);
                 case SpecialActiveAbility.PoisonSpit:
@@ -95,13 +86,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 case SpecialActiveAbility.Seduction:
                     return await SeductionAsync(monster, target);
                 case SpecialActiveAbility.SummonChildren:
-                    return SummonChildren(monster, dungeon);
+                    return SummonChildren(monster);
                 case SpecialActiveAbility.Swallow:
                     return await SwallowAsync(monster, target);
                 case SpecialActiveAbility.SweepingStrike:
-                    return await SweepingStrikeAsync(monster, heroes, dungeon);
+                    return await SweepingStrikeAsync(monster, heroes);
                 case SpecialActiveAbility.TongueAttack:
-                    return await TongueAttackAsync(monster, target, dungeon);
+                    return await TongueAttackAsync(monster, target);
                 case SpecialActiveAbility.Web:
                     return await WebAsync(monster, target);
                 default:
@@ -128,9 +119,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return outcome;
         }
 
-        private string Camouflage(Monster monster, List<Hero> heroes, DungeonState dungeon)
+        private string Camouflage(Monster monster, List<Hero> heroes)
         {
-            var allRooms = dungeon.RoomsInDungeon;
+            var dungeon = monster.Room.Dungeon;
+            var allRooms = dungeon != null ? dungeon.RoomsInDungeon : new List<Room> { monster.Room };
+            var grid = dungeon != null ? dungeon.DungeonGrid : monster.Room.Grid;
             var heroRooms = new HashSet<Room>();
             foreach (var hero in heroes)
             {
@@ -167,7 +160,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             // Find a valid, empty square in the target room.
             // This assumes a helper method to get all valid squares.
-            var validSquares = GridService.GetAllWalkableSquares(monster, dungeon.DungeonGrid, heroes.Cast<Character>().ToList());
+            var validSquares = GridService.GetAllWalkableSquares(monster, grid, heroes.Cast<Character>().ToList());
             if (!validSquares.Any())
             {
                 return $"{monster.Name} couldn't find an empty space to reappear in {targetRoom.Name}.";
@@ -184,7 +177,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     int currentLosCount = 0;
                     foreach (var hero in heroes)
                     {
-                        if (hero.Position != null && GridService.HasLineOfSight(square, hero.Position, dungeon.DungeonGrid).CanShoot)
+                        if (hero.Position != null && GridService.HasLineOfSight(square, hero.Position, grid).CanShoot)
                         {
                             currentLosCount++;
                         }
@@ -207,7 +200,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             if (newPosition != null && monster.Position != null)
             {
                 // Remove the monster from its current location
-                var oldSquare = GridService.GetSquareAt(monster.Position, dungeon.DungeonGrid);
+                var oldSquare = GridService.GetSquareAt(monster.Position, grid);
                 if (oldSquare != null)
                 {
                     oldSquare.OccupyingCharacterId = null;
@@ -216,7 +209,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 // Place the monster in the new location
                 monster.Position = newPosition;
                 monster.Room = targetRoom;
-                var newSquare = GridService.GetSquareAt(newPosition, dungeon.DungeonGrid);
+                var newSquare = GridService.GetSquareAt(newPosition, grid);
                 if (newSquare != null)
                 {
                     newSquare.OccupyingCharacterId = monster.Id;
@@ -247,8 +240,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return outcome;
         }
 
-        public async Task<string> FireBreathAsync(Monster monster, Hero target, List<Hero> allHeroes, DungeonState dungeon)
+        public async Task<string> FireBreathAsync(Monster monster, Hero target, List<Hero> allHeroes)
         {
+            var dungeon = monster.Room.Dungeon;
+            var grid = dungeon != null ? dungeon.DungeonGrid : monster.Room.Grid;
+
             if (target.Position == null) return string.Empty;
             if (!target.HasDodgedThisBattle)
             {
@@ -267,13 +263,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             outcome.AppendLine($"{target.Name} is caught in the blast and takes {primaryDamage} fire damage.");
 
             // Find adjacent squares
-            var adjacentSquares = GridService.GetNeighbors(target.Position, dungeon.DungeonGrid);
-            var allCharacters = new List<Character>(allHeroes);
-            if (dungeon.CurrentRoom?.MonstersInRoom != null)
-            {
-                allCharacters.AddRange(dungeon.CurrentRoom.MonstersInRoom);
-            }
-
+            var adjacentSquares = GridService.GetNeighbors(target.Position, grid);
+            var allCharacters = dungeon != null ? dungeon.RevealedMonsters : monster.Room.MonstersInRoom!;
 
             // Find and damage characters in adjacent squares
             foreach (var character in allCharacters)
@@ -349,11 +340,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             }
         }
 
-        public string MasterOfTheDead(Monster monster, DungeonState dungeon)
+        public string MasterOfTheDead(Monster monster)
         {
+            var allies = monster.Room.Dungeon != null ? monster.Room.Dungeon.RevealedMonsters : monster.Room.MonstersInRoom!;
             // Find a fallen undead ally
-            var fallenUndead = dungeon.RevealedMonsters.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
-            var woundedUndead = dungeon.RevealedMonsters
+            var fallenUndead = allies.FirstOrDefault(m => m.IsUndead && m.CurrentHP <= 0);
+            var woundedUndead = allies
                                 .Where(m => m.IsUndead && m.CurrentHP < m.GetStat(BasicStat.HitPoints))
                                 .OrderBy(m => m.CurrentHP)
                                 .FirstOrDefault();
@@ -457,7 +449,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return outcome;
         }
 
-        public string SummonChildren(Monster monster, DungeonState dungeon)
+        public string SummonChildren(Monster monster)
         {
             string outcome = $"{monster.Name} calls forth its vile offspring!\n";
 
@@ -475,15 +467,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             roomGrid.Shuffle();
             GridSquare? placementSquare = roomGrid.FirstOrDefault(sq => !sq.Value.IsOccupied && !sq.Value.IsWall && !sq.Value.MovementBlocked).Value;
 
-            if (placementSquare != null && monster.Room.MonstersInRoom != null)
+            if (placementSquare != null && monster.Room.MonstersInRoom != null && OnAddToken != null)
             {
                 newSpider.Position = placementSquare.Position;
                 newSpider.Room = monster.Room;
 
                 // Add the new monster to the current combat environment
                 monster.Room.MonstersInRoom.Add(newSpider);
-                dungeon.RevealedMonsters.Add(newSpider);
-                _initiative.AddToken(ActorType.Monster);
+                monster.Room.Dungeon?.RevealedMonsters.Add(newSpider);
+                OnAddToken(ActorType.Monster);
 
                 outcome += $"A Giant Spider appears at {placementSquare.Position}!";
             }
@@ -514,7 +506,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return outcome;
         }
 
-        public async Task<string> SweepingStrikeAsync(Monster monster, List<Hero> heroes, DungeonState dungeon)
+        public async Task<string> SweepingStrikeAsync(Monster monster, List<Hero> heroes)
         {
             string outcome = $"{monster.Name} performs a wide sweeping strike!\n";
             var heroesInZoc = heroes.Where(h => h.Position != null && DirectionService.IsInZoneOfControl(h.Position, monster)).ToList();
@@ -526,20 +518,20 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             if (OnSweepingStrikeAttack != null)
             {
-                var result = await OnSweepingStrikeAttack.Invoke(monster, heroes, dungeon);
+                var result = await OnSweepingStrikeAttack.Invoke(monster, heroes);
 
                 return outcome;
             }
             else return string.Empty; // event is null
         }
 
-        public async Task<string> TongueAttackAsync(Monster monster, Hero target, DungeonState dungeon)
+        public async Task<string> TongueAttackAsync(Monster monster, Hero target)
         {
             string outcome = $"{monster.Name} lashes out with its tongue at {target.Name}!\n";
 
             if (OnTongueAttack != null)
             {
-                var result = await OnTongueAttack.Invoke(monster, target, dungeon);
+                var result = await OnTongueAttack.Invoke(monster, target);
 
                 return outcome;
             }

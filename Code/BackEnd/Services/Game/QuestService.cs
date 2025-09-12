@@ -101,14 +101,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
     public class QuestService
     {
-        private readonly DungeonManagerService _dungeonManager;
-        private readonly RoomService _room;
-        private readonly QuestSetupService _questSetup;
-        private readonly CombatManagerService _combatManager;
-        private readonly TreasureService _treasure;
-        private readonly Estate _estate;
-        private readonly InitiativeService _initiative;
-        private readonly SearchService _search;
+        private readonly RoomService _room = new RoomService();
+        private readonly QuestSetupService _questSetup = new QuestSetupService();
+        private readonly TreasureService _treasure = new TreasureService();
 
         public Quest? ActiveQuest { get; private set; }
         public Room? ActiveEncounterRoom { get; private set; }
@@ -121,58 +116,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
         public bool IsQuestActive => ActiveQuest != null;
         public List<QuestHexLocation> QuestHexLocations => GetQuestHexLocations();
 
-        public QuestService(
-            DungeonManagerService dungeonManagerService,
-            RoomService roomService,
-            WorldStateService worldState,
-            PlacementService placement,
-            EncounterService encounter,
-            QuestSetupService questSetup,
-            CombatManagerService combatManagerService,
-            TreasureService treasureService,
-            Estate estate,
-            InitiativeService initiative,
-            SearchService search)
+        public QuestService()
         {
-            _room = roomService;
-            _dungeonManager = dungeonManagerService;
-            _questSetup = questSetup;
-            _combatManager = combatManagerService;
-            _treasure = treasureService;
-            _estate = estate;
-            _initiative = initiative;
-            _search = search;
-
-            _estate.OnSideQuestTriggered += HandleAddSideQuest;
-        }
-
-        private void HandleAddSideQuest(string sideQuestName, Party party)
-        {
-            if (ActiveQuest == null) return;
-            ActiveQuest.SideQuests ??= new();
-            if (sideQuestName == "The Hidden Treasure")
-            {
-                var sideQuest = new Quest() { Name = "The Hidden Treasure", IsSideQuest = true };
-                ActiveQuest.SideQuests.Add(sideQuest);
-            }
-            else if (sideQuestName == "The Grieving Mother")
-            {
-                var sideQuest = GetQuestByName("The Grieving Mother");
-                if (sideQuest != null)
-                {
-                    if (sideQuest.IsComplete)
-                    {
-                        foreach (var hero in party.Heroes)
-                        {
-                            hero.CurrentLuck += 1;
-                        }
-                    }
-                    else
-                    {
-                        ActiveQuest.SideQuests.Add(sideQuest);
-                    } 
-                }
-            }
+            
         }
 
         public async Task InitializeQuestsAsync()
@@ -1584,27 +1530,26 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
         /// Starts a new quest, setting it as the active one.
         /// </summary>
         /// <param name="quest">The quest to begin.</param>
-        public void StartQuest(Party party, Quest quest)
+        public async Task StartQuestAsync(Party party, Quest quest, DungeonManagerService? dungeonManager = null, CombatManagerService? combatManager = null)
         {
-            _initiative.ResetModifiers();
             ActiveQuest = quest;
 
             switch (quest.QuestType)
             {
                 case QuestType.Dungeon:
-                    _dungeonManager.InitializeDungeon(party, ActiveQuest);
+                    if (dungeonManager != null) dungeonManager.InitializeDungeon(party, ActiveQuest);
                     break;
 
                 case QuestType.WildernessQuest:
                     ActiveEncounterRoom = new Room();
-                    _questSetup.ExecuteRoomSetup(quest, ActiveEncounterRoom);
+                    await _questSetup.ExecuteRoomSetupAsync(quest, ActiveEncounterRoom);
 
-                    if (ActiveEncounterRoom != null && ActiveEncounterRoom.HeroesInRoom != null && ActiveEncounterRoom.MonstersInRoom != null)
+                    if (ActiveEncounterRoom != null && ActiveEncounterRoom.HeroesInRoom != null && ActiveEncounterRoom.MonstersInRoom != null && combatManager != null)
                     {
                         // Check for any special quest rules that affect the start of combat.
                         bool hasSurpriseAttack = quest.SetupActions.First(q => q.ActionType == QuestSetupActionType.ModifyInitiative) != null; // Simple check for "First Blood"
 
-                        _combatManager.SetupCombat(
+                        combatManager.SetupCombat(
                         ActiveEncounterRoom.HeroesInRoom,
                         ActiveEncounterRoom.MonstersInRoom,
                         hasSurpriseAttack);
@@ -1619,14 +1564,14 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             OnQuestStateChanged?.Invoke();
         }
 
-        internal void StartIndividualQuest(Hero hero, Quest quest)
+        internal async Task StartIndividualQuestAsync(Hero hero, Quest quest, CombatManagerService combatManager)
         {
             ActiveEncounterRoom = new Room();
-            _questSetup.ExecuteRoomSetup(quest, ActiveEncounterRoom);
+            await _questSetup.ExecuteRoomSetupAsync(quest, ActiveEncounterRoom);
 
             if (ActiveEncounterRoom != null && ActiveEncounterRoom.HeroesInRoom != null && ActiveEncounterRoom.MonstersInRoom != null)
             {
-                _combatManager.SetupCombat(
+                combatManager.SetupCombat(
                 ActiveEncounterRoom.HeroesInRoom,
                 ActiveEncounterRoom.MonstersInRoom);
             }

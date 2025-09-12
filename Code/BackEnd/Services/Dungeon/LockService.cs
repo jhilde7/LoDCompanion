@@ -65,13 +65,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
     public class LockService
     {
-        private readonly UserRequestService _diceRoll;
-        private readonly ThreatService _threat;
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+
+        public event Action<ThreatActionType>? OnUpdateThreatLevelByThreatActionType;
+
+
         // Constructor for dependency injection of RandomHelper
-        public LockService(UserRequestService userRequestService, ThreatService threat)
+        public LockService()
         {
-            _diceRoll = userRequestService;
-            _threat = threat;
+            
         }
 
         /// <summary>
@@ -154,17 +156,17 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             }
 
             // Check for crowbar in backpack
-            if (character is Hero hero)
+            if (character is Hero hero && OnUpdateThreatLevelByThreatActionType != null)
             {
                 var crowbar = hero.Inventory.Backpack.Find(item => item != null && item.Name == "Crowbar");
                 if (crowbar != null)
                 {
                     damageToLock = 8 + baseDamage;
-                    _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.BashLockWithCrowbar);
+                    OnUpdateThreatLevelByThreatActionType.Invoke(ThreatActionType.BashLockWithCrowbar);
                 }
                 else
                 {
-                    _threat.UpdateThreatLevelByThreatActionType(ThreatActionType.BashLock);
+                    OnUpdateThreatLevelByThreatActionType.Invoke(ThreatActionType.BashLock);
                 }
             }
 

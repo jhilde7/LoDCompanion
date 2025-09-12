@@ -7,15 +7,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 {
     public class IdentificationService
     {
-        private readonly UserRequestService _diceRoll;
-        private readonly PowerActivationService _powerActivation;
-        private readonly PartyManagerService _partyManager;
-        public IdentificationService(UserRequestService userRequestService, PowerActivationService powerActivationService, PartyManagerService partyManagerService) 
-        { 
-            _diceRoll = userRequestService;
-            _powerActivation = powerActivationService;
-            _partyManager = partyManagerService;
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
 
+        public event Func<Task<List<Hero>>>? OnGetParty;
+        public IdentificationService() 
+        {
             BackpackHelper.OnIdentifyItemAsync += HandleIdentifyItemAsync;
         }
 
@@ -26,7 +23,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
         private async Task HandleIdentifyItemAsync(Equipment item)
         {
-            if (_partyManager.Party != null) await IdentifyItemAsync(_partyManager.Party.Heroes[0], item);
+            if (OnGetParty != null) await IdentifyItemAsync((await OnGetParty.Invoke())[0], item);
         }
 
         /// <summary>

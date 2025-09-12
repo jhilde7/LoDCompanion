@@ -8,10 +8,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         public event Action? OnHighlightChanged;
         public HashSet<GridPosition> HighlightedSquares { get; private set; } = new HashSet<GridPosition>();
 
-        public void HighlightWalkableSquares(Hero hero, DungeonState dungeonState)
+        public void HighlightWalkableSquares(Hero hero, Room room)
         {
-            var enemiesList = dungeonState?.RevealedMonsters ?? new List<Monster>();
-            if (hero?.Position == null || dungeonState?.DungeonGrid == null)
+            var enemiesList = room.MonstersInRoom ?? new List<Monster>();
+            if (hero?.Position == null || room.Grid == null)
             {
                 ClearHighlights();
                 return;
@@ -23,7 +23,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             }
 
             // Get the pre-calculated costs for all squares reachable within a full move.
-            var walkableSquaresWithCosts = GridService.GetAllWalkableSquares(hero, dungeonState.DungeonGrid, enemiesList.Cast<Character>().ToList());
+            var walkableSquaresWithCosts = GridService.GetAllWalkableSquares(hero, room.Grid, enemiesList.Cast<Character>().ToList());
 
             // Now, filter this dictionary based on the hero's CURRENT movement points.
             HighlightedSquares = walkableSquaresWithCosts

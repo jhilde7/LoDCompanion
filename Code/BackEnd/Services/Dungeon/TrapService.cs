@@ -97,18 +97,17 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
     public class TrapService
     {
-        private readonly UserRequestService _diceRoll;
-        private readonly PowerActivationService _powerActivation;
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
 
         public Action<Room, int>? OnSpawnSkeletonsTrapEncounter;
         public Func<Chest, bool, Task>? OnSpawnMimicEncounterAsync;
         public Action<int>? OnAddExplorationCardsToPiles;
         public Action<Room>? OnSpawnCageTrapEncounter;
 
-        public TrapService (UserRequestService diceRoll, PowerActivationService powerActivation)
+        public TrapService ()
         {
-            _diceRoll = diceRoll;
-            _powerActivation = powerActivation;
+            
         }
 
 

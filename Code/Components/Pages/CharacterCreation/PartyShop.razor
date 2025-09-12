@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 
 @using LoDCompanion.Code.BackEnd.Models
-@using LoDCompanion.Code.BackEnd.Services.Dungeon
+@using LoDCompanion.Code.BackEnd.Services.Combat
 @using LoDCompanion.Code.BackEnd.Services.Game
 @using LoDCompanion.Code.BackEnd.Services.Player
 @using LoDCompanion.Code.Components
@@ -10,7 +10,7 @@
 
 @inject QuestService QuestService
 @inject PartyManagerService PartyService
-@inject DungeonManagerService DungeonManager
+@inject CombatManagerService CombatManager
 @inject NavigationManager NavManager
 
 <PageTitle>The Adventurer's Shop</PageTitle>
@@ -52,12 +52,12 @@ else
         }
     }
 
-    private void EnterDungeon()
+    private async Task EnterDungeon()
     {
         if(currentParty != null)
         {
             var quest = QuestService.GetQuestByName("First Blood");
-            if (quest != null) QuestService.StartQuest(currentParty, quest);
+            if (quest != null) await QuestService.StartQuestAsync(currentParty, quest, combatManager: CombatManager);
             NavManager.NavigateTo("/wilderness");
         }
     }

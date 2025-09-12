@@ -6,6 +6,7 @@ using LoDCompanion.Code.BackEnd.Services.Player;
 using LoDCompanion.Code.BackEnd.Services.Utilities;
 using Microsoft.AspNetCore.Rewrite;
 using System.Text;
+using System.Threading;
 
 namespace LoDCompanion.Code.BackEnd.Services.Combat
 {
@@ -55,28 +56,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
     public class AttackService
     {
-        private readonly FloatingTextService _floatingText;
-        private readonly UserRequestService _diceRoll;
-        private readonly MonsterSpecialService _monsterSpecial;
-        private readonly SpellResolutionService _spellResolution;
-        private readonly PowerActivationService _powerActivation;
-        private readonly PotionActivationService _potionActivation;
+        private readonly FloatingTextService _floatingText = new FloatingTextService();
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly MonsterSpecialService _monsterSpecial = new MonsterSpecialService();
+        private readonly SpellResolutionService _spellResolution = new SpellResolutionService();
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly PotionActivationService _potionActivation = new PotionActivationService();
 
-        public AttackService(
-            FloatingTextService floatingTextService,
-            UserRequestService diceRollService,
-            MonsterSpecialService monsterSpecialService,
-            SpellResolutionService spellResolutionService,
-            PowerActivationService powerActivationService,
-            PotionActivationService potionActivation)
+        public AttackService()
         {
-            _floatingText = floatingTextService;
-            _diceRoll = diceRollService;
-            _monsterSpecial = monsterSpecialService;
-            _spellResolution = spellResolutionService;
-            _powerActivation = powerActivationService;
-            _potionActivation = potionActivation;
-
             _monsterSpecial.OnEntangleAttack += HandleEntangleAttempt;
             _monsterSpecial.OnKickAttack += HandleKickAttack;
             _monsterSpecial.OnSpitAttack += HandleSpitAttack;
@@ -100,7 +88,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <summary>
         /// Resolves a monster's standard attack against a hero.
         /// </summary>
-        public async Task<AttackResult> PerformStandardAttackAsync(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
+        public async Task<AttackResult> PerformStandardAttackAsync(Character attacker, Weapon? weapon, Character target, Room room, CombatContext? context = null)
         {
             if (context == null)
             {
@@ -112,7 +100,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <summary>
         /// Resolves a monster's Power Attack, which grants +20 CS.
         /// </summary>
-        public async Task<AttackResult> PerformPowerAttackAsync(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
+        public async Task<AttackResult> PerformPowerAttackAsync(Character attacker, Weapon? weapon, Character target, Room room, CombatContext? context = null)
         {
             if (context == null)
             {
@@ -124,16 +112,16 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <summary>
         /// Resolves a Charge Attack, which grants +10 CS.
         /// </summary>
-        public async Task<AttackResult> PerformChargeAttackAsync(Character attacker, Weapon? weapon, Character target, DungeonState dungeon, CombatContext? context = null)
+        public async Task<AttackResult> PerformChargeAttackAsync(Character attacker, Weapon? weapon, Character target, Room room, CombatContext? context = null)
         {
             if (context == null)
             {
                 context = new CombatContext { IsChargeAttack = true };
             }
-            return await ResolveAttackAsync(attacker, weapon, target, context, dungeon);
+            return await ResolveAttackAsync(attacker, weapon, target, context, room);
         }
 
-        public async Task<AttackResult> ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, DungeonState? dungeon = null)
+        public async Task<AttackResult> ResolveAttackAsync(Character attacker, Weapon? weapon, Character target, CombatContext context, Room? room = null)
         {
             var result = new AttackResult();
 
@@ -157,11 +145,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 int potentialDamage = weapon != null
                     ? CalculateWeaponPotentialDamage(weapon)
                     : attacker is Monster m ? CalculateMonsterPotentialDamage(m) : 0;
-                result = await ResolveAttackAgainstHeroAsync((Monster)attacker, heroTarget, potentialDamage, weapon, context, dungeon);
+                result = await ResolveAttackAgainstHeroAsync((Monster)attacker, heroTarget, potentialDamage, weapon, context, room);
             }
             else if (target is Monster monsterTarget && weapon != null)
             {
-                result = await ResolveAttackAgainstMonsterAsync((Hero)attacker, monsterTarget, weapon, context, dungeon, result);
+                result = await ResolveAttackAgainstMonsterAsync((Hero)attacker, monsterTarget, weapon, context, room, result);
             }
 
             if (weapon is RangedWeapon rangedWeapon)
@@ -262,7 +250,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return result;
         }
 
-        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Monster attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, DungeonState? dungeon = null)
+        private async Task<AttackResult> ResolveAttackAgainstHeroAsync(Monster attacker, Hero target, int potentialDamage, Weapon? weapon, CombatContext context, Room? room = null)
         {
             var result = new AttackResult { IsHit = true };
 
@@ -291,7 +279,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 result.OutcomeMessage += $"\nThe blow hits {target.Name}'s {location} for {result.DamageDealt} damage!";
                 if (location == HitLocation.Torso)
                 {
-                    result.OutcomeMessage += CheckForQuickSlotDamageAsync(target, dungeon);
+                    result.OutcomeMessage += CheckForQuickSlotDamageAsync(target, room);
                 }
             }
             else
@@ -302,16 +290,16 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 }
             }
 
-            if (context.IsChargeAttack && dungeon != null)
+            if (context.IsChargeAttack && room != null)
             {
-                result.OutcomeMessage += ResolvePostChargeAttackAsync(attacker, target, dungeon);
+                result.OutcomeMessage += ResolvePostChargeAttackAsync(attacker, target);
             }
 
             return result;
         }
 
         private async Task<AttackResult> ResolveAttackAgainstMonsterAsync(
-            Hero attacker, Monster target, Weapon weapon, CombatContext context, DungeonState? dungeon, AttackResult result)
+            Hero attacker, Monster target, Weapon weapon, CombatContext context, Room? room, AttackResult result)
         {
             int finalDamage = 0;
             (finalDamage, context) = await CalculateHeroDamageAsync(attacker, target, weapon, context, result);
@@ -353,31 +341,31 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             }
             result.OutcomeMessage = $"{attacker.Name}'s attack hits {target.Name} for {finalDamage} damage!";
 
-            if (context.IsChargeAttack && dungeon != null)
+            if (context.IsChargeAttack && room != null)
             {
-                result.OutcomeMessage += ResolvePostChargeAttackAsync(attacker, target, dungeon);
+                result.OutcomeMessage += ResolvePostChargeAttackAsync(attacker, target);
             }
 
             return result;
         }
 
-        public async Task<string> ResolvePostChargeAttackAsync(Character attacker, Character target, DungeonState dungeon)
+        public async Task<string> ResolvePostChargeAttackAsync(Character attacker, Character target)
         {
             var chargeMessage = new StringBuilder();
-
+            var grid = attacker.Room.Dungeon != null ? attacker.Room.Dungeon.DungeonGrid : attacker.Room.Grid;
             var originalTargetPosition = target.Position;
 
             chargeMessage.Append("\n" + $"{attacker.Name} follows through with the charge!");
 
             // Perform the shove
-            AttackResult shoveResult = await PerformShoveAsync(attacker, target, dungeon, isCharge: true);
+            AttackResult shoveResult = await PerformShoveAsync(attacker, target, isCharge: true);
             chargeMessage.Append("\n" + shoveResult.OutcomeMessage);
 
             // If the shove was successful and a valid original position was stored
             if (shoveResult.IsHit && originalTargetPosition != null)
             {
                 // Move the attacker into the square the target was pushed FROM
-                if (GridService.MoveCharacterToPosition(attacker, originalTargetPosition, dungeon.DungeonGrid))
+                if (GridService.MoveCharacterToPosition(attacker, originalTargetPosition, grid))
                 {
                     chargeMessage.Append($"\n{attacker.Name} moves into the vacated space.");
                 }
@@ -575,7 +563,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <summary>
         /// On a torso hit, rolls to see if an item in a quick slot is damaged.
         /// </summary>
-        private async Task<string> CheckForQuickSlotDamageAsync(Hero target, DungeonState? dungeon = null)
+        private async Task<string> CheckForQuickSlotDamageAsync(Hero target, Room? room = null)
         {
             int slotRoll = RandomHelper.RollDie(DiceType.D10);
             if (slotRoll <= target.Inventory.QuickSlots.Count)
@@ -589,7 +577,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     {
                         if (item is Potion potion && target.Position != null)
                         {
-                            await _potionActivation.BreakPotionAsync(target, potion, target.Position, dungeon);
+                            await _potionActivation.BreakPotionAsync(target, potion, target.Position, room);
                         }
                         else
                         {
@@ -684,10 +672,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <summary>
         /// Performs a shove attack, handling all rules and outcomes.
         /// </summary>
-        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, DungeonState? dungeon, bool isCharge = false, bool isShieldBash = false)
+        public async Task<AttackResult> PerformShoveAsync(Character shover, Character target, bool isCharge = false, bool isShieldBash = false)
         {
             var result = new AttackResult();
-            var grid = dungeon?.DungeonGrid ?? shover.Room.Grid;
+            var grid = shover.Room.Dungeon != null ? shover.Room.Dungeon.DungeonGrid : shover.Room.Grid;
 
             var charactersInArea = new List<Character>();
             if (shover.Room?.HeroesInRoom != null) charactersInArea.AddRange(shover.Room.HeroesInRoom);
@@ -720,7 +708,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             // Rule: Cannot shove flying models
             if (target is Monster && ((Monster)target).PassiveSpecials.Any(s =>  s.Key == MonsterSpecialName.Flyer)
-                || dungeon == null && target is Monster && ((Monster)target).PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Flyer || s.Key == MonsterSpecialName.FlyerOutdoors))
+                || shover.Room?.Dungeon == null && target is Monster && ((Monster)target).PassiveSpecials.Any(s => s.Key == MonsterSpecialName.Flyer || s.Key == MonsterSpecialName.FlyerOutdoors))
             {
                 result.OutcomeMessage = $"{target.Name} is flying.";
                 result.IsHit = false;
@@ -901,8 +889,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return result;
         }
 
-        public async Task<AttackResult> HandleSweepingStrikeAttack(Monster attacker, List<Hero> heroes, DungeonState dungeon)
+        public async Task<AttackResult> HandleSweepingStrikeAttack(Monster attacker, List<Hero> heroes)
         {
+            var grid = attacker.Room.Dungeon != null ? attacker.Room.Dungeon.DungeonGrid : attacker.Room.Grid;
             var result = new AttackResult();
             if (attacker.Position == null) return result;
 
@@ -929,7 +918,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     int dx = hero.Position.X - attacker.Position.X;
                     int dy = hero.Position.Y - attacker.Position.Y;
                     var pushbackPosition = new GridPosition(hero.Position.X + Math.Sign(dx), hero.Position.Y + Math.Sign(dy), hero.Position.Z);
-                    var pushbackSquare = GridService.GetSquareAt(pushbackPosition, dungeon.DungeonGrid);
+                    var pushbackSquare = GridService.GetSquareAt(pushbackPosition, grid);
                     bool isBlocked = pushbackSquare == null || pushbackSquare.MovementBlocked || pushbackSquare.IsOccupied;
                     var attackResult = new AttackResult();
                     if (isBlocked)
@@ -950,7 +939,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
                     if (!isBlocked)
                     {
-                        GridService.MoveCharacterToPosition(hero, pushbackPosition, dungeon.DungeonGrid);
+                        GridService.MoveCharacterToPosition(hero, pushbackPosition, grid);
                     }
                 }
                 else
@@ -965,8 +954,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             return result;
         }
 
-        public async Task<AttackResult> HandleTongueAttack(Monster monster, Hero target, DungeonState dungeon)
+        public async Task<AttackResult> HandleTongueAttack(Monster monster, Hero target)
         {
+            var grid = monster.Room.Dungeon != null ? monster.Room.Dungeon.DungeonGrid : monster.Room.Grid;
             var result = new AttackResult();
             var outcome = result.OutcomeMessage;
 
@@ -988,24 +978,25 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     var directionY = Math.Sign(target.Position.Y - monster.Position.Y);
                     var destination = new GridPosition(monster.Position.X + directionX, monster.Position.Y + directionY, monster.Position.Z);
 
-                    var destinationSquare = GridService.GetSquareAt(destination, dungeon.DungeonGrid);
+                    var destinationSquare = GridService.GetSquareAt(destination, grid);
                     if (destinationSquare != null)
                     {
                         if (destinationSquare.IsOccupied)
                         {
-                            var occupant = dungeon.AllCharactersInDungeon.FirstOrDefault(c => c.Id == destinationSquare.OccupyingCharacterId);
+                            var occupant = (monster.Room.Dungeon != null ? monster.Room.Dungeon.RevealedMonsters : monster.Room.MonstersInRoom!)
+                                .FirstOrDefault(c => c.Id == destinationSquare.OccupyingCharacterId);
                             if (occupant != null)
                             {
                                 // Swap positions
-                                GridService.MoveCharacterToPosition(occupant, target.Position, dungeon.DungeonGrid);
-                                GridService.MoveCharacterToPosition(target, destination, dungeon.DungeonGrid);
+                                GridService.MoveCharacterToPosition(occupant, target.Position, grid);
+                                GridService.MoveCharacterToPosition(target, destination, grid);
                                 outcome += $"{target.Name} is pulled, swapping places with {occupant.Name}!\n";
                             }
                         }
                         else
                         {
                             // Move the target to the destination
-                            GridService.MoveCharacterToPosition(target, destination, dungeon.DungeonGrid);
+                            GridService.MoveCharacterToPosition(target, destination, grid);
                             outcome += $"{target.Name} is pulled to the square next to {monster.Name}!\n";
                         }
                     }

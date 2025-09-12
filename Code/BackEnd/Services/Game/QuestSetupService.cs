@@ -31,56 +31,49 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
     public class QuestSetupService
     {
-        private readonly EncounterService _encounter;
-        private readonly PlacementService _placement;
-        private readonly RoomService _room;
-        private readonly PartyManagerService _partyManager;
-        private readonly DungeonState _dungeon;
-        private readonly InitiativeService _initiative;
+        private readonly EncounterService _encounter = new EncounterService();
+        private readonly PlacementService _placement = new PlacementService();
+        private readonly RoomService _room = new RoomService();
 
+        public event Action<ActorType>? OnForcedFirstActor;
+        public event Action<ActorType, int>? OnInitiativeModifier;
+        public event Action<bool>? OnCanRestForFree;
+        public event Action<bool>? OnCanTakePreQuestRest;
+        public event Func<Task<List<Hero>>>? OnGetParty;
+        public event Action<string, string>? OnSetDungeonRule;
+        public event Func<Task<EncounterType>>? OnGetEncounterType;
+        public event Action<CombatRule>? OnAddQuestCombatRules;
 
-        public QuestSetupService(
-            EncounterService encounter, 
-            RoomService room, 
-            PartyManagerService partyManagerService,
-            PlacementService placementService,
-            DungeonState dungeonState,
-            InitiativeService initiativeService)
+        public QuestSetupService()
         {
-            _encounter = encounter;
-            _room = room;
-            _partyManager = partyManagerService;
-            _placement = placementService;
-            _dungeon = dungeonState;
-            _initiative = initiativeService;
+            
         }
 
-        public void ExecuteRoomSetup(Quest quest, Room room)
+        public async Task ExecuteRoomSetupAsync(Quest quest, Room room)
         {
             foreach (var action in quest.SetupActions)
             {
-                ExecuteAction(room, action);
+                await ExecuteActionAsync(room, action);
             }
         }
 
-        private void ExecuteAction(Room room, QuestSetupAction action)
+        private async Task ExecuteActionAsync(Room room, QuestSetupAction action)
         {
             switch (action.ActionType)
             {
                 case QuestSetupActionType.SetDungeonRule:
-                    _dungeon.DungeonRules[action.Parameters["Rule"]] = action.Parameters["Value"];
+                    if (OnSetDungeonRule != null) OnSetDungeonRule.Invoke(action.Parameters["Rule"], action.Parameters["Value"]);
                     break;
                 case QuestSetupActionType.SetRoom:
                     var roomInfo = _room.GetRoomByName(action.Parameters["RoomName"]);
                     _room.InitializeRoomData(roomInfo, room);
                     GridService.GenerateGridForRoom(room);
-                    GridService.PlaceRoomOnGrid(room, room.GridOffset, _dungeon.DungeonGrid);
+                    GridService.PlaceRoomOnGrid(room, room.GridOffset, room.Grid);
                     break;
                 case QuestSetupActionType.PlaceHeroes:
-                    if (_partyManager.Party != null)
+                    if (OnGetParty != null)
                     {
-                        room.HeroesInRoom ??= new List<Hero>();
-                        foreach (Hero hero in _partyManager.Party.Heroes)
+                        foreach (Hero hero in await OnGetParty.Invoke())
                         {
                             _placement.PlaceEntity(hero, room, action.Parameters);
                         } 
@@ -90,7 +83,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
                     List<Monster> spawnMonsters = _encounter.GetEncounterByParams(action.Parameters);
 
-                    room.MonstersInRoom ??= new List<Monster>();
                     foreach (Monster monster in spawnMonsters)
                     {
                         _placement.PlaceEntity(monster, room, action.Parameters); 
@@ -100,9 +92,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                     EncounterType chartType;
                     string chartName = action.Parameters["ChartName"];
 
-                    if (chartName.Equals("DungeonDefault", StringComparison.OrdinalIgnoreCase))
+                    if (chartName.Equals("DungeonDefault", StringComparison.OrdinalIgnoreCase) && OnGetEncounterType != null)
                     {
-                        chartType = _dungeon.EncounterType;
+                        chartType = await OnGetEncounterType.Invoke();
                     }
                     else if (!Enum.TryParse(chartName, out chartType))
                     {
@@ -133,22 +125,23 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         if (targetMonster != null)
                         {
                             int duration = action.Parameters.TryGetValue("Duration", out var durStr) && int.TryParse(durStr, out var dur) ? dur : -1;
-                            // Assuming StatusEffectService has a method to apply effects
                             targetMonster.ActiveStatusEffects.Add(new ActiveStatusEffect(statusEffect, duration));
                         }
                     }
                     break;
                 case QuestSetupActionType.SetTurnOrder:
-                    if (Enum.TryParse<ActorType>(action.Parameters["First"], out var actorType))
+                    if (Enum.TryParse<ActorType>(action.Parameters["First"], out var actorType)
+                        && OnForcedFirstActor != null)
                     {
-                        _initiative.ForcedFirstActor = actorType;
+                        OnForcedFirstActor.Invoke(actorType);
                     }
                     break;
                 case QuestSetupActionType.ModifyInitiative:
-                    if (Enum.TryParse<ActorType>(action.Parameters["Target"], out var initiativeTarget) && int.TryParse(action.Parameters["Amount"], out var amount))
+                    if (Enum.TryParse<ActorType>(action.Parameters["Target"], out var initiativeTarget) && int.TryParse(action.Parameters["Amount"], out var amount) 
+                        && OnInitiativeModifier != null)
                     {
-                        if (initiativeTarget == ActorType.Hero) _initiative.HeroInitiativeModifier = amount;
-                        else _initiative.MonsterInitiativeModifier = amount;
+                        if (initiativeTarget == ActorType.Hero) OnInitiativeModifier.Invoke(ActorType.Hero, amount);
+                        else OnInitiativeModifier.Invoke(ActorType.Monster, amount);
                     }
                     break;
                 case QuestSetupActionType.SetCombatRule:
@@ -178,18 +171,18 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         newRule.OnFailTrigger = ParseTrigger(onFailStr);
                     }
 
-                    _dungeon.QuestCombatRules.Add(newRule);
+                    if (OnAddQuestCombatRules != null) OnAddQuestCombatRules.Invoke(newRule);
                     break;
 
                 case QuestSetupActionType.SetPartyRule:
                     var partyRule = action.Parameters["Rule"];
-                    if (partyRule == "FreeRest")
+                    if (partyRule == "FreeRest" && OnCanRestForFree != null)
                     {
-                        _partyManager.CanRestForFree = true;
+                        OnCanRestForFree.Invoke(true);
                     }
-                    else if (partyRule == "PreQuestRest")
+                    else if (partyRule == "PreQuestRest" && OnCanTakePreQuestRest != null)
                     {
-                        _partyManager.CanTakePreQuestRest = true;
+                        OnCanTakePreQuestRest.Invoke(true);
                     }
                     break;
             }

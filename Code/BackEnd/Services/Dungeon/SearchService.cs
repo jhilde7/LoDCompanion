@@ -32,20 +32,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
     /// </summary>
     public class SearchService
     {
-        private readonly UserRequestService _diceRoll;
-        private readonly TreasureService _treasure;
-        private readonly TrapService _trap;
+        private readonly UserRequestService _diceRoll = new UserRequestService();
+        private readonly TreasureService _treasure = new TreasureService();
+        private readonly TrapService _trap = new TrapService();
         public static List<Furniture> Furniture => GetFurniture();
         public Action<Room>? OnSpawnTreasureRoom;
 
-        public SearchService(
-            UserRequestService diceRollService, 
-            TreasureService treasure, 
-            TrapService trapService)
+        public SearchService()
         {
-            _diceRoll = diceRollService;
-            _treasure = treasure;
-            _trap = trapService;
+            
         }
 
 

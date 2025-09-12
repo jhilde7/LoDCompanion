@@ -35,21 +35,16 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     /// </summary>
     public class PartyRestingService
     {
-        private readonly PowerActivationService _powerActivation;
+        private readonly PowerActivationService _powerActivation = new PowerActivationService();
+        private readonly UserRequestService _userRequest = new UserRequestService();
         private readonly PartyManagerService _partyManager;
-        private readonly UserRequestService _userRequest;
 
         public event Func<PartyManagerService, Task<RestResult>>? OnDungeonRestAsync;
         public event Action? OnBrewPotion;
 
-        public PartyRestingService(
-            PowerActivationService powerActivationService,
-            PartyManagerService partyManager,
-            UserRequestService userRequestService)
+        public PartyRestingService(PartyManagerService partyManager)
         {
-            _powerActivation = powerActivationService;
             _partyManager = partyManager;
-            _userRequest = userRequestService;
         }
 
         /// <summary>

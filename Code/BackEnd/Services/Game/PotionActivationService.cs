@@ -10,13 +10,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 {
     public class PotionActivationService
     {
-        private PowerActivationService _powerActivation;
-        private UserRequestService _diceRoll;
-        public PotionActivationService(PowerActivationService powerActivation, UserRequestService diceRoll)
+        private PowerActivationService _powerActivation = new PowerActivationService();
+        private UserRequestService _diceRoll = new UserRequestService();
+        public PotionActivationService()
         {
-            _powerActivation = powerActivation;
-            _diceRoll = diceRoll;
-
             StatusEffectService.OnUseHealingPotion += HandleUseHealingPotion;
         }
 
@@ -93,7 +90,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             return $"{hero.Name} uses {potion.Name}, but nothing happens.";
         }
 
-        public async Task<string> BreakPotionAsync(Hero hero, Potion potion, GridPosition targetPosition, DungeonState? dungeon = null)
+        public async Task<string> BreakPotionAsync(Hero hero, Potion potion, GridPosition targetPosition, Room? room = null)
         {
             DamageType? damageType = null;
             var damageRoll = string.Empty;
@@ -120,12 +117,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
 
             List<GridPosition> affectedSquares = new List<GridPosition>() { targetPosition };
-            var grid = dungeon != null ? dungeon.DungeonGrid : hero.Room.Grid;
+            var grid = room?.Dungeon != null ? room.Dungeon.DungeonGrid : hero.Room.Grid;
             if (potion.PotionProperties != null && potion.PotionProperties.TryGetValue(PotionProperty.Throwable, out int radius))
             {
                 affectedSquares = GridService.GetAllSquaresInRadius(targetPosition, radius, grid);
             }
-            var characters = dungeon != null ? dungeon.AllCharactersInDungeon : hero.Room.CharactersInRoom;
+            var characters = room?.Dungeon != null ? room.Dungeon.AllCharactersInDungeon : hero.Room.CharactersInRoom;
             var affectedCharacters = characters.Where(c => c.Position != null && affectedSquares.Contains(c.Position)).ToList();
 
             var rollResult = await _diceRoll.RequestRollAsync($"Roll for {damageType} damage.", damageRoll);
