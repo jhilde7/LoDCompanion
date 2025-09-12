@@ -523,6 +523,7 @@ namespace LoDCompanion.Code.BackEnd.Models
         public int CurrentEnergy { get; set; } = 1;
         public int? CurrentMana { get; set; }
         public int CurrentSanity { get; set; } = 10;
+        public int CurrentLuck { get; internal set; }
         public int Level { get; set; } = 1;
         public int MaxLevel { get; set; } = 10;
         public int Experience { get; set; }
@@ -560,8 +561,8 @@ namespace LoDCompanion.Code.BackEnd.Models
         public bool HasEnchantedItem { get; set; } = false;
         public bool HasCreatedScrolls { get; set; }
         public bool WaveringResolve => Party != null && Party.PartyManager != null && Party.PartyManager.PartyWavering;
-
-        public int CurrentLuck { get; internal set; }
+        public int EffectiveEncumbrance => GetStat(BasicStat.Strength);
+        public int MaxEncumbrance => EffectiveEncumbrance + 15;
 
         public event Func<Hero, Weapon, Task>? OnUnequipWeaponAsync;
 
