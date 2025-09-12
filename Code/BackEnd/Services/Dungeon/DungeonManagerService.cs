@@ -146,6 +146,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             _search.OnSpawnTreasureRoom += SpawnTreasureRoom;
             _partyResting.OnDungeonRestAsync += HandleOnDungeonRestAsync;
             _combatManager.OnTriggerSpawnEncounter += HandleTriggerSpawnEncounterAsync;
+            _powerActivation.OnUpdateMorale += HandleUpdateMorale;
+            _powerActivation.OnUpdateThreat += HandleUpdateThreat;
         }
 
         public void Dispose()
@@ -161,6 +163,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             _search.OnSpawnTreasureRoom -= SpawnTreasureRoom;
             _partyResting.OnDungeonRestAsync -= HandleOnDungeonRestAsync;
             _combatManager.OnTriggerSpawnEncounter -= HandleTriggerSpawnEncounterAsync;
+            _powerActivation.OnUpdateMorale -= HandleUpdateMorale;
+            _powerActivation.OnUpdateThreat -= HandleUpdateThreat;
         }
 
         private async Task HandleMimicSpawnEncounterAsync(Chest chest, bool detected = false)
@@ -359,6 +363,18 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             _combatManager.AddMonstersToCombat(monstersToSpawn);
 
             await Task.CompletedTask;
+        }
+
+        private async Task<bool> HandleUpdateMorale(int amount)
+        {
+            await Task.Yield();
+            return PartyManager.UpdateMorale(amount) >= 0;
+        }
+
+        private async Task<bool> HandleUpdateThreat(int amount)
+        {
+            await Task.Yield();
+            return UpdateThreat(amount);
         }
 
         // Create a new method to start a quest

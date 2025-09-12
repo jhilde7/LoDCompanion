@@ -90,13 +90,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             _powerActivation = powerActivationService;
 
             _spellResolution.OnTimeFreezeCast += HandleTimeFreeze;
-            _playerAction.OnMonsterMovement += HandleMonsterMovement;
+            _playerAction.OnMonsterMovement += HandleMonsterMovementAsync;
+            _powerActivation.OnForceNextActorType += HandleForceNextActorTypeAsync;
         }
 
         public void Dispose()
         {
             _spellResolution.OnTimeFreezeCast -= HandleTimeFreeze;
-            _playerAction.OnMonsterMovement -= HandleMonsterMovement;
+            _playerAction.OnMonsterMovement -= HandleMonsterMovementAsync;
+            _powerActivation.OnForceNextActorType -= HandleForceNextActorTypeAsync;
         }
 
         /// <summary>
@@ -105,7 +107,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// <param name="movingMonster">The monster that is taking its turn.</param>
         /// <param name="path">The sequence of GridPositions the monster intends to move through.</param>
         /// <returns>The hero that can interrupt, or null if none can.</returns>
-        private async Task<bool> HandleMonsterMovement(Monster movingMonster, List<GridPosition> path)
+        private async Task<bool> HandleMonsterMovementAsync(Monster movingMonster, List<GridPosition> path)
         {
             var interruptingHero = CheckForOverwatchInterrupt(movingMonster, path);
             if (interruptingHero != null)
@@ -157,6 +159,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
                 OnCombatStateChanged?.Invoke();
             }
+        }
+
+        public async Task<bool> HandleForceNextActorTypeAsync(ActorType actor)
+        {
+            return await _initiative.ForceNextActorType(actor);
         }
 
 

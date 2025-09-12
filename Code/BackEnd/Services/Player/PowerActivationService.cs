@@ -14,24 +14,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
     public class PowerActivationService
     {
-        private readonly InitiativeService _initiative;
-        private readonly PartyManagerService _partyManager;
-        private readonly DungeonManagerService _dungeonManager;
-        private readonly UserRequestService _userRequest;
-        private readonly SpellCastingService _spellCasting;
+        public event Func<ActorType, Task<bool>>? OnForceNextActorType;
+        public event Func<int, Task<bool>>? OnUpdateMorale;
+        public event Func<int, Task<bool>>? OnUpdateThreat;
 
-        public PowerActivationService(
-            InitiativeService initiativeService, 
-            PartyManagerService partyManagerService, 
-            DungeonManagerService dungeonManagerService,
-            UserRequestService userRequestService,
-            SpellCastingService spellCastingService)
+        public PowerActivationService()
         {
-            _initiative = initiativeService;
-            _partyManager = partyManagerService;
-            _dungeonManager = dungeonManagerService;
-            _userRequest = userRequestService;
-            _spellCasting = spellCastingService;
+
         }
 
         public async Task<bool> ActivatePerkAsync(Hero hero, Perk perk, Character? target = null)
@@ -49,18 +38,18 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 switch (perk.Name)
                 {
                     case PerkName.CallToAction:
-                        success = _initiative.ForceNextActorType(ActorType.Hero);
+                        success = OnForceNextActorType != null ? await OnForceNextActorType.Invoke(ActorType.Hero): false;
                         break;
                     case PerkName.KeepCalmAndCarryOn:
-                        success = _partyManager.UpdateMorale(2) > 0;
+                        success = OnUpdateMorale != null ? await OnUpdateMorale.Invoke(2) : false;
                         break;
                     case PerkName.LuckyGit:
-                        success = _dungeonManager.UpdateThreat(-2);
+                        success = OnUpdateThreat != null ? await OnUpdateThreat.Invoke(-2) : false;
                         break;
                     case PerkName.GodsFavorite:
-                        var resultRoll = await _userRequest.RequestRollAsync("Roll for threat decrease amount.", "1d6");
+                        var resultRoll = await new UserRequestService().RequestRollAsync("Roll for threat decrease amount.", "1d6");
                         await Task.Yield();
-                        success = _dungeonManager.UpdateThreat(-resultRoll.Roll);
+                        success = OnUpdateThreat != null ? await OnUpdateThreat.Invoke(-resultRoll.Roll) : false;
                         break;
                     case PerkName.EnergyToMana:
                         var missingMana = hero.GetStat(BasicStat.Mana) - (hero.CurrentMana ?? 0);
@@ -94,7 +83,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             var perk = hero.Perks.FirstOrDefault(p => p.Name == perkName);
             if (perk != null)
             {
-                var choiceResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.ToString()}");
+                var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.ToString()}");
                 await Task.Yield();
                 if (choiceResult)
                 {
@@ -107,12 +96,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
         public async Task<int> RequestInTuneWithTheMagicActivationAsync(Hero hero, Perk perk)
         {
-            var choiceResult = await _userRequest.RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name}?");
+            var choiceResult = await new UserRequestService().RequestYesNoChoiceAsync($"Does {hero.Name} wish to use their perk {perk.Name}?");
             await Task.Yield();
             if (choiceResult)
             {
                 // Use SpellCastingService to get focus points
-                var castingOptions = await _spellCasting.RequestCastingOptionsAsync(hero, new Spell { Name = "Identify Item" });
+                var castingOptions = await new SpellCastingService().RequestCastingOptionsAsync(hero, new Spell { Name = "Identify Item" });
                 if (!castingOptions.WasCancelled)
                 {
                     await ActivatePerkAsync(hero, perk);

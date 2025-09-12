@@ -147,8 +147,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             _initiativeTokens.Remove(token);
         }
 
-        public bool ForceNextActorType(ActorType actor)
+        public async Task<bool> ForceNextActorType(ActorType actor)
         {
+            await Task.Yield();
             if (_initiativeTokens.Contains(actor))
             {
                 _initiativeTokens.Remove(actor);
