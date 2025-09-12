@@ -26,6 +26,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
         private readonly Equipment _equipment = new Equipment();
         public bool CanBrewPotion => HasBrewPotionItems();
+        public int Encumbrance => GetAllNonWeaponsArmour().Concat(GetAllWeaponsArmour()).Sum(item => item.Encumbrance);
 
         public Inventory() 
         {
