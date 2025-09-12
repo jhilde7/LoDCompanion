@@ -614,14 +614,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         public bool HasBeenSearched { get; set; }
         public Hero? HeroPerformingSearch { get; set; }
         public TreasureType TreasureType { get; set; } = TreasureType.None; // Default to empty string for safety
-        public List<string> Treasures { get; set; }
         public bool IsLarge { get; set; }
 
         public Searchable()
         {
             Id = Guid.NewGuid().ToString();
             HasBeenSearched = false;
-            Treasures = new List<string>();
         }
 
         internal void UpdateOccupiedSquares()
@@ -664,7 +662,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             OriginMonster = monster;
             TreasureType = monster.TreasureType;
             HasBeenSearched = false;
-            Treasures = new List<string>();
             QuestItem = monster.QuestItem;
         }
     }
