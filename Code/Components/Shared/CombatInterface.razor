@@ -1,0 +1,113 @@
+﻿@using LoDCompanion.BackEnd.Services.Combat
+@using LoDCompanion.BackEnd.Services.Game
+@using LoDCompanion.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Services.Combat
+@using LoDCompanion.Code.BackEnd.Services.Player
+
+@inject CombatManagerService CombatManager
+
+<style>
+    .combat-interface-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        background-color: #332d25;
+        color: #e6d8c0;
+        border-top: 3px solid #5a4d3a;
+    }
+
+    .combat-log-wrapper {
+        flex-basis: 50%;
+    }
+
+    .combat-log {
+        height: 150px;
+        overflow-y: scroll;
+        background-color: #211c16;
+        border: 1px solid #5a4d3a;
+        padding: 10px;
+        font-family: monospace;
+    }
+
+    .log-entry {
+        padding-bottom: 5px;
+        border-bottom: 1px dotted #444;
+    }
+
+    .player-action-bar {
+        flex-basis: 45%;
+        text-align: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .action-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background-color: #7a6a53;
+        border: 2px solid #5a4d3a;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+        .action-button:hover {
+            background-color: #9c8a70;
+        }
+
+        .action-button.end-turn {
+            background-color: #8b0000; /* DarkRed */
+        }
+</style>
+
+
+<div class="combat-interface-container">
+    <div class="combat-log-wrapper">
+        <h3>Combat Log</h3>
+        <div class="combat-log">
+            @foreach (var message in CombatManager.CombatLog.TakeLast(10))
+            {
+                <div class="log-entry">@message</div>
+            }
+        </div>
+    </div>
+
+    @if (CombatManager.ActiveHero != null)
+    {
+        <div class="player-action-bar">
+            <h4>@CombatManager.ActiveHero.Name's Turn (@CombatManager.ActiveHero.CurrentAP AP)</h4>
+            @if (!string.IsNullOrEmpty(FeedbackMessage))
+            {
+                <div class="feedback-message">@FeedbackMessage</div>
+            }
+
+            <div class="action-buttons">
+                <button class="action-button end-turn" @onclick="() => OnActionButtonClicked.InvokeAsync(ActionType.EndTurn)">End Turn</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string FeedbackMessage { get; set; } = string.Empty;
+    [Parameter]
+    public EventCallback<ActionType> OnActionButtonClicked { get; set; }
+
+    protected override void OnInitialized()
+    {
+        CombatManager.OnCombatStateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CombatManager.OnCombatStateChanged -= StateHasChanged;
+    }
+}

@@ -1,0 +1,73 @@
+﻿@page "/party/shop"
+@rendermode InteractiveServer
+
+@using LoDCompanion.BackEnd.Models
+@using LoDCompanion.BackEnd.Services.Dungeon
+@using LoDCompanion.BackEnd.Services.Game
+@using LoDCompanion.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.Dungeon
+@using LoDCompanion.Code.BackEnd.Services.Game
+@using LoDCompanion.Code.BackEnd.Services.Player
+@using LoDCompanion.Components
+@using LoDCompanion.Components.Shared
+
+@inject QuestService QuestService
+@inject PartyManagerService PartyService
+@inject DungeonManagerService DungeonManager
+@inject NavigationManager NavManager
+
+<PageTitle>The Adventurer's Shop</PageTitle>
+
+@if (currentParty != null)
+{
+    <div class="container">
+        <h1 class="text-center my-4">Adventurer's Guild Shop</h1>
+
+        <Shop Party="currentParty" />
+
+        <div class="text-center mt-5">
+            <hr />
+            <p class="lead">Once you are finished gearing up, your first challenge awaits!</p>
+            <button class="btn btn-lg btn-success" @onclick="EnterDungeon">
+                Enter the First Dungeon!
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <p>No active party found.</p>
+        <button class="btn btn-secondary" @onclick="GoToPartyCreation">Create a Party First</button>
+    </div>
+}
+
+@code {
+    private Party? currentParty;
+
+    protected override void OnInitialized()
+    {
+        currentParty = PartyService.GetCurrentParty();
+        foreach (Hero hero in currentParty.Heroes)
+        {
+            hero.Party ??= currentParty;
+            PartyService.AddCoins(hero);
+        }
+    }
+
+    private async Task EnterDungeon()
+    {
+        if(currentParty != null)
+        {
+            var quest = await QuestService.GetQuestByNameAsync("First Blood");
+            if (quest != null) QuestService.StartQuest(currentParty, quest);
+            NavManager.NavigateTo("/wilderness");
+        }
+    }
+
+    private void GoToPartyCreation()
+    {
+        NavManager.NavigateTo("/character-creator");
+    }
+}

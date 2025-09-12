@@ -1,0 +1,265 @@
+﻿@using LoDCompanion.BackEnd.Services.GameData
+@using LoDCompanion.BackEnd.Services.Utilities
+@using LoDCompanion.Code.BackEnd.Services.GameData
+@using LoDCompanion.Code.BackEnd.Services.Utilities
+@inject UserRequestService UserRequest
+@inject GameDataService GameData
+
+<div class="card">
+    <div class="card-header">
+        <h5>@(WeakOnlyMode ? "Create Weak Recipe (Character Creation)" : "Alchemy Recipe Creator")</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Recipe Configuration -->
+            <div class="col-md-4 border-end">
+                <h6>1. Configure Recipe</h6>
+                <div class="mb-3">
+                    <label for="potionName" class="form-label">Potion</label>
+                    <select id="potionName" class="form-select" @onchange="OnPotionSelected">
+                        <option value="">-- Select a Potion --</option>
+                        @foreach (var potion in _availablePotions)
+                        {
+                            <option value="@potion.Name">@potion.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="potionStrength" class="form-label">Potion Strength</label>
+                    <select id="potionStrength" class="form-select" @bind="_newRecipe.Strength" disabled="@(_selectedPotion == null || WeakOnlyMode)">
+                        @if (_selectedPotion == null)
+                        {
+                            <option value="">-- Select a Potion First --</option>
+                        }
+                        else
+                        {
+                            @foreach (var strength in _availableStrengths)
+                            {
+                                <option value="@strength">@strength</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="alert alert-info">
+                    @GetRecipeRules()
+                </div>
+            </div>
+
+            <!-- Component Selection -->
+            <div class="col-md-8">
+                <h6>2. Add Components</h6>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Available Ingredients</strong>
+                        <div class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
+                            @foreach (var ingredient in availableIngredients)
+                            {
+                                <button class="list-group-item list-group-item-action" @onclick="() => AddComponent(ingredient)">
+                                    @ingredient.Name
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <strong>Available Parts</strong>
+                        <div class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
+                            @foreach (var part in availableParts)
+                            {
+                                <button class="list-group-item list-group-item-action" @onclick="() => AddComponent(part)">
+                                    @part.Name
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+
+        <!-- Current Recipe & Finalization -->
+        <h6>3. Finalize Recipe</h6>
+        <div class="p-3 bg-light rounded">
+            <p class="mb-2"><strong>Status:</strong> <span class="@GetStatusClass()">@GetRecipeStatusText()</span></p>
+
+            <ul class="list-group">
+                @foreach (var component in currentRecipeComponents)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @component.Name
+                        <button class="btn btn-sm btn-danger" @onclick="() => RemoveComponent(component)">Remove</button>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="d-grid mt-3">
+            <button class="btn btn-success" disabled="@(!IsRecipeValid())" @onclick="SaveRecipe">Save Recipe</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool WeakOnlyMode { get; set; } = false;
+    [Parameter]
+    public EventCallback<AlchemicalRecipe> OnRecipeCreated { get; set; }
+
+    private PotionStrength selectedStrength = PotionStrength.Weak;
+
+    private AlchemicalRecipe _newRecipe = new();
+    private List<Potion> _availablePotions = AlchemyService.GetAllDistinctPotions();
+    private Potion? _selectedPotion;
+    private List<PotionStrength> _availableStrengths = new();
+
+    private List<Ingredient> availableIngredients = AlchemyService.Ingredients;
+    private List<Part> availableParts = AlchemyService.Parts;
+    private List<AlchemyItem> currentRecipeComponents = new();
+
+    private List<AlchemyItem> recipeIngredients => currentRecipeComponents.Where(c => c.IsIngredient).ToList();
+    private List<AlchemyItem> recipeParts => currentRecipeComponents.Where(c => c.IsPart).ToList();
+
+    protected override void OnParametersSet()
+    {
+        // This method is called when the component is rendered with new parameters
+        ResetState();
+    }
+
+    private void ResetState()
+    {
+        _newRecipe = new AlchemicalRecipe();
+        _selectedPotion = null;
+        currentRecipeComponents.Clear();
+        _availableStrengths.Clear();
+
+        _availablePotions = WeakOnlyMode
+            ? AlchemyService.StandardPotions
+            : AlchemyService.GetAllDistinctPotions();
+    }
+
+    private void OnPotionSelected(ChangeEventArgs e)
+    {
+        var selectedPotionName = e.Value?.ToString();
+        _selectedPotion = _availablePotions.FirstOrDefault(p => p.Name == selectedPotionName);
+
+        // Reset the recipe when a new potion is chosen
+        _newRecipe = new AlchemicalRecipe();
+
+        if (_selectedPotion != null)
+        {
+            _newRecipe.Name = _selectedPotion.Name;
+
+            if (WeakOnlyMode)
+            {
+                _availableStrengths = new List<PotionStrength> { PotionStrength.Weak };
+                _newRecipe.Strength = PotionStrength.Weak;
+            }
+            else
+            {
+                _availableStrengths = AlchemyService.GetPotionStrengths(_selectedPotion);
+                _newRecipe.Strength = _availableStrengths.FirstOrDefault();
+            }
+        }
+        else
+        {
+            _availableStrengths.Clear();
+        }
+    }
+
+    private void AddComponent(AlchemyItem component)
+    {
+        currentRecipeComponents.Add(component);
+    }
+
+    private void RemoveComponent(AlchemyItem component)
+    {
+        currentRecipeComponents.Remove(component);
+    }
+
+    private string GetRecipeRules()
+    {
+        return selectedStrength switch
+        {
+            PotionStrength.Weak => "A Weak Potion requires 1 part and 1 ingredient.",
+            PotionStrength.Standard => "A Standard Potion requires 1 part and 2 ingredients, or 2 parts and 1 ingredient.",
+            PotionStrength.Supreme => "A Supreme Potion requires 4 components, with a mix of ingredients and parts.",
+            _ => "Please select a potion and strength."
+        };
+    }
+
+    private bool IsRecipeValid()
+    {
+        if (_selectedPotion == null) return false;
+        int ingredientCount = recipeIngredients.Count;
+        int partCount = recipeParts.Count;
+
+        switch (selectedStrength)
+        {
+            case PotionStrength.Weak:
+                // Must have exactly 1 ingredient and 1 part.
+                return ingredientCount == 1 && partCount == 1;
+
+            case PotionStrength.Standard:
+                // Check for either (1 part AND 2 ingredients) OR (2 parts AND 1 ingredient).
+                bool isValidCombination = (partCount == 1 && ingredientCount == 2) || (partCount == 2 && ingredientCount == 1);
+                return isValidCombination;
+
+            case PotionStrength.Supreme:
+                // The total number of components must be exactly 4.
+                return (ingredientCount + partCount) == 4;
+
+            default:
+                return false;
+        }
+    }
+
+    private string GetRecipeStatusText()
+    {
+        int ingredientCount = recipeIngredients.Count;
+        int partCount = recipeParts.Count;
+
+        switch (selectedStrength)
+        {
+            case PotionStrength.Weak:
+                if (ingredientCount == 1 && partCount == 1) return "Ready! (1 ingredient, 1 part)";
+                return $"Need 1 ingredient ({ingredientCount}/1) and 1 part ({partCount}/1).";
+
+            case PotionStrength.Standard:
+                if ((partCount == 1 && ingredientCount == 2) || (partCount == 2 && ingredientCount == 1)) return "Ready! (Valid combination)";
+                return $"Need (1 part & 2 ingredients) or (2 parts & 1 ingredient).";
+
+            case PotionStrength.Supreme:
+                int total = ingredientCount + partCount;
+                if (total == 4) return "Ready! (4 components selected)";
+                return $"Need a total of 4 components ({total}/4).";
+
+            default:
+                return "Select a strength to see requirements.";
+        }
+    }
+
+    private string GetStatusClass()
+    {
+        return IsRecipeValid() ? "text-success" : "text-warning";
+    }
+
+    private void SaveRecipe()
+    {
+        if (!IsRecipeValid()) return;
+        if (_selectedPotion == null) return;
+
+        var finalRecipe = new AlchemicalRecipe
+            {
+                Name = $"{selectedStrength.ToString()} - {_selectedPotion.Name} Recipe",
+                Strength = this.selectedStrength,
+                Components = new List<AlchemyItem>(this.currentRecipeComponents)
+            };
+
+        OnRecipeCreated.InvokeAsync(finalRecipe);
+    }
+
+    private void CancelRecipeCreation()
+    {
+        OnRecipeCreated.InvokeAsync(null);
+    }
+}

@@ -1,0 +1,46 @@
+﻿@page "/party"
+@using LoDCompanion.BackEnd.Models
+@using LoDCompanion.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.Player
+@inject PartyManagerService PartyManager
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Your Party</h3>
+
+@if (PartyManager.Party != null && PartyManager.Party.Heroes.Any())
+{
+    <div class="alert alert-info">
+        <strong>Party Morale:</strong> TODO
+    </div>
+
+    <div class="row">
+        @foreach (var hero in PartyManager.Party.Heroes)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>@hero.Name</strong>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@hero.SpeciesName @hero.ProfessionName</p>
+                        <p class="card-text">Level: @hero.GetStat(BasicStat.Experience)</p>
+                        <p class="card-text">HP: @hero.CurrentHP / @hero.GetStat(BasicStat.HitPoints)</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Your party is empty. Go create your first hero!</p>
+}
+
+<hr />
+
+@code {
+
+
+}

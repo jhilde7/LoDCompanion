@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="BackEnd\Services\Settlement\**" />
-    <Content Remove="BackEnd\Services\Settlement\**" />
-    <EmbeddedResource Remove="BackEnd\Services\Settlement\**" />
-    <None Remove="BackEnd\Services\Settlement\**" />
+    <Compile Remove="Code\BackEnd\Services\Settlement\**" />
+    <Content Remove="Code\BackEnd\Services\Settlement\**" />
+    <EmbeddedResource Remove="Code\BackEnd\Services\Settlement\**" />
+    <None Remove="Code\BackEnd\Services\Settlement\**" />
   </ItemGroup>
 
   <ItemGroup>

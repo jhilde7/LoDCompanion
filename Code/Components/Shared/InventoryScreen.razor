@@ -1,0 +1,489 @@
+﻿@using LoDCompanion.BackEnd.Models
+@using LoDCompanion.BackEnd.Services.GameData
+@using LoDCompanion.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.GameData
+@using LoDCompanion.Code.BackEnd.Services.Player
+@rendermode InteractiveServer
+
+@inject UIService UIService
+@inject PartyManagerService PartyManager
+@inject InventoryService Inventory
+
+<style>
+    .inventory-backdrop {
+    position: fixed; /* Position relative to the whole screen */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dim the background */
+    z-index: 1050; /* A high value to ensure it's on top */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
+
+    .inventory-container {
+    background-color: #2c251e;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #5a4d3a;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    color: #f0e6d2;
+    min-width: 500px;
+    }
+
+    .inventory-slot {
+    height: 80px;
+    border: 2px solid #5a4d3a;
+    background-color: #4a3f30;
+    padding: 4px;
+    position: relative;
+    color: #f0e6d2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    }
+
+    .slot-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    }
+
+    .empty-slot {
+    background-color: #3e3529;
+    color: #8c7a60;
+    }
+
+    .item-name {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding-bottom: 42px; /* Add padding to avoid overlap with button */
+    }
+
+    .slot-action-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #1a1a1a;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    }
+
+    .equip {
+    background-color: #198754; /* Green */
+    }
+
+    .unequip {
+    background-color: #dc3545; /* Red */
+    }
+
+    .item-quantity {
+    font-size: 10px;
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    background: rgba(0,0,0,0.5);
+    padding: 1px 3px;
+    border-radius: 4px;
+    }
+
+    .equipped-grid {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 20px;
+        grid-template-columns: repeat(4, 1fr); /* 4 columns for equipped items */
+    }
+
+    .backpack-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3-column fixed grid */
+        margin-bottom: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 5px;
+        background-color: #3e3529;
+        border: 1px solid #5a4d3a;
+    }
+
+    .slot-icon {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 16px;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+
+    img.slot-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain; /* Ensures the image scales nicely */
+    }
+
+    .quick-slot-actions {
+        position: absolute;
+        bottom: 2px;
+        left: 4px;
+        right: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .quick-slot-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 20px;
+    }
+
+        .quick-slot-row span {
+            font-size: 10px;
+            font-weight: bold;
+            flex-basis: 28px; /* Give label a fixed width */
+            text-align: right;
+            margin-right: 2px;
+        }
+
+    .quick-slot-input {
+        width: 30px;
+        height: 100%;
+        background-color: #3e3529;
+        border: 1px solid #7a6d5a;
+        color: #f0e6d2;
+        text-align: center;
+        border-radius: 3px;
+        -moz-appearance: textfield; /* Hide number spinners in Firefox */
+    }
+
+        .quick-slot-input::-webkit-outer-spin-button,
+        .quick-slot-input::-webkit-inner-spin-button {
+            -webkit-appearance: none; /* Hide number spinners in Chrome/Safari */
+            margin: 0;
+        }
+
+    .quick-slot-assign-button {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #1a1a1a;
+        background-color: #198754; /* Green to match the main equip button */
+        color: white;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+</style>
+
+@if (UIService.IsInventoryVisible && PartyManager.SelectedHero != null)
+{
+    var hero = PartyManager.SelectedHero;
+    foreach (var item in hero.Inventory.Backpack)
+    {
+        if (item != null)
+        {
+            heroSlotSelections.TryAdd(item.Id, 1);
+            containerSlotSelections.TryAdd(item.Id, 1);
+        }
+    }
+
+    <div class="inventory-backdrop" @onclick="UIService.HideInventoryAsync">
+        <div class="inventory-container" @onclick:stopPropagation>
+            <h3>@hero.Name's Inventory</h3>
+
+            <h4>Equipped</h4>
+            <div class="equipped-grid">
+                @RenderEquippedSlot(hero.Inventory.EquippedWeapon, "Weapon")
+                @RenderOffHandSlot(hero)
+                @RenderEquippedSlot(hero.Inventory.EquippedQuiver, "Quiver")
+                @RenderEquippedSlot(hero.Inventory.EquippedStorage, "Belt/Pouch")
+
+                @* --- RENDER HERO'S BASE QUICK SLOTS --- *@
+                @for(int i = 0; i < hero.Inventory.MaxQuickSlots; i++)
+                {
+                    var item = i < hero.Inventory.QuickSlots.Count ? 
+                        hero.Inventory.QuickSlots[i] : null;
+                    @RenderEquippedSlot(item, $"Quick Slot {i + 1}")
+                }
+
+                @* --- RENDER CONTAINER'S QUICK SLOTS (if any) --- *@
+                @if (hero.Inventory.EquippedStorage != null && hero.Inventory.EquippedStorage.Storage != null)
+                {
+                    @for (int i = 0; i < hero.Inventory.EquippedStorage.Storage.MaxQuickSlots; i++)
+                    {
+                        var item = i < hero.Inventory.EquippedStorage.Storage.QuickSlots.Count ? 
+                            hero.Inventory.EquippedStorage.Storage.QuickSlots[i] : null;
+                        @RenderEquippedSlot(item, $"{hero.Inventory.EquippedStorage.Name} {i + 1}")
+                    }
+                }
+
+                @if (hero.ProfessionName == ProfessionName.WarriorPriest)
+                {
+                    @RenderEquippedSlot(hero.Inventory.EquippedRelic, "Religious Relic")
+                }
+
+                @RenderArmourSlots(hero)
+            </div>
+
+            <h4>Backpack</h4>
+            <div class="backpack-grid">
+                @foreach (var item in hero.Inventory.Backpack.OrderBy(i => i?.Name))
+                {
+                    @if (item != null)
+                    {
+                        <div class="inventory-slot">
+                            <button class="slot-action-button equip" @onclick="() => EquipItemAsync(item)">+</button>
+                            <div class="item-name">@item.Name</div>
+                            @if (item.Quantity > 1)
+                            {
+                                <div class="item-quantity">x @item.Quantity</div>
+                            }
+
+                            <div class="quick-slot-actions">
+                                <div class="quick-slot-row">
+                                    <span>Hero QS:</span>
+                                    <input type="number" class="quick-slot-input"
+                                           min="1" max="@hero.Inventory.QuickSlots.Count"
+                                           @bind="heroSlotSelections[item.Id]" />
+                                    <button class="quick-slot-assign-button" title="Assign to Hero Quick Slot"
+                                            @onclick="() => AssignItemToQuickSlotAsync(item, heroSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
+                                        +
+                                    </button>
+                                </div>
+                                @if (hero.Inventory.EquippedStorage?.Storage != null)
+                                {
+                                    var container = hero.Inventory.EquippedStorage;
+                                    <div class="quick-slot-row">
+                                        <span>Belt QS:</span>
+                                        <input type="number" class="quick-slot-input"
+                                               min="1" max="@container.Storage.QuickSlots.Count"
+                                               @bind="containerSlotSelections[item.Id]" />
+                                        <button class="quick-slot-assign-button" title="Assign to @container.Name Slot"
+                                                @onclick="() => AssignItemToEquipmentQuickSlotAsync(item, container, containerSlotSelections.GetValueOrDefault(item.Id, 1) - 1)">
+                                            +
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <button class="close-button" @onclick="UIService.HideInventoryAsync">Close</button>
+        </div>
+    </div>
+}
+
+@code {
+    private Dictionary<string, int> heroSlotSelections = new();
+    private Dictionary<string, int> containerSlotSelections = new();
+    /// <summary>
+    /// A helper method to render a single equipment slot. It dynamically creates
+    /// the HTML for either an occupied slot with an unequip button or an empty slot.
+    /// </summary>
+    /// <param name="item">The equipment to display, which can be null.</param>
+    /// <param name="slotName">The name of the slot to display if it's empty.</param>
+    private RenderFragment RenderEquippedSlot(Equipment? item, string slotName, ArmourProperty? slotContext = null) => builder =>
+    {
+        if (item != null)
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "inventory-slot");
+            builder.AddAttribute(2, "title", $"{item.ToString()}");
+
+            // --- All absolutely positioned items go here ---
+
+            if (slotContext.HasValue && item is Armour)
+            {
+                // Get the icon for the specific slot being rendered
+                var icon = GetIconForSlot(slotContext.Value);
+
+                if (!string.IsNullOrEmpty(icon))
+                {
+                    builder.OpenElement(2, "img");
+                    builder.AddAttribute(3, "class", "slot-icon");
+                    builder.AddAttribute(4, "src", icon);
+                    builder.CloseElement();
+                }
+            }
+
+            // Unequip Button (Upper-Right)
+            builder.OpenElement(5, "button");
+            builder.AddAttribute(6, "class", "slot-action-button unequip");
+            builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, () => UnequipItemAsync(item)));
+            builder.AddContent(8, "-");
+            builder.CloseElement();
+
+            // Quantity (Lower-Right)
+            if (item.Quantity > 1)
+            {
+                builder.OpenElement(9, "div");
+                builder.AddAttribute(10, "class", "item-quantity");
+                builder.AddContent(11, $"x {item.Quantity}");
+                builder.CloseElement();
+            }
+
+            // --- Wrapper for the centered content ---
+            builder.OpenElement(12, "div");
+            builder.AddAttribute(13, "class", "slot-content");
+
+            builder.OpenElement(14, "div");
+            builder.AddAttribute(15, "class", "item-name");
+            builder.AddContent(16, item.Name);
+            builder.CloseElement(); // item-name
+
+            builder.CloseElement(); // slot-content
+            builder.CloseElement(); // inventory-slot
+        }
+        else
+        {
+            // If the slot is empty, show its name.
+            builder.OpenElement(17, "div");
+            builder.AddAttribute(18, "class", "inventory-slot empty-slot");
+            builder.AddContent(19, slotName);
+            builder.CloseElement();
+        }
+    };
+
+    /// <summary>
+    /// Finds the first piece of equipped armor that corresponds to a given body slot.
+    /// </summary>
+    /// <param name="hero">The hero whose armor to check.</param>
+    /// <param name="slot">The ArmourProperty representing the body slot (e.g., Head, Torso).</param>
+    /// <returns>The equipped Armour object or null if no item is in that slot.</returns>
+    private List<Armour>? GetEquippedArmourBySlot(Hero hero, ArmourProperty slot)
+    {
+        return hero.Inventory.EquippedArmour.Where(a => a.HasProperty(slot)).ToList();
+    }
+
+    private string GetIconForSlot(ArmourProperty slot)
+    {
+        switch (slot)
+        {
+            case ArmourProperty.Head: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_helm.png";
+            case ArmourProperty.Torso: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_chest.png";
+            case ArmourProperty.Legs: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_pants.png";
+            case ArmourProperty.Arms: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_bracers.png";
+            case ArmourProperty.Cloak: return "/Resources/MedievalKingdomUI/UI_icons/Equipment/icon_alpha_back.png";
+            default: return string.Empty; // Return nothing if no specific icon is found
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Initialize the dictionaries with a default value of 1 for each item
+        if (PartyManager.SelectedHero != null)
+        {
+            foreach (var item in PartyManager.SelectedHero.Inventory.Backpack)
+            {
+                if (item != null)
+                {
+                    heroSlotSelections.TryAdd(item.Id, 1);
+                    containerSlotSelections.TryAdd(item.Id, 1);
+                }
+            }
+        }
+    }
+
+    private async Task AssignItemToQuickSlotAsync(Equipment item, int slotIndex)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            await Inventory.AssignItemToQuickSlotAsync(PartyManager.SelectedHero, item, slotIndex);
+            // Re-initialize the selection for this item after it's moved
+            heroSlotSelections[item.Id] = 1;
+        }
+    }
+
+    private async Task AssignItemToEquipmentQuickSlotAsync(Equipment item, Equipment container, int slotIndex)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            await Inventory.AssignItemToEquipmentQuickSlotAsync(PartyManager.SelectedHero, item, container, slotIndex);
+            // Re-initialize the selection for this item after it's moved
+            containerSlotSelections[item.Id] = 1;
+        }
+    }
+
+    // Helper to keep the main render section cleaner
+    private RenderFragment RenderOffHandSlot(Hero hero) => builder =>
+    {
+        if ((hero.Inventory.EquippedWeapon != null && hero.Inventory.EquippedWeapon.Class <= hero.OneHandedWeaponClass)
+           || hero.Inventory.OffHand != null)
+        {
+            builder.AddContent(0, RenderEquippedSlot(hero.Inventory.OffHand, "Off-Hand"));
+        }
+        else
+        {
+            // Show the weapon taking up the off-hand slot if it's two-handed
+            builder.AddContent(1, RenderEquippedSlot(hero.Inventory.EquippedWeapon, "Off-Hand"));
+        }
+    };
+
+    // Helper to render all armour slots to keep main section clean
+    private RenderFragment RenderArmourSlots(Hero hero) => builder =>
+    {
+        var slots = new[] { ArmourProperty.Cloak, ArmourProperty.Head, ArmourProperty.Torso, ArmourProperty.Arms, ArmourProperty.Legs };
+        foreach (var slot in slots)
+        {
+            var items = GetEquippedArmourBySlot(hero, slot);
+            // Render up to 2 items per slot
+            builder.AddContent(0, RenderEquippedSlot(items?.FirstOrDefault(), slot.ToString(), slot));
+            builder.AddContent(1, RenderEquippedSlot(items?.Skip(1).FirstOrDefault(), slot.ToString(), slot));
+        }
+    };
+
+    private async Task EquipItemAsync(Equipment item)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            await Inventory.EquipItemAsync(PartyManager.SelectedHero, item);
+        }
+    }
+
+    private async Task UnequipItemAsync(Equipment item)
+    {
+        if (PartyManager.SelectedHero != null)
+        {
+            await Inventory.UnequipItemAsync(PartyManager.SelectedHero, item);
+        }
+    }
+
+    private async Task OnStateChangedHandler()
+    {
+        // InvokeAsync marshals the call to StateHasChanged to the correct UI thread.
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        UIService.OnStateChanged += OnStateChangedHandler;
+        PartyManager.OnPartyChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UIService.OnStateChanged -= OnStateChangedHandler;
+        PartyManager.OnPartyChanged -= StateHasChanged;
+    }
+}

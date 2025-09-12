@@ -1,0 +1,110 @@
+﻿@inherits LayoutComponentBase
+@using LoDCompanion.BackEnd.Services.Dungeon
+@using LoDCompanion.BackEnd.Services.Game
+@using LoDCompanion.BackEnd.Services.GameData
+@using LoDCompanion.BackEnd.Services.Player
+@using LoDCompanion.BackEnd.Services.Utilities
+@using LoDCompanion.Code.BackEnd.Services.Game
+@using LoDCompanion.Code.BackEnd.Services.GameData
+@using LoDCompanion.Code.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Services.Utilities
+@using LoDCompanion.Components.Shared
+@inject UserRequestService UserRequest
+@inject GameStateManagerService GameManager
+@inject FloatingTextService FloatingText
+@inject NavigationManager NavManager
+@inject UIService UIService
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <button class="btn btn-secondary" @onclick="StartNewGame">New Game</button>
+            <button class="btn btn-primary" @onclick="UIService.ShowInventoryAsync">Inventory</button>
+            <button class="btn btn-primary" @onclick="SaveGame">Save Game</button>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<InventoryScreen />
+
+@* --- Modal for Alchemical Recipe Creation --- *@
+@if (UserRequest.CurrentRecipeRequest != null)
+{
+    <div class="modal-backdrop show"></div>
+    <div class="modal show" tabindex="-1" style="display: block;">
+        <div class="modal-dialog modal-dialog-centered">
+            <AlchemicalRecipeCreator OnRecipeCreated="HandleRecipeCreatedFromService" />
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        UserRequest.OnRequestChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UserRequest.OnRequestChanged -= StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GameManager.InitializeGameAsync();
+
+            // Notify the rest of the UI that the state has been loaded
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task SaveGame()
+    {
+        if (GameManager.GameState.CurrentParty == null || !GameManager.GameState.CurrentParty.Heroes.Any())
+        {
+            FloatingText.ShowText("Nothing to save!", new GridPosition(-1, -1, -1), "turn-announcement-text");
+            return;
+        }
+
+        bool success = await GameManager.SaveGameAsync(NavManager.Uri);
+
+        if (success)
+        {
+            FloatingText.ShowText("Game Saved!", new GridPosition(-1, -1, -1), "turn-announcement-text");
+        }
+        else
+        {
+            FloatingText.ShowText("Save Failed!", new GridPosition(-1, -1, -1), "turn-announcement-text");
+        }
+        StateHasChanged();
+    }
+
+    private async Task StartNewGame()
+    {
+        // This button click is guaranteed to be interactive.
+        await GameManager.StartNewGameAsync();
+        NavManager.NavigateTo("/character-creator", forceLoad: true);
+    }
+
+    private void HandleRecipeCreatedFromService(AlchemicalRecipe recipe)
+    {
+        if (recipe != null)
+        {
+            UserRequest.CompleteRecipeCreation(recipe);
+        }
+        else
+        {
+            UserRequest.CancelRecipeCreation();
+        }
+    }
+}
