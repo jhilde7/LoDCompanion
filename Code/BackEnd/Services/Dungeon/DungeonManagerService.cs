@@ -81,7 +81,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         private readonly QuestSetupService _questSetup = new QuestSetupService();
         private readonly LockService _lock = new LockService();
         private readonly ActionService _action = new ActionService();
-        private readonly PartyRestingService _partyResting;
+        private readonly PartyRestingService _partyResting = new PartyRestingService();
         private readonly DungeonBuilderService DungeonBuilder = new DungeonBuilderService(new RoomService());
         private readonly CombatManagerService _combatManager = new CombatManagerService();
         private readonly PartyManagerService _partyManager;
@@ -99,7 +99,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             GameStateManagerService gameState)
         {
             _partyManager = partyManagerService;
-            _partyResting = new PartyRestingService(_partyManager);
             _gameState = gameState.GameState;
 
             _partyManager.SetMaxMorale();
