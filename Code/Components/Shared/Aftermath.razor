@@ -1,0 +1,320 @@
+﻿@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.Combat
+@using LoDCompanion.Code.BackEnd.Services.Dungeon
+@using LoDCompanion.Code.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Services.Utilities
+@using LoDCompanion.Code.BackEnd.Services.GameData
+
+@inject CombatManagerService CombatManager
+@inject PartyManagerService PartyManager
+@inject SearchService SearchService
+
+
+<style>
+    .aftermath-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+    }
+
+    .aftermath-container {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .inventory-box {
+        height: 250px;
+        overflow-y: auto;
+        border: 1px solid #495057;
+        background-color: #212529;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+        background-color: transparent;
+        color: #f8f9fa;
+        border-color: #495057;
+    }
+
+        .list-group-item:hover {
+            background-color: #495057;
+        }
+
+        .list-group-item.active {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .list-group-item.disabled {
+            cursor: default;
+            color: #6c757d;
+        }
+</style>
+
+@if (IsVisible)
+{
+    <div class="aftermath-overlay">
+        <div class="container p-4 rounded aftermath-container" style="background-color: #2c3e50; max-width: 900px; color: #ecf0f1;">
+            <h1 class="text-center">Battle Aftermath</h1>
+            <hr />
+
+            @* Experience *@
+            <div class="card bg-dark text-light mb-4">
+                <div class="card-header"><h3>Experience Gained</h3></div>
+                <div class="card-body">
+                    @if (totalExperience > 0 && !experienceAwarded)
+                    {
+                        <p>Total experience from battle: <strong>@totalExperience XP</strong></p>
+                        <button class="btn btn-primary" @onclick="AwardExperience">Award Experience to Party</button>
+                    }
+                    else if (experienceAwarded)
+                    {
+                        <p class="text-success">@totalExperience XP has been awarded to the party!</p>
+                    }
+                    else
+                    {
+                        <p>No experience was gained in this encounter.</p>
+                    }
+                </div>
+            </div>
+
+            @* Search Corpses *@
+            <div class="card bg-dark text-light mb-4">
+                <div class="card-header"><h3>Search for Loot</h3></div>
+                <div class="card-body">
+                    @if (CombatManager.Corpses.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var corpse in CombatManager.Corpses)
+                            {
+                                <li class="list-group-item bg-secondary text-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>@corpse.Name</span>
+                                        @if (corpse.HasBeenSearched)
+                                        {
+                                            <span class="badge bg-dark">Searched</span>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-info" @onclick="() => SearchCorpse(corpse)">Search</button>
+                                        }
+                                    </div>
+
+                                    @if (corpseSearchResults.ContainsKey(corpse))
+                                    {
+                                        var result = corpseSearchResults[corpse];
+                                        <div class="mt-2 p-2 rounded" style="background-color: rgba(0,0,0,0.2);">
+                                            <em>@result.Message</em>
+                                            @if (result.FoundItems != null && result.FoundItems.Any())
+                                            {
+                                                <div class="small">
+                                                    <strong>Found:</strong> @string.Join(", ", result.FoundItems.Select(i => i?.GetDisplayName()))
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>There are no bodies to search.</p>
+                    }
+                </div>
+            </div>
+
+            @* Loot and Inventory Management *@
+            <div class="card bg-dark text-light mb-4">
+                <div class="card-header"><h3>Manage Inventory</h3></div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        @foreach (var hero in PartyManager.Party.Heroes)
+                        {
+                            var btnClass = selectedHero == hero ? "btn-primary" : "btn-secondary";
+                            <button class="btn @btnClass mx-1" @onclick="() => SelectHero(hero)">@hero.Name</button>
+                        }
+                    </div>
+
+                    <div class="row">
+                        <div class="col-5">
+                            <h5>Loot</h5>
+                            <ul class="list-group inventory-box">
+                                @if (loot.Any())
+                                {
+                                    @foreach (var item in loot.OrderBy(i => i.GetDisplayName()))
+                                    {
+                                        var activeClass = selectedLootItem == item ? "active" : "";
+                                        <li class="list-group-item @activeClass" @onclick="() => SelectLootItem(item)">
+                                            @item.GetDisplayName()
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="list-group-item disabled">No new loot</li>
+                                }
+                            </ul>
+                        </div>
+
+                        <div class="col-2 d-flex flex-column justify-content-center align-items-center">
+                            <button class="btn btn-success mb-2 w-100" title="Give to Hero" @onclick="MoveToHero" disabled="@(selectedLootItem == null || selectedHero == null)">
+                                &gt;
+                            </button>
+                            <button class="btn btn-success w-100" title="Take from Hero" @onclick="MoveToLoot" disabled="@(selectedHeroItem == null || selectedHero == null)">
+                                &lt;
+                            </button>
+                        </div>
+
+                        <div class="col-5">
+                            @if (selectedHero != null)
+                            {
+                                <h6>
+                                    @selectedHero.Name
+                                    @{
+                                        var encumbranceClass = selectedHero.Inventory.Encumbrance > selectedHero.EffectiveEncumbrance ? "text-danger" : "";
+                                    }
+                                    <span class="float-end @encumbranceClass">
+                                        (@selectedHero.Inventory.Encumbrance / @selectedHero.EffectiveEncumbrance)
+                                    </span>
+                                </h6>
+                                <ul class="list-group inventory-box">
+                                    @foreach (var item in selectedHero.Inventory.Backpack.Where(i => i != null).Cast<Equipment>().OrderBy(i => i?.GetDisplayName()))
+                                    {
+                                        var activeClass = selectedHeroItem == item ? "active" : "";
+                                        <li class="list-group-item @activeClass" @onclick="() => SelectHeroItem(item)">
+                                            @item?.GetDisplayName()
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <h5 class="text-center">Select a hero</h5>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-lg btn-success" @onclick="CompleteAftermath">@CompleteButtonText</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback OnComplete { get; set; }
+
+    [Parameter]
+    public string CompleteButtonText { get; set; } = "Continue Adventure";
+
+    private int totalExperience;
+    private bool experienceAwarded = false;
+    private List<Equipment> loot = new List<Equipment>();
+    private Dictionary<Corpse, SearchResult> corpseSearchResults = new();
+    private Hero? selectedHero;
+    private Equipment? selectedLootItem;
+    private Equipment? selectedHeroItem;
+
+    protected override void OnParametersSet()
+    {
+        if (IsVisible)
+        {
+            ResetState();
+        }
+    }
+
+    private void ResetState()
+    {
+        totalExperience = CombatManager.AllMonstersInEncounter.Sum(m => m.XP);
+        experienceAwarded = false;
+        loot.Clear();
+        corpseSearchResults.Clear();
+        selectedHero = PartyManager.Party?.Heroes.FirstOrDefault();
+        selectedLootItem = null;
+        selectedHeroItem = null;
+    }
+
+    private void AwardExperience()
+    {
+        if (PartyManager.Party != null)
+        {
+            foreach (var hero in PartyManager.Party.Heroes)
+            {
+                hero.GainExperience(totalExperience);
+            }
+            experienceAwarded = true;
+        }
+    }
+
+    private async Task SearchCorpse(Corpse corpse)
+    {
+        var result = new SearchResult();
+        await SearchService.SearchCorpseAsync(corpse, result);
+        corpseSearchResults[corpse] = result;
+
+        if (result.FoundItems != null && result.FoundItems.Any())
+        {
+            loot.AddRange(result.FoundItems.Where(i => i != null).Cast<Equipment>().ToList());
+        }
+
+        StateHasChanged();
+    }
+
+    private void SelectHero(Hero hero)
+    {
+        selectedHero = hero;
+        selectedLootItem = null;
+        selectedHeroItem = null;
+    }
+
+    private void SelectLootItem(Equipment item)
+    {
+        selectedLootItem = item;
+        selectedHeroItem = null; // Deselect hero item when a loot item is selected
+    }
+
+    private void SelectHeroItem(Equipment item)
+    {
+        selectedHeroItem = item;
+        selectedLootItem = null; // Deselect loot item when a hero item is selected
+    }
+
+    private async Task MoveToHero()
+    {
+        if (selectedLootItem != null && selectedHero != null)
+        {
+            await BackpackHelper.AddItem(selectedHero.Inventory.Backpack, selectedLootItem);
+            loot.Remove(selectedLootItem);
+            selectedLootItem = null;
+        }
+    }
+
+    private void MoveToLoot()
+    {
+        if (selectedHeroItem != null && selectedHero != null)
+        {
+            selectedHero.Inventory.Backpack.Remove(selectedHeroItem);
+            loot.Add(selectedHeroItem);
+            selectedHeroItem = null;
+        }
+    }
+
+    private async Task CompleteAftermath()
+    {
+        await OnComplete.InvokeAsync();
+    }
+}

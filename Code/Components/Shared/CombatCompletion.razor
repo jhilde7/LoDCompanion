@@ -1,0 +1,41 @@
+﻿@if (IsVisible)
+{
+    var isVictory = HasWon();
+    var statusClass = isVictory ? "text-success" : "text-danger";
+
+    <div class="container text-center mt-5">
+        <div class="p-5 rounded" style="background-color: rgba(0, 0, 0, 0.6);">
+            <h2 class="display-4 @statusClass">@(isVictory ? "Victory!" : "Defeat!")</h2>
+            <p class="lead">@Message(isVictory)</p>
+            <hr class="my-4" />
+            <button class="btn btn-primary btn-lg" @onclick="HandleContinue">@(ContinueButtonText(isVictory))</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public Func<bool> VictoryCheck { get; set; } = () => true;
+
+    [Parameter]
+    public Func<bool, string> Message { get; set; } = (v) => v ? "Victory!" : "Defeat!";
+
+    [Parameter]
+    public Func<bool, string> ContinueButtonText { get; set; } = (v) => "Continue";
+
+    [Parameter]
+    public EventCallback<bool> OnContinue { get; set; }
+
+    private bool HasWon()
+    {
+        return VictoryCheck.Invoke();
+    }
+
+    private async Task HandleContinue()
+    {
+        await OnContinue.InvokeAsync(HasWon());
+    }
+}

@@ -11,6 +11,7 @@
 @inject QuestService QuestService
 @inject CombatManagerService CombatManager
 @inject PartyManagerService PartyManager
+@inject NavigationManager NavigationManager
 
 <style>
     .wilderness-container {
@@ -35,14 +36,30 @@
         QuestService.ActiveQuest?.QuestType == QuestType.WildernessQuest &&
         QuestService.ActiveEncounterRoom != null)
     {
-        <div class="game-area">
-            <GridDisplay Room="QuestService.ActiveEncounterRoom" OnHeroClicked="HandleHeroClick"
-                OnMonsterClicked="HandleMonsterClick" OnActionClicked="HandleContextMenuAction" />
-        </div>
+        bool isVictory = CombatManager.IsCombatOver && PartyManager.Party.Heroes.Any(h => h.CurrentHP > 0);
+        bool isDefeat = CombatManager.IsCombatOver && !PartyManager.Party.Heroes.Any(h => h.CurrentHP > 0);
 
-        <div class="combat-ui">
-            <CombatInterface FeedbackMessage="@_feedbackMessage" OnActionButtonClicked="HandleActionButtonClick" />
-        </div>
+        <CombatCompletion IsVisible="CombatManager.IsCombatOver"
+                          VictoryCheck="@(() => PartyManager.Party.Heroes.Any(h => h.CurrentHP > 0))"
+                          Message="@(v => v ? "You have won. Now to assess the aftermath." : "Your party has fallen. The adventure ends here.")"
+                          ContinueButtonText="@(v => v ? "Assess the Aftermath" : "Return to Main Menu")"
+                          OnContinue="HandleCombatCompletion" />
+
+        <Aftermath IsVisible="isAftermathVisible"
+                   OnComplete="HandleAftermathComplete"
+                   CompleteButtonText="Continue to Settlement" />
+
+        @if (!CombatManager.IsCombatOver)
+        {
+            <div class="game-area">
+                <GridDisplay Room="QuestService.ActiveEncounterRoom" OnHeroClicked="HandleHeroClick"
+                             OnMonsterClicked="HandleMonsterClick" OnActionClicked="HandleContextMenuAction" />
+            </div>
+
+            <div class="combat-ui">
+                <CombatInterface FeedbackMessage="@_feedbackMessage" OnActionButtonClicked="HandleActionButtonClick" />
+            </div>
+        }
     }
     else
     {
@@ -55,6 +72,7 @@
 
 @code {
     private bool _isQuestInfoVisible = true;
+    private bool isAftermathVisible = false;
     private enum InputState
     {
         AwaitingAction,
@@ -64,6 +82,18 @@
     private List<ActionInfo> _availableActions = new();
 
     private string _feedbackMessage = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        QuestService.OnQuestStateChanged += () => InvokeAsync(StateHasChanged);
+        CombatManager.OnCombatStateChanged += () => InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        QuestService.OnQuestStateChanged -= () => InvokeAsync(StateHasChanged);
+        CombatManager.OnCombatStateChanged -= () => InvokeAsync(StateHasChanged);
+    }
 
     private async Task HandleContextMenuAction(ActionInfo actionInfo)
     {
@@ -99,6 +129,24 @@
         }
     }
 
+    private void HandleCombatCompletion(bool wasVictorious)
+    {
+        if (wasVictorious)
+        {
+            isAftermathVisible = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private void HandleAftermathComplete()
+    {
+        isAftermathVisible = false;
+        NavigationManager.NavigateTo("/settlement");
+    }
+
     private async Task StartCombat()
     {
         _isQuestInfoVisible = false;
@@ -106,15 +154,13 @@
         StateHasChanged();
     }
 
-    protected override void OnInitialized()
+    private void ContinueAdventure()
     {
-        QuestService.OnQuestStateChanged += () => InvokeAsync(StateHasChanged);
-        CombatManager.OnCombatStateChanged += () => InvokeAsync(StateHasChanged);
+        NavigationManager.NavigateTo("/party/shop");
     }
 
-    public void Dispose()
+    private void ReturnToMenu()
     {
-        QuestService.OnQuestStateChanged -= () => InvokeAsync(StateHasChanged);
-        CombatManager.OnCombatStateChanged -= () => InvokeAsync(StateHasChanged);
+        NavigationManager.NavigateTo("/");
     }
 }
