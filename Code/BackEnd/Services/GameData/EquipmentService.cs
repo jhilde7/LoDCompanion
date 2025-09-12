@@ -1956,7 +1956,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
         {
             if (Quantity > 1)
             {
-                return $"{Name} (x{Quantity})";
+                return $"{Name} (x{Quantity}) Enc:{Encumbrance * Quantity}";
             }
 
             return Name;
