@@ -7,13 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Code\BackEnd\Services\Settlement\**" />
-    <Content Remove="Code\BackEnd\Services\Settlement\**" />
-    <EmbeddedResource Remove="Code\BackEnd\Services\Settlement\**" />
-    <None Remove="Code\BackEnd\Services\Settlement\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="bootstrap" Version="5.3.7" />

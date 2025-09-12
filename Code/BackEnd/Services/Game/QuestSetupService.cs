@@ -192,29 +192,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         _partyManager.CanTakePreQuestRest = true;
                     }
                     break;
-                case QuestSetupActionType.ModifyFurniture:
-                    if (action.Parameters.TryGetValue("TargetFurnitureName", out var targetName) && room.FurnitureList.FirstOrDefault(f => f.Name == targetName) is Furniture furnitureToModify)
-                    {
-                        if (action.Parameters.TryGetValue("NewName", out var newName))
-                        {
-                            furnitureToModify.Name = newName;
-                        }
-                        if (action.Parameters.TryGetValue("IsLocked", out var isLockedStr) && bool.TryParse(isLockedStr, out var isLocked) && furnitureToModify is Chest chest)
-                        {
-                            if (!isLocked)
-                            {
-                                chest.Lock.SetLockState(0, 0); // Unlocks the chest
-                            }
-                        }
-                        if (action.Parameters.TryGetValue("IsTrapped", out var isTrappedStr) && bool.TryParse(isTrappedStr, out var isTrapped) && furnitureToModify is Chest chestWithTrap)
-                        {
-                            if (!isTrapped)
-                            {
-                                chestWithTrap.Trap.IsDisarmed = true;
-                            }
-                        }
-                    }
-                    break;
             }
         }
 

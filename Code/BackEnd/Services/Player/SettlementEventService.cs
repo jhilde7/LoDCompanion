@@ -72,9 +72,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             _powerActivation = powerActivationService;
         }
 
-        public async Task<List<SettlementEvent>> GetSettlementEventsAsync()
+        public List<SettlementEvent> GetSettlementEventsAsync()
         {
-            var sideQuest = await _quest.GetRandomSideQuestAsync();
+            var sideQuest = _quest.GetRandomSideQuest();
             var result = new SettlementEventResult();
             return new List<SettlementEvent>
             {
@@ -352,7 +352,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
         public async Task ProcessSettlementEventAsync()
         {
-            var events = await GetSettlementEventsAsync();
+            var events = GetSettlementEventsAsync();
             events.Shuffle();
             var randomEvent = events[0];
             if(randomEvent.Execute != null)

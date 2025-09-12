@@ -126,23 +126,23 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             }
 
             // Handle custom scenario reinforcement rule from quest setup
-            if (_dungeon.CombatRules.TryGetValue("ScenarioReinforcements", out var ruleValue))
-            {
-                var parts = ruleValue.Split(',');
-                if (int.TryParse(parts[0], out int triggerRoll) && Enum.TryParse<EncounterType>(parts[1], out var encounterType))
-                {
-                    if (scenarioRoll >= triggerRoll)
-                    {
-                        var placementRule = parts[2];
-                        return new ThreatEventResult
-                        {
-                            Description = "Reinforcements have arrived!",
-                            ReinforcementEncounterType = encounterType,
-                            ReinforcementPlacementParams = new Dictionary<string, string> { { "PlacementRule", placementRule } }
-                        };
-                    }
-                }
-            }
+            //if (_dungeon.QuestCombatRules.TryGetValue("ScenarioReinforcements", out var ruleValue))
+            //{
+            //    var parts = ruleValue.Split(',');
+            //    if (int.TryParse(parts[0], out int triggerRoll) && Enum.TryParse<EncounterType>(parts[1], out var encounterType))
+            //    {
+            //        if (scenarioRoll >= triggerRoll)
+            //        {
+            //            var placementRule = parts[2];
+            //            return new ThreatEventResult
+            //            {
+            //                Description = "Reinforcements have arrived!",
+            //                ReinforcementEncounterType = encounterType,
+            //                ReinforcementPlacementParams = new Dictionary<string, string> { { "PlacementRule", placementRule } }
+            //            };
+            //        }
+            //    }
+            //}
 
             int scenarioTrigger = 9;
             if (_dungeon.DungeonRules.TryGetValue("ScenarioTriggerRoll", out var triggerStr) && int.TryParse(triggerStr, out var parsedTrigger))
