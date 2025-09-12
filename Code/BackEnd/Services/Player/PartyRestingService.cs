@@ -37,14 +37,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     {
         private readonly PowerActivationService _powerActivation = new PowerActivationService();
         private readonly UserRequestService _userRequest = new UserRequestService();
-        private readonly PartyManagerService _partyManager;
 
         public event Func<PartyManagerService, Task<RestResult>>? OnDungeonRestAsync;
         public event Action? OnBrewPotion;
 
-        public PartyRestingService(PartyManagerService partyManager)
+        public PartyRestingService()
         {
-            _partyManager = partyManager;
+            
         }
 
         /// <summary>
@@ -54,10 +53,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         /// <param name="context">The context in which the rest is taking place.</param>
         /// <param name="dungeonState">The current dungeon state, required if resting in a dungeon.</param>
         /// <returns>A RestResult object detailing the outcome.</returns>
-        public async Task<RestResult> AttemptRest(RestingContext context, bool freeRest = false)
+        public async Task<RestResult> AttemptRest(Party party, RestingContext context, bool freeRest = false)
         {
             var result = new RestResult();
-            var party = _partyManager.Party;
             var rationUsed = false;
 
             if (party == null || !party.Heroes.Any())
@@ -143,13 +141,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 }
             }
 
-            if (rationUsed && context == RestingContext.Dungeon && OnDungeonRestAsync != null)
+            if (rationUsed && context == RestingContext.Dungeon && OnDungeonRestAsync != null && party.PartyManager != null)
             {
-                result = await OnDungeonRestAsync.Invoke(_partyManager);                
+                result = await OnDungeonRestAsync.Invoke(party.PartyManager);                
             }
             else
             {
-                if (!rationUsed)
+                if (!rationUsed && party.PartyManager != null)
                 {
                     foreach (var hero in party.Heroes)
                     {
@@ -160,7 +158,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                             new ActiveStatusEffect(StatusEffectType.Hungry, -1, statBonus: (BasicStat.Constitution, -negativeBonus)), 
                             _powerActivation);
                     }
-                    _partyManager.UpdateMorale(-4);
+                    party.PartyManager.UpdateMorale(-4);
                 }
                 else
                 {

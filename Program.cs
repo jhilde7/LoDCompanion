@@ -38,18 +38,18 @@ builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 
 // --- Player Action & UI Services (Scoped) ---
 // These often interact with or modify the user's game state.
-builder.Services.AddScoped<ActionService>();
-builder.Services.AddScoped<CharacterCreationService>();
-builder.Services.AddScoped<HealingService>();
-builder.Services.AddScoped<InventoryService>();
-builder.Services.AddScoped<LevelupService>();
-builder.Services.AddScoped<PartyRestingService>();
-builder.Services.AddScoped<PowerActivationService>();
-builder.Services.AddScoped<SettlementActionService>();
-builder.Services.AddScoped<SettlementEventService>();
-builder.Services.AddScoped<SettlementService>();
-builder.Services.AddScoped<SpellCastingService>();
-builder.Services.AddScoped<UIService>();
+builder.Services.AddSingleton<ActionService>();
+builder.Services.AddSingleton<CharacterCreationService>();
+builder.Services.AddSingleton<HealingService>();
+builder.Services.AddSingleton<InventoryService>();
+builder.Services.AddSingleton<LevelupService>();
+builder.Services.AddSingleton<PartyRestingService>();
+builder.Services.AddSingleton<PowerActivationService>();
+builder.Services.AddSingleton<SettlementActionService>();
+builder.Services.AddSingleton<SettlementEventService>();
+builder.Services.AddSingleton<SettlementService>();
+builder.Services.AddSingleton<SpellCastingService>();
+builder.Services.AddSingleton<UIService>();
 
 // --- Game Logic & Rule Services (Singleton) ---
 // These services are generally stateless and provide calculations, lookups, or
@@ -88,9 +88,9 @@ builder.Services.AddSingleton<PrayerService>();
 
 // UserRequestService might need to be Scoped if it's tied to a user's specific request lifecycle.
 // If it's a general-purpose modal/dialog manager for a single user, Scoped is correct.
-builder.Services.AddScoped<UserRequestService>();
-builder.Services.AddScoped<FloatingTextService>();
-builder.Services.AddScoped<MovementHighlightingService>();
+builder.Services.AddSingleton<UserRequestService>();
+builder.Services.AddSingleton<FloatingTextService>();
+builder.Services.AddSingleton<MovementHighlightingService>();
 
 //Package
 builder.Services.AddBlazoredLocalStorage();
