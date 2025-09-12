@@ -1,0 +1,159 @@
+﻿@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.Combat
+@using LoDCompanion.Code.BackEnd.Services.Game
+@using LoDCompanion.Code.BackEnd.Services.Player
+
+@inject CombatManagerService CombatManager
+@inject MonsterAIService MonsterAIService
+@inject PartyManagerService PartyManager
+
+
+<style>
+    .simulator-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1060;
+    }
+
+    .simulator-container {
+        width: 80%;
+        max-width: 1200px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .combat-log-box {
+        height: 400px;
+        overflow-y: scroll;
+        background-color: #1a1a1a;
+        border: 1px solid #495057;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+</style>
+
+@if (IsVisible)
+{
+    <div class="simulator-overlay">
+        <div class="container p-4 rounded simulator-container bg-dark text-light">
+            <h2 class="text-center">Encounter Simulator</h2>
+            <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" @onclick="CloseSimulator">X</button>
+            <hr />
+
+            <div class="row mb-3">
+                <div class="col">
+                    <h4>Game State: <span class="text-warning">@CombatStatus</span></h4>
+                    @if (!IsCombatStarted)
+                    {
+                        <button class="btn btn-success" @onclick="StartCombat">Start Combat</button>
+                    }
+                    @if (CombatManager.IsAwaitingHeroSelection && !CombatManager.IsCombatOver)
+                    {
+                        <button class="btn btn-primary" @onclick="EndPlayerTurn">End Player Turn (Advance Monster AI)</button>
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>Monsters</h5>
+                    @if (CombatManager.MonstersInCombat.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var monster in CombatManager.MonstersInCombat)
+                            {
+                                <li class="list-group-item bg-secondary text-light mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>@monster.Name</strong>
+                                        <span>HP: @monster.CurrentHP / @monster.GetStat(BasicStat.HitPoints)</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button class="btn btn-sm btn-danger" @onclick="() => KillMonster(monster)">Kill</button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else if (IsCombatStarted)
+                    {
+                        <div class="alert alert-success">All monsters defeated!</div>
+                    }
+                </div>
+
+                <div class="col-md-4">
+                    <h5>Combat Log</h5>
+                    <div class="combat-log-box">
+                        @foreach (var message in CombatManager.CombatLog.TakeLast(20))
+                        {
+                            <div>@message</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private bool IsCombatStarted = false;
+
+    private string CombatStatus
+    {
+        get
+        {
+            if (CombatManager.IsCombatOver) return "Combat Over";
+            if (!IsCombatStarted) return "Not Started";
+            if (CombatManager.IsAwaitingHeroSelection) return "Player's Turn";
+            return "Monster's Turn";
+        }
+    }
+
+    protected override void OnInitialized()
+    {        
+        CombatManager.OnCombatStateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CombatManager.OnCombatStateChanged -= StateHasChanged;
+    }
+
+    private async Task StartCombat()
+    {
+        await CombatManager.StartFirstTurnAsync();
+    }
+
+    private async Task EndPlayerTurn()
+    {
+        // When the player's turn ends, the CombatManager will automatically
+        // process the turns for all monsters until control returns to the player.
+        await CombatManager.HeroPerformsActionAsync(ActionType.EndTurn, null);
+    }
+
+    private void KillMonster(Monster monster)
+    {
+        // This directly applies lethal damage. The CombatManager's HandleDeath
+        // method will be triggered by the monster's OnDeath event.
+        monster.CurrentHP -= monster.CurrentHP;
+        monster.Die();
+    }
+
+    private async Task CloseSimulator()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

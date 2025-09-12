@@ -468,7 +468,7 @@ namespace LoDCompanion.Code.BackEnd.Models
         /// <summary>
         /// Handles the character's death, raising the OnDeath event.
         /// </summary>
-        protected virtual void Die()
+        public virtual void Die()
         {
             Console.WriteLine($"{Name} has been defeated!");
             if(this is Hero hero && hero.Party != null && hero.Party.PartyManager != null) hero.Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDies);

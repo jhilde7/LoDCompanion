@@ -51,8 +51,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
         private static readonly GridPosition ScreenCenterPosition = new GridPosition(-1, -1, -1);
         public int CurrentTurn { get; private set; }
-        private List<Hero> HeroesInCombat = new List<Hero>();
-        private List<Monster> MonstersInCombat = new List<Monster>();
+        public List<Hero> HeroesInCombat = new List<Hero>();
+        public List<Monster> MonstersInCombat = new List<Monster>();
         public List<Monster> AllMonstersInEncounter { get; private set; } = new List<Monster>();
         public List<Corpse> Corpses { get; private set; } = new List<Corpse>();
         private List<Monster> MonstersThatHaveActedThisTurn = new List<Monster>();

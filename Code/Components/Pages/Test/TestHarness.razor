@@ -1,0 +1,176 @@
+﻿@page "/testharness"
+@rendermode InteractiveServer
+
+@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.Player
+@using LoDCompanion.Code.BackEnd.Services.Combat
+@using LoDCompanion.Code.BackEnd.Services.Game
+@using LoDCompanion.Code.BackEnd.Services.GameData
+@using LoDCompanion.Code.BackEnd.Services.Dungeon
+@using LoDCompanion.Code.Components.Shared
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
+@inject PartyManagerService PartyManager
+@inject CombatManagerService CombatManager
+@inject EncounterService EncounterService
+
+<PageTitle>Component Test Harness</PageTitle>
+
+<h1>Component Test Harness</h1>
+<p>Use this page to test components in isolation. First, seed the data, then trigger the component you want to view.</p>
+
+<div class="p-3 my-3 border rounded">
+    <h3>1. Setup State</h3>
+
+    <div class="mb-3">
+        <h5>Load Party from Save File</h5>
+        <InputFile OnChange="LoadPartyFromFile" />
+    </div>
+
+    <div class="mb-3">
+        <h5>Or</h5>
+        <button class="btn btn-primary" @onclick="SeedGenericHeroes">Seed Generic Heroes</button>
+    </div>
+
+    <hr />
+
+    <div class="mb-3">
+        <h5>Seed Encounter Data</h5>
+        <div class="input-group">
+            <select class="form-select" @bind="selectedEncounterType">
+                @foreach (EncounterType encounterType in Enum.GetValues(typeof(EncounterType)))
+                {
+                    <option value="@encounterType">@encounterType.ToString().Replace("_", " & ")</option>
+                }
+            </select>
+            <button class="btn btn-info" @onclick="SeedRandomEncounter" disabled="@(!encounterIsReady)">
+                Generate Random Encounter
+            </button>
+        </div>
+    </div>
+
+    <p class="small mt-2"><em>Status: @seedStatus</em></p>
+</div>
+
+<div class="p-3 my-3 border rounded">
+    <h3>2. Trigger Components</h3>
+    <button class="btn btn-info me-2" @onclick="ShowSimulator" disabled="@(!encounterIsReady || !partyIsReady)">
+        Show Encounter Simulator
+    </button>
+    <button class="btn btn-secondary" @onclick="() => showAftermath = true" disabled="@(!partyIsReady || !encounterIsReady)">
+        Show Aftermath Component
+    </button>
+</div>
+
+
+@* --- Components Under Test will be rendered here --- *@
+<EncounterSimulator IsVisible="showSimulator" OnClose="() => showSimulator = false" />
+
+<Aftermath 
+    IsVisible="showAftermath"
+    OnComplete="OnAftermathComplete"
+    CompleteButtonText="Finish Test & Close" />
+
+
+@code {
+    private bool showAftermath = false;
+    private bool showSimulator = false;
+    private bool partyIsReady = false;
+    private bool encounterIsReady => CombatManager.AllMonstersInEncounter.Any();
+    private string seedStatus = "No data has been seeded.";
+    private EncounterType selectedEncounterType = EncounterType.Beasts;
+
+    private readonly JsonSerializerOptions _serializerOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.Preserve,
+        WriteIndented = true
+    };
+
+    private void OnAftermathComplete()
+    {
+        showAftermath = false;
+        seedStatus = "Test complete. Ready to seed again.";
+    }
+
+    private void ShowSimulator()
+    {
+        if (!partyIsReady || !encounterIsReady)
+        {
+            seedStatus = "Error: A party and an encounter must be seeded before starting the simulation.";
+            return;
+        }
+        CombatManager.SetupCombat(PartyManager.Party.Heroes, CombatManager.AllMonstersInEncounter);
+        showSimulator = true;
+    }
+
+    private async Task LoadPartyFromFile(InputFileChangeEventArgs e)
+    {
+        partyIsReady = false;
+        var file = e.File;
+        if (file == null) return;
+
+        try
+        {
+            // Read the uploaded file's content directly into a string
+            await using var stream = file.OpenReadStream(maxAllowedSize: 1024 * 1024); // 1MB max
+            using var reader = new StreamReader(stream);
+            var jsonContent = await reader.ReadToEndAsync();
+
+            // Deserialize the JSON using the correct options
+            var loadedGameState = JsonSerializer.Deserialize<GameState>(jsonContent, _serializerOptions);
+
+            if (loadedGameState?.CurrentParty != null)
+            {
+                seedStatus = $"Successfully loaded party with {PartyManager.Party.Heroes.Count} heroes from {file.Name}.";
+                partyIsReady = true;
+            }
+            else
+            {
+                seedStatus = "Failed to load party from the provided file. The format may be incorrect.";
+            }
+        }
+        catch (Exception ex)
+        {
+            seedStatus = $"Error processing file: {ex.Message}";
+        }
+    }
+
+    private void SeedGenericHeroes()
+    {
+        PartyManager.Party.Heroes.Clear();
+
+        var hero1 = new Hero { Name = "Arion"};
+        var hero2 = new Hero { Name = "Elara"};
+        PartyManager.Party.Heroes.AddRange(new[] { hero1, hero2 });
+
+        seedStatus = "Seeded 2 generic heroes.";
+        partyIsReady = true;
+    }
+
+    private void SeedRandomEncounter()
+    {
+        CombatManager.AllMonstersInEncounter.Clear();
+        CombatManager.Corpses.Clear();
+
+        // Call the correct method from the service
+        var monsters = EncounterService.GetRandomEncounterByType(selectedEncounterType);
+
+        if (monsters != null && monsters.Any())
+        {
+            // Populate the services with the generated data
+            CombatManager.AllMonstersInEncounter.AddRange(monsters);
+            foreach (var monster in monsters)
+            {
+                CombatManager.Corpses.Add(new Corpse(monster));
+            }
+
+            seedStatus = $"Generated a '{selectedEncounterType}' encounter with {monsters.Count} monsters: {string.Join(", ", monsters.Select(m => m.Name))}.";
+        }
+        else
+        {
+            seedStatus = $"Could not generate an encounter for type '{selectedEncounterType}'. The roll might have resulted in an empty encounter.";
+        }
+    }
+}
