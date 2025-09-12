@@ -571,7 +571,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             return Furniture.FirstOrDefault(x => x.Name == name);
         }
 
-        public Furniture? GetFurnitureByNameSetPosition(string name, List<GridPosition> gridPosition)
+        public static Furniture? GetFurnitureByNameSetPosition(string name, List<GridPosition> gridPosition)
         {
             var furniture = GetFurnitureByName(name);
             if (furniture != null)
