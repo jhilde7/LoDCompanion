@@ -141,7 +141,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             if (result.SearchRoll == 0 || result.SearchRoll > 10)
             {
                 var resultRoll = await _diceRoll.RequestRollAsync($"Roll for treasure", "1d10"); 
-                await Task.Yield();
+                //await Task.Yield();
                 result.SearchRoll = resultRoll.Roll;
             }
             int count = result.HeroIsThief ? 2 : 1;
@@ -1506,7 +1506,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
         public async Task<SearchResult> SearchFurnitureAsync(Furniture furniture, SearchResult result)
         {
-            if (result.SearchRoll == 0 || result.SearchRoll > 10)
+            if ((result.SearchRoll == 0 || result.SearchRoll > 10) && result.HeroSearching != null)
             {
                 var roll = await _diceRoll.RequestRollAsync($"{result.HeroSearching.Name} is searching the {furniture.Name}. Roll 1d10.", "1d10");
                 await Task.Yield();
@@ -1943,6 +1943,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
 
         internal async Task<SearchResult> DrinkFurnitureAsync(Furniture furniture, SearchResult result)
         {
+            if (result.HeroSearching == null) return result;
             switch (furniture.DrinkTreasureType)
             {
                 case TreasureType.DrinkWaterBasin:

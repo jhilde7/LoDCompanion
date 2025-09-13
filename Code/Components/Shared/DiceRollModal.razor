@@ -18,7 +18,7 @@
         justify-content: center;
         align-items: center;
         /* Ensure it's on top of all other content */
-        z-index: 1050;
+        z-index: 1060;
     }
 
     .modal-content {
@@ -83,6 +83,21 @@
 @code {
     private int _manualRollValue;
     private bool _isManualRollValid => _manualRollValue >= 1;
+
+    protected override void OnInitialized()
+    {
+        DiceRollService.OnRollRequested += OnDiceRollStateChanged;
+    }
+
+    public void Dispose()
+    {
+        DiceRollService.OnRollRequested -= OnDiceRollStateChanged;
+    }
+
+    private async void OnDiceRollStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
 
     private void SubmitManualRoll()
     {

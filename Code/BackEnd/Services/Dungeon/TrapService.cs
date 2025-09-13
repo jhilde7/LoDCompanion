@@ -140,7 +140,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             var rollResult = await _diceRoll.RequestRollAsync("Roll pick locks test", "1d100");
             int trapDisarmTarget = hero.GetSkill(Skill.PickLocks) + trap.DisarmModifier;
 
-            var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.CleverFingers);
+            var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.CleverFingers);
             if (cleverFingers != null) hero.ActiveStatusEffects.Remove(cleverFingers);
 
             if (rollResult.Roll <= 80 && rollResult.Roll <= trapDisarmTarget)

@@ -105,7 +105,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
             int skill = hero.GetSkill(Skill.PickLocks);
 
             BackpackHelper.TakeOneItem(hero.Inventory.Backpack, lockPicks);
-            var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.CleverFingers);
+            var cleverFingers = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.CleverFingers);
             if (cleverFingers != null) hero.ActiveStatusEffects.Remove(cleverFingers);
 
             int pickLockRoll = (await _diceRoll.RequestRollAsync("Roll for pick lock attempt.", "1d100", skill: (hero, Skill.PickLocks))).Roll;

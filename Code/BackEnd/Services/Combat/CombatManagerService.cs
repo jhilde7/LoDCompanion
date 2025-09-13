@@ -294,8 +294,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     await StatusEffectService.ProcessActiveStatusEffectsAsync(hero, _powerActivation);
                 }
                 CharactersWithProcessedEffectsThisTurn.Add(hero);
-                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics) 
-                    || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
+                if (hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.SmiteTheHeretics) 
+                    || hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.StayThyHand))
                 {
                     foreach(var monster in MonstersInCombat)
                     {
@@ -304,11 +304,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                             int distance = GridService.GetDistance(hero.Position, monster.Position);
                             if (distance <= 4 && monster.TestResolve(RandomHelper.RollDie(DiceType.D100)))
                             {
-                                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.SmiteTheHeretics))
+                                if (hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.SmiteTheHeretics))
                                 {
                                     await monster.TakeDamageAsync(1, (_floatingText, monster.Position), _powerActivation, ignoreAllArmour: true); 
                                 }
-                                if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StayThyHand))
+                                if (hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.StayThyHand))
                                 {
                                     monster.CurrentAP = 1;
                                 }
@@ -517,7 +517,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         {
             foreach (var effect in hero.ActiveStatusEffects)
             {
-                if (effect.Category == StatusEffectType.GodsChampion)
+                if (effect.EffectType == StatusEffectType.GodsChampion)
                 {
                     hero.CurrentEnergy--;
                     if (hero.CurrentEnergy < 0)
@@ -534,7 +534,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     StatusEffectService.RemoveActiveStatusEffect(hero, effect);
                 }
                 //Activate after effects battle is over
-                if (effect.Category == StatusEffectType.Diseased)
+                if (effect.EffectType == StatusEffectType.Diseased)
                 {
                     hero.ActivateDiseasedEffect();
                 }
@@ -686,7 +686,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         {
             if (monster.Position == null) return null;
             return heroes
-               .Where(h => h.Position != null && h.CurrentHP > 0 && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Pit) != null)
+               .Where(h => h.Position != null && h.CurrentHP > 0 && h.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Pit) != null)
                .OrderBy(h => GridService.GetDistance(monster.Position, h.Position!))
                .FirstOrDefault();
         }

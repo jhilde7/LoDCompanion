@@ -52,7 +52,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             {
                 if (hero.CombatStance != CombatStance.Overwatch)
                 {
-                    if (hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Initiative) != null) _initiativeTokens.Add(ActorType.Hero);
+                    if (hero.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Initiative) != null) _initiativeTokens.Add(ActorType.Hero);
                     _initiativeTokens.Add(ActorType.Hero);
                 }
             }

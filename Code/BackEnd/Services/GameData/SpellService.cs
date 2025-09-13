@@ -1094,7 +1094,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Frost ray",
+                    Name = "Frost Ray",
                     Type = MonsterSpellType.Ranged,
                     TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1111,7 +1111,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Gust of wind",
+                    Name = "Gust of Wind",
                     Type = MonsterSpellType.Ranged,
                     TargetType = TargetType.NoTarget,
                     AITargetingHint = AiTargetHints.DebuffHeroRanged,
@@ -1136,7 +1136,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 // Close Combat Spells
                 new MonsterSpell()
                 {
-                    Name = "Mind blast",
+                    Name = "Mind Blast",
                     Type = MonsterSpellType.CloseCombat,
                     TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1153,7 +1153,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Mirrored self",
+                    Name = "Mirrored Self",
                     Type = MonsterSpellType.CloseCombat,
                     TargetType = TargetType.Self,
                     StatusEffect = StatusEffectType.MirroredSelf,
@@ -1198,7 +1198,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Vampiric touch",
+                    Name = "Vampiric Touch",
                     Type = MonsterSpellType.CloseCombat,
                     TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1238,7 +1238,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Healing hand",
+                    Name = "Healing Hand",
                     Type = MonsterSpellType.Support,
                     TargetType = TargetType.Ally, // Can heal self or adjacent ally
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1261,7 +1261,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Raise dead",
+                    Name = "Raise Dead",
                     Type = MonsterSpellType.Support,
                     TargetType = TargetType.SingleTarget,
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1289,7 +1289,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Summon demon",
+                    Name = "Summon Demon",
                     Type = MonsterSpellType.Support,
                     TargetType = TargetType.NoTarget, // Summons a new entity
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1304,7 +1304,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 },
                 new MonsterSpell()
                 {
-                    Name = "Summon greater demon",
+                    Name = "Summon Greater Demon",
                     Type = MonsterSpellType.Support,
                     TargetType = TargetType.NoTarget, // Summons a new entity
                     Properties = new Dictionary<SpellProperty, int>()
@@ -1526,7 +1526,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
             int targetSkill = arcaneArts - CastingValue + focusPoints * 10;
             int miscastThreshold = 95 - focusPoints * 5 - powerLevels * 2;
 
-            if (caster.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.GhostlyProtector))
+            if (caster.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.GhostlyProtector))
             {
                 miscastThreshold = 97;
             }
@@ -1541,7 +1541,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 result.IsMiscast = true;
                 result.ManaSpent = finalManaCost;
                 caster.CurrentMana -= result.ManaSpent;
-                if (!caster.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ShieldOfTheGods))
+                if (!caster.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.ShieldOfTheGods))
                 {
                     resultRoll = await diceRoll.RequestRollAsync("Roll for miscast sanity loss", "1d6"); await Task.Yield();
                     int sanityLoss = (int)Math.Ceiling((double)resultRoll.Roll / 2);

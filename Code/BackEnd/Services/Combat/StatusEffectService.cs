@@ -203,7 +203,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
     /// </summary>
     public class ActiveStatusEffect
     {
-        public StatusEffectType Category { get; set; }
+        public StatusEffectType EffectType { get; set; }
         public int Duration { get; set; } // Duration in turns. -1 for permanent until cured.
         public (BasicStat, int)? StatBonus { get; set; } // Optional value for effects that change stats.
         public (Skill, int)? SkillBonus { get; set; } // Optional value for effects that change skills.
@@ -216,7 +216,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         public bool RemoveEndDay { get; set; }
 
         public ActiveStatusEffect(
-            StatusEffectType type,
+            StatusEffectType effectType,
             int duration,
             (BasicStat, int)? statBonus = null,
             (Skill, int)? skillBonus = null,
@@ -228,7 +228,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             bool removeEndDay = false,
             bool removeEndOfDungeon = false)
         {
-            Category = type;
+            EffectType = effectType;
             Duration = duration;
             StatBonus = statBonus;
             SkillBonus = skillBonus;
@@ -249,35 +249,35 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         /// </summary>
         public static async Task<string> AttemptToApplyStatusAsync(Character target, ActiveStatusEffect effect, PowerActivationService activation, int? resistRoll = null, Monster? monster = null)
         {
-            if (target.ActiveStatusEffects.Any(e => e.Category == effect.Category)) return "Already affected";
+            if (target.ActiveStatusEffects.Any(e => e.EffectType == effect.EffectType)) return "Already affected";
 
             bool resisted = false;
             if (target is Hero hero)
             {
                 // Perform the CON test based on the effect type
-                if (effect.Category == StatusEffectType.Poisoned) resisted = hero.ResistPoison(resistRoll);
-                if (effect.Category == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll);
-                if (effect.Category == StatusEffectType.Fear && monster != null) resisted = await hero.ResistFearAsync(monster, activation, resistRoll);
-                if (effect.Category == StatusEffectType.Terror && monster != null) resisted = await hero.ResistTerrorAsync(monster, activation, resistRoll);
+                if (effect.EffectType == StatusEffectType.Poisoned) resisted = hero.ResistPoison(resistRoll);
+                if (effect.EffectType == StatusEffectType.Diseased) resisted = hero.ResistDisease(resistRoll);
+                if (effect.EffectType == StatusEffectType.Fear && monster != null) resisted = await hero.ResistFearAsync(monster, activation, resistRoll);
+                if (effect.EffectType == StatusEffectType.Terror && monster != null) resisted = await hero.ResistTerrorAsync(monster, activation, resistRoll);
             }
 
-            if (target is Hero && (effect.Category == StatusEffectType.Incapacitated 
-                || effect.Category == StatusEffectType.Petrified
-                || effect.Category == StatusEffectType.Bellow)) 
+            if (target is Hero && (effect.EffectType == StatusEffectType.Incapacitated 
+                || effect.EffectType == StatusEffectType.Petrified
+                || effect.EffectType == StatusEffectType.Bellow)) 
                 resisted = target.TestResolve(resistRoll ?? RandomHelper.RollDie(DiceType.D100));
 
-            if (effect.Category == StatusEffectType.Prone && resistRoll != null)
+            if (effect.EffectType == StatusEffectType.Prone && resistRoll != null)
                 resisted = target.TestDexterity((int)resistRoll);
 
             if (!resisted)
             {
-                if (effect.Category == StatusEffectType.Prone) target.CombatStance = CombatStance.Prone;
-                if (effect.Category == StatusEffectType.Bellow) effect = new ActiveStatusEffect(StatusEffectType.Stunned, effect.Duration);
+                if (effect.EffectType == StatusEffectType.Prone) target.CombatStance = CombatStance.Prone;
+                if (effect.EffectType == StatusEffectType.Bellow) effect = new ActiveStatusEffect(StatusEffectType.Stunned, effect.Duration);
                 return await ApplyStatusAsync(target, effect, activation);
             }
             else
             {
-                return $"{target.Name} resisted the {effect.Category} effect!";
+                return $"{target.Name} resisted the {effect.EffectType} effect!";
             }
         }
 
@@ -289,7 +289,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             target.ActiveStatusEffects.Add(effect);
             if (target is Hero hero)
             {
-                switch (effect.Category)
+                switch (effect.EffectType)
                 {
                     case StatusEffectType.ThePowerOfIphy:
                         foreach (var monster in hero.AfraidOfTheseMonsters)
@@ -308,7 +308,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 };
             } 
 
-            return $"{target.Name} is now has effect of {effect.Category}!";
+            return $"{target.Name} is now has effect of {effect.EffectType}!";
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             foreach (var effect in effectsToProcess)
             {
-                switch (effect.Category)
+                switch (effect.EffectType)
                 {
                     case StatusEffectType.Poisoned:
                         if (character is Hero hero && !hero.ResistPoison())
@@ -411,7 +411,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                             int strTest1 = rollResult.Roll;
                             if (strTest1 <= heroBeingSwallowed1.GetStat(BasicStat.Strength))
                             {
-                                heroBeingSwallowed1.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                                heroBeingSwallowed1.ActiveStatusEffects.RemoveAll(e => e.EffectType == StatusEffectType.BeingSwallowed);
                                 Console.WriteLine($"{heroBeingSwallowed1.Name} breaks free from the creature's grasp!");
                                 break;
                             }
@@ -429,12 +429,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                             int strTest2 = rollResult.Roll;
                             if (strTest2 <= heroBeingSwallowed2.GetStat(BasicStat.Strength) / 2)
                             {
-                                heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                                heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.EffectType == StatusEffectType.BeingSwallowed);
                                 Console.WriteLine($"{heroBeingSwallowed2.Name} makes a last-ditch effort and escapes!");
                                 break;
                             }
                             // Swallowed whole
-                            heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.BeingSwallowed);
+                            heroBeingSwallowed2.ActiveStatusEffects.RemoveAll(e => e.EffectType == StatusEffectType.BeingSwallowed);
                             heroBeingSwallowed2.Position = null;
                             heroBeingSwallowed2.CurrentAP = 0;
                             await AttemptToApplyStatusAsync(heroBeingSwallowed2, new ActiveStatusEffect(StatusEffectType.Swallowed, -1), activation);
@@ -505,7 +505,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                     if (effect.Duration == 0)
                     {
                         RemoveActiveStatusEffect(character, effect);
-                        Console.WriteLine($"{character.Name} is no longer {effect.Category}.");
+                        Console.WriteLine($"{character.Name} is no longer {effect.EffectType}.");
                     }
                 }
             }

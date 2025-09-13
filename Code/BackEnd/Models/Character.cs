@@ -325,7 +325,7 @@ namespace LoDCompanion.Code.BackEnd.Models
             bool diseaseDamage = combatContext != null && combatContext.CausesDisease;
             bool silverDamage = damageType.HasValue && damageType.Value.Item1 == DamageType.Silver;
 
-            if (ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.CompleteFireImmunity) != null && fireDamage)
+            if (ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.CompleteFireImmunity) != null && fireDamage)
             {
                 return 0;
             }
@@ -376,7 +376,7 @@ namespace LoDCompanion.Code.BackEnd.Models
                 floatingText.Item1.ShowText($"-{damage}", floatingText.Item2, "damage-text"); 
             }
 
-            if (fireDamage && ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.FireProtection) == null)
+            if (fireDamage && ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.FireProtection) == null)
             {
                 await ApllyFireEffectAsync(damage, activation);
             }
@@ -397,7 +397,7 @@ namespace LoDCompanion.Code.BackEnd.Models
                 await ApplyDiseaseEffectAsync(activation);
             }
 
-            var detectedEffect = ActiveStatusEffects.FirstOrDefault(m => m.Category == StatusEffectType.DetectedMimic);
+            var detectedEffect = ActiveStatusEffects.FirstOrDefault(m => m.EffectType == StatusEffectType.DetectedMimic);
             if (detectedEffect != null)
             {
                 StatusEffectService.RemoveActiveStatusEffect(this, detectedEffect);
@@ -559,7 +559,7 @@ namespace LoDCompanion.Code.BackEnd.Models
         public Levelup Levelup { get; set; } = new Levelup();
         public bool ReceivedPerfectRollSkill { get; set; }
         public bool ReceivedPerfectRollStat { get; set; }
-        public Monster MonsterLastFought { get; set; } = new Monster();
+        public HateCategory MonsterLastFought { get; set; }
         public bool CanCastSpell { get; set; } = false;
         public bool CanCreateScrollEnchantItem => !HasEnchantedItem || !HasCreatedScrolls;
         public bool HasEnchantedItem { get; set; } = false;
@@ -686,7 +686,7 @@ namespace LoDCompanion.Code.BackEnd.Models
             int con = GetStat(BasicStat.Constitution);
 
             if (Talents.Any(t => t.Name == TalentName.ResistDisease)) roll -= 10;
-            if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
+            if (ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
             var resisted = TestConstitution((int)roll);
             if (resisted && Party != null && Party.PartyManager != null) Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroDiseased);
@@ -702,8 +702,8 @@ namespace LoDCompanion.Code.BackEnd.Models
             CheckPerfectRoll((int)roll, stat: BasicStat.Constitution);
 
             if (Talents.Any(t => t.Name == TalentName.ResistPoison)) roll -= 10;
-            if (ActiveStatusEffects.Any(a => a.Category == StatusEffectType.ResistPoison)) roll -= 10;
-            if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
+            if (ActiveStatusEffects.Any(a => a.EffectType == StatusEffectType.ResistPoison)) roll -= 10;
+            if (ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.ProvidenceOfMetheia)) roll -= 10;
 
             var resisted = TestConstitution((int)roll);
             if (resisted && Party != null && Party.PartyManager != null) Party.PartyManager.UpdateMorale(changeEvent: MoraleChangeEvent.HeroPoisoned);
@@ -721,7 +721,7 @@ namespace LoDCompanion.Code.BackEnd.Models
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
 
-            if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
+            if (!ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Encouragement))
             {
                 await AskForPartyPerkAsync(activation, PerkName.Encouragement);
             }
@@ -754,12 +754,12 @@ namespace LoDCompanion.Code.BackEnd.Models
                 roll = RandomHelper.RollDie(DiceType.D100);
             }
 
-            if (!ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Encouragement))
+            if (!ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Encouragement))
             {
                 await AskForPartyPerkAsync(activation, PerkName.Encouragement);
             }
 
-            if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.PowerOfFaith))
+            if(ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.PowerOfFaith))
             {
                 return await ResistFearAsync(fearCauser, activation, roll, wasTerror: true); // Treats terror as fear
             }
@@ -809,7 +809,7 @@ namespace LoDCompanion.Code.BackEnd.Models
             int modification = 0;
             foreach (var effect in ActiveStatusEffects)
             {
-                switch (effect.Category)
+                switch (effect.EffectType)
                 {
                     case StatusEffectType.ThePowerOfIphy: modification -= 10; break;
                     case StatusEffectType.PowerOfFaith: if (!wasTerror) modification -= 100; break; // resist fear completely, but if was terror initially treat as fear without the complete resist.
@@ -945,10 +945,10 @@ namespace LoDCompanion.Code.BackEnd.Models
         public void ActivateDiseasedEffect()
         {
             // Check for the base "Diseased" status effect, which acts as the trigger.
-            if (ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Diseased))
+            if (ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Diseased))
             {
                 // --- Handle Constitution Penalty ---
-                var diseasedConstitution = ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Diseased && a.StatBonus.HasValue && a.StatBonus.Value.Item1 == BasicStat.Constitution);
+                var diseasedConstitution = ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Diseased && a.StatBonus.HasValue && a.StatBonus.Value.Item1 == BasicStat.Constitution);
 
                 int currentCon = GetStat(BasicStat.Constitution);
                 int additionalConPenalty = currentCon / 2;
@@ -963,7 +963,7 @@ namespace LoDCompanion.Code.BackEnd.Models
                 ActiveStatusEffects.Add(new ActiveStatusEffect(StatusEffectType.Diseased, -1, statBonus: (BasicStat.Constitution, existingConPenalty - additionalConPenalty)));
 
                 // --- Handle Strength Penalty ---
-                var diseasedStrength = ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Diseased && a.StatBonus.HasValue && a.StatBonus.Value.Item1 == BasicStat.Strength);
+                var diseasedStrength = ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Diseased && a.StatBonus.HasValue && a.StatBonus.Value.Item1 == BasicStat.Strength);
 
                 int currentStr = GetStat(BasicStat.Strength);
                 int additionalStrPenalty = currentStr / 2;
@@ -1003,7 +1003,7 @@ namespace LoDCompanion.Code.BackEnd.Models
 
         internal void CheckPerfectRoll(int roll, Skill? skill = null, BasicStat? stat = null)
         {
-            if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.CharusWalkWithUs) && roll <= 10 && roll > 5) CurrentEnergy += 1;
+            if(ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.CharusWalkWithUs) && roll <= 10 && roll > 5) CurrentEnergy += 1;
             else if (roll <= 5)
             {
                 CurrentEnergy += 1;
@@ -1017,7 +1017,7 @@ namespace LoDCompanion.Code.BackEnd.Models
         public async Task TakeSanityDamage(int damage, (FloatingTextService, GridPosition?) floatingText, PowerActivationService activation)
         {
             bool resisted = false;
-            if(ActiveStatusEffects.Any(e => e.Category == StatusEffectType.VerseOfTheSane))
+            if(ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.VerseOfTheSane))
             {
                 var result = await new UserRequestService().RequestRollAsync("Roll for resolve test", "1d100"); await Task.Yield();
                 resisted = TestResolve(result.Roll);
@@ -1042,7 +1042,7 @@ namespace LoDCompanion.Code.BackEnd.Models
                 switch (result.Roll)
                 {
                     case 1:
-                        string statusEffectName = "Hate" + MonsterLastFought.HateCategory.ToString();
+                        string statusEffectName = "Hate" + MonsterLastFought.ToString();
                         if (Enum.TryParse<StatusEffectType>(statusEffectName, out var statusEffect))
                         {
                             conditionToApply = new ActiveStatusEffect(statusEffect, -1);

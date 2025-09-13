@@ -728,7 +728,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                 return null;
             }
 
-            var tauntEffect = monster.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Taunt);
+            var tauntEffect = monster.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.Taunt);
             if (tauntEffect != null && monster.TauntedBy != null && monster.TauntedBy.CurrentHP > 0)
             {
                 // The monster is taunted and MUST target the taunting hero if possible.
@@ -910,7 +910,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
 
                     // --- BUFF & DEBUFF SPELLS ---
                     case AiTargetHints.BuffHighestCombatSkillAlly:
-                        var allyToBuff = allies.Where(a => a.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Frenzy) != null)
+                        var allyToBuff = allies.Where(a => a.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Frenzy) != null)
                                                .OrderByDescending(a => a.GetSkill(Skill.CombatSkill)).FirstOrDefault();
                         if (allyToBuff != null)
                         {
@@ -919,7 +919,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         break;
 
                     case AiTargetHints.BuffLowestArmourAlly:
-                        var allyToShield = allies.Where(a => a.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Shield) != null)
+                        var allyToShield = allies.Where(a => a.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Shield) != null)
                                                  .OrderBy(a => a.ArmourValue).FirstOrDefault();
                         if (allyToShield != null)
                         {
@@ -1070,7 +1070,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         break;
 
                     case SpecialActiveAbility.Seduction:
-                        var seducibleTargets = heroes.Where(h => !h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Incapacitated)).ToList();
+                        var seducibleTargets = heroes.Where(h => !h.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Incapacitated)).ToList();
                         if (seducibleTargets.Any())
                         {
                             currentTarget = ChooseTarget(monster, seducibleTargets);
@@ -1082,7 +1082,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         break;
 
                     case SpecialActiveAbility.Swallow:
-                        var swallowTargets = heroes.Where(h => h.Position != null && GridService.IsAdjacent(monster.Position, h.Position) && !h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.BeingSwallowed || e.Category == StatusEffectType.Swallowed)).ToList();
+                        var swallowTargets = heroes.Where(h => h.Position != null && GridService.IsAdjacent(monster.Position, h.Position) && !h.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.BeingSwallowed || e.EffectType == StatusEffectType.Swallowed)).ToList();
                         if (swallowTargets.Any())
                         {
                             currentTarget = ChooseTarget(monster, swallowTargets);
@@ -1144,7 +1144,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
             if (monster.Position == null) return potentialTargets;
 
             // Find heroes who are hiding and might be invalid targets
-            var hidingHeroes = potentialTargets.Where(h => h.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.HideInShadows)).ToList();
+            var hidingHeroes = potentialTargets.Where(h => h.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.HideInShadows)).ToList();
 
             if (!hidingHeroes.Any())
             {

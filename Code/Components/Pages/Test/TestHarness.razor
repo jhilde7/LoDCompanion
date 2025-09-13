@@ -14,7 +14,9 @@
 
 @inject PartyManagerService PartyManager
 @inject CombatManagerService CombatManager
-@inject EncounterService EncounterService
+@inject EncounterService Encounter
+@inject GameDataService GameData
+@inject PassiveAbilityService PassiveAbility
 
 <PageTitle>Component Test Harness</PageTitle>
 
@@ -45,7 +47,7 @@
                     <option value="@encounterType">@encounterType.ToString().Replace("_", " & ")</option>
                 }
             </select>
-            <button class="btn btn-info" @onclick="SeedRandomEncounter" disabled="@(!encounterIsReady)">
+            <button class="btn btn-info" @onclick="SeedRandomEncounter">
                 Generate Random Encounter
             </button>
         </div>
@@ -56,10 +58,10 @@
 
 <div class="p-3 my-3 border rounded">
     <h3>2. Trigger Components</h3>
-    <button class="btn btn-info me-2" @onclick="ShowSimulator" disabled="@(!encounterIsReady || !partyIsReady)">
+    <button class="btn btn-info me-2" @onclick="ShowSimulator" disabled="@(!encounterIsReady && !partyIsReady)">
         Show Encounter Simulator
     </button>
-    <button class="btn btn-secondary" @onclick="() => showAftermath = true" disabled="@(!partyIsReady || !encounterIsReady)">
+    <button class="btn btn-secondary" @onclick="() => showAftermath = true" disabled="@(!partyIsReady && !encounterIsReady)">
         Show Aftermath Component
     </button>
 </div>
@@ -68,10 +70,10 @@
 @* --- Components Under Test will be rendered here --- *@
 <EncounterSimulator IsVisible="showSimulator" OnClose="() => showSimulator = false" />
 
-<Aftermath 
+<AftermathModal 
     IsVisible="showAftermath"
     OnComplete="OnAftermathComplete"
-    CompleteButtonText="Finish Test & Close" />
+           CompleteButtonText="Finish Test & Close" />
 
 
 @code {
@@ -141,11 +143,168 @@
     {
         PartyManager.Party.Heroes.Clear();
 
-        var hero1 = new Hero { Name = "Arion"};
-        var hero2 = new Hero { Name = "Elara"};
-        PartyManager.Party.Heroes.AddRange(new[] { hero1, hero2 });
+        // --- Create Hero: Foehammer ---
+        var foehammer = new Hero
+        {
+            Name = "Foehammer",
+            SpeciesName = SpeciesName.Halfling,
+            ProfessionName = ProfessionName.WarriorPriest,
+            CurrentHP = 12,
+            BasicStats = new Dictionary<BasicStat, int>
+            {
+                { BasicStat.Strength, 40 }, { BasicStat.Constitution, 30 }, { BasicStat.Dexterity, 54 },
+                { BasicStat.Wisdom, 40 }, { BasicStat.Resolve, 50 }, { BasicStat.HitPoints, 12 },
+                { BasicStat.Move, 4 }, { BasicStat.Energy, 1 }, { BasicStat.Sanity, 10 }
+            },
+            SkillStats = new Dictionary<Skill, int>
+            {
+                { Skill.CombatSkill, 59 }, { Skill.RangedSkill, 49 }, { Skill.Dodge, 49 },
+                { Skill.PickLocks, 34 }, { Skill.Barter, 30 }, { Skill.Heal, 45 },
+                { Skill.Alchemy, 25 }, { Skill.Perception, 40 }, { Skill.Foraging, 10 },
+                { Skill.BattlePrayers, 55 }
+            },
+            Talents = new List<Talent>
+            {
+                PassiveAbility.GetTalentByName(TalentName.Lucky),
+                PassiveAbility.GetTalentByName(TalentName.Confident)
+            },
+            Inventory = new Inventory
+            {
+                EquippedWeapon = EquipmentService.GetWeaponByName("Battlehammer"),
+                EquippedArmour = new List<Armour> { EquipmentService.GetArmourByName("Leather Jacket") ?? new Armour() },
+                EquippedAmulet = EquipmentService.GetRelicByName("Relic of Metheia (Amulet)")
+            }
+        };
 
-        seedStatus = "Seeded 2 generic heroes.";
+        // --- Create Hero: Wiz ---
+        var wiz = new Hero
+        {
+            Name = "Wiz",
+            SpeciesName = SpeciesName.Elf,
+            ProfessionName = ProfessionName.Wizard,
+            CurrentHP = 11,
+            BasicStats = new Dictionary<BasicStat, int>
+            {
+                { BasicStat.Strength, 34 }, { BasicStat.Constitution, 29 }, { BasicStat.Dexterity, 46 },
+                { BasicStat.Wisdom, 55 }, { BasicStat.Resolve, 38 }, { BasicStat.HitPoints, 11 },
+                { BasicStat.Move, 4 }, { BasicStat.Energy, 1 }, { BasicStat.Mana, 55 }, { BasicStat.Sanity, 10 }
+            },
+            SkillStats = new Dictionary<Skill, int>
+            {
+                { Skill.CombatSkill, 41 }, { Skill.RangedSkill, 46 }, { Skill.Dodge, 36 },
+                { Skill.PickLocks, 26 }, { Skill.Barter, 60 }, { Skill.Heal, 50 },
+                { Skill.Alchemy, 35 }, { Skill.Perception, 45 }, { Skill.ArcaneArts, 65 }, { Skill.Foraging, 9 }
+            },
+            Talents = new List<Talent>
+            {
+                new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.NightVision,
+                        Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                    },
+                new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.PerfectHearing,
+                        Description = "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened.",
+                    },
+                PassiveAbility.GetTalentByName(TalentName.Wise)
+            },
+            Inventory = new Inventory
+            {
+                EquippedWeapon = EquipmentService.GetWeaponByName("Sling"),
+                EquippedArmour = new List<Armour> { EquipmentService.GetArmourByName("Leather Jacket") ?? new Armour() },
+            }
+        };
+
+        // --- Create Hero: Shade ---
+        var shade = new Hero
+        {
+            Name = "Shade",
+            SpeciesName = SpeciesName.Elf,
+            ProfessionName = ProfessionName.Thief,
+            CurrentHP = 12,
+            BasicStats = new Dictionary<BasicStat, int>
+            {
+                { BasicStat.Strength, 40 }, { BasicStat.Constitution, 26 }, { BasicStat.Dexterity, 58 },
+                { BasicStat.Wisdom, 43 }, { BasicStat.Resolve, 39 }, { BasicStat.HitPoints, 12 },
+                { BasicStat.Move, 4 }, { BasicStat.Energy, 1 }, { BasicStat.Sanity, 10 }
+            },
+            SkillStats = new Dictionary<Skill, int>
+            {
+                { Skill.CombatSkill, 63 }, { Skill.RangedSkill, 63 }, { Skill.Dodge, 63 },
+                { Skill.PickLocks, 68 }, { Skill.Barter, 43 }, { Skill.Heal, 23 },
+                { Skill.Alchemy, 13 }, { Skill.Perception, 53 }, { Skill.Foraging, 6 }
+            },
+            Talents = new List<Talent>
+            {
+                new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.NightVision,
+                        Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                    },
+                new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.PerfectHearing,
+                        Description = "Your hero's hearing is exceptionally good, and you gain a +15 bonus when rolling for initiative after opening a door. This cannot be used if the door was broken down. This talent can only be given to a newly created character that has this Talent listed in the Species Description. Alternative activation: Add one extra hero chit to the bag during the first turn. Regardless of activation mechanics, this Talent only works if the hero is on the same tile as the door being opened.",
+                    }
+            },
+            Inventory = new Inventory
+            {
+                EquippedWeapon = EquipmentService.GetWeaponByName("Sling"),
+                EquippedArmour = new List<Armour> { EquipmentService.GetArmourByName("Leather Jacket") ?? new Armour() },
+                Backpack = new List<Equipment?>
+                {
+                    EquipmentService.GetWeaponByName("Dagger"),
+                    EquipmentService.GetEquipmentByName("Rope"),
+                    EquipmentService.GetEquipmentByNameSetQuantity("Lock Picks", 10 )
+                }
+            }
+        };
+
+        // --- Create Hero: War ---
+        var war = new Hero
+        {
+            Name = "War",
+            SpeciesName = SpeciesName.Dwarf,
+            ProfessionName = ProfessionName.Warrior,
+            CurrentHP = 14,
+            BasicStats = new Dictionary<BasicStat, int>
+            {
+                { BasicStat.Strength, 50 }, { BasicStat.Constitution, 38 }, { BasicStat.Dexterity, 45 },
+                { BasicStat.Wisdom, 31 }, { BasicStat.Resolve, 40 }, { BasicStat.HitPoints, 14 },
+                { BasicStat.Move, 4 }, { BasicStat.Energy, 1 }, { BasicStat.Sanity, 10 }
+            },
+            SkillStats = new Dictionary<Skill, int>
+            {
+                { Skill.CombatSkill, 55 }, { Skill.RangedSkill, 50 }, { Skill.Dodge, 45 },
+                { Skill.PickLocks, 25 }, { Skill.Barter, 16 }, { Skill.Heal, 21 },
+                { Skill.Alchemy, 6 }, { Skill.Perception, 31 }, { Skill.Foraging, 23 }
+            },
+            Talents = new List<Talent>
+            {
+                new Talent()
+                    {
+                        Category = TalentCategory.Physical,
+                        Name = TalentName.NightVision,
+                        Description = "Your hero's species has the natural ability to see in the dark and is not affected by darkness. A hero with Night Vision gets +10 on Perception. This talent can only be given to a newly-created character that has this talent listed in the Species Description.",
+                    },
+                PassiveAbility.GetHateTalentByCategory(HateCategory.Goblins),
+            },
+            Inventory = new Inventory
+            {
+                EquippedWeapon = EquipmentService.GetWeaponByName("Battleaxe"),
+                OffHand = EquipmentService.GetShieldByName("Heater Shield"),
+                EquippedArmour = new List<Armour> { EquipmentService.GetArmourByName("Leather Jacket") ?? new Armour() }
+            }
+        };
+
+        PartyManager.Party.Heroes.AddRange(new[] { foehammer, wiz, shade, war });
+
+        seedStatus = $"Seeded 4 heroes: {string.Join(", ", PartyManager.Party.Heroes.Select(h => h.Name))}.";
         partyIsReady = true;
     }
 
@@ -155,7 +314,7 @@
         CombatManager.Corpses.Clear();
 
         // Call the correct method from the service
-        var monsters = EncounterService.GetRandomEncounterByType(selectedEncounterType);
+        var monsters = Encounter.GetRandomEncounterByType(selectedEncounterType);
 
         if (monsters != null && monsters.Any())
         {

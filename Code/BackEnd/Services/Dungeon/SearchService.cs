@@ -19,12 +19,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
         public Dictionary<string, string>? SpawnPlacement { get; set; }
         public int SearchRoll { get; set; }
         public int TreasureRoll { get; set; }
-        public Hero HeroSearching { get; set; } = new Hero();
+        public Hero? HeroSearching { get; set; }
         public int SearchTarget { get; set; }
         public int SearchModifier { get; set; }
         public bool RoomSearchSuccessful => SearchRoll <= SearchTarget;
-        public bool PartyHasThief => HeroSearching.Party != null && HeroSearching.Party.Heroes.Any(h => h.IsThief);
-        public bool HeroIsThief => HeroSearching.ProfessionName == ProfessionName.Thief;
+        public bool PartyHasThief => HeroSearching != null && HeroSearching.Party != null && HeroSearching.Party.Heroes.Any(h => h.IsThief);
+        public bool HeroIsThief => HeroSearching != null && HeroSearching.ProfessionName == ProfessionName.Thief;
     }
 
     /// <summary>

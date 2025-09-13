@@ -13,7 +13,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         public List<Armour> EquippedArmour { get; set; } = new List<Armour>();
         public Ammo? EquippedQuiver { get; set; }
         public Equipment? OffHand { get; set; }
-        public Equipment? EquippedRelic { get; set; }
         public Equipment? EquippedStorage { get; set; }
         public List<Equipment> EquippedRings { get; set; } = new List<Equipment>();
         public Equipment? EquippedAmulet { get; set; }
@@ -26,7 +25,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
         private readonly Equipment _equipment = new Equipment();
         public bool CanBrewPotion => HasBrewPotionItems();
-        public int Encumbrance => GetAllNonWeaponsArmour().Concat(GetAllWeaponsArmour()).Sum(item => item.Encumbrance);
+        public int Encumbrance => GetAllNonWeaponsArmour().Concat(GetAllWeaponsArmour()).Where(item => item != null).Sum(item => item.Encumbrance);
 
         public Inventory() 
         {
@@ -211,8 +210,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             {
                 success = await EquipOffHandAsync(hero, itemToEquip);
             }
-            else if (hero.ProfessionName == ProfessionName.WarriorPriest
-                && itemToEquip.Name.Contains("Relic")) success = await EquipRelicAsync(hero, itemToEquip);
             else if (item.Storage != null)
             {
                 success = await EquipStorageContainerAsync(hero, itemToEquip);
@@ -364,18 +361,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             return true;
         }
 
-        private async Task<bool> EquipRelicAsync(Hero hero, Equipment relicToEquip)
-        {
-            if (hero.Inventory.EquippedRelic != null)
-            {
-                await UnequipItemAsync(hero, hero.Inventory.EquippedRelic);
-                Console.WriteLine($"Unequipped {hero.Inventory.EquippedRelic.Name} from {hero.Name}'s relic slot.");
-            }
-            hero.Inventory.EquippedRelic = relicToEquip;
-            Console.WriteLine($"Equipped {relicToEquip.Name} to {hero.Name}'s relic slot.");
-            return true;
-        }
-
         private async Task<bool> EquipAmmoAsync(Hero hero, Ammo ammoToEquip)
         {
             await EmptyQuiverAsync(hero, hero.Inventory);
@@ -522,7 +507,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
         private async Task UpdateNightstalkerSetBonus(Hero hero)
         {
-            hero.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.DarkAsTheNight);
+            hero.ActiveStatusEffects.RemoveAll(e => e.EffectType == StatusEffectType.DarkAsTheNight);
 
             var nightstalkerPieces = hero.Inventory.EquippedArmour
                 .Where(a => a.HasProperty(ArmourProperty.DarkAsTheNight))

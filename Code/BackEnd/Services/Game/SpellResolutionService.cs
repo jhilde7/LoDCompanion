@@ -122,7 +122,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
         {
             var outcome = new StringBuilder();
             var (centerPosition, singleTarget) = GetSpellTargetingInfo(target, room);
-            var innerPower = caster.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.InnerPower);
+            var innerPower = caster.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.InnerPower);
             int addDamage = 0;
             var allCharacters = room.Dungeon != null ? room.Dungeon.AllCharactersInDungeon : room.CharactersInRoom;
             var grid = room.Dungeon != null ? room.Dungeon.DungeonGrid : room.Grid;
@@ -502,7 +502,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         await Task.Yield();
                         var skillTarget = wizard.GetSkill(Skill.ArcaneArts);
 
-                        var activeDispelMaster = wizard.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DispelMaster);
+                        var activeDispelMaster = wizard.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.DispelMaster);
                         if (activeDispelMaster != null) wizard.ActiveStatusEffects.Remove(activeDispelMaster);
 
                         if (rollResult.Roll <= skillTarget)

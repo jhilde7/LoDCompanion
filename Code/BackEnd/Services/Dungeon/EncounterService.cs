@@ -962,7 +962,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters.Add(BuildMonster("Basilisk"));
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(3, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 3);
+                            encounters = BuildMonsters(3, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 3);
                             break;
                         case <= 96:
                             encounters = BuildMonsters(1, "Gigantic Snake");
@@ -1030,7 +1030,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters.Add(BuildMonster("Shambler"));
                             break;
                         case <= 30:
-                            encounters = BuildMonsters(1, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 1);
+                            encounters = BuildMonsters(1, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 1);
                             break;
                         case <= 32:
                             encounters = BuildMonsters(2, "Dark Elf", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new MeleeWeapon() }, 2, true);
@@ -1050,7 +1050,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters.Add(BuildMonster("Shambler"));
                             break;
                         case <= 40:
-                            encounters = BuildMonsters(2, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new MeleeWeapon() }, 2);
+                            encounters = BuildMonsters(2, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new MeleeWeapon() }, 2);
                             break;
                         case <= 42:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(2, 5), "Dark Elf", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new MeleeWeapon() }, 2);
@@ -1082,12 +1082,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters.Add(BuildMonster("Psyker", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Broadsword")?.Clone() ?? new MeleeWeapon() }, 0, false, BuildSpellList(2, 2, 1)));
                             break;
                         case <= 58:
-                            encounters = BuildMonsters(1, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 2, true);
+                            encounters = BuildMonsters(1, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 2, true);
                             encounters.AddRange(BuildMonsters(2, "Dark Elf Assassin", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new MeleeWeapon() }, 1, false, null, "Poisonous Weapon"));
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Spider"));
                             break;
                         case <= 60:
-                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Halberd")?.Clone() ?? new MeleeWeapon() }, 2);
+                            encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Halberd")?.Clone() ?? new MeleeWeapon() }, 2);
                             break;
                         case <= 62:
                             encounters = BuildMonsters(2, "Giant Centipede");
@@ -1114,7 +1114,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Giant Spider"));
                             break;
                         case <= 76:
-                            encounters = BuildMonsters(2, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 2, true);
+                            encounters = BuildMonsters(2, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 2, true);
                             break;
                         case <= 78:
                             encounters = BuildMonsters(2, "Shambler");
@@ -1125,7 +1125,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters.AddRange(BuildMonsters(4, "Dark Elf Sniper", new List<Weapon>() { (RangedWeapon?)EquipmentService.GetWeaponByName("Crossbow")?.Clone() ?? new RangedWeapon(), (MeleeWeapon?)EquipmentService.GetWeaponByName("Dagger")?.Clone() ?? new MeleeWeapon() }, 2));
                             break;
                         case <= 82:
-                            encounters = BuildMonsters(2, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new MeleeWeapon() }, 2);
+                            encounters = BuildMonsters(2, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greatsword")?.Clone() ?? new MeleeWeapon() }, 2);
                             break;
                         case <= 84:
                             encounters = BuildMonsters(1, "Medusa", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Broadsword")?.Clone() ?? new MeleeWeapon() }, 0, true);
@@ -1145,14 +1145,14 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                             encounters = BuildMonsters(1, "Medusa", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 2, true);
                             break;
                         case <= 94:
-                            encounters = BuildMonsters(3, "Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 3);
+                            encounters = BuildMonsters(3, "Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Greataxe")?.Clone() ?? new MeleeWeapon() }, 3);
                             break;
                         case <= 96:
                             encounters = BuildMonsters(RandomHelper.GetRandomNumber(1, 6), "Blood Demon", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Longsword")?.Clone() ?? new MeleeWeapon() }, 4, true, null, "Cursed Weapon");
                             encounters.AddRange(BuildMonsters(RandomHelper.GetRandomNumber(1, 4), "Dark Elf Assassin", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Shortsword")?.Clone() ?? new MeleeWeapon() }, 2, false, null, "Poisonous Weapon"));
                             break;
                         case <= 98:
-                            encounters.Add(BuildMonster("Dryder", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new MeleeWeapon() }, 3, true));
+                            encounters.Add(BuildMonster("Drider", new List<Weapon>() { (MeleeWeapon?)EquipmentService.GetWeaponByName("Battleaxe")?.Clone() ?? new MeleeWeapon() }, 3, true));
                             encounters.Add(BuildMonster("Gigantic Spider"));
                             break;
                         case <= 100:
@@ -1520,7 +1520,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     switch (roll)
                     {
                         case 1:
-                            return BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "FireElemental");
+                            return BuildMonsters(RandomHelper.GetRandomNumber(1, 3), "Fire Elemental");
                         case 2:
                             if (dungeonEncounterType.HasValue)
                             {
@@ -1564,7 +1564,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                         var caretakerParams = new Dictionary<string, string>
                         {
                             { "Name", "Emil the Caretaker" },
-                            { "BaseMonster", "Human" },
                             { "Weapons", "Greataxe" }
                         };
                         encounters.AddRange(GetEncounterByParams(caretakerParams));
@@ -1691,9 +1690,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     }
                 }
 
-                if (newMonster.SpecialRules.Contains("Raise dead"))
+                if (newMonster.SpecialRules.Contains("Raise Dead"))
                 {
-                    newMonster.Spells.Add(SpellService.GetMonsterSpellByName("Raise dead"));
+                    newMonster.Spells.Add(SpellService.GetMonsterSpellByName("Raise Dead"));
                 }
             }
 
@@ -1837,7 +1836,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Bat swarm",
+                    Name = "Bat Swarm",
                     Species = MonsterSpeciesName.GiantBat,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
@@ -4630,7 +4629,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
-                    Name = "Wraiths",
+                    Name = "Wraith",
                     Species = MonsterSpeciesName.Wraith,
                     BasicStats = new Dictionary<BasicStat, int>
                     {
@@ -4773,6 +4772,35 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                 },
                 new Monster()
                 {
+                    Name = "Johann",
+                    Species = MonsterSpeciesName.Zombie,
+                    BasicStats = new Dictionary<BasicStat, int>
+                    {
+                        { BasicStat.DamageBonus, 1 },
+                        { BasicStat.Move, 4 },
+                        { BasicStat.Dexterity, 10 },
+                        { BasicStat.Resolve, 25 },
+                        { BasicStat.HitPoints, 12 }
+                    },
+                    SkillStats = new Dictionary<Skill, int>
+                    {
+                        { Skill.CombatSkill, 40 }
+                    },
+                    MinDamage = 1,
+                    MaxDamage = 8,
+                    Type = EncounterType.Undead,
+                    Behavior = MonsterBehaviorType.LowerUndead,
+                    PassiveSpecials = new Dictionary<MonsterSpecialName, int>() {
+                        { MonsterSpecialName.Silent, 0},
+                        { MonsterSpecialName.WeakToSilver, 0},
+                        { MonsterSpecialName.Slow, 0},
+                        { MonsterSpecialName.CauseFear, 2 }
+                    },
+                    XP = 80,
+                    TreasureType = TreasureType.T1
+                },
+                new Monster()
+                {
                     Name = "The Brood Mother",
                     Species = MonsterSpeciesName.GiantRat,
                     BasicStats = new Dictionary<BasicStat, int>
@@ -4862,10 +4890,10 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                         })},
                     Spells = new List<MonsterSpell>()
                     {
-                        SpellService.GetMonsterSpellByName("Raise dead"),
+                        SpellService.GetMonsterSpellByName("Raise Dead"),
                         SpellService.GetMonsterSpellByName("Healing"),
-                        SpellService.GetMonsterSpellByName("Vampiric touch"),
-                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                        SpellService.GetMonsterSpellByName("Vampiric Touch"),
+                        SpellService.GetMonsterSpellByName("Mirrored Self"),
                     },
                     XP = 200,
                     TreasureType = TreasureType.T4,
@@ -5763,9 +5791,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     Spells = new List<MonsterSpell>()
                     {
                         SpellService.GetMonsterSpellByName("Flare"),
-                        SpellService.GetMonsterSpellByName("Healing hand"),
-                        SpellService.GetMonsterSpellByName("Vampiric touch"),
-                        SpellService.GetMonsterSpellByName("Summon demon"),
+                        SpellService.GetMonsterSpellByName("Healing Hand"),
+                        SpellService.GetMonsterSpellByName("Vampiric Touch"),
+                        SpellService.GetMonsterSpellByName("Summon Demon"),
                     },
                     XP = 260,
                     TreasureType = TreasureType.T4,
@@ -5796,7 +5824,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     {
                         SpellService.GetMonsterSpellByName("Shield"),
                         SpellService.GetMonsterSpellByName("Fireball"),
-                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                        SpellService.GetMonsterSpellByName("Mirrored Self"),
                     },
                     XP = 200,
                     TreasureType = TreasureType.T4,
@@ -5825,9 +5853,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     ArmourValue = 2,
                     Spells = new List<MonsterSpell>()
                     {
-                        SpellService.GetMonsterSpellByName("Healing hand"),
+                        SpellService.GetMonsterSpellByName("Healing Hand"),
                         SpellService.GetMonsterSpellByName("Fireball"),
-                        SpellService.GetMonsterSpellByName("Mirrored self"),
+                        SpellService.GetMonsterSpellByName("Mirrored Self"),
                     },
                     XP = 200,
                     TreasureType = TreasureType.T4,
@@ -5856,7 +5884,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     ArmourValue = 1,
                     Spells = new List<MonsterSpell>()
                     {
-                        SpellService.GetMonsterSpellByName("Raise dead"),
+                        SpellService.GetMonsterSpellByName("Raise Dead"),
                         SpellService.GetMonsterSpellByName("Mute"),
                         SpellService.GetMonsterSpellByName("Seduce"),
                         SpellService.GetMonsterSpellByName("Blind"),
@@ -6104,7 +6132,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Dungeon
                     Spells = new List<MonsterSpell>()
                     {
                         SpellService.GetMonsterSpellByName("Healing"),
-                        SpellService.GetMonsterSpellByName("Vampiric touch"),
+                        SpellService.GetMonsterSpellByName("Vampiric Touch"),
                         SpellService.GetMonsterSpellByName("Fireball"),
                     },
                     XP = 1500,

@@ -51,14 +51,14 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
                         case PotionProperty.CureDisease:
                             if (RandomHelper.RollDie(DiceType.D100) <= property.Value)
                             {
-                                hero.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.Diseased);
+                                hero.ActiveStatusEffects.RemoveAll(e => e.EffectType == StatusEffectType.Diseased);
                                 return $"{hero.Name} is cured of disease.";
                             }
                             return $"{hero.Name} is not cured of disease.";
                         case PotionProperty.CurePoison:
                             if (RandomHelper.RollDie(DiceType.D100) <= property.Value)
                             {
-                                hero.ActiveStatusEffects.RemoveAll(e => e.Category == StatusEffectType.Poisoned);
+                                hero.ActiveStatusEffects.RemoveAll(e => e.EffectType == StatusEffectType.Poisoned);
                                 return $"{hero.Name} is cured of poison.";
                             }
                             return $"{hero.Name} is not cured of poison.";

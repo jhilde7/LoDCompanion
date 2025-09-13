@@ -179,9 +179,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             var availabilityModifier = 0;
             var priceModifier = 1d;
 
-            var freshStocks = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.FreshStocks);
-            var shortageOfGoods = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.ShortageOfGoods);
-            var sale = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Sale);
+            var freshStocks = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.FreshStocks);
+            var shortageOfGoods = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.ShortageOfGoods);
+            var sale = Settlement.State.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.Sale);
             if (freshStocks != null) availabilityModifier += 2;
             if (shortageOfGoods != null) availabilityModifier -= 2;
 
@@ -852,8 +852,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
 
         public async Task<SettlementActionResult> VisitSickWard(Hero hero, SettlementActionResult result, UserRequestService userRequest)
         {
-            var poison = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Poisoned);
-            var disease = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Diseased);
+            var poison = hero.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Poisoned);
+            var disease = hero.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Diseased);
             if (poison == null && disease == null)
             {
                 result.Message = $"{hero.Name} is neither poisoned nor diseased.";
@@ -1137,13 +1137,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         public async Task<SettlementActionResult> TreatMentalConditions(Hero hero, SettlementActionResult result, UserRequestService userRequest)
         {
             var curableConditions = hero.ActiveStatusEffects.Where(e =>
-                e.Category == StatusEffectType.PostTraumaticStressDisorder ||
-                e.Category == StatusEffectType.FearDark ||
-                e.Category == StatusEffectType.Arachnophobia ||
-                e.Category == StatusEffectType.Jumpy ||
-                e.Category == StatusEffectType.IrrationalFear ||
-                e.Category == StatusEffectType.Claustrophobia ||
-                e.Category == StatusEffectType.Depression).ToList();
+                e.EffectType == StatusEffectType.PostTraumaticStressDisorder ||
+                e.EffectType == StatusEffectType.FearDark ||
+                e.EffectType == StatusEffectType.Arachnophobia ||
+                e.EffectType == StatusEffectType.Jumpy ||
+                e.EffectType == StatusEffectType.IrrationalFear ||
+                e.EffectType == StatusEffectType.Claustrophobia ||
+                e.EffectType == StatusEffectType.Depression).ToList();
 
             if (!curableConditions.Any())
             {
@@ -1159,7 +1159,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 return result;
             }
 
-            var choiceResult = await userRequest.RequestChoiceAsync("Choose a condition to treat:", curableConditions, condition => condition.Category.ToString(), canCancel: true);
+            var choiceResult = await userRequest.RequestChoiceAsync("Choose a condition to treat:", curableConditions, condition => condition.EffectType.ToString(), canCancel: true);
 
             if (choiceResult.WasCancelled)
             {
@@ -1176,7 +1176,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 return result;
             }
 
-            var confirmation = await userRequest.RequestYesNoChoiceAsync($"Treating {chosenCondition.Category} will cost 1000 coins and take 5 days. Continue?");
+            var confirmation = await userRequest.RequestYesNoChoiceAsync($"Treating {chosenCondition.EffectType} will cost 1000 coins and take 5 days. Continue?");
             if (!confirmation)
             {
                 result.Message = "Treatment cancelled.";
@@ -1190,7 +1190,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             if (rollResult.Roll <= 5)
             {
                 hero.ActiveStatusEffects.Remove(chosenCondition);
-                result.Message = $"Treatment was successful! {hero.Name} is no longer suffering from {chosenCondition.Category}.";
+                result.Message = $"Treatment was successful! {hero.Name} is no longer suffering from {chosenCondition.EffectType}.";
                 result.WasSuccessful = true;
             }
             else
@@ -1599,7 +1599,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 temple.CostToPray = 0;
             }
             if (hero.ProfessionName == ProfessionName.WarriorPriest) temple.RollForBoon = 5;
-            if (hero.ActiveStatusEffects.Where(e => e.Category.ToString().Contains("Blessing")).Any())
+            if (hero.ActiveStatusEffects.Where(e => e.EffectType.ToString().Contains("Blessing")).Any())
             {
                 result.Message = $"{hero.Name} has already offered prayers during this visit.";
                 result.WasSuccessful = false;
@@ -2180,7 +2180,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             {
                 var weaponArmourList = hero.Inventory.GetAllWeaponsArmour()
                     .Where(item => item is Weapon && BlessWeaponPrice <= result.AvailableCoins || !(item is Weapon) && BlessArmourPrice <= result.AvailableCoins)
-                    .Where(item => item.ActiveStatusEffects?.FirstOrDefault(e => e.Category == StatusEffectType.BlessedWeapon || e.Category == StatusEffectType.BlessedArmour) == null)
+                    .Where(item => item.ActiveStatusEffects?.FirstOrDefault(e => e.EffectType == StatusEffectType.BlessedWeapon || e.EffectType == StatusEffectType.BlessedArmour) == null)
                     .ToList();
 
                 var choiceResult = await userRequest.RequestChoiceAsync(

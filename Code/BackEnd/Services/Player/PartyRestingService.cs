@@ -164,7 +164,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 {
                     foreach (var hero in party.Heroes)
                     {
-                        var hungry = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Hungry);
+                        var hungry = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.Hungry);
                         if (hungry != null)
                         {
                             StatusEffectService.RemoveActiveStatusEffect(hero, hungry);
@@ -180,8 +180,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 foreach (var hero in party.Heroes)
                 {
                     // Handle Bleeding Out and Poison
-                    var bleedingOut = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.BleedingOut);
-                    var poison = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Poisoned);
+                    var bleedingOut = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.BleedingOut);
+                    var poison = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.Poisoned);
 
                     if (bleedingOut != null)
                     {

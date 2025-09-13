@@ -37,7 +37,8 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
                 ?? (Equipment?)GetArmourByName(name)
                 ?? (Equipment?)GetShieldByName(name)
                 ?? (Equipment?)GetAmmoByName(name)
-                ?? GetRelicByName(name); // The last item doesn't need a cast
+                ?? GetRelicByName(name)
+                ?? GetEquipmentByName(name);
         }
 
         public static Equipment? GetEquipmentByName(string name)
@@ -2015,7 +2016,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
 
         public void TakeDamage(int amount)
         {
-            var blessed = ActiveStatusEffects?.FirstOrDefault(e => e.Category == StatusEffectType.BlessedArmour);
+            var blessed = ActiveStatusEffects?.FirstOrDefault(e => e.EffectType == StatusEffectType.BlessedArmour);
             if (blessed != null && (this is Armour || this is Shield shield))
             {
                 amount -= 1;
@@ -2208,7 +2209,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
         public ActiveStatusEffect? AppliedEffectOnHit { get; set; }
         public WeaponCoating? WeaponCoating { get; set; }
 
-        public bool Blessed => ActiveStatusEffects?.Any(e => e.Category == StatusEffectType.BlessedWeapon) ?? false;
+        public bool Blessed => ActiveStatusEffects?.Any(e => e.EffectType == StatusEffectType.BlessedWeapon) ?? false;
 
         public virtual int RollDamage()
         {
@@ -2606,7 +2607,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
 
         private Dictionary<ArmourProperty, int> _properties = new Dictionary<ArmourProperty, int>();
 
-        public bool Blessed => ActiveStatusEffects?.Any(e => e.Category == StatusEffectType.BlessedArmour) ?? false;
+        public bool Blessed => ActiveStatusEffects?.Any(e => e.EffectType == StatusEffectType.BlessedArmour) ?? false;
 
         public new Dictionary<ArmourProperty, int> Properties
         {
@@ -2724,7 +2725,7 @@ namespace LoDCompanion.Code.BackEnd.Services.GameData
 
         private Dictionary<ShieldProperty, int> _properties = new Dictionary<ShieldProperty, int>();
 
-        public bool Blessed => ActiveStatusEffects?.Any(e => e.Category == StatusEffectType.BlessedArmour) ?? false;
+        public bool Blessed => ActiveStatusEffects?.Any(e => e.EffectType == StatusEffectType.BlessedArmour) ?? false;
 
         public new Dictionary<ShieldProperty, int> Properties
         {

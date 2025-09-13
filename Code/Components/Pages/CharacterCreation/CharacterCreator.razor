@@ -39,7 +39,7 @@ else
             <span class="progress" style="height: 25px;">
                 <div class="progress-bar @GetProgressClass(Step.Species)" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 22%; cursor: pointer;" @onclick="() => SetStep(Step.Species)">Species</div>
                 <div class="progress-bar @GetProgressClass(Step.Profession)" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 44%; cursor: pointer;" @onclick="() => SetStep(Step.Profession)">Profession</div>
-                <div class="progress-bar @GetProgressClass(Step.Background)" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 88%;" @onclick="() => SetStep(Step.Background)">Background</div>
+                @*<div class="progress-bar @GetProgressClass(Step.Background)" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 88%;" @onclick="() => SetStep(Step.Background)">Background</div>*@
                 <div class="progress-bar @GetProgressClass(Step.Name)" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 11%; cursor: pointer;" @onclick="() => SetStep(Step.Name)">Name</div>
                 <div class="progress-bar @GetProgressClass(Step.Review)" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;" @onclick="() => SetStep(Step.Review)">Review</div>
             </span>
@@ -84,10 +84,10 @@ else
                                 @FreeSkillSelection
                                 ;
                                 break;
-                            case Step.Background:
+                            @*case Step.Background:
                                 @BackgroundSelection
                                 ;
-                                break;
+                                break;*@
                             case Step.Name:
                                 @NameSelection
                                 ;
@@ -151,7 +151,7 @@ else
     <CharacterSheet @ref="characterSheetModal" Hero="selectedHeroForSheet" />
 }
     @code {
-    private enum Step { Species, HumanTalent, Profession, Specialization, TalentChoice, Equipment, AlchemistRecipe, FreeSkill, Background, Name, Review, Summary }
+    private enum Step { Species, HumanTalent, Profession, Specialization, TalentChoice, Equipment, AlchemistRecipe, FreeSkill, @*Background,*@ Name, Review, Summary }
     private Step currentStep = Step.Species;
     private EditContext editContext = default!;
     private bool isLoading = true; // Start in loading state
@@ -844,6 +844,7 @@ else
     }
     </section>;
 
+    @* TODO: properly setup backgrounds
     private RenderFragment BackgroundSelection =>@<section>
         <h3 class="text-center my-4">Character Background</h3>
 
@@ -873,7 +874,7 @@ else
             }
             </div>
         }
-    </section>;
+    </section>; *@
 
     private RenderFragment NameSelection =>@<section>
         <h3 class="text-center my-4">Name Your Hero</h3>

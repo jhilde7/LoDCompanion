@@ -15,7 +15,11 @@ namespace LoDCompanion.Code.BackEnd.Services.Game
     {
         private readonly ILocalStorageService _localStorage;
         private const string GameStateKey = "LOD_GAME_STATE";
-        private readonly JsonSerializerOptions _serializerOptions;
+        private readonly JsonSerializerOptions _serializerOptions = new()
+        {
+            ReferenceHandler = ReferenceHandler.Preserve,
+            WriteIndented = true
+        };
 
         public StatePersistenceService(ILocalStorageService localStorage)
         {

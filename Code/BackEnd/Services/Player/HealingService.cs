@@ -73,7 +73,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 result.AmountHealed += 3;
             }
 
-            if (healer.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.MetheiaRelic) != null)
+            if (healer.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.MetheiaRelic) != null)
             {
                 result.AmountHealed += RandomHelper.RollDie(DiceType.D3);
             }

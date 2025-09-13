@@ -127,7 +127,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             if (attacker is Hero hero)
             {
-                hero.MonsterLastFought = (Monster)target;
+                hero.MonsterLastFought = ((Monster)target).HateCategory;
                 result = await CalculateHeroHitAttemptAsync(hero, weapon, (Monster)target, context);
             }
             else
@@ -187,21 +187,21 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 _floatingText.ShowText("Miss!", target.Position, "miss-toast");
 
                 // remove effect as the damage calculation will not take place, which will handle removal of this effect
-                var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PowerfulBlow);
+                var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.PowerfulBlow);
                 if (powerfulBlow != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(powerfulBlow);
             }
             else
             {
                 // Blood lust is activated on to-hit rolls of 5 or less, unless perk is active
-                if (attacker.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.TasteForBlood) && result.AttackRoll <= 10) result.BloodLust = true;
+                if (attacker.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.TasteForBlood) && result.AttackRoll <= 10) result.BloodLust = true;
                 else if (result.AttackRoll <= 5) result.BloodLust = true;
                 else result.BloodLust = false;
             }
 
             // remove active effects as they were already added to the calculations and are spent
-            var deadlyStrike = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DeadlyStrike);
+            var deadlyStrike = attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.DeadlyStrike);
             if (deadlyStrike != null && weapon is MeleeWeapon) attacker.ActiveStatusEffects.Remove(deadlyStrike);
-            var perfectAim = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PerfectAim);
+            var perfectAim = attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.PerfectAim);
             if (perfectAim != null && weapon is RangedWeapon) attacker.ActiveStatusEffects.Remove(perfectAim);
 
             return result;
@@ -444,17 +444,17 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 modifier -= 10;
             }
 
-            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.OhlnirRelic) != null)
+            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.OhlnirRelic) != null)
             {
                 modifier += 5;
             }
 
-            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.OhlnirsBlessing) != null)
+            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.OhlnirsBlessing) != null)
             {
                 modifier += 5;
             }
 
-            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.WarriorsOfOhlnir) != null)
+            if (attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.WarriorsOfOhlnir) != null)
             {
                 modifier += 5;
             }
@@ -473,7 +473,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             // attacker against tagrget CS/RS effecting talents/perks/prayers
             if (attacker is Monster m && m.IsUndead && target is Hero h
-                && h.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.BringerOfLight) != null)
+                && h.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.BringerOfLight) != null)
             {
                 modifier -= 10;
             }
@@ -613,7 +613,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             }
             damage += attacker.GetStat(BasicStat.DamageBonus);
 
-            var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.PowerfulBlow);
+            var powerfulBlow = attacker.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.PowerfulBlow);
             if (powerfulBlow != null)
             {
                 string dice = powerfulBlow.DiceToRoll != null ? powerfulBlow.DiceToRoll : "1d6";
@@ -661,7 +661,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
             // Apply Armour Piercing from the context
             context.ArmourValue = Math.Max(0, targetArmor - context.ArmourPiercingValue);
 
-            if(attacker.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.StrikeToInjure))
+            if(attacker.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.StrikeToInjure))
             {
                 context.ArmourValue = 0;
             }
@@ -1048,7 +1048,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
 
             var result = await CalculateHeroHitAttemptAsync(hero, weapon, target, context);
 
-            var stunningStrikeEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.StunningStrike);
+            var stunningStrikeEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.StunningStrike);
             if (stunningStrikeEffect != null) hero.ActiveStatusEffects.Remove(stunningStrikeEffect);
 
             if (!result.IsHit)

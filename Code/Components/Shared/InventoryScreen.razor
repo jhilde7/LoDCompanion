@@ -1,5 +1,5 @@
-﻿
-@using LoDCompanion.Code.BackEnd.Models
+﻿@using LoDCompanion.Code.BackEnd.Models
+@using LoDCompanion.Code.BackEnd.Services.Game
 @using LoDCompanion.Code.BackEnd.Services.GameData
 @using LoDCompanion.Code.BackEnd.Services.Player
 @rendermode InteractiveServer
@@ -234,10 +234,8 @@
                     }
                 }
 
-                @if (hero.ProfessionName == ProfessionName.WarriorPriest)
-                {
-                    @RenderEquippedSlot(hero.Inventory.EquippedRelic, "Religious Relic")
-                }
+                @RenderEquippedSlot(hero.Inventory.EquippedAmulet, "Amulet")
+                @RenderRingSlots(hero)
 
                 @RenderArmourSlots(hero)
             </div>
@@ -360,6 +358,25 @@
             builder.AddAttribute(18, "class", "inventory-slot empty-slot");
             builder.AddContent(19, slotName);
             builder.CloseElement();
+        }
+    };
+
+    RenderFragment RenderRingSlots(Hero hero) => builder =>
+    {
+        // Determine the number of ring slots. Assumes talent name is "Ringbearer".
+        int ringSlotCount = 1;
+        if (hero.Talents.Any(t => t.Name == TalentName.RingBearer))
+        {
+            ringSlotCount = 2;
+        }
+
+        for (int i = 0; i < ringSlotCount; i++)
+        {
+            var ring = i < hero.Inventory.EquippedRings.Count ? hero.Inventory.EquippedRings[i] : null;
+            var slotName = ringSlotCount > 1 ? $"Ring {i + 1}" : "Ring";
+
+            // This reuses your existing RenderEquippedSlot logic for each ring
+            builder.AddContent(1, RenderEquippedSlot(ring, slotName));
         }
     };
 

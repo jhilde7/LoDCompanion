@@ -83,6 +83,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Utilities
         public Task<DiceRollResult> RequestRollAsync(string prompt, string diceNotation = "1d100", bool canCancel = false, 
             (Hero, Skill)? skill = null, (Hero, BasicStat)? stat = null)
         {
+            // --- START DEBUG LOGGING ---
+            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] DEBUG: RequestRollAsync called. Prompt: '{prompt}'");
+            // --- END DEBUG LOGGING ---
             CurrentDiceRequest = new DiceRollRequest
             {
                 Prompt = prompt,
@@ -92,7 +95,15 @@ namespace LoDCompanion.Code.BackEnd.Services.Utilities
                 StatBeingUsed = stat
             };
 
+            // --- START DEBUG LOGGING ---
+            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] DEBUG: CurrentDiceRequest is now set. Firing OnRollRequested event.");
+            // --- END DEBUG LOGGING ---
+
             OnRollRequested?.Invoke();
+
+            // --- START DEBUG LOGGING ---
+            Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] DEBUG: OnRollRequested event has been fired.");
+            // --- END DEBUG LOGGING ---
             return CurrentDiceRequest.CompletionSource.Task;
         }
 

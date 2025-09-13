@@ -45,7 +45,7 @@
                           ContinueButtonText="@(v => v ? "Assess the Aftermath" : "Return to Main Menu")"
                           OnContinue="HandleCombatCompletion" />
 
-        <Aftermath IsVisible="isAftermathVisible"
+        <AftermathModal IsVisible="isAftermathVisible"
                    OnComplete="HandleAftermathComplete"
                    CompleteButtonText="Continue to Settlement" />
 

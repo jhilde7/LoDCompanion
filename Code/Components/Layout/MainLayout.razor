@@ -45,12 +45,17 @@
 @code {
     protected override void OnInitialized()
     {
-        UserRequest.OnRequestChanged += StateHasChanged;
+        UserRequest.OnRequestChanged += OnUiStateChanged;
     }
 
     public void Dispose()
     {
-        UserRequest.OnRequestChanged -= StateHasChanged;
+        UserRequest.OnRequestChanged -= OnUiStateChanged;
+    }
+
+    private async void OnUiStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

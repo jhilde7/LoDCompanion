@@ -41,7 +41,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 }
             }
 
-            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot dodge!" };
             }
@@ -97,7 +97,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
                 return new DefenseResult { OutcomeMessage = "Cannot parry more then once per turn." };
             }
 
-            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
             }
@@ -135,7 +135,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Combat
         {
             var result = new DefenseResult();
 
-            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+            if (hero.IsVulnerableAfterPowerAttack || hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Frenzy))
             {
                 return new DefenseResult { OutcomeMessage = $"{hero.Name} is vulnerable and cannot parry!" };
             }

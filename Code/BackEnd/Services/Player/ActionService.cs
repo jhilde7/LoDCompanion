@@ -143,7 +143,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             }
 
             // This restricts the hero to only attacking or moving while in a frenzy.
-            if (character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy) &&
+            if (character.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Frenzy) &&
                 actionType != ActionType.StandardAttack && actionType != ActionType.Move && actionType != ActionType.EndTurn)
             {
                 result.Message = $"{character.Name} is in a frenzy and can only attack or move.";
@@ -157,7 +157,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 character.HasMadeFirstMoveAction = true;
 
                 // Sprint is only in effect for the first move action
-                var sprint = character.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.Sprint);
+                var sprint = character.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.Sprint);
                 if (sprint != null)
                 {
                     character.ActiveStatusEffects.Remove(sprint);
@@ -188,13 +188,13 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     break;
                 case (Character, ActionType.PowerAttack):
                     if ((character.CurrentAP >= GetActionCost(actionType) 
-                        || character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury) && character.CurrentAP > 0
+                        || character.ActiveStatusEffects.Any(a => a.EffectType == StatusEffectType.BattleFury) && character.CurrentAP > 0
                         ) && primaryTarget is Character)
                     {
                         result.AttackResult = await _attack.PerformPowerAttackAsync(character, weapon, (Character)primaryTarget, room);
                         character.IsVulnerableAfterPowerAttack = true; // Set the vulnerability flag
 
-                        if (character.ActiveStatusEffects.Any(a => a.Category == StatusEffectType.BattleFury))
+                        if (character.ActiveStatusEffects.Any(a => a.EffectType == StatusEffectType.BattleFury))
                         {
                             result.ApCost = 1; // Battle Fury reduces the AP cost of Power Attacks to 1
                         }
@@ -473,9 +473,9 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     }
                     break;
                 case (Hero hero, ActionType.BreakFreeFromEntangle):
-                    if (hero.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Entangled))
+                    if (hero.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Entangled))
                     {
-                        var entangledEffect = hero.ActiveStatusEffects.First(e => e.Category == StatusEffectType.Entangled);
+                        var entangledEffect = hero.ActiveStatusEffects.First(e => e.EffectType == StatusEffectType.Entangled);
                         int strengthTestModifier = -10 * (-entangledEffect.Duration - 1); // -0 on turn 1, -10 on turn 2, etc.
 
                         // Perform a strength test
@@ -499,7 +499,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     break;
                 case (Hero hero, ActionType.Pray):
                     if (secondaryTarget is Prayer prayerToCast
-                        && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.ToString())))
+                        && hero.ActiveStatusEffects.Any(a => a.EffectType == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), prayerToCast.Name.ToString())))
                     {
                         result.Message = await _powerActivation.ActivatePrayerAsync(hero, prayerToCast, (Character?)primaryTarget);
                     }
@@ -511,7 +511,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     break;
                 case (Hero hero, ActionType.UsePerk):
                     if (secondaryTarget is Perk perkToUse
-                        && hero.ActiveStatusEffects.Any(a => a.Category == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), perkToUse.Name.ToString())))
+                        && hero.ActiveStatusEffects.Any(a => a.EffectType == (StatusEffectType)Enum.Parse(typeof(StatusEffectType), perkToUse.Name.ToString())))
                     {
                         if (perkToUse.Name == PerkName.Frenzy)
                         {
@@ -785,7 +785,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 if(actionType != ActionType.PowerAttack) character.IsVulnerableAfterPowerAttack = false;
                 if (character is Hero hero && hero.ProfessionName == ProfessionName.Wizard && hero.CurrentAP <= 0) hero.CanCastSpell = true;
 
-                if (result.SearchResult != null && result.SearchResult.FoundItems != null)
+                if (result.SearchResult != null && result.SearchResult.FoundItems != null && result.SearchResult.HeroSearching != null)
                 {
                     foreach (var foundItem in result.SearchResult.FoundItems)
                     {
@@ -938,12 +938,12 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                     door.State = DoorState.BashedDown;
 
                     // if the door that was bashed donw was in relation to the poison gas trap.
-                    var poisonGas = hero.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
+                    var poisonGas = hero.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.PoisonGas);
                     if (poisonGas != null)
                     {
                         foreach (var characterInRoom in hero.Room.CharactersInRoom)
                         {
-                            var poisonGasEffect = characterInRoom.ActiveStatusEffects.FirstOrDefault(a => a.Category == StatusEffectType.PoisonGas);
+                            var poisonGasEffect = characterInRoom.ActiveStatusEffects.FirstOrDefault(a => a.EffectType == StatusEffectType.PoisonGas);
                             if (poisonGasEffect != null)
                             {
                                 StatusEffectService.RemoveActiveStatusEffect(characterInRoom, poisonGasEffect);
@@ -1120,7 +1120,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             var grid = room.Dungeon != null ? room.Dungeon.DungeonGrid : room.Grid;
             var allCharacters = room.Dungeon != null ? room.Dungeon.AllCharactersInDungeon : room.CharactersInRoom;
 
-            var dragonBreathEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.DragonBreath);
+            var dragonBreathEffect = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.DragonBreath);
             if (dragonBreathEffect == null)
             {
                 result.Message = $"{hero.Name} has not consumed a Potion of Dragon's Breath.";
@@ -1277,7 +1277,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 result.Message = attackResult.OutcomeMessage;
             }
 
-            if (attackResult.IsHit && character.ActiveStatusEffects.Any(e => e.Category == StatusEffectType.Frenzy))
+            if (attackResult.IsHit && character.ActiveStatusEffects.Any(e => e.EffectType == StatusEffectType.Frenzy))
             {
                 result.ApCost = 0;
                 result.Message += $"\n {character.Name} is in a frenzy and can act again";
@@ -1580,7 +1580,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             var rsRoll = await _diceRoll.RequestRollAsync($"Roll ranged skill check", "1d100", skill: (hero, Skill.RangedSkill));
             await Task.Yield();
 
-            var pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Pitcher);
+            var pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.Pitcher);
             if (pitcherActive == null)
             {
                 await _powerActivation.RequestPerkActivationAsync(hero, PerkName.Pitcher);
@@ -1623,7 +1623,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
                 result.Message = $"{hero.Name} misses! The potion lands at {position}.";
             }
 
-            pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.Category == StatusEffectType.Pitcher);
+            pitcherActive = hero.ActiveStatusEffects.FirstOrDefault(e => e.EffectType == StatusEffectType.Pitcher);
             if (pitcherActive != null)
             {
                 hero.ActiveStatusEffects.Remove(pitcherActive);

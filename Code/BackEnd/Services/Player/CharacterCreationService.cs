@@ -8,8 +8,8 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
     public class CharacterCreationState
     {
         public string Name { get; set; } = string.Empty;
-        public Species? SelectedSpecies { get; set; }
-        public Profession? SelectedProfession { get; set; }
+        public Species SelectedSpecies { get; set; } = new Species();
+        public Profession? SelectedProfession { get; set; } = new Profession();
         public Background? SelectedBackground { get; set; }
         public int[] BaseStatRolls { get; set; } = new int[6];
         public int AddedStrength { get; set; } = 0;
@@ -193,27 +193,20 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             GetSkillStats(); // Update skills based on new profession
 
             GetTalentChoices();
-            if(profession.StartingTalentList != null)
+            if (profession.StartingTalentList != null)
             {
                 State.TalentList.AddRange(profession.StartingTalentList);
             }
+            if (profession.StartingPerkList != null)
+            {
+                State.PerkList = profession.StartingPerkList;
+            }
 
-            State.PerkList = SetStartingPerks(profession.Name);
             State.FreeSkills = profession.FreeSkills;
             GetEquipmentChoices();
 
             State.SpellList = new List<Spell>();
             State.PrayerList = new List<Prayer>();
-        }
-
-        private List<Perk> SetStartingPerks(ProfessionName name)
-        {
-            List<Perk> startingPerkList = new List<Perk> { };
-            if (name == ProfessionName.Barbarian)
-            {
-                startingPerkList.Add(_gameData.GetPerkByName(PerkName.Frenzy));
-            }
-            return startingPerkList;
         }
 
         public void RollBaseStats(int[]? _baseStatRoll = null)
@@ -539,10 +532,6 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
             State.Hero.SetSkill(Skill.ArcaneArts, State.ArcaneArts);
             State.Hero.SetSkill(Skill.BattlePrayers, State.BattlePrayers);
 
-            // Populate Hero's Talents and Perks lists with actual Talent/Perk objects if they exist
-            State.Hero.Talents = State.TalentList;
-            State.Hero.Perks = State.PerkList;
-
             // Add starting spells and prayers
             if (State.Hero.ProfessionName == ProfessionName.Wizard)
             {
@@ -717,6 +706,7 @@ namespace LoDCompanion.Code.BackEnd.Services.Player
         public string Description { get; set; } = string.Empty;
         public string? PersonalQuest { get; set; }
         public Talent? Trait { get; set; }
+        
 
         public Background()
         {
