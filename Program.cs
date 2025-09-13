@@ -38,6 +38,8 @@ builder.Services.AddScoped<IStatePersistenceService, StatePersistenceService>();
 
 // --- Player Action & UI Services (Scoped) ---
 // These often interact with or modify the user's game state.
+builder.Services.AddScoped<SettlementEventService>();
+builder.Services.AddScoped<SettlementService>();
 builder.Services.AddSingleton<ActionService>();
 builder.Services.AddSingleton<CharacterCreationService>();
 builder.Services.AddSingleton<HealingService>();
@@ -46,8 +48,6 @@ builder.Services.AddSingleton<LevelupService>();
 builder.Services.AddSingleton<PartyRestingService>();
 builder.Services.AddSingleton<PowerActivationService>();
 builder.Services.AddSingleton<SettlementActionService>();
-builder.Services.AddSingleton<SettlementEventService>();
-builder.Services.AddSingleton<SettlementService>();
 builder.Services.AddSingleton<SpellCastingService>();
 builder.Services.AddSingleton<UIService>();
 
